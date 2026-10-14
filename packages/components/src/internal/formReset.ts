@@ -1,5 +1,5 @@
 import { createEventListener } from '@solid-primitives/event-listener'
-import { onCleanup, untrack } from 'solid-js'
+import { createRoot, onCleanup, untrack } from 'solid-js'
 import type { Accessor } from 'solid-js'
 
 // Native reset applies default checked values after dispatching its event.
@@ -15,15 +15,21 @@ export function createNativeFormResetListener(
       return (node as HTMLInputElement).form ?? undefined
     return node.closest<HTMLFormElement>('form') ?? undefined
   }
-  createEventListener(form, 'reset', (event) => {
-    const timer = setTimeout(() => {
-      pending.delete(timer)
-      untrack(() => {
-        if (!event.defaultPrevented && element()?.isConnected) handler()
-      })
-    }, 0)
-    pending.add(timer)
+  // The event primitive skips its effect on the server. Keep that DOM-only
+  // work in its own scope so sibling hydration keys stay consistent.
+  const release = createRoot((dispose) => {
+    createEventListener(form, 'reset', (event) => {
+      const timer = setTimeout(() => {
+        pending.delete(timer)
+        untrack(() => {
+          if (!event.defaultPrevented && element()?.isConnected) handler()
+        })
+      }, 0)
+      pending.add(timer)
+    })
+    return dispose
   })
+  onCleanup(release)
   onCleanup(() => {
     for (const timer of pending) clearTimeout(timer)
     pending.clear()

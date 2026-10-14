@@ -84,15 +84,13 @@ export function qualificationStages(output, { wamn = false } = {}) {
         ),
       )
     }
-    if (mode !== 'development') {
-      stages.push(
-        stage(
-          `hydration-${mode}`,
-          ['exec', 'node', 'examples/hydration/run.mjs'],
-          { ...env, BENCH_OUTPUT: resolve(output, `hydration-${mode}.json`) },
-        ),
-      )
-    }
+    stages.push(
+      stage(
+        `hydration-${mode}`,
+        ['exec', 'node', 'examples/hydration/run.mjs'],
+        { ...env, BENCH_OUTPUT: resolve(output, `hydration-${mode}.json`) },
+      ),
+    )
   }
   stages.push(
     stage(

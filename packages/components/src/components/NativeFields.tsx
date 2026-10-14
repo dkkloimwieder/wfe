@@ -13,6 +13,7 @@ import {
   untrack,
   useContext,
 } from 'solid-js'
+import { isServer } from '@solidjs/web'
 import type { JSX } from '@solidjs/web'
 
 type FieldState = {
@@ -43,20 +44,27 @@ export function Field(props: FieldProps) {
   const [descriptions, setDescriptions] = createSignal<
     Array<{ id: () => string; error: boolean }>
   >([], { ownedWrite: true })
+  let serverControl: (() => string) | undefined
+  const serverDescriptions: Array<{ id: () => string; error: boolean }> = []
   const baseId = () => props.controlId ?? `${props.id || generated}-control`
   const state: FieldState = {
-    controlId: () => control()?.() ?? baseId(),
+    controlId: () => (isServer ? serverControl : control())?.() ?? baseId(),
     baseControlId: baseId,
     disabled: () => props.disabled,
     readonly: () => props.readonly,
     required: () => props.required,
     invalid: () => props.invalid,
     describedBy: () =>
-      descriptions()
+      (isServer ? serverDescriptions : descriptions())
         .filter((entry) => !entry.error || props.invalid)
         .map((entry) => entry.id())
         .join(' ') || undefined,
     registerControl(id) {
+      // Server field metadata is collected once without reactive writes.
+      if (isServer) {
+        serverControl = id
+        return
+      }
       setControl(() => id)
       onCleanup(() => {
         if (untrack(control) === id) setControl(undefined)
@@ -64,6 +72,10 @@ export function Field(props: FieldProps) {
     },
     registerDescription(id, error) {
       const entry = { id, error }
+      if (isServer) {
+        serverDescriptions.push(entry)
+        return
+      }
       setDescriptions((old) => [...old, entry])
       onCleanup(() =>
         setDescriptions((old) => old.filter((item) => item !== entry)),

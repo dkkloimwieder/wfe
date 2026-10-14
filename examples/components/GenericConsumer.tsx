@@ -410,6 +410,7 @@ declare global {
         checked?: boolean
         enabled?: boolean
       }) => void
+      start?: () => void
       stop?: () => void
     }
   }

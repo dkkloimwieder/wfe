@@ -13,6 +13,13 @@ export default defineConfig({
       : ['wfe-source', 'solid', 'module', 'browser', 'development|production'],
     dedupe: ['solid-js', '@solidjs/web', '@solidjs/signals'],
   },
+  ssr: {
+    resolve: {
+      conditions: built
+        ? ['solid', 'module', 'node', 'development|production']
+        : ['wfe-source', 'solid', 'module', 'node', 'development|production'],
+    },
+  },
   build: {
     outDir: server
       ? built

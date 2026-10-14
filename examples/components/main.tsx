@@ -15,18 +15,25 @@ import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
 if (new URLSearchParams(location.search).has('consumer')) {
-  const dispose = render(
-    () => <GenericConsumer />,
-    document.getElementById('root')!,
-  )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
-    dispose()
-  })
-  window.consumerFixture.stop = () => {
-    cleanup()
-    flush()
+  const start = () => {
+    const dispose = render(
+      () => <GenericConsumer />,
+      document.getElementById('root')!,
+    )
+    let active = true
+    // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
+    const cleanup = action(function* () {
+      dispose()
+    })
+    window.consumerFixture.start = start
+    window.consumerFixture.stop = () => {
+      if (!active) return
+      active = false
+      cleanup()
+      flush()
+    }
   }
+  start()
 } else if (new URLSearchParams(location.search).has('display')) {
   const dispose = render(
     () => <DisplayControls />,

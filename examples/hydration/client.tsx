@@ -17,6 +17,10 @@ Object.assign(window, {
       // hydrate releases scopes and listeners, leaving server DOM to its host.
       document.getElementById('app')!.replaceChildren()
     },
+    configure: (value: Parameters<typeof lifecycle.configure>[0]) => {
+      lifecycle.configure(value)
+      flush()
+    },
     lifecycle,
     diagnostics: () => capture?.stop() ?? [],
   },

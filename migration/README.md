@@ -55,3 +55,17 @@ The repair is a separate commit from this tool migration.
 The moved performance tools pass small source and built-package smoke runs.
 Historical adapter heap wrappers remain excluded because their fixtures are not part of wfe.
 The retained heap findings describe the original repository and its recorded measurements.
+
+## Consumer contracts
+
+The [consumer record](consumer-qualification.json) identifies the tested adoption contracts and owned source repairs.
+The [adoption guide](../docs/adoption.md) includes a compiled application entry using public exports.
+The generic fixture combines fields, a checkbox, native Table, and a dialog during server rendering and hydration.
+Source, built-package, and development runs preserve server nodes and reject warnings.
+Repeated consumer mounts test cancelled requests, detached listeners, portal removal, and restored document interaction.
+
+DOM-only reset listeners now use a child owner because the external event primitive skips its effect on the server.
+This keeps sibling hydration keys aligned without changing or vendoring the primitive.
+Server field metadata uses registration values without reactive writes.
+The fixture also keeps visible-cell reads inside JSX tracking.
+Runtime and compiler pins remain unchanged.

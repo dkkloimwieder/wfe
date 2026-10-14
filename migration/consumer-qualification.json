@@ -1,0 +1,66 @@
+{
+  "baselineCommit": "e92fed0",
+  "issue": "wfe-w2y.1.6",
+  "contracts": [
+    "Public component and native Table composition",
+    "Server and client use matching public export conditions",
+    "Server DOM identity survives hydration",
+    "Parent updates and keyboard events attach one handler per action",
+    "Dialog focus and open-overlay cleanup",
+    "Six remounts reject late responses and detached input events",
+    "Compiled adoption example and documented ownership boundaries"
+  ],
+  "repairs": [
+    "The DOM-only reset listener uses its own owned scope to keep server and client hydration IDs aligned.",
+    "Server field registration collects metadata without deprecated signal writes.",
+    "The fixture reads visible cells within JSX tracking."
+  ],
+  "verification": {
+    "stages": 46,
+    "unitTests": 128,
+    "componentCasesPerMode": 102,
+    "liveComponentCases": 102,
+    "hydrationModes": ["source", "distribution", "development"],
+    "hydrationAssertionGroupsPerMode": 5,
+    "typedDocumentationExamples": 3,
+    "reports": "test-results/consumer-final"
+  },
+  "files": [
+    {
+      "path": "packages/components/src/internal/formReset.ts",
+      "sha256": "b27e79518d4723fcd8ce1e4dd535290caa30e9ad7fc07a5fd20c792ecea4c4da"
+    },
+    {
+      "path": "packages/components/src/components/NativeFields.tsx",
+      "sha256": "4e6a120a3bb0fc8e2b7ca694b7a13cd56b744d86255f7466975dc4280e82b895"
+    },
+    {
+      "path": "examples/hydration/App.tsx",
+      "sha256": "1a97704db04c500621d12b64719e6a41d2e422ab5a16382fc8d63cf19da4f4a1"
+    },
+    {
+      "path": "examples/hydration/client.tsx",
+      "sha256": "0e40417b63d3889a3bc3e0484a3136774636539d6853496500f67ec1f1838f80"
+    },
+    {
+      "path": "examples/hydration/run.mjs",
+      "sha256": "f9aacae71084cc908509dff8a6c9194b8c103316b42a16bafe08230a7a05d079"
+    },
+    {
+      "path": "examples/hydration/vite.config.ts",
+      "sha256": "07020acbdb11a2c0325763f2445e5c1ba5f963e5ee397fe2dfc945ee2fdc24aa"
+    },
+    {
+      "path": "examples/components/consumer-cases.mjs",
+      "sha256": "4dfc19d54671244803e74e526d51f3416f5b6425480d3a8c59f25f66e5ffc4aa"
+    },
+    {
+      "path": "examples/components/main.tsx",
+      "sha256": "faf2a527120f775d77af190074f90d5dd0da27a6f8170fad0a2a89b687970eba"
+    },
+    {
+      "path": "docs/adoption.md",
+      "sha256": "c2154288159a5981b32bed468326c1bc3c96959736ca9fc6dacb7f68a2d6374b"
+    }
+  ]
+}

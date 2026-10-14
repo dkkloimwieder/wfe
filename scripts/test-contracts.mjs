@@ -5,7 +5,10 @@ import ts from 'typescript'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const directory = resolve(packageRoot, 'docs/contracts')
-const document = readFileSync(resolve(directory, 'UI-BOUNDARIES.md'), 'utf8')
+const document =
+  readFileSync(resolve(directory, 'UI-BOUNDARIES.md'), 'utf8') +
+  '\n' +
+  readFileSync(resolve(packageRoot, 'docs/adoption.md'), 'utf8')
 const configPath = resolve(packageRoot, 'packages/components/tsconfig.json')
 const config = ts.readConfigFile(configPath, ts.sys.readFile)
 if (config.error)
@@ -17,6 +20,7 @@ const parsed = ts.parseJsonConfigFileContent(
   ts.sys,
   dirname(configPath),
 )
+parsed.options.types = ['vite/client']
 const files = new Map(
   [...document.matchAll(/^```(ts|tsx)\n([^]*?)^```/gm)].map((match, index) => [
     resolve(directory, `ui-contract-example-${index}.${match[1]}`),

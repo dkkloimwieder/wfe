@@ -418,6 +418,68 @@ export async function consumerCases({ page, url, record, press, settle }) {
   )
 
   await record(
+    'consumer: repeated mounts release requests, portals and detached event listeners',
+    async () => {
+      await open()
+      for (let cycle = 0; cycle < 6; cycle++) {
+        await page
+          .getByRole('textbox', { name: 'Display name', exact: true })
+          .fill(`Cycle ${cycle}`)
+        await input().fill(`pending ${cycle}`)
+        const search = await last('choices')
+        await press('Escape')
+        await review()
+        await button('Save record').click()
+        const save = await last('save')
+        const disposed = await page.evaluate(() => {
+          const fixture = window.consumerFixture
+          const review = document.querySelector('button.ui-button')
+          const detachedInput = document.querySelector(
+            'input[name="displayName"]',
+          )
+          fixture.stop()
+          fixture.stop()
+          const before = fixture.read()
+          review?.click()
+          detachedInput.value = 'Detached value'
+          detachedInput.dispatchEvent(new Event('input', { bubbles: true }))
+          return {
+            before,
+            after: fixture.read(),
+            requests: fixture.transport.read(),
+            portals: document.querySelectorAll(
+              '.ui-dialog-portal, .ui-combobox-portal',
+            ).length,
+          }
+        })
+        assert.deepEqual(disposed.after, disposed.before)
+        assert.equal(disposed.before.cleanups, 1)
+        assert.deepEqual(disposed.requests.pending, [])
+        assert.ok(disposed.requests.history.every((entry) => entry.aborted))
+        assert.equal(disposed.portals, 0)
+        assert.equal(await page.locator('main').count(), 0)
+        await finish(search.id, {
+          options: [{ id: 'late', label: 'Late' }],
+          next: null,
+        })
+        await finish(save.id, saved)
+        assert.deepEqual(await read(), disposed.before)
+        await page.evaluate(() => window.consumerFixture.start())
+        await page
+          .getByRole('textbox', { name: 'Display name', exact: true })
+          .waitFor()
+        assert.equal((await read()).name, 'Desk')
+        assert.equal((await read()).rows.length, 1)
+        assert.equal((await read()).cleanups, 0)
+        assert.equal(
+          await page.evaluate(() => document.body.style.pointerEvents),
+          '',
+        )
+      }
+    },
+  )
+
+  await record(
     'consumer: interactive fake server supports browser review without test commands',
     async () => {
       await page.goto(`${url}?consumer=1`)

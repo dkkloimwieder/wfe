@@ -1,0 +1,173 @@
+# Adopt the components
+
+Use `@wfe/components` from the application workspace.
+The package currently remains private.
+Add the workspace dependency to the application package:
+
+```json
+{ "dependencies": { "@wfe/components": "workspace:*" } }
+```
+
+Use Solid with `@solidjs/web` and the Solid Vite plugin.
+Keep the runtime and compiler versions aligned with this repository.
+Include Vite client types in the application TypeScript configuration to type CSS imports.
+Import `@wfe/components/styles.css` once in the application entry.
+Apply `uiScope()` to the wrapper that owns the controls.
+Use `uiScope('comfortable', 'dark')` for larger controls with the dark theme.
+Provide the same density to fixed row geometry through `uiDensity(density).rowHeight`.
+Component styles stay inside the UI scope.
+Application CSS owns page height, layout, and available table space.
+
+## Controlled values and records
+
+A controlled value comes from application state.
+A change callback requests a new value from that application.
+The application can accept the request or retain the previous value.
+Provide a value and callback for each controlled control.
+Keep controlled and default-value modes stable for the life of the component.
+
+This example uses public imports and application-owned records.
+It supports field updates, checkbox keyboard interaction, and Table sorting.
+The application HTML must contain `<div id="root"></div>`.
+Place this code in the application entry that uses the Solid compiler:
+
+```tsx
+import '@wfe/components/styles.css'
+import { createSignal } from 'solid-js'
+import { render } from '@solidjs/web'
+import {
+  Checkbox,
+  Field,
+  HelpText,
+  Input,
+  Label,
+  uiScope,
+} from '@wfe/components'
+import { createTable, ReadOnlyTable } from '@wfe/components/table'
+
+export function Records() {
+  const [records, setRecords] = createSignal([
+    { id: 'a', name: 'Ada' },
+    { id: 'b', name: 'Grace' },
+  ])
+  const [included, setIncluded] = createSignal(true)
+  const name = () => records().find((record) => record.id === 'a')!.name
+  const rename = (value: string) =>
+    setRecords((old) =>
+      old.map((record) =>
+        record.id === 'a' ? { ...record, name: value } : record,
+      ),
+    )
+  const table = createTable({
+    source: {
+      ids: () => records().map((record) => record.id),
+      get: (id) => records().find((record) => record.id === id),
+    },
+    columns: [
+      {
+        id: 'name',
+        accessorKey: 'name',
+        header: 'Name',
+        sortFn: (a, b) => String(a).localeCompare(String(b)),
+        filterFn: (value, filter) =>
+          String(value).toLowerCase().includes(String(filter).toLowerCase()),
+      },
+    ],
+  })
+  return (
+    <main {...uiScope()}>
+      <Field controlId="record-name">
+        <Label>Record name</Label>
+        <Input id="record-name" value={name()} onValueChange={rename} />
+        <HelpText>The application accepts or rejects this edit.</HelpText>
+      </Field>
+      <Checkbox checked={included()} onChange={setIncluded}>
+        <Checkbox.Input />
+        <Checkbox.Control>
+          <Checkbox.Indicator />
+        </Checkbox.Control>
+        <Checkbox.Label>Include record</Checkbox.Label>
+      </Checkbox>
+      <ReadOnlyTable table={table} title="Records" />
+    </main>
+  )
+}
+
+render(() => <Records />, document.getElementById('root')!)
+```
+
+The small example uses array lookups.
+For large datasets, provide an application index that reads records by stable ID.
+The table reads caller-owned records and keeps display configuration.
+It does not create an editing model or persistence service.
+
+## Public exports
+
+The root exports styled controls, display components, Table, and density helpers.
+Control subpaths include `select`, `combobox`, `fields`, `checkbox`, `switch`, and `radio-group`.
+Overlay subpaths include `dialog`, `alert-dialog`, `sheet`, `popover`, `dropdown-menu`, and `tooltip`.
+The `display` and `toast` subpaths expose status and notification components.
+The `table` subpath exports Table presentation, column controls, and the native engine.
+The `virtual` subpath exports the shared virtual binding and renderer.
+The `events` subpath exports owned native event binding.
+The `density` subpath exports density values and scope helpers.
+
+Use package imports rather than internal source paths.
+The `solid` condition supplies preserved JSX for the application's Solid compiler.
+The `node` condition supplies server functions for direct Node consumers.
+The local `wfe-source` condition selects source for development and hot updates.
+It does not require an application alias.
+For hydration, compile the same source or preserved JSX on both the server and client.
+Configure Vite's client and SSR resolution conditions together.
+Use the [qualified fixture configuration](../examples/hydration/vite.config.ts) as the working reference.
+
+## Ownership and callbacks
+
+Applications own records, permissions, validation rules, requests, caching, and persistence.
+Components own presentation, focus, keyboard behavior, and generic interaction.
+Input supports native `onInput` and `onValueChange(value, event)` callbacks.
+Checkbox and Switch request boolean changes through `onChange`.
+Select requests the chosen option through `onChange`.
+Combobox separates the selected option from the input text through `onInputChange`.
+The application supplies stable option keys, labels, available options, and loading state.
+Dialog and other overlays request open-state changes through `onOpenChange`.
+Applications decide what custom row action callbacks do.
+Keep backend commands and permission rules outside component implementations.
+
+Native Table accepts an optional `state` object with live getters for controlled display values.
+Pair each controlled value with its callback, such as `onSortingChange` or `onColumnVisibilityChange`.
+Table callbacks receive a replacement value or an updater function that reads the previous value.
+The application must apply accepted updates to its state.
+`initialState` supplies a creation snapshot for values that the table controls internally.
+
+Local sorting and filtering require application comparison and filter functions.
+For server results, preserve server order and use the manual-processing contracts.
+The application owns query requests, paging, memory budgets, and export transport.
+Server export receives the display labels and column order through the application callback.
+The [analytics example](../examples/analytics/README.md) shows that composition.
+Form coordination and generators remain separate planned packages.
+
+## Cleanup and hydration
+
+Create components and native tables inside a Solid owner.
+The rendering host releases that owner when the view closes.
+The qualified fixture uses a synchronous action and flush for the current runtime's disposal contract.
+Library listeners and overlay portals release with their owner.
+Applications also cancel their own requests and reject stale responses.
+
+The hydration fixture preserves server nodes for fields, checkboxes, Table cells, and buttons.
+It tests parent updates, keyboard interaction, dialog focus, and disposal with an open overlay.
+Repeated consumer tests mount six scopes without page navigation.
+They require fresh records, cancelled requests, removed portals, and released background interaction locks.
+Browser errors and accessibility warnings fail these cases.
+See [qualification](qualification.md) for the commands and reports.
+
+## Dependencies and updates
+
+Solid, Solid Primitives, Floating UI, and internationalized number helpers remain external dependencies.
+The component package owns selected Kobalte sources and the virtual engine.
+Application examples own their Zod validation usage.
+The component runtime does not import Zod or the legacy table-core engine.
+Inspect the [component manifest](../packages/components/package.json) for exact versions.
+Use [the vendor procedure](../packages/components/src/vendor/kobalte/README.md) to compare originals and replay repairs.
+Run `pnpm test:qualification` after a runtime or vendor change.

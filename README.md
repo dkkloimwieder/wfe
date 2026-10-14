@@ -24,7 +24,8 @@ The generic examples now use public package exports.
 Source and built-package browser cases cover controls, editing, read-only tables, analytics, styles, and virtualization.
 See [the example instructions](examples/README.md) for previews and browser commands.
 Unit tools, rendering, hydration, vendor audits, and live checks now run from wfe.
-The remaining migration issues cover deeper contracts and standalone cutover.
+The [adoption guide](docs/adoption.md) describes public imports, controlled values, state ownership, and hydration.
+The remaining migration issue proves a fresh standalone checkout and preview cutover.
 
 ## Organization
 
@@ -33,7 +34,7 @@ The remaining migration issues cover deeper contracts and standalone cutover.
 `src/utils` contains small shared helpers.
 `src/internal` contains shared behavior and component implementation support.
 `src/table` contains Table presentation and its engine.
-`src/layout` contains page layout composition.
+Page layout will live under `src/layout` after the migration.
 `src/vendor` contains the owned Kobalte and virtual engine subsets with their attribution and provenance.
 `examples` contains application composition, mock services, and optional integrations.
 `tests`, `bench`, and `scripts` contain qualification and maintenance tools.
