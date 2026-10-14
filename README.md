@@ -21,12 +21,12 @@ pnpm check
 `pnpm test:qualification` runs the complete serial qualification suite.
 The component source and native Table engine are extracted.
 The generic examples now use public package exports.
-Source and built-package browser cases cover controls, editing, read-only tables, analytics, styles, and virtualization.
+Source and built-package browser cases cover controls, editing, read-only tables, analytics, styles, layout, and virtualization.
 See [the example instructions](examples/README.md) for previews and browser commands.
 Unit tools, rendering, hydration, vendor audits, and live checks now run from wfe.
 The [adoption guide](docs/adoption.md) describes public imports, controlled values, state ownership, and hydration.
 The standalone migration is complete.
-All 47 qualification stages pass in a fresh checkout with both original repositories hidden.
+The migration acceptance run passes 47 stages in a fresh checkout with both original repositories hidden.
 Review previews now run from wfe.
 The [standalone record](migration/standalone.md) describes the proof and cutover.
 
@@ -37,7 +37,8 @@ The [standalone record](migration/standalone.md) describes the proof and cutover
 `src/utils` contains small shared helpers.
 `src/internal` contains shared behavior and component implementation support.
 `src/table` contains Table presentation and its engine.
-Page layout will live under `src/layout` after the migration.
+The dashboard shell, panels, and grid live under `src/layout`.
+The [layout guide](docs/layout.md) describes slots, navigation, scrolling, and available height.
 `src/vendor` contains the owned Kobalte and virtual engine subsets with their attribution and provenance.
 `examples` contains application composition, mock services, and optional integrations.
 `tests`, `bench`, and `scripts` contain qualification and maintenance tools.

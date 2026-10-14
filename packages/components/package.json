@@ -138,6 +138,13 @@
       "solid": "./dist/source/components/Toast.jsx",
       "node": "./dist/server/components/Toast.js",
       "import": "./dist/client/components/Toast.js"
+    },
+    "./layout": {
+      "types": "./dist/client/layout/index.d.ts",
+      "wfe-source": "./src/layout/index.ts",
+      "solid": "./dist/source/layout/index.js",
+      "node": "./dist/server/layout/index.js",
+      "import": "./dist/client/layout/index.js"
     }
   },
   "sideEffects": [

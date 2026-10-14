@@ -1,0 +1,24 @@
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+h1,
+h2 {
+  font-size: inherit;
+  margin: 0;
+}
+.fixture-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap);
+}
+#results {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+#results table {
+  width: 100%;
+}

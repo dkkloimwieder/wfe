@@ -1,0 +1,89 @@
+:where(.ui-dashboard[data-ui]) {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--ui-surface, white);
+}
+:where(.ui-dashboard[data-ui][data-has-navigation]) {
+  grid-template-columns: var(--ui-navigation-width, 15rem) minmax(0, 1fr);
+}
+:where([data-ui]) .ui-dashboard-header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+  padding: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
+  border-bottom: 1px solid var(--ui-border, #bbb);
+}
+:where([data-ui]) .ui-dashboard-navigation {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--ui-gap, 6px);
+  border-inline-end: 1px solid var(--ui-border, #bbb);
+  background: var(--ui-surface, white);
+}
+:where([data-ui]) :is(.ui-dashboard-toggle, .ui-dashboard-close) {
+  display: none;
+}
+:where([data-ui]) .ui-dashboard-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--ui-gap, 6px);
+}
+:where(.ui-dashboard[data-ui][data-scroll='content']) > .ui-dashboard-main {
+  overflow: hidden;
+}
+:where([data-ui]) .ui-dashboard-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+:where([data-ui]) .ui-dashboard-panel[data-fill] {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+:where([data-ui]) .ui-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--ui-panel-min-width, 18rem)), 1fr)
+  );
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+@media (width < 48rem) {
+  :where(.ui-dashboard[data-ui][data-has-navigation]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :where([data-ui]) .ui-dashboard-navigation {
+    position: absolute;
+    inset-inline-start: 0;
+    grid-row: 2 / 3;
+    grid-column: 1 / -1;
+    inset-block: 0;
+    z-index: 10;
+    width: min(var(--ui-navigation-width, 15rem), 100%);
+    display: none;
+    border-inline-end: 1px solid var(--ui-border, #bbb);
+  }
+  :where(.ui-dashboard[data-ui][data-navigation-open])
+    > .ui-dashboard-navigation {
+    display: block;
+  }
+  :where([data-ui]) :is(.ui-dashboard-toggle, .ui-dashboard-close) {
+    display: inline-block;
+  }
+}

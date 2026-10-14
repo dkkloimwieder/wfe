@@ -28,6 +28,9 @@ test('all public source, client, server, style, and type targets exist', async (
     'Popover',
     'Table',
     'ReadOnlyTable',
+    'DashboardShell',
+    'DashboardGrid',
+    'DashboardPanel',
   ]) {
     assert.equal(typeof components[name], 'function', name)
   }

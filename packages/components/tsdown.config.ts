@@ -18,6 +18,7 @@ const shared = {
     './src/components/Toast.tsx',
     './src/components/Tooltip.tsx',
     './src/index.ts',
+    './src/layout/index.ts',
     './src/styles/density.ts',
     './src/table/index.ts',
     './src/utils/nativeEvents.ts',

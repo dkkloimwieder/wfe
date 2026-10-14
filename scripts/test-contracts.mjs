@@ -8,7 +8,9 @@ const directory = resolve(packageRoot, 'docs/contracts')
 const document =
   readFileSync(resolve(directory, 'UI-BOUNDARIES.md'), 'utf8') +
   '\n' +
-  readFileSync(resolve(packageRoot, 'docs/adoption.md'), 'utf8')
+  readFileSync(resolve(packageRoot, 'docs/adoption.md'), 'utf8') +
+  '\n' +
+  readFileSync(resolve(packageRoot, 'docs/layout.md'), 'utf8')
 const configPath = resolve(packageRoot, 'packages/components/tsconfig.json')
 const config = ts.readConfigFile(configPath, ts.sys.readFile)
 if (config.error)

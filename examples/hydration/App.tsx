@@ -8,8 +8,8 @@ import {
   HelpText,
   Input,
   Label,
-  uiScope,
 } from '@wfe/components'
+import { DashboardShell } from '@wfe/components/layout'
 import {
   createTable as createNativeTable,
   ReadOnlyTable,
@@ -29,6 +29,7 @@ export const lifecycle = {
 
 export default function App() {
   const [name, setName] = createSignal('Ada')
+  const [navigationDraft, setNavigationDraft] = createSignal('Persistent draft')
   const [checked, setChecked] = createSignal(true)
   const [open, setOpen] = createSignal(false)
   lifecycle.rename = setName
@@ -57,7 +58,17 @@ export default function App() {
   })
   const view = table.createRowView('a')
   return (
-    <main {...uiScope()} data-ui-portal-root="">
+    <DashboardShell
+      header={<h1 id="adopt-layout-header">Workspace</h1>}
+      navigation={() => (
+        <Input
+          id="adopt-layout-draft"
+          aria-label="Navigation draft"
+          value={navigationDraft()}
+          onInput={(event) => setNavigationDraft(event.currentTarget.value)}
+        />
+      )}
+    >
       <Checkbox
         id="adopt-check"
         checked={checked()}
@@ -121,6 +132,6 @@ export default function App() {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog>
-    </main>
+    </DashboardShell>
   )
 }

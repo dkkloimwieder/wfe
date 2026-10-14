@@ -60,6 +60,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
       'table-read-only',
       'analytics',
       'styles',
+      'layout',
       'virtualization',
     ]) {
       if (mode === 'development' && fixture === 'virtualization') continue

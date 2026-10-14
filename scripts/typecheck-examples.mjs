@@ -5,6 +5,7 @@ for (const example of [
   'table-read-only',
   'analytics',
   'styles',
+  'layout',
   'virtualization',
   'hydration',
   'accessor-profile',

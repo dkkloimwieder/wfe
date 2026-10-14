@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { dirname } from 'node:path'
 import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import { chromium, expect } from '@playwright/test'
@@ -19,7 +20,11 @@ const server = createServer(async (request, response) => {
     if (path === '/favicon.ico') return void response.writeHead(204).end()
     response.setHeader(
       'Content-Type',
-      path.endsWith('.js') ? 'text/javascript' : 'text/html',
+      path.endsWith('.js')
+        ? 'text/javascript'
+        : path.endsWith('.css')
+          ? 'text/css'
+          : 'text/html',
     )
     response.end(
       await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
@@ -74,7 +79,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger")]</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft")]</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -97,6 +102,25 @@ try {
       .then(() => page.waitForSelector('html[data-hydrated="true"]')),
     new Promise((_, reject) => page.once('pageerror', reject)),
   ])
+  await page.setViewportSize({ width: 390, height: 800 })
+  const navigationToggle = page.getByRole('button', {
+    name: 'Navigation',
+    exact: true,
+  })
+  await navigationToggle.press('Enter')
+  await page
+    .getByRole('textbox', { name: 'Navigation draft', exact: true })
+    .fill('Hydrated draft')
+  await page.keyboard.press('Escape')
+  await expect(navigationToggle).toBeFocused()
+  await page.setViewportSize({ width: 1280, height: 900 })
+  assert.equal(
+    await page.locator('#adopt-layout-draft').inputValue(),
+    'Hydrated draft',
+  )
+  report.assertions.push(
+    'Dashboard header and navigation retain server nodes and attach keyboard behavior across narrow and desktop layouts',
+  )
   assert.equal(await page.locator('#name').textContent(), 'Ada')
   assert.equal(
     await page.evaluate(() =>
@@ -236,8 +260,7 @@ try {
 } finally {
   await browser?.close()
   if (server.listening) await new Promise((done) => server.close(done))
-  await writeFile(
-    process.env.BENCH_OUTPUT ?? '/tmp/table-hydration.json',
-    JSON.stringify(report, null, 2) + '\n',
-  )
+  const output = process.env.BENCH_OUTPUT ?? '/tmp/table-hydration.json'
+  await mkdir(dirname(output), { recursive: true })
+  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
 }

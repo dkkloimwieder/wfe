@@ -1,9 +1,10 @@
 # Shared styles
 
-Applications explicitly import `@table/ui/styles.css`.
+Applications explicitly import `@wfe/components/styles.css`.
 All selectors stay inside a `data-ui` scope. The stylesheet leaves unrelated content unchanged.
 Table editors and standalone controls share fonts, spacing, borders, colors, focus, and disabled states.
-Fixture page layout stays outside this package.
+Application fixture page styles stay outside this package.
+Generic dashboard styles live in `layout.css`.
 
 ## Scope and density
 
@@ -11,8 +12,8 @@ Use `uiScope()` on a wrapper that contains the controls.
 Compact density remains the default. Comfortable density increases spacing and row height.
 
 ```tsx
-import { uiDensity, uiScope } from '@table/ui'
-import '@table/ui/styles.css'
+import { uiDensity, uiScope } from '@wfe/components'
+import '@wfe/components/styles.css'
 
 const density = 'compact'
 const rowHeight = uiDensity(density).rowHeight
@@ -42,7 +43,7 @@ Popups inherit live theme values without copying styles or adding observers.
 
 ## Browser evidence
 
-The isolated fixture in `../../bench/styles` tests scope isolation, independent themes, row sizes, and visible focus.
+The isolated fixture in `../../../../examples/styles` tests scope isolation, independent themes, row sizes, and visible focus.
 Analytics tests compare CSS row height with virtual geometry after density changes.
 Popup tests keep popup size and placement stable through a live theme change.
-The standard Solid qualification command runs these tests with the existing fixture suites.
+The standard qualification command runs these tests with the existing fixture suites.
