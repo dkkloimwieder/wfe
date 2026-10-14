@@ -9,6 +9,7 @@ export default [
       '**/node_modules/**',
       '**/dist/**',
       '**/.dist*/**',
+      '**/.vite/**',
       '**/.input/**',
       '.beads/**',
       'test-results/**',

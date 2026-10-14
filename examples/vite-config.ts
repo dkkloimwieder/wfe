@@ -22,6 +22,7 @@ const repository = fileURLToPath(new URL('../', import.meta.url)).replace(
 export function exampleConfig(url: string, extra: PluginOption[] = []) {
   return defineConfig({
     root: fileURLToPath(new URL('.', url)),
+    cacheDir: fileURLToPath(new URL('.vite/', url)),
     plugins: [
       ...extra,
       solid({

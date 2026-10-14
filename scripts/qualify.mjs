@@ -102,6 +102,13 @@ export function qualificationStages(output, { wamn = false } = {}) {
       },
     ),
   )
+  stages.push(
+    stage('previews-browser', ['exec', 'node', 'examples/run-previews.mjs'], {
+      NODE_ENV: 'development',
+      BENCH_DEVELOPMENT: '1',
+      BENCH_OUTPUT: resolve(output, 'previews.json'),
+    }),
+  )
   if (wamn) {
     stages.push(
       stage('wamn-inputs', ['exec', 'node', 'examples/wamn/check-inputs.mjs']),
