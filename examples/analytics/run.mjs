@@ -468,36 +468,37 @@ try {
         (density) => window.analyticsFixture.configureDensity(density),
         density,
       )
-      await page.waitForFunction((height) => {
+      const snapshot = await page.waitForFunction((height) => {
         const rows = document.querySelectorAll('tbody tr[data-row]')
         const first = rows[0]?.getBoundingClientRect()
         const second = rows[1]?.getBoundingClientRect()
         const extent = document.querySelector('.virtual-scroll')?.scrollHeight
-        return (
-          first &&
-          second &&
-          extent !== undefined &&
-          Math.abs(first.height - height) < 0.5 &&
-          Math.abs(second.y - first.y - height) < 0.5 &&
-          Math.abs(extent - 100005 * height) < 150
+        if (
+          !first ||
+          !second ||
+          extent === undefined ||
+          Math.abs(first.height - height) >= 0.5 ||
+          Math.abs(second.height - height) >= 0.5 ||
+          Math.abs(second.y - first.y - height) >= 0.5 ||
+          Math.abs(extent - 100005 * height) >= 150
         )
+          return false
+        return { first: first.toJSON(), second: second.toJSON(), extent }
       }, height)
-      const first = await page
-        .locator('tbody tr[data-row]')
-        .first()
-        .boundingBox()
-      const second = await page
-        .locator('tbody tr[data-row]')
-        .nth(1)
-        .boundingBox()
-      assert.ok(
-        Math.abs(second.y - first.y - height) < 0.5,
-        JSON.stringify({ density, height, first, second }),
-      )
-      const end = await page
-        .locator('.virtual-scroll')
-        .evaluate((node) => node.scrollHeight)
-      assert.ok(Math.abs(end - 100005 * height) < 150)
+      const { first, second, extent } = await snapshot.jsonValue()
+      await snapshot.dispose()
+      ;(report.geometry ??= []).push({ density, height, first, second, extent })
+      const evidence = JSON.stringify({
+        density,
+        height,
+        first,
+        second,
+        extent,
+      })
+      assert.ok(Math.abs(first.height - height) < 0.5, evidence)
+      assert.ok(Math.abs(second.height - height) < 0.5, evidence)
+      assert.ok(Math.abs(second.y - first.y - height) < 0.5, evidence)
+      assert.ok(Math.abs(extent - 100005 * height) < 150, evidence)
     }
     const bounds = await page.locator('.table-scroll').boundingBox()
     await page.evaluate(() => {
