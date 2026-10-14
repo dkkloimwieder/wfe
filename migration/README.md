@@ -69,3 +69,10 @@ This keeps sibling hydration keys aligned without changing or vendoring the prim
 Server field metadata uses registration values without reactive writes.
 The fixture also keeps visible-cell reads inside JSX tracking.
 Runtime and compiler pins remain unchanged.
+
+## Standalone cutover
+
+The [standalone record](standalone.md) describes the final acceptance run and active previews.
+The [machine record](standalone-qualification.json) records the tested commit, isolation, inventories, and task continuations.
+Wfe now owns maintained generic components, Table, examples, tests, and tooling.
+The original table repository remains a historical source and retains unrelated framework and Query work.

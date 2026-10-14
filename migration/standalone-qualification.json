@@ -1,0 +1,298 @@
+{
+  "issue": "wfe-w2y.1.7",
+  "testedCommit": "6b4e171cf91dd08079f49c5d3f35898b377fae04",
+  "checkout": {
+    "path": "/tmp/wfe-standalone-final",
+    "clone": "git clone --no-local /home/kaalin/dev/wfe /tmp/wfe-standalone-final",
+    "initialNodeModulesAbsent": true,
+    "trackedTreeCleanAfterSuite": true
+  },
+  "isolation": {
+    "mechanism": "Bubblewrap private mounts",
+    "hiddenDirectories": ["/home/kaalin/dev/table", "/home/kaalin/dev/wfe"],
+    "commands": [
+      "pnpm install --frozen-lockfile --network-concurrency=1 --child-concurrency=1",
+      "pnpm test:qualification",
+      "pnpm exec publint --strict packages/components"
+    ],
+    "browserCache": "/tmp/table-solid-export-browsers",
+    "temporaryDirectory": "/dev/shm"
+  },
+  "lockfileSha256": "5d344349fc9e7ecbcea07a6bc83cd03f3a096ceb1ace6f796e41a75cdad8fdbb",
+  "firstFailure": {
+    "commit": "8135199",
+    "stage": "checks",
+    "cause": "Example types ran before package declarations existed.",
+    "repairCommit": "ed6119c",
+    "reports": "test-results/standalone/first-failure"
+  },
+  "qualification": {
+    "stages": 47,
+    "passed": 47,
+    "reports": "test-results/standalone/qualification",
+    "browserCases": {
+      "components-source": 102,
+      "table-editing-source": 148,
+      "table-read-only-source": 5,
+      "analytics-source": 22,
+      "hydration-source": 5,
+      "components-distribution": 102,
+      "table-editing-distribution": 148,
+      "table-read-only-distribution": 5,
+      "analytics-distribution": 22,
+      "hydration-distribution": 5,
+      "components-development": 102,
+      "table-editing-development": 148,
+      "table-read-only-development": 5,
+      "analytics-development": 22,
+      "hydration-development": 5
+    },
+    "moduleInventories": [
+      {
+        "path": "examples/virtualization/.dist-package/modules.json",
+        "modules": 41,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/virtualization/.dist/modules.json",
+        "modules": 41,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/table-read-only/.dist-dev/modules.json",
+        "modules": 51,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/table-read-only/.dist-package/modules.json",
+        "modules": 70,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/table-read-only/.dist/modules.json",
+        "modules": 70,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/table-editing/.dist-dev/modules.json",
+        "modules": 56,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/table-editing/.dist-package/modules.json",
+        "modules": 75,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/table-editing/.dist/modules.json",
+        "modules": 75,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/styles/.dist-dev/modules.json",
+        "modules": 6,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/styles/.dist-package/modules.json",
+        "modules": 6,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/styles/.dist/modules.json",
+        "modules": 6,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/components/.dist-dev/modules.json",
+        "modules": 273,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/components/.dist-package/modules.json",
+        "modules": 292,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/components/.dist/modules.json",
+        "modules": 292,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/analytics/.dist-dev/modules.json",
+        "modules": 33,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/analytics/.dist-package/modules.json",
+        "modules": 52,
+        "outsideCheckout": 0
+      },
+      {
+        "path": "examples/analytics/.dist/modules.json",
+        "modules": 52,
+        "outsideCheckout": 0
+      }
+    ],
+    "previewRegressionCases": 10
+  },
+  "comparison": {
+    "originalCommit": "36cdfa0beffe7a38de254cf8c4ff749904c03570",
+    "originalHashesMatched": 463,
+    "plannedDestinationExceptions": [
+      {
+        "source": "examples/solid/virtualized-rows/src/makeData.ts",
+        "destination": "examples/virtualization/makeData.ts",
+        "kind": "example",
+        "sourceSha256": "7e59419f155b7d88125de7668d6172d988ed24adb2ac5ca4a0bd427667aa876c"
+      },
+      {
+        "source": "packages/solid-table/bench/capture-heaps.mjs",
+        "destination": "bench/capture-heaps.mjs",
+        "kind": "performance",
+        "sourceSha256": "9764eeedcf537ba455c94168729e6db62013f1491ade515e30bc7ccb02bca416"
+      },
+      {
+        "source": "packages/solid-table/bench/lifecycle.mjs",
+        "destination": "bench/lifecycle.mjs",
+        "kind": "performance",
+        "sourceSha256": "2d05bece8da81f285822a865a7b2b0cd8739884d5c854c437021e42d9ff7906e"
+      },
+      {
+        "source": "packages/solid-table/bench/profile-memory.mjs",
+        "destination": "bench/profile-memory.mjs",
+        "kind": "performance",
+        "sourceSha256": "f8f1df251737a39e50d63e0ef19ceabfca0a1a0daa49d393d881cde3932c0fb2"
+      }
+    ],
+    "literalInteractionLabels": {
+      "original": 248,
+      "current": 249,
+      "missing": []
+    },
+    "legacyExclusions": [
+      "Other framework adapters and their examples",
+      "Legacy table-core and Store-based adapter implementations",
+      "Legacy adapter hydration branch and adapter-only tests",
+      "Old prototypes and Query experiments outside the native engine",
+      "Downloaded inputs, node_modules, build outputs, caches, and heap captures"
+    ],
+    "excludedExampleFiles": [
+      {
+        "source": "examples/solid/virtualized-rows/src/makeData.ts",
+        "reason": "Unused legacy adapter data helper. The native fixture generates its own records."
+      }
+    ],
+    "excludedLegacyHarnesses": [
+      "bench/capture-heaps.mjs",
+      "bench/lifecycle.mjs",
+      "bench/profile-memory.mjs"
+    ]
+  },
+  "continuations": {
+    "epic": "wfe-0dj",
+    "issues": [
+      {
+        "original": "table-qp8.2.6",
+        "continuation": "wfe-0dj.1",
+        "owner": "dkk",
+        "title": "Extend the catalog when concrete screens need it"
+      },
+      {
+        "original": "table-0zk.4",
+        "continuation": "wfe-0dj.2",
+        "owner": "dkk",
+        "title": "Review the external Solid toolchain in lockstep"
+      },
+      {
+        "original": "table-gd3.6.7.9",
+        "continuation": "wfe-0dj.3",
+        "owner": "dkk",
+        "title": "Retire owned popup repairs after matched upstream fixes"
+      },
+      {
+        "original": "table-gd3.6.5",
+        "continuation": "wfe-0dj.4",
+        "owner": "dkk",
+        "title": "Retire the action disposal workaround after an upstream fix"
+      },
+      {
+        "original": "table-gd3.6.4",
+        "continuation": "wfe-0dj.5",
+        "owner": "dkk",
+        "title": "Retire owned native event listeners after an upstream fix"
+      },
+      {
+        "original": "table-gd3.6.8",
+        "continuation": "wfe-0dj.6",
+        "owner": "dkk",
+        "title": "Qualify named diagnostics for development Table workloads"
+      }
+    ]
+  },
+  "completedOriginalIssues": {
+    "table-qp8.4.2": ["wfe-w2y.1.5", "wfe-w2y.1.6", "wfe-w2y.1.7"]
+  },
+  "previews": [
+    {
+      "url": "http://127.0.0.1:7782/?consumer=1",
+      "status": "passed"
+    },
+    {
+      "url": "http://127.0.0.1:7783/",
+      "status": "passed"
+    },
+    {
+      "url": "http://127.0.0.1:7784/",
+      "status": "passed"
+    },
+    {
+      "url": "http://127.0.0.1:7777/",
+      "status": "passed"
+    }
+  ],
+  "commits": [
+    "ab61609",
+    "516625f",
+    "1e680ba",
+    "e69949c",
+    "e92fed0",
+    "8135199",
+    "ed6119c",
+    "6b4e171"
+  ],
+  "notIncluded": [
+    "Optional prepared WAMN inputs",
+    "Historical framework adapters and Query fixtures",
+    "New heap captures or performance campaigns",
+    "Package publication or production WAMN migration"
+  ],
+  "previewFailure": {
+    "cause": "Different examples shared a dependency cache. Final preview returned 504 Outdated Optimize Dep.",
+    "repairCommit": "6b4e171",
+    "report": "test-results/standalone/preview-first-failure.json",
+    "regression": "test-results/standalone/preview-regression-before.json"
+  },
+  "codeRepairs": [
+    {
+      "path": "scripts/check.mjs",
+      "sha256": "8207a815c9bddfcbc4798198971f85f5d8ab3db6b5d6d8a83e3f70a658d0b668"
+    },
+    {
+      "path": "examples/vite-config.ts",
+      "sha256": "f9052eca86848ff8a970a6e6ab89e4659a9fa397001900098884d49778c1a7b8"
+    },
+    {
+      "path": "examples/run-previews.mjs",
+      "sha256": "633acad05c81b787015bd0b357b74bd6104269b981adc4a187a8b3916de2123e"
+    },
+    {
+      "path": "scripts/qualify.mjs",
+      "sha256": "6197290b38f40bdc6bcd25b14a99dc73fc32b217cf3a3755eefab08ea61ab29e"
+    },
+    {
+      "path": "eslint.config.mjs",
+      "sha256": "da7dd1d9aeb5217ce76d713838e098849ab9452b5d51df67470d54dff5a587b1"
+    }
+  ]
+}

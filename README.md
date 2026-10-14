@@ -2,7 +2,7 @@
 
 Wfe is a generic frontend library for applications that use Solid.
 The project starts with one private package, `@wfe/components`.
-It contains controls, Table, shared styles, layout, internal behavior, and owned vendor source.
+It contains controls, Table, shared styles, internal behavior, and owned vendor source.
 Form coordination and programmatic generation follow their scoped Beads issues.
 Application records, routing, permissions, validation rules, requests, and persistence remain application-owned.
 
@@ -25,7 +25,10 @@ Source and built-package browser cases cover controls, editing, read-only tables
 See [the example instructions](examples/README.md) for previews and browser commands.
 Unit tools, rendering, hydration, vendor audits, and live checks now run from wfe.
 The [adoption guide](docs/adoption.md) describes public imports, controlled values, state ownership, and hydration.
-The remaining migration issue proves a fresh standalone checkout and preview cutover.
+The standalone migration is complete.
+All 47 qualification stages pass in a fresh checkout with both original repositories hidden.
+Review previews now run from wfe.
+The [standalone record](migration/standalone.md) describes the proof and cutover.
 
 ## Organization
 

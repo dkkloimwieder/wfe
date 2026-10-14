@@ -6,15 +6,18 @@ Build components with `pnpm build` before testing the built package.
 
 ## Preview
 
-Start the component consumer on port 7785:
+Start the component consumer on port 7782:
 
 ```sh
-pnpm exec vite --config examples/components/vite.config.ts --host 127.0.0.1 --port 7785
+pnpm exec vite --config examples/components/vite.config.ts --host 127.0.0.1 --port 7782 --strictPort
 ```
 
-Open `http://127.0.0.1:7785/?consumer=1`.
+Open `http://127.0.0.1:7782/?consumer=1`.
 Use the same command with another example configuration and an unused port.
-Existing previews on ports 7777 and 7782 through 7784 stay available during migration.
+The active review previews now use wfe.
+Editing uses port 7777, components use 7782, analytics uses 7783, and the read-only table uses 7784.
+Use `examples/table-editing/vite.config.ts`, `examples/analytics/vite.config.ts`, or `examples/table-read-only/vite.config.ts` for those examples.
+If a review server already occupies the port, use an unused port for another instance.
 
 The generic examples are components, table-editing, table-read-only, analytics, styles, and virtualization.
 Each example imports public exports from `@wfe/components`.
