@@ -22,6 +22,10 @@ export default [
     languageOptions: { globals: globals.node },
   },
   {
+    files: ['examples/**/*.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.browser } },
+  },
+  {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parser,
@@ -31,6 +35,7 @@ export default [
     plugins: { '@typescript-eslint': plugin },
     rules: {
       ...plugin.configs.recommended.rules,
+      'require-yield': 'error',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',

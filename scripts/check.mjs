@@ -3,6 +3,7 @@ for (const script of [
   'format:check',
   'lint',
   'types',
+  'types:examples',
   'test:integrity',
   'build',
   'test',

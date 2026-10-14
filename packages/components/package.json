@@ -7,6 +7,7 @@
   "exports": {
     ".": {
       "types": "./dist/client/index.d.ts",
+      "wfe-source": "./src/index.ts",
       "solid": "./dist/source/index.js",
       "node": "./dist/server/index.js",
       "import": "./dist/client/index.js"
@@ -14,108 +15,126 @@
     "./styles.css": "./dist/source/styles/styles.css",
     "./density": {
       "types": "./dist/client/styles/density.d.ts",
+      "wfe-source": "./src/styles/density.ts",
       "solid": "./dist/source/styles/density.js",
       "node": "./dist/server/styles/density.js",
       "import": "./dist/client/styles/density.js"
     },
     "./table": {
       "types": "./dist/client/table/index.d.ts",
+      "wfe-source": "./src/table/index.ts",
       "solid": "./dist/source/table/index.js",
       "node": "./dist/server/table/index.js",
       "import": "./dist/client/table/index.js"
     },
     "./events": {
       "types": "./dist/client/utils/nativeEvents.d.ts",
+      "wfe-source": "./src/utils/nativeEvents.ts",
       "solid": "./dist/source/utils/nativeEvents.js",
       "node": "./dist/server/utils/nativeEvents.js",
       "import": "./dist/client/utils/nativeEvents.js"
     },
     "./virtual": {
       "types": "./dist/client/virtual/index.d.ts",
+      "wfe-source": "./src/virtual/index.ts",
       "solid": "./dist/source/virtual/index.js",
       "node": "./dist/server/virtual/index.js",
       "import": "./dist/client/virtual/index.js"
     },
     "./select": {
       "types": "./dist/client/components/Select.d.ts",
+      "wfe-source": "./src/components/Select.tsx",
       "solid": "./dist/source/components/Select.jsx",
       "node": "./dist/server/components/Select.js",
       "import": "./dist/client/components/Select.js"
     },
     "./combobox": {
       "types": "./dist/client/components/Combobox.d.ts",
+      "wfe-source": "./src/components/Combobox.tsx",
       "solid": "./dist/source/components/Combobox.jsx",
       "node": "./dist/server/components/Combobox.js",
       "import": "./dist/client/components/Combobox.js"
     },
     "./fields": {
       "types": "./dist/client/components/NativeFields.d.ts",
+      "wfe-source": "./src/components/NativeFields.tsx",
       "solid": "./dist/source/components/NativeFields.jsx",
       "node": "./dist/server/components/NativeFields.js",
       "import": "./dist/client/components/NativeFields.js"
     },
     "./checkbox": {
       "types": "./dist/client/components/Checkbox.d.ts",
+      "wfe-source": "./src/components/Checkbox.tsx",
       "solid": "./dist/source/components/Checkbox.jsx",
       "node": "./dist/server/components/Checkbox.js",
       "import": "./dist/client/components/Checkbox.js"
     },
     "./switch": {
       "types": "./dist/client/components/Switch.d.ts",
+      "wfe-source": "./src/components/Switch.tsx",
       "solid": "./dist/source/components/Switch.jsx",
       "node": "./dist/server/components/Switch.js",
       "import": "./dist/client/components/Switch.js"
     },
     "./radio-group": {
       "types": "./dist/client/components/RadioGroup.d.ts",
+      "wfe-source": "./src/components/RadioGroup.tsx",
       "solid": "./dist/source/components/RadioGroup.jsx",
       "node": "./dist/server/components/RadioGroup.js",
       "import": "./dist/client/components/RadioGroup.js"
     },
     "./dialog": {
       "types": "./dist/client/components/Dialog.d.ts",
+      "wfe-source": "./src/components/Dialog.tsx",
       "solid": "./dist/source/components/Dialog.jsx",
       "node": "./dist/server/components/Dialog.js",
       "import": "./dist/client/components/Dialog.js"
     },
     "./alert-dialog": {
       "types": "./dist/client/components/AlertDialog.d.ts",
+      "wfe-source": "./src/components/AlertDialog.tsx",
       "solid": "./dist/source/components/AlertDialog.jsx",
       "node": "./dist/server/components/AlertDialog.js",
       "import": "./dist/client/components/AlertDialog.js"
     },
     "./sheet": {
       "types": "./dist/client/components/Sheet.d.ts",
+      "wfe-source": "./src/components/Sheet.tsx",
       "solid": "./dist/source/components/Sheet.jsx",
       "node": "./dist/server/components/Sheet.js",
       "import": "./dist/client/components/Sheet.js"
     },
     "./popover": {
       "types": "./dist/client/components/Popover.d.ts",
+      "wfe-source": "./src/components/Popover.tsx",
       "solid": "./dist/source/components/Popover.jsx",
       "node": "./dist/server/components/Popover.js",
       "import": "./dist/client/components/Popover.js"
     },
     "./dropdown-menu": {
       "types": "./dist/client/components/DropdownMenu.d.ts",
+      "wfe-source": "./src/components/DropdownMenu.tsx",
       "solid": "./dist/source/components/DropdownMenu.jsx",
       "node": "./dist/server/components/DropdownMenu.js",
       "import": "./dist/client/components/DropdownMenu.js"
     },
     "./tooltip": {
       "types": "./dist/client/components/Tooltip.d.ts",
+      "wfe-source": "./src/components/Tooltip.tsx",
       "solid": "./dist/source/components/Tooltip.jsx",
       "node": "./dist/server/components/Tooltip.js",
       "import": "./dist/client/components/Tooltip.js"
     },
     "./display": {
       "types": "./dist/client/components/Display.d.ts",
+      "wfe-source": "./src/components/Display.tsx",
       "solid": "./dist/source/components/Display.jsx",
       "node": "./dist/server/components/Display.js",
       "import": "./dist/client/components/Display.js"
     },
     "./toast": {
       "types": "./dist/client/components/Toast.d.ts",
+      "wfe-source": "./src/components/Toast.tsx",
       "solid": "./dist/source/components/Toast.jsx",
       "node": "./dist/server/components/Toast.js",
       "import": "./dist/client/components/Toast.js"
@@ -151,8 +170,7 @@
   },
   "files": [
     "dist",
-    "src/vendor/**/LICENSE*",
-    "src/vendor/**/provenance.json"
+    "src"
   ],
   "engines": {
     "node": ">=22.12.0"

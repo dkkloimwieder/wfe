@@ -1,0 +1,879 @@
+{
+  "sourceCommit": "36cdfa0beffe7a38de254cf8c4ff749904c03570",
+  "entries": [
+    {
+      "source": "examples/solid/virtualized-rows/index.html",
+      "destination": "examples/virtualization/index.html",
+      "kind": "example",
+      "sourceSha256": "d070de69f47ee068e6f984a8ad996b6b8e48ae4d9a2349f1fcd9e807d7e8fd19",
+      "localSha256": "59685c7e0a0ca7b82ae8f295d7da99c342a7a765c301cbf7a3a8636b2440df5a"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/NativeApp.tsx",
+      "destination": "examples/virtualization/NativeApp.tsx",
+      "kind": "example",
+      "sourceSha256": "28be32316c84691d9c100c6d1462c068be277032a67d2df87c1899c94f34fa77",
+      "localSha256": "1f183a4de17578a3b11831054bf751c6bf733f7e1c87718650c4150da88fc22a"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/createNativeGridInteraction.ts",
+      "destination": "examples/virtualization/createNativeGridInteraction.ts",
+      "kind": "example",
+      "sourceSha256": "b15ba83a73c0a2616690115766ec3d322ecdaecbb3293fff7a170fb5f7f59e0f",
+      "localSha256": "b15ba83a73c0a2616690115766ec3d322ecdaecbb3293fff7a170fb5f7f59e0f"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/native.css",
+      "destination": "examples/virtualization/native.css",
+      "kind": "example",
+      "sourceSha256": "5ce73cdfeccf00b188c0111b8d01269cdf0eee7471bb35476a886d0dc7f9dda1",
+      "localSha256": "5ce73cdfeccf00b188c0111b8d01269cdf0eee7471bb35476a886d0dc7f9dda1"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/native.tsx",
+      "destination": "examples/virtualization/native.tsx",
+      "kind": "example",
+      "sourceSha256": "1da25838aa60947c56562505c0a4a05907e145d3ff64aa2fc06cdcf023186e9f",
+      "localSha256": "1da25838aa60947c56562505c0a4a05907e145d3ff64aa2fc06cdcf023186e9f"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/vite-env.d.ts",
+      "destination": "examples/virtualization/vite-env.d.ts",
+      "kind": "example",
+      "sourceSha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "localSha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/.gitignore",
+      "destination": "examples/analytics/.gitignore",
+      "kind": "example",
+      "sourceSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849",
+      "localSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/QueryRows.tsx",
+      "destination": "examples/analytics/QueryRows.tsx",
+      "kind": "example",
+      "sourceSha256": "a521fab8488ea32fabd486fb955fd1ecce06b2d6fb50289a7679e336327e3af5",
+      "localSha256": "203a60d8937ecd97a7531f29d8ef5fb4df29ad9839481c431ffbf5e5ee3e4572"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/README.md",
+      "destination": "examples/analytics/README.md",
+      "kind": "example",
+      "sourceSha256": "8385ec2fe7ac2501be35f5c2eba39435ec531f201f46e46f499b6ec028ed439a",
+      "localSha256": "49c5efd465ba77d40776cb754b51d1aa3113476e4339f74e7da633429a342360"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/Table.tsx",
+      "destination": "examples/analytics/Table.tsx",
+      "kind": "example",
+      "sourceSha256": "579437bd61ab4341a97a676cf1d148f0ac1bb2a616c0153c470a28488ac3f263",
+      "localSha256": "956464866c5573a3eb042b61825d2dc94d40da779f3097daf7d42ad17de5913c"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/csv.ts",
+      "destination": "examples/analytics/csv.ts",
+      "kind": "example",
+      "sourceSha256": "be1d5bb6c6cbf2edd9fab68402d8680a407506798ff0fb3b74429ea637ea90c2",
+      "localSha256": "be1d5bb6c6cbf2edd9fab68402d8680a407506798ff0fb3b74429ea637ea90c2"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/demo-data.ts",
+      "destination": "examples/analytics/demo-data.ts",
+      "kind": "example",
+      "sourceSha256": "1e470148bbc6174b50ab8a03aeb8153f771bff859063c37987ca0273f8b21348",
+      "localSha256": "1e470148bbc6174b50ab8a03aeb8153f771bff859063c37987ca0273f8b21348"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/demo-server.d.mts",
+      "destination": "examples/analytics/demo-server.d.mts",
+      "kind": "example",
+      "sourceSha256": "34e2e2a52161b928001c08691374845624f888cc159ceba40ec7f06ec450ae1e",
+      "localSha256": "34e2e2a52161b928001c08691374845624f888cc159ceba40ec7f06ec450ae1e"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/demo-server.mjs",
+      "destination": "examples/analytics/demo-server.mjs",
+      "kind": "example",
+      "sourceSha256": "b3cb8743cd395e169a7c29507d89d2d940a4c626755e2580eade3c4ea1910b67",
+      "localSha256": "b3cb8743cd395e169a7c29507d89d2d940a4c626755e2580eade3c4ea1910b67"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/demo-server.test.mjs",
+      "destination": "examples/analytics/demo-server.test.mjs",
+      "kind": "example",
+      "sourceSha256": "039edb2654bf8c1820ef2f3bd5a6eb72034d2041faef43df0ce2f2999fcbe8c4",
+      "localSha256": "039edb2654bf8c1820ef2f3bd5a6eb72034d2041faef43df0ce2f2999fcbe8c4"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/fixed-window.ts",
+      "destination": "examples/analytics/fixed-window.ts",
+      "kind": "example",
+      "sourceSha256": "49ccdc94a73e9c4aad8a31750de8a6154044db81aefaa92353436b6cb7a7e160",
+      "localSha256": "dd3121579c0e299350d403123e375dee77f61d373cf85854534506e7c0d15a07"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/index.html",
+      "destination": "examples/analytics/index.html",
+      "kind": "example",
+      "sourceSha256": "7e243d32335a3d4e348a0c9c8956172dcc335a32add9a8b909f04f9149acacd1",
+      "localSha256": "7e243d32335a3d4e348a0c9c8956172dcc335a32add9a8b909f04f9149acacd1"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/main.tsx",
+      "destination": "examples/analytics/main.tsx",
+      "kind": "example",
+      "sourceSha256": "d6320bf4ba448a04042bee634904017c0601b8534e7264618fa3929bac1d8a14",
+      "localSha256": "74c0a95204d3b915ac80a33e08a33db1029d1ed361a7fcc102fe5893ac32e42c"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/page-cache.ts",
+      "destination": "examples/analytics/page-cache.ts",
+      "kind": "example",
+      "sourceSha256": "db301540580c2be857c604f98d9f23f599f5118c6268277d4e650c8defb633f2",
+      "localSha256": "db301540580c2be857c604f98d9f23f599f5118c6268277d4e650c8defb633f2"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/paging.test.mjs",
+      "destination": "examples/analytics/paging.test.mjs",
+      "kind": "example",
+      "sourceSha256": "2cbb76e7d32f638d0795ce815c178bfe3c884dd6ededc5051b46a24345e55553",
+      "localSha256": "2cbb76e7d32f638d0795ce815c178bfe3c884dd6ededc5051b46a24345e55553"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/run.mjs",
+      "destination": "examples/analytics/run.mjs",
+      "kind": "example",
+      "sourceSha256": "90ab90efe33db1451852eafc84e82a65cd83ae02a2e55d459e94368f50453796",
+      "localSha256": "f5345b2eb034581765354122e1c17d4049e6519762efc7a149043357061360b0"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/style.css",
+      "destination": "examples/analytics/style.css",
+      "kind": "example",
+      "sourceSha256": "e3fbe34bc07426fb2dca9e8537643c9599a96fdc47c6e1f247480f03daabc0de",
+      "localSha256": "534dbe45e04e46b0147b0c4776b587d35b33011b5ea42e99afebb559816dd9c9"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/tsconfig.json",
+      "destination": "examples/analytics/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "61723b69a13522131cd645bc0a84d68b24aea1dac6fa6dc4219a9a9aab8d01d7",
+      "localSha256": "eef6a76be254ce935eface9d3b98a01f8e3632b8dc8a693eab6ca1076996745b"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/types.ts",
+      "destination": "examples/analytics/types.ts",
+      "kind": "example",
+      "sourceSha256": "535aea9220b88526ce974b5de72bcb11d1c9e579d61bb95342ad820236e4ca72",
+      "localSha256": "535aea9220b88526ce974b5de72bcb11d1c9e579d61bb95342ad820236e4ca72"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/vite.config.ts",
+      "destination": "examples/analytics/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "430489b7ceab3d03177490ba77e41ce32affc97547855df2cc9f964ebe195ebe",
+      "localSha256": "050ae3a898ad8885631fac11df5676fff90e84f9d356170f7546fe886e69378f"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/.gitignore",
+      "destination": "examples/table-editing/.gitignore",
+      "kind": "example",
+      "sourceSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849",
+      "localSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/App.tsx",
+      "destination": "examples/table-editing/App.tsx",
+      "kind": "example",
+      "sourceSha256": "8af1356566316784df0e6f8fecba71b1f4bfa167738d2ac9b75f24e976df3f54",
+      "localSha256": "78234333a5b08a1c317b711515548ea6def44204d6bcb146607e747e402a04b7"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/README.md",
+      "destination": "examples/table-editing/README.md",
+      "kind": "example",
+      "sourceSha256": "d7688de2d3acdaf29d8bb6394d380377ee20427cbb560ea2a258398b403aeaf8",
+      "localSha256": "6041465d606da1b08fcc0ddcd8211d8074ec98de3a9493a7974cb6dfe39c93be"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/Table.tsx",
+      "destination": "examples/table-editing/Table.tsx",
+      "kind": "example",
+      "sourceSha256": "f2ae4f439cbc63b2622cf5f2bb34ca2e497d51672fd25e66c2fcdb6971a0a3a6",
+      "localSha256": "c512e8f72e753a0e17c2ae7a27c7cfe98e19461052c13d4d2acc51ca05a3d3ff"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/TableOptions.tsx",
+      "destination": "examples/table-editing/TableOptions.tsx",
+      "kind": "example",
+      "sourceSha256": "85306175097037c2089a54a52f9824cfbe5b329ec6db32b0a2257944586ed7b1",
+      "localSha256": "182c7a74213d8b35221a61c5a36ce7381ed94677b782e47ea984eb06ca93e0b0"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/TablePriorityEditor.tsx",
+      "destination": "examples/table-editing/TablePriorityEditor.tsx",
+      "kind": "example",
+      "sourceSha256": "cc55e85bbb50e7773e296ab2e9504c977d7e17679fd062d1646f48e0cd43fa64",
+      "localSha256": "ebf847286350d8826185be1844d01493fcab2c7321604df1356e687be7b55af1"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/TableViews.tsx",
+      "destination": "examples/table-editing/TableViews.tsx",
+      "kind": "example",
+      "sourceSha256": "af41651d7f188aa48e1a8e21adb8890726902c234b554f01d8fe770c4aeaa061",
+      "localSha256": "dcb8442bced0e5ee56dbf934b2d5b5b0a8bafa2aa3f37bcaf9c2117fd8b1aea9"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/aggregate-cases.mjs",
+      "destination": "examples/table-editing/aggregate-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "257a29414f0d458f5b2ca9b1b34121463405acbdcc09e6a6b9c04d9fc784a582",
+      "localSha256": "257a29414f0d458f5b2ca9b1b34121463405acbdcc09e6a6b9c04d9fc784a582"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/aggregates.ts",
+      "destination": "examples/table-editing/aggregates.ts",
+      "kind": "example",
+      "sourceSha256": "3ecaa5b89d0be50c278794c40bf5a7c5d07b1c177d0aa6d6b4817634b7a5f2e8",
+      "localSha256": "57544e7c2ad505dd10e36bb6c69a82b49ed929c08b628454401e458b54ded4d3"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/application-record-cases.mjs",
+      "destination": "examples/table-editing/application-record-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "a0b47dd88acec6affa64661e58652641a8bda4564a165475bec5e62dc0584d90",
+      "localSha256": "a0b47dd88acec6affa64661e58652641a8bda4564a165475bec5e62dc0584d90"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/childLoader.ts",
+      "destination": "examples/table-editing/childLoader.ts",
+      "kind": "example",
+      "sourceSha256": "b115a89e6513ba7cd05807d3f3d43886fe220a2f7c57f72334007b0d784316ec",
+      "localSha256": "b115a89e6513ba7cd05807d3f3d43886fe220a2f7c57f72334007b0d784316ec"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/createEditing.ts",
+      "destination": "examples/table-editing/createEditing.ts",
+      "kind": "example",
+      "sourceSha256": "1aad6340a271e3b2b9bb6dde9606c4fc17e6c2d6dbf2c8885d61202b412395c8",
+      "localSha256": "1aad6340a271e3b2b9bb6dde9606c4fc17e6c2d6dbf2c8885d61202b412395c8"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/createSubTables.ts",
+      "destination": "examples/table-editing/createSubTables.ts",
+      "kind": "example",
+      "sourceSha256": "820065fd1b149bf831009ff832a3ce5adae59b1037671ec09340741b8729d42f",
+      "localSha256": "820065fd1b149bf831009ff832a3ce5adae59b1037671ec09340741b8729d42f"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/createTableViews.ts",
+      "destination": "examples/table-editing/createTableViews.ts",
+      "kind": "example",
+      "sourceSha256": "814ee9440a830ef3ac3606b8820e08592a5d9299225a6cf6f90ffbe5a543491d",
+      "localSha256": "814ee9440a830ef3ac3606b8820e08592a5d9299225a6cf6f90ffbe5a543491d"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/editing-callback-cases.mjs",
+      "destination": "examples/table-editing/editing-callback-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "bb4c661f6da21e3c72068f46bde5ec2cd1dbd85daa55ecad9417c20714138f20",
+      "localSha256": "bb4c661f6da21e3c72068f46bde5ec2cd1dbd85daa55ecad9417c20714138f20"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/editing-lock-cases.mjs",
+      "destination": "examples/table-editing/editing-lock-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "266ce3b51baa904391523107340d051bdc5f87b32795274fea0f896fb3d36a0b",
+      "localSha256": "266ce3b51baa904391523107340d051bdc5f87b32795274fea0f896fb3d36a0b"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/editingCallbackFixture.ts",
+      "destination": "examples/table-editing/editingCallbackFixture.ts",
+      "kind": "example",
+      "sourceSha256": "e221465a8a2268a0a0aaef7edf9dcac43c150549eac53545c79b5abac7124b9d",
+      "localSha256": "e221465a8a2268a0a0aaef7edf9dcac43c150549eac53545c79b5abac7124b9d"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/editingCallbacks.ts",
+      "destination": "examples/table-editing/editingCallbacks.ts",
+      "kind": "example",
+      "sourceSha256": "e4c55597c454d734243cca88742749ba8009db14cfe00c2ebb8dd93f79e107ad",
+      "localSha256": "e4c55597c454d734243cca88742749ba8009db14cfe00c2ebb8dd93f79e107ad"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/field-configuration-cases.mjs",
+      "destination": "examples/table-editing/field-configuration-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "fdfc2655a79fe7d8c91cba0025ce302e7d127270e95bd6aa2ef9bbad9dc2392f",
+      "localSha256": "fdfc2655a79fe7d8c91cba0025ce302e7d127270e95bd6aa2ef9bbad9dc2392f"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/fields.ts",
+      "destination": "examples/table-editing/fields.ts",
+      "kind": "example",
+      "sourceSha256": "e4e1615d28a5965e84a94afb56017959420b6c7e1626913c913afdc2c63de213",
+      "localSha256": "a3bdfe0b3e0c092f63613f7f5a8cd3f560e6bc296d048c98afb56779c988970e"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/fixture.tsx",
+      "destination": "examples/table-editing/fixture.tsx",
+      "kind": "example",
+      "sourceSha256": "24b4d0b9099a273e279d3464d73331339cc8231ec8f6a1580380ae8571e6e1af",
+      "localSha256": "24b4d0b9099a273e279d3464d73331339cc8231ec8f6a1580380ae8571e6e1af"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/grouping-cases.mjs",
+      "destination": "examples/table-editing/grouping-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "23a6ff5dddf6da7f130de85b8a785113a2e1fd6ca75f0d807ff454dfa2880c64",
+      "localSha256": "23a6ff5dddf6da7f130de85b8a785113a2e1fd6ca75f0d807ff454dfa2880c64"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/grouping-profile.mjs",
+      "destination": "examples/table-editing/grouping-profile.mjs",
+      "kind": "example",
+      "sourceSha256": "57f30b33617426cdc6705d29992a42c427adc5c85bfd66a4e4a87a9d30787601",
+      "localSha256": "57f30b33617426cdc6705d29992a42c427adc5c85bfd66a4e4a87a9d30787601"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/header-filter-cases.mjs",
+      "destination": "examples/table-editing/header-filter-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "5e46e94daadbb2a2381f23339030d8bc209b976b231dde4877397be046148947",
+      "localSha256": "5e46e94daadbb2a2381f23339030d8bc209b976b231dde4877397be046148947"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/index.html",
+      "destination": "examples/table-editing/index.html",
+      "kind": "example",
+      "sourceSha256": "f989e6607bc5fbe61b8527297ea1bf2fdff902fd988cc94686898bff0dee4df5",
+      "localSha256": "f989e6607bc5fbe61b8527297ea1bf2fdff902fd988cc94686898bff0dee4df5"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/main.tsx",
+      "destination": "examples/table-editing/main.tsx",
+      "kind": "example",
+      "sourceSha256": "e791371f03c3e827bc50bbfecc2c987fa549594ad060b16382dc7ec235397955",
+      "localSha256": "e791371f03c3e827bc50bbfecc2c987fa549594ad060b16382dc7ec235397955"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/model.ts",
+      "destination": "examples/table-editing/model.ts",
+      "kind": "example",
+      "sourceSha256": "02ef212156f61d7d96b5a58cf2752b2259d4c62de21a1f86db14f3d96594c94f",
+      "localSha256": "412fc80ab5cec63db30f1e481b699f727276c5026dd8bdd36368a96805218659"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/reorder-cases.mjs",
+      "destination": "examples/table-editing/reorder-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "efe3547fac6f090ed29a40115defa197398f5fb6178bf6bb0f984cba216e195a",
+      "localSha256": "efe3547fac6f090ed29a40115defa197398f5fb6178bf6bb0f984cba216e195a"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/resize-cases.mjs",
+      "destination": "examples/table-editing/resize-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "2417bd2c693ed5ec0d12eb5c024c932d5dac728601a951e862906b5738e57479",
+      "localSha256": "2417bd2c693ed5ec0d12eb5c024c932d5dac728601a951e862906b5738e57479"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/row-action-cases.mjs",
+      "destination": "examples/table-editing/row-action-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "dd10ccf6afd69a56b42361a44c111635e317cf8760f0525995b3f9a693c95ad3",
+      "localSha256": "dd10ccf6afd69a56b42361a44c111635e317cf8760f0525995b3f9a693c95ad3"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/run.mjs",
+      "destination": "examples/table-editing/run.mjs",
+      "kind": "example",
+      "sourceSha256": "87af264fe665474a677b1e3d5cf370998a851f1dd4c1088753a7f43ff09a43fe",
+      "localSha256": "05d9c3fca4abbd9282bb9ff8d7a32558e14782dcefd04705e937907f60afa1a4"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/select-guidance.md",
+      "destination": "examples/table-editing/select-guidance.md",
+      "kind": "example",
+      "sourceSha256": "a1cb09ffb43448992c6a173d4d8c3641f437db328203e52e5f380a5f1f8d16f6",
+      "localSha256": "700db7d7294064172bc469bdf0e626169d4f311480fc00056def2fdeb574f83e"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/style.css",
+      "destination": "examples/table-editing/style.css",
+      "kind": "example",
+      "sourceSha256": "cc9b91f00162ab709a6b85109a63d02fde630be2ad111647cf271443e502a563",
+      "localSha256": "ad265df86ba998be101fd274616f1b79a40d6e3d4ec6f7d3bd935077575924bb"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/subtable-cases.mjs",
+      "destination": "examples/table-editing/subtable-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "df73af4617b1c6cef9948c42b7f65b0dd3c3eb77181eac2355d90109a3717902",
+      "localSha256": "df73af4617b1c6cef9948c42b7f65b0dd3c3eb77181eac2355d90109a3717902"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/tsconfig.json",
+      "destination": "examples/table-editing/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "61723b69a13522131cd645bc0a84d68b24aea1dac6fa6dc4219a9a9aab8d01d7",
+      "localSha256": "eef6a76be254ce935eface9d3b98a01f8e3632b8dc8a693eab6ca1076996745b"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/validation.ts",
+      "destination": "examples/table-editing/validation.ts",
+      "kind": "example",
+      "sourceSha256": "f4eca3811dbde5481ae5e8d21877312aceefc6e02e5b911629bdb9df0c9c50d7",
+      "localSha256": "f4eca3811dbde5481ae5e8d21877312aceefc6e02e5b911629bdb9df0c9c50d7"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/view-cases.mjs",
+      "destination": "examples/table-editing/view-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "c023c775aa6de70a89d1c531141fe4163b3900773635fd3874800b04f8fd8cdd",
+      "localSha256": "c023c775aa6de70a89d1c531141fe4163b3900773635fd3874800b04f8fd8cdd"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/viewConfiguration.ts",
+      "destination": "examples/table-editing/viewConfiguration.ts",
+      "kind": "example",
+      "sourceSha256": "2cf213c629e519668ce5aa3861819e2c032724b0b30a80bd0605582dd8c1f3a5",
+      "localSha256": "2cf213c629e519668ce5aa3861819e2c032724b0b30a80bd0605582dd8c1f3a5"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/viewStorage.ts",
+      "destination": "examples/table-editing/viewStorage.ts",
+      "kind": "example",
+      "sourceSha256": "f03af28411b76a091b51ec39f2457a0b4038e69fb370326c768b23c4c6f7322c",
+      "localSha256": "f03af28411b76a091b51ec39f2457a0b4038e69fb370326c768b23c4c6f7322c"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/viewStorageFixture.ts",
+      "destination": "examples/table-editing/viewStorageFixture.ts",
+      "kind": "example",
+      "sourceSha256": "2a21306b55ebca2b0ea651c0b6ad973d3ce3970b077c8362c4ff84eb4b8677b5",
+      "localSha256": "2a21306b55ebca2b0ea651c0b6ad973d3ce3970b077c8362c4ff84eb4b8677b5"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/vite.config.ts",
+      "destination": "examples/table-editing/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "4f5f1e6e2d2ea54aa5657134fefc928a71cc48ab7909063adb1273762db66f26",
+      "localSha256": "c87949a98632c25ed9de551227a38abb27a6a0ab6dbaa4f99d77bb37e85b6efb"
+    },
+    {
+      "source": "packages/solid-table/bench/fixture-page.css",
+      "destination": "examples/fixture-page.css",
+      "kind": "shared-fixture",
+      "sourceSha256": "0b3f272e0591d9e359731c9153d93b27a8b4aa989f0c77dc0e5366605df712ed",
+      "localSha256": "0b3f272e0591d9e359731c9153d93b27a8b4aa989f0c77dc0e5366605df712ed"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/.gitignore",
+      "destination": "examples/components/.gitignore",
+      "kind": "example",
+      "sourceSha256": "f8b80f79b1a94bf8d0988ffdd061e724b60aeebf394da5bb5e8adc77a79e7044",
+      "localSha256": "f8b80f79b1a94bf8d0988ffdd061e724b60aeebf394da5bb5e8adc77a79e7044"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/BooleanControls.tsx",
+      "destination": "examples/components/BooleanControls.tsx",
+      "kind": "example",
+      "sourceSha256": "844051a256514bfc523d3e11d6b04c3b01f4a92dbb8816e23c5bc967ec7d3915",
+      "localSha256": "c70447712291be72648d9509b4b129829cb1dfdde3d9820015a12fd42e5ff674"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/ChoiceControls.tsx",
+      "destination": "examples/components/ChoiceControls.tsx",
+      "kind": "example",
+      "sourceSha256": "fab73c667228c0429e53d12d9d48d286311d061cb4d645536999266231c5aa38",
+      "localSha256": "26f7603d46ae830e9ed9acddd8690bc0d1721b6b03593f61ec7fbfd2946727a7"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/ComboboxSmoke.tsx",
+      "destination": "examples/components/ComboboxSmoke.tsx",
+      "kind": "example",
+      "sourceSha256": "e567803cb51cb7b038e3dd087f4531490aaf56c314797377d187a2840d55ae09",
+      "localSha256": "9e006128e69326b55d6e6dfa65d283cafa43b44b555cd4489a63fe5ace5a4ff2"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/DialogControls.tsx",
+      "destination": "examples/components/DialogControls.tsx",
+      "kind": "example",
+      "sourceSha256": "c378ebf8ef45ce67a9bec13f22b570c0ac0440ccea45a6257008b71e723e115f",
+      "localSha256": "dfbd285667c1fbdc9d3ea58b332d78b36b6b2c643cceb0916abffa39b4013cbc"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/DisplayControls.tsx",
+      "destination": "examples/components/DisplayControls.tsx",
+      "kind": "example",
+      "sourceSha256": "4480b7c009367f7e5272a1664fd0f6e80f39965b1e5a360dc134eef4537e7f88",
+      "localSha256": "3976228a50820c608b3fa1b321ece1c477c6ed8f31408597c63d26d2496ddaa2"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/GenericConsumer.tsx",
+      "destination": "examples/components/GenericConsumer.tsx",
+      "kind": "example",
+      "sourceSha256": "c3e671b537745a28fb806f9f1bea9c8e1131c319a184c2cf421ab9261de1f29d",
+      "localSha256": "0ebb5271e38bbc32b153ff48b9b89e7b322abab40eb5d548dfc6c7ac45c7316f"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/KOBALTE_LICENSE.md",
+      "destination": "examples/components/KOBALTE_LICENSE.md",
+      "kind": "example",
+      "sourceSha256": "47ce819869a418c00be1fd6470a63aaf466d7bbb23e2cf182dda44fd166e27a1",
+      "localSha256": "47ce819869a418c00be1fd6470a63aaf466d7bbb23e2cf182dda44fd166e27a1"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/NativeFieldsFixture.tsx",
+      "destination": "examples/components/NativeFieldsFixture.tsx",
+      "kind": "example",
+      "sourceSha256": "5431beb4de33cb01a534c9f7f571c4e78282c777110b3eadaba34a1cc66811af",
+      "localSha256": "cdeb73ab2a71b3e604cc1acc6b0e2f29a994c56219304b05df7bd12e34c47b9f"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/OverlayControls.tsx",
+      "destination": "examples/components/OverlayControls.tsx",
+      "kind": "example",
+      "sourceSha256": "6f81013086458d38b746b1418fe036f92082a8b5cbcb9f1c9a88830f02052c91",
+      "localSha256": "83ebaa8cba3916c5697d7e3250d24af676540491e792427da9102a3741e58a45"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/PopupPriorityEditor.tsx",
+      "destination": "examples/components/PopupPriorityEditor.tsx",
+      "kind": "example",
+      "sourceSha256": "645393b2c1cc960d15e1c2dabf58c8cf026086c6244c637a4e9c1679909811fb",
+      "localSha256": "dfb57ca9900c5b9e6f2c5327656c36466c5b708169fdb775984b3e1e84260a9f"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/README.md",
+      "destination": "examples/components/README.md",
+      "kind": "example",
+      "sourceSha256": "3124e729bb9fc988858d52244bfca4e1d4a018d06d3dbb040395bc0bbe89f647",
+      "localSha256": "306a37421c1fa0bfdec8a7c436ef6a8658f847f404b6502cac341f26f7e34266"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/Standalone.tsx",
+      "destination": "examples/components/Standalone.tsx",
+      "kind": "example",
+      "sourceSha256": "2f47f28fb42db658ec684c41c2e51e12808e735b716b67ce131fe72b42d070b8",
+      "localSha256": "1d6f4be976430fc94e115087fb611789778ed6ab03997aff546f9b567962b378"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/boolean-cases.mjs",
+      "destination": "examples/components/boolean-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "6276dafc69d2419ea5f5589e59bb2fdad01de8a88b2c73f689d45be19dd6b1bb",
+      "localSha256": "6276dafc69d2419ea5f5589e59bb2fdad01de8a88b2c73f689d45be19dd6b1bb"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/choice-cases.mjs",
+      "destination": "examples/components/choice-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "d138b9254aeff15cd77b49216cd082dc45879c00337697985429bf429c18905a",
+      "localSha256": "d138b9254aeff15cd77b49216cd082dc45879c00337697985429bf429c18905a"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/consumer-cases.mjs",
+      "destination": "examples/components/consumer-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "90283fc05ad7fa01726c4740d48ae654b5d2d23ad55886c1dc809c8596a18514",
+      "localSha256": "90283fc05ad7fa01726c4740d48ae654b5d2d23ad55886c1dc809c8596a18514"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/consumer-transport.ts",
+      "destination": "examples/components/consumer-transport.ts",
+      "kind": "example",
+      "sourceSha256": "1ed4144b4d0215d6c6d59fb89be769242367b3aacfa68f94a215296334b57bca",
+      "localSha256": "1ed4144b4d0215d6c6d59fb89be769242367b3aacfa68f94a215296334b57bca"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/dialog-cases.mjs",
+      "destination": "examples/components/dialog-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "2abe9d81252b49b743c54aa459301f6621ea01c63ea6caad44b8a352623ef0f0",
+      "localSha256": "2abe9d81252b49b743c54aa459301f6621ea01c63ea6caad44b8a352623ef0f0"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/display-cases.mjs",
+      "destination": "examples/components/display-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "b91de6e81e616a18cc90eb97cc33a4b53f6935e3fc21fc0678a74054f4d6d734",
+      "localSha256": "b91de6e81e616a18cc90eb97cc33a4b53f6935e3fc21fc0678a74054f4d6d734"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/index.html",
+      "destination": "examples/components/index.html",
+      "kind": "example",
+      "sourceSha256": "b55b7369ae90391fa53076bddb22a15a702a999cc46338085077b75584e0da3a",
+      "localSha256": "b55b7369ae90391fa53076bddb22a15a702a999cc46338085077b75584e0da3a"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/main.tsx",
+      "destination": "examples/components/main.tsx",
+      "kind": "example",
+      "sourceSha256": "fa5815327c2e35cf71b21ff8eee86d5b765ca7168392f6c108b3c4b13bcf8204",
+      "localSha256": "e950c58ab4864841c381342e41cdbdc516b9eb4df8dd7c7e4a7466332c7f1ab9"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/native-field-cases.mjs",
+      "destination": "examples/components/native-field-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "86aba58b5f818a9a2140d11a979810442a3033f2ad8a862eb082333a3f4cdea0",
+      "localSha256": "86aba58b5f818a9a2140d11a979810442a3033f2ad8a862eb082333a3f4cdea0"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/overlay-cases.mjs",
+      "destination": "examples/components/overlay-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "85c63bd27801492b10e7345a1d027984d83cf0c4efb257969065e3a2beb7db56",
+      "localSha256": "85c63bd27801492b10e7345a1d027984d83cf0c4efb257969065e3a2beb7db56"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/prepare.mjs",
+      "destination": "examples/components/prepare.mjs",
+      "kind": "example",
+      "sourceSha256": "800d23eed8c522ac8c2fdc126380bee65bde46e6ba6666a3b75a46a5fbfc83fc",
+      "localSha256": "e9c2a2b6c2fa0a7398b5873cf7ec9ffc50e8b5916bc9f9585ee055490b79f7b1"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/run-live.mjs",
+      "destination": "examples/components/run-live.mjs",
+      "kind": "example",
+      "sourceSha256": "486af18df76806e8ed810c851d4ad6507106abb28716d0c6fa86807e20775715",
+      "localSha256": "67850336c90de183debed668e516c21552cb6ffd8f59defc9cd1bd8e7e604970"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/run.mjs",
+      "destination": "examples/components/run.mjs",
+      "kind": "example",
+      "sourceSha256": "175da8be6c05e86495faefe2a17633729b50d334285262f8e4f4352859e8ac38",
+      "localSha256": "70acc8ea85522730b42a5f2e8068c7032dc2fb9f583ee85eff4171728ec851c0"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/style.css",
+      "destination": "examples/components/style.css",
+      "kind": "example",
+      "sourceSha256": "7b1c254af396518160706cd9947c3748085f293165c2cf453e1188f58306544b",
+      "localSha256": "7b1c254af396518160706cd9947c3748085f293165c2cf453e1188f58306544b"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/tsconfig.json",
+      "destination": "examples/components/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "84f65c538b8dc00ac5abfce8468a81663540747f1f2ee9261ef2eea2a0c58050",
+      "localSha256": "eef6a76be254ce935eface9d3b98a01f8e3632b8dc8a693eab6ca1076996745b"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/vite.config.ts",
+      "destination": "examples/components/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "dc383210a0c11765eafd5908e8db5b338e6afcc89ad32ee4b48618e85d237516",
+      "localSha256": "c87949a98632c25ed9de551227a38abb27a6a0ab6dbaa4f99d77bb37e85b6efb"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/.gitignore",
+      "destination": "examples/table-read-only/.gitignore",
+      "kind": "example",
+      "sourceSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849",
+      "localSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/README.md",
+      "destination": "examples/table-read-only/README.md",
+      "kind": "example",
+      "sourceSha256": "cf47f9a5b785da6f7df76973e2793c403ef89c28a26a5d8f3f6beeedc98655fd",
+      "localSha256": "c9166e3b9db190c3c5785c49bddaa33881a570cef61beda365c09798df113c51"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/index.html",
+      "destination": "examples/table-read-only/index.html",
+      "kind": "example",
+      "sourceSha256": "5e251d44aa37a1e6c0a68ac75b8486647bf75af2778968c461a10e6c90455b6d",
+      "localSha256": "5e251d44aa37a1e6c0a68ac75b8486647bf75af2778968c461a10e6c90455b6d"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/main.tsx",
+      "destination": "examples/table-read-only/main.tsx",
+      "kind": "example",
+      "sourceSha256": "56ac32df796f6e8ccda9013a2777d7b7514f5c095ea4bfccbaac884b0b004447",
+      "localSha256": "86f2ebd4273d626b48ebdd46858a3415f750874b39a6d1024ff25429ea69f614"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/run.mjs",
+      "destination": "examples/table-read-only/run.mjs",
+      "kind": "example",
+      "sourceSha256": "7b671a10d177f53ad7b4350e79b7e87d74dd0b17c6fcf5d4671d0746da5f0579",
+      "localSha256": "b01871990b641706077e1cbd4c97146bc31d1f265f1d74aa571d641797a954cd"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/tsconfig.json",
+      "destination": "examples/table-read-only/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "61723b69a13522131cd645bc0a84d68b24aea1dac6fa6dc4219a9a9aab8d01d7",
+      "localSha256": "eef6a76be254ce935eface9d3b98a01f8e3632b8dc8a693eab6ca1076996745b"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/vite.config.ts",
+      "destination": "examples/table-read-only/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "8a5b470bd8696f9e76bd1b527dab07b5ad72904f6a5cbfdbb3b354240c21c46d",
+      "localSha256": "c87949a98632c25ed9de551227a38abb27a6a0ab6dbaa4f99d77bb37e85b6efb"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/.gitignore",
+      "destination": "examples/wamn/.gitignore",
+      "kind": "example",
+      "sourceSha256": "f8b80f79b1a94bf8d0988ffdd061e724b60aeebf394da5bb5e8adc77a79e7044",
+      "localSha256": "f8b80f79b1a94bf8d0988ffdd061e724b60aeebf394da5bb5e8adc77a79e7044"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/App.tsx",
+      "destination": "examples/wamn/App.tsx",
+      "kind": "example",
+      "sourceSha256": "9429a6dec873b840f3bfa8250ba79c870d009ae2f163afde0a3b9a7656745be1",
+      "localSha256": "83533df2df3c0980dea9a952145370a92ab15dbc3adc75a2d48bd6b90244cadb"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/README.md",
+      "destination": "examples/wamn/README.md",
+      "kind": "example",
+      "sourceSha256": "2f52f6f4e92dec62dbb7d590eb7f28538ebd2f35fc321f6a1e2d370cbc022373",
+      "localSha256": "084586039562aed0602340d935030f6b2f2feaba31af99aee6f1ac3600e2b0e2"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/check-inputs.mjs",
+      "destination": "examples/wamn/check-inputs.mjs",
+      "kind": "example",
+      "sourceSha256": "3c7a6d9cc92b5bafe6ca4c63a46038d9baa31beb94bc8633fc1995f34e2a65dd",
+      "localSha256": "3c7a6d9cc92b5bafe6ca4c63a46038d9baa31beb94bc8633fc1995f34e2a65dd"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/createWamnTable.ts",
+      "destination": "examples/wamn/createWamnTable.ts",
+      "kind": "example",
+      "sourceSha256": "204ad1c0b4ff9ce44e7eba1cf8867e2daf40a6653c474611492f0a565834e812",
+      "localSha256": "dce21dc35965eae65ba01f539e048a273126969a8b1686eb04d122b1ce594bcf"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/emit.rs",
+      "destination": "examples/wamn/emit.rs",
+      "kind": "example",
+      "sourceSha256": "427d05ca7724c940b3ed2a0d705f10ab3f392047b52301c5b8ae82cc26505f4e",
+      "localSha256": "427d05ca7724c940b3ed2a0d705f10ab3f392047b52301c5b8ae82cc26505f4e"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/index.html",
+      "destination": "examples/wamn/index.html",
+      "kind": "example",
+      "sourceSha256": "6698ef10bc2eab3d1a2ac66040d7f9435b4c9add94075394e4a22ea213fb90a8",
+      "localSha256": "6698ef10bc2eab3d1a2ac66040d7f9435b4c9add94075394e4a22ea213fb90a8"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/main.tsx",
+      "destination": "examples/wamn/main.tsx",
+      "kind": "example",
+      "sourceSha256": "cc70a2b1557d6459786f137e7ca835bff9fe30b8066fd4d54c1ce4e1e19bea95",
+      "localSha256": "cc70a2b1557d6459786f137e7ca835bff9fe30b8066fd4d54c1ce4e1e19bea95"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/prepare.mjs",
+      "destination": "examples/wamn/prepare.mjs",
+      "kind": "example",
+      "sourceSha256": "1aa02b8aeb8428fd2163da92e2d0250629f035abeae40c3adbe83582c873330d",
+      "localSha256": "1aa02b8aeb8428fd2163da92e2d0250629f035abeae40c3adbe83582c873330d"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/run.mjs",
+      "destination": "examples/wamn/run.mjs",
+      "kind": "example",
+      "sourceSha256": "156e6e8b3de88bb43ff76c453df93635c8f51f8ba108400af27ca12750e337f8",
+      "localSha256": "c4a7d52560b08df39bf006c3444b41cebc7358b0f6668cc672ef74d6d5841131"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/style.css",
+      "destination": "examples/wamn/style.css",
+      "kind": "example",
+      "sourceSha256": "00b1723e632ae876c6d7027baf54d24439706ec069cd3275d25a802e8a7f43c8",
+      "localSha256": "00b1723e632ae876c6d7027baf54d24439706ec069cd3275d25a802e8a7f43c8"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/transport.ts",
+      "destination": "examples/wamn/transport.ts",
+      "kind": "example",
+      "sourceSha256": "241b5a2c41da51024cb1e9bc2421312b1cdcdd2588ccc20ec9a65e3294b43172",
+      "localSha256": "241b5a2c41da51024cb1e9bc2421312b1cdcdd2588ccc20ec9a65e3294b43172"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/tsconfig.json",
+      "destination": "examples/wamn/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "71be7233ee543d5fac8b34583a479ad62b7e80aff1186f9139d90fb15da4264f",
+      "localSha256": "71be7233ee543d5fac8b34583a479ad62b7e80aff1186f9139d90fb15da4264f"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/vite.config.ts",
+      "destination": "examples/wamn/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "64f409c1985b79e29ecee8aa7e41e00850619e2b82bb481e1048ed22ed67f12c",
+      "localSha256": "06e2523e1bbf3cebb79db4b3569bf7d6729048dd2231443775dea13a6c2bc64e"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/index.html",
+      "destination": "examples/styles/index.html",
+      "kind": "example",
+      "sourceSha256": "7514609f0cfae087b47b28a06597536d0188f3cacf9230f0281c2cf26b081c51",
+      "localSha256": "7514609f0cfae087b47b28a06597536d0188f3cacf9230f0281c2cf26b081c51"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/main.ts",
+      "destination": "examples/styles/main.ts",
+      "kind": "example",
+      "sourceSha256": "5f04c36b3ee36f828359aea0d18e8dc54a9da489b2f6ba8c3c1cf9850b5b2b44",
+      "localSha256": "21859f98bbbd78e61bf9bead5f6e71eb393a16f247a21c3e0ae10ef4ab2d5588"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/run.mjs",
+      "destination": "examples/styles/run.mjs",
+      "kind": "example",
+      "sourceSha256": "11a0a1e24f8d5e3f5c12cd41e0e68d5a8359fbe19a32c52cd17ccbb2654ddece",
+      "localSha256": "11a0a1e24f8d5e3f5c12cd41e0e68d5a8359fbe19a32c52cd17ccbb2654ddece"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/tsconfig.json",
+      "destination": "examples/styles/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "b555f40881577c630e7c26fba9f748be9cbae37cd1ceade27897919c23031582",
+      "localSha256": "eef6a76be254ce935eface9d3b98a01f8e3632b8dc8a693eab6ca1076996745b"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/vite.config.ts",
+      "destination": "examples/styles/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "3c8d50f9d37290d0625917e43f9372c5d996014157d8e69b60fff475da86496a",
+      "localSha256": "c87949a98632c25ed9de551227a38abb27a6a0ab6dbaa4f99d77bb37e85b6efb"
+    }
+  ],
+  "addedFiles": [
+    "examples/README.md",
+    "examples/vite-config.ts",
+    "examples/virtualization/run.mjs"
+  ],
+  "excludedFiles": [
+    {
+      "source": "examples/solid/virtualized-rows/src/makeData.ts",
+      "reason": "Unused legacy adapter data helper. The native fixture generates its own records."
+    }
+  ],
+  "checks": {
+    "sourceCases": 276,
+    "builtPackageCases": 276,
+    "liveInteractions": 101,
+    "hotUpdates": 8,
+    "styles": true,
+    "virtualization": ["source", "package"],
+    "optionalWamn": "Preparation remains explicit. Generated inputs are not part of this extraction."
+  }
+}

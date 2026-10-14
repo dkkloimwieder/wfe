@@ -22,3 +22,18 @@ Required checks cover types, imports, unit behavior, source and built-package co
 The standalone acceptance run makes the old checkout unavailable to builds and tests.
 Heavy checks run serially because host load varies.
 Timings remain advisory. Correctness, allocation counts, and cleanup remain strict where the existing tests use them.
+
+## Examples
+
+The [example record](examples.json) records the moved fixtures and their local hashes.
+Examples import public component exports through one shared Vite configuration.
+The `wfe-source` condition selects owned source for development and live updates.
+Built consumers use the `solid` condition without source aliases.
+The styles demo imports the public stylesheet.
+The unused legacy `makeData.ts` helper stays outside this extraction.
+
+Live previews declare external dependencies through their owning package.
+This declaration prevents late dependency optimization from replacing modules during interaction.
+Browser reports stay under `test-results/migration-examples`.
+Source and built runs retain separate reports.
+The optional WAMN fixture keeps its explicit external input preparation.
