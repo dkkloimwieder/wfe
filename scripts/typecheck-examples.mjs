@@ -6,6 +6,9 @@ for (const example of [
   'analytics',
   'styles',
   'virtualization',
+  'hydration',
+  'accessor-profile',
+  'editing-overhead',
 ]) {
   console.log(`Types: ${example}`)
   const result = spawnSync(

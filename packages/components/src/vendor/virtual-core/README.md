@@ -4,7 +4,7 @@ This directory contains the runtime source of `@tanstack/virtual-core` version `
 The source and MIT license are checked into Git. Preparation does not download this engine.
 `provenance.json` records the SHA-256 of each original source file and license from the installed npm package.
 `localSha256` records the owned source and unchanged license after local repairs.
-Run `pnpm --filter @table/ui test:virtual:vendor` from the repository root to test these hashes.
+Run `pnpm test:integrity` from the repository root to test these hashes.
 The upstream repository is [TanStack Virtual](https://github.com/TanStack/virtual).
 
 Both table row modes use this `Virtualizer` class through `createTableVirtualizer`.
@@ -32,7 +32,7 @@ Other repository examples can still use the installed TanStack Virtual package.
 
 ## Maintenance
 
-The [shared vendor procedure](../../../../../solid-ui-core/src/vendor/kobalte/README.md#update-a-vendor-revision) covers source inventories, original comparison, patch replay, and build contributions.
-From the repository root, run `pnpm audit:solid:vendor --bundles` to include both owned vendor subsets.
+The [shared vendor procedure](../kobalte/README.md#update-a-vendor-revision) covers source inventories, original comparison, patch replay, and build contributions.
+From the repository root, run `pnpm audit:vendor` to include both owned vendor subsets.
 Supply `--virtual-upstream` with the exact pinned package directory to test original hashes and generate its local repair patch.
 The replay test requires every resulting source and license hash to match the checked-in copy.

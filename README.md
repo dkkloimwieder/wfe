@@ -17,12 +17,14 @@ pnpm check
 ```
 
 `pnpm check` runs formatting, lint, strict types, package builds, and the current tests serially.
-`pnpm test:unit` runs the component unit suite after its extraction.
+`pnpm test:unit` runs native engine, editing, event, and virtualizer unit tests.
+`pnpm test:qualification` runs the complete serial qualification suite.
 The component source and native Table engine are extracted.
 The generic examples now use public package exports.
 Source and built-package browser cases cover controls, editing, read-only tables, analytics, styles, and virtualization.
 See [the example instructions](examples/README.md) for previews and browser commands.
-The remaining migration issues cover unit tools, rendering, hydration, deeper contracts, and standalone cutover.
+Unit tools, rendering, hydration, vendor audits, and live checks now run from wfe.
+The remaining migration issues cover deeper contracts and standalone cutover.
 
 ## Organization
 

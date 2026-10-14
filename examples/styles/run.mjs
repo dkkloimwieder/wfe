@@ -4,7 +4,16 @@ import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 
-const root = fileURLToPath(new URL('.dist/', import.meta.url))
+const root = fileURLToPath(
+  new URL(
+    process.env.BENCH_DEVELOPMENT
+      ? '.dist-dev/'
+      : process.env.BENCH_DISTRIBUTION
+        ? '.dist-package/'
+        : '.dist/',
+    import.meta.url,
+  ),
+)
 const server = createServer(async (request, response) => {
   try {
     const path = new URL(request.url, 'http://localhost').pathname

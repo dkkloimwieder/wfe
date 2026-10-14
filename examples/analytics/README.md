@@ -129,7 +129,7 @@ pnpm exec node examples/analytics/run.mjs
 
 Install Playwright Chromium before the browser test. Use `BENCH_DISTRIBUTION=1` for both commands to test built package imports after a package build.
 Use `NODE_ENV=development BENCH_DEVELOPMENT=1` for both commands to include runtime diagnostics.
-`pnpm test:solid:qualification` includes source and distribution builds, actual CSV downloads, loading/error/empty states, changing schemas, and display controls.
+`pnpm test:qualification` includes source and distribution builds, actual CSV downloads, loading/error/empty states, changing schemas, and display controls.
 The browser test also covers refreshes, escaped values, keyboard sorting, narrow screens, disposal, full server exports, and distant scroll ranges.
 Use `BENCH_CASE="Load all"` to run only the full-browsing case.
 Tests run in sequence. Host timings remain advisory because other processes share the machine.

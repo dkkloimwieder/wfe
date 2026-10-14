@@ -70,7 +70,7 @@ Beads `table-gd3.6.7.9` retains the earlier repair evidence and upstream retirem
 From the repository root, run:
 
 ```sh
-pnpm --filter @table/ui-core test:vendor
+pnpm test:integrity
 ```
 
 The command tests file hashes, licenses, relative imports, and declared external dependencies.
@@ -101,19 +101,19 @@ Menu Escape handling runs before list navigation consumes the key.
 
 ## Inventory and ownership
 
-The [audit command](../../../../../scripts/audit-solid-ui-vendor.mjs) inventories both generic UI packages.
+The [audit command](../../../../../scripts/audit-vendor.mjs) inventories the generic components package.
 Its report records every TypeScript and CSS source, original hash, local hash, and import edge.
 An import edge connects a source file to its dependency.
 The report distinguishes imports that supply runtime code from imports that supply only types.
 It resolves workspace entry points and lists the external package declarations and their importing files.
 The existing integrity commands require unchanged license bytes and declared external imports.
 
-| Source                                      | Origin                           | License                   | Inventory                                                                                                   |
-| ------------------------------------------- | -------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Kobalte Core and Utils                      | Revision recorded above          | Three unchanged MIT files | 204 source files in `provenance.json`                                                                       |
-| Virtual engine                              | `@tanstack/virtual-core` 3.17.11 | Unchanged MIT file        | Three sources in [virtual provenance](../../../../solid-ui/src/virtual/vendor/virtual-core/provenance.json) |
-| Generic Core helpers                        | Repository-owned source          | Repository MIT license    | `solid-ui-core/src`, outside the vendor directory                                                           |
-| Styled controls, Table, and virtual binding | Repository-owned source          | Repository MIT license    | `solid-ui/src`, outside the virtual vendor directory                                                        |
+| Source                                      | Origin                           | License                   | Inventory                                                              |
+| ------------------------------------------- | -------------------------------- | ------------------------- | ---------------------------------------------------------------------- |
+| Kobalte Core and Utils                      | Revision recorded above          | Three unchanged MIT files | 204 source files in `provenance.json`                                  |
+| Virtual engine                              | `@tanstack/virtual-core` 3.17.11 | Unchanged MIT file        | Three sources in [virtual provenance](../virtual-core/provenance.json) |
+| Generic Core helpers                        | Repository-owned source          | Repository MIT license    | `components/src/internal`, outside the vendor directory                |
+| Styled controls, Table, and virtual binding | Repository-owned source          | Repository MIT license    | `components/src`, outside the virtual vendor directory                 |
 
 The Table source came from this repository's shared presentation.
 The generic wrappers and helpers are repository code, rather than copies of installed component packages.
@@ -122,7 +122,7 @@ The virtual engine imports no external runtime package.
 
 Solid and `@solidjs/web` remain external peers.
 External runtime imports also include Floating UI, internationalized number formatting, and the declared Solid Primitives packages.
-Their exact declarations remain in [the Core manifest](../../../package.json) and [the UI manifest](../../../../solid-ui/package.json).
+Their exact declarations remain in [the component manifest](../../../package.json).
 The UI package imports its owned Core package through workspace entry points.
 The native Table peer supplies types to the UI source.
 Applications create the native engine and pass it to Table presentation.
@@ -133,15 +133,15 @@ The generated comparison patch records every local file difference, including fo
 All 204 Kobalte sources differ from their originals, but that count does not represent 204 behavior repairs.
 The source families below locate the behavior changes described earlier.
 
-| Repair                                                                             | Source locations                                                                                                                             |
-| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| Owned events and custom `as` forwarding                                            | `core/src/polymorphic`, `core/src/dismissable-layer`, and `solid-ui-core/src/ownedEvents.ts`                                                 |
-| Compiler ref handling and viewport-only scrolling                                  | `core/src/select`, `core/src/combobox`, `core/src/selection`, and `utils/src`                                                                |
-| Controlled search, missing selected options, native form values, and announcements | `core/src/combobox`, `core/src/select`, and `core/src/listbox`                                                                               |
-| Controlled boolean values, prevented events, form reset, and label refs            | `core/src/checkbox`, `core/src/switch`, `core/src/radio-group`, `core/src/form-control`, and `solid-ui-core/src/formReset.ts`                |
-| Modal focus, background hiding, dismissal, and closed-content cleanup              | `core/src/dialog`, `core/src/popover`, `core/src/menu`, `core/src/dismissable-layer`, and `solid-ui-core/src/controls/modal-hide-outside.ts` |
-| Nested menu navigation and timer cleanup                                           | `core/src/menu`, `core/src/selection`, and `core/src/tooltip`                                                                                |
-| Fixed arithmetic measurements and shared virtual modes                             | [Virtual engine repair record](../../../../solid-ui/src/virtual/vendor/virtual-core/README.md#local-changes)                                 |
+| Repair                                                                             | Source locations                                                                                                                                   |
+| ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Owned events and custom `as` forwarding                                            | `core/src/polymorphic`, `core/src/dismissable-layer`, and `components/src/internal/ownedEvents.ts`                                                 |
+| Compiler ref handling and viewport-only scrolling                                  | `core/src/select`, `core/src/combobox`, `core/src/selection`, and `utils/src`                                                                      |
+| Controlled search, missing selected options, native form values, and announcements | `core/src/combobox`, `core/src/select`, and `core/src/listbox`                                                                                     |
+| Controlled boolean values, prevented events, form reset, and label refs            | `core/src/checkbox`, `core/src/switch`, `core/src/radio-group`, `core/src/form-control`, and `components/src/internal/formReset.ts`                |
+| Modal focus, background hiding, dismissal, and closed-content cleanup              | `core/src/dialog`, `core/src/popover`, `core/src/menu`, `core/src/dismissable-layer`, and `components/src/internal/controls/modal-hide-outside.ts` |
+| Nested menu navigation and timer cleanup                                           | `core/src/menu`, `core/src/selection`, and `core/src/tooltip`                                                                                      |
+| Fixed arithmetic measurements and shared virtual modes                             | [Virtual engine repair record](../virtual-core/README.md#local-changes)                                                                            |
 
 The [scroll patch](../../../../../patches/solid-primitives-scroll-3.0.0-next.4.patch) repairs an external primitive's owner registry.
 It is not a vendored primitive implementation.
@@ -154,10 +154,10 @@ An upstream release number alone does not prove that a repair is obsolete.
 From the repository root, run:
 
 ```sh
-pnpm audit:solid:vendor --bundles
+pnpm audit:vendor
 ```
 
-The report is `test-results/solid-ui-vendor-audit/audit.json`.
+The report is `test-results/vendor-audit/audit.json`.
 The command tests both vendor inventories before it generates the source graph.
 It builds the read-only, editing, analytics, and popup fixtures serially without writing their build directories.
 Clear `BENCH_DEVELOPMENT`, `BENCH_DISTRIBUTION`, and `BENCH_PROFILE` before this production audit.
@@ -209,11 +209,14 @@ mkdir -p /tmp/table-kobalte-pinned
 tar -xzf /tmp/table-kobalte-pinned.tgz --directory=/tmp/table-kobalte-pinned --strip-components=1
 ```
 
-Use the pinned virtual package from the repository's installed dependency tree.
-The following path applies to the current lockfile.
+Download the pinned Virtual archive into a separate temporary directory.
+Virtual remains vendored and does not require an installed runtime package.
 
 ```sh
-pnpm audit:solid:vendor --kobalte-upstream /tmp/table-kobalte-pinned --virtual-upstream node_modules/.pnpm/@tanstack+virtual-core@3.17.11/node_modules/@tanstack/virtual-core
+curl --fail --location --output /tmp/wfe-virtual-pinned.tgz https://registry.npmjs.org/@tanstack/virtual-core/-/virtual-core-3.17.11.tgz
+mkdir -p /tmp/wfe-virtual-pinned
+tar -xzf /tmp/wfe-virtual-pinned.tgz --directory=/tmp/wfe-virtual-pinned --strip-components=1
+pnpm exec node scripts/audit-vendor.mjs --kobalte-upstream /tmp/table-kobalte-pinned --virtual-upstream /tmp/wfe-virtual-pinned
 ```
 
 The command first compares each supplied original with its recorded upstream hash.
@@ -248,15 +251,11 @@ Alternatively, set `GIT_CEILING_DIRECTORIES` to that directory's parent.
 Git can silently skip relative patch paths when it discovers an enclosing checkout.
 The audit prevents that discovery and requires exact replay hashes.
 
-From the repository root, run the integrity and required Solid checks:
+From the repository root, run the integrity and qualification commands:
 
 ```sh
-pnpm --filter @table/ui-core test:vendor
-pnpm --filter @table/ui test:virtual:vendor
-pnpm test:solid:qualification
-pnpm test --projects=@tanstack/table-core,@tanstack/solid-table --parallel=1
-pnpm test:e2e --projects=tanstack-solid-table-example-basic-use-table,tanstack-solid-table-example-filters --parallel=1 --no-retry
-pnpm test:docs
+pnpm test:integrity
+pnpm test:qualification
 ```
 
 Qualification includes strict types, lint, source and distribution interactions, server rendering, hydration, and live component reloads.

@@ -37,3 +37,21 @@ This declaration prevents late dependency optimization from replacing modules du
 Browser reports stay under `test-results/migration-examples`.
 Source and built runs retain separate reports.
 The optional WAMN fixture keeps its explicit external input preparation.
+
+## Tests and maintenance
+
+The [test extraction](testing-extraction.json) records original and local hashes for the moved tests, fixtures, documents, and tools.
+The [qualification instructions](../docs/qualification.md) describe the standalone command and retained reports.
+Native hydration replaces the mixed adapter fixture while preserving DOM identity, updates, and disposal assertions.
+The runner preserves serial stages, mandatory live checks, development diagnostics, and first-failure logs.
+The vendor audit records import ownership and retained bundle contributions.
+Original comparisons require unchanged license bytes and exact repair replay.
+
+The analytics density repair uses one DOM snapshot for related row bounds and scroll extent.
+The original failed snapshots remain available in the qualification reports.
+Six independent density runs and the complete qualification suite pass with the repair.
+The repair is a separate commit from this tool migration.
+
+The moved performance tools pass small source and built-package smoke runs.
+Historical adapter heap wrappers remain excluded because their fixtures are not part of wfe.
+The retained heap findings describe the original repository and its recorded measurements.

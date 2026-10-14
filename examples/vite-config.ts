@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
+import { isAbsolute, sep } from 'node:path'
 import { defineConfig } from 'vite'
 import solid from '@solidjs/vite-plugin'
 import type { PluginOption } from 'vite'
@@ -11,6 +12,11 @@ const dependencies = Object.keys(
       'utf8',
     ),
   ).dependencies,
+)
+
+const repository = fileURLToPath(new URL('../', import.meta.url)).replace(
+  /[\\/]$/,
+  '',
 )
 
 export function exampleConfig(url: string, extra: PluginOption[] = []) {
@@ -26,6 +32,16 @@ export function exampleConfig(url: string, extra: PluginOption[] = []) {
       {
         name: 'example-module-inventory',
         generateBundle(_options, bundle) {
+          for (const chunk of Object.values(bundle)) {
+            if (chunk.type !== 'chunk') continue
+            for (const id of Object.keys(chunk.modules)) {
+              if (isAbsolute(id) && !id.startsWith(repository + sep)) {
+                throw new Error(
+                  `Example module escapes the wfe repository: ${id}`,
+                )
+              }
+            }
+          }
           this.emitFile({
             type: 'asset',
             fileName: 'modules.json',

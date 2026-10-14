@@ -61,12 +61,6 @@ async function visit(directory) {
               allowed.has(packageName),
               `${path}: undeclared UI dependency: ${name}`,
             )
-            if (packageName === '@tanstack/solid-table')
-              assert.equal(
-                name,
-                '@tanstack/solid-table/native',
-                `${path}: UI must use the native engine`,
-              )
           }
         }
         ts.forEachChild(node, inspect)

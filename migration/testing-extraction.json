@@ -1,0 +1,383 @@
+{
+  "sourceCommit": "36cdfa0beffe7a38de254cf8c4ff749904c03570",
+  "entries": [
+    {
+      "source": "packages/solid-table/bench/README.md",
+      "destination": "bench/README.md",
+      "kind": "performance",
+      "sourceSha256": "b2c257f9934cfc89cba5af1e03a9c09469a160536ed60153b6c42b72a6438335",
+      "localSha256": "65f1f4f7bc5cff17a5a786a3887b177d494f9c87eaa42e1102b294cf4de9d3bc"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/.gitignore",
+      "destination": "examples/accessor-profile/.gitignore",
+      "kind": "performance",
+      "sourceSha256": "6ea51632c1dbde330d29e7ff14e4d0149add6d45c19f9771f367274fc8fd9ca6",
+      "localSha256": "6ea51632c1dbde330d29e7ff14e4d0149add6d45c19f9771f367274fc8fd9ca6"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/index.html",
+      "destination": "examples/accessor-profile/index.html",
+      "kind": "performance",
+      "sourceSha256": "7a445fa4fedbd392cfe6ee5fc299dd1df4bcefce565ceccb7ca9f6b6f2b85aaa",
+      "localSha256": "7a445fa4fedbd392cfe6ee5fc299dd1df4bcefce565ceccb7ca9f6b6f2b85aaa"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/main.ts",
+      "destination": "examples/accessor-profile/main.ts",
+      "kind": "performance",
+      "sourceSha256": "daf71b658a7888720e085bdb49619b1eba24e30263c50de0b535beea829595e5",
+      "localSha256": "c97f010bb1687551c3f5ce5c948571978c0f5f83349a2c33c880b3e12be7bdfa"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/run.mjs",
+      "destination": "examples/accessor-profile/run.mjs",
+      "kind": "performance",
+      "sourceSha256": "3ec3a78d51630ef61f8501ecc36754d330f84ccbf5038dd424fd1977902c738a",
+      "localSha256": "3ec3a78d51630ef61f8501ecc36754d330f84ccbf5038dd424fd1977902c738a"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/tsconfig.json",
+      "destination": "examples/accessor-profile/tsconfig.json",
+      "kind": "performance",
+      "sourceSha256": "b555f40881577c630e7c26fba9f748be9cbae37cd1ceade27897919c23031582",
+      "localSha256": "eef6a76be254ce935eface9d3b98a01f8e3632b8dc8a693eab6ca1076996745b"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/vite.config.ts",
+      "destination": "examples/accessor-profile/vite.config.ts",
+      "kind": "performance",
+      "sourceSha256": "f8d54b1d89c9dc92c5deacfe100abc9bfe0605d66f7f1423b58cd3363f8b6784",
+      "localSha256": "c87949a98632c25ed9de551227a38abb27a6a0ab6dbaa4f99d77bb37e85b6efb"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/.gitignore",
+      "destination": "examples/editing-overhead/.gitignore",
+      "kind": "performance",
+      "sourceSha256": "6ea51632c1dbde330d29e7ff14e4d0149add6d45c19f9771f367274fc8fd9ca6",
+      "localSha256": "6ea51632c1dbde330d29e7ff14e4d0149add6d45c19f9771f367274fc8fd9ca6"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/README.md",
+      "destination": "examples/editing-overhead/README.md",
+      "kind": "performance",
+      "sourceSha256": "8f26c9691a1ecdfbea632ad439229a36ed9c25e4b4cf33e05b704ac3f2863732",
+      "localSha256": "b7e7db7677af597bced26e0ad5d25f801e7808fc2ca634ac1a6c399682343066"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/index.html",
+      "destination": "examples/editing-overhead/index.html",
+      "kind": "performance",
+      "sourceSha256": "8a40858b78f3df98ac37b87d0b5b8b5e7602a7ef6e5f0c1fa3dd468544b5ed18",
+      "localSha256": "8a40858b78f3df98ac37b87d0b5b8b5e7602a7ef6e5f0c1fa3dd468544b5ed18"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/main.tsx",
+      "destination": "examples/editing-overhead/main.tsx",
+      "kind": "performance",
+      "sourceSha256": "4d8540e9cef0a6893524eddd5b602cf8d6cda84f5517184634b4c94c66a487a0",
+      "localSha256": "c414066207e5d697c84b71ec820450543866ea2fe443892893ca7d3a1354537b"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/run.mjs",
+      "destination": "examples/editing-overhead/run.mjs",
+      "kind": "performance",
+      "sourceSha256": "efa67d0442cf1a1168defe7b38c95b6cde8439dbc4e21c2ad1b6f8861b68431c",
+      "localSha256": "4fc98f062e54321efbe7aabd6a2cd5c0c80e84f73abafe7c8d6800c8798acd14"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/summarize.mjs",
+      "destination": "examples/editing-overhead/summarize.mjs",
+      "kind": "performance",
+      "sourceSha256": "13967681e696ecc67176025dc5324e680ee0fec0b198a22a219009283bcabe0f",
+      "localSha256": "23b2035bad11d0a78501b668d88f8d159f00ab6b20bb083d8a98f91e65d12032"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/tsconfig.json",
+      "destination": "examples/editing-overhead/tsconfig.json",
+      "kind": "performance",
+      "sourceSha256": "d671ab8f40d92bdb3a7d5007b5aae0bb059dc86edde41c21cdd97f44f034b66b",
+      "localSha256": "eef6a76be254ce935eface9d3b98a01f8e3632b8dc8a693eab6ca1076996745b"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/vite.config.ts",
+      "destination": "examples/editing-overhead/vite.config.ts",
+      "kind": "performance",
+      "sourceSha256": "233bb5e273f40856da2a65cdbc16bf940e7ff9772ac7473335caaf37072108cf",
+      "localSha256": "c87949a98632c25ed9de551227a38abb27a6a0ab6dbaa4f99d77bb37e85b6efb"
+    },
+    {
+      "source": "packages/solid-table/bench/heap-findings.md",
+      "destination": "bench/heap-findings.md",
+      "kind": "performance",
+      "sourceSha256": "94080eadaa6fcdc8a58003e2c9e7664ff165662762839badbd0ee4e57e59217b",
+      "localSha256": "94080eadaa6fcdc8a58003e2c9e7664ff165662762839badbd0ee4e57e59217b"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/.gitignore",
+      "destination": "examples/hydration/.gitignore",
+      "kind": "hydration-fixture",
+      "sourceSha256": "11910ff5caf2a639f55b1d6c1dd5e623c4c5bfef2b53530b76e9315aac4a234f",
+      "localSha256": "11910ff5caf2a639f55b1d6c1dd5e623c4c5bfef2b53530b76e9315aac4a234f"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/App.tsx",
+      "destination": "examples/hydration/App.tsx",
+      "kind": "hydration-fixture",
+      "sourceSha256": "30cbe76900c5ed5657f0c03632aa769b3193d6631512b7646fdeed7cf5117666",
+      "localSha256": "6d77ed4e5e0f9f35c04af1467f8a38864142259428d9393381233446974d9376"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/client.tsx",
+      "destination": "examples/hydration/client.tsx",
+      "kind": "hydration-fixture",
+      "sourceSha256": "964f8c878d7b15257fd1bd4b1a1ab11d2fe89788ae5762a0efefaf7c5b9ecdff",
+      "localSha256": "964f8c878d7b15257fd1bd4b1a1ab11d2fe89788ae5762a0efefaf7c5b9ecdff"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/index.html",
+      "destination": "examples/hydration/index.html",
+      "kind": "hydration-fixture",
+      "sourceSha256": "2feaab95c8115189028d234bb49ecc68f3acfc72b49178d2ded96b716e309ed0",
+      "localSha256": "2feaab95c8115189028d234bb49ecc68f3acfc72b49178d2ded96b716e309ed0"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/run.mjs",
+      "destination": "examples/hydration/run.mjs",
+      "kind": "hydration-fixture",
+      "sourceSha256": "e7d43915f6c3eab04e108ff1802e6ba4a0edb6d7a6b49d9f6a99a3f83fbbac4e",
+      "localSha256": "af1c3b7578548defadc826f15ba0d2b7595b3215544160293858c2678cc6cf9e"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/server.tsx",
+      "destination": "examples/hydration/server.tsx",
+      "kind": "hydration-fixture",
+      "sourceSha256": "65e7e18e8c86913e50ccdaa09d44f782087713a798c522c18d6921b0e4014924",
+      "localSha256": "65e7e18e8c86913e50ccdaa09d44f782087713a798c522c18d6921b0e4014924"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/tsconfig.json",
+      "destination": "examples/hydration/tsconfig.json",
+      "kind": "hydration-fixture",
+      "sourceSha256": "c51cfe1ea9ada0d0a693811abfefbb6a5ac34acfef263f86e23f72d99c9b3231",
+      "localSha256": "a83508731645ddbf622dedc44dc0b0826730529b9716efde02a3493ccca19ac7"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/vite.config.ts",
+      "destination": "examples/hydration/vite.config.ts",
+      "kind": "hydration-fixture",
+      "sourceSha256": "95f8d0119ab74bff45aca58db0b8619cd3f985f811153b8b32854394f143b21f",
+      "localSha256": "f683cc236388c518e6cf8dfba055b536a76aca31393fb08eea52490ae2614975"
+    },
+    {
+      "source": "packages/solid-table/bench/inspect-heap.mjs",
+      "destination": "bench/inspect-heap.mjs",
+      "kind": "performance",
+      "sourceSha256": "122c3d72c7822a89f01119594cf56078b26ffc735252d740cf00a9c76cce2395",
+      "localSha256": "122c3d72c7822a89f01119594cf56078b26ffc735252d740cf00a9c76cce2395"
+    },
+    {
+      "source": "packages/solid-table/bench/table/README.md",
+      "destination": "docs/contracts/README.md",
+      "kind": "documentation",
+      "sourceSha256": "ee2192dfbdef28e8a748c21e1d1f1fbb73ffefb153ae7ded3d730365d9ce6f40",
+      "localSha256": "4aed9d97a2be355e819f5ae97b311117471221876ee6580d6e3f6ddd18fd986c"
+    },
+    {
+      "source": "packages/solid-table/bench/table/UI-BOUNDARIES.md",
+      "destination": "docs/contracts/UI-BOUNDARIES.md",
+      "kind": "documentation",
+      "sourceSha256": "2f7c732b32f6d73aa68737cf8a9c0362a176abcd33427ac7064ac633faa2ff8f",
+      "localSha256": "a00331bc9e1cff6f57aa710fe1c73c40b150a202996a74ea0f903a02393b9b1c"
+    },
+    {
+      "source": "packages/solid-table/scripts/test-native-imports.mjs",
+      "destination": "scripts/check-engine-imports.mjs",
+      "kind": "tooling",
+      "sourceSha256": "71618bff114c51721c62cce5599fac406ddbb04a0079ba8468fefed25cb5036b",
+      "localSha256": "a616010a44a2dbcf8df840537bfddca1bde769784691af20981d9741e9348709"
+    },
+    {
+      "source": "packages/solid-table/scripts/test-ssr.mjs",
+      "destination": "scripts/test-ssr.mjs",
+      "kind": "tooling",
+      "sourceSha256": "24f10a47bfce1c0e492c607e9a3b18798d9ae1ea59682ddbc71796f5b373700a",
+      "localSha256": "358a787c466c9006a90e04fe97bba4ceb7c117b194f89ade806bb6c988670583"
+    },
+    {
+      "source": "packages/solid-table/scripts/test-ui-contracts.mjs",
+      "destination": "scripts/test-contracts.mjs",
+      "kind": "tooling",
+      "sourceSha256": "d626f214c88f98912e549ac9eb9e8155eae52d2e9a4b689e068ed2c69ddf15a8",
+      "localSha256": "206fb6b858fa2cc2816bbab97cd6fbf855ee61e3ee522acd380dd22c7f0cafff"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/applicationRecords.test.ts",
+      "destination": "tests/unit/applicationRecords.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "f1af57216b8454dabb6f0f67f7044ea21caa088f18870606d1c61e61c2560e80",
+      "localSha256": "c1c9f572d41feb40d3f11f018f0017c3d1e9d7d31cffb459a4bf083cf1d9e7a1"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/editingBatch.test.ts",
+      "destination": "tests/unit/editingBatch.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "879dd7bc0400fdf8492d226f16155c8bfa47fae6d30e5af14bb2320098226ee4",
+      "localSha256": "d875b21aa2ce6e60e76998eee0dcb59265c97ad2994d89d630446dab06642884"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/editingCallbacks.test.ts",
+      "destination": "tests/unit/editingCallbacks.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "0e1975de3592c0fcf1d728b78ee71cbdf067a46b1db4f2ff3ad165cb703e918d",
+      "localSha256": "412bcc7fc41687cf89cf12400743a0332932a4e0d1eaa92aa847e46471aec03f"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/editingValidation.test.ts",
+      "destination": "tests/unit/editingValidation.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "535666f448cf0f9d242d77341d805c63573968857e39bd8f7f74beec4e7c5b04",
+      "localSha256": "9ca0c90c3b97514a5199351fedb8df4f8ebefdb5aa0ce02777a86d9ddee9f7e1"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeAggregations.test.ts",
+      "destination": "tests/unit/aggregations.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "76ecc0ec156b055513db71292a261944d818e123bf35fc5925d87ee907c96d8f",
+      "localSha256": "9aefb884a86511dac42a4d7cb636e340e3f381e77eb8639ff3679451133f0106"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeEvents.test.ts",
+      "destination": "tests/unit/events.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "7f05a741f9356bbaed7780536c9d7fafcf6edfd91b76b18211ec03d30204850e",
+      "localSha256": "3e883ab9fe1318fc897b47ebd1dd0a0a406bfb78e3d055cecc01a844176d9745"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeFeatures.test.tsx",
+      "destination": "tests/unit/features.test.tsx",
+      "kind": "unit-test",
+      "sourceSha256": "146979d5a4e1c73c3d710c246fe5254f4dcb704b17facd9dc3128b25bd541895",
+      "localSha256": "cd11c1209ee5c84558883a25f283ee0184a765944af2e26aea7140be3cc73f96"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeFilterValueReuse.test.ts",
+      "destination": "tests/unit/filterValueReuse.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "26f2666007db33c51217bcf0df290f21646692030c86dfb871b783c6ba2d3dda",
+      "localSha256": "8fa64ccbf52f75a5b095bd7e631668364cd5e77c624b8e26a39f656032f650c9"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeGrouping.test.tsx",
+      "destination": "tests/unit/grouping.test.tsx",
+      "kind": "unit-test",
+      "sourceSha256": "09b709d1da02b31b8c94b7866d4e411f52a0c0586ff522c692029435ddd85c69",
+      "localSha256": "86ae9221a6de674e828278acd43bab3643e4e54f99066d632584fa8ac91494d5"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativePausedProcessing.test.ts",
+      "destination": "tests/unit/pausedProcessing.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "3b49a956be337fa3e74ca9b4449a67464933f5717463211a6c962f14be89f0b5",
+      "localSha256": "9511c37aef7a5300a38647093f4cc1fa60bf4e1eece4019ab7ff68b07c7e2824"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativePinning.test.ts",
+      "destination": "tests/unit/pinning.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "5f6885cd56e3a23111719e1560b66bbea14a8382d8d779d90ed979833c04ede0",
+      "localSha256": "d48a4d42997a51aa1885c6bdbcd446f3b5b8c0a3312cee90b4391f2eaadf3069"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeProcessing.test.tsx",
+      "destination": "tests/unit/processing.test.tsx",
+      "kind": "unit-test",
+      "sourceSha256": "c54b4414c34f2f04aacff2c1448320ce653d255a29ab3463f98dd53b09a1b02a",
+      "localSha256": "024e0a46c396814a0bf8e314030adebdc376a761db78f48eecaefc3a18efa1e3"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeTable.test.tsx",
+      "destination": "tests/unit/table.test.tsx",
+      "kind": "unit-test",
+      "sourceSha256": "3ee5dd7dda0e3f6e6c2afd683a8651cdef4dfc9a7f263e00d5299b34c1fca3be",
+      "localSha256": "5b34ce23dca54ef3f89f907f9caf6a6da2518679e30cf2d752dbf8ba412973a8"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeVirtualizer.test.ts",
+      "destination": "tests/unit/virtualizer.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "fe398ef92e6652fcf3d6042cf94e250fb5dc1b3115fae6bce7eba50fda0a1b75",
+      "localSha256": "3d358ddb75719441c82469dc745ca1f13b4b99609f080decf066d4febf47b898"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/subTables.test.ts",
+      "destination": "tests/unit/subTables.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "5b791b50160f43c36f8ed29806539f23f3d9478d7f0b08d6bbd348f12f59da0d",
+      "localSha256": "5a25e50ea7d1166d8ed09f4093e93b5a4c9d1f4a68ea63086c3408c8826c551e"
+    },
+    {
+      "source": "packages/solid-ui-core/README.md",
+      "destination": "docs/origins/core/README.md",
+      "kind": "documentation",
+      "sourceSha256": "6666bedb6ac148741e242625bb6ebd24d9c9d73e628f715a33b0f026b5987ae0",
+      "localSha256": "6014718c05984ca7a7a2e0fed70a75d8b771b0e017df56ed8a40aa1be853f6ec"
+    },
+    {
+      "source": "packages/solid-ui-core/tests/source.test.mjs",
+      "destination": "tests/source/source.test.mjs",
+      "kind": "source-test",
+      "sourceSha256": "2a84ad7616736822a13543526f631044fb41f69159f829ae8e1be0ecb28611fa",
+      "localSha256": "217361f72c3f12f1bb23546baf255e7b6b92e61fc0bda04fc97b2d33c1a6a929"
+    },
+    {
+      "source": "scripts/audit-solid-ui-vendor.mjs",
+      "destination": "scripts/audit-vendor.mjs",
+      "kind": "tooling",
+      "sourceSha256": "8b1bf000f22162809832b6d64e045cae040f2695a9799bd6f8ddc79aa2a1feff",
+      "localSha256": "2f50b63cc760832aae72e93e14e0f8cba1338d32373b7f15e8b488b59b811df2"
+    },
+    {
+      "source": "scripts/run-solid-qualification.mjs",
+      "destination": "scripts/qualify.mjs",
+      "kind": "tooling",
+      "sourceSha256": "9220b7d9acd3ab9a09336b72e6f85761aa172e3da42780597afdf334ac297082",
+      "localSha256": "6ae2833d39678118e557634d7c9389b8d175bf4685507abf3936acc42d4460f9"
+    },
+    {
+      "source": "scripts/tests/solid-qualification.test.mjs",
+      "destination": "tests/tooling/qualification.test.mjs",
+      "kind": "tooling",
+      "sourceSha256": "3f82e60e7e17e26ff8a2a60ac95d38f681f5fb50e26165844c74985bd5963394",
+      "localSha256": "b4b17872600ee0569183a991a0381a09f552c1ac51e9123057b74bd93962942f"
+    }
+  ],
+  "excludedLegacyHarnesses": [
+    "bench/capture-heaps.mjs",
+    "bench/lifecycle.mjs",
+    "bench/profile-memory.mjs"
+  ],
+  "addedFiles": ["docs/qualification.md"],
+  "adaptations": [
+    "The hydration fixture retains the native cell and removes the legacy adapter branch.",
+    "The rendering test retains native processing assertions and removes classic adapter imports.",
+    "The qualification runner retains serial execution, first-failure logs, flag isolation, and optional prepared WAMN inputs.",
+    "Performance smoke uses one small sample per strategy. Legacy adapter heap wrappers remain historical references."
+  ],
+  "verification": {
+    "qualificationStages": 45,
+    "unitFiles": 15,
+    "unitTests": 128,
+    "nodeRunnerTests": 4,
+    "contractExamples": 2,
+    "vendorSourceFiles": 269,
+    "vendorBundles": 4,
+    "exactPatchReplay": ["kobalte", "virtual"],
+    "sourceAndBuiltPerformanceSmoke": ["accessor-profile", "editing-overhead"],
+    "reports": "test-results/qualification-3",
+    "firstFailures": [
+      "test-results/qualification",
+      "test-results/qualification-2"
+    ]
+  }
+}
