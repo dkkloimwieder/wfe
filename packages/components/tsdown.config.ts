@@ -2,7 +2,27 @@ import { defineConfig } from 'tsdown'
 import solid from '@solidjs/vite-plugin'
 
 const shared = {
-  entry: ['./src/index.ts'],
+  entry: [
+    './src/components/AlertDialog.tsx',
+    './src/components/Checkbox.tsx',
+    './src/components/Combobox.tsx',
+    './src/components/Dialog.tsx',
+    './src/components/Display.tsx',
+    './src/components/DropdownMenu.tsx',
+    './src/components/NativeFields.tsx',
+    './src/components/Popover.tsx',
+    './src/components/RadioGroup.tsx',
+    './src/components/Select.tsx',
+    './src/components/Sheet.tsx',
+    './src/components/Switch.tsx',
+    './src/components/Toast.tsx',
+    './src/components/Tooltip.tsx',
+    './src/index.ts',
+    './src/styles/density.ts',
+    './src/table/index.ts',
+    './src/utils/nativeEvents.ts',
+    './src/virtual/index.ts',
+  ],
   format: ['esm'] as const,
   unbundle: true,
   sourcemap: false,

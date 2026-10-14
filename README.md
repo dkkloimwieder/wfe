@@ -18,8 +18,8 @@ pnpm check
 
 `pnpm check` runs formatting, lint, strict types, package builds, and the current tests serially.
 `pnpm test:unit` runs the component unit suite after its extraction.
-The bootstrap contains an empty package entry and migration inventory tests.
-It does not yet qualify component behavior.
+The component source and native Table engine are extracted.
+Source and build checks pass. Example and browser qualification follow the migration issues.
 
 ## Organization
 

@@ -15,7 +15,8 @@
     "format:check": "prettier --check .",
     "test": "node --test tests/*.test.mjs",
     "test:unit": "vitest run",
-    "check": "node scripts/check.mjs"
+    "check": "node scripts/check.mjs",
+    "test:integrity": "node scripts/check-kobalte.mjs && node scripts/check-virtual.mjs && node scripts/check-imports.mjs"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -36,6 +37,7 @@
     "tsdown": "0.23.0",
     "typescript": "6.0.3",
     "vite": "8.3.0",
-    "vitest": "4.1.11"
+    "vitest": "4.1.11",
+    "@wfe/components": "workspace:*"
   }
 }

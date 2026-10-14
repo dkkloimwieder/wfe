@@ -1,4 +1,4 @@
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
+import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
@@ -57,3 +57,7 @@ for (const file of files) {
   await mkdir(dirname(destination), { recursive: true })
   await writeFile(destination, code)
 }
+
+await cp(resolve(source, 'styles'), resolve(output, 'styles'), {
+  recursive: true,
+})
