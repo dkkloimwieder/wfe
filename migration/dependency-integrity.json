@@ -1,0 +1,9 @@
+{
+  "package": "semver",
+  "version": "6.3.1",
+  "metadata": "https://registry.npmjs.org/semver/6.3.1",
+  "integrity": "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==",
+  "matchesOriginalLockfile": true,
+  "installedFilesMatched": 6,
+  "sourceRequirement": "Babel core 7.29.7 requires ^6.3.1; source workspace already excludes this exact release from trust-downgrade comparisons."
+}

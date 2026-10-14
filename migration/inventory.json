@@ -1,0 +1,2807 @@
+{
+  "repository": "https://github.com/dkkloimwieder/table",
+  "commit": "36cdfa0beffe7a38de254cf8c4ff749904c03570",
+  "entries": [
+    {
+      "source": "LICENSE",
+      "destination": "LICENSE",
+      "kind": "license",
+      "sourceSha256": "9db3f8ddd7031ab264b99bec49c221155d0c8649b53dd4aa007f2041d36cdf5f"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/index.html",
+      "destination": "examples/virtualization/index.html",
+      "kind": "example",
+      "sourceSha256": "d070de69f47ee068e6f984a8ad996b6b8e48ae4d9a2349f1fcd9e807d7e8fd19"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/NativeApp.tsx",
+      "destination": "examples/virtualization/NativeApp.tsx",
+      "kind": "example",
+      "sourceSha256": "28be32316c84691d9c100c6d1462c068be277032a67d2df87c1899c94f34fa77"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/createNativeGridInteraction.ts",
+      "destination": "examples/virtualization/createNativeGridInteraction.ts",
+      "kind": "example",
+      "sourceSha256": "b15ba83a73c0a2616690115766ec3d322ecdaecbb3293fff7a170fb5f7f59e0f"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/makeData.ts",
+      "destination": "examples/virtualization/makeData.ts",
+      "kind": "example",
+      "sourceSha256": "7e59419f155b7d88125de7668d6172d988ed24adb2ac5ca4a0bd427667aa876c"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/native.css",
+      "destination": "examples/virtualization/native.css",
+      "kind": "example",
+      "sourceSha256": "5ce73cdfeccf00b188c0111b8d01269cdf0eee7471bb35476a886d0dc7f9dda1"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/native.tsx",
+      "destination": "examples/virtualization/native.tsx",
+      "kind": "example",
+      "sourceSha256": "1da25838aa60947c56562505c0a4a05907e145d3ff64aa2fc06cdcf023186e9f"
+    },
+    {
+      "source": "examples/solid/virtualized-rows/src/vite-env.d.ts",
+      "destination": "examples/virtualization/vite-env.d.ts",
+      "kind": "example",
+      "sourceSha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+    },
+    {
+      "source": "packages/solid-table/bench/README.md",
+      "destination": "bench/README.md",
+      "kind": "performance",
+      "sourceSha256": "b2c257f9934cfc89cba5af1e03a9c09469a160536ed60153b6c42b72a6438335"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/.gitignore",
+      "destination": "examples/accessor-profile/.gitignore",
+      "kind": "performance",
+      "sourceSha256": "6ea51632c1dbde330d29e7ff14e4d0149add6d45c19f9771f367274fc8fd9ca6"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/index.html",
+      "destination": "examples/accessor-profile/index.html",
+      "kind": "performance",
+      "sourceSha256": "7a445fa4fedbd392cfe6ee5fc299dd1df4bcefce565ceccb7ca9f6b6f2b85aaa"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/main.ts",
+      "destination": "examples/accessor-profile/main.ts",
+      "kind": "performance",
+      "sourceSha256": "daf71b658a7888720e085bdb49619b1eba24e30263c50de0b535beea829595e5"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/run.mjs",
+      "destination": "examples/accessor-profile/run.mjs",
+      "kind": "performance",
+      "sourceSha256": "3ec3a78d51630ef61f8501ecc36754d330f84ccbf5038dd424fd1977902c738a"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/tsconfig.json",
+      "destination": "examples/accessor-profile/tsconfig.json",
+      "kind": "performance",
+      "sourceSha256": "b555f40881577c630e7c26fba9f748be9cbae37cd1ceade27897919c23031582"
+    },
+    {
+      "source": "packages/solid-table/bench/accessor-profile/vite.config.ts",
+      "destination": "examples/accessor-profile/vite.config.ts",
+      "kind": "performance",
+      "sourceSha256": "f8d54b1d89c9dc92c5deacfe100abc9bfe0605d66f7f1423b58cd3363f8b6784"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/.gitignore",
+      "destination": "examples/analytics/.gitignore",
+      "kind": "example",
+      "sourceSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/QueryRows.tsx",
+      "destination": "examples/analytics/QueryRows.tsx",
+      "kind": "example",
+      "sourceSha256": "a521fab8488ea32fabd486fb955fd1ecce06b2d6fb50289a7679e336327e3af5"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/README.md",
+      "destination": "examples/analytics/README.md",
+      "kind": "example",
+      "sourceSha256": "8385ec2fe7ac2501be35f5c2eba39435ec531f201f46e46f499b6ec028ed439a"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/Table.tsx",
+      "destination": "examples/analytics/Table.tsx",
+      "kind": "example",
+      "sourceSha256": "579437bd61ab4341a97a676cf1d148f0ac1bb2a616c0153c470a28488ac3f263"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/csv.ts",
+      "destination": "examples/analytics/csv.ts",
+      "kind": "example",
+      "sourceSha256": "be1d5bb6c6cbf2edd9fab68402d8680a407506798ff0fb3b74429ea637ea90c2"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/demo-data.ts",
+      "destination": "examples/analytics/demo-data.ts",
+      "kind": "example",
+      "sourceSha256": "1e470148bbc6174b50ab8a03aeb8153f771bff859063c37987ca0273f8b21348"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/demo-server.d.mts",
+      "destination": "examples/analytics/demo-server.d.mts",
+      "kind": "example",
+      "sourceSha256": "34e2e2a52161b928001c08691374845624f888cc159ceba40ec7f06ec450ae1e"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/demo-server.mjs",
+      "destination": "examples/analytics/demo-server.mjs",
+      "kind": "example",
+      "sourceSha256": "b3cb8743cd395e169a7c29507d89d2d940a4c626755e2580eade3c4ea1910b67"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/demo-server.test.mjs",
+      "destination": "examples/analytics/demo-server.test.mjs",
+      "kind": "example",
+      "sourceSha256": "039edb2654bf8c1820ef2f3bd5a6eb72034d2041faef43df0ce2f2999fcbe8c4"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/fixed-window.ts",
+      "destination": "examples/analytics/fixed-window.ts",
+      "kind": "example",
+      "sourceSha256": "49ccdc94a73e9c4aad8a31750de8a6154044db81aefaa92353436b6cb7a7e160"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/index.html",
+      "destination": "examples/analytics/index.html",
+      "kind": "example",
+      "sourceSha256": "7e243d32335a3d4e348a0c9c8956172dcc335a32add9a8b909f04f9149acacd1"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/main.tsx",
+      "destination": "examples/analytics/main.tsx",
+      "kind": "example",
+      "sourceSha256": "d6320bf4ba448a04042bee634904017c0601b8534e7264618fa3929bac1d8a14"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/page-cache.ts",
+      "destination": "examples/analytics/page-cache.ts",
+      "kind": "example",
+      "sourceSha256": "db301540580c2be857c604f98d9f23f599f5118c6268277d4e650c8defb633f2"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/paging.test.mjs",
+      "destination": "examples/analytics/paging.test.mjs",
+      "kind": "example",
+      "sourceSha256": "2cbb76e7d32f638d0795ce815c178bfe3c884dd6ededc5051b46a24345e55553"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/run.mjs",
+      "destination": "examples/analytics/run.mjs",
+      "kind": "example",
+      "sourceSha256": "90ab90efe33db1451852eafc84e82a65cd83ae02a2e55d459e94368f50453796"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/style.css",
+      "destination": "examples/analytics/style.css",
+      "kind": "example",
+      "sourceSha256": "e3fbe34bc07426fb2dca9e8537643c9599a96fdc47c6e1f247480f03daabc0de"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/tsconfig.json",
+      "destination": "examples/analytics/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "61723b69a13522131cd645bc0a84d68b24aea1dac6fa6dc4219a9a9aab8d01d7"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/types.ts",
+      "destination": "examples/analytics/types.ts",
+      "kind": "example",
+      "sourceSha256": "535aea9220b88526ce974b5de72bcb11d1c9e579d61bb95342ad820236e4ca72"
+    },
+    {
+      "source": "packages/solid-table/bench/analytics/vite.config.ts",
+      "destination": "examples/analytics/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "430489b7ceab3d03177490ba77e41ce32affc97547855df2cc9f964ebe195ebe"
+    },
+    {
+      "source": "packages/solid-table/bench/capture-heaps.mjs",
+      "destination": "bench/capture-heaps.mjs",
+      "kind": "performance",
+      "sourceSha256": "9764eeedcf537ba455c94168729e6db62013f1491ade515e30bc7ccb02bca416"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/.gitignore",
+      "destination": "examples/editing-overhead/.gitignore",
+      "kind": "performance",
+      "sourceSha256": "6ea51632c1dbde330d29e7ff14e4d0149add6d45c19f9771f367274fc8fd9ca6"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/README.md",
+      "destination": "examples/editing-overhead/README.md",
+      "kind": "performance",
+      "sourceSha256": "8f26c9691a1ecdfbea632ad439229a36ed9c25e4b4cf33e05b704ac3f2863732"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/index.html",
+      "destination": "examples/editing-overhead/index.html",
+      "kind": "performance",
+      "sourceSha256": "8a40858b78f3df98ac37b87d0b5b8b5e7602a7ef6e5f0c1fa3dd468544b5ed18"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/main.tsx",
+      "destination": "examples/editing-overhead/main.tsx",
+      "kind": "performance",
+      "sourceSha256": "4d8540e9cef0a6893524eddd5b602cf8d6cda84f5517184634b4c94c66a487a0"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/run.mjs",
+      "destination": "examples/editing-overhead/run.mjs",
+      "kind": "performance",
+      "sourceSha256": "efa67d0442cf1a1168defe7b38c95b6cde8439dbc4e21c2ad1b6f8861b68431c"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/summarize.mjs",
+      "destination": "examples/editing-overhead/summarize.mjs",
+      "kind": "performance",
+      "sourceSha256": "13967681e696ecc67176025dc5324e680ee0fec0b198a22a219009283bcabe0f"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/tsconfig.json",
+      "destination": "examples/editing-overhead/tsconfig.json",
+      "kind": "performance",
+      "sourceSha256": "d671ab8f40d92bdb3a7d5007b5aae0bb059dc86edde41c21cdd97f44f034b66b"
+    },
+    {
+      "source": "packages/solid-table/bench/editing-overhead/vite.config.ts",
+      "destination": "examples/editing-overhead/vite.config.ts",
+      "kind": "performance",
+      "sourceSha256": "233bb5e273f40856da2a65cdbc16bf940e7ff9772ac7473335caaf37072108cf"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/.gitignore",
+      "destination": "examples/table-editing/.gitignore",
+      "kind": "example",
+      "sourceSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/App.tsx",
+      "destination": "examples/table-editing/App.tsx",
+      "kind": "example",
+      "sourceSha256": "8af1356566316784df0e6f8fecba71b1f4bfa167738d2ac9b75f24e976df3f54"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/README.md",
+      "destination": "examples/table-editing/README.md",
+      "kind": "example",
+      "sourceSha256": "d7688de2d3acdaf29d8bb6394d380377ee20427cbb560ea2a258398b403aeaf8"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/Table.tsx",
+      "destination": "examples/table-editing/Table.tsx",
+      "kind": "example",
+      "sourceSha256": "f2ae4f439cbc63b2622cf5f2bb34ca2e497d51672fd25e66c2fcdb6971a0a3a6"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/TableOptions.tsx",
+      "destination": "examples/table-editing/TableOptions.tsx",
+      "kind": "example",
+      "sourceSha256": "85306175097037c2089a54a52f9824cfbe5b329ec6db32b0a2257944586ed7b1"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/TablePriorityEditor.tsx",
+      "destination": "examples/table-editing/TablePriorityEditor.tsx",
+      "kind": "example",
+      "sourceSha256": "cc55e85bbb50e7773e296ab2e9504c977d7e17679fd062d1646f48e0cd43fa64"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/TableViews.tsx",
+      "destination": "examples/table-editing/TableViews.tsx",
+      "kind": "example",
+      "sourceSha256": "af41651d7f188aa48e1a8e21adb8890726902c234b554f01d8fe770c4aeaa061"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/aggregate-cases.mjs",
+      "destination": "examples/table-editing/aggregate-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "257a29414f0d458f5b2ca9b1b34121463405acbdcc09e6a6b9c04d9fc784a582"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/aggregates.ts",
+      "destination": "examples/table-editing/aggregates.ts",
+      "kind": "example",
+      "sourceSha256": "3ecaa5b89d0be50c278794c40bf5a7c5d07b1c177d0aa6d6b4817634b7a5f2e8"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/application-record-cases.mjs",
+      "destination": "examples/table-editing/application-record-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "a0b47dd88acec6affa64661e58652641a8bda4564a165475bec5e62dc0584d90"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/childLoader.ts",
+      "destination": "examples/table-editing/childLoader.ts",
+      "kind": "example",
+      "sourceSha256": "b115a89e6513ba7cd05807d3f3d43886fe220a2f7c57f72334007b0d784316ec"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/createEditing.ts",
+      "destination": "examples/table-editing/createEditing.ts",
+      "kind": "example",
+      "sourceSha256": "1aad6340a271e3b2b9bb6dde9606c4fc17e6c2d6dbf2c8885d61202b412395c8"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/createSubTables.ts",
+      "destination": "examples/table-editing/createSubTables.ts",
+      "kind": "example",
+      "sourceSha256": "820065fd1b149bf831009ff832a3ce5adae59b1037671ec09340741b8729d42f"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/createTableViews.ts",
+      "destination": "examples/table-editing/createTableViews.ts",
+      "kind": "example",
+      "sourceSha256": "814ee9440a830ef3ac3606b8820e08592a5d9299225a6cf6f90ffbe5a543491d"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/editing-callback-cases.mjs",
+      "destination": "examples/table-editing/editing-callback-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "bb4c661f6da21e3c72068f46bde5ec2cd1dbd85daa55ecad9417c20714138f20"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/editing-lock-cases.mjs",
+      "destination": "examples/table-editing/editing-lock-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "266ce3b51baa904391523107340d051bdc5f87b32795274fea0f896fb3d36a0b"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/editingCallbackFixture.ts",
+      "destination": "examples/table-editing/editingCallbackFixture.ts",
+      "kind": "example",
+      "sourceSha256": "e221465a8a2268a0a0aaef7edf9dcac43c150549eac53545c79b5abac7124b9d"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/editingCallbacks.ts",
+      "destination": "examples/table-editing/editingCallbacks.ts",
+      "kind": "example",
+      "sourceSha256": "e4c55597c454d734243cca88742749ba8009db14cfe00c2ebb8dd93f79e107ad"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/field-configuration-cases.mjs",
+      "destination": "examples/table-editing/field-configuration-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "fdfc2655a79fe7d8c91cba0025ce302e7d127270e95bd6aa2ef9bbad9dc2392f"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/fields.ts",
+      "destination": "examples/table-editing/fields.ts",
+      "kind": "example",
+      "sourceSha256": "e4e1615d28a5965e84a94afb56017959420b6c7e1626913c913afdc2c63de213"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/fixture.tsx",
+      "destination": "examples/table-editing/fixture.tsx",
+      "kind": "example",
+      "sourceSha256": "24b4d0b9099a273e279d3464d73331339cc8231ec8f6a1580380ae8571e6e1af"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/grouping-cases.mjs",
+      "destination": "examples/table-editing/grouping-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "23a6ff5dddf6da7f130de85b8a785113a2e1fd6ca75f0d807ff454dfa2880c64"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/grouping-profile.mjs",
+      "destination": "examples/table-editing/grouping-profile.mjs",
+      "kind": "example",
+      "sourceSha256": "57f30b33617426cdc6705d29992a42c427adc5c85bfd66a4e4a87a9d30787601"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/header-filter-cases.mjs",
+      "destination": "examples/table-editing/header-filter-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "5e46e94daadbb2a2381f23339030d8bc209b976b231dde4877397be046148947"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/index.html",
+      "destination": "examples/table-editing/index.html",
+      "kind": "example",
+      "sourceSha256": "f989e6607bc5fbe61b8527297ea1bf2fdff902fd988cc94686898bff0dee4df5"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/main.tsx",
+      "destination": "examples/table-editing/main.tsx",
+      "kind": "example",
+      "sourceSha256": "e791371f03c3e827bc50bbfecc2c987fa549594ad060b16382dc7ec235397955"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/model.ts",
+      "destination": "examples/table-editing/model.ts",
+      "kind": "example",
+      "sourceSha256": "02ef212156f61d7d96b5a58cf2752b2259d4c62de21a1f86db14f3d96594c94f"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/reorder-cases.mjs",
+      "destination": "examples/table-editing/reorder-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "efe3547fac6f090ed29a40115defa197398f5fb6178bf6bb0f984cba216e195a"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/resize-cases.mjs",
+      "destination": "examples/table-editing/resize-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "2417bd2c693ed5ec0d12eb5c024c932d5dac728601a951e862906b5738e57479"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/row-action-cases.mjs",
+      "destination": "examples/table-editing/row-action-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "dd10ccf6afd69a56b42361a44c111635e317cf8760f0525995b3f9a693c95ad3"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/run.mjs",
+      "destination": "examples/table-editing/run.mjs",
+      "kind": "example",
+      "sourceSha256": "87af264fe665474a677b1e3d5cf370998a851f1dd4c1088753a7f43ff09a43fe"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/select-guidance.md",
+      "destination": "examples/table-editing/select-guidance.md",
+      "kind": "example",
+      "sourceSha256": "a1cb09ffb43448992c6a173d4d8c3641f437db328203e52e5f380a5f1f8d16f6"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/style.css",
+      "destination": "examples/table-editing/style.css",
+      "kind": "example",
+      "sourceSha256": "cc9b91f00162ab709a6b85109a63d02fde630be2ad111647cf271443e502a563"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/subtable-cases.mjs",
+      "destination": "examples/table-editing/subtable-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "df73af4617b1c6cef9948c42b7f65b0dd3c3eb77181eac2355d90109a3717902"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/tsconfig.json",
+      "destination": "examples/table-editing/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "61723b69a13522131cd645bc0a84d68b24aea1dac6fa6dc4219a9a9aab8d01d7"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/validation.ts",
+      "destination": "examples/table-editing/validation.ts",
+      "kind": "example",
+      "sourceSha256": "f4eca3811dbde5481ae5e8d21877312aceefc6e02e5b911629bdb9df0c9c50d7"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/view-cases.mjs",
+      "destination": "examples/table-editing/view-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "c023c775aa6de70a89d1c531141fe4163b3900773635fd3874800b04f8fd8cdd"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/viewConfiguration.ts",
+      "destination": "examples/table-editing/viewConfiguration.ts",
+      "kind": "example",
+      "sourceSha256": "2cf213c629e519668ce5aa3861819e2c032724b0b30a80bd0605582dd8c1f3a5"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/viewStorage.ts",
+      "destination": "examples/table-editing/viewStorage.ts",
+      "kind": "example",
+      "sourceSha256": "f03af28411b76a091b51ec39f2457a0b4038e69fb370326c768b23c4c6f7322c"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/viewStorageFixture.ts",
+      "destination": "examples/table-editing/viewStorageFixture.ts",
+      "kind": "example",
+      "sourceSha256": "2a21306b55ebca2b0ea651c0b6ad973d3ce3970b077c8362c4ff84eb4b8677b5"
+    },
+    {
+      "source": "packages/solid-table/bench/editing/vite.config.ts",
+      "destination": "examples/table-editing/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "4f5f1e6e2d2ea54aa5657134fefc928a71cc48ab7909063adb1273762db66f26"
+    },
+    {
+      "source": "packages/solid-table/bench/fixture-page.css",
+      "destination": "examples/fixture-page.css",
+      "kind": "shared-fixture",
+      "sourceSha256": "0b3f272e0591d9e359731c9153d93b27a8b4aa989f0c77dc0e5366605df712ed"
+    },
+    {
+      "source": "packages/solid-table/bench/heap-findings.md",
+      "destination": "bench/heap-findings.md",
+      "kind": "performance",
+      "sourceSha256": "94080eadaa6fcdc8a58003e2c9e7664ff165662762839badbd0ee4e57e59217b"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/.gitignore",
+      "destination": "examples/hydration/.gitignore",
+      "kind": "hydration-fixture",
+      "sourceSha256": "11910ff5caf2a639f55b1d6c1dd5e623c4c5bfef2b53530b76e9315aac4a234f"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/App.tsx",
+      "destination": "examples/hydration/App.tsx",
+      "kind": "hydration-fixture",
+      "sourceSha256": "30cbe76900c5ed5657f0c03632aa769b3193d6631512b7646fdeed7cf5117666"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/client.tsx",
+      "destination": "examples/hydration/client.tsx",
+      "kind": "hydration-fixture",
+      "sourceSha256": "964f8c878d7b15257fd1bd4b1a1ab11d2fe89788ae5762a0efefaf7c5b9ecdff"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/index.html",
+      "destination": "examples/hydration/index.html",
+      "kind": "hydration-fixture",
+      "sourceSha256": "2feaab95c8115189028d234bb49ecc68f3acfc72b49178d2ded96b716e309ed0"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/run.mjs",
+      "destination": "examples/hydration/run.mjs",
+      "kind": "hydration-fixture",
+      "sourceSha256": "e7d43915f6c3eab04e108ff1802e6ba4a0edb6d7a6b49d9f6a99a3f83fbbac4e"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/server.tsx",
+      "destination": "examples/hydration/server.tsx",
+      "kind": "hydration-fixture",
+      "sourceSha256": "65e7e18e8c86913e50ccdaa09d44f782087713a798c522c18d6921b0e4014924"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/tsconfig.json",
+      "destination": "examples/hydration/tsconfig.json",
+      "kind": "hydration-fixture",
+      "sourceSha256": "c51cfe1ea9ada0d0a693811abfefbb6a5ac34acfef263f86e23f72d99c9b3231"
+    },
+    {
+      "source": "packages/solid-table/bench/hydration/vite.config.ts",
+      "destination": "examples/hydration/vite.config.ts",
+      "kind": "hydration-fixture",
+      "sourceSha256": "95f8d0119ab74bff45aca58db0b8619cd3f985f811153b8b32854394f143b21f"
+    },
+    {
+      "source": "packages/solid-table/bench/inspect-heap.mjs",
+      "destination": "bench/inspect-heap.mjs",
+      "kind": "performance",
+      "sourceSha256": "122c3d72c7822a89f01119594cf56078b26ffc735252d740cf00a9c76cce2395"
+    },
+    {
+      "source": "packages/solid-table/bench/lifecycle.mjs",
+      "destination": "bench/lifecycle.mjs",
+      "kind": "performance",
+      "sourceSha256": "2d05bece8da81f285822a865a7b2b0cd8739884d5c854c437021e42d9ff7906e"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/.gitignore",
+      "destination": "examples/components/.gitignore",
+      "kind": "example",
+      "sourceSha256": "f8b80f79b1a94bf8d0988ffdd061e724b60aeebf394da5bb5e8adc77a79e7044"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/BooleanControls.tsx",
+      "destination": "examples/components/BooleanControls.tsx",
+      "kind": "example",
+      "sourceSha256": "844051a256514bfc523d3e11d6b04c3b01f4a92dbb8816e23c5bc967ec7d3915"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/ChoiceControls.tsx",
+      "destination": "examples/components/ChoiceControls.tsx",
+      "kind": "example",
+      "sourceSha256": "fab73c667228c0429e53d12d9d48d286311d061cb4d645536999266231c5aa38"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/ComboboxSmoke.tsx",
+      "destination": "examples/components/ComboboxSmoke.tsx",
+      "kind": "example",
+      "sourceSha256": "e567803cb51cb7b038e3dd087f4531490aaf56c314797377d187a2840d55ae09"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/DialogControls.tsx",
+      "destination": "examples/components/DialogControls.tsx",
+      "kind": "example",
+      "sourceSha256": "c378ebf8ef45ce67a9bec13f22b570c0ac0440ccea45a6257008b71e723e115f"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/DisplayControls.tsx",
+      "destination": "examples/components/DisplayControls.tsx",
+      "kind": "example",
+      "sourceSha256": "4480b7c009367f7e5272a1664fd0f6e80f39965b1e5a360dc134eef4537e7f88"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/GenericConsumer.tsx",
+      "destination": "examples/components/GenericConsumer.tsx",
+      "kind": "example",
+      "sourceSha256": "c3e671b537745a28fb806f9f1bea9c8e1131c319a184c2cf421ab9261de1f29d"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/KOBALTE_LICENSE.md",
+      "destination": "examples/components/KOBALTE_LICENSE.md",
+      "kind": "example",
+      "sourceSha256": "47ce819869a418c00be1fd6470a63aaf466d7bbb23e2cf182dda44fd166e27a1"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/NativeFieldsFixture.tsx",
+      "destination": "examples/components/NativeFieldsFixture.tsx",
+      "kind": "example",
+      "sourceSha256": "5431beb4de33cb01a534c9f7f571c4e78282c777110b3eadaba34a1cc66811af"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/OverlayControls.tsx",
+      "destination": "examples/components/OverlayControls.tsx",
+      "kind": "example",
+      "sourceSha256": "6f81013086458d38b746b1418fe036f92082a8b5cbcb9f1c9a88830f02052c91"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/PopupPriorityEditor.tsx",
+      "destination": "examples/components/PopupPriorityEditor.tsx",
+      "kind": "example",
+      "sourceSha256": "645393b2c1cc960d15e1c2dabf58c8cf026086c6244c637a4e9c1679909811fb"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/README.md",
+      "destination": "examples/components/README.md",
+      "kind": "example",
+      "sourceSha256": "3124e729bb9fc988858d52244bfca4e1d4a018d06d3dbb040395bc0bbe89f647"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/Standalone.tsx",
+      "destination": "examples/components/Standalone.tsx",
+      "kind": "example",
+      "sourceSha256": "2f47f28fb42db658ec684c41c2e51e12808e735b716b67ce131fe72b42d070b8"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/boolean-cases.mjs",
+      "destination": "examples/components/boolean-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "6276dafc69d2419ea5f5589e59bb2fdad01de8a88b2c73f689d45be19dd6b1bb"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/choice-cases.mjs",
+      "destination": "examples/components/choice-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "d138b9254aeff15cd77b49216cd082dc45879c00337697985429bf429c18905a"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/consumer-cases.mjs",
+      "destination": "examples/components/consumer-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "90283fc05ad7fa01726c4740d48ae654b5d2d23ad55886c1dc809c8596a18514"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/consumer-transport.ts",
+      "destination": "examples/components/consumer-transport.ts",
+      "kind": "example",
+      "sourceSha256": "1ed4144b4d0215d6c6d59fb89be769242367b3aacfa68f94a215296334b57bca"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/dialog-cases.mjs",
+      "destination": "examples/components/dialog-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "2abe9d81252b49b743c54aa459301f6621ea01c63ea6caad44b8a352623ef0f0"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/display-cases.mjs",
+      "destination": "examples/components/display-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "b91de6e81e616a18cc90eb97cc33a4b53f6935e3fc21fc0678a74054f4d6d734"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/index.html",
+      "destination": "examples/components/index.html",
+      "kind": "example",
+      "sourceSha256": "b55b7369ae90391fa53076bddb22a15a702a999cc46338085077b75584e0da3a"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/main.tsx",
+      "destination": "examples/components/main.tsx",
+      "kind": "example",
+      "sourceSha256": "fa5815327c2e35cf71b21ff8eee86d5b765ca7168392f6c108b3c4b13bcf8204"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/native-field-cases.mjs",
+      "destination": "examples/components/native-field-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "86aba58b5f818a9a2140d11a979810442a3033f2ad8a862eb082333a3f4cdea0"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/overlay-cases.mjs",
+      "destination": "examples/components/overlay-cases.mjs",
+      "kind": "example",
+      "sourceSha256": "85c63bd27801492b10e7345a1d027984d83cf0c4efb257969065e3a2beb7db56"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/prepare.mjs",
+      "destination": "examples/components/prepare.mjs",
+      "kind": "example",
+      "sourceSha256": "800d23eed8c522ac8c2fdc126380bee65bde46e6ba6666a3b75a46a5fbfc83fc"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/run-live.mjs",
+      "destination": "examples/components/run-live.mjs",
+      "kind": "example",
+      "sourceSha256": "486af18df76806e8ed810c851d4ad6507106abb28716d0c6fa86807e20775715"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/run.mjs",
+      "destination": "examples/components/run.mjs",
+      "kind": "example",
+      "sourceSha256": "175da8be6c05e86495faefe2a17633729b50d334285262f8e4f4352859e8ac38"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/style.css",
+      "destination": "examples/components/style.css",
+      "kind": "example",
+      "sourceSha256": "7b1c254af396518160706cd9947c3748085f293165c2cf453e1188f58306544b"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/tsconfig.json",
+      "destination": "examples/components/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "84f65c538b8dc00ac5abfce8468a81663540747f1f2ee9261ef2eea2a0c58050"
+    },
+    {
+      "source": "packages/solid-table/bench/popup/vite.config.ts",
+      "destination": "examples/components/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "dc383210a0c11765eafd5908e8db5b338e6afcc89ad32ee4b48618e85d237516"
+    },
+    {
+      "source": "packages/solid-table/bench/profile-memory.mjs",
+      "destination": "bench/profile-memory.mjs",
+      "kind": "performance",
+      "sourceSha256": "f8f1df251737a39e50d63e0ef19ceabfca0a1a0daa49d393d881cde3932c0fb2"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/.gitignore",
+      "destination": "examples/table-read-only/.gitignore",
+      "kind": "example",
+      "sourceSha256": "165832d08db9bbda94d138ece44ff6698752f081938ddd6ee26f52ad31fa6849"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/README.md",
+      "destination": "examples/table-read-only/README.md",
+      "kind": "example",
+      "sourceSha256": "cf47f9a5b785da6f7df76973e2793c403ef89c28a26a5d8f3f6beeedc98655fd"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/index.html",
+      "destination": "examples/table-read-only/index.html",
+      "kind": "example",
+      "sourceSha256": "5e251d44aa37a1e6c0a68ac75b8486647bf75af2778968c461a10e6c90455b6d"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/main.tsx",
+      "destination": "examples/table-read-only/main.tsx",
+      "kind": "example",
+      "sourceSha256": "56ac32df796f6e8ccda9013a2777d7b7514f5c095ea4bfccbaac884b0b004447"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/run.mjs",
+      "destination": "examples/table-read-only/run.mjs",
+      "kind": "example",
+      "sourceSha256": "7b671a10d177f53ad7b4350e79b7e87d74dd0b17c6fcf5d4671d0746da5f0579"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/tsconfig.json",
+      "destination": "examples/table-read-only/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "61723b69a13522131cd645bc0a84d68b24aea1dac6fa6dc4219a9a9aab8d01d7"
+    },
+    {
+      "source": "packages/solid-table/bench/read-only/vite.config.ts",
+      "destination": "examples/table-read-only/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "8a5b470bd8696f9e76bd1b527dab07b5ad72904f6a5cbfdbb3b354240c21c46d"
+    },
+    {
+      "source": "packages/solid-table/bench/table/README.md",
+      "destination": "docs/contracts/README.md",
+      "kind": "documentation",
+      "sourceSha256": "ee2192dfbdef28e8a748c21e1d1f1fbb73ffefb153ae7ded3d730365d9ce6f40"
+    },
+    {
+      "source": "packages/solid-table/bench/table/UI-BOUNDARIES.md",
+      "destination": "docs/contracts/UI-BOUNDARIES.md",
+      "kind": "documentation",
+      "sourceSha256": "2f7c732b32f6d73aa68737cf8a9c0362a176abcd33427ac7064ac633faa2ff8f"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/.gitignore",
+      "destination": "examples/wamn/.gitignore",
+      "kind": "example",
+      "sourceSha256": "f8b80f79b1a94bf8d0988ffdd061e724b60aeebf394da5bb5e8adc77a79e7044"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/App.tsx",
+      "destination": "examples/wamn/App.tsx",
+      "kind": "example",
+      "sourceSha256": "9429a6dec873b840f3bfa8250ba79c870d009ae2f163afde0a3b9a7656745be1"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/README.md",
+      "destination": "examples/wamn/README.md",
+      "kind": "example",
+      "sourceSha256": "2f52f6f4e92dec62dbb7d590eb7f28538ebd2f35fc321f6a1e2d370cbc022373"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/check-inputs.mjs",
+      "destination": "examples/wamn/check-inputs.mjs",
+      "kind": "example",
+      "sourceSha256": "3c7a6d9cc92b5bafe6ca4c63a46038d9baa31beb94bc8633fc1995f34e2a65dd"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/createWamnTable.ts",
+      "destination": "examples/wamn/createWamnTable.ts",
+      "kind": "example",
+      "sourceSha256": "204ad1c0b4ff9ce44e7eba1cf8867e2daf40a6653c474611492f0a565834e812"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/emit.rs",
+      "destination": "examples/wamn/emit.rs",
+      "kind": "example",
+      "sourceSha256": "427d05ca7724c940b3ed2a0d705f10ab3f392047b52301c5b8ae82cc26505f4e"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/index.html",
+      "destination": "examples/wamn/index.html",
+      "kind": "example",
+      "sourceSha256": "6698ef10bc2eab3d1a2ac66040d7f9435b4c9add94075394e4a22ea213fb90a8"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/main.tsx",
+      "destination": "examples/wamn/main.tsx",
+      "kind": "example",
+      "sourceSha256": "cc70a2b1557d6459786f137e7ca835bff9fe30b8066fd4d54c1ce4e1e19bea95"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/prepare.mjs",
+      "destination": "examples/wamn/prepare.mjs",
+      "kind": "example",
+      "sourceSha256": "1aa02b8aeb8428fd2163da92e2d0250629f035abeae40c3adbe83582c873330d"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/run.mjs",
+      "destination": "examples/wamn/run.mjs",
+      "kind": "example",
+      "sourceSha256": "156e6e8b3de88bb43ff76c453df93635c8f51f8ba108400af27ca12750e337f8"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/style.css",
+      "destination": "examples/wamn/style.css",
+      "kind": "example",
+      "sourceSha256": "00b1723e632ae876c6d7027baf54d24439706ec069cd3275d25a802e8a7f43c8"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/transport.ts",
+      "destination": "examples/wamn/transport.ts",
+      "kind": "example",
+      "sourceSha256": "241b5a2c41da51024cb1e9bc2421312b1cdcdd2588ccc20ec9a65e3294b43172"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/tsconfig.json",
+      "destination": "examples/wamn/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "71be7233ee543d5fac8b34583a479ad62b7e80aff1186f9139d90fb15da4264f"
+    },
+    {
+      "source": "packages/solid-table/bench/wamn/vite.config.ts",
+      "destination": "examples/wamn/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "64f409c1985b79e29ecee8aa7e41e00850619e2b82bb481e1048ed22ed67f12c"
+    },
+    {
+      "source": "packages/solid-table/scripts/test-native-imports.mjs",
+      "destination": "scripts/check-engine-imports.mjs",
+      "kind": "tooling",
+      "sourceSha256": "71618bff114c51721c62cce5599fac406ddbb04a0079ba8468fefed25cb5036b"
+    },
+    {
+      "source": "packages/solid-table/scripts/test-ssr.mjs",
+      "destination": "scripts/test-ssr.mjs",
+      "kind": "tooling",
+      "sourceSha256": "24f10a47bfce1c0e492c607e9a3b18798d9ae1ea59682ddbc71796f5b373700a"
+    },
+    {
+      "source": "packages/solid-table/scripts/test-ui-contracts.mjs",
+      "destination": "scripts/test-contracts.mjs",
+      "kind": "tooling",
+      "sourceSha256": "d626f214c88f98912e549ac9eb9e8155eae52d2e9a4b689e068ed2c69ddf15a8"
+    },
+    {
+      "source": "packages/solid-table/src/native-aggregations.ts",
+      "destination": "packages/components/src/table/engine/aggregations.ts",
+      "kind": "table-engine",
+      "sourceSha256": "70ea011e68a87422e2475f9235cd67362e5c88d3a8ed308128902c80512591c8"
+    },
+    {
+      "source": "packages/solid-table/src/native-filtering.ts",
+      "destination": "packages/components/src/table/engine/filtering.ts",
+      "kind": "table-engine",
+      "sourceSha256": "ad1252c83d1ae827e336223d4b23533015d1fa2320ec2f1b87a91973a52f1ee2"
+    },
+    {
+      "source": "packages/solid-table/src/native-grouping.ts",
+      "destination": "packages/components/src/table/engine/grouping.ts",
+      "kind": "table-engine",
+      "sourceSha256": "3c96b4b0cbae23b62ef6d28abe04e5a3118edc0bd83a1d322fdcc6fc7b6d8c5b"
+    },
+    {
+      "source": "packages/solid-table/src/native-processing.ts",
+      "destination": "packages/components/src/table/engine/processing.ts",
+      "kind": "table-engine",
+      "sourceSha256": "ccc0faa854ca7ac0efdcdebf838824cdbe3f7215f044ac48b3df2351b85cc2a0"
+    },
+    {
+      "source": "packages/solid-table/src/native-sorting.ts",
+      "destination": "packages/components/src/table/engine/sorting.ts",
+      "kind": "table-engine",
+      "sourceSha256": "04bc16a84730356095569eda122b198d0b0057ad2ba4bf8e800dfff2633c0485"
+    },
+    {
+      "source": "packages/solid-table/src/native-state.ts",
+      "destination": "packages/components/src/table/engine/state.ts",
+      "kind": "table-engine",
+      "sourceSha256": "970689e21cbe0c5f8cbbd0b13471e5ccdfd1e423e8cdc320480cb136ecea7b42"
+    },
+    {
+      "source": "packages/solid-table/src/native-table.ts",
+      "destination": "packages/components/src/table/engine/table.ts",
+      "kind": "table-engine",
+      "sourceSha256": "44d16465635c6716d84882d703bdc39beb7c06ce5ce8ca5d87585436b482260a"
+    },
+    {
+      "source": "packages/solid-table/src/native-types.ts",
+      "destination": "packages/components/src/table/engine/types.ts",
+      "kind": "table-engine",
+      "sourceSha256": "925e8575f75655f80020938e55ed6d1d3f04775e3d2ec173a3027c3fa810a07f"
+    },
+    {
+      "source": "packages/solid-table/src/native.ts",
+      "destination": "packages/components/src/table/engine/index.ts",
+      "kind": "table-engine",
+      "sourceSha256": "825d10e1810e5aabfe61cc63c3749920131c7b1f6fb0b3c03d416926d266471e"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/applicationRecords.test.ts",
+      "destination": "tests/unit/applicationRecords.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "f1af57216b8454dabb6f0f67f7044ea21caa088f18870606d1c61e61c2560e80"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/editingBatch.test.ts",
+      "destination": "tests/unit/editingBatch.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "879dd7bc0400fdf8492d226f16155c8bfa47fae6d30e5af14bb2320098226ee4"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/editingCallbacks.test.ts",
+      "destination": "tests/unit/editingCallbacks.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "0e1975de3592c0fcf1d728b78ee71cbdf067a46b1db4f2ff3ad165cb703e918d"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/editingValidation.test.ts",
+      "destination": "tests/unit/editingValidation.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "535666f448cf0f9d242d77341d805c63573968857e39bd8f7f74beec4e7c5b04"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeAggregations.test.ts",
+      "destination": "tests/unit/aggregations.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "76ecc0ec156b055513db71292a261944d818e123bf35fc5925d87ee907c96d8f"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeEvents.test.ts",
+      "destination": "tests/unit/events.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "7f05a741f9356bbaed7780536c9d7fafcf6edfd91b76b18211ec03d30204850e"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeFeatures.test.tsx",
+      "destination": "tests/unit/features.test.tsx",
+      "kind": "unit-test",
+      "sourceSha256": "146979d5a4e1c73c3d710c246fe5254f4dcb704b17facd9dc3128b25bd541895"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeFilterValueReuse.test.ts",
+      "destination": "tests/unit/filterValueReuse.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "26f2666007db33c51217bcf0df290f21646692030c86dfb871b783c6ba2d3dda"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeGrouping.test.tsx",
+      "destination": "tests/unit/grouping.test.tsx",
+      "kind": "unit-test",
+      "sourceSha256": "09b709d1da02b31b8c94b7866d4e411f52a0c0586ff522c692029435ddd85c69"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativePausedProcessing.test.ts",
+      "destination": "tests/unit/pausedProcessing.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "3b49a956be337fa3e74ca9b4449a67464933f5717463211a6c962f14be89f0b5"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativePinning.test.ts",
+      "destination": "tests/unit/pinning.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "5f6885cd56e3a23111719e1560b66bbea14a8382d8d779d90ed979833c04ede0"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeProcessing.test.tsx",
+      "destination": "tests/unit/processing.test.tsx",
+      "kind": "unit-test",
+      "sourceSha256": "c54b4414c34f2f04aacff2c1448320ce653d255a29ab3463f98dd53b09a1b02a"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeTable.test.tsx",
+      "destination": "tests/unit/table.test.tsx",
+      "kind": "unit-test",
+      "sourceSha256": "3ee5dd7dda0e3f6e6c2afd683a8651cdef4dfc9a7f263e00d5299b34c1fca3be"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/nativeVirtualizer.test.ts",
+      "destination": "tests/unit/virtualizer.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "fe398ef92e6652fcf3d6042cf94e250fb5dc1b3115fae6bce7eba50fda0a1b75"
+    },
+    {
+      "source": "packages/solid-table/tests/unit/subTables.test.ts",
+      "destination": "tests/unit/subTables.test.ts",
+      "kind": "unit-test",
+      "sourceSha256": "5b791b50160f43c36f8ed29806539f23f3d9478d7f0b08d6bbd348f12f59da0d"
+    },
+    {
+      "source": "packages/solid-ui-core/README.md",
+      "destination": "docs/origins/core/README.md",
+      "kind": "documentation",
+      "sourceSha256": "6666bedb6ac148741e242625bb6ebd24d9c9d73e628f715a33b0f026b5987ae0"
+    },
+    {
+      "source": "packages/solid-ui-core/scripts/check-vendor.mjs",
+      "destination": "scripts/check-kobalte.mjs",
+      "kind": "tooling",
+      "sourceSha256": "d3d26961f298eae753c152cad788828e17b600b578b6d451aec6410d6e61a85c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/README.md",
+      "destination": "packages/components/src/internal/controls/README.md",
+      "kind": "component-behavior",
+      "sourceSha256": "d4bcbd96c52ec7eefe02860dca6dc5f181588d0e609e6609dcc8ee1faee01a86"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/alert-dialog.ts",
+      "destination": "packages/components/src/internal/controls/alert-dialog.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "c51d2e10b7604e3a01ef5617c66d43ab2dde4c16fb853fff046ee208f0cc33da"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/checkbox.ts",
+      "destination": "packages/components/src/internal/controls/checkbox.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "f7c2cf24140cb23a11502b5a3b11800aed3ef6431a51b835aa9b3cc7f78b4640"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/combobox.ts",
+      "destination": "packages/components/src/internal/controls/combobox.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "529593c5ad229cb0eaf295e1306d9c59ea8e5202f1c3f5f57b320c1cab403c9f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/dialog.ts",
+      "destination": "packages/components/src/internal/controls/dialog.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "be3f465bac829ee0faad5e7a07fd2dfea98ef3060a39dbccfeac6d3ca4e6ba4b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/dropdown-menu.ts",
+      "destination": "packages/components/src/internal/controls/dropdown-menu.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "0a339f2127fcdecb50c0d696039775fe0c9687ae6dc56ba2b3dd2faad26230f4"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/modal-hide-outside.ts",
+      "destination": "packages/components/src/internal/controls/modal-hide-outside.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "3fa1c35383a223e696897df286543b690ae71f9c3d56c5c9b93b4f4919547197"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/popover.ts",
+      "destination": "packages/components/src/internal/controls/popover.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "557291a4951fd9eda952dab3966ef6287eb687ed8505cb6406aa757363fb206f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/radio-group.ts",
+      "destination": "packages/components/src/internal/controls/radio-group.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "438504f1c9624a134e001304c04ac92d9378cc3f7679a7a0d5752f641c234372"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/select.ts",
+      "destination": "packages/components/src/internal/controls/select.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "00907b4a2038812bd28970081d56777e29412542da21dcaf5d3434f3a46ca201"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/switch.ts",
+      "destination": "packages/components/src/internal/controls/switch.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "62f27fdea2bb344db5876093be00402fe9ebcb8fa667cae84919baf7e92932d0"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/toast.ts",
+      "destination": "packages/components/src/internal/controls/toast.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "9570663df09dfee77a2bc9e34b6e8a4d79e3f81e2b0c3006ed39027c007e4f13"
+    },
+    {
+      "source": "packages/solid-ui-core/src/controls/tooltip.ts",
+      "destination": "packages/components/src/internal/controls/tooltip.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "31414088e4ebdcdf44d29b68798428d2fdbfb8b45153e06c0c89ccdbb72f9bda"
+    },
+    {
+      "source": "packages/solid-ui-core/src/events.ts",
+      "destination": "packages/components/src/internal/events.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "20fb2ab81b2350c4575798b91f7eb2ac67e57cd4bfe92a5f97184296acb1c967"
+    },
+    {
+      "source": "packages/solid-ui-core/src/formReset.ts",
+      "destination": "packages/components/src/internal/formReset.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "4a439469aac5704ef3a6504f30c40bd3356444b34b1bc7c98fa7dd66b284620a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/index.ts",
+      "destination": "packages/components/src/internal/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "7ac6be63411e594599ae944d9ff426faa9f90142bb610e7206e56526cc941e0f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/ownedEvents.ts",
+      "destination": "packages/components/src/internal/ownedEvents.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "b191922d99eb8ecb07beeb64ca3f20f35063421db84f7faca3df99a61db3878a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/LICENSE.md",
+      "destination": "packages/components/src/vendor/kobalte/LICENSE.md",
+      "kind": "component-behavior",
+      "sourceSha256": "47ce819869a418c00be1fd6470a63aaf466d7bbb23e2cf182dda44fd166e27a1"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/README.md",
+      "destination": "packages/components/src/vendor/kobalte/README.md",
+      "kind": "component-behavior",
+      "sourceSha256": "701b222a33d7258310134ef7020b40900c419a585d7fdcbd82cbf4a05540f95c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/LICENSE.md",
+      "destination": "packages/components/src/vendor/kobalte/core/LICENSE.md",
+      "kind": "component-behavior",
+      "sourceSha256": "47ce819869a418c00be1fd6470a63aaf466d7bbb23e2cf182dda44fd166e27a1"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/alert-dialog/alert-dialog-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/alert-dialog/alert-dialog-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "898634f61c03ddc114737a1e627e16e1da4eb39ce805faf9664fa4ea35888ed6"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/alert-dialog/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/alert-dialog/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "33569cbfd40730dec44c4622576357e33335e06fda6a1526e8c3966af1273490"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/button/button-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/button/button-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "8e045dd46f39bbb2ed9179678d6f5ad186904e63ba3d07d68a081e4374c07f43"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/button/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/button/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "971865f6f170c5dbbfd987b5326f295acec969d09e4908cec290e964e6c4a411"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/button/is-button.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/button/is-button.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "103b30df15a6e2e6577448cdfc1c6975f1b530e46093d346be2d7d10fa294a4c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/checkbox-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/checkbox-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "32ce7b93c75270b372ab32ba1f6bbf0e3377431cc77f8565b9e70517906f2faa"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/checkbox-control.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/checkbox-control.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "b8fa9da62a087a65888a678aede286a6f538d8e425fc79695c4df5becf2579e8"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/checkbox-description.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/checkbox-description.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "c27dc85f908927cc33b7f76079e3f5e0bcf4c50c8b50862035c1783cb0d467bc"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/checkbox-error-message.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/checkbox-error-message.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "e1653d1f695cdb65eba4892525fa96d366dde9663658b6ef080e80149fa6d0ab"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/checkbox-indicator.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/checkbox-indicator.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "5e697ff4c5278fad899326aff5740a36cd0f33d1dc66653bb02965f4adae63a3"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/checkbox-input.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/checkbox-input.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "2ed1440bf56002e638026a4b823ac1d4d20c59ffc58b2f32a6ca28d6c5bdb463"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/checkbox-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/checkbox-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "552a662f5742229a3ddeaa5dc22dfac7a7c0535bbd5dc2460efe7c6419e4ae2c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/checkbox-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/checkbox-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "19788106d79e700a11bdd852a014fbef7b36f2d7ded885991d06a1e0d2fdc167"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/checkbox/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/checkbox/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "239144477dcd1234bb0fb9e2936af159426073cb83eb32f241fe10e77262d1ad"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-base.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-base.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "373d0f298c0f2370319bd0a6f7a07f23bd14cfae0370dc9d514440ba21793cc6"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "fd8a2a64171b5523ce0d4b42ebe7f3bc03823c483417de824ed7afcf5912c350"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "cc7ca3417f5342576333bf0c31c9a199dac672ca61cef512917ab91aa12aaa34"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-control.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-control.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "9e246b0edd02432c8f12c497e8099dde53bf5703e752e26e8e732f238bbfbe9f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-hidden-select.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-hidden-select.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "9eba6433652f09a141c3bba2be7873fa37b8d28a19de6fdd4c1168e359a608eb"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-icon.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-icon.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "452d9fc3dbf846e95b2fc5852723a45bb2ed711908ef3ea3eed82430791996ea"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-input.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-input.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "6c292aabffc0a78ab8af977ff8fd2d2f867443b0934804194f3d7a53bec13fe2"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-listbox.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-listbox.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "62870c0b71d76d44a86c17583150afb7f9802c3f97e6e8d73ce4d32a46820aa4"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-portal.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-portal.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "2734cb22bc7132691ee33477cdbcd52b20e45683cdb13d08a2cb99f88c57791f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "6654ec77615dd435423e136c7b1bd8d3882c794566973a7c8e52c02f0c036a2b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox-trigger.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox-trigger.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "b20c1f13c11b2f797d56170fea9c03cea1eca72087cf300b859a23620578775b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/combobox.intl.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/combobox.intl.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "f5422724f180d522f4c7837b315bee1d3b55f2fe9c81acce0e3b36d4b01190bb"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "01fb010d226bda186e10398985feb68a4b95cd33a0e90fc69aa103445a810c12"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/combobox/types.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/combobox/types.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "b17d861e78e4ee50c4e68b330a30fe21090ef9cb34214a533ff03f0f86fb129c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-close-button.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-close-button.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "df384f888f928c46efed3bbd84badd6cb5c7ebb25936259979ec9e8b8693e61b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "2d3168577d5746271b26784b8bfb5b94c3d21b862ed123eef4beb12d53fadff4"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "af119c23b6771a5a6593cd8aa654c69fa938e5430f0a396a7deb9b5a3a1739da"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-description.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-description.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "132e7f6bcfcf63a70d0af53b697904bc5f343daa637951d0ed474ab054934c83"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-overlay.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-overlay.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "4baa106c332c76de865856d96a16c489c610994cc8642bb25d04f9433c8ca8e7"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-portal.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-portal.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "44b36eea4204d83901cf25ca436872eaf9c391a8393471bc1cc51dbe3b36c83f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "db9af1c36d0486e9c8f74c3de6d70b2339de180f55476463a191e489d9f07ac0"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-title.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-title.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "3dc169ec31e43b63284106d43df0ce27c1fd956679e736d82de21a22c32a15c3"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog-trigger.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog-trigger.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "f4d01df537560b82406e161c07f15dabdf48e8506462836c22e6509b6189599f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/dialog.intl.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/dialog.intl.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "046bcfb0f58d8eec61d03bd2797cbf467fa13969198300778ba64d7e3d1d7370"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dialog/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dialog/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "b0c676de6515ca0a01109e389496ee009bc9e4cdbb3dee78af14b9e9df0535aa"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dismissable-layer/dismissable-layer-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dismissable-layer/dismissable-layer-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "34ee8f4b5093c07dd8f5797ce440aea6a6828574a548518d40938fb6bee77782"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dismissable-layer/dismissable-layer.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dismissable-layer/dismissable-layer.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "08000aef02a7c7eb862a7fe7ec5fece42fef7e8cd7b7fa6e96bf894915583356"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dismissable-layer/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dismissable-layer/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "f3ce25be274ea774744a115827596c32c9d32be1adb1d9be18f3ea6c81e3dbea"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dismissable-layer/layer-stack.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dismissable-layer/layer-stack.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "17ff5ec1cf01131962bf31da29a07b630498839aa72bc85fbbcdddaa3899c9c7"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dropdown-menu/dropdown-menu-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dropdown-menu/dropdown-menu-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "5851aaded9ed69b77bef6e66872067b7ab86e7c893ba346254932b03f1d0b5c9"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dropdown-menu/dropdown-menu-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dropdown-menu/dropdown-menu-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "c027b6b677452a7b9b2675e62963c1063723262fe9d1585b765e9cf1bf3ea709"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/dropdown-menu/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/dropdown-menu/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "69378f19f67bd593dfbeaf231837d658a8f91c7645468ee93fbe2f901b18aa0f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/form-control/create-form-control-field.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/form-control/create-form-control-field.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "0d87d72e695ae16cf46c7f96f0b05369deedf8690d459dd18b29bdc6e615ed32"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/form-control/create-form-control.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/form-control/create-form-control.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "6553ed037839610bcc4038776a9bcf8f1bd810a2c57c2ba76fcfbbe1dc8c271f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/form-control/form-control-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/form-control/form-control-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "d170557a8fba537f3e15c836893cf2bbecf0e017cc0a009af7f02b5a807348fa"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/form-control/form-control-description.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/form-control/form-control-description.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "c2b935613c8376f473101ba33b33a2d22f634508951b27568c641d7894f972d0"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/form-control/form-control-error-message.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/form-control/form-control-error-message.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "dea156e531690fa528e7e58a526621a7ec6cd3279252209ab9843277c5d9cc06"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/form-control/form-control-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/form-control/form-control-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "e7f457e90a7f5429ebc27219633afa84f9b4ca2d671e3380e389424f572105d3"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/form-control/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/form-control/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "b49c3164eeee3f92b1a29c7e505317b464d3edc0e69694d7a0d12969eff958d4"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/i18n/create-collator.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/i18n/create-collator.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "03bd133b7b87d6d0bfe2c20e749d3a91ab26707e0fd9161590cd20dd8415c5d7"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/i18n/create-date-formatter.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/i18n/create-date-formatter.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "3914312da1a30c110063cf2c18d1c1363c69ecf3c31e100db9afd3a49ef9f6d1"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/i18n/create-default-locale.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/i18n/create-default-locale.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "467a268c899cf8582ce0254507a8c8c4104558a85d94f2bdd6c6ae1e30b87b4f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/i18n/create-filter.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/i18n/create-filter.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "3cd0bf4fb77e8c846dbe693e37506d08ba5913b8ed0e370513a90c851d29bb9a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/i18n/create-number-formatter.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/i18n/create-number-formatter.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "beec3a8386eea3dcadae26656cea508f9ce8d63573032cbda071e91c2192797b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/i18n/i18n-provider.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/i18n/i18n-provider.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "5d1e9d2a8d85cedf95b7f3805aecaca0f2329667d561d88345d18d691668abbb"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/i18n/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/i18n/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "f7841511d7f626752bca54f25786af599ef7f2190e09c2627f2343893c4df70e"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/i18n/utils.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/i18n/utils.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "bd040fbb25fb43b54ce30d7e8e6565bb851aa65bf8e80fbf7a53e13e4db818ce"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/list/create-list-state.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/list/create-list-state.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "ba7fae42117e46724e5fe4848ea7c9eb501dec7a4ef65c62012b8324a4cc2aef"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/list/create-selectable-list.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/list/create-selectable-list.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "25c90de965bdaddbfa05b6fd8fe1196221ff191f1598c3a448ef5a8e5b48d0db"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/list/create-single-select-list-state.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/list/create-single-select-list-state.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "a5991e3db39fce86a23fe186f125eac29423f4281fc463e9513cfdef424aa338"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/list/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/list/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "45cf1408eb1d69d53c0c569953d65ff47764269e4ac79a5b7f9bb94fd4727a62"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/list/list-collection.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/list/list-collection.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "410c2fdb1935243fa5b37e0e0036c244170c867a35f7ffb0be48b211d6447ef5"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/list/list-keyboard-delegate.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/list/list-keyboard-delegate.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "31e6dcd955b751b765655b338ff4de15dc40e300b1576bc973a42b1c8f699436"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "edb1221a9e5b97c16e8be23068f17870535534cb0e19c7cc739c37eeacf10bb0"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/listbox-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/listbox-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "7cc4e99cbd8564197cd34cdb06f6e2a822b4a8b1786e2711104c3bbac8cd502e"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/listbox-item-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/listbox-item-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "e56069434829dd952c8f6003c7549ff1d83cfc99a063e8d9858f1a94486c4c32"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/listbox-item-description.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/listbox-item-description.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "a58150d2051a2c27a4dbb6505f87fedb75a413fbab1dddf8fc510bf6b0a3a1b5"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/listbox-item-indicator.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/listbox-item-indicator.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "3e239417e18bd4d20e8f044bd8b9fe84f3f91d691030bae0b3bbca63196a5dd5"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/listbox-item-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/listbox-item-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "1836ba8f1c56672097e5136fd2bdf9a10a2f89301fba8e10b0be64a9c5910f9c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/listbox-item.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/listbox-item.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "cb57240a43915ce0aab8333290730ccf67c0bca700ece5c65ed444cc8e8ea77d"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/listbox-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/listbox-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "22466d1b789c3f80c2283ba26700a444001b6d17dcae861f06231baaf2639917"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/listbox/listbox-section.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/listbox/listbox-section.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "ea2940a8522a6d4b6ee601e063e5143f13fbe7daafa0acbba04818912752855e"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/live-announcer/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/live-announcer/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "8b0c7c7120cf7d1b45b334073280601a6272374479c1f93d711285dabf02d249"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/live-announcer/live-announcer.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/live-announcer/live-announcer.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "6d4e1f57309f36731c3ac2048bf60aee2a8cbbe7ea4f31b64e92debd929ad53f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "517225b1d07002a865a918e2f2969e0dfbe42bfcee631606f59ab64eecff9aa2"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-checkbox-item.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-checkbox-item.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "1b1aff8ad0da8b39b267498bca9db5f753e7d4d93952d4fa592f9f12ea0c2f09"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-content-base.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-content-base.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "e4ee6ee811b216db24be5abf06dd3cc9d62fe4955a46c77c643c5353fa45d478"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "7de17301d6de7c5e3e044e291dffaab0db240528c0abb4b012041e324760988c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "0907ae61a6524b1b815c85a98999e17d728589a0986f8cb4fe2a8b3f3caae241"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-group-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-group-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "fdba2bc0ebd362fbcbc7936d4549d1c5d9d51c8fbf17d03f76b66abc6de6033d"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-group-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-group-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "e6321e063d11412d863ffffdd0f3754e0900cf84e0811e3721d4c03d4262de42"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-group.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-group.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "35038e650a542b3527ece25142cab9bdb2e29d7a92f5a39640be08db79fc6c54"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-icon.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-icon.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "74db19c057b9297b49b0ebf843b4b67721a989fe302a34330d3e8ed86de94ef0"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-item-base.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-item-base.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "5d6bb2861490e3b6c83d5e033a849194aba1182e3e1061ba6f1e7d112b80c536"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-item-description.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-item-description.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "176b31c5cbf1611875fb395293be003d0e9ebd5231cd36a163595550cd0d7682"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-item-indicator.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-item-indicator.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "59452128145ad9f5c907f13b8109f979345dbd5e371b9458123fd27187a47056"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-item-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-item-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "8a92c77707967f7c6ab225810bf0ca58ba06262a07d1f118eee20032b588f009"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-item.context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-item.context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "db7db24fb890354d94c693d7b52ef4700df904ea8a5a374431788dddda982e18"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-item.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-item.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "55d9bb8a3feba45e19a09341dcaed629607f4526ec5df4b40305604813aad6b0"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-portal.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-portal.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "05d22e6f7cf13f1821ce80a8a8d0ab154083a14ebb0deadb86fc9ae9d152ba94"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-radio-group-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-radio-group-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "934f8eef236a0dce96ca9da95575a79d71753c3219eb52f36e0bfe7d6f80a59c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-radio-group.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-radio-group.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "188270a7897627d409bbec92330453d5abd3f17dded319f0d97cbf552a35ddd2"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-radio-item.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-radio-item.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "a8c0801cc38c78dae95f79a17c3c1f2c3b243d78b2ca8561559fba4856220c7d"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-root-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-root-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "c169d340b581926f0fa2d2c27dc5ef23af0d02a5ab090d524e13651e7367dec6"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "6c966c96d789ba86dea153239983231a6f41f41698b2cb628eaba0270a6edc2b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-sub-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-sub-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "609815b3c7aa97eb96db26f3b5b93b473fccdb0e69cf360655fea5b856bd39ef"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-sub-trigger.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-sub-trigger.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "53c5638e51b72643f51cd438d7878dcd086c334e329c40a70db56ec71f48ae8a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-sub.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-sub.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "d96a5358ca3d5af822bb10bce7dc1bd913a560a833d250af82b1520d66e9cc15"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu-trigger.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu-trigger.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "5883e379aaee32f578b9c37e63b7ce97ab8eee619d079833ddb4a2a1295f3a9a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/menu.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/menu.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "50c0d2c465f1118f56ad3b710bcbacfe131e052174fa5406d8ce138b9dd5fd3a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menu/utils.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menu/utils.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "b216be2f17251753648caead3f4b5eb3ddc39dc0751fd843426e03e1937317d4"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/menubar/menubar-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/menubar/menubar-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "9652f9b4cbd34219acfcf308e7fc86def96b652e9b103b53d548187a17d324ec"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/navigation-menu/navigation-menu-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/navigation-menu/navigation-menu-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "8447338bdfd912828b54296ce5b85e9969f5261d9dc877d9a2dca6a8527843e0"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/polymorphic/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/polymorphic/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "9f9d0729d6eb37d4ce723eca23235876483192ce70df59609d13295730f7b181"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/polymorphic/polymorphic.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/polymorphic/polymorphic.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "9a73b6b7bce7a781fa6d0fb4463d443b361a614312aafd3c03f7a5c494feb347"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "097a4b90d89c74e49d065018478cd77533bd4e2e45a92437b012cc253c39fec6"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-anchor.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-anchor.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "49effe74b7977db2f0ae3c538bb75be039b304594a00b9b552ce381e25804bfb"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-close-button.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-close-button.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "babc8f73867867b6f3f5b9db20ea169cbca7298210c15a484018af6a89fcab29"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "95621304bcbabac78d4fa355d3bead48c2f16ffe79ae1187ccdfd997f93d1780"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "85db6fd3864bdde173b9f63c77bde7c7e765e590eb75d50d09dff4edcfe4a8cd"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-description.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-description.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "b73f22424932203ecff4d595549ced206479a08287908edd29f9d24e375676be"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-portal.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-portal.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "1ebc2fe756cac41616a86d541530dbb634257674070b972fc209c3d387fc029d"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "525ee2039456eca7914b972f5676caf1c4e41ac353d637ee5f69afbae449a806"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-title.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-title.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "01653a0c7e3bdc9ece465ffff645062bd6b68f79401f3db5f0a2959ced1b43b1"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover-trigger.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover-trigger.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "4c73605e3fd3e4a681a2b04651bcd10fe55b580d62f1ca68f0f7a462ef6174d6"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popover/popover.intl.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popover/popover.intl.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "499ac6d2a8ea60878c3ab6b4e34e1dfada93995453d841ba66fbb1521fe61eec"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popper/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popper/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "e7aa091e50e207edc3e0ab9d3f1ce8e77ac7ab1f897ac0dd1a7e2b0388ba9d34"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popper/popper-arrow.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popper/popper-arrow.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "42fdeef10b915db3b7d2a0fae93ebab691810b2476854e18ed8475c396aa5559"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popper/popper-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popper/popper-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "90b86533b7fd1de684099c7af7b35b720e23ff7ef216ad5e53c23bae71c170de"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popper/popper-positioner.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popper/popper-positioner.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "6186efaacd92ffe3df638b02c5744985d21f465a6dbb33c4b56ce32e0fde8869"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popper/popper-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popper/popper-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "0553be1d75998cc6a93ffc747ec26921b1382bdd3dff4bec2f4a20edd46f5dff"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/popper/utils.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/popper/utils.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "44d9aac2b7bc389debdf31d5a3a257e90f1969f67159b2dbb8674f351da9b1af"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-collection/create-collection.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-collection/create-collection.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "a561d3770a1f8c18e8b9daff39276b1072dc8ec557de67388eac4824cc378c3f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-collection/get-item-count.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-collection/get-item-count.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "53e538e6682341b44a1f08fa49eb28204a42f9d7d535c039654c6bb654c817a2"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-collection/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-collection/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "49f773031167ede9e309233167fd4ad99ad4805815db2c0c8cc652af401456ee"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-collection/types.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-collection/types.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "4854019df06c652fe360f51e9873cba13f053b5da0b2ee1b4d4cde90d44f35a3"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-collection/utils.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-collection/utils.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "7266dadc86f9e29cf0c2929d06fcb173d52e3aaa5c79d3d1f2d58f25752f8d88"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-disclosure-state/create-disclosure-state.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-disclosure-state/create-disclosure-state.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "cc51a82b2a235ae9f62119164136d914394f182241d90151851bab6cf9aed4bd"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-disclosure-state/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-disclosure-state/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "15bf56540fa9ba092c4bfdb770c78b90eea303281fb982bce5dccc6b6ca997ac"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-dom-collection/create-dom-collection-item.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-dom-collection/create-dom-collection-item.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "236fde0a68379a57aeeec24d133000f4a2353b50f2e44774f84ac3677938d0ab"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-dom-collection/create-dom-collection.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-dom-collection/create-dom-collection.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "ef82533d295a2ab796e2a78b6695dbfef7fe275fe1ae1fa1578c6fed8386e57e"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-dom-collection/dom-collection-context.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-dom-collection/dom-collection-context.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "ccf63c70eb64c7872681e0909e93a4bb24a1bbf24df4734cf3db0d3693b55686"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-dom-collection/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-dom-collection/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "0e06db63920ec375823b3b94720e3a4b898e5457e3230db930703c70ec9d47aa"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-dom-collection/types.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-dom-collection/types.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "e599d1aa00ac5145964b682910ccdf9b8ad36ec12d159458c5015f7c1b13b404"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-dom-collection/utils.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-dom-collection/utils.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "7866b3aa72a7b027cfccd2e0b85ba8cbc9c58a162405b8922e3e90befe35f2fb"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-register-id/create-register-id.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-register-id/create-register-id.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "88c0f9f992e0f6833d4dc4c1a789d3600db7d9c0ed896b4e1f8152683aa766a4"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-register-id/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-register-id/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "8a3cf6bfeac794781a8dd646ec6d6e7ab2a5d5010c436599baa6fd8dbd8783fa"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-tag-name/create-tag-name.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-tag-name/create-tag-name.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "842e6961ab7a0eb980ffc390b6c7a743bed27c1ac4cd884ad12f152bd716a6d2"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-tag-name/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-tag-name/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "83bbbd17eb3fb6f0847736e8606a9dd808e279dbe101fe356644284be7e0ff1e"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-toggle-state/create-toggle-state.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-toggle-state/create-toggle-state.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "82547580f0e17fcd602be923c2191c47dfb71cd65e3a3f5555487ebda9893407"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/create-toggle-state/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/create-toggle-state/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "7137d7003db8a8a515c728e1d62fd5321dafdb53dbf0168d0b3bb030c1364029"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/primitives/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/primitives/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "217cd5101811a0d2271476612a6af4158563cd594356eb3a49ce4aa0b23f5b96"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "109e6ab7a3acb5b8da4a1fc0895cb752d98e7972aa133f8605bf5618a1235189"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "553ac432e1637d28acd351828e2dcae7b51e36364a79f421a6a8bba552916363"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-item-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-item-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "dee140b3f7568a1b802153431b5dc11ad31be6e6da26582b3f2975cad1fb5c6a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-item-control.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-item-control.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "0361986b21520acd8a917954cc08047ea282e6fe969db29009a1d3e5022ff46b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-item-description.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-item-description.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "ccc0e96a2a45e4fb5e8e5e47b4c1a11f6073e3c7605ff3b18a0d6f540727da4e"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-item-indicator.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-item-indicator.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "dab0da348749acb306854a753b178a4a17256d37622123dc26b334af4cccb8a5"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-item-input.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-item-input.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "7f1e5a861a7b74ec3f48f2f3bfbf35a766380e7f518e558d7a84d37bcf87a951"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-item-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-item-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "f1c035dbef03c8cd7ba6ef537897299d6736dcfe2f6b93bef145a4065baab64d"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-item.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-item.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "f659dd0c3ffb288523cec47a69213f721230accaf37f20627d5325cf744ea837"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "5085eaebe7cedfeefa5b1cc6e69bb92ec3b4f7af62e2a83e8b3e21f666897a71"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/radio-group/radio-group-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/radio-group/radio-group-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "381fc7713687fe685cf9a21ad3ff490d6d8497b286e066402c14a99ca43aba08"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/hidden-select-base.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/hidden-select-base.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "0496f18aa2894a7b2635d7a8fcf2c168aed943a12f4c50693bfedf9f77be6f42"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "2dd2ba3706cf4a3576c36e626bb624b7dd95dd7d8d1c15babb56fb9ab820a02a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-base.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-base.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "5cafff643aa3b7bd1c80626576a772c92e36c172580b76f47f16d83d17cd877c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "a1833e9b7969d227d775222694660694e9ee45478c5c3860d8e128e2e542d3f4"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "25337ecdccff628782ec92e6dc5c387a39db533f195b8911bd3bacbe478f3561"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-hidden-select.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-hidden-select.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "bf1cdaafbfeefa9005c391075ab51b11b11419d84042b2982498c8ff35d9e416"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-icon.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-icon.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "51022ab098ea9b9a0366f44cbd19f1e7c58b7ce0e574df0440ac2f7093f20415"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "c8c082f9341a7d202b99de466e56440e618b034e938ee5db6f46bc19ee9e4ce2"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-listbox.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-listbox.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "e8648e1420ff0d1dd3747e7c869d6a46a173bea0f8b3c41b08e9dd358505b936"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-portal.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-portal.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "883a4b7187444d33e7db969859523b7c27418cde27e75ad8bbdad1f644a9b2d2"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "c33490dc161f5ee8ffb4ec55afb2746563d765d406b73de4b6303d99b842cd42"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-trigger.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-trigger.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "7ee791360cb342369c4beadfe7a4dfa886e402b193beee264ec3c1adbc3f4001"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/select/select-value.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/select/select-value.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "a696d394fc6bf33c0b95ad55e4ef82d040d1993f5bd4c3acddd321e6626d5a8d"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/create-controllable-selection-signal.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/create-controllable-selection-signal.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "8a511c5172b253611d41eae4fdbc5d2a852ca1adafb3e874b7460afd81906898"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/create-multiple-selection-state.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/create-multiple-selection-state.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "c6a02532f59dadb476c7e5f230fa7aab4b0ed50f5f088b0a010556da6c37ae51"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/create-selectable-collection.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/create-selectable-collection.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "9e3827fa720cc903d011d8977d5817b8abbfee586e0316bcc0a7a7065a7c8a75"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/create-selectable-item.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/create-selectable-item.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "5ad1650a60c04d7129bb59017145873b8b9f5890a85569304a7bbc4253065fe1"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/create-type-select.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/create-type-select.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "2c2b5d10f389d936fa349fa993567a8c416cd95a3f1bc29e2f5c3c550346ac02"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "4909c0956c770487c79a25d899f6e62534b77ae19deedb4bc5373e3143161c49"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/selection-manager.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/selection-manager.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "c805db89ab5f6bafd694c5cd71cdd0e7fff1ec21f463bba4f25e7f8ea3ad0631"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/types.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/types.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "a933193452bedf416aca852c7cf0c8f29f5d9b20ce8f8cfdaa196d89497e5157"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/selection/utils.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/selection/utils.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "812f51c2cedcb84e86c7b47e6fd81f7941b1e9d085289d3b6a6fa9f032c74859"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/separator/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/separator/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "f13f5426f91cfb111506f4d786520f53a560c85367d2b24106be04f874f30c4b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/separator/separator-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/separator/separator-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "4d0fcbfc66b59c611646682ccd55605e99cabcc4547b85ad6ac76c02eefdf795"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "61fcb4b184195951475fb8e49fbc12162290568392021e148f53927902578beb"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/switch-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/switch-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "ac85e775f050ebff5630ac89ea4bb13f7f3390f8e4040fcc2d66f6e26f3c949e"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/switch-control.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/switch-control.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "118f7d6d5292c0167a219907a3a80b21c47da0cf96b6b7a6eb625852af98738c"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/switch-description.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/switch-description.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "96c9d5467d408e6754d98d3f033910949432f25795849e2b6b84277cdf4b209b"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/switch-error-message.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/switch-error-message.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "b9e087edbeb9ec37505ed288ed797c944cac45f38e43e9bf9cd350d0f0251385"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/switch-input.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/switch-input.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "b45af8e76c8f1b5b9ca83477ebe7e848d0dcb357827dd387a984118625810152"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/switch-label.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/switch-label.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "0023fdc24a2af175226d903084683a21524cfeda12dd7d959b6efb2764a75209"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/switch-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/switch-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "94da30e4743d63b4969aa3c6be05eb49a6ad4eff270030822e6bdac2cc8bfe4f"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/switch/switch-thumb.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/switch/switch-thumb.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "26e0984ca37480e5717a1a5330dba0774320440dd0170b423aa344d392d55d78"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/tooltip/index.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/tooltip/index.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "75a21aee62db41fd436e9e518b57dfd8496b0900a22dbb115bb083f016c31c96"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/tooltip/tooltip-content.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/tooltip/tooltip-content.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "d9a0efd142e5a230ae20de2c2aff698014df9a042698c78f0ffa1f1d2c1e8bcb"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/tooltip/tooltip-context.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/tooltip/tooltip-context.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "8ad64bc93a936dcd07f15093b75ba65fca215f4f362f8795342a94a79b873127"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/tooltip/tooltip-portal.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/tooltip/tooltip-portal.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "4bfddfc36f20283011c93d1019f794bf705c9263505190658978bad4137d40f9"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/tooltip/tooltip-root.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/tooltip/tooltip-root.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "0dbd0b6173e2786771604ccb7cc1b4aca00b67b8e71219bc67d7e3ac2ba10103"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/tooltip/tooltip-trigger.tsx",
+      "destination": "packages/components/src/vendor/kobalte/core/src/tooltip/tooltip-trigger.tsx",
+      "kind": "component-behavior",
+      "sourceSha256": "499fa08e1db4ef9dc256aa09610eb84050d804d238f04d31e538321f42798dd5"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/core/src/tooltip/utils.ts",
+      "destination": "packages/components/src/vendor/kobalte/core/src/tooltip/utils.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "086a2fbeb3b233bb1e19258ea01995edf8163cd83db1c80d88b3f5df70efd273"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/provenance.json",
+      "destination": "packages/components/src/vendor/kobalte/provenance.json",
+      "kind": "component-behavior",
+      "sourceSha256": "df0e42757ff74c7dba0b53e50beac42df25b76cc5ce4f5727a4cc0ef14249a4e"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/utils/LICENSE.md",
+      "destination": "packages/components/src/vendor/kobalte/utils/LICENSE.md",
+      "kind": "component-behavior",
+      "sourceSha256": "47ce819869a418c00be1fd6470a63aaf466d7bbb23e2cf182dda44fd166e27a1"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/utils/src/events.ts",
+      "destination": "packages/components/src/vendor/kobalte/utils/src/events.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "96df945c000bdc8c83e50c5edd4097a71a7fd71e1e9b2a4f13711c6a50437cc3"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/utils/src/get-scroll-parent.ts",
+      "destination": "packages/components/src/vendor/kobalte/utils/src/get-scroll-parent.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "f490cfc92de08968438fbdb2a6d93aaa3b4f7954caa34985d8d2da17be93d34a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/utils/src/index.ts",
+      "destination": "packages/components/src/vendor/kobalte/utils/src/index.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "2c48873d06b6801fc8b95d8a8c942856ae21b66a0ccc018e3f8488ccdbe0c04a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/utils/src/number.ts",
+      "destination": "packages/components/src/vendor/kobalte/utils/src/number.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "73252a02df04058648900f0d91e73796dc01671772be4350141aff57cd866d6a"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/utils/src/polygon.ts",
+      "destination": "packages/components/src/vendor/kobalte/utils/src/polygon.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "2cbb60f6ab2a3c84ed82cd6c5f4b71ddb9677aba80ff052565aba71be0df07bd"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/utils/src/styles.ts",
+      "destination": "packages/components/src/vendor/kobalte/utils/src/styles.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "1992f93b69526d45424788493e58bbe85e4ff44620cae7b3e30d3bc32f5f02c3"
+    },
+    {
+      "source": "packages/solid-ui-core/src/vendor/kobalte/utils/src/types.ts",
+      "destination": "packages/components/src/vendor/kobalte/utils/src/types.ts",
+      "kind": "component-behavior",
+      "sourceSha256": "26dad8d8810aacaf35abc770db3926003352f8979fbee289e49e3678ee5740a4"
+    },
+    {
+      "source": "packages/solid-ui-core/tests/source.test.mjs",
+      "destination": "tests/source/source.test.mjs",
+      "kind": "source-test",
+      "sourceSha256": "2a84ad7616736822a13543526f631044fb41f69159f829ae8e1be0ecb28611fa"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/index.html",
+      "destination": "examples/styles/index.html",
+      "kind": "example",
+      "sourceSha256": "7514609f0cfae087b47b28a06597536d0188f3cacf9230f0281c2cf26b081c51"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/main.ts",
+      "destination": "examples/styles/main.ts",
+      "kind": "example",
+      "sourceSha256": "5f04c36b3ee36f828359aea0d18e8dc54a9da489b2f6ba8c3c1cf9850b5b2b44"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/run.mjs",
+      "destination": "examples/styles/run.mjs",
+      "kind": "example",
+      "sourceSha256": "11a0a1e24f8d5e3f5c12cd41e0e68d5a8359fbe19a32c52cd17ccbb2654ddece"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/tsconfig.json",
+      "destination": "examples/styles/tsconfig.json",
+      "kind": "example",
+      "sourceSha256": "b555f40881577c630e7c26fba9f748be9cbae37cd1ceade27897919c23031582"
+    },
+    {
+      "source": "packages/solid-ui/bench/styles/vite.config.ts",
+      "destination": "examples/styles/vite.config.ts",
+      "kind": "example",
+      "sourceSha256": "3c8d50f9d37290d0625917e43f9372c5d996014157d8e69b60fff475da86496a"
+    },
+    {
+      "source": "packages/solid-ui/scripts/check-imports.mjs",
+      "destination": "scripts/check-imports.mjs",
+      "kind": "tooling",
+      "sourceSha256": "f7892382b19df01f79fc6edeb1c5d6d37f2784389701fa185cef4b5ee35fbe8f"
+    },
+    {
+      "source": "packages/solid-ui/scripts/check-virtual-vendor.mjs",
+      "destination": "scripts/check-virtual.mjs",
+      "kind": "tooling",
+      "sourceSha256": "c9a6a212a337e41c6a643152f23cbc93dbf31511d7ff7ad462c793cff1ffbbfc"
+    },
+    {
+      "source": "packages/solid-ui/src/components/AlertDialog.tsx",
+      "destination": "packages/components/src/components/AlertDialog.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "3ac7a83082a7e70960a276376719823196dca5e41571189de61a787d26787756"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Checkbox.tsx",
+      "destination": "packages/components/src/components/Checkbox.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "3192997aac822750534a8a569292adf365d7af35a1fd099bf11fdeccd00087c9"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Combobox.tsx",
+      "destination": "packages/components/src/components/Combobox.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "b164932a5ec87829aded6bdff4a03a36aa8ec8c916c12e7353fc313406f78bce"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Dialog.tsx",
+      "destination": "packages/components/src/components/Dialog.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "abb1fc73f729ae7ffdae44793a832bd5871d04a8af747433d7cf8ef90f9bca87"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Display.tsx",
+      "destination": "packages/components/src/components/Display.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "07001e2611163697bb4d651c307d6df313b55e88c086f7b4ff1f6cab6a8501a9"
+    },
+    {
+      "source": "packages/solid-ui/src/components/DropdownMenu.tsx",
+      "destination": "packages/components/src/components/DropdownMenu.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "76f04d52c4a67b4f202b440128fe049df170cfb155fd97ac67fad2c47e01cd21"
+    },
+    {
+      "source": "packages/solid-ui/src/components/NativeFields.tsx",
+      "destination": "packages/components/src/components/NativeFields.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "92b660f4ec1ca8d03627174fe483d6a2ab6f2d098d5bdeb8cd7bc6948e5ce4cb"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Popover.tsx",
+      "destination": "packages/components/src/components/Popover.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "c70ecaf17147fbf6f950d6634d3bca44dab3d23297f9a55078294dc3f106efc9"
+    },
+    {
+      "source": "packages/solid-ui/src/components/README.md",
+      "destination": "packages/components/src/components/README.md",
+      "kind": "component-presentation",
+      "sourceSha256": "4c4a1acab10a0c941fe80d474c33dee803cb030907255b0132b327934afe0c97"
+    },
+    {
+      "source": "packages/solid-ui/src/components/RadioGroup.tsx",
+      "destination": "packages/components/src/components/RadioGroup.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "18958f1b2064a4d83822ad81ebea02e79f503811265396b57f785bdf41f1c6e0"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Select.tsx",
+      "destination": "packages/components/src/components/Select.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "ade60dfdfe5a2a6b140a5078d83105998bcfd7b6c3da5bad556131e31b95a313"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Sheet.tsx",
+      "destination": "packages/components/src/components/Sheet.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "bc36bd96067bd9db2181c3700a85b6be266d400e5b794774f64593a5c9d2a2b7"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Switch.tsx",
+      "destination": "packages/components/src/components/Switch.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "fbee02ada0813e87d20ac032411b16cef910a1c6e7d6383ee517731bf6391209"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Toast.tsx",
+      "destination": "packages/components/src/components/Toast.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "8d2e2351cc0713e048ceb298f67c635fc51681fab0fea662272277a2f04aadcd"
+    },
+    {
+      "source": "packages/solid-ui/src/components/Tooltip.tsx",
+      "destination": "packages/components/src/components/Tooltip.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "07594ebfa711483555bfdbf4aaac5a1abfa173ed23574f46caf3a894945f2f5e"
+    },
+    {
+      "source": "packages/solid-ui/src/components/choiceScope.ts",
+      "destination": "packages/components/src/components/choiceScope.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "f5c92c67984f7c9ad8ea5f9e10049bd3f1e46db6f2fa94f0b4aab206da7cc787"
+    },
+    {
+      "source": "packages/solid-ui/src/components/dialogScope.ts",
+      "destination": "packages/components/src/components/dialogScope.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "a4931d0c6e8d930b9fc379dfa6a9e93276cc776f6a9236fe6bf8a21ab0f192ef"
+    },
+    {
+      "source": "packages/solid-ui/src/components/popupScope.ts",
+      "destination": "packages/components/src/components/popupScope.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "18f861452ff953540f652a42fb7b587d6b60a91664fde1998afe4c199b0ee77c"
+    },
+    {
+      "source": "packages/solid-ui/src/index.ts",
+      "destination": "packages/components/src/index.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "5e48b02ed41bb9a2a653b7725e4c25a39350f01a30ce63074d2f32d837b7209d"
+    },
+    {
+      "source": "packages/solid-ui/src/styles/README.md",
+      "destination": "packages/components/src/styles/README.md",
+      "kind": "component-presentation",
+      "sourceSha256": "fbbee14b7b5127ed16387e27458777771ebbca91923866e3dfd85892035e46d3"
+    },
+    {
+      "source": "packages/solid-ui/src/styles/components.css",
+      "destination": "packages/components/src/styles/components.css",
+      "kind": "component-presentation",
+      "sourceSha256": "ff7c256f9034310c96eeb341229c1ece52dbe78cc3c48279d9b0e4c8cf9e4aa5"
+    },
+    {
+      "source": "packages/solid-ui/src/styles/density.ts",
+      "destination": "packages/components/src/styles/density.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "f52ad6e4d350daa3ece5a1237d6488b02de48d180b1b3975cbea313ce8a64373"
+    },
+    {
+      "source": "packages/solid-ui/src/styles/styles.css",
+      "destination": "packages/components/src/styles/styles.css",
+      "kind": "component-presentation",
+      "sourceSha256": "80f988f0a703a43b6c0bc99d9a69b0d489d71d6f6e9db08b10902cc57d698e98"
+    },
+    {
+      "source": "packages/solid-ui/src/table/README.md",
+      "destination": "packages/components/src/table/README.md",
+      "kind": "component-presentation",
+      "sourceSha256": "0f798af4000fb99392bef70e7b1a50d99784b405d0ebf0f9696f58b5315d3730"
+    },
+    {
+      "source": "packages/solid-ui/src/table/ReadOnlyTable.tsx",
+      "destination": "packages/components/src/table/ReadOnlyTable.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "f06cf31f0fce8919c096e6be7e84b4a369c56f9751ac6e346329d6569a4fe0a9"
+    },
+    {
+      "source": "packages/solid-ui/src/table/Table.tsx",
+      "destination": "packages/components/src/table/Table.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "8a8f8077e6f32dbd011d373c9cba21a03be87de4a0894ed431a9d5fbcb90ac47"
+    },
+    {
+      "source": "packages/solid-ui/src/table/TableChoiceEditor.tsx",
+      "destination": "packages/components/src/table/TableChoiceEditor.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "4034e3e08f13ffd217fcfdc16583b09d0419ba1fb2eedb13fe5a884ab30586b2"
+    },
+    {
+      "source": "packages/solid-ui/src/table/TableColumnMove.tsx",
+      "destination": "packages/components/src/table/TableColumnMove.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "e3e85f6f8c026a8d6a47ed6c8069f1eb8308560789f3a25c16517d82e4cdcaef"
+    },
+    {
+      "source": "packages/solid-ui/src/table/TableColumnResize.tsx",
+      "destination": "packages/components/src/table/TableColumnResize.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "d02871387599675dbceec93a8d23501276aaab56a9015eb215e1048ccb16a227"
+    },
+    {
+      "source": "packages/solid-ui/src/table/TableFilter.tsx",
+      "destination": "packages/components/src/table/TableFilter.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "8830611536498fc5831bcf74dcec43a7e1056450fa595908af32d9c36d9c453f"
+    },
+    {
+      "source": "packages/solid-ui/src/table/TableGrouping.tsx",
+      "destination": "packages/components/src/table/TableGrouping.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "7c603cb96726d9d3c4ab3fb2dd1a70bdb0e5905796d2ca921fb3e7008135b12d"
+    },
+    {
+      "source": "packages/solid-ui/src/table/TableHeaderFilter.tsx",
+      "destination": "packages/components/src/table/TableHeaderFilter.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "884e9860769ae756437a4273bad9e66ad23d29df933ca0606d45389d316a2636"
+    },
+    {
+      "source": "packages/solid-ui/src/table/TableHeaderName.tsx",
+      "destination": "packages/components/src/table/TableHeaderName.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "f0f24d9099106bace8c8a4609f08e89e8c33b16a87b3d876adcf493a8fb81629"
+    },
+    {
+      "source": "packages/solid-ui/src/table/TableSort.tsx",
+      "destination": "packages/components/src/table/TableSort.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "e827ea4e18fca27c66a4201d7ed14cd7bba9426914a5cf2d68e0fc20a2030f42"
+    },
+    {
+      "source": "packages/solid-ui/src/table/index.ts",
+      "destination": "packages/components/src/table/index.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "24a7c808decd66b35ca41239d2a5046a9e44987fc9b2386a08d20a7566bfcdb4"
+    },
+    {
+      "source": "packages/solid-ui/src/utils/nativeEvents.ts",
+      "destination": "packages/components/src/utils/nativeEvents.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "7af47c5f6b46572c875b21f1d023fcbea8bf4338a45d93364fee815b9314364a"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/README.md",
+      "destination": "packages/components/src/virtual/README.md",
+      "kind": "component-presentation",
+      "sourceSha256": "c88adcba10521f02270477aa6f11f63bb125ef1576d7804665711c93b910ca7d"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/VirtualRows.tsx",
+      "destination": "packages/components/src/virtual/VirtualRows.tsx",
+      "kind": "component-presentation",
+      "sourceSha256": "6597b012a4057cf61307e63a1a72bbfb42efe65dd931e3554223efade20ee594"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/createVirtualizer.ts",
+      "destination": "packages/components/src/virtual/createVirtualizer.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "a909189d7f7794dc30fbd3133f4195d93253c64f7026b17c96df5a9625421394"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/index.ts",
+      "destination": "packages/components/src/virtual/index.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "ddda9a26007ec5dddd64ca2c4ace1454b0e608ac03e704c97f949b5273c922b2"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/vendor/virtual-core/LICENSE",
+      "destination": "packages/components/src/vendor/virtual-core/LICENSE",
+      "kind": "component-presentation",
+      "sourceSha256": "a405ee70c632bb938acb7ac5f210e814409b3760ea9d2329d8ed8ffcfd11a0e7"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/vendor/virtual-core/README.md",
+      "destination": "packages/components/src/vendor/virtual-core/README.md",
+      "kind": "component-presentation",
+      "sourceSha256": "619b8661ee48d8ffb6930e2147a1297201c02254288cfdc98b07bf90fbb74bde"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/vendor/virtual-core/index.ts",
+      "destination": "packages/components/src/vendor/virtual-core/index.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "af942185148dbc4ddc1b200195761edd4128ca677e01b16670a7bc29d47da95c"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/vendor/virtual-core/lazy-measurements.ts",
+      "destination": "packages/components/src/vendor/virtual-core/lazy-measurements.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "dfd89585160a6e992c29c24a4d9fa53d473dc072c1c935c0cda58efc7c5bea31"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/vendor/virtual-core/provenance.json",
+      "destination": "packages/components/src/vendor/virtual-core/provenance.json",
+      "kind": "component-presentation",
+      "sourceSha256": "9372164789867b28c5c35e69ddaf29f92b97b99be5a47829927c75adde093e5c"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/vendor/virtual-core/utils.ts",
+      "destination": "packages/components/src/vendor/virtual-core/utils.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "33ca3c04caee8cc495a3783b9ef3b3aa7dafc605f372891c48568458f4622cd4"
+    },
+    {
+      "source": "packages/solid-ui/src/virtual/virtualWindow.ts",
+      "destination": "packages/components/src/virtual/virtualWindow.ts",
+      "kind": "component-presentation",
+      "sourceSha256": "bec5949fb4e07b8e5d5b9c7d5bf325259a0eeadf23bf8289d426defe7f15d889"
+    },
+    {
+      "source": "patches/solid-primitives-scroll-3.0.0-next.4.patch",
+      "destination": "patches/solid-primitives-scroll-3.0.0-next.4.patch",
+      "kind": "tooling",
+      "sourceSha256": "d4b3cb7094f90fee487211aa6c0688917c3c19c6783630f8838e11dddc786343"
+    },
+    {
+      "source": "scripts/audit-solid-ui-vendor.mjs",
+      "destination": "scripts/audit-vendor.mjs",
+      "kind": "tooling",
+      "sourceSha256": "8b1bf000f22162809832b6d64e045cae040f2695a9799bd6f8ddc79aa2a1feff"
+    },
+    {
+      "source": "scripts/run-solid-qualification.mjs",
+      "destination": "scripts/qualify.mjs",
+      "kind": "tooling",
+      "sourceSha256": "9220b7d9acd3ab9a09336b72e6f85761aa172e3da42780597afdf334ac297082"
+    },
+    {
+      "source": "scripts/tests/solid-qualification.test.mjs",
+      "destination": "tests/tooling/qualification.test.mjs",
+      "kind": "tooling",
+      "sourceSha256": "3f82e60e7e17e26ff8a2a60ac95d38f681f5fb50e26165844c74985bd5963394"
+    }
+  ],
+  "exclusions": [
+    "Other framework adapters and their examples",
+    "Legacy table-core and Store-based adapter implementations",
+    "Legacy adapter hydration branch and adapter-only tests",
+    "Old prototypes and Query experiments outside the native engine",
+    "Downloaded inputs, node_modules, build outputs, caches, and heap captures"
+  ],
+  "notes": [
+    "The WAMN fixture is optional and its preparation is external to generic qualification.",
+    "Hydration and SSR fixtures will retain native/component contracts while removing the legacy adapter branch.",
+    "Historical performance evidence remains in the source repository. New performance tools and reports belong to wfe.",
+    "Every source import and document link will be rewritten to the recorded destination.",
+    "The virtualization entry HTML will target its native demo entry rather than the excluded legacy adapter app."
+  ],
+  "importReplacements": {
+    "examples/solid/virtualized-rows/src/nativeEvents.ts": "@wfe/components/events"
+  },
+  "optionalGeneratedInputs": {
+    "source": "packages/solid-table/bench/wamn/.input",
+    "destination": "examples/wamn/.input",
+    "preparation": "examples/wamn/prepare.mjs",
+    "policy": "Generated inputs are prepared only for the optional WAMN fixture and are not part of generic component qualification."
+  }
+}
