@@ -152,18 +152,20 @@ try {
   report.assertions.push(
     'Client attachment preserves native cell and button nodes and initial values',
   )
-  const booleanFilter = page.getByRole('combobox', {
+  const booleanFilter = page.getByRole('checkbox', {
     name: 'Active filter',
     exact: true,
   })
   const dateStart = page.getByLabel('Created start', { exact: true })
   const dateEnd = page.getByLabel('Created end', { exact: true })
-  await expect(booleanFilter).toHaveValue('false')
+  await expect(booleanFilter).toHaveAttribute('aria-checked', 'false')
   await expect(dateStart).toHaveValue('2026-01-01')
   await expect(dateEnd).toHaveValue('2026-01-02')
-  await booleanFilter.selectOption('true')
-  await booleanFilter.selectOption('false')
-  await booleanFilter.selectOption('')
+  await booleanFilter.press('Space')
+  await booleanFilter.press('Space')
+  await page
+    .getByRole('button', { name: 'Clear active filter', exact: true })
+    .click()
   await dateStart.fill('2026-01-02')
   await page
     .getByRole('button', { name: 'Clear created end', exact: true })

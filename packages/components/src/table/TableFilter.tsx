@@ -1,5 +1,6 @@
-import { For, Show, createUniqueId } from 'solid-js'
+import { For, Show, createUniqueId, untrack } from 'solid-js'
 import { Button, Input, NativeSelect } from '../components/NativeFields'
+import { Checkbox } from '../components/Checkbox'
 import { nativeEvents } from '../utils/nativeEvents'
 
 export type TableFilterProps = {
@@ -20,13 +21,10 @@ export type TableFilterProps = {
 
 export function TableFilter(props: TableFilterProps) {
   const id = createUniqueId()
-  const choices = () =>
-    props.kind === 'boolean'
-      ? [
-          { value: 'true', label: 'True' },
-          { value: 'false', label: 'False' },
-        ]
-      : props.choices
+  const choices = () => props.choices
+  const stateLabel = () =>
+    props.value === 'true' ? 'Yes' : props.value === 'false' ? 'No' : 'Either'
+  const stateHelp = createUniqueId()
   let control!: HTMLInputElement | HTMLSelectElement
   function clear() {
     if (props.disabled) return
@@ -40,76 +38,120 @@ export function TableFilter(props: TableFilterProps) {
       </label>
       <div class="filter-input">
         <Show
-          when={choices()}
+          when={props.kind !== 'boolean'}
           fallback={
-            <Input
-              id={id}
-              type={props.search ? 'search' : 'text'}
-              placeholder={
-                props.placeholder ??
-                (props.search ? 'Search values…' : 'Contains…')
-              }
-              value={props.value}
+            <Checkbox
+              class="table-boolean-filter"
+              checked={props.value === 'true'}
+              indeterminate={!props.value}
               disabled={props.disabled}
-              ref={[
-                (node) => {
+              onChange={() => {
+                if (!props.disabled) {
+                  const value = untrack(() => props.value)
+                  props.onValueChange(
+                    value === '' ? 'true' : value === 'true' ? 'false' : '',
+                  )
+                }
+              }}
+            >
+              <Checkbox.Input
+                id={id}
+                aria-label={props.label}
+                aria-describedby={stateHelp}
+                aria-checked={
+                  !props.value
+                    ? 'mixed'
+                    : props.value === 'true'
+                      ? 'true'
+                      : 'false'
+                }
+                ref={(node) => {
                   control = node
                   props.inputRef?.(node)
                   props.controlRef?.(node)
-                },
-                nativeEvents<HTMLInputElement>({
-                  input: (event) => {
-                    if (!props.disabled && !event.isComposing)
-                      props.onValueChange(event.currentTarget.value)
-                  },
-                  compositionend: (event) => {
-                    if (!props.disabled)
-                      props.onValueChange(event.currentTarget.value)
-                  },
-                  keydown: (event) => {
-                    if (event.key === 'Escape' && !event.isComposing) {
-                      event.preventDefault()
-                      event.stopPropagation()
-                      if (props.onEscape) props.onEscape()
-                      else clear()
-                    }
-                  },
-                }),
-              ]}
-            />
+                }}
+              />
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              <label for={id} class="ui-label" data-ui-text="system">
+                {stateLabel()}
+              </label>
+              <span id={stateHelp} class="sr-only">
+                {stateLabel()}. Press Space to cycle Yes, No, and Either.
+              </span>
+            </Checkbox>
           }
         >
-          {(choices) => (
-            <NativeSelect
-              id={id}
-              data-ui-text={props.kind === 'boolean' ? 'system' : undefined}
-              value={props.value}
-              disabled={props.disabled}
-              ref={[
-                (node) => {
-                  control = node
-                  props.controlRef?.(node)
-                },
-                nativeEvents<HTMLSelectElement>({
-                  change: (event) => {
-                    if (!props.disabled)
-                      props.onValueChange(event.currentTarget.value)
+          <Show
+            when={choices()}
+            fallback={
+              <Input
+                id={id}
+                type={props.search ? 'search' : 'text'}
+                placeholder={
+                  props.placeholder ??
+                  (props.search ? 'Search values…' : 'Contains…')
+                }
+                value={props.value}
+                disabled={props.disabled}
+                ref={[
+                  (node) => {
+                    control = node
+                    props.inputRef?.(node)
+                    props.controlRef?.(node)
                   },
-                }),
-              ]}
-            >
-              <option value="">
-                {props.kind === 'boolean' ? 'Either' : 'All'}
-              </option>
-              <For each={choices().filter((choice) => choice.value !== '')}>
-                {(choice) => (
-                  <option value={choice.value} disabled={choice.disabled}>
-                    {choice.label}
-                  </option>
-                )}
-              </For>
-            </NativeSelect>
-          )}
+                  nativeEvents<HTMLInputElement>({
+                    input: (event) => {
+                      if (!props.disabled && !event.isComposing)
+                        props.onValueChange(event.currentTarget.value)
+                    },
+                    compositionend: (event) => {
+                      if (!props.disabled)
+                        props.onValueChange(event.currentTarget.value)
+                    },
+                    keydown: (event) => {
+                      if (event.key === 'Escape' && !event.isComposing) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        if (props.onEscape) props.onEscape()
+                        else clear()
+                      }
+                    },
+                  }),
+                ]}
+              />
+            }
+          >
+            {(choices) => (
+              <NativeSelect
+                id={id}
+                value={props.value}
+                disabled={props.disabled}
+                ref={[
+                  (node) => {
+                    control = node
+                    props.controlRef?.(node)
+                  },
+                  nativeEvents<HTMLSelectElement>({
+                    change: (event) => {
+                      if (!props.disabled)
+                        props.onValueChange(event.currentTarget.value)
+                    },
+                  }),
+                ]}
+              >
+                <option value="">All</option>
+                <For each={choices().filter((choice) => choice.value !== '')}>
+                  {(choice) => (
+                    <option value={choice.value} disabled={choice.disabled}>
+                      {choice.label}
+                    </option>
+                  )}
+                </For>
+              </NativeSelect>
+            )}
+          </Show>
         </Show>
         <Button
           type="button"

@@ -65,3 +65,5 @@ Its configuration and value types are `TableColumnFilterConfig` and `TableColumn
 The component reuses the shared Select for both choice modes.
 Calendar popups and date entry use the shared DatePicker.
 Nested condition groups remain outside this first implementation.
+
+Boolean filters use a three-state checkbox. A check means Yes, an empty box means No, and a dash means Either. Click the box or press Space to cycle through Yes, No, and Either. Clear restores Either.

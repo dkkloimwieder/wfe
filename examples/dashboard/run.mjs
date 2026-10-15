@@ -187,7 +187,7 @@ try {
     )
   })
   await test('Boolean filters preserve false and clear to either even with empty results', async () => {
-    const filter = page.getByRole('combobox', {
+    const filter = page.getByRole('checkbox', {
       name: 'Filter Active',
       exact: true,
     })
@@ -195,23 +195,14 @@ try {
       name: 'Clear Active filter',
       exact: true,
     })
-    assert.deepEqual(await filter.locator('option').allTextContents(), [
-      'Either',
-      'True',
-      'False',
-    ])
-    assert.equal(await filter.inputValue(), '')
-    assert.equal(
-      await filter.evaluate((node) => getComputedStyle(node).textTransform),
-      'uppercase',
-    )
-    await filter.selectOption('true')
+    await expect(filter).toHaveAttribute('aria-checked', 'mixed')
+    await filter.press('Space')
     assert.deepEqual(await rows(), ['record-1'])
     assert.equal(
       await page.locator('tr[data-row] td[data-column="active"]').textContent(),
       'true',
     )
-    await filter.selectOption('false')
+    await page.locator('.table-boolean-filter .ui-check-control').click()
     assert.deepEqual(await rows(), ['record-2'])
     assert.equal(
       await page.locator('tr[data-row] td[data-column="active"]').textContent(),
@@ -222,14 +213,16 @@ try {
       true,
     )
     await page.evaluate(() => window.dashboardFixture.replaceRows(0))
-    assert.equal(await filter.inputValue(), 'false')
+    await expect(filter).toHaveAttribute('aria-checked', 'false')
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
     assert.deepEqual(await rows(), ['record-2'])
-    await filter.selectOption('')
+    await filter.press('Space')
     assert.equal((await rows()).length, 2)
-    await filter.selectOption('false')
+    await page.evaluate(() =>
+      window.dashboardFixture.setFilter('active', false),
+    )
     await clear.click()
-    assert.equal(await filter.inputValue(), '')
+    await expect(filter).toHaveAttribute('aria-checked', 'mixed')
     assert.equal((await rows()).length, 2)
     await expect(filter).toBeFocused()
     await expect(clear).toBeDisabled()
@@ -238,7 +231,9 @@ try {
       true,
     )
     await page.evaluate(() => window.dashboardFixture.replaceRows(0))
-    await filter.selectOption('false')
+    await page.evaluate(() =>
+      window.dashboardFixture.setFilter('active', false),
+    )
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
     assert.deepEqual(await rows(), ['record-2'])
   })
@@ -291,17 +286,15 @@ try {
     assert.equal(await start.inputValue(), '2026-01-02')
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
     assert.deepEqual(await rows(), ['record-2'])
-    await page
-      .getByRole('combobox', { name: 'Filter Active', exact: true })
-      .selectOption('true')
+    await page.evaluate(() => window.dashboardFixture.setFilter('active', true))
     assert.deepEqual(await rows(), [])
-    await page
-      .getByRole('combobox', { name: 'Filter Active', exact: true })
-      .selectOption('false')
+    await page.evaluate(() =>
+      window.dashboardFixture.setFilter('active', false),
+    )
     assert.deepEqual(await rows(), ['record-2'])
-    await page
-      .getByRole('combobox', { name: 'Filter Active', exact: true })
-      .selectOption('')
+    await page.evaluate(() =>
+      window.dashboardFixture.setFilter('active', undefined),
+    )
     await clearStart.click()
     assert.equal((await rows()).length, 2)
     assert.equal(
@@ -539,13 +532,11 @@ try {
     ).toHaveValue('0')
     await expect(choiceTrigger('Filter Region')).toHaveText('West')
     assert.deepEqual(await rows(), ['record-1', 'record-5'])
-    await page
-      .getByRole('combobox', { name: 'Filter Active', exact: true })
-      .selectOption('false')
+    await page.evaluate(() =>
+      window.dashboardFixture.setFilter('active', false),
+    )
     assert.deepEqual(await rows(), [])
-    await page
-      .getByRole('combobox', { name: 'Filter Active', exact: true })
-      .selectOption('true')
+    await page.evaluate(() => window.dashboardFixture.setFilter('active', true))
     await page
       .getByRole('textbox', { name: 'Filter Name', exact: true })
       .fill('Record 5')

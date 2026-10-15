@@ -1194,3 +1194,18 @@
     animation: none;
   }
 }
+
+:where([data-ui]) .table-boolean-filter {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--ui-control-border, #999);
+  padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 8px);
+  align-items: center;
+}
+:where([data-ui]) .table-boolean-filter .ui-label {
+  font-weight: inherit;
+  cursor: pointer;
+}
+:where([data-ui]) .filter-input .table-boolean-filter .ui-check-control {
+  outline: none;
+}

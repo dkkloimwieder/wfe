@@ -52,10 +52,27 @@ if (!externalUrl) {
   )
   assert.ok(
     !modules.some((path) =>
-      /table-core|@tanstack\/store|virtual-core|solid-form|kobalte|sonner|lucide/.test(
+      /table-core|@tanstack\/store|virtual-core|solid-form|node_modules\/@kobalte\/|sonner|lucide/.test(
         path,
       ),
     ),
+  )
+  const ownedControlModules = modules.filter((path) =>
+    path.includes('/vendor/kobalte/'),
+  )
+  assert.ok(
+    ownedControlModules.some((path) =>
+      /\/checkbox-root\.(tsx|jsx)$/.test(path),
+    ),
+    'boolean filters use the owned shared checkbox',
+  )
+  assert.ok(
+    ownedControlModules.every((path) =>
+      /\/utils\/src\/|\/core\/src\/(checkbox|form-control|polymorphic)\/|\/core\/src\/primitives\/(create-tag-name|create-toggle-state)\//.test(
+        path,
+      ),
+    ),
+    'editing retains only shared checkbox behavior and its support modules',
   )
   assert.ok(modules.some((path) => /zod\/v4\/mini\//.test(path)))
   assert.ok(!modules.some((path) => /zod\/v4\/classic\//.test(path)))
