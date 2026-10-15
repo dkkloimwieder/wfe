@@ -139,6 +139,11 @@ try {
       name: 'Choose month and year',
       exact: true,
     })
+    await expect(heading).toHaveAccessibleDescription('February 2024')
+    await expect(page.getByRole('grid')).toHaveAccessibleName('February 2024')
+    await expect(heading.locator('[aria-live="polite"]')).toHaveText(
+      'February 2024',
+    )
     await heading.click()
     await expect(heading).toHaveAttribute('aria-expanded', 'true')
     await page
@@ -146,6 +151,11 @@ try {
       .fill('2028')
     await page.getByRole('button', { name: 'March', exact: true }).click()
     await expect(day('2028-03-01')).toBeFocused()
+    await expect(heading).toHaveAccessibleDescription('March 2028')
+    await expect(page.getByRole('grid')).toHaveAccessibleName('March 2028')
+    await expect(heading.locator('[aria-live="polite"]')).toHaveText(
+      'March 2028',
+    )
     assert.equal((await state()).value, '2024-02-29')
     await heading.click()
     await page.getByRole('button', { name: 'Next year', exact: true }).click()

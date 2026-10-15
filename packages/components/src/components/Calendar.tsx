@@ -152,8 +152,8 @@ export function Calendar(props: CalendarProps) {
           ‹
         </Button>
         <Button
-          id={title}
           class="ui-calendar-heading ui-label"
+          aria-describedby={title}
           aria-label="Choose month and year"
           aria-expanded={choosing() ? 'true' : 'false'}
           disabled={props.disabled}
@@ -162,7 +162,9 @@ export function Calendar(props: CalendarProps) {
           }}
           onClick={() => setChoosing((value) => !value)}
         >
-          {formatter().format(parseDate(month())!)}
+          <span id={title} aria-live="polite">
+            {formatter().format(parseDate(month())!)}
+          </span>
         </Button>
         <Button
           type="button"
