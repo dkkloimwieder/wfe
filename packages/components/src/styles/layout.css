@@ -50,6 +50,12 @@
   gap: var(--ui-gap, 6px);
   min-width: 0;
 }
+:where([data-ui]) .ui-dashboard-panel {
+  padding: var(--ui-cell-padding-x, 8px);
+}
+:where([data-ui]) .ui-dashboard-panel > :is(h1, h2, h3, p) {
+  margin: 0;
+}
 :where([data-ui]) .ui-dashboard-panel[data-fill] {
   flex: 1;
   min-height: 0;

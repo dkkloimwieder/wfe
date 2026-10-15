@@ -5,6 +5,10 @@ All selectors stay inside a `data-ui` scope. The stylesheet leaves unrelated con
 Table editors and standalone controls share fonts, spacing, borders, colors, focus, and disabled states.
 Application fixture page styles stay outside this package.
 Generic dashboard styles live in `layout.css`.
+Rectangular surfaces use square corners by default.
+Dashboard panels use one inset and remove default margins from direct headings and paragraphs.
+Grouping controls use a grid that keeps ordering fields and action groups aligned.
+Source consumers load source styles through the `wfe-source` condition.
 
 ## Scope and density
 

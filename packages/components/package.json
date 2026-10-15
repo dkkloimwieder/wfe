@@ -12,7 +12,10 @@
       "node": "./dist/server/index.js",
       "import": "./dist/client/index.js"
     },
-    "./styles.css": "./dist/source/styles/styles.css",
+    "./styles.css": {
+      "wfe-source": "./src/styles/styles.css",
+      "default": "./dist/source/styles/styles.css"
+    },
     "./density": {
       "types": "./dist/client/styles/density.d.ts",
       "wfe-source": "./src/styles/density.ts",

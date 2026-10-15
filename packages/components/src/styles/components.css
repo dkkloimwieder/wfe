@@ -410,6 +410,7 @@
   text-align: center;
 }
 :where([data-ui]) .grouping-controls {
+  container-type: inline-size;
   margin: 10px 0 0;
   padding: 8px 10px 10px;
   border: 1px solid var(--ui-border, #ccc);
@@ -422,7 +423,6 @@
   font-weight: 600;
 }
 :where([data-ui]) .grouping-toolbar,
-:where([data-ui]) .grouping-levels li,
 :where([data-ui]) .group-heading {
   display: flex;
   align-items: center;
@@ -442,12 +442,44 @@
   margin: 8px 0 0;
 }
 :where([data-ui]) .grouping-levels li {
-  padding: 6px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--ui-gap, 6px);
+  padding: var(--ui-gap, 6px) 0;
   border-top: 1px solid var(--ui-divider, #ddd);
 }
 :where([data-ui]) .grouping-level-label {
-  min-width: 140px;
+  min-width: 0;
+  align-self: center;
+  overflow-wrap: anywhere;
   font-weight: 600;
+}
+:where([data-ui]) :is(.grouping-level-move, .grouping-level-actions) {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .grouping-level-move button {
+  min-width: var(--ui-control-height, 26px);
+}
+:where([data-ui]) .grouping-levels li > label,
+:where([data-ui]) .grouping-level-actions {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+:where([data-ui]) .grouping-level-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+@container (min-width: 48rem) {
+  :where([data-ui]) .grouping-levels li {
+    grid-template-columns: minmax(7rem, 1fr) auto minmax(12rem, 1.5fr) auto;
+  }
+  :where([data-ui]) .grouping-levels li > label,
+  :where([data-ui]) .grouping-level-actions {
+    grid-column: auto;
+  }
 }
 :where([data-ui]) .grouping-levels label {
   font-size: var(--ui-small-font-size, 11px);
@@ -1012,7 +1044,7 @@
   overflow: auto;
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
   border: 1px solid var(--ui-border, #bbb);
-  border-radius: var(--ui-radius, 3px);
+  border-radius: var(--ui-radius, 0px);
   background: var(--ui-surface, white);
   color: var(--ui-text, #191919);
   font: inherit;
@@ -1047,7 +1079,7 @@
   display: flex;
   align-items: center;
   gap: var(--ui-gap, 5px);
-  border-radius: var(--ui-radius, 3px);
+  border-radius: var(--ui-radius, 0px);
   cursor: pointer;
   outline: none;
 }
@@ -1068,7 +1100,7 @@
 :where([data-ui]) :is(.ui-card, .ui-inline-alert, .ui-toast) {
   box-sizing: border-box;
   border: 1px solid var(--ui-border, #bbb);
-  border-radius: 3px;
+  border-radius: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
   background: var(--ui-surface, white);
   color: var(--ui-text, #191919);
@@ -1077,7 +1109,7 @@
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--ui-border, #bbb);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 0 4px;
   background: var(--ui-muted-surface, #f2f2f2);
   font-size: var(--ui-small-font-size, 11px);
@@ -1123,7 +1155,7 @@
 }
 :where([data-ui]) .ui-skeleton {
   min-height: var(--ui-row-height, 32px);
-  border-radius: 3px;
+  border-radius: 0;
   background: var(--ui-muted-surface, #eee);
 }
 :where([data-ui]) .ui-progress {

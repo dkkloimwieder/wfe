@@ -136,32 +136,34 @@ export function TableGrouping<T, M>(props: {
                   <span class="grouping-level-label">
                     {index() + 1}. {label(id)}
                   </span>
-                  <Button
-                    aria-label={`Move ${label(id)} up`}
-                    disabled={index() === 0}
-                    ref={nativeEvents({
-                      click: () => {
-                        orderControl.focus()
-                        move(id, -1)
-                        onSettled(() => orderControl.focus())
-                      },
-                    })}
-                  >
-                    ↑
-                  </Button>
-                  <Button
-                    aria-label={`Move ${label(id)} down`}
-                    disabled={index() === table.state.grouping.length - 1}
-                    ref={nativeEvents({
-                      click: () => {
-                        orderControl.focus()
-                        move(id, 1)
-                        onSettled(() => orderControl.focus())
-                      },
-                    })}
-                  >
-                    ↓
-                  </Button>
+                  <div class="grouping-level-move">
+                    <Button
+                      aria-label={`Move ${label(id)} up`}
+                      disabled={index() === 0}
+                      ref={nativeEvents({
+                        click: () => {
+                          orderControl.focus()
+                          move(id, -1)
+                          onSettled(() => orderControl.focus())
+                        },
+                      })}
+                    >
+                      ↑
+                    </Button>
+                    <Button
+                      aria-label={`Move ${label(id)} down`}
+                      disabled={index() === table.state.grouping.length - 1}
+                      ref={nativeEvents({
+                        click: () => {
+                          orderControl.focus()
+                          move(id, 1)
+                          onSettled(() => orderControl.focus())
+                        },
+                      })}
+                    >
+                      ↓
+                    </Button>
+                  </div>
                   <label>
                     Order {label(id)} groups
                     <NativeSelect
@@ -208,38 +210,41 @@ export function TableGrouping<T, M>(props: {
                       </For>
                     </NativeSelect>
                   </label>
-                  <Button
-                    aria-label={`Expand ${label(id)} level`}
-                    ref={nativeEvents({
-                      click: () => table.toggleAllGroupsExpanded(true, index()),
-                    })}
-                  >
-                    Expand level
-                  </Button>
-                  <Button
-                    aria-label={`Collapse ${label(id)} level`}
-                    ref={nativeEvents({
-                      click: () =>
-                        table.toggleAllGroupsExpanded(false, index()),
-                    })}
-                  >
-                    Collapse level
-                  </Button>
-                  <Button
-                    aria-label={`Remove ${label(id)} grouping`}
-                    ref={nativeEvents({
-                      click: () => {
-                        addControl.focus()
-                        configureGrouping(
-                          table.state.grouping.filter(
-                            (column) => column !== id,
-                          ),
-                        )
-                      },
-                    })}
-                  >
-                    Remove
-                  </Button>
+                  <div class="grouping-level-actions">
+                    <Button
+                      aria-label={`Expand ${label(id)} level`}
+                      ref={nativeEvents({
+                        click: () =>
+                          table.toggleAllGroupsExpanded(true, index()),
+                      })}
+                    >
+                      Expand
+                    </Button>
+                    <Button
+                      aria-label={`Collapse ${label(id)} level`}
+                      ref={nativeEvents({
+                        click: () =>
+                          table.toggleAllGroupsExpanded(false, index()),
+                      })}
+                    >
+                      Collapse
+                    </Button>
+                    <Button
+                      aria-label={`Remove ${label(id)} grouping`}
+                      ref={nativeEvents({
+                        click: () => {
+                          addControl.focus()
+                          configureGrouping(
+                            table.state.grouping.filter(
+                              (column) => column !== id,
+                            ),
+                          )
+                        },
+                      })}
+                    >
+                      Remove
+                    </Button>
+                  </div>
                 </li>
               )
             }}
