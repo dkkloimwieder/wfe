@@ -3,7 +3,7 @@
 The default Table example at `http://127.0.0.1:7786/` has three neutral modes:
 BLACK / WHITE, LIGHT, and DARK. The initial mode remains BLACK / WHITE.
 LIGHT and DARK use the neutral roles from Open Props.
-LIGHT Surface 1 uses pure white (`#ffffff`) as a local adjustment for lighter content. Color applies only to
+LIGHT Surface 1 uses `#fcfcfd`, between its original `#f8f9fa` and white, for lighter content. Color applies only to
 accents. Each mode keeps APPLY at full contrast.
 
 The top row separates surface modes, accent colors, and shadow depth.
