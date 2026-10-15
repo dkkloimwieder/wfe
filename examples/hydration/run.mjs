@@ -130,6 +130,20 @@ try {
     'Table controls retain their server nodes and attach drawer keyboard behavior',
   )
   await page.setViewportSize({ width: 1280, height: 900 })
+  const desktopControls = page.getByRole('button', {
+    name: 'Table controls',
+    exact: true,
+  })
+  const controlsPane = page.locator('#adopt-table .table-workspace-controls')
+  await expect(desktopControls).toHaveAttribute('aria-expanded', 'true')
+  await desktopControls.press('Enter')
+  await expect(controlsPane).toBeHidden()
+  await expect(desktopControls).toBeFocused()
+  await desktopControls.press('Space')
+  await expect(controlsPane).toBeVisible()
+  report.assertions.push(
+    'The hydrated desktop controls collapse and reopen without replacing server nodes',
+  )
   assert.equal(
     await page.locator('#adopt-layout-draft').inputValue(),
     'Hydrated draft',

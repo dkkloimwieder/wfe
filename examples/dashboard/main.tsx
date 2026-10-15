@@ -155,6 +155,7 @@ const textColumn = {
 }
 const displayValue = (value: unknown) =>
   Array.isArray(value) ? value.join(', ') : String(value ?? '')
+let collapseControls: ((collapsed: boolean) => void) | undefined
 let applyFilter: ((id: string, value: unknown) => void) | undefined
 let release: (() => void) | undefined
 let replaceRows: ((count: number) => void) | undefined
@@ -170,6 +171,7 @@ function stop() {
   flush()
   release = undefined
   replaceRows = undefined
+  collapseControls = undefined
   applyFilter = undefined
 }
 function createRecordsTable(source: NativeSource<RecordData>) {
@@ -270,6 +272,9 @@ function createFormatting() {
 function TablePage() {
   const [scheme, setScheme] = createSignal(monochrome)
   const [accent, setAccent] = createSignal(neutralAccent)
+  const [placement, setPlacement] = createSignal<'left' | 'top'>('left')
+  const [collapsed, setCollapsed] = createSignal(false)
+  collapseControls = setCollapsed
   const [depth, setDepth] = createSignal<Depth>(1)
   const [layers, setLayers] = createSignal<SurfaceLayers>(defaultLayers)
   const scope = uiScope()
@@ -291,6 +296,8 @@ function TablePage() {
       <AppearanceReview
         scheme={scheme()}
         accent={accent()}
+        placement={placement()}
+        onPlacementChange={setPlacement}
         depth={depth()}
         layers={layers()}
         onLayersChange={setLayers}
@@ -299,6 +306,9 @@ function TablePage() {
         onDepthChange={setDepth}
       />
       <ReadOnlyTable
+        controlsPlacement={placement()}
+        controlsCollapsed={collapsed()}
+        onControlsCollapsedChange={setCollapsed}
         table={table}
         title="Records"
         filter={(column) => filterConfigurations[column.id]}
@@ -459,6 +469,10 @@ const api = {
   stop,
   setFilter: (id: string, value: unknown) => {
     applyFilter?.(id, value)
+    flush()
+  },
+  setControlsCollapsed: (collapsed: boolean) => {
+    collapseControls?.(collapsed)
     flush()
   },
   replaceRows: (count: number) => {

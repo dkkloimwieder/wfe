@@ -92,10 +92,7 @@ export function appearanceStyle(
     '--ui-handle-border': border,
     '--ui-focus': focus,
     '--ui-shadow-overflow': '24px',
-    '--ui-panel-shadow': depth
-      ? `var(--review-shadow-${Math.min(depth + 1, 3)})`
-      : 'none',
-    '--ui-section-shadow': depth ? `var(--review-shadow-${depth})` : 'none',
+    '--ui-panel-shadow': depth ? `var(--review-shadow-${depth})` : 'none',
     '--ui-popup-shadow': depth ? 'var(--review-shadow-3)' : 'none',
     '--review-shadow-color':
       scheme.mode === 'dark' ? '220 40% 2%' : '220 3% 15%',

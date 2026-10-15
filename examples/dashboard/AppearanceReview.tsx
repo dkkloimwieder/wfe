@@ -20,6 +20,8 @@ const roles = [
 
 /** Temporary application-owned review. Nothing is persisted. */
 export function AppearanceReview(props: {
+  placement: 'left' | 'top'
+  onPlacementChange: (placement: 'left' | 'top') => void
   scheme: SurfaceScheme
   accent: Accent
   depth: Depth
@@ -88,6 +90,24 @@ export function AppearanceReview(props: {
         </a>
       </div>
       <div class="appearance-layers">
+        <div
+          class="appearance-options"
+          role="group"
+          aria-label="Controls placement"
+        >
+          <span data-ui-text="system">Controls</span>
+          <For each={['left', 'top'] as const}>
+            {(placement) => (
+              <Button
+                aria-label={`${placement} controls pane`}
+                aria-pressed={props.placement === placement ? 'true' : 'false'}
+                onClick={() => props.onPlacementChange(placement)}
+              >
+                {placement}
+              </Button>
+            )}
+          </For>
+        </div>
         <For
           each={
             [

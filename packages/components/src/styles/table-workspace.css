@@ -4,7 +4,9 @@
   display: grid;
   grid-template-columns: var(--ui-table-controls-width, 18rem) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
-  column-gap: var(--ui-gap, 6px);
+  gap: 0;
+  border: 1px solid var(--ui-border, #ccc);
+  box-shadow: var(--ui-panel-shadow, none);
   background: var(--ui-canvas-surface, var(--ui-surface, white));
   height: 100%;
   min-height: 0;
@@ -18,11 +20,12 @@
 }
 :where([data-ui]) .table-workspace-controls,
 :where([data-ui]) .table-workspace-results {
-  border: 1px solid var(--ui-border, #ccc);
+  border: 0;
   background: var(--ui-pane-surface, var(--ui-surface, white));
-  box-shadow: var(--ui-panel-shadow, none);
+  box-shadow: none;
 }
 :where([data-ui]) .table-workspace-controls {
+  border-inline-end: 1px solid var(--ui-border, #ccc);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -32,6 +35,8 @@
 }
 :where([data-ui]) .table-workspace-controls-header,
 :where([data-ui]) .table-workspace-results-header {
+  justify-content: space-between;
+  gap: var(--ui-gap, 6px);
   display: flex;
   align-items: center;
   flex: none;
@@ -55,13 +60,13 @@
 :where([data-ui]) .table-workspace-controls-body {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-gap, 6px);
+  gap: 0;
   flex: 1;
   min-height: 0;
   min-width: 0;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
+  padding: 0;
 }
 :where([data-ui]) .table-workspace-results {
   display: flex;
@@ -77,8 +82,9 @@
 :where([data-ui]) .table-workspace-results > .table-scroll {
   flex: 1;
   min-height: 0;
-  margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
-  box-shadow: var(--ui-section-shadow, none);
+  margin: 0;
+  border: 0;
+  box-shadow: none;
 }
 :where([data-ui]) .table-workspace-summary {
   flex: none;
@@ -87,9 +93,10 @@
   border-top: 1px solid var(--ui-border, #ccc);
 }
 :where([data-ui]) .table-control-section {
-  box-shadow: var(--ui-section-shadow, none);
+  box-shadow: none;
   flex: none;
-  border: 1px solid var(--ui-border, #ccc);
+  border: 0;
+  border-bottom: 1px solid var(--ui-border, #ccc);
   background: var(--ui-surface, white);
 }
 :where([data-ui]) .table-control-section > summary {
@@ -150,8 +157,55 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
 }
+:where([data-ui]) .table-workspace[data-controls-placement='top'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows:
+    minmax(0, min(var(--ui-table-controls-height, 18rem), 40%))
+    minmax(0, 1fr);
+}
+:where([data-ui])
+  .table-workspace[data-controls-placement='top']
+  > .table-workspace-controls {
+  border-inline-end: 0;
+  border-bottom: 1px solid var(--ui-border, #ccc);
+}
+:where([data-ui])
+  .table-workspace[data-controls-placement='top']
+  .table-workspace-controls-body {
+  flex-direction: row;
+  align-items: stretch;
+}
+:where([data-ui])
+  .table-workspace[data-controls-placement='top']
+  .table-control-section {
+  flex: 1 0 16rem;
+  border-bottom: 0;
+  border-inline-end: 1px solid var(--ui-border, #ccc);
+}
+:where([data-ui])
+  .table-workspace[data-controls-placement='top']
+  .table-control-section:not([open]) {
+  flex: 0 0 auto;
+}
+:where([data-ui])
+  .table-workspace[data-controls-placement='top']
+  .table-control-section
+  > summary {
+  white-space: nowrap;
+}
+:where([data-ui]) .table-workspace[data-controls-collapsed] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+:where([data-ui])
+  .table-workspace[data-controls-collapsed]
+  > .table-workspace-controls {
+  display: none;
+}
 @media (width < 48rem) {
-  :where([data-ui]) .table-workspace {
+  :where([data-ui]) .table-workspace,
+  :where([data-ui]) .table-workspace[data-controls-placement],
+  :where([data-ui]) .table-workspace[data-controls-collapsed] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
   }
@@ -159,13 +213,20 @@
     display: flex;
     padding-block-end: var(--ui-gap, 6px);
   }
+  :where([data-ui]) .table-controls-desktop-toggle {
+    display: none;
+  }
   :where([data-ui]) .table-controls-close {
     display: inline-block;
     flex: none;
     align-self: start;
     margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
   }
-  :where([data-ui]) .table-workspace-controls {
+  :where([data-ui])
+    .table-workspace[data-controls-placement]
+    > .table-workspace-controls {
+    border: 1px solid var(--ui-border, #ccc);
+    box-shadow: var(--ui-panel-shadow, none);
     display: none;
     position: absolute;
     inset-block: 0;
@@ -174,9 +235,21 @@
     width: min(var(--ui-table-controls-width, 18rem), 100%);
   }
   :where([data-ui])
-    .table-workspace[data-controls-open]
+    .table-workspace[data-controls-open][data-controls-placement]
     > .table-workspace-controls {
     display: flex;
+  }
+  :where([data-ui])
+    .table-workspace[data-controls-placement='top']
+    .table-workspace-controls-body {
+    flex-direction: column;
+  }
+  :where([data-ui])
+    .table-workspace[data-controls-placement='top']
+    .table-control-section {
+    flex: none;
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--ui-border, #ccc);
   }
   :where([data-ui]) .table-workspace-results {
     padding-inline-start: 0;

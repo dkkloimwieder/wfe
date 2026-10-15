@@ -9,7 +9,9 @@ The top row separates surface modes, accent colors, and shadow depth.
 Use Tab to focus a control. Press Enter or Space to activate it.
 BASE, PANES, and CONTENT each offer SURFACE 1, 2, or 3.
 BASE sets the backdrop. PANES sets both pane backgrounds.
-CONTENT sets filter cards, table content, and popup backgrounds.
+CONTENT sets control sections, table content, and popup backgrounds.
+LEFT and TOP select the controls placement.
+The table header button hides or shows the whole controls pane.
 The sample row shows SURFACE 1–4 and TEXT 1–2 with their exact values.
 All control rows scroll horizontally on narrow screens.
 The Table fills the remaining height.
@@ -23,8 +25,8 @@ TEXT 2 supplies secondary text.
 BLACK / WHITE keeps white surfaces and black text and borders.
 
 DEPTH offers OFF and three increasing shadow levels. It starts at level 1.
-Filter sections and the table share the selected shadow level.
-Panes use the next level, up to level 3. Popups use level 3.
+The continuous workspace frame uses the selected shadow level.
+Its panes and control sections have no separate shadows. Popups use level 3.
 OFF removes these shadows. The sample shadows show the available levels.
 The workspace allows shadows beyond its edges. The page contains overflow.
 Corners stay square.

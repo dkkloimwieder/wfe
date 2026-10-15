@@ -951,8 +951,18 @@ try {
       const paneBox = await pane.boundingBox()
       const headerBox = await header.boundingBox()
       const bodyBox = await body.boundingBox()
-      assert.equal(headerBox.x, paneBox.x + 1)
-      assert.equal(headerBox.width, paneBox.width - 2)
+      const borders = await pane.evaluate((node) => {
+        const style = getComputedStyle(node)
+        return {
+          left: parseFloat(style.borderLeftWidth),
+          right: parseFloat(style.borderRightWidth),
+        }
+      })
+      assert.equal(headerBox.x, paneBox.x + borders.left)
+      assert.equal(
+        headerBox.width,
+        paneBox.width - borders.left - borders.right,
+      )
       assert.ok(bodyBox.y >= headerBox.y + headerBox.height)
       assert.equal(
         await header.evaluate(
@@ -1049,6 +1059,36 @@ try {
       .getByRole('button', { name: 'Close table controls', exact: true })
       .click()
     assert.deepEqual(await scroller.boundingBox(), narrow)
+  })
+  await test('Desktop controls own collapse state by default and release stale callbacks', async () => {
+    const toggle = page.getByRole('button', {
+      name: 'Table controls',
+      exact: true,
+    })
+    const pane = page.locator('.table-workspace-controls')
+    const original = await page.locator('.table-scroll').boundingBox()
+    const detached = await toggle.elementHandle()
+    await toggle.press('Enter')
+    await expect(pane).toBeHidden()
+    assert.ok(
+      (await page.locator('.table-scroll').boundingBox()).width >
+        original.width,
+    )
+    await toggle.press('Space')
+    await expect(pane).toBeVisible()
+    assert.deepEqual(
+      await page.locator('.table-scroll').boundingBox(),
+      original,
+    )
+    await pane.locator('summary').filter({ hasText: 'Grouping' }).focus()
+    await page.keyboard.press('Escape')
+    await expect(toggle).toBeFocused()
+    await expect(pane).toBeHidden()
+    await page.evaluate(() => window.dashboardFixture.start())
+    await detached.evaluate((node) => node.click())
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    await expect(pane).toBeVisible()
+    await detached.dispose()
   })
   await test('The controls drawer preserves nodes and state and restores visible keyboard focus', async () => {
     const filter = choiceTrigger('Region')
@@ -1278,7 +1318,7 @@ try {
       const sectionShadow = await surface.evaluate(
         (node) => getComputedStyle(node).boxShadow,
       )
-      assert.notEqual(sectionShadow, 'none')
+      assert.equal(sectionShadow, 'none')
       assert.equal(
         await page
           .locator('.table-control-section')
@@ -1287,7 +1327,9 @@ try {
         sectionShadow,
       )
       assert.notEqual(
-        await panes[0].evaluate((node) => getComputedStyle(node).boxShadow),
+        await page
+          .locator('.table-workspace')
+          .evaluate((node) => getComputedStyle(node).boxShadow),
         'none',
       )
       assert.equal(
@@ -1368,7 +1410,9 @@ try {
       await depth(level).click()
       await expect(depth(level)).toHaveAttribute('aria-pressed', 'true')
       shadows.push(
-        await surface.evaluate((node) => getComputedStyle(node).boxShadow),
+        await page
+          .locator('.table-workspace')
+          .evaluate((node) => getComputedStyle(node).boxShadow),
       )
       assert.deepEqual(await surface.boundingBox(), geometry)
     }
@@ -1463,6 +1507,139 @@ try {
     )
     await table.dispose()
     await detached.dispose()
+  })
+  await test('Controls collapse and move without replacing table nodes or pending drafts', async () => {
+    const workspace = page.locator('.table-workspace')
+    const pane = page.locator('.table-workspace-controls')
+    const surface = page.locator('.table-scroll')
+    const toggle = page.getByRole('button', {
+      name: 'Table controls',
+      exact: true,
+    })
+    const draft = page.getByRole('textbox', { name: 'Name', exact: true })
+    await draft.fill('Record 1')
+    const savedTable = await page.locator('table').elementHandle()
+    const savedDraft = await draft.elementHandle()
+    const initialRows = await rows()
+    const original = await surface.boundingBox()
+    await toggle.press('Enter')
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    await expect(pane).toBeHidden()
+    const full = await surface.boundingBox()
+    assert.ok(full.width > original.width + 250)
+    assert.equal(full.height, original.height)
+    const frame = await workspace.boundingBox()
+    assert.equal(full.width, frame.width - 2)
+    await page
+      .getByRole('button', { name: 'top controls pane', exact: true })
+      .click()
+    assert.deepEqual(await surface.boundingBox(), full)
+    await toggle.click()
+    await expect(pane).toBeVisible()
+    const top = await surface.boundingBox()
+    assert.equal(top.width, full.width)
+    assert.ok(top.height > original.height * 0.5)
+    const paneBox = await pane.boundingBox()
+    assert.ok(paneBox.height <= frame.height * 0.4)
+    const body = pane.locator('.table-workspace-controls-body')
+    await body.evaluate((node) => {
+      node.scrollTop = node.scrollHeight
+    })
+    assert.ok(await body.evaluate((node) => node.scrollTop > 0))
+    assert.deepEqual(await surface.boundingBox(), top)
+    await body.evaluate((node) => {
+      node.scrollTop = 0
+    })
+    await expect(draft).toHaveValue('Record 1')
+    assert.deepEqual(await rows(), initialRows)
+    await choiceTrigger('Region').click()
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await page.evaluate(() =>
+      window.dashboardFixture.setControlsCollapsed(true),
+    )
+    await expect(page.getByRole('listbox')).toBeHidden()
+    await expect(toggle).toBeFocused()
+    await toggle.click()
+    await draft.focus()
+    await page.evaluate(() =>
+      window.dashboardFixture.setControlsCollapsed(true),
+    )
+    await expect(toggle).toBeFocused()
+    await expect(pane).toBeHidden()
+    assert.deepEqual(await surface.boundingBox(), full)
+    await toggle.press('Space')
+    await page
+      .getByRole('button', { name: 'left controls pane', exact: true })
+      .click()
+    assert.deepEqual(await surface.boundingBox(), original)
+    assert.equal(
+      await savedDraft.evaluate(
+        (node) => node === document.querySelector('input[aria-label="Name"]'),
+      ),
+      true,
+    )
+    assert.equal(
+      await savedTable.evaluate(
+        (node) => node === document.querySelector('table'),
+      ),
+      true,
+    )
+    await expect(draft).toHaveValue('Record 1')
+    await apply().click()
+    assert.deepEqual(await rows(), ['record-1'])
+    const sections = await page
+      .locator('.table-control-section')
+      .evaluateAll((nodes) =>
+        nodes.map((node) => ({
+          border: getComputedStyle(node).borderLeftWidth,
+          margin: getComputedStyle(node).marginTop,
+        })),
+      )
+    assert.ok(
+      sections.every(
+        (section) => section.border === '0px' && section.margin === '0px',
+      ),
+    )
+    await page.getByText('Filters', { exact: true }).click()
+    await page.getByText('Grouping', { exact: true }).click()
+    assert.deepEqual(await surface.boundingBox(), original)
+    await toggle.click()
+    await toggle.focus()
+    await page.setViewportSize({ width: 390, height: 568 })
+    await expect(toggle).toBeFocused()
+    const narrow = await surface.boundingBox()
+    await toggle.press('Enter')
+    await expect(pane).toBeVisible()
+    assert.deepEqual(await surface.boundingBox(), narrow)
+    await page
+      .getByRole('button', { name: 'Close table controls', exact: true })
+      .click()
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await expect(toggle).toBeFocused()
+    await expect(pane).toBeHidden()
+    await toggle.click()
+    await page
+      .getByRole('button', { name: 'top controls pane', exact: true })
+      .click()
+    await page.setViewportSize({ width: 960, height: 540 })
+    assert.ok((await surface.boundingBox()).height > 150)
+    await page.setViewportSize({ width: 390, height: 568 })
+    await toggle.click()
+    await expect(pane).toBeVisible()
+    assert.equal(
+      await pane
+        .locator('.table-workspace-controls-body')
+        .evaluate((node) => getComputedStyle(node).flexDirection),
+      'column',
+    )
+    assert.equal(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <= innerWidth &&
+          document.documentElement.scrollHeight <= innerHeight,
+      ),
+      true,
+    )
   })
   await test('The Table starts level with controls and keeps its summary pinned below scrolling records', async () => {
     const controls = page.locator('.table-workspace-controls')

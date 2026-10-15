@@ -1,6 +1,7 @@
 import {
   Show,
   createSignal,
+  createEffect,
   createUniqueId,
   onCleanup,
   onSettled,
@@ -11,6 +12,10 @@ import { nativeEvents } from '../utils/nativeEvents'
 import type { JSX } from '@solidjs/web'
 
 export type TableWorkspaceProps = {
+  controlsPlacement?: 'left' | 'top'
+  controlsCollapsed?: boolean
+  defaultControlsCollapsed?: boolean
+  onControlsCollapsedChange?: (collapsed: boolean) => void
   controls: JSX.Element
   controlsHeader?: JSX.Element
   resultsHeader?: JSX.Element
@@ -27,15 +32,42 @@ export type TableWorkspaceProps = {
 /** Independent controls and results. The application assigns the workspace height. */
 export function TableWorkspace(props: TableWorkspaceProps) {
   const [open, setOpen] = createSignal(false)
+  const [localCollapsed, setLocalCollapsed] = createSignal(
+    untrack(() => props.defaultControlsCollapsed ?? false),
+  )
+  const collapsed = () => props.controlsCollapsed ?? localCollapsed()
   const panelId = `table-controls-${createUniqueId()}`
+  let desktopToggle: HTMLButtonElement | undefined
   let toggle: HTMLButtonElement | undefined
   let panel: HTMLElement | undefined
   let results: HTMLDivElement | undefined
   let alive = true
   let panelFocused = false
   let toggleFocused = false
-  const narrow = () =>
-    Boolean(toggle && getComputedStyle(toggle).display !== 'none')
+  let desktopToggleFocused = false
+  let narrowQuery: MediaQueryList | undefined
+  const narrow = () => narrowQuery?.matches ?? false
+  function controlsOwnFocus(target: Node | null = document.activeElement) {
+    if (!target || !panel) return false
+    if (panel.contains(target)) return true
+    // Portaled popups belong to their controls through the standard ARIA link.
+    for (const control of panel.querySelectorAll(
+      '[aria-expanded="true"][aria-controls]',
+    )) {
+      for (const id of control.getAttribute('aria-controls')!.split(/\s+/)) {
+        if (panel.ownerDocument.getElementById(id)?.contains(target))
+          return true
+      }
+    }
+    return false
+  }
+  function changeCollapsed(next: boolean) {
+    if (!alive) return
+    if (next && controlsOwnFocus())
+      desktopToggle?.focus({ preventScroll: true })
+    if (props.controlsCollapsed === undefined) setLocalCollapsed(next)
+    props.onControlsCollapsedChange?.(next)
+  }
   function close() {
     if (!alive) return
     if (narrow() && panel?.contains(document.activeElement))
@@ -46,43 +78,53 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     focusin: (event) => {
       panelFocused = Boolean(panel?.contains(event.target as Node))
       toggleFocused = event.target === toggle
+      desktopToggleFocused = event.target === desktopToggle
       // Keep focused results unobscured when keyboard users leave the drawer.
-      if (results?.contains(event.target as Node) && untrack(open)) close()
+      if (narrow() && results?.contains(event.target as Node) && untrack(open))
+        close()
     },
     focusout: (event) => {
       if (
         event.relatedTarget instanceof Node &&
-        !event.currentTarget.contains(event.relatedTarget)
+        !event.currentTarget.contains(event.relatedTarget) &&
+        !controlsOwnFocus(event.relatedTarget)
       )
-        panelFocused = toggleFocused = false
+        panelFocused = toggleFocused = desktopToggleFocused = false
     },
     keydown: (event) => {
       if (
         event.key !== 'Escape' ||
         event.defaultPrevented ||
-        !narrow() ||
-        !untrack(open)
+        (narrow() ? !untrack(open) : untrack(collapsed))
       )
         return
       if (
         !(event.target instanceof Node) ||
-        !(panel?.contains(event.target) || event.target === toggle)
+        !(
+          panel?.contains(event.target) ||
+          event.target === toggle ||
+          event.target === desktopToggle
+        )
       )
         return
       event.preventDefault()
       event.stopPropagation()
-      close()
+      if (narrow()) close()
+      else changeCollapsed(true)
     },
   })
   onSettled(() => {
     const query = window.matchMedia('(width < 48rem)')
+    narrowQuery = query
     const changed = () => {
       if (!alive) return
       if (
         query.matches &&
         !untrack(open) &&
-        (panel?.contains(document.activeElement) ||
-          (panelFocused && document.activeElement === document.body))
+        (controlsOwnFocus() ||
+          document.activeElement === desktopToggle ||
+          ((panelFocused || desktopToggleFocused) &&
+            document.activeElement === document.body))
       )
         toggle?.focus({ preventScroll: true })
       else if (
@@ -90,13 +132,44 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         (document.activeElement === toggle ||
           (toggleFocused && document.activeElement === document.body))
       )
-        panel?.focus({ preventScroll: true })
+        (untrack(collapsed) ? desktopToggle : panel)?.focus({
+          preventScroll: true,
+        })
+    }
+    const doc = panel?.ownerDocument ?? document
+    // A popup can finish autofocus after its owning pane collapses.
+    const guardHiddenFocus = (event: FocusEvent) => {
+      if (
+        narrow() ||
+        !untrack(collapsed) ||
+        !controlsOwnFocus(event.target as Node)
+      )
+        return
+      queueMicrotask(() => {
+        if (alive && !narrow() && untrack(collapsed) && controlsOwnFocus())
+          desktopToggle?.focus({ preventScroll: true })
+      })
     }
     query.addEventListener('change', changed)
-    return () => query.removeEventListener('change', changed)
+    doc.addEventListener('focusin', guardHiddenFocus)
+    return () => {
+      query.removeEventListener('change', changed)
+      doc.removeEventListener('focusin', guardHiddenFocus)
+    }
+  })
+  createEffect(collapsed, (hidden) => {
+    if (
+      hidden &&
+      !narrow() &&
+      (controlsOwnFocus() ||
+        (panelFocused && document.activeElement === document.body))
+    )
+      desktopToggle?.focus({ preventScroll: true })
   })
   onCleanup(() => {
     alive = false
+    narrowQuery = undefined
+    desktopToggle = undefined
     toggle = undefined
     panel = undefined
     results = undefined
@@ -108,6 +181,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
       style={props.style}
       aria-label={props.label ?? 'Table workspace'}
       data-controls-open={open() ? '' : undefined}
+      data-controls-collapsed={collapsed() ? '' : undefined}
+      data-controls-placement={props.controlsPlacement ?? 'left'}
       ref={events}
     >
       <div class="table-workspace-toolbar">
@@ -148,11 +223,23 @@ export function TableWorkspace(props: TableWorkspaceProps) {
           results = node
         }}
       >
-        <Show when={props.resultsHeader} keyed>
-          {(header) => (
-            <div class="table-workspace-results-header">{header}</div>
-          )}
-        </Show>
+        <div class="table-workspace-results-header">
+          <Show when={props.resultsHeader} keyed>
+            {(header) => header}
+          </Show>
+          <Button
+            class="table-controls-desktop-toggle"
+            ref={(node) => {
+              desktopToggle = node
+            }}
+            aria-label={props.toggleLabel ?? 'Table controls'}
+            aria-controls={panelId}
+            aria-expanded={collapsed() ? 'false' : 'true'}
+            onClick={() => changeCollapsed(!collapsed())}
+          >
+            {collapsed() ? 'Show controls' : 'Hide controls'}
+          </Button>
+        </div>
         {props.children}
         <Show when={props.footer != null && props.footer !== false}>
           <footer class="table-workspace-summary" role="status">

@@ -1,9 +1,11 @@
 # Table workspace
 
-`ReadOnlyTable` places controls on the left and results on the right.
+`ReadOnlyTable` starts with controls on the left and results on the right.
+Both panes share one frame without a gap.
+Control sections use dividers instead of separate cards.
 The controls and results scroll independently.
 The record count stays in a footer outside the results scroller.
-The controls panel and the table start at the same height.
+The controls panel and the table start at the same height in left placement.
 Expanded filters and grouping levels cannot consume the results height.
 Sorting, grouping, filtering, visibility, and column movement use the existing Table engine and renderer.
 The application still owns records, processing callbacks, requests, permissions, and persistence.
@@ -76,7 +78,50 @@ Use them to compose custom controls beside the shared `Table` renderer or virtua
 Give the result scroller the shared `table-scroll` class.
 Pass `footer` content to `TableWorkspace` for application summaries below that scroller.
 Set `--ui-table-controls-width` on an owning scope to change the panel width.
-Interactive resizing and sections placed side by side remain separate work.
+Set `--ui-table-controls-height` to limit the top pane height.
+The top pane uses at most 40% of the workspace height.
+Interactive resizing remains separate work.
+
+## Placement and collapse
+
+Set `controlsPlacement="left"` or `controlsPlacement="top"` on `ReadOnlyTable` or `TableWorkspace`.
+The dashboard preview has LEFT and TOP buttons above the workspace.
+Top placement arranges control sections side by side in a bounded scroll area.
+Expanding sections does not reduce the assigned results height.
+Narrow screens use the same drawer for either placement.
+
+Use the results header button to hide or show the whole controls pane.
+The results reclaim the pane width in left placement and its height in top placement.
+The control nodes and results stay mounted, so drafts and Table state survive.
+An unhandled Escape from desktop controls also hides the pane.
+The button receives focus before its controls become hidden.
+
+The component owns collapse state by default.
+Use `defaultControlsCollapsed` to start with a hidden pane.
+For application control, pass `controlsCollapsed` and `onControlsCollapsedChange`.
+The callback requests a new value. The application supplies the accepted value.
+The narrow drawer keeps its own open state and preserves the desktop collapse choice.
+
+```tsx
+import { createSignal } from 'solid-js'
+import { ReadOnlyTable } from '@wfe/components/table'
+import type { NativeTable } from '@wfe/components/table'
+
+export function RecordsWithControls(props: {
+  table: NativeTable<{ name: string }>
+  placement: 'left' | 'top'
+}) {
+  const [collapsed, setCollapsed] = createSignal(false)
+  return (
+    <ReadOnlyTable
+      table={props.table}
+      controlsPlacement={props.placement}
+      controlsCollapsed={collapsed()}
+      onControlsCollapsedChange={setCollapsed}
+    />
+  )
+}
+```
 
 ## Narrow screens
 
@@ -111,12 +156,12 @@ a focused heading with the keyboard. Press Escape to cancel a drag.
 
 The optional `controlsHeader` slot stays above the scrolling controls. The Table
 uses this slot for its APPLY bar. The bar fills the pane width and uses the
-shared muted surface and divider. Filter, grouping, display, and formatting
+shared pane surface and divider. Filter, grouping, display, and formatting
 sections scroll below it. The narrow controls drawer keeps its close button
 and APPLY bar outside this scrolling area.
 
 The optional `resultsHeader` slot gives the results pane the same header band as
 `controlsHeader`. ReadOnlyTable places its title there and names the table with
-`aria-label`. Both panes share their frame, surface, and optional shadow. Table
-content and control subsections share inset spacing and subsection surfaces.
-The canvas remains visible between the panes.
+`aria-label`. Both panes share one frame and its optional shadow.
+Control sections meet without card padding or gaps.
+The results fill the frame when the controls collapse.

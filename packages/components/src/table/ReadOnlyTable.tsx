@@ -6,6 +6,7 @@ import type { TableFilterCriteria } from './createTableFilterDraft'
 import { TableSort } from './TableSort'
 import { Table } from './Table'
 import { TableControlSection, TableWorkspace } from './TableWorkspace'
+import type { TableWorkspaceProps } from './TableWorkspace'
 import { TableFilter } from './TableFilter'
 import { TableDateFilter } from './TableDateFilter'
 import { TableColumnFilter } from './TableColumnFilter'
@@ -25,6 +26,10 @@ export type TableFilterConfig =
 /** Full display features over an application-owned table, without editing state. */
 export function ReadOnlyTable<T, M>(props: {
   table: NativeTable<T, M>
+  controlsPlacement?: TableWorkspaceProps['controlsPlacement']
+  controlsCollapsed?: boolean
+  defaultControlsCollapsed?: boolean
+  onControlsCollapsedChange?: (collapsed: boolean) => void
   title?: string
   controls?: {
     sorting?: boolean
@@ -69,6 +74,10 @@ export function ReadOnlyTable<T, M>(props: {
   return (
     <TableWorkspace
       class="table-component"
+      controlsPlacement={props.controlsPlacement}
+      controlsCollapsed={props.controlsCollapsed}
+      defaultControlsCollapsed={props.defaultControlsCollapsed}
+      onControlsCollapsedChange={props.onControlsCollapsedChange}
       label={props.title ?? 'Read-only table'}
       footer={
         <>
