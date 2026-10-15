@@ -55,6 +55,15 @@ The application supplies an equality `filterFn` and boolean records.
 The component does not infer column types from record values.
 Other columns keep their text filters.
 
+For date columns, return `'date-range'` from `filterKind`.
+The control shows separate Start and End dates, and either date can stay empty.
+The filter value has optional `start` and `end` strings in `YYYY-MM-DD` format.
+Clearing both dates removes the filter.
+The application defines inclusive comparisons, date storage, and timezone rules in its `filterFn`.
+
+The dashboard uses date-only records and includes both boundary dates in its results.
+`TableDateFilter` and its `TableDateRange` type are public for custom control layouts.
+
 Use `actions` for application buttons.
 Use `configuration` for application controls in another expandable section.
 The Actions section starts expanded, and Configuration starts collapsed.

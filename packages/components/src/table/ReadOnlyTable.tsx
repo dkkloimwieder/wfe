@@ -4,6 +4,8 @@ import { TableSort } from './TableSort'
 import { Table } from './Table'
 import { TableControlSection, TableWorkspace } from './TableWorkspace'
 import { TableFilter } from './TableFilter'
+import { TableDateFilter } from './TableDateFilter'
+import type { TableDateRange } from './TableDateFilter'
 import { TableGrouping } from './TableGrouping'
 import { TableColumnMove, moveColumn } from './TableColumnMove'
 import type { JSX } from '@solidjs/web'
@@ -23,7 +25,7 @@ export function ReadOnlyTable<T, M>(props: {
   actions?: JSX.Element
   configuration?: JSX.Element
   label?: (column: NativeColumn<T, M>) => string
-  filterKind?: (column: NativeColumn<T, M>) => 'text' | 'boolean'
+  filterKind?: (column: NativeColumn<T, M>) => 'text' | 'boolean' | 'date-range'
   groupable?: (id: string) => boolean
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
@@ -71,28 +73,52 @@ export function ReadOnlyTable<T, M>(props: {
                   aria-label="Column filters"
                 >
                   <For each={table.getColumns()}>
-                    {(column) => (
-                      <TableFilter
-                        kind={props.filterKind?.(column)}
-                        label={`Filter ${label(column)}`}
-                        clearLabel={`Clear ${label(column)} filter`}
-                        value={String(column.getFilterValue() ?? '')}
-                        disabled={
-                          !processing() ||
-                          table.options.manualFiltering ||
-                          !column.columnDef?.filterFn
-                        }
-                        onValueChange={(value) =>
-                          column.setFilterValue(
-                            value === ''
-                              ? undefined
-                              : props.filterKind?.(column) === 'boolean'
-                                ? value === 'true'
-                                : value,
-                          )
-                        }
-                      />
-                    )}
+                    {(column) => {
+                      const kind = () => props.filterKind?.(column)
+                      const disabled = () =>
+                        !processing() ||
+                        table.options.manualFiltering ||
+                        !column.columnDef?.filterFn
+                      return (
+                        <Show
+                          when={kind() === 'date-range'}
+                          fallback={
+                            <TableFilter
+                              kind={kind() === 'boolean' ? 'boolean' : 'text'}
+                              label={`Filter ${label(column)}`}
+                              clearLabel={`Clear ${label(column)} filter`}
+                              value={String(column.getFilterValue() ?? '')}
+                              disabled={disabled()}
+                              onValueChange={(value) =>
+                                column.setFilterValue(
+                                  value === ''
+                                    ? undefined
+                                    : kind() === 'boolean'
+                                      ? value === 'true'
+                                      : value,
+                                )
+                              }
+                            />
+                          }
+                        >
+                          <TableDateFilter
+                            label={`Filter ${label(column)}`}
+                            startLabel={`${label(column)} start`}
+                            endLabel={`${label(column)} end`}
+                            clearStartLabel={`Clear ${label(column)} start`}
+                            clearEndLabel={`Clear ${label(column)} end`}
+                            value={
+                              column.getFilterValue() as
+                                TableDateRange | undefined
+                            }
+                            disabled={disabled()}
+                            onValueChange={(value) =>
+                              column.setFilterValue(value)
+                            }
+                          />
+                        </Show>
+                      )
+                    }}
                   </For>
                 </div>
               </Show>

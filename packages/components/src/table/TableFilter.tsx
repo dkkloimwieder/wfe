@@ -8,7 +8,7 @@ export type TableFilterProps = {
   value: string
   onValueChange: (value: string) => void
   disabled?: boolean
-  kind?: 'text' | 'boolean'
+  kind?: 'text' | 'boolean' | 'date'
   search?: boolean
   placeholder?: string
   hideLabel?: boolean
@@ -44,10 +44,23 @@ export function TableFilter(props: TableFilterProps) {
           fallback={
             <Input
               id={id}
-              type={props.search ? 'search' : 'text'}
+              data-ui-text={
+                props.kind === 'date' && !props.value ? 'system' : undefined
+              }
+              type={
+                props.kind === 'date'
+                  ? 'date'
+                  : props.search
+                    ? 'search'
+                    : 'text'
+              }
               placeholder={
                 props.placeholder ??
-                (props.search ? 'Search values…' : 'Contains…')
+                (props.kind === 'date'
+                  ? undefined
+                  : props.search
+                    ? 'Search values…'
+                    : 'Contains…')
               }
               value={props.value}
               disabled={props.disabled}

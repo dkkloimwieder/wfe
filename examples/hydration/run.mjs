@@ -79,7 +79,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls")]</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input")]</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -151,6 +151,31 @@ try {
   )
   report.assertions.push(
     'Client attachment preserves native cell and button nodes and initial values',
+  )
+  const booleanFilter = page.getByRole('combobox', {
+    name: 'Active filter',
+    exact: true,
+  })
+  const dateStart = page.getByLabel('Created start', { exact: true })
+  const dateEnd = page.getByLabel('Created end', { exact: true })
+  await expect(booleanFilter).toHaveValue('false')
+  await expect(dateStart).toHaveValue('2026-01-01')
+  await expect(dateEnd).toHaveValue('2026-01-02')
+  await booleanFilter.selectOption('true')
+  await booleanFilter.selectOption('false')
+  await booleanFilter.selectOption('')
+  await dateStart.fill('2026-01-02')
+  await page
+    .getByRole('button', { name: 'Clear created end', exact: true })
+    .click()
+  await expect(dateEnd).toBeFocused()
+  await expect(page.locator('#filter-values')).toHaveText('|2026-01-02|')
+  assert.equal(
+    await page.evaluate(() => window.hydrationFixture.lifecycle.filterChanges),
+    5,
+  )
+  report.assertions.push(
+    'Boolean and date filters preserve server controls and attach one listener per interaction',
   )
   await page.locator('#rename').click()
   await page.waitForFunction(
@@ -232,12 +257,17 @@ try {
     fixture.dispose()
     const reads = fixture.lifecycle.reads
     const changes = fixture.lifecycle.changes
+    const filterChanges = fixture.lifecycle.filterChanges
     fixture.lifecycle.rename('After disposal')
     window.serverNodes[1].click()
     window.serverNodes[2].value = 'Detached input'
     window.serverNodes[2].dispatchEvent(new Event('input', { bubbles: true }))
     window.serverNodes[3].click()
     window.serverNodes[5].click()
+    window.serverNodes[10].value = 'true'
+    window.serverNodes[10].dispatchEvent(new Event('change', { bubbles: true }))
+    window.serverNodes[11].value = '2026-02-01'
+    window.serverNodes[11].dispatchEvent(new Event('input', { bubbles: true }))
     await new Promise((done) =>
       requestAnimationFrame(() => requestAnimationFrame(done)),
     )
@@ -245,6 +275,8 @@ try {
       cleanups: fixture.lifecycle.cleanups,
       reads,
       afterReads: fixture.lifecycle.reads,
+      filterChanges,
+      afterFilterChanges: fixture.lifecycle.filterChanges,
       changes,
       afterChanges: fixture.lifecycle.changes,
       portals: document.querySelectorAll('.ui-dialog-portal').length,
@@ -260,6 +292,7 @@ try {
   assert.equal(cleanup.remainingNodes, 0)
   assert.equal(cleanup.afterReads, cleanup.reads)
   assert.equal(cleanup.afterChanges, cleanup.changes)
+  assert.equal(cleanup.afterFilterChanges, cleanup.filterChanges)
   assert.equal(cleanup.portals, 0)
   assert.equal(cleanup.blocked, 0)
   assert.equal(cleanup.pointerEvents, '')

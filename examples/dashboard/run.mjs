@@ -218,6 +218,93 @@ try {
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
     assert.deepEqual(await rows(), ['record-2'])
   })
+  await test('Date boundaries work independently and include both endpoint dates', async () => {
+    const start = page.getByLabel('Created start', { exact: true })
+    const end = page.getByLabel('Created end', { exact: true })
+    const clearStart = page.getByRole('button', {
+      name: 'Clear Created start',
+      exact: true,
+    })
+    const clearEnd = page.getByRole('button', {
+      name: 'Clear Created end',
+      exact: true,
+    })
+    assert.equal(await start.getAttribute('type'), 'date')
+    assert.equal(await end.getAttribute('type'), 'date')
+    assert.equal(
+      await start.evaluate((node) => getComputedStyle(node).textTransform),
+      'uppercase',
+    )
+    await start.fill('2026-01-02')
+    assert.equal(
+      await start.evaluate((node) => getComputedStyle(node).textTransform),
+      'none',
+    )
+    assert.deepEqual(await rows(), ['record-2'])
+    await end.fill('2026-01-02')
+    assert.deepEqual(await rows(), ['record-2'])
+    assert.equal(
+      await page.getByText('1 active', { exact: true }).isVisible(),
+      true,
+    )
+    await clearStart.click()
+    await expect(start).toBeFocused()
+    assert.equal((await rows()).length, 2)
+    await end.fill('2026-01-01')
+    assert.deepEqual(await rows(), ['record-1'])
+    await start.fill('2026-01-02')
+    assert.deepEqual(await rows(), [])
+    assert.equal(
+      await page
+        .getByText('No records match your search or filters.', { exact: true })
+        .isVisible(),
+      true,
+    )
+    await clearEnd.click()
+    await expect(end).toBeFocused()
+    assert.deepEqual(await rows(), ['record-2'])
+    await page.evaluate(() => window.dashboardFixture.replaceRows(0))
+    assert.equal(await start.inputValue(), '2026-01-02')
+    await page.evaluate(() => window.dashboardFixture.replaceRows(2))
+    assert.deepEqual(await rows(), ['record-2'])
+    await page
+      .getByRole('combobox', { name: 'Filter Active', exact: true })
+      .selectOption('true')
+    assert.deepEqual(await rows(), [])
+    await page
+      .getByRole('combobox', { name: 'Filter Active', exact: true })
+      .selectOption('false')
+    assert.deepEqual(await rows(), ['record-2'])
+    await page
+      .getByRole('combobox', { name: 'Filter Active', exact: true })
+      .selectOption('')
+    await clearStart.click()
+    assert.equal((await rows()).length, 2)
+    assert.equal(
+      await page.getByText('0 active', { exact: true }).isVisible(),
+      true,
+    )
+    await expect(clearStart).toBeDisabled()
+    await expect(clearEnd).toBeDisabled()
+    await page
+      .getByRole('button', { name: 'Sort by Created', exact: true })
+      .click()
+    assert.deepEqual(await rows(), ['record-1', 'record-2'])
+    await page
+      .getByRole('button', { name: 'Sort by Created', exact: true })
+      .click()
+    assert.deepEqual(await rows(), ['record-2', 'record-1'])
+    await page
+      .getByRole('combobox', { name: 'Add grouping', exact: true })
+      .selectOption('created')
+    assert.equal(await page.locator('tr[data-group]').count(), 2)
+    const group = page.locator('[data-group-toggle]').first()
+    assert.match(await group.textContent(), /2026-01-0[12]/)
+    assert.equal(
+      await group.evaluate((node) => getComputedStyle(node).textTransform),
+      'none',
+    )
+  })
   await test('Sorting filtering grouping and display controls use the shared Table', async () => {
     await page
       .getByRole('button', { name: 'Sort by Name', exact: true })
@@ -644,8 +731,9 @@ try {
       assert.ok(before.height > 450)
       assert.equal(await zoomed.getByRole('navigation').count(), 0)
       assert.equal(await zoomed.locator('form').count(), 0)
+      assert.equal(await zoomed.locator('thead th').count(), 4)
       for (const header of await zoomed.locator('thead th').all())
-        assert.ok((await header.boundingBox()).width > 180)
+        assert.ok((await header.boundingBox()).width > 130)
       assert.equal(
         await zoomed.evaluate(
           () =>

@@ -13,12 +13,16 @@ import { DashboardShell } from '@wfe/components/layout'
 import {
   createTable as createNativeTable,
   ReadOnlyTable,
+  TableFilter,
+  TableDateFilter,
 } from '@wfe/components/table'
+import type { TableDateRange } from '@wfe/components/table'
 
 export const lifecycle = {
   reads: 0,
   cleanups: 0,
   changes: 0,
+  filterChanges: 0,
   rename: (_value: string) => {},
   configure: (_value: {
     name?: string
@@ -28,6 +32,11 @@ export const lifecycle = {
 }
 
 export default function App() {
+  const [booleanFilter, setBooleanFilter] = createSignal('false')
+  const [dateFilter, setDateFilter] = createSignal<TableDateRange | undefined>({
+    start: '2026-01-01',
+    end: '2026-01-02',
+  })
   const [name, setName] = createSignal('Ada')
   const [navigationDraft, setNavigationDraft] = createSignal('Persistent draft')
   const [checked, setChecked] = createSignal(true)
@@ -113,6 +122,34 @@ export default function App() {
             columnReordering: false,
           }}
         />
+      </section>
+      <section id="adopt-filters">
+        <TableFilter
+          kind="boolean"
+          label="Active filter"
+          clearLabel="Clear active filter"
+          value={booleanFilter()}
+          onValueChange={(value) => {
+            lifecycle.filterChanges++
+            setBooleanFilter(value)
+          }}
+        />
+        <TableDateFilter
+          label="Created range"
+          startLabel="Created start"
+          endLabel="Created end"
+          clearStartLabel="Clear created start"
+          clearEndLabel="Clear created end"
+          value={dateFilter()}
+          onValueChange={(value) => {
+            lifecycle.filterChanges++
+            setDateFilter(value)
+          }}
+        />
+        <output id="filter-values">
+          {booleanFilter()}|{dateFilter()?.start ?? ''}|
+          {dateFilter()?.end ?? ''}
+        </output>
       </section>
       <Button id="rename" type="button" onClick={() => setName('Grace')}>
         Rename

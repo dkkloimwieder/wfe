@@ -1,5 +1,5 @@
 import { render } from '@solidjs/web'
-import { OBSERVE, action, createSignal, flush } from 'solid-js'
+import { OBSERVE, action, createSignal, createStore, flush } from 'solid-js'
 import {
   Button,
   Checkbox,
@@ -16,11 +16,18 @@ import {
   DashboardShell,
 } from '@wfe/components/layout'
 import { createTable, ReadOnlyTable } from '@wfe/components/table'
+import type { NativeSource, TableDateRange } from '@wfe/components/table'
 import { nativeEvents } from '@wfe/components/events'
 import '@wfe/components/styles.css'
 import './style.css'
 
-type RecordData = { id: string; name: string; region: string; active: boolean }
+type RecordData = {
+  id: string
+  name: string
+  region: string
+  active: boolean
+  created: string
+}
 function records(count: number): Map<string, RecordData> {
   return new Map(
     Array.from({ length: count }, (_, index) => {
@@ -32,10 +39,29 @@ function records(count: number): Map<string, RecordData> {
           name: `Record ${index + 1}`,
           region: index % 2 ? 'East' : 'West',
           active: index % 2 === 0,
+          created: new Date(Date.UTC(2026, 0, 1 + (index % 365)))
+            .toISOString()
+            .slice(0, 10),
         },
       ]
     }),
   )
+}
+function createRecordsData() {
+  const [rows, setRows] = createStore<Record<string, RecordData | undefined>>(
+    Object.fromEntries(records(2)),
+    { shallow: true, name: 'dashboard.records' },
+  )
+  return {
+    ids: () => Object.keys(rows),
+    get: (id: string) => rows[id],
+    replace: (count: number) =>
+      setRows(() => Object.fromEntries(records(count))),
+    add: (record: RecordData) =>
+      setRows((draft) => {
+        draft[record.id] = record
+      }),
+  }
 }
 const textColumn = {
   filterFn: (value: unknown, filter: unknown) =>
@@ -46,6 +72,11 @@ const textColumn = {
     String(a ?? '').localeCompare(String(b ?? ''), undefined, {
       numeric: true,
     }),
+}
+function filterKind(column: { id: string }) {
+  if (column.id === 'active') return 'boolean'
+  if (column.id === 'created') return 'date-range'
+  return 'text'
 }
 let release: (() => void) | undefined
 let replaceRows: ((count: number) => void) | undefined
@@ -62,9 +93,9 @@ function stop() {
   release = undefined
   replaceRows = undefined
 }
-function createRecordsTable(rows: () => Map<string, RecordData>) {
+function createRecordsTable(source: NativeSource<RecordData>) {
   return createTable<RecordData>({
-    source: { ids: () => [...rows().keys()], get: (id) => rows().get(id) },
+    source,
     columns: [
       {
         ...textColumn,
@@ -81,12 +112,26 @@ function createRecordsTable(rows: () => Map<string, RecordData>) {
         filterFn: (value, filter) => value === filter,
         sortFn: (a, b) => Number(a) - Number(b),
       },
+      {
+        id: 'created',
+        header: 'Created',
+        accessorKey: 'created',
+        filterFn: (value, filter) => {
+          const range = filter as TableDateRange
+          return (
+            typeof value === 'string' &&
+            (!range.start || value >= range.start) &&
+            (!range.end || value <= range.end)
+          )
+        },
+        sortFn: (a, b) => String(a).localeCompare(String(b)),
+      },
     ],
   })
 }
 function TablePage() {
-  const [rows, setRows] = createSignal(records(2))
-  replaceRows = (count) => setRows(records(count))
+  const rows = createRecordsData()
+  replaceRows = rows.replace
   const table = createRecordsTable(rows)
   return (
     <main
@@ -98,7 +143,7 @@ function TablePage() {
       <ReadOnlyTable
         table={table}
         title="Records"
-        filterKind={(column) => (column.id === 'active' ? 'boolean' : 'text')}
+        filterKind={filterKind}
         actions={<RecordActions />}
       />
     </main>
@@ -114,7 +159,7 @@ function RecordActions() {
   )
 }
 function Dashboard() {
-  const [rows, setRows] = createSignal(records(2))
+  const rows = createRecordsData()
   const [name, setName] = createSignal('')
   const [region, setRegion] = createSignal('West')
   const [active, setActive] = createSignal(true)
@@ -124,7 +169,7 @@ function Dashboard() {
   )
   const [section, setSection] = createSignal('Records')
   let nextId = 0
-  replaceRows = (count) => setRows(records(count))
+  replaceRows = rows.replace
   const table = createRecordsTable(rows)
   function save(event: SubmitEvent) {
     event.preventDefault()
@@ -135,21 +180,13 @@ function Dashboard() {
       return
     }
     const id = `created-${++nextId}`
-    setRows(
-      (old) =>
-        new Map([
-          ...old,
-          [
-            id,
-            {
-              id,
-              name: accepted,
-              region: region(),
-              active: active(),
-            },
-          ],
-        ]),
-    )
+    rows.add({
+      id,
+      name: accepted,
+      region: region(),
+      active: active(),
+      created: new Date().toISOString().slice(0, 10),
+    })
     setStatus(`Saved ${accepted}.`)
     setName('')
   }
@@ -190,9 +227,7 @@ function Dashboard() {
           <ReadOnlyTable
             table={table}
             title="Records"
-            filterKind={(column) =>
-              column.id === 'active' ? 'boolean' : 'text'
-            }
+            filterKind={filterKind}
             actions={<RecordActions />}
           />
         </DashboardPanel>
@@ -230,7 +265,7 @@ function Dashboard() {
             <p role="status" id="application-status">
               {status()}
             </p>
-            <p>{rows().size} records in application memory.</p>
+            <p>{rows.ids().length} records in application memory.</p>
           </DashboardPanel>
         </div>
       </DashboardGrid>
