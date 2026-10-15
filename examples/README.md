@@ -43,9 +43,11 @@ Set `BENCH_OUTPUT` to preserve each browser report at a separate path.
 
 The layout fixture tests the public dashboard shell contract.
 Use `examples/layout/vite.config.ts` on an unused port to inspect it.
-The dashboard example composes the real read-only Table and shared record controls.
+The default dashboard preview contains only Table controls and the main results panel.
+The separate composition example adds navigation, a record form, and status content.
+Open `http://127.0.0.1:7786/?composition=1` to inspect that example.
 Use `examples/dashboard/vite.config.ts` on port 7786 to inspect it.
-Its application owns validation, saves, navigation, and data replacement.
+The composition application owns validation, saves, navigation, and data replacement.
 Its 500-row sample stays in memory and uses the normal Table renderer.
 The table scroll area keeps its height when the result count changes.
 

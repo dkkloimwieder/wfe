@@ -45,3 +45,19 @@ h2 {
     overflow: visible;
   }
 }
+
+.table-page {
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  padding: var(--ui-gap, 6px);
+}
+.table-page > .table-component {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.table-page table {
+  width: 100%;
+}

@@ -8,6 +8,7 @@ import {
   Input,
   Label,
   NativeSelect,
+  uiScope,
 } from '@wfe/components'
 import {
   DashboardGrid,
@@ -61,19 +62,8 @@ function stop() {
   release = undefined
   replaceRows = undefined
 }
-function Dashboard() {
-  const [rows, setRows] = createSignal(records(2))
-  const [name, setName] = createSignal('')
-  const [region, setRegion] = createSignal('West')
-  const [active, setActive] = createSignal(true)
-  const [invalid, setInvalid] = createSignal(false)
-  const [status, setStatus] = createSignal(
-    'Ready. Changes stay in this example.',
-  )
-  const [section, setSection] = createSignal('Records')
-  let nextId = 0
-  replaceRows = (count) => setRows(records(count))
-  const table = createTable<RecordData>({
+function createRecordsTable(rows: () => Map<string, RecordData>) {
+  return createTable<RecordData>({
     source: { ids: () => [...rows().keys()], get: (id) => rows().get(id) },
     columns: [
       {
@@ -87,6 +77,48 @@ function Dashboard() {
       { ...textColumn, id: 'active', header: 'Active', accessorKey: 'active' },
     ],
   })
+}
+function TablePage() {
+  const [rows, setRows] = createSignal(records(2))
+  replaceRows = (count) => setRows(records(count))
+  const table = createRecordsTable(rows)
+  return (
+    <main
+      {...uiScope()}
+      data-ui-portal-root=""
+      class="table-page"
+      aria-label="Records workspace"
+    >
+      <ReadOnlyTable
+        table={table}
+        title="Records"
+        actions={<RecordActions />}
+      />
+    </main>
+  )
+}
+function RecordActions() {
+  return (
+    <div class="buttons" aria-label="Example data">
+      <Button onClick={() => replaceRows?.(0)}>Empty results</Button>
+      <Button onClick={() => replaceRows?.(2)}>Two records</Button>
+      <Button onClick={() => replaceRows?.(500)}>500 records</Button>
+    </div>
+  )
+}
+function Dashboard() {
+  const [rows, setRows] = createSignal(records(2))
+  const [name, setName] = createSignal('')
+  const [region, setRegion] = createSignal('West')
+  const [active, setActive] = createSignal(true)
+  const [invalid, setInvalid] = createSignal(false)
+  const [status, setStatus] = createSignal(
+    'Ready. Changes stay in this example.',
+  )
+  const [section, setSection] = createSignal('Records')
+  let nextId = 0
+  replaceRows = (count) => setRows(records(count))
+  const table = createRecordsTable(rows)
   function save(event: SubmitEvent) {
     event.preventDefault()
     const accepted = name().trim()
@@ -151,13 +183,7 @@ function Dashboard() {
           <ReadOnlyTable
             table={table}
             title="Records"
-            actions={
-              <div class="buttons" aria-label="Example data">
-                <Button onClick={() => replaceRows?.(0)}>Empty results</Button>
-                <Button onClick={() => replaceRows?.(2)}>Two records</Button>
-                <Button onClick={() => replaceRows?.(500)}>500 records</Button>
-              </div>
-            }
+            actions={<RecordActions />}
           />
         </DashboardPanel>
         <div class="dashboard-sidebar">
@@ -205,7 +231,12 @@ function start() {
   stop()
   events.push(...(capture?.stop() ?? []))
   capture = OBSERVE?.diagnostics.capture()
-  release = render(Dashboard, document.getElementById('root')!)
+  release = render(
+    new URLSearchParams(location.search).has('composition')
+      ? Dashboard
+      : TablePage,
+    document.getElementById('root')!,
+  )
   flush()
 }
 const api = {

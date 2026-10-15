@@ -100,13 +100,16 @@ The hydration fixture also attaches the shell to server nodes and tests navigati
 
 ## Composed example
 
-The dashboard example uses public Table, field, checkbox, button, and layout exports.
+The default dashboard preview gives the whole page to the Table workspace.
+Table controls occupy the left panel, and results fill the main panel.
+Application navigation and record forms occupy no space in this default view.
+The `?composition=1` example uses public Table, field, checkbox, button, and layout exports.
 Its application owns records, validation, submission, navigation, and replacement data.
 The form adds records to an in-memory collection.
 The data buttons switch between zero, two, and 500 records.
 This sample uses the normal Table renderer and does not fetch pages on scroll.
 
-On desktop, the table fills the space beside the form and status panels.
+In the separate composition example, the table sits beside the form and status panels.
 On narrow screens, the workspace scrolls vertically and keeps the form below the table.
 The table keeps its assigned height across result counts and expanded grouping controls.
 Its left controls panel scrolls independently from the results.

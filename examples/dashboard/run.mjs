@@ -83,7 +83,7 @@ try {
     if (['warning', 'error'].includes(message.type()))
       report.warnings.push(message.text())
   })
-  await page.goto(`http://127.0.0.1:${server.address().port}`)
+  await page.goto(`http://127.0.0.1:${server.address().port}/?composition=1`)
   await page.waitForFunction(() => Boolean(window.dashboardFixture))
   const rows = () =>
     page
@@ -471,8 +471,102 @@ try {
     await page.evaluate(() => window.dashboardFixture.start())
     assert.equal((await rows()).length, 2)
   })
-  report.diagnostics = await page.evaluate(() =>
-    window.dashboardFixture.diagnostics(),
+  await test('The default page contains only table controls and main results', async () => {
+    report.diagnostics.push(
+      ...(await page.evaluate(() => window.dashboardFixture.diagnostics())),
+    )
+    await page.goto(`http://127.0.0.1:${server.address().port}/`)
+    await page.waitForFunction(() => Boolean(window.dashboardFixture))
+    assert.equal(await page.getByRole('navigation').count(), 0)
+    assert.equal(
+      await page
+        .locator('form, .dashboard-sidebar, .dashboard-navigation')
+        .count(),
+      0,
+    )
+    assert.equal(await page.getByRole('complementary').count(), 1)
+    const main = await page
+      .getByRole('main', { name: 'Records workspace' })
+      .boundingBox()
+    assert.equal(main.x, 0)
+    assert.equal(main.y, 0)
+    assert.equal(main.width, 1440)
+    assert.equal(main.height, 1000)
+    const results = await page.locator('.table-workspace-results').boundingBox()
+    assert.ok(results.width > 1100)
+    assert.ok((await page.locator('.table-scroll').boundingBox()).height > 900)
+    assert.equal(
+      await page.evaluate(() => document.documentElement.scrollHeight),
+      1000,
+    )
+  })
+  await test('The main Table remains readable at doubled browser scale', async () => {
+    const zoomed = await browser.newPage({
+      viewport: { width: 960, height: 540 },
+      deviceScaleFactor: 2,
+    })
+    zoomed.on('pageerror', (error) => report.errors.push(error.stack))
+    zoomed.on('console', (message) => {
+      if (['warning', 'error'].includes(message.type()))
+        report.warnings.push(message.text())
+    })
+    try {
+      await zoomed.goto(`http://127.0.0.1:${server.address().port}/`)
+      await zoomed.waitForFunction(() => Boolean(window.dashboardFixture))
+      const before = await zoomed.locator('.table-scroll').boundingBox()
+      for (const id of ['name', 'region', 'active']) {
+        await zoomed
+          .getByRole('combobox', { name: 'Add grouping', exact: true })
+          .selectOption(id)
+      }
+      assert.deepEqual(
+        await zoomed.locator('.table-scroll').boundingBox(),
+        before,
+      )
+      assert.ok(before.width > 600)
+      assert.ok(before.height > 450)
+      assert.equal(await zoomed.getByRole('navigation').count(), 0)
+      assert.equal(await zoomed.locator('form').count(), 0)
+      for (const header of await zoomed.locator('thead th').all())
+        assert.ok((await header.boundingBox()).width > 180)
+      assert.equal(
+        await zoomed.evaluate(
+          () =>
+            document.documentElement.scrollWidth <= innerWidth &&
+            document.documentElement.scrollHeight <= innerHeight,
+        ),
+        true,
+      )
+      await zoomed.setViewportSize({ width: 390, height: 568 })
+      const narrow = await zoomed.locator('.table-scroll').boundingBox()
+      assert.ok(narrow.width > 350)
+      assert.ok(narrow.height > 450)
+      await zoomed
+        .getByRole('button', { name: 'Table controls', exact: true })
+        .click()
+      assert.deepEqual(
+        await zoomed.locator('.table-scroll').boundingBox(),
+        narrow,
+      )
+      await zoomed
+        .getByRole('button', { name: 'Close table controls', exact: true })
+        .click()
+      assert.deepEqual(
+        await zoomed.locator('.table-scroll').boundingBox(),
+        narrow,
+      )
+    } finally {
+      if (await zoomed.evaluate(() => Boolean(window.dashboardFixture)))
+        report.diagnostics.push(
+          ...(await zoomed.evaluate(() =>
+            window.dashboardFixture.diagnostics(),
+          )),
+        )
+      await zoomed.close()
+    }
+  })
+  report.diagnostics.push(
+    ...(await page.evaluate(() => window.dashboardFixture.diagnostics())),
   )
   // Host load affects duration, not correctness.
   report.timingDiagnostics = report.diagnostics.filter(
