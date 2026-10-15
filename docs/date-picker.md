@@ -40,3 +40,5 @@ The date range filter composes two instances of the shared picker.
 Start and End remain optional, independent boundaries.
 The application supplies inclusive comparisons for those boundaries.
 The Table controls do not define timezone or server query rules.
+
+Click the calendar heading to choose a month and enter a year. Press Escape to return to the day grid without selecting a date.

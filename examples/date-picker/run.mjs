@@ -121,6 +121,42 @@ try {
       .click()
     await expect(page.locator('.ui-date-popup')).toHaveCount(0)
   })
+  await test('The heading opens month and year choices with complete focus borders', async () => {
+    await set({ min: undefined, max: undefined })
+    await trigger.click()
+    const selected = day('2024-02-29')
+    await selected.press('ArrowLeft')
+    await page.keyboard.press('ArrowRight')
+    assert.equal(
+      await selected.evaluate((node) => getComputedStyle(node).outlineOffset),
+      '-2px',
+    )
+    await expect(selected.locator('..')).toHaveAttribute(
+      'aria-selected',
+      'true',
+    )
+    const heading = page.getByRole('button', {
+      name: 'Choose month and year',
+      exact: true,
+    })
+    await heading.click()
+    await expect(heading).toHaveAttribute('aria-expanded', 'true')
+    await page
+      .getByRole('spinbutton', { name: 'Year', exact: true })
+      .fill('2028')
+    await page.getByRole('button', { name: 'March', exact: true }).click()
+    await expect(day('2028-03-01')).toBeFocused()
+    assert.equal((await state()).value, '2024-02-29')
+    await heading.click()
+    await page.getByRole('button', { name: 'Next year', exact: true }).click()
+    await page.keyboard.press('Escape')
+    await expect(heading).toBeFocused()
+    await expect(heading).toHaveAttribute('aria-expanded', 'false')
+    await expect(page.locator('.ui-date-popup')).toBeVisible()
+    await day('2029-03-05').click()
+    await expect(input).toHaveValue('2029-03-05')
+    await expect(trigger).toBeFocused()
+  })
   await test('Disabled days and boundaries reject typed dates and keyboard selection', async () => {
     await set({
       min: '2024-02-29',

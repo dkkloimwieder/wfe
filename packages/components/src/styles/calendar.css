@@ -51,3 +51,24 @@
 :where([data-ui]) .ui-date-picker [hidden] {
   display: none;
 }
+
+:where([data-ui]) .ui-calendar td button:focus-visible {
+  outline-offset: -2px;
+}
+:where([data-ui]) .ui-calendar-heading {
+  flex: 1;
+  border-color: transparent;
+}
+:where([data-ui]) .ui-calendar-months {
+  margin-top: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-calendar-months label {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-calendar-month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ui-gap, 6px);
+  margin-top: var(--ui-gap, 6px);
+}
