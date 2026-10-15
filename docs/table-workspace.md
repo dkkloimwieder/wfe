@@ -86,7 +86,9 @@ Interactive resizing remains separate work.
 
 Set `controlsPlacement="left"` or `controlsPlacement="top"` on `ReadOnlyTable` or `TableWorkspace`.
 The dashboard preview has LEFT and TOP buttons above the workspace.
-Top placement arranges control sections side by side in a bounded scroll area.
+Top placement stacks full-width sections in a bounded scroll area.
+Filters come first, followed by Grouping and the remaining sections.
+Controls inside each section run horizontally and wrap as needed.
 Expanding sections does not reduce the assigned results height.
 Narrow screens use the same drawer for either placement.
 

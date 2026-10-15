@@ -1541,6 +1541,35 @@ try {
     assert.ok(top.height > original.height * 0.5)
     const paneBox = await pane.boundingBox()
     assert.ok(paneBox.height <= frame.height * 0.4)
+    const sectionBoxes = await page
+      .locator('.table-control-section')
+      .evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const bounds = node.getBoundingClientRect()
+          return {
+            x: bounds.x,
+            y: bounds.y,
+            width: bounds.width,
+            bottom: bounds.bottom,
+          }
+        }),
+      )
+    for (let index = 0; index < sectionBoxes.length; index++) {
+      assert.equal(sectionBoxes[index].x, paneBox.x)
+      assert.equal(sectionBoxes[index].width, paneBox.width)
+      if (index)
+        assert.equal(sectionBoxes[index].y, sectionBoxes[index - 1].bottom)
+    }
+    const filterBoxes = await page
+      .locator('.column-filters > .table-filter')
+      .evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const bounds = node.getBoundingClientRect()
+          return { x: bounds.x, y: bounds.y }
+        }),
+      )
+    assert.equal(filterBoxes[0].y, filterBoxes[1].y)
+    assert.ok(filterBoxes[1].x > filterBoxes[0].x)
     const body = pane.locator('.table-workspace-controls-body')
     await body.evaluate((node) => {
       node.scrollTop = node.scrollHeight
