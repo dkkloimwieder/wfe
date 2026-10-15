@@ -1799,6 +1799,142 @@ try {
     assert.deepEqual(await footer.boundingBox(), before)
     assert.equal(await footer.textContent(), '0/0 records')
   })
+  await test('Display alignment follows column identity across grouping, visibility and movement', async () => {
+    await page.getByText('Display columns', { exact: true }).click()
+    const align = (name) =>
+      page.getByRole('combobox', { name: `${name} alignment`, exact: true })
+    const cell = (id) =>
+      page.locator(`tr[data-row="record-1"] td[data-column="${id}"]`)
+    const header = (id) => page.locator(`thead th[data-column="${id}"]`)
+    for (const value of ['center', 'right', 'left']) {
+      await align('Name').selectOption(value)
+      assert.equal(
+        await cell('name').evaluate((n) => getComputedStyle(n).textAlign),
+        value,
+      )
+      assert.equal(
+        await header('name').evaluate((n) => getComputedStyle(n).textAlign),
+        value,
+      )
+      assert.equal(
+        await header('name')
+          .locator('.column-move')
+          .evaluate((n) => getComputedStyle(n).textAlign),
+        value,
+      )
+    }
+    await page.evaluate(() =>
+      window.dashboardFixture.setColumnAlignment('active', 'center'),
+    )
+    await expect(align('Active')).toHaveValue('center')
+    assert.equal(
+      await cell('active').evaluate((n) => getComputedStyle(n).textAlign),
+      'center',
+    )
+    const labelBounds = (node) => {
+      const range = document.createRange()
+      range.selectNodeContents(node)
+      const { x, width } = range.getBoundingClientRect()
+      return { x, width }
+    }
+    await align('Name').selectOption('center')
+    const nameCell = await cell('name').boundingBox()
+    const nameLabel = await header('name')
+      .locator('.column-move')
+      .evaluate(labelBounds)
+    assert.ok(
+      Math.abs(
+        nameLabel.x + nameLabel.width / 2 - nameCell.x - nameCell.width / 2,
+      ) < 1,
+    )
+    await align('Amount').selectOption('right')
+    await page
+      .getByRole('button', { name: 'Move Amount column', exact: true })
+      .focus()
+    await page.keyboard.press('Home')
+    const amountValue = await cell('amount').evaluate(labelBounds)
+    const amountLabel = await header('amount')
+      .locator('.column-move')
+      .evaluate(labelBounds)
+    assert.ok(
+      Math.abs(
+        amountValue.x + amountValue.width - amountLabel.x - amountLabel.width,
+      ) < 1,
+    )
+    await expect(header('amount')).toHaveAttribute(
+      'data-column-alignment',
+      'right',
+    )
+    const visible = page.getByRole('group', {
+      name: 'Visible columns',
+      exact: true,
+    })
+    await visible.getByText('Amount', { exact: true }).click()
+    await expect(header('amount')).toHaveCount(0)
+    await expect(align('Amount')).toHaveValue('right')
+    await visible.getByText('Amount', { exact: true }).click()
+    await expect(cell('amount')).toHaveAttribute(
+      'data-column-alignment',
+      'right',
+    )
+    assert.equal(await cell('amount').textContent(), '0')
+    await page.evaluate(() =>
+      window.dashboardFixture.setColumnAlignment('region', 'right'),
+    )
+    await page
+      .getByRole('combobox', { name: 'Add grouping', exact: true })
+      .selectOption('region')
+    const grouped = page
+      .locator('tr[data-group] td[data-column="region"]')
+      .first()
+    assert.equal(
+      await grouped.evaluate((n) => getComputedStyle(n).textAlign),
+      'right',
+    )
+    const summary = page
+      .locator('tr[data-group] td[data-column="amount"]')
+      .first()
+    assert.equal(
+      await summary.evaluate((n) => getComputedStyle(n).textAlign),
+      'right',
+    )
+  })
+  await test('Row and column dividers use independent surfaces in every neutral mode', async () => {
+    const color = async (selector, property) =>
+      page
+        .locator(selector)
+        .first()
+        .evaluate((node, key) => getComputedStyle(node)[key], property)
+    const head = 'thead th:not(:last-child)'
+    const body = 'tr[data-row] td:not(:last-child)'
+    const first = 'rgb(248, 249, 250)'
+    assert.equal(await color(head, 'borderInlineEndColor'), first)
+    assert.equal(await color(body, 'borderInlineEndColor'), first)
+    assert.equal(await color(body, 'borderTopColor'), first)
+    for (const [scheme, row, column] of [
+      ['Black / white', 'rgb(233, 236, 239)', 'rgb(206, 212, 218)'],
+      ['Light', 'rgb(233, 236, 239)', 'rgb(206, 212, 218)'],
+      ['Dark', 'rgb(52, 58, 64)', 'rgb(134, 142, 150)'],
+    ]) {
+      await page
+        .getByRole('button', { name: `${scheme} surfaces`, exact: true })
+        .click()
+      await page
+        .getByRole('button', { name: 'Row lines Surface 2', exact: true })
+        .click()
+      await page
+        .getByRole('button', { name: 'Column lines Surface 4', exact: true })
+        .click()
+      assert.equal(await color(head, 'borderInlineEndColor'), column)
+      assert.equal(await color(body, 'borderInlineEndColor'), column)
+      assert.equal(await color(body, 'borderTopColor'), row)
+      assert.equal(await color(head, 'borderInlineEndWidth'), '1px')
+      assert.equal(
+        await color('thead tr:first-child th', 'borderTopWidth'),
+        '0px',
+      )
+    }
+  })
   await test('The main Table remains readable at doubled browser scale', async () => {
     const zoomed = await browser.newPage({
       viewport: { width: 960, height: 540 },

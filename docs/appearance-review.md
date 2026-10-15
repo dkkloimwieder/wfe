@@ -15,6 +15,9 @@ The square sliders icon after RECORDS hides or shows the controls pane.
 The sample row shows SURFACE 1–4 and TEXT 1–2 with their exact values.
 All control rows scroll horizontally on narrow screens.
 The Table fills the remaining height.
+ROW LINES and COLUMN LINES each offer SURFACE 1 through 4.
+Both start at SURFACE 1. BLACK / WHITE uses the LIGHT neutral surfaces for these lines.
+These choices affect table dividers, while pane borders keep their current color.
 
 The backdrop, panes, and content start with SURFACE 1.
 The controls preserve these choices across mode changes.

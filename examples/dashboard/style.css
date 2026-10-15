@@ -102,7 +102,7 @@ h2 {
 .appearance-pickers > a {
   color: inherit;
 }
-.appearance-pickers button[aria-pressed='true'] {
+.appearance-review button[aria-pressed='true'] {
   box-shadow: inset 0 0 0 1px currentColor;
 }
 .appearance-review .accent-swatch {
@@ -136,4 +136,12 @@ h2 {
 }
 .surface-swatch code {
   font: inherit;
+}
+
+.divider-sample {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-inline-end: 4px;
+  border: 1px solid var(--ui-border);
 }

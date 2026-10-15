@@ -281,6 +281,36 @@ try {
       false,
     )
   })
+  await test('Uncontrolled display alignment survives record replacement and hidden columns', async () => {
+    await page.getByText('Display columns', { exact: true }).click()
+    const alignment = page.getByRole('combobox', {
+      name: 'Category alignment',
+      exact: true,
+    })
+    await alignment.selectOption('center')
+    const visible = page.getByRole('group', {
+      name: 'Visible columns',
+      exact: true,
+    })
+    await visible.getByText('Category', { exact: true }).click()
+    await page.evaluate(() =>
+      window.readOnlyFixture.replace([
+        { id: 'a', values: { category: 'West', name: 'Desk', amount: 1 } },
+      ]),
+    )
+    await visible.getByText('Category', { exact: true }).click()
+    assert.equal(await alignment.inputValue(), 'center')
+    for (const selector of [
+      'thead th[data-column="category"]',
+      'tr[data-row="a"] td[data-column="category"]',
+    ])
+      assert.equal(
+        await page
+          .locator(selector)
+          .evaluate((n) => getComputedStyle(n).textAlign),
+        'center',
+      )
+  })
   await test('Empty filtered and source results remain distinct and disposal releases the DOM', async () => {
     await page
       .getByRole('searchbox', { name: 'Search all columns', exact: true })

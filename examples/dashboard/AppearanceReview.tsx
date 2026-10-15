@@ -1,12 +1,13 @@
 import { For } from 'solid-js'
 import { Button } from '@wfe/components'
-import { schemes, accents, accentColor } from './appearance'
+import { schemes, accents, accentColor, dividerSurfaces } from './appearance'
 import type {
   Accent,
   SurfaceScheme,
   Depth,
   SurfaceLayers,
   SurfaceLevel,
+  TableDividers,
 } from './appearance'
 
 const roles = [
@@ -25,6 +26,8 @@ export function AppearanceReview(props: {
   scheme: SurfaceScheme
   accent: Accent
   depth: Depth
+  dividers: TableDividers
+  onDividersChange: (dividers: TableDividers) => void
   layers: SurfaceLayers
   onLayersChange: (layers: SurfaceLayers) => void
   onSchemeChange: (scheme: SurfaceScheme) => void
@@ -138,6 +141,49 @@ export function AppearanceReview(props: {
                       })
                     }
                   >
+                    {level + 1}
+                  </Button>
+                )}
+              </For>
+            </div>
+          )}
+        </For>
+        <For
+          each={
+            [
+              { key: 'rows', name: 'Row lines' },
+              { key: 'columns', name: 'Column lines' },
+            ] as const
+          }
+        >
+          {(divider) => (
+            <div
+              class="appearance-options"
+              role="group"
+              aria-label={divider.name}
+            >
+              <span data-ui-text="system">{divider.name}</span>
+              <For each={[0, 1, 2, 3] as const}>
+                {(level) => (
+                  <Button
+                    aria-label={`${divider.name} Surface ${level + 1}`}
+                    aria-pressed={
+                      props.dividers[divider.key] === level ? 'true' : 'false'
+                    }
+                    onClick={() =>
+                      props.onDividersChange({
+                        ...props.dividers,
+                        [divider.key]: level,
+                      })
+                    }
+                  >
+                    <span
+                      class="divider-sample"
+                      aria-hidden="true"
+                      style={{
+                        background: dividerSurfaces(props.scheme)[level],
+                      }}
+                    />
                     {level + 1}
                   </Button>
                 )}

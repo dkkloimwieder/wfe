@@ -336,3 +336,11 @@
 :where([data-ui]) .table-filter-heading > .ui-label {
   font-weight: inherit;
 }
+
+@media (min-width: 48rem) {
+  :where([data-ui])
+    .table-workspace[data-controls-placement='top']
+    .column-display-option {
+    flex: 0 1 18rem;
+  }
+}

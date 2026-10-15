@@ -1,7 +1,11 @@
 export { TableWorkspace, TableControlSection } from './TableWorkspace'
 export type { TableWorkspaceProps } from './TableWorkspace'
 export { Table, TableRow } from './Table'
-export type { TableEdge } from './Table'
+export type {
+  TableEdge,
+  TableColumnAlignment,
+  TableColumnAlignments,
+} from './Table'
 export { ReadOnlyTable } from './ReadOnlyTable'
 export { TableColumnMove, moveColumn } from './TableColumnMove'
 export type { ColumnDestination } from './TableColumnMove'

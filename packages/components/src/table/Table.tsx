@@ -5,6 +5,11 @@ import { TableSort } from './TableSort'
 import type { JSX } from '@solidjs/web'
 import type { NativeColumn, NativeTable } from './engine'
 
+export type TableColumnAlignment = 'left' | 'center' | 'right'
+export type TableColumnAlignments = Readonly<
+  Record<string, TableColumnAlignment | undefined>
+>
+
 export type TableEdge = {
   width: number
   header: () => JSX.Element
@@ -14,6 +19,7 @@ export type TableEdge = {
 /** Shared presentation. Applications own data, processing and editing policy. */
 export function Table<T, M>(props: {
   table: NativeTable<T, M>
+  columnAlignment?: TableColumnAlignments
   caption?: string
   accessibleLabel?: string
   label?: (column: NativeColumn<T, M>) => string
@@ -79,6 +85,7 @@ export function Table<T, M>(props: {
                 scope="col"
                 data-column={column.id}
                 data-column-header={column.id}
+                data-column-alignment={props.columnAlignment?.[column.id]}
                 class="column-header"
                 aria-sort={
                   props.ariaSort
@@ -119,7 +126,11 @@ export function Table<T, M>(props: {
             </Show>
             <For each={table.getVisibleColumns()}>
               {(column) => (
-                <th scope="col" data-summary-header={column.id}>
+                <th
+                  scope="col"
+                  data-summary-header={column.id}
+                  data-column-alignment={props.columnAlignment?.[column.id]}
+                >
                   {props.summaryHeader!(column)}
                 </th>
               )}
@@ -144,6 +155,7 @@ export function Table<T, M>(props: {
                   ) : (
                     <TableRow
                       table={table}
+                      columnAlignment={props.columnAlignment}
                       id={id}
                       formatValue={props.formatValue}
                     />
@@ -161,6 +173,7 @@ export function Table<T, M>(props: {
                   ) : (
                     <TableRow
                       table={table}
+                      columnAlignment={props.columnAlignment}
                       id={item.id}
                       formatValue={props.formatValue}
                     />
@@ -169,6 +182,7 @@ export function Table<T, M>(props: {
                   <TableGroup
                     table={table}
                     groupKey={item.key}
+                    columnAlignment={props.columnAlignment}
                     label={props.groupLabel}
                     formatValue={props.formatValue}
                     formatSummary={props.formatSummary}
@@ -193,6 +207,7 @@ export function Table<T, M>(props: {
 
 export function TableRow<T, M>(props: {
   table: NativeTable<T, M>
+  columnAlignment?: TableColumnAlignments
   id: string
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   leading?: () => JSX.Element
@@ -209,7 +224,11 @@ export function TableRow<T, M>(props: {
           {(cell) => {
             props.onCell?.()
             return (
-              <td data-column={cell.column.id} class="read-only-value">
+              <td
+                data-column={cell.column.id}
+                class="read-only-value"
+                data-column-alignment={props.columnAlignment?.[cell.column.id]}
+              >
                 {props.formatValue?.(cell.getValue(), cell.column) ??
                   String(cell.getValue() ?? '')}
               </td>
@@ -225,6 +244,7 @@ export function TableRow<T, M>(props: {
 
 function TableGroup<T, M>(props: {
   table: NativeTable<T, M>
+  columnAlignment?: TableColumnAlignments
   groupKey: string
   label?: (id: string) => string
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
@@ -273,6 +293,7 @@ function TableGroup<T, M>(props: {
             return (
               <td
                 data-column={cell.column.id}
+                data-column-alignment={props.columnAlignment?.[cell.column.id]}
                 role={first() ? 'rowheader' : undefined}
               >
                 <Show when={first()}>

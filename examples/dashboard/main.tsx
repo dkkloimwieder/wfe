@@ -23,6 +23,7 @@ import {
   TableFormatting,
 } from '@wfe/components/table'
 import type {
+  TableColumnAlignment,
   NativeSource,
   TableDateRange,
   TableFilterConfig,
@@ -31,13 +32,14 @@ import type {
 import { nativeEvents } from '@wfe/components/events'
 import '@wfe/components/styles.css'
 import './style.css'
-import type { Depth, SurfaceLayers } from './appearance'
+import type { Depth, SurfaceLayers, TableDividers } from './appearance'
 import { AppearanceReview } from './AppearanceReview'
 import {
   monochrome,
   neutralAccent,
   appearanceStyle,
   defaultLayers,
+  defaultDividers,
 } from './appearance'
 import './review-shadows.css'
 
@@ -155,6 +157,8 @@ const textColumn = {
 }
 const displayValue = (value: unknown) =>
   Array.isArray(value) ? value.join(', ') : String(value ?? '')
+let updateColumnAlignment:
+  ((id: string, value: TableColumnAlignment) => void) | undefined
 let collapseControls: ((collapsed: boolean) => void) | undefined
 let applyFilter: ((id: string, value: unknown) => void) | undefined
 let release: (() => void) | undefined
@@ -173,6 +177,7 @@ function stop() {
   replaceRows = undefined
   collapseControls = undefined
   applyFilter = undefined
+  updateColumnAlignment = undefined
 }
 function createRecordsTable(source: NativeSource<RecordData>) {
   const table = createTable<RecordData>({
@@ -279,17 +284,26 @@ function TablePage() {
   collapseControls = setCollapsed
   const [depth, setDepth] = createSignal<Depth>(1)
   const [layers, setLayers] = createSignal<SurfaceLayers>(defaultLayers)
+  const [dividers, setDividers] = createSignal<TableDividers>(defaultDividers)
   const scope = uiScope()
   const rows = createRecordsData()
   replaceRows = rows.replace
   const table = createRecordsTable(rows)
   const formatting = createFormatting()
+  const [alignment, setAlignment] = createStore<
+    Record<string, TableColumnAlignment | undefined>
+  >({})
+  const changeAlignment = (id: string, value: TableColumnAlignment) =>
+    setAlignment((draft) => {
+      draft[id] = value
+    })
+  updateColumnAlignment = changeAlignment
   return (
     <main
       {...scope}
       style={{
         ...scope.style,
-        ...appearanceStyle(scheme(), accent(), depth(), layers()),
+        ...appearanceStyle(scheme(), accent(), depth(), layers(), dividers()),
       }}
       data-ui-portal-root=""
       class="table-page"
@@ -301,6 +315,8 @@ function TablePage() {
         placement={placement()}
         onPlacementChange={setPlacement}
         depth={depth()}
+        dividers={dividers()}
+        onDividersChange={setDividers}
         layers={layers()}
         onLayersChange={setLayers}
         onSchemeChange={setScheme}
@@ -312,6 +328,8 @@ function TablePage() {
         controlsCollapsed={collapsed()}
         onControlsCollapsedChange={setCollapsed}
         table={table}
+        columnAlignment={alignment}
+        onColumnAlignmentChange={changeAlignment}
         title="Records"
         filter={(column) => filterConfigurations[column.id]}
         formatValue={formatting.formatValue}
@@ -346,6 +364,14 @@ function Dashboard() {
   replaceRows = rows.replace
   const table = createRecordsTable(rows)
   const formatting = createFormatting()
+  const [alignment, setAlignment] = createStore<
+    Record<string, TableColumnAlignment | undefined>
+  >({})
+  const changeAlignment = (id: string, value: TableColumnAlignment) =>
+    setAlignment((draft) => {
+      draft[id] = value
+    })
+  updateColumnAlignment = changeAlignment
   function save(event: SubmitEvent) {
     event.preventDefault()
     const accepted = name().trim()
@@ -405,6 +431,8 @@ function Dashboard() {
         <DashboardPanel fill id="records-panel">
           <ReadOnlyTable
             table={table}
+            columnAlignment={alignment}
+            onColumnAlignmentChange={changeAlignment}
             title="Records"
             filter={(column) => filterConfigurations[column.id]}
             formatValue={formatting.formatValue}
@@ -471,6 +499,10 @@ const api = {
   stop,
   setFilter: (id: string, value: unknown) => {
     applyFilter?.(id, value)
+    flush()
+  },
+  setColumnAlignment: (id: string, value: TableColumnAlignment) => {
+    updateColumnAlignment?.(id, value)
     flush()
   },
   setControlsCollapsed: (collapsed: boolean) => {

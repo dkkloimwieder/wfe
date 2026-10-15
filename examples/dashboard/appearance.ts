@@ -13,6 +13,9 @@ export type SurfaceScheme = {
 }
 export type Depth = 0 | 1 | 2 | 3
 export type SurfaceLevel = 0 | 1 | 2
+export type DividerLevel = 0 | 1 | 2 | 3
+export type TableDividers = { rows: DividerLevel; columns: DividerLevel }
+export const defaultDividers: TableDividers = { rows: 0, columns: 0 }
 export type SurfaceLayers = {
   canvas: SurfaceLevel
   pane: SurfaceLevel
@@ -60,11 +63,15 @@ export const accents: readonly Accent[] = [
 export function accentColor(accent: Accent, scheme: SurfaceScheme) {
   return accent[scheme.mode]
 }
+export function dividerSurfaces(scheme: SurfaceScheme) {
+  return (scheme === monochrome ? schemes[1]! : scheme).surfaces
+}
 export function appearanceStyle(
   scheme: SurfaceScheme,
   accent: Accent,
   depth: Depth,
   layers: SurfaceLayers,
+  dividers: TableDividers = defaultDividers,
 ): JSX.CSSProperties {
   const [, , hover, edge] = scheme.surfaces
   const canvas = scheme.surfaces[layers.canvas]
@@ -87,6 +94,8 @@ export function appearanceStyle(
     '--ui-subtle-text': secondary,
     '--ui-border': border,
     '--ui-divider': border,
+    '--ui-table-row-divider': dividerSurfaces(scheme)[dividers.rows],
+    '--ui-table-column-divider': dividerSurfaces(scheme)[dividers.columns],
     '--ui-control-border': border,
     '--ui-button-border': border,
     '--ui-handle-border': border,

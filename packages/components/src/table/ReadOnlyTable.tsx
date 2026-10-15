@@ -1,10 +1,11 @@
-import { For, Show, createMemo } from 'solid-js'
+import { For, Show, createMemo, createStore } from 'solid-js'
 import { Checkbox } from '../components/Checkbox'
-import { Button } from '../components/NativeFields'
+import { Button, NativeSelect } from '../components/NativeFields'
 import { createTableFilterDraft } from './createTableFilterDraft'
 import type { TableFilterCriteria } from './createTableFilterDraft'
 import { TableSort } from './TableSort'
 import { Table } from './Table'
+import type { TableColumnAlignment, TableColumnAlignments } from './Table'
 import { TableControlSection, TableWorkspace } from './TableWorkspace'
 import type { TableWorkspaceProps } from './TableWorkspace'
 import { TableFilter } from './TableFilter'
@@ -26,6 +27,11 @@ export type TableFilterConfig =
 /** Full display features over an application-owned table, without editing state. */
 export function ReadOnlyTable<T, M>(props: {
   table: NativeTable<T, M>
+  columnAlignment?: TableColumnAlignments
+  onColumnAlignmentChange?: (
+    id: string,
+    alignment: TableColumnAlignment,
+  ) => void
   controlsPlacement?: TableWorkspaceProps['controlsPlacement']
   controlsCollapsed?: boolean
   defaultControlsCollapsed?: boolean
@@ -49,6 +55,18 @@ export function ReadOnlyTable<T, M>(props: {
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
 }) {
+  const [localAlignment, setLocalAlignment] = createStore<
+    Record<string, TableColumnAlignment | undefined>
+  >({})
+  const alignment = () => props.columnAlignment ?? localAlignment
+  const changeAlignment = (id: string, value: string) => {
+    if (value !== 'left' && value !== 'center' && value !== 'right') return
+    if (props.columnAlignment === undefined)
+      setLocalAlignment((draft) => {
+        draft[id] = value
+      })
+    props.onColumnAlignmentChange?.(id, value)
+  }
   const table = props.table
   const filters = createTableFilterDraft(table, {
     get onApply() {
@@ -260,18 +278,32 @@ export function ReadOnlyTable<T, M>(props: {
               <legend>Visible columns</legend>
               <For each={table.getColumns()}>
                 {(column) => (
-                  <Checkbox
-                    class="check-option"
-                    checked={column.getIsVisible()}
-                    disabled={column.columnDef?.enableHiding === false}
-                    onChange={(checked) => column.toggleVisibility(checked)}
-                  >
-                    <Checkbox.Input />
-                    <Checkbox.Control>
-                      <Checkbox.Indicator />
-                    </Checkbox.Control>
-                    <Checkbox.Label>{label(column)}</Checkbox.Label>
-                  </Checkbox>
+                  <div class="column-display-option">
+                    <Checkbox
+                      class="check-option"
+                      checked={column.getIsVisible()}
+                      disabled={column.columnDef?.enableHiding === false}
+                      onChange={(checked) => column.toggleVisibility(checked)}
+                    >
+                      <Checkbox.Input />
+                      <Checkbox.Control>
+                        <Checkbox.Indicator />
+                      </Checkbox.Control>
+                      <Checkbox.Label>{label(column)}</Checkbox.Label>
+                    </Checkbox>
+                    <NativeSelect
+                      data-ui-text="system"
+                      aria-label={`${label(column)} alignment`}
+                      value={alignment()[column.id] ?? 'left'}
+                      onValueChange={(value) =>
+                        changeAlignment(column.id, value)
+                      }
+                    >
+                      <option value="left">Left</option>
+                      <option value="center">Center</option>
+                      <option value="right">Right</option>
+                    </NativeSelect>
+                  </div>
                 )}
               </For>
             </fieldset>
@@ -304,6 +336,7 @@ export function ReadOnlyTable<T, M>(props: {
       >
         <Table
           table={table}
+          columnAlignment={alignment()}
           accessibleLabel={props.title ?? 'Read-only records'}
           grouped={
             processing() &&

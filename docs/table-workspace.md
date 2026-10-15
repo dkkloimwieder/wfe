@@ -172,3 +172,26 @@ The optional `resultsHeader` slot gives the results pane the same header band as
 `aria-label`. Both panes share one frame and its optional shadow.
 Control sections meet without card padding or gaps.
 The results fill the frame when the controls collapse.
+
+## Column alignment and dividers
+
+Display columns pairs each visibility control with Left, Center, and Right alignment.
+Alignment changes headings, record cells, group labels, and summaries.
+It does not change raw values, sorting, filtering, or export data.
+Column identity keeps the choice stable after column movement or visibility changes.
+
+`ReadOnlyTable` owns alignment locally by default.
+For application control, pass `columnAlignment` and `onColumnAlignmentChange(id, alignment)`.
+The map uses column IDs as keys and defaults missing keys to Left.
+The callback requests a change, and the application supplies the accepted map.
+`Table`, `TableRow`, and the public `TableColumnAlignments` type support custom compositions.
+If you supply custom rows, pass the same map to `TableRow`.
+Custom cell renderers can set `data-column-alignment` on each cell.
+
+Shared table styles draw column dividers through headings and record cells.
+Set `--ui-table-row-divider` and `--ui-table-column-divider` on the owning scope for separate colors.
+Both tokens fall back to `--ui-divider`.
+The dashboard review starts both at Surface 1 and offers four surface levels independently.
+Black/white uses the Light neutral surfaces for these lines so they retain a visible shade.
+Light and Dark use their own neutral surfaces.
+Pane borders keep their existing color.
