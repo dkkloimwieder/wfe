@@ -1,3 +1,5 @@
+export { TableWorkspace, TableControlSection } from './TableWorkspace'
+export type { TableWorkspaceProps } from './TableWorkspace'
 export { Table, TableRow } from './Table'
 export type { TableEdge } from './Table'
 export { ReadOnlyTable } from './ReadOnlyTable'

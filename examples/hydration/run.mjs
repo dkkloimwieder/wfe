@@ -79,7 +79,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft")]</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls")]</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -113,6 +113,22 @@ try {
     .fill('Hydrated draft')
   await page.keyboard.press('Escape')
   await expect(navigationToggle).toBeFocused()
+  const controlsToggle = page.getByRole('button', {
+    name: 'Table controls',
+    exact: true,
+  })
+  await controlsToggle.press('Enter')
+  const controlsClose = page.getByRole('button', {
+    name: 'Close table controls',
+    exact: true,
+  })
+  await expect(controlsClose).toBeVisible()
+  await controlsClose.focus()
+  await page.keyboard.press('Escape')
+  await expect(controlsToggle).toBeFocused()
+  report.assertions.push(
+    'Table controls retain their server nodes and attach drawer keyboard behavior',
+  )
   await page.setViewportSize({ width: 1280, height: 900 })
   assert.equal(
     await page.locator('#adopt-layout-draft').inputValue(),

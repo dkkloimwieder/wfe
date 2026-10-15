@@ -1,25 +1,28 @@
 # Table presentation
 
-Import Table presentation from `@table/ui/table`.
+Import Table presentation from `@wfe/components/table`.
 These components render an application-owned native Table without creating records, transport, or an editing model.
 Editing, read-only, and analytics demos use the same source.
 
-The export contains `Table`, `TableRow`, and `ReadOnlyTable`.
+The export contains `Table`, `TableRow`, `ReadOnlyTable`, `TableWorkspace`, and `TableControlSection`.
 Column controls contain `TableSort`, `TableFilter`, `TableHeaderFilter`, `TableHeaderName`, `TableGrouping`, `TableColumnMove`, and `TableColumnResize`.
 `moveColumn` returns column IDs in the requested order and retains hidden IDs.
 Types contain `TableEdge`, `TableFilterProps`, and `ColumnDestination`.
 
 ## Composition
 
-Import `@table/ui/styles.css` explicitly and apply `uiScope()` to the owning wrapper.
+Import `@wfe/components/styles.css` explicitly and apply `uiScope()` to the owning wrapper.
 Create the native Table in application code and pass it through the `table` prop.
-The native engine remains `@tanstack/solid-table/native`.
-The UI package declares this engine as an optional peer because other UI subpaths do not require it.
+The native engine belongs to the same package and table export.
 
 `Table` accepts header, row, body, formatting, and edge callbacks.
 The application can supply editors and action controls through these callbacks.
 `ReadOnlyTable` adds sorting, filtering, search, grouping, summaries, visibility, and column ordering.
 Its `controls` prop can disable individual features.
+Its default workspace places expandable controls on the left and results on the right.
+Both panels scroll independently within the height that the application assigns.
+The `actions` and `configuration` slots accept application content.
+The [workspace guide](../../../../docs/table-workspace.md) describes sizing and the narrow controls drawer.
 Neither component copies the application records.
 
 Column controls receive values, bounds, IDs, and callbacks.
@@ -34,16 +37,14 @@ It removes native listeners when the Solid owner disposes.
 The library imports no example or application source.
 The original example helper re-exports this implementation for existing consumers.
 
-Optional virtual presentation is exported through `@table/ui/virtual`.
+Optional virtual presentation is exported through `@wfe/components/virtual`.
 Paging, caches, memory estimates, and server export remain application code.
 
 ## Tests
 
-Run `pnpm --filter @table/ui test:types` from the repository root.
-Run `pnpm --filter @table/ui test:eslint` to test source lint.
-Run `pnpm --filter @table/ui test:boundaries` to test import ownership.
-The standard Solid qualification suite runs these tests and existing fixture browser cases.
-The tests cover source and built native-engine modes through the same UI exports.
+Run `pnpm check` from the repository root.
+Run `pnpm test:qualification` for source, built-package, and development browser cases.
+The suite also covers hydration, cleanup, vendor integrity, and import ownership.
 
 ## Shared controls
 

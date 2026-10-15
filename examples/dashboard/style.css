@@ -26,25 +26,11 @@ h2 {
   overflow: auto;
 }
 #records-panel .table-component {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
-#records-panel .table-scroll {
   flex: 1;
   min-height: 0;
 }
 #records-panel table {
   width: 100%;
-}
-#records-panel p {
-  margin-block: var(--ui-gap);
-}
-#records-panel .column-filters {
-  display: flex;
-  gap: var(--ui-gap);
-  flex-wrap: wrap;
 }
 @media (width < 64rem) {
   .dashboard-workspace {

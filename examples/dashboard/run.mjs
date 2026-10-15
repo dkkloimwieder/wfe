@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { dirname } from 'node:path'
 import { loadavg } from 'node:os'
 import { fileURLToPath } from 'node:url'
-import { chromium } from '@playwright/test'
+import { chromium, expect } from '@playwright/test'
 
 const directory = process.env.BENCH_DEVELOPMENT
   ? '.dist-dev'
@@ -195,6 +195,231 @@ try {
       await page.locator('thead th[data-column="active"]').count(),
       0,
     )
+  })
+  await test('Shared panels and grouping levels have square surfaces and aligned edges', async () => {
+    const appearance = await page.evaluate(() => {
+      const button = getComputedStyle(
+        document.querySelector('button[type="submit"]'),
+      )
+      const input = getComputedStyle(
+        document.querySelector('form input:not([type="checkbox"])'),
+      )
+      return {
+        button: button.backgroundColor,
+        input: input.backgroundColor,
+        panels: [...document.querySelectorAll('.ui-dashboard-panel')].map(
+          (node) => {
+            const style = getComputedStyle(node)
+            return {
+              radius: style.borderRadius,
+              padding: [
+                style.paddingTop,
+                style.paddingRight,
+                style.paddingBottom,
+                style.paddingLeft,
+              ],
+            }
+          },
+        ),
+        paragraphs: [
+          ...document.querySelectorAll('.ui-dashboard-panel > p'),
+        ].map((node) => getComputedStyle(node).marginTop),
+      }
+    })
+    for (const panel of appearance.panels) {
+      assert.equal(panel.radius, '0px')
+      assert.equal(new Set(panel.padding).size, 1)
+    }
+    assert.ok(appearance.paragraphs.every((value) => value === '0px'))
+    for (const id of ['name', 'region']) {
+      await page
+        .getByRole('combobox', { name: 'Add grouping', exact: true })
+        .selectOption(id)
+    }
+    for (const width of [1440, 1100, 700, 390]) {
+      await page.setViewportSize({ width, height: 1000 })
+      if (
+        width < 768 &&
+        (await page
+          .locator('.table-workspace')
+          .getAttribute('data-controls-open')) === null
+      ) {
+        await page
+          .getByRole('button', { name: 'Table controls', exact: true })
+          .click()
+      }
+      const filters = await page
+        .locator('.column-filters .filter-input')
+        .first()
+        .boundingBox()
+      const search = await page
+        .locator('.table-workspace .toolbar .filter-input')
+        .boundingBox()
+      const add = await page
+        .getByRole('combobox', { name: 'Add grouping', exact: true })
+        .boundingBox()
+      assert.equal(search.x, filters.x)
+      assert.equal(search.width, filters.width)
+      assert.equal(add.x, filters.x)
+      assert.equal(add.width, filters.width)
+      const levels = page.locator('.grouping-levels > li')
+      const controls = []
+      for (const level of await levels.all()) {
+        const order = await level.locator('select').boundingBox()
+        const actions = await level
+          .locator('.grouping-level-actions')
+          .boundingBox()
+        controls.push({ order, actions })
+        const buttons = await level
+          .locator('.grouping-level-actions button')
+          .all()
+        const boxes = await Promise.all(
+          buttons.map((button) => button.boundingBox()),
+        )
+        assert.equal(new Set(boxes.map((box) => box.y)).size, 1)
+        assert.ok(boxes[0].x + boxes[0].width < boxes[1].x)
+        const bounds = await level.boundingBox()
+        for (const box of [order, actions, ...boxes]) {
+          assert.ok(box.x >= bounds.x - 1)
+          assert.ok(box.x + box.width <= bounds.x + bounds.width + 1)
+        }
+      }
+      assert.equal(controls[0].order.x, controls[1].order.x)
+      assert.equal(controls[0].order.width, controls[1].order.width)
+      assert.equal(controls[0].actions.x, controls[1].actions.x)
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+        true,
+      )
+    }
+  })
+  await test('Expanded filters and grouping never consume the results height', async () => {
+    await page.setViewportSize({ width: 1440, height: 500 })
+    const scroller = page.locator('.table-scroll')
+    const before = await scroller.boundingBox()
+    assert.ok(before.height > 300)
+    for (const id of ['name', 'region', 'active']) {
+      await page
+        .getByRole('combobox', { name: 'Add grouping', exact: true })
+        .selectOption(id)
+    }
+    await page.getByText('Display columns', { exact: true }).click()
+    assert.deepEqual(await scroller.boundingBox(), before)
+    const controls = page.getByRole('complementary', {
+      name: 'Table controls',
+      exact: true,
+    })
+    assert.equal(
+      await controls.evaluate((node) => node.scrollHeight > node.clientHeight),
+      true,
+    )
+    await controls.evaluate((node) => {
+      node.scrollTop = node.scrollHeight
+    })
+    assert.equal(await scroller.evaluate((node) => node.scrollTop), 0)
+    assert.deepEqual(await scroller.boundingBox(), before)
+    for (const count of [0, 2, 500]) {
+      await page.evaluate(
+        (count) => window.dashboardFixture.replaceRows(count),
+        count,
+      )
+      assert.deepEqual(await scroller.boundingBox(), before)
+    }
+    await scroller.evaluate((node) => {
+      node.scrollTop = node.scrollHeight
+    })
+    assert.equal(await controls.evaluate((node) => node.scrollTop > 0), true)
+    assert.equal(
+      await page.evaluate(() => document.documentElement.scrollHeight),
+      500,
+    )
+    await page.setViewportSize({ width: 390, height: 568 })
+    const narrow = await scroller.boundingBox()
+    assert.ok(narrow.height > 300)
+    await page
+      .getByRole('button', { name: 'Table controls', exact: true })
+      .click()
+    assert.deepEqual(await scroller.boundingBox(), narrow)
+    await page
+      .getByRole('button', { name: 'Close table controls', exact: true })
+      .click()
+    assert.deepEqual(await scroller.boundingBox(), narrow)
+  })
+  await test('The controls drawer preserves nodes and state and restores visible keyboard focus', async () => {
+    const filter = page.getByRole('textbox', {
+      name: 'Filter Region',
+      exact: true,
+    })
+    await filter.fill('West')
+    await filter.evaluate((node) => {
+      window.savedTableFilter = node
+    })
+    await page.setViewportSize({ width: 390, height: 844 })
+    const toggle = page.getByRole('button', {
+      name: 'Table controls',
+      exact: true,
+    })
+    await expect(toggle).toBeFocused()
+    await toggle.press('Enter')
+    await expect(filter).toBeVisible()
+    assert.equal(await filter.inputValue(), 'West')
+    assert.equal(
+      await filter.evaluate((node) => node === window.savedTableFilter),
+      true,
+    )
+    await page
+      .getByRole('button', { name: 'Close table controls', exact: true })
+      .focus()
+    await page.keyboard.press('Escape')
+    await expect(toggle).toBeFocused()
+    await expect(filter).toBeHidden()
+    await toggle.press('Space')
+    await page.locator('.table-scroll').focus()
+    await expect(page.locator('.table-scroll')).toBeFocused()
+    await expect(filter).toBeHidden()
+    await toggle.focus()
+    await page.setViewportSize({ width: 1440, height: 1000 })
+    await expect(
+      page.getByRole('complementary', { name: 'Table controls', exact: true }),
+    ).toBeFocused()
+    assert.equal(await filter.inputValue(), 'West')
+    assert.equal(
+      await filter.evaluate((node) => node === window.savedTableFilter),
+      true,
+    )
+    await page.getByText('Filters', { exact: true }).click()
+    assert.equal(
+      await page.getByText('1 active', { exact: true }).isVisible(),
+      true,
+    )
+    assert.deepEqual(await rows(), ['record-1'])
+    await page.getByText('Filters', { exact: true }).click()
+    assert.equal(await filter.inputValue(), 'West')
+  })
+  await test('The controls drawer stays below application navigation and preserves its state', async () => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const controls = page.getByRole('complementary', {
+      name: 'Table controls',
+      exact: true,
+    })
+    await page
+      .getByRole('button', { name: 'Table controls', exact: true })
+      .click()
+    await expect(controls).toBeVisible()
+    await page.getByRole('button', { name: 'Navigation', exact: true }).click()
+    await page
+      .getByRole('button', { name: 'Close navigation', exact: true })
+      .click({ timeout: 5000 })
+    await expect(controls).toBeVisible()
+    await page
+      .getByRole('button', { name: 'Close table controls', exact: true })
+      .click()
+    await expect(controls).toBeHidden()
+    await expect(
+      page.getByRole('button', { name: 'Table controls', exact: true }),
+    ).toBeFocused()
   })
   await test('Narrow layout keeps form draft and application navigation', async () => {
     await page.getByLabel('Record name', { exact: true }).fill('Keep draft')

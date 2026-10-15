@@ -148,12 +148,17 @@ function Dashboard() {
     >
       <DashboardGrid class="dashboard-workspace">
         <DashboardPanel fill id="records-panel">
-          <div class="buttons" aria-label="Example data">
-            <Button onClick={() => replaceRows?.(0)}>Empty results</Button>
-            <Button onClick={() => replaceRows?.(2)}>Two records</Button>
-            <Button onClick={() => replaceRows?.(500)}>500 records</Button>
-          </div>
-          <ReadOnlyTable table={table} title="Records" />
+          <ReadOnlyTable
+            table={table}
+            title="Records"
+            actions={
+              <div class="buttons" aria-label="Example data">
+                <Button onClick={() => replaceRows?.(0)}>Empty results</Button>
+                <Button onClick={() => replaceRows?.(2)}>Two records</Button>
+                <Button onClick={() => replaceRows?.(500)}>500 records</Button>
+              </div>
+            }
+          />
         </DashboardPanel>
         <div class="dashboard-sidebar">
           <DashboardPanel>

@@ -1,5 +1,6 @@
 @import './components.css';
 @import './layout.css';
+@import './table-workspace.css';
 
 :where([data-ui]) {
   font-family: var(

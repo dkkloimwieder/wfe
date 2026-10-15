@@ -2,6 +2,7 @@ import { For, Show, createMemo } from 'solid-js'
 import { Checkbox } from '../components/Checkbox'
 import { TableSort } from './TableSort'
 import { Table } from './Table'
+import { TableControlSection, TableWorkspace } from './TableWorkspace'
 import { TableFilter } from './TableFilter'
 import { TableGrouping } from './TableGrouping'
 import { TableColumnMove, moveColumn } from './TableColumnMove'
@@ -19,6 +20,8 @@ export function ReadOnlyTable<T, M>(props: {
     grouping?: boolean
     columnReordering?: boolean
   }
+  actions?: JSX.Element
+  configuration?: JSX.Element
   label?: (column: NativeColumn<T, M>) => string
   groupable?: (id: string) => boolean
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
@@ -38,79 +41,122 @@ export function ReadOnlyTable<T, M>(props: {
       .map((column) => column.id),
   )
   return (
-    <section
-      data-ui=""
+    <TableWorkspace
       class="table-component"
-      aria-label={props.title ?? 'Read-only table'}
-    >
-      <Show when={props.controls?.filtering !== false}>
-        <div class="column-filters" role="region" aria-label="Column filters">
-          <For each={table.getColumns()}>
-            {(column) => (
-              <TableFilter
-                label={`Filter ${label(column)}`}
-                clearLabel={`Clear ${label(column)} filter`}
-                value={String(column.getFilterValue() ?? '')}
-                disabled={
-                  !processing() ||
-                  table.options.manualFiltering ||
-                  !column.columnDef?.filterFn
-                }
-                onValueChange={(value) =>
-                  column.setFilterValue(value || undefined)
-                }
+      label={props.title ?? 'Read-only table'}
+      controls={
+        <>
+          <Show
+            when={
+              props.controls?.filtering !== false ||
+              props.controls?.search !== false
+            }
+          >
+            <TableControlSection
+              title="Filters"
+              defaultOpen
+              summary={`${table.state.columnFilters.length + (table.state.globalFilter ? 1 : 0)} active`}
+            >
+              <Show when={props.controls?.filtering !== false}>
+                <div
+                  class="column-filters"
+                  role="region"
+                  aria-label="Column filters"
+                >
+                  <For each={table.getColumns()}>
+                    {(column) => (
+                      <TableFilter
+                        label={`Filter ${label(column)}`}
+                        clearLabel={`Clear ${label(column)} filter`}
+                        value={String(column.getFilterValue() ?? '')}
+                        disabled={
+                          !processing() ||
+                          table.options.manualFiltering ||
+                          !column.columnDef?.filterFn
+                        }
+                        onValueChange={(value) =>
+                          column.setFilterValue(value || undefined)
+                        }
+                      />
+                    )}
+                  </For>
+                </div>
+              </Show>
+              <Show when={props.controls?.search !== false}>
+                <div class="toolbar">
+                  <TableFilter
+                    label="Search all columns"
+                    clearLabel="Clear search"
+                    search
+                    value={table.state.globalFilter}
+                    disabled={!processing() || table.options.manualFiltering}
+                    onValueChange={(value) => table.setGlobalFilter(value)}
+                  />
+                </div>
+              </Show>
+            </TableControlSection>
+          </Show>
+          <Show when={props.controls?.grouping !== false}>
+            <TableControlSection
+              title="Grouping"
+              defaultOpen
+              summary={`${table.state.grouping.length} levels`}
+            >
+              <TableGrouping
+                table={table}
+                disabled={!processing() || table.options.manualGrouping}
+                label={(id) => label(table.getColumn(id)!)}
+                groupable={(id) => props.groupable?.(id) ?? true}
               />
-            )}
-          </For>
-        </div>
-      </Show>
-      <Show when={props.controls?.search !== false}>
-        <div class="toolbar">
-          <TableFilter
-            label="Search all columns"
-            clearLabel="Clear search"
-            search
-            value={table.state.globalFilter}
-            disabled={!processing() || table.options.manualFiltering}
-            onValueChange={(value) => table.setGlobalFilter(value)}
-          />
-        </div>
-      </Show>
-      <Show when={props.controls?.grouping !== false}>
-        <TableGrouping
-          table={table}
-          disabled={!processing() || table.options.manualGrouping}
-          label={(id) => label(table.getColumn(id)!)}
-          groupable={(id) => props.groupable?.(id) ?? true}
-        />
-      </Show>
-      <details class="display-options">
-        <summary>Display columns</summary>
-        <fieldset class="display-fields">
-          <legend>Visible columns</legend>
-          <For each={table.getColumns()}>
-            {(column) => (
-              <Checkbox
-                class="check-option"
-                checked={column.getIsVisible()}
-                disabled={column.columnDef?.enableHiding === false}
-                onChange={(checked) => column.toggleVisibility(checked)}
-              >
-                <Checkbox.Input />
-                <Checkbox.Control>
-                  <Checkbox.Indicator />
-                </Checkbox.Control>
-                <Checkbox.Label>Show {label(column)}</Checkbox.Label>
-              </Checkbox>
-            )}
-          </For>
-        </fieldset>
-      </details>
+            </TableControlSection>
+          </Show>
+          <TableControlSection
+            title="Display columns"
+            summary={`${table.getVisibleColumns().length} visible`}
+          >
+            <fieldset class="display-fields">
+              <legend>Visible columns</legend>
+              <For each={table.getColumns()}>
+                {(column) => (
+                  <Checkbox
+                    class="check-option"
+                    checked={column.getIsVisible()}
+                    disabled={column.columnDef?.enableHiding === false}
+                    onChange={(checked) => column.toggleVisibility(checked)}
+                  >
+                    <Checkbox.Input />
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                    <Checkbox.Label>Show {label(column)}</Checkbox.Label>
+                  </Checkbox>
+                )}
+              </For>
+            </fieldset>
+          </TableControlSection>
+          <Show when={props.actions}>
+            <TableControlSection title="Actions" defaultOpen>
+              {props.actions}
+            </TableControlSection>
+          </Show>
+          <Show when={props.configuration}>
+            <TableControlSection title="Configuration">
+              {props.configuration}
+            </TableControlSection>
+          </Show>
+        </>
+      }
+    >
       <p role="status">
         {table.getFilteredRowIds().length} of {table.getSourceIds().length}{' '}
         records
       </p>
-      <div class="table-scroll">
+      <div
+        class="table-scroll"
+        tabindex={0}
+        role="region"
+        aria-label={`${props.title ?? 'Read-only records'} results`}
+      >
         <Table
           table={table}
           caption={props.title ?? 'Read-only records'}
@@ -177,6 +223,6 @@ export function ReadOnlyTable<T, M>(props: {
           </p>
         </Show>
       </div>
-    </section>
+    </TableWorkspace>
   )
 }
