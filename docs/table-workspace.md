@@ -114,3 +114,9 @@ uses this slot for its APPLY bar. The bar fills the pane width and uses the
 shared muted surface and divider. Filter, grouping, display, and formatting
 sections scroll below it. The narrow controls drawer keeps its close button
 and APPLY bar outside this scrolling area.
+
+The optional `resultsHeader` slot gives the results pane the same header band as
+`controlsHeader`. ReadOnlyTable places its title there and names the table with
+`aria-label`. Both panes share their frame, surface, and optional shadow. Table
+content and control subsections share inset spacing and subsection surfaces.
+The canvas remains visible between the panes.

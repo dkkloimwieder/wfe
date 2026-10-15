@@ -4,6 +4,8 @@
   display: grid;
   grid-template-columns: var(--ui-table-controls-width, 18rem) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
+  column-gap: var(--ui-gap, 6px);
+  background: var(--ui-canvas-surface, var(--ui-surface, white));
   height: 100%;
   min-height: 0;
   min-width: 0;
@@ -13,37 +15,59 @@
 :where([data-ui]) .table-controls-close {
   display: none;
 }
+:where([data-ui]) .table-workspace-controls,
+:where([data-ui]) .table-workspace-results {
+  border: 1px solid var(--ui-border, #ccc);
+  background: var(--ui-pane-surface, var(--ui-surface, white));
+  box-shadow: var(--ui-panel-shadow, none);
+}
 :where([data-ui]) .table-workspace-controls {
   display: flex;
   flex-direction: column;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--ui-border, #ccc);
   padding: 0;
-  background: var(--ui-surface, white);
 }
-:where([data-ui]) .table-workspace-controls-header {
+:where([data-ui]) .table-workspace-controls-header,
+:where([data-ui]) .table-workspace-results-header {
+  display: flex;
+  align-items: center;
   flex: none;
+  min-height: calc(
+    var(--ui-control-height, 26px) + var(--ui-control-padding-y, 4px) * 2 + 1px
+  );
   min-width: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
   border-bottom: 1px solid var(--ui-border, #ccc);
-  background: var(--ui-muted-surface, #f0f0f0);
+  background: var(--ui-header-surface, var(--ui-surface, white));
+}
+:where([data-ui]) .table-workspace-results-header {
+  font-weight: 650;
+}
+:where([data-ui])
+  :is(.table-workspace-controls-header, .table-workspace-results-header)
+  button {
+  height: var(--ui-control-height, 26px);
+  padding-block: 0;
 }
 :where([data-ui]) .table-workspace-controls-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
   flex: 1;
   min-height: 0;
   min-width: 0;
   overflow: auto;
   overscroll-behavior: contain;
-  padding: 0 var(--ui-cell-padding-x, 8px) var(--ui-gap, 6px);
+  padding: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
 }
 :where([data-ui]) .table-workspace-results {
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
-  padding-inline-start: var(--ui-gap, 6px);
+  overflow: hidden;
 }
 :where([data-ui]) .table-workspace-results > [role='status'] {
   flex: none;
@@ -52,19 +76,29 @@
 :where([data-ui]) .table-workspace-results > .table-scroll {
   flex: 1;
   min-height: 0;
+  margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
+  box-shadow: none;
 }
 :where([data-ui]) .table-workspace-summary {
   flex: none;
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
-  border: 1px solid var(--ui-border, #ccc);
-  border-top: 0;
+  border: 0;
+  border-top: 1px solid var(--ui-border, #ccc);
 }
 :where([data-ui]) .table-control-section {
-  border-bottom: 1px solid var(--ui-divider, #ddd);
+  flex: none;
+  border: 1px solid var(--ui-border, #ccc);
+  background: var(--ui-surface, white);
 }
 :where([data-ui]) .table-control-section > summary {
   display: list-item;
-  padding: var(--ui-gap, 6px) 0;
+  padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
+  line-height: var(--ui-header-height, 22px);
+  list-style-position: inside;
+  background: var(
+    --ui-section-surface,
+    var(--ui-header-surface, var(--ui-surface, white))
+  );
   font-weight: 600;
 }
 :where([data-ui]) .table-control-summary {
@@ -77,7 +111,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--ui-gap, 6px);
-  padding-block: 0 var(--ui-gap, 6px);
+  padding: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
 }
 :where([data-ui]) .table-workspace .column-filters {
   display: grid;

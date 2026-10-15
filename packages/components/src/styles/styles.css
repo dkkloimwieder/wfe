@@ -4,6 +4,21 @@
 @import './calendar.css';
 @import './system-text.css';
 
+:where(:root) {
+  --ui-text: #000;
+  --ui-surface: #fff;
+  --ui-muted-surface: #fff;
+  --ui-muted-text: currentColor;
+  --ui-subtle-text: currentColor;
+  --ui-border: currentColor;
+  --ui-divider: currentColor;
+  --ui-control-border: currentColor;
+  --ui-button-border: currentColor;
+  --ui-handle-border: currentColor;
+  --ui-hover: #fff;
+  --ui-disabled-opacity: 1;
+}
+
 :where([data-ui]) {
   font-family: var(
     --ui-font-family,

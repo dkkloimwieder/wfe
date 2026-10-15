@@ -76,6 +76,9 @@ export function ReadOnlyTable<T, M>(props: {
           records
         </>
       }
+      resultsHeader={
+        <span data-ui-text="system">{props.title ?? 'Read-only records'}</span>
+      }
       controlsHeader={
         <Show
           when={
@@ -292,7 +295,7 @@ export function ReadOnlyTable<T, M>(props: {
       >
         <Table
           table={table}
-          caption={props.title ?? 'Read-only records'}
+          accessibleLabel={props.title ?? 'Read-only records'}
           grouped={
             processing() &&
             !table.options.manualGrouping &&

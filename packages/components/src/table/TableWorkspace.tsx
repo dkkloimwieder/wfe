@@ -13,6 +13,7 @@ import type { JSX } from '@solidjs/web'
 export type TableWorkspaceProps = {
   controls: JSX.Element
   controlsHeader?: JSX.Element
+  resultsHeader?: JSX.Element
   footer?: JSX.Element
   children: JSX.Element
   label?: string
@@ -147,6 +148,11 @@ export function TableWorkspace(props: TableWorkspaceProps) {
           results = node
         }}
       >
+        <Show when={props.resultsHeader} keyed>
+          {(header) => (
+            <div class="table-workspace-results-header">{header}</div>
+          )}
+        </Show>
         {props.children}
         <Show when={props.footer != null && props.footer !== false}>
           <footer class="table-workspace-summary" role="status">

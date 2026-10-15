@@ -126,6 +126,7 @@
   table-layout: fixed;
 }
 :where([data-ui]) caption {
+  background: var(--ui-header-surface, var(--ui-surface, white));
   text-align: left;
   padding: 8px 10px;
   font-weight: 650;
@@ -138,8 +139,11 @@
   vertical-align: middle;
 }
 :where([data-ui]) thead {
-  background: var(--ui-muted-surface, #f0f0f0);
-  color: var(--ui-muted-text, #555);
+  background: var(
+    --ui-section-surface,
+    var(--ui-header-surface, var(--ui-surface, white))
+  );
+  color: var(--ui-text, #000);
   font-size: var(--ui-small-font-size, 11px);
 }
 :where([data-ui]) tbody tr[data-row]:hover {
@@ -653,7 +657,7 @@
   color: var(--ui-text, #191919);
   font-size: 12px;
   font-weight: 400;
-  box-shadow: 3px 3px 0 var(--ui-divider, #ddd);
+  box-shadow: var(--ui-popup-shadow, 3px 3px 0 var(--ui-divider, #ddd));
 }
 :where([data-ui]) .header-filter-popup .table-filter {
   margin: 0;
@@ -715,7 +719,7 @@
   width: 180px;
   border: 1px solid var(--ui-control-border, #999);
   border-radius: 0;
-  box-shadow: 3px 3px 0 var(--ui-divider, #ddd);
+  box-shadow: var(--ui-popup-shadow, 3px 3px 0 var(--ui-divider, #ddd));
 }
 :where([data-ui]) .column-move-menu button {
   display: block;
@@ -750,11 +754,11 @@
   z-index: 100;
   min-width: calc(var(--ui-font-size, 12px) * 11);
   max-width: calc(100vw - calc(var(--ui-font-size, 12px) * 1));
-  background: var(--ui-surface, white);
+  background: var(--ui-popup-surface, var(--ui-surface, white));
   color: var(--ui-text, #191919);
   border: 1px solid var(--ui-control-border, #999);
   border-radius: 0;
-  box-shadow: 3px 3px 0 var(--ui-divider, #ddd);
+  box-shadow: var(--ui-popup-shadow, 3px 3px 0 var(--ui-divider, #ddd));
 }
 :where([data-ui]) .popup-listbox {
   list-style: none;
@@ -989,7 +993,7 @@
   border: 1px solid var(--ui-border, #ccc);
   background: var(--ui-surface, white);
   color: var(--ui-text, #222);
-  box-shadow: 3px 3px 0 var(--ui-divider, #ddd);
+  box-shadow: var(--ui-popup-shadow, 3px 3px 0 var(--ui-divider, #ddd));
   pointer-events: auto;
 }
 :where([data-ui]) .ui-dialog-title {
@@ -1054,10 +1058,10 @@
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
   border: 1px solid var(--ui-border, #bbb);
   border-radius: var(--ui-radius, 0px);
-  background: var(--ui-surface, white);
+  background: var(--ui-popup-surface, var(--ui-surface, white));
   color: var(--ui-text, #191919);
   font: inherit;
-  box-shadow: 0 4px 16px rgb(0 0 0 / 14%);
+  box-shadow: var(--ui-popup-shadow, 0 4px 16px rgb(0 0 0 / 14%));
 }
 :where([data-ui]) :is(.ui-popover, .ui-menu, .ui-tooltip)[data-closed] {
   display: none;
@@ -1233,7 +1237,6 @@
 }
 
 :where([data-ui]) .table-filter-actions button[aria-disabled='true'] {
-  opacity: var(--ui-disabled-opacity, 0.55);
   cursor: not-allowed;
 }
 

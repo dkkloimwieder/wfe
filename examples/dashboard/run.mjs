@@ -963,13 +963,13 @@ try {
       assert.equal(
         await pane.evaluate((node) => getComputedStyle(node).borderTopColor),
         await page
-          .locator('.table-scroll')
+          .locator('.table-workspace-results')
           .evaluate((node) => getComputedStyle(node).borderTopColor),
       )
       assert.equal(
         await header.evaluate((node) => getComputedStyle(node).backgroundColor),
         await page
-          .locator('thead')
+          .locator('.table-workspace-results-header')
           .evaluate((node) => getComputedStyle(node).backgroundColor),
       )
       await body.evaluate((node) => {
@@ -1195,11 +1195,217 @@ try {
     assert.equal(main.height, 1000)
     const results = await page.locator('.table-workspace-results').boundingBox()
     assert.ok(results.width > 1100)
-    assert.ok((await page.locator('.table-scroll').boundingBox()).height > 900)
+    assert.ok((await page.locator('.table-scroll').boundingBox()).height > 800)
     assert.equal(
       await page.evaluate(() => document.documentElement.scrollHeight),
       1000,
     )
+  })
+  await test('Neutral surface modes, accents and depth preserve table state and geometry', async () => {
+    const schemeButton = (name) =>
+      page.getByRole('button', { name: `${name} surfaces`, exact: true })
+    const accentButton = (name) =>
+      page.getByRole('button', { name: `${name} accent`, exact: true })
+    const depth = page.getByRole('button', {
+      name: 'Layered shadows',
+      exact: true,
+    })
+    const header = page.locator('.table-workspace-controls-header')
+    const caption = page.locator('.table-workspace-results-header')
+    const tableHeader = page.locator('thead')
+    const surface = page.locator('.table-scroll')
+    const samples = page.locator('.surface-sample')
+    const sample = (name) =>
+      page.locator(`[data-swatch="${name}"] .surface-sample`)
+    const background = (node) =>
+      node.evaluate((element) => getComputedStyle(element).backgroundColor)
+    await expect(samples).toHaveCount(6)
+    await expect(schemeButton('Black / white')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    assert.equal(
+      await apply().evaluate((node) => getComputedStyle(node).opacity),
+      '1',
+    )
+    const name = page.getByRole('textbox', { name: 'Name', exact: true })
+    await name.fill('Record 1')
+    const initialRows = await rows()
+    const geometry = await surface.boundingBox()
+    const table = await page.locator('table').elementHandle()
+    for (const scheme of ['Light', 'Dark', 'Black / white']) {
+      await schemeButton(scheme).focus()
+      await page.keyboard.press('Enter')
+      await expect(schemeButton(scheme)).toHaveAttribute('aria-pressed', 'true')
+      const colors = await page
+        .locator('.surface-swatches code')
+        .allTextContents()
+      assert.equal(
+        new Set(colors.slice(0, 4)).size,
+        scheme === 'Black / white' ? 1 : 4,
+      )
+      const panes = [
+        page.locator('.table-workspace-controls'),
+        page.locator('.table-workspace-results'),
+      ]
+      const paneBoxes = await Promise.all(
+        panes.map((node) => node.boundingBox()),
+      )
+      assert.equal(paneBoxes[0].y, paneBoxes[1].y)
+      assert.equal(paneBoxes[0].height, paneBoxes[1].height)
+      for (const pane of panes)
+        assert.equal(
+          await background(pane),
+          await background(sample('Surface 2')),
+        )
+      const leftHeader = await header.boundingBox()
+      const rightHeader = await caption.boundingBox()
+      assert.equal(leftHeader.y, rightHeader.y)
+      assert.equal(leftHeader.height, rightHeader.height)
+      assert.equal(
+        await background(
+          page.locator('.table-control-section > summary').first(),
+        ),
+        await background(sample('Surface 3')),
+      )
+      for (const node of [header, caption])
+        assert.equal(
+          await background(node),
+          await background(sample('Surface 2')),
+        )
+      assert.equal(
+        await background(surface),
+        await background(sample('Surface 1')),
+      )
+      assert.equal(
+        await background(tableHeader),
+        await background(sample('Surface 3')),
+      )
+      assert.equal(
+        await tableHeader.evaluate((node) => getComputedStyle(node).color),
+        await background(sample('Text 1')),
+      )
+      assert.deepEqual(await surface.boundingBox(), geometry)
+      assert.deepEqual(await rows(), initialRows)
+      await expect(name).toHaveValue('Record 1')
+      assert.equal(
+        await table.evaluate(
+          (node) =>
+            node.isConnected && node === document.querySelector('table'),
+        ),
+        true,
+      )
+    }
+    await schemeButton('Light').click()
+    const neutralColors = await samples.evaluateAll((nodes) =>
+      nodes.map((node) => getComputedStyle(node).backgroundColor),
+    )
+    for (const button of await page
+      .getByRole('group', { name: 'Accent colors', exact: true })
+      .getByRole('button')
+      .all()) {
+      await button.click()
+      await expect(button).toHaveAttribute('aria-pressed', 'true')
+      assert.deepEqual(
+        await samples.evaluateAll((nodes) =>
+          nodes.map((node) => getComputedStyle(node).backgroundColor),
+        ),
+        neutralColors,
+      )
+      for (const node of [header, caption])
+        assert.equal(
+          await background(node),
+          await background(sample('Surface 2')),
+        )
+      assert.deepEqual(await surface.boundingBox(), geometry)
+      assert.deepEqual(await rows(), initialRows)
+      await expect(name).toHaveValue('Record 1')
+    }
+    await accentButton('Blue').click()
+    assert.equal(
+      await page
+        .locator('.table-page')
+        .evaluate((node) =>
+          getComputedStyle(node).getPropertyValue('--ui-focus').trim(),
+        ),
+      '#1864ab',
+    )
+    await depth.click()
+    await choiceTrigger('Region').click()
+    const popup = page.locator('.popup-content')
+    assert.equal(await background(popup), await background(sample('Surface 2')))
+    assert.notEqual(
+      await popup.evaluate((node) => getComputedStyle(node).boxShadow),
+      'none',
+    )
+    await page.keyboard.press('Escape')
+    await depth.click()
+    await expect(depth).toHaveAttribute('aria-pressed', 'false')
+    assert.equal(
+      await surface.evaluate((node) => getComputedStyle(node).boxShadow),
+      'none',
+    )
+    assert.equal(
+      await sample('Surface 4').evaluate(
+        (node) => getComputedStyle(node).boxShadow,
+      ),
+      'none',
+    )
+    await depth.click()
+    assert.notEqual(
+      await sample('Surface 4').evaluate(
+        (node) => getComputedStyle(node).boxShadow,
+      ),
+      'none',
+    )
+    assert.deepEqual(await surface.boundingBox(), geometry)
+    const detached = await accentButton('Blue').elementHandle()
+    await page.evaluate(() => window.dashboardFixture.start())
+    await detached.evaluate((node) => node.click())
+    await expect(accentButton('Neutral')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await page.setViewportSize({ width: 390, height: 568 })
+    for (const selector of ['.appearance-pickers', '.surface-swatches'])
+      assert.ok(
+        await page
+          .locator(selector)
+          .evaluate((node) => node.scrollWidth > node.clientWidth),
+      )
+    const narrow = await surface.boundingBox()
+    await schemeButton('Dark').focus()
+    await page.keyboard.press('Space')
+    await accentButton('Blue').focus()
+    await page.keyboard.press('Enter')
+    assert.equal(
+      await page
+        .locator('.table-page')
+        .evaluate((node) =>
+          getComputedStyle(node).getPropertyValue('--ui-focus').trim(),
+        ),
+      '#74c0fc',
+    )
+    assert.deepEqual(await surface.boundingBox(), narrow)
+    assert.equal(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <= innerWidth &&
+          document.documentElement.scrollHeight <= innerHeight,
+      ),
+      true,
+    )
+    await page.reload()
+    await expect(schemeButton('Black / white')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await expect(accentButton('Neutral')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await table.dispose()
+    await detached.dispose()
   })
   await test('The Table starts level with controls and keeps its summary pinned below scrolling records', async () => {
     const controls = page.locator('.table-workspace-controls')
@@ -1207,7 +1413,10 @@ try {
     const footer = page.locator('.table-workspace-summary')
     const controlsBox = await controls.boundingBox()
     const tableBox = await scroller.boundingBox()
-    assert.equal(tableBox.y, controlsBox.y)
+    assert.equal(
+      (await page.locator('.table-workspace-results').boundingBox()).y,
+      controlsBox.y,
+    )
     const before = await footer.boundingBox()
     assert.equal(await footer.textContent(), '2/2 records')
     await page.evaluate(() => window.dashboardFixture.replaceRows(500))
@@ -1285,7 +1494,7 @@ try {
         before,
       )
       assert.ok(before.width > 600)
-      assert.ok(before.height > 450)
+      assert.ok(before.height > 320)
       assert.equal(await zoomed.getByRole('navigation').count(), 0)
       assert.equal(await zoomed.locator('form').count(), 0)
       assert.equal(await zoomed.locator('thead th').count(), 8)
@@ -1302,7 +1511,7 @@ try {
       await zoomed.setViewportSize({ width: 390, height: 568 })
       const narrow = await zoomed.locator('.table-scroll').boundingBox()
       assert.ok(narrow.width > 350)
-      assert.ok(narrow.height > 450)
+      assert.ok(narrow.height > 320)
       await zoomed
         .getByRole('button', { name: 'Table controls', exact: true })
         .click()

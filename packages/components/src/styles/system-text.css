@@ -64,6 +64,8 @@
 
 :where([data-ui]) input::placeholder,
 :where([data-ui]) textarea::placeholder {
+  color: var(--ui-muted-text, currentColor);
+  opacity: 1;
   text-transform: uppercase;
 }
 

@@ -31,6 +31,9 @@ import type {
 import { nativeEvents } from '@wfe/components/events'
 import '@wfe/components/styles.css'
 import './style.css'
+import { AppearanceReview } from './AppearanceReview'
+import { monochrome, neutralAccent, appearanceStyle } from './appearance'
+import './review-shadows.css'
 
 type RecordData = {
   id: string
@@ -259,17 +262,33 @@ function createFormatting() {
   }
 }
 function TablePage() {
+  const [scheme, setScheme] = createSignal(monochrome)
+  const [accent, setAccent] = createSignal(neutralAccent)
+  const [depth, setDepth] = createSignal(false)
+  const scope = uiScope()
   const rows = createRecordsData()
   replaceRows = rows.replace
   const table = createRecordsTable(rows)
   const formatting = createFormatting()
   return (
     <main
-      {...uiScope()}
+      {...scope}
+      style={{
+        ...scope.style,
+        ...appearanceStyle(scheme(), accent(), depth()),
+      }}
       data-ui-portal-root=""
       class="table-page"
       aria-label="Records workspace"
     >
+      <AppearanceReview
+        scheme={scheme()}
+        accent={accent()}
+        depth={depth()}
+        onSchemeChange={setScheme}
+        onAccentChange={setAccent}
+        onDepthChange={setDepth}
+      />
       <ReadOnlyTable
         table={table}
         title="Records"
