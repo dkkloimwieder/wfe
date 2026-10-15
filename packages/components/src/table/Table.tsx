@@ -293,10 +293,12 @@ function TableGroup<T, M>(props: {
                         },
                       })}
                     >
-                      <span aria-hidden="true">
-                        {group.getIsExpanded() ? '▾' : '▸'}
-                      </span>{' '}
-                      {valueLabel()}
+                      <span>
+                        <span aria-hidden="true">
+                          {group.getIsExpanded() ? '▾' : '▸'}
+                        </span>{' '}
+                        {valueLabel()}
+                      </span>
                     </Button>
                     <span class="group-count">
                       {group.count} {group.count === 1 ? 'record' : 'records'}

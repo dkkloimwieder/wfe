@@ -3,8 +3,8 @@
   isolation: isolate;
   display: grid;
   grid-template-columns: var(--ui-table-controls-width, 18rem) minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr);
-  grid-template-areas: 'toolbar toolbar' 'controls results';
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: 'controls results';
   gap: 0;
   border: 1px solid var(--ui-border, #ccc);
   box-shadow: var(--ui-panel-shadow, none);
@@ -15,18 +15,20 @@
   overflow: clip;
   overflow-clip-margin: var(--ui-shadow-overflow, 0px);
 }
-:where([data-ui]) .table-workspace-toolbar {
-  grid-area: toolbar;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
-  border-bottom: 1px solid var(--ui-border, #ccc);
-  background: var(--ui-pane-surface, var(--ui-surface, white));
-}
-:where([data-ui]) .table-workspace-toolbar button {
+:where([data-ui]) .table-controls-toggle {
+  width: var(--ui-control-height, 26px);
   height: var(--ui-control-height, 26px);
-  padding-block: 0;
+  flex: none;
+  padding: 0;
+}
+:where([data-ui]) .table-controls-icon {
+  display: block;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  pointer-events: none;
 }
 :where([data-ui]) .table-controls-close {
   display: none;
@@ -64,6 +66,7 @@
   background: transparent;
 }
 :where([data-ui]) .table-workspace-results-header {
+  justify-content: flex-start;
   font-weight: 650;
 }
 :where([data-ui])
@@ -175,9 +178,9 @@
 :where([data-ui]) .table-workspace[data-controls-placement='top'] {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows:
-    auto fit-content(min(var(--ui-table-controls-height, 18rem), 40%))
+    fit-content(min(var(--ui-table-controls-height, 18rem), 40%))
     minmax(0, 1fr);
-  grid-template-areas: 'toolbar' 'controls' 'results';
+  grid-template-areas: 'controls' 'results';
 }
 :where([data-ui])
   .table-workspace[data-controls-placement='top']
@@ -187,7 +190,7 @@
 }
 :where([data-ui]) .table-workspace[data-controls-placement='right'] {
   grid-template-columns: minmax(0, 1fr) var(--ui-table-controls-width, 18rem);
-  grid-template-areas: 'toolbar toolbar' 'results controls';
+  grid-template-areas: 'results controls';
 }
 :where([data-ui])
   .table-workspace[data-controls-placement='right']
@@ -242,8 +245,8 @@
 }
 :where([data-ui]) .table-workspace[data-controls-collapsed] {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr);
-  grid-template-areas: 'toolbar' 'results';
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: 'results';
 }
 :where([data-ui])
   .table-workspace[data-controls-collapsed]
@@ -255,11 +258,11 @@
   :where([data-ui]) .table-workspace[data-controls-placement],
   :where([data-ui]) .table-workspace[data-controls-collapsed] {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto minmax(0, 1fr);
-    grid-template-areas: 'toolbar' 'results';
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-areas: 'results';
   }
   :where([data-ui]) .table-controls-close {
-    display: inline-block;
+    display: inline-flex;
     flex: none;
     align-self: start;
     margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
@@ -272,7 +275,11 @@
     box-shadow: var(--ui-panel-shadow, none);
     display: none;
     position: absolute;
-    inset-block: 0;
+    inset-block: calc(
+        var(--ui-control-height, 26px) + var(--ui-control-padding-y, 4px) * 2 +
+          1px
+      )
+      0;
     inset-inline-start: 0;
     z-index: 10;
     width: min(var(--ui-table-controls-width, 18rem), 100%);

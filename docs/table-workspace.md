@@ -92,8 +92,10 @@ Controls inside each section run horizontally and wrap as needed.
 The top pane shrinks when sections collapse and expands only to its height limit.
 Narrow screens use the same drawer for either placement.
 
-Use the left-aligned workspace toolbar button to hide or show the controls pane.
-The toolbar sits above both panes and leaves the Records heading intact.
+Use the square sliders icon immediately after the results title to hide or show controls.
+The icon stays next to the title in every placement.
+Its tooltip shows Show controls or Hide controls, and its accessible state follows the pane.
+There is no separate toolbar row.
 The results reclaim the pane width in left or right placement and its height in top placement.
 The control nodes and results stay mounted, so drafts and Table state survive.
 An unhandled Escape from desktop controls also hides the pane.
@@ -136,6 +138,7 @@ Filter inputs keep their existing Escape behavior.
 Focusing the results closes the drawer so focused content stays visible.
 Resizing moves focus before its current control becomes hidden.
 The same control nodes survive desktop and narrow layouts.
+The drawer starts below the results heading so the icon stays available.
 Right placement anchors the narrow drawer to the right edge.
 
 Applications can localize the labels through `TableWorkspace` props.

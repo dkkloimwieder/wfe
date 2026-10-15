@@ -5,12 +5,19 @@
   font: inherit;
 }
 :where([data-ui]) button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   border: 1px solid var(--ui-button-border, #aaa);
   background: var(--ui-surface, white);
   color: inherit;
   border-radius: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 8px);
   cursor: pointer;
+}
+:where([data-ui]) button[hidden] {
+  display: none;
 }
 :where([data-ui]) button:hover {
   background: var(--ui-highlight, #edf3fb);

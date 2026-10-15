@@ -1517,14 +1517,28 @@ try {
     const draft = page.getByRole('textbox', { name: 'Name', exact: true })
     await draft.fill('Record 1')
     await expect(page.locator('.table-controls-toggle')).toHaveCount(1)
+    await expect(page.locator('.table-workspace-toolbar')).toHaveCount(0)
     await expect(
       page.locator('.table-workspace-results-header button'),
-    ).toHaveCount(0)
+    ).toHaveCount(1)
+    const heading = page.locator('.table-workspace-results-header > span')
+    const headingBox = await heading.boundingBox()
     const toggleBox = await toggle.boundingBox()
-    const toolbarBox = await page
-      .locator('.table-workspace-toolbar')
-      .boundingBox()
-    assert.ok(toggleBox.x < toolbarBox.x + 20)
+    assert.equal(toggleBox.width, toggleBox.height)
+    assert.ok(toggleBox.x > headingBox.x + headingBox.width)
+    assert.ok(toggleBox.x - headingBox.x - headingBox.width <= 8)
+    await expect(toggle).toHaveAttribute('title', 'HIDE CONTROLS')
+    const iconBox = await toggle.locator('svg').boundingBox()
+    assert.ok(
+      Math.abs(
+        iconBox.x + iconBox.width / 2 - toggleBox.x - toggleBox.width / 2,
+      ) < 0.1,
+    )
+    assert.ok(
+      Math.abs(
+        iconBox.y + iconBox.height / 2 - toggleBox.y - toggleBox.height / 2,
+      ) < 0.1,
+    )
     const savedTable = await page.locator('table').elementHandle()
     const savedDraft = await draft.elementHandle()
     const initialRows = await rows()

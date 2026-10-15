@@ -7,7 +7,7 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
-import { Button } from '../components/NativeFields'
+import { Button, IconButton } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 import type { JSX } from '@solidjs/web'
 
@@ -75,6 +75,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
       // Keep focused results unobscured when keyboard users leave the drawer.
       if (
         untrack(narrow) &&
+        event.target !== toggle &&
         results?.contains(event.target as Node) &&
         untrack(open)
       )
@@ -172,28 +173,6 @@ export function TableWorkspace(props: TableWorkspaceProps) {
       data-controls-placement={props.controlsPlacement ?? 'left'}
       ref={events}
     >
-      <div class="table-workspace-toolbar">
-        <Button
-          class="table-controls-toggle"
-          ref={(node) => {
-            toggle = node
-          }}
-          aria-controls={panelId}
-          aria-label={props.toggleLabel ?? 'Table controls'}
-          aria-expanded={(narrow() ? open() : !collapsed()) ? 'true' : 'false'}
-          onClick={() => {
-            if (narrow()) {
-              if (open()) close()
-              else setOpen(true)
-            } else changeCollapsed(!collapsed())
-          }}
-        >
-          {props.toggleLabel ??
-            ((narrow() ? open() : !collapsed())
-              ? 'Hide controls'
-              : 'Show controls')}
-        </Button>
-      </div>
       <aside
         id={panelId}
         class="table-workspace-controls"
@@ -223,6 +202,36 @@ export function TableWorkspace(props: TableWorkspaceProps) {
           <Show when={props.resultsHeader} keyed>
             {(header) => header}
           </Show>
+          <IconButton
+            class="table-controls-toggle"
+            ref={(node) => {
+              toggle = node
+            }}
+            title={
+              (narrow() ? open() : !collapsed())
+                ? 'HIDE CONTROLS'
+                : 'SHOW CONTROLS'
+            }
+            aria-controls={panelId}
+            aria-label={props.toggleLabel ?? 'Table controls'}
+            aria-expanded={
+              (narrow() ? open() : !collapsed()) ? 'true' : 'false'
+            }
+            onClick={() => {
+              if (narrow()) {
+                if (open()) close()
+                else setOpen(true)
+              } else changeCollapsed(!collapsed())
+            }}
+          >
+            <svg
+              class="table-controls-icon"
+              viewBox="0 0 16 16"
+              aria-hidden="true"
+            >
+              <path d="M2 4h3m3 0h6M2 12h7m3 0h2M5 2v4h3V2zM9 10v4h3v-4z" />
+            </svg>
+          </IconButton>
         </div>
         {props.children}
         <Show when={props.footer != null && props.footer !== false}>
