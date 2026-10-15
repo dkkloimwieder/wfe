@@ -93,3 +93,17 @@ Applications can override CSS variables through the shell's `style` prop.
 The layout contract fixture covers desktop and narrow screens, focus, scrolling, state preservation, theme, density, and disposal.
 The qualification suite runs it against source, built-package, and development inputs.
 The hydration fixture also attaches the shell to server nodes and tests navigation keyboard behavior.
+
+## Composed example
+
+The dashboard example uses public Table, field, checkbox, button, and layout exports.
+Its application owns records, validation, submission, navigation, and replacement data.
+The form adds records to an in-memory collection.
+The data buttons switch between zero, two, and 500 records.
+This sample uses the normal Table renderer and does not fetch pages on scroll.
+
+On desktop, the table fills the space beside the form and status panels.
+On narrow screens, the workspace scrolls vertically and keeps the form below the table.
+The table keeps its assigned height across result counts.
+Its empty message stays inside its scroll area.
+See [the example instructions](../examples/README.md) for the preview command.

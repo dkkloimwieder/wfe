@@ -61,6 +61,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
       'analytics',
       'styles',
       'layout',
+      'dashboard',
       'virtualization',
     ]) {
       if (mode === 'development' && fixture === 'virtualization') continue

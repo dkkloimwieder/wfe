@@ -19,7 +19,7 @@ Editing uses port 7777, components use 7782, analytics uses 7783, and the read-o
 Use `examples/table-editing/vite.config.ts`, `examples/analytics/vite.config.ts`, or `examples/table-read-only/vite.config.ts` for those examples.
 If a review server already occupies the port, use an unused port for another instance.
 
-The generic examples are components, table-editing, table-read-only, analytics, styles, layout, and virtualization.
+The generic examples are components, table-editing, table-read-only, analytics, styles, layout, dashboard, and virtualization.
 Each example imports public exports from `@wfe/components`.
 Applications own records, transport, validation, query paging, cache policy, and export requests.
 The optional WAMN example requires its separate input preparation.
@@ -43,4 +43,8 @@ Set `BENCH_OUTPUT` to preserve each browser report at a separate path.
 
 The layout fixture tests the public dashboard shell contract.
 Use `examples/layout/vite.config.ts` on an unused port to inspect it.
-The composed dashboard example follows under Beads issue `wfe-w2y.2.2`.
+The dashboard example composes the real read-only Table and shared record controls.
+Use `examples/dashboard/vite.config.ts` on port 7786 to inspect it.
+Its application owns validation, saves, navigation, and data replacement.
+Its 500-row sample stays in memory and uses the normal Table renderer.
+The table scroll area keeps its height when the result count changes.

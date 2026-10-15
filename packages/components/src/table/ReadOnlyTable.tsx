@@ -169,14 +169,14 @@ export function ReadOnlyTable<T, M>(props: {
             </>
           )}
         />
+        <Show when={!table.getFilteredRowIds().length}>
+          <p>
+            {table.getSourceIds().length
+              ? 'No records match your search or filters.'
+              : 'No records yet.'}
+          </p>
+        </Show>
       </div>
-      <Show when={!table.getFilteredRowIds().length}>
-        <p>
-          {table.getSourceIds().length
-            ? 'No records match your search or filters.'
-            : 'No records yet.'}
-        </p>
-      </Show>
     </section>
   )
 }

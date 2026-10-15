@@ -6,6 +6,7 @@ for (const example of [
   'analytics',
   'styles',
   'layout',
+  'dashboard',
   'virtualization',
   'hydration',
   'accessor-profile',

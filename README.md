@@ -21,7 +21,7 @@ pnpm check
 `pnpm test:qualification` runs the complete serial qualification suite.
 The component source and native Table engine are extracted.
 The generic examples now use public package exports.
-Source and built-package browser cases cover controls, editing, read-only tables, analytics, styles, layout, and virtualization.
+Source and built-package browser cases cover controls, editing, read-only tables, analytics, styles, layout, dashboards, and virtualization.
 See [the example instructions](examples/README.md) for previews and browser commands.
 Unit tools, rendering, hydration, vendor audits, and live checks now run from wfe.
 The [adoption guide](docs/adoption.md) describes public imports, controlled values, state ownership, and hydration.
