@@ -79,7 +79,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]")]</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats select")]</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -151,6 +151,32 @@ try {
   )
   report.assertions.push(
     'Client attachment preserves native cell and button nodes and initial values',
+  )
+  await expect(
+    page
+      .locator('#adopt-formatted-boolean')
+      .getByRole('img', { name: 'No', exact: true }),
+  ).toHaveCount(1)
+  await page
+    .getByRole('combobox', { name: 'Hydrated boolean format', exact: true })
+    .selectOption('boolean-text')
+  await page
+    .getByRole('combobox', { name: 'Hydrated date format', exact: true })
+    .selectOption('date-long')
+  await page
+    .getByRole('combobox', { name: 'Hydrated number format', exact: true })
+    .selectOption('number-decimal')
+  await expect(page.locator('#adopt-formatted-boolean')).toHaveText('No')
+  await expect(page.locator('#adopt-formatted-date')).toHaveText(
+    'February 29, 2024',
+  )
+  await expect(page.locator('#adopt-formatted-number')).toHaveText('0.00')
+  assert.equal(
+    await page.evaluate(() => window.hydrationFixture.lifecycle.formatChanges),
+    3,
+  )
+  report.assertions.push(
+    'Formatting preserves server controls and applies display choices after hydration',
   )
   const booleanFilter = page.getByRole('checkbox', {
     name: 'Active filter',
@@ -295,6 +321,7 @@ try {
     const reads = fixture.lifecycle.reads
     const changes = fixture.lifecycle.changes
     const filterChanges = fixture.lifecycle.filterChanges
+    const formatChanges = fixture.lifecycle.formatChanges
     fixture.lifecycle.rename('After disposal')
     window.serverNodes[1].click()
     window.serverNodes[2].value = 'Detached input'
@@ -305,6 +332,8 @@ try {
     window.serverNodes[10].dispatchEvent(new Event('change', { bubbles: true }))
     window.serverNodes[11].value = '2026-02-01'
     window.serverNodes[11].dispatchEvent(new Event('input', { bubbles: true }))
+    for (const node of window.serverNodes.slice(20))
+      node.dispatchEvent(new Event('change', { bubbles: true }))
     for (const node of window.serverNodes.slice(13))
       node.dispatchEvent(new Event('input', { bubbles: true }))
     await new Promise((done) =>
@@ -316,6 +345,8 @@ try {
       afterReads: fixture.lifecycle.reads,
       filterChanges,
       afterFilterChanges: fixture.lifecycle.filterChanges,
+      formatChanges,
+      afterFormatChanges: fixture.lifecycle.formatChanges,
       changes,
       afterChanges: fixture.lifecycle.changes,
       portals: document.querySelectorAll('.ui-dialog-portal').length,
@@ -332,6 +363,7 @@ try {
   assert.equal(cleanup.afterReads, cleanup.reads)
   assert.equal(cleanup.afterChanges, cleanup.changes)
   assert.equal(cleanup.afterFilterChanges, cleanup.filterChanges)
+  assert.equal(cleanup.afterFormatChanges, cleanup.formatChanges)
   assert.equal(cleanup.portals, 0)
   assert.equal(cleanup.blocked, 0)
   assert.equal(cleanup.pointerEvents, '')

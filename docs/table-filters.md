@@ -18,7 +18,7 @@ Each boundary can stay empty, and zero remains a real boundary.
 Invalid numeric drafts leave the accepted range unchanged.
 Escape restores the accepted boundary value.
 
-`boolean` provides True, False, and Either.
+`boolean` provides Yes, No, and Either.
 `date-range` composes the shared date picker for optional Start and End dates.
 Set `empty` on text, choice, tags, or numeric controls to offer Is empty and Is not empty.
 These controls preserve the difference between an empty value and zero or false.

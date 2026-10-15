@@ -9,13 +9,19 @@ import {
   Label,
   NativeSelect,
   uiScope,
+  ValueDisplay,
 } from '@wfe/components'
 import {
   DashboardGrid,
   DashboardPanel,
   DashboardShell,
 } from '@wfe/components/layout'
-import { createTable, ReadOnlyTable } from '@wfe/components/table'
+import type { ValueFormat } from '@wfe/components'
+import {
+  createTable,
+  ReadOnlyTable,
+  TableFormatting,
+} from '@wfe/components/table'
 import type {
   NativeSource,
   TableDateRange,
@@ -220,10 +226,43 @@ function createRecordsTable(source: NativeSource<RecordData>) {
   applyFilter = (id, value) => table.getColumn(id)?.setFilterValue(value)
   return table
 }
+function createFormatting() {
+  const [formats, setFormats] = createStore<Record<string, ValueFormat>>(
+    { active: 'boolean-symbol', created: 'date-iso', amount: 'number-plain' },
+    { shallow: true, name: 'dashboard.formats' },
+  )
+  const columns = [
+    { id: 'active', label: 'Active format', kind: 'boolean' },
+    { id: 'created', label: 'Created format', kind: 'date' },
+    { id: 'amount', label: 'Amount format', kind: 'number' },
+  ] as const
+  return {
+    controls: (
+      <TableFormatting
+        columns={columns}
+        value={formats}
+        onValueChange={(id, format) =>
+          setFormats((draft) => {
+            draft[id] = format
+          })
+        }
+      />
+    ),
+    formatValue(value: unknown, column: { id: string }) {
+      const format = formats[column.id]
+      return format ? (
+        <ValueDisplay value={value} format={format} locale="en-US" />
+      ) : (
+        displayValue(value)
+      )
+    },
+  }
+}
 function TablePage() {
   const rows = createRecordsData()
   replaceRows = rows.replace
   const table = createRecordsTable(rows)
+  const formatting = createFormatting()
   return (
     <main
       {...uiScope()}
@@ -235,7 +274,9 @@ function TablePage() {
         table={table}
         title="Records"
         filter={(column) => filterConfigurations[column.id]}
-        formatValue={displayValue}
+        formatValue={formatting.formatValue}
+        formatSummary={formatting.formatValue}
+        formatting={formatting.controls}
         actions={<RecordActions />}
       />
     </main>
@@ -264,6 +305,7 @@ function Dashboard() {
   let nextId = 0
   replaceRows = rows.replace
   const table = createRecordsTable(rows)
+  const formatting = createFormatting()
   function save(event: SubmitEvent) {
     event.preventDefault()
     const accepted = name().trim()
@@ -325,7 +367,9 @@ function Dashboard() {
             table={table}
             title="Records"
             filter={(column) => filterConfigurations[column.id]}
-            formatValue={displayValue}
+            formatValue={formatting.formatValue}
+            formatSummary={formatting.formatValue}
+            formatting={formatting.controls}
             actions={<RecordActions />}
           />
         </DashboardPanel>

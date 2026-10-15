@@ -32,6 +32,7 @@ export function ReadOnlyTable<T, M>(props: {
   }
   actions?: JSX.Element
   configuration?: JSX.Element
+  formatting?: JSX.Element
   label?: (column: NativeColumn<T, M>) => string
   filter?: (column: NativeColumn<T, M>) => TableFilterConfig | undefined
   filterKind?: (column: NativeColumn<T, M>) => 'text' | 'boolean' | 'date-range'
@@ -216,6 +217,13 @@ export function ReadOnlyTable<T, M>(props: {
               </For>
             </fieldset>
           </TableControlSection>
+          <Show when={props.formatting} keyed>
+            {(formatting) => (
+              <TableControlSection title="Formatting" defaultOpen>
+                {formatting}
+              </TableControlSection>
+            )}
+          </Show>
           <Show when={props.actions}>
             <TableControlSection title="Actions" defaultOpen>
               {props.actions}

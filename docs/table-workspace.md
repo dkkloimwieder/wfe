@@ -49,7 +49,7 @@ Collapsing a section preserves its controls and Table state.
 The `controls` prop keeps its existing feature switches.
 
 The application declares boolean controls through `filterKind`, for example `filterKind={(column) => column.id === 'active' ? 'boolean' : 'text'}`.
-Boolean controls offer True, False, and Either.
+Boolean controls offer Yes, No, and Either through a three-state checkbox.
 They store boolean filter values, and Either removes the filter.
 The application supplies an equality `filterFn` and boolean records.
 The component does not infer column types from record values.
@@ -99,3 +99,5 @@ Dashboard cases cover three grouping levels, expanded controls, short windows, z
 Drawer cases cover keyboard focus, state preservation, and active summaries.
 Hydration cases keep the server workspace and panel nodes after client attachment.
 The suite runs source, built-package, and development consumers serially.
+
+The `formatting` slot adds a FORMATTING section. The application supplies controlled `TableFormatting` choices and applies them through `formatValue`. See [Table value formatting](./table-formatting.md).

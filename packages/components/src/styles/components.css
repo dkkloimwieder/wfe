@@ -1209,3 +1209,17 @@
 :where([data-ui]) .filter-input .table-boolean-filter .ui-check-control {
   outline: none;
 }
+
+:where([data-ui]) .ui-value-symbol {
+  display: inline-grid;
+  width: calc(var(--ui-font-size, 12px) + 4px);
+  height: calc(var(--ui-font-size, 12px) + 4px);
+  vertical-align: middle;
+}
+:where([data-ui]) .ui-value-symbol svg {
+  pointer-events: none;
+}
+:where([data-ui]) .table-formatting {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+}

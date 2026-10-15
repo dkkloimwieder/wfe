@@ -170,6 +170,7 @@ export function Table<T, M>(props: {
                     table={table}
                     groupKey={item.key}
                     label={props.groupLabel}
+                    formatValue={props.formatValue}
                     formatSummary={props.formatSummary}
                     canToggle={props.canToggleGroup}
                     leading={props.leading?.group}
@@ -226,6 +227,7 @@ function TableGroup<T, M>(props: {
   table: NativeTable<T, M>
   groupKey: string
   label?: (id: string) => string
+  formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   canToggle?: () => boolean
   leading?: () => JSX.Element
@@ -245,8 +247,11 @@ function TableGroup<T, M>(props: {
       )
       .join(' / ') ?? ''
   const valueLabel = () => {
-    const value = group.path?.at(-1)?.value
-    return value == null || value === '' ? '(none)' : String(value)
+    const entry = group.path?.at(-1)
+    const value = entry?.value
+    if (value == null || value === '') return '(none)'
+    const column = entry && props.table.getColumn(entry.columnId)
+    return (column && props.formatValue?.(value, column)) ?? String(value)
   }
   return (
     <tbody>

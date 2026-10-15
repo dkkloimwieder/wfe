@@ -179,7 +179,7 @@ try {
     )
     assert.match(
       await page.locator('tr[data-row="created-1"]').textContent(),
-      /New shelfEastfalse/,
+      /New shelfEast/,
     )
     assert.equal(
       await page.getByLabel('Record name', { exact: true }).inputValue(),
@@ -198,16 +198,18 @@ try {
     await expect(filter).toHaveAttribute('aria-checked', 'mixed')
     await filter.press('Space')
     assert.deepEqual(await rows(), ['record-1'])
-    assert.equal(
-      await page.locator('tr[data-row] td[data-column="active"]').textContent(),
-      'true',
-    )
+    await expect(
+      page
+        .locator('tr[data-row] td[data-column="active"]')
+        .getByRole('img', { name: 'Yes', exact: true }),
+    ).toHaveCount(1)
     await page.locator('.table-boolean-filter .ui-check-control').click()
     assert.deepEqual(await rows(), ['record-2'])
-    assert.equal(
-      await page.locator('tr[data-row] td[data-column="active"]').textContent(),
-      'false',
-    )
+    await expect(
+      page
+        .locator('tr[data-row] td[data-column="active"]')
+        .getByRole('img', { name: 'No', exact: true }),
+    ).toHaveCount(1)
     assert.equal(
       await page.getByText('1 active', { exact: true }).isVisible(),
       true,
@@ -236,6 +238,109 @@ try {
     )
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
     assert.deepEqual(await rows(), ['record-2'])
+  })
+  await test('Column formatting changes symbols, dates and numbers without changing filter or sort values', async () => {
+    await page.evaluate(() => window.dashboardFixture.replaceRows(8))
+    const active = page.getByRole('combobox', {
+      name: 'Active format',
+      exact: true,
+    })
+    const date = page.getByRole('combobox', {
+      name: 'Created format',
+      exact: true,
+    })
+    const amount = page.getByRole('combobox', {
+      name: 'Amount format',
+      exact: true,
+    })
+    const cell = (row, id) =>
+      page.locator(`tr[data-row="record-${row}"] td[data-column="${id}"]`)
+    const results = page.locator('.table-workspace-results')
+    const height = (await results.boundingBox()).height
+    await expect(
+      cell(1, 'active').getByRole('img', { name: 'Yes', exact: true }),
+    ).toHaveCount(1)
+    await expect(
+      cell(2, 'active').getByRole('img', { name: 'No', exact: true }),
+    ).toHaveCount(1)
+    await active.selectOption('boolean-text')
+    await expect(cell(1, 'active')).toHaveText('Yes')
+    await expect(cell(2, 'active')).toHaveText('No')
+    await date.selectOption('date-long')
+    await expect(cell(1, 'created')).toHaveText('January 1, 2026')
+    await date.selectOption('date-short')
+    await expect(cell(1, 'created')).toHaveText('01/01/2026')
+    await amount.selectOption('number-decimal')
+    await expect(cell(1, 'amount')).toHaveText('0.00')
+    await expect(cell(2, 'amount')).toHaveText('12.50')
+    await expect(cell(3, 'amount')).toHaveText('')
+    await expect(cell(4, 'amount')).toHaveText('-3.25')
+    await page.evaluate(() =>
+      window.dashboardFixture.setFilter('active', false),
+    )
+    assert.deepEqual(await rows(), [
+      'record-2',
+      'record-4',
+      'record-6',
+      'record-8',
+    ])
+    await active.selectOption('boolean-symbol')
+    assert.deepEqual(await rows(), [
+      'record-2',
+      'record-4',
+      'record-6',
+      'record-8',
+    ])
+    await page.evaluate(() => {
+      window.dashboardFixture.setFilter('active', undefined)
+      window.dashboardFixture.setFilter('amount', {
+        operator: 'between',
+        min: 0,
+        max: 0,
+      })
+    })
+    assert.deepEqual(await rows(), ['record-1', 'record-5'])
+    await page.evaluate(() =>
+      window.dashboardFixture.setFilter('amount', undefined),
+    )
+    await page
+      .getByRole('button', { name: 'Sort by Amount', exact: true })
+      .click()
+    assert.deepEqual((await rows()).slice(0, 2), ['record-4', 'record-8'])
+    await amount.selectOption('number-grouped')
+    assert.deepEqual((await rows()).slice(0, 2), ['record-4', 'record-8'])
+    const grouping = page.getByRole('combobox', {
+      name: 'Add grouping',
+      exact: true,
+    })
+    await grouping.selectOption('active')
+    await expect(
+      page
+        .locator('[data-group-toggle]')
+        .getByRole('img', { name: 'Yes', exact: true }),
+    ).toHaveCount(1)
+    await expect(
+      page
+        .locator('[data-group-toggle]')
+        .getByRole('img', { name: 'No', exact: true }),
+    ).toHaveCount(1)
+    await page
+      .getByRole('button', { name: 'Clear grouping', exact: true })
+      .click()
+    await grouping.selectOption('created')
+    assert.ok(
+      (await page.locator('[data-group-toggle]').allTextContents()).some(
+        (text) => text.includes('01/01/2026'),
+      ),
+    )
+    await page
+      .getByRole('button', { name: 'Clear grouping', exact: true })
+      .click()
+    assert.equal((await results.boundingBox()).height, height)
+    await page.evaluate(() => window.dashboardFixture.replaceRows(0))
+    await expect(active).toHaveValue('boolean-symbol')
+    await expect(date).toHaveValue('date-short')
+    await expect(amount).toHaveValue('number-grouped')
   })
   await test('Date boundaries work independently and include both endpoint dates', async () => {
     const start = page.getByLabel('Created start', { exact: true })

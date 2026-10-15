@@ -27,3 +27,6 @@ export type {
 } from './TableColumnFilter'
 
 export type { TableFilterConfig } from './ReadOnlyTable'
+
+export { TableFormatting } from './TableFormatting'
+export type { TableFormattingProps } from './TableFormatting'

@@ -8,7 +8,9 @@ import {
   HelpText,
   Input,
   Label,
+  ValueDisplay,
 } from '@wfe/components'
+import type { ValueFormat } from '@wfe/components'
 import { DashboardShell } from '@wfe/components/layout'
 import {
   createTable as createNativeTable,
@@ -16,6 +18,7 @@ import {
   TableFilter,
   TableDateFilter,
   TableColumnFilter,
+  TableFormatting,
 } from '@wfe/components/table'
 import type {
   TableColumnFilterValue,
@@ -27,6 +30,7 @@ export const lifecycle = {
   cleanups: 0,
   changes: 0,
   filterChanges: 0,
+  formatChanges: 0,
   rename: (_value: string) => {},
   configure: (_value: {
     name?: string
@@ -36,6 +40,16 @@ export const lifecycle = {
 }
 
 export default function App() {
+  const [formats, setFormats] = createSignal<Record<string, ValueFormat>>({
+    active: 'boolean-symbol',
+    created: 'date-iso',
+    amount: 'number-plain',
+  })
+  const formatColumns = [
+    { id: 'active', label: 'Hydrated boolean format', kind: 'boolean' },
+    { id: 'created', label: 'Hydrated date format', kind: 'date' },
+    { id: 'amount', label: 'Hydrated number format', kind: 'number' },
+  ] as const
   const [textMatch, setTextMatch] = createSignal<
     TableColumnFilterValue | undefined
   >({ operator: 'contains', value: 'Ada' })
@@ -128,6 +142,27 @@ export default function App() {
         <ReadOnlyTable
           table={table}
           title="Hydrated records"
+          formatting={
+            <section id="adopt-value-formats">
+              <TableFormatting
+                columns={formatColumns}
+                value={formats()}
+                onValueChange={(id, format) => {
+                  lifecycle.formatChanges++
+                  setFormats((old) => ({ ...old, [id]: format }))
+                }}
+              />
+              <output id="adopt-formatted-boolean">
+                <ValueDisplay value={false} format={formats().active!} />
+              </output>
+              <output id="adopt-formatted-date">
+                <ValueDisplay value="2024-02-29" format={formats().created!} />
+              </output>
+              <output id="adopt-formatted-number">
+                <ValueDisplay value={0} format={formats().amount!} />
+              </output>
+            </section>
+          }
           controls={{
             filtering: false,
             search: false,
