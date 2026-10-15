@@ -48,3 +48,8 @@ Use `examples/dashboard/vite.config.ts` on port 7786 to inspect it.
 Its application owns validation, saves, navigation, and data replacement.
 Its 500-row sample stays in memory and uses the normal Table renderer.
 The table scroll area keeps its height when the result count changes.
+
+The dashboard uses the default split Table workspace.
+Filters, grouping, columns, and sample data actions occupy the left controls panel.
+Results fill the main panel and keep their height as controls expand.
+The layout fixture also covers a 100,000-row virtual Table, dialogs, and popup controls.

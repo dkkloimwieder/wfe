@@ -1,12 +1,14 @@
 import { render } from '@solidjs/web'
-import { For, OBSERVE, action, createSignal, flush, onCleanup } from 'solid-js'
-import { Button, Input } from '@wfe/components'
+import { OBSERVE, action, createSignal, flush, onCleanup } from 'solid-js'
+import { Button, Dialog, Input, Popover, uiDensity } from '@wfe/components'
 import {
   DashboardGrid,
   DashboardPanel,
   DashboardShell,
 } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
+import { createTable, Table, TableRow } from '@wfe/components/table'
+import { createTableVirtualizer, VirtualRows } from '@wfe/components/virtual'
 import type { UIDensity } from '@wfe/components'
 import '@wfe/components/styles.css'
 import './style.css'
@@ -38,6 +40,105 @@ function stop() {
   release = undefined
   replaceRows = configure = undefined
 }
+function HelpPopup() {
+  return (
+    <Popover>
+      <Popover.Trigger>Navigation help</Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content>
+          <Popover.Title>Navigation help</Popover.Title>
+          <Popover.Description>
+            Application links keep their own navigation policy.
+          </Popover.Description>
+          <Popover.CloseButton aria-label="Close help">
+            Close help
+          </Popover.CloseButton>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover>
+  )
+}
+function WorkspaceDialog() {
+  return (
+    <Dialog>
+      <Dialog.Trigger>Workspace preferences</Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay />
+        <Dialog.Content>
+          <Dialog.Title>Workspace preferences</Dialog.Title>
+          <Dialog.Description>
+            Example controls inside a dashboard portal.
+          </Dialog.Description>
+          <Input aria-label="Preference draft" />
+          <Popover>
+            <Popover.Trigger>Preference help</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content>
+                <Popover.Title>Preference help</Popover.Title>
+                <Popover.Description>
+                  The dialog remains open after this popup closes.
+                </Popover.Description>
+                <Popover.CloseButton aria-label="Close preference help">
+                  Close preference help
+                </Popover.CloseButton>
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover>
+          <Dialog.CloseButton aria-label="Close preferences">
+            Close preferences
+          </Dialog.CloseButton>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog>
+  )
+}
+function Results(props: { count: number; density: UIDensity }) {
+  const table = createTable<{ name: string }>({
+    source: {
+      ids: () =>
+        Array.from({ length: props.count }, (_, index) => String(index)),
+      get: (id) => ({ name: `Row ${id}` }),
+    },
+    columns: [{ id: 'name', header: 'Name', accessorKey: 'name', size: 960 }],
+  })
+  let viewport: HTMLDivElement | undefined
+  const virtualizer = createTableVirtualizer({
+    mode: 'fixed',
+    get count() {
+      return props.count
+    },
+    get rowHeight() {
+      return uiDensity(props.density).rowHeight
+    },
+    getItemKey: (index) => String(index),
+    getIndexForKey: (key) => Number(key),
+    getScrollElement: () => viewport ?? null,
+  })
+  return (
+    <div
+      id="results"
+      tabindex={0}
+      aria-label="Virtual records"
+      ref={(node) => {
+        viewport = node
+      }}
+    >
+      <Table
+        table={table}
+        accessibleLabel="Virtual records"
+        header={(column) => <span>{String(column.columnDef?.header)}</span>}
+        renderBody={() => (
+          <VirtualRows
+            window={virtualizer}
+            layout="table"
+            columns={() => 1}
+            renderRow={(id) => <TableRow table={table} id={id} />}
+          />
+        )}
+      />
+    </div>
+  )
+}
 function Navigation(props: { close: () => void }) {
   const [draft, setDraft] = createSignal('Keep this draft')
   navigationMounts++
@@ -55,6 +156,7 @@ function Navigation(props: { close: () => void }) {
         value={draft()}
         onInput={(event) => setDraft(event.currentTarget.value)}
       />
+      <HelpPopup />
       <Button
         onClick={() => {
           visits++
@@ -86,7 +188,12 @@ function start(withNavigation = true) {
     return (
       <DashboardShell
         id="shell"
-        header={<h1>Workspace</h1>}
+        header={
+          <>
+            <h1>Workspace</h1>
+            <WorkspaceDialog />
+          </>
+        }
         density={density()}
         theme={theme()}
         scroll={scroll()}
@@ -102,21 +209,7 @@ function start(withNavigation = true) {
       >
         <DashboardPanel fill id="results-panel">
           <h2 id="records">Records</h2>
-          <div id="results" tabindex={0}>
-            <table>
-              <tbody>
-                <For
-                  each={Array.from({ length: count() }, (_, index) => index)}
-                >
-                  {(index) => (
-                    <tr>
-                      <td>Row {index}</td>
-                    </tr>
-                  )}
-                </For>
-              </tbody>
-            </table>
-          </div>
+          <Results count={count()} density={density()} />
         </DashboardPanel>
         <DashboardGrid id="grid">
           <DashboardPanel>First panel</DashboardPanel>

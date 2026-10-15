@@ -302,6 +302,187 @@ try {
     assert.equal((await main.boundingBox()).width, 390)
     assert.equal(await navigation.count(), 0)
   })
+  await test('A large virtual Table keeps bounded rows and scrolls within the dashboard', async () => {
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.evaluate(() => window.layoutFixture.start())
+    const results = page.locator('#results')
+    const original = await results.boundingBox()
+    await page.evaluate(() => window.layoutFixture.replaceRows(100000))
+    await expect
+      .poll(() => page.locator('tr[data-row]').count())
+      .toBeGreaterThan(1)
+    assert.ok((await page.locator('tr[data-row]').count()) < 100)
+    assert.deepEqual(await results.boundingBox(), original)
+    await results.evaluate((node) => {
+      node.scrollTop = node.scrollHeight
+      node.scrollLeft = node.scrollWidth
+    })
+    await expect(page.locator('tr[data-row="99999"]')).toBeVisible()
+    assert.ok((await page.locator('tr[data-row]').count()) < 100)
+    const last = await page.locator('tr[data-row="99999"]').boundingBox()
+    const viewport = await results.boundingBox()
+    assert.ok(last.y + last.height <= viewport.y + viewport.height + 1)
+    assert.equal(
+      await page.evaluate(() => document.documentElement.scrollWidth),
+      1280,
+    )
+    for (const count of [0, 2, 100000]) {
+      await page.evaluate(
+        (count) => window.layoutFixture.replaceRows(count),
+        count,
+      )
+      assert.deepEqual(await results.boundingBox(), original)
+    }
+  })
+  await test('Virtual row sizes follow density and remain contained at narrow widths', async () => {
+    for (const [density, height] of [
+      ['compact', 32],
+      ['comfortable', 40],
+    ]) {
+      await page.evaluate(
+        (density) => window.layoutFixture.configure({ density, theme: 'dark' }),
+        density,
+      )
+      await page.setViewportSize({ width: 390, height: 800 })
+      const results = page.locator('#results')
+      await results.evaluate((node) => {
+        node.scrollTop = 0
+        node.scrollLeft = 0
+      })
+      await expect(page.locator('tr[data-row="0"]')).toBeVisible()
+      await expect
+        .poll(
+          async () =>
+            (await page.locator('tr[data-row="0"]').boundingBox()).height,
+        )
+        .toBe(height)
+      assert.ok((await page.locator('tr[data-row]').count()) < 100)
+      await results.evaluate((node) => {
+        node.scrollLeft = node.scrollWidth
+      })
+      assert.ok(await results.evaluate((node) => node.scrollLeft > 0))
+      assert.equal(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+        390,
+      )
+      assert.equal(
+        await page
+          .locator('#shell')
+          .evaluate((node) => node.getBoundingClientRect().height),
+        800,
+      )
+    }
+  })
+  await test('A navigation popup handles Escape before the shell and inherits the live theme', async () => {
+    await page.evaluate(() => window.layoutFixture.start())
+    await page.setViewportSize({ width: 390, height: 800 })
+    await toggle.click()
+    const help = page.getByRole('button', {
+      name: 'Navigation help',
+      exact: true,
+    })
+    await help.click()
+    const popup = page.locator('.ui-popover')
+    await expect(popup).toBeVisible()
+    await page.evaluate(() =>
+      window.layoutFixture.configure({ theme: 'dark', density: 'comfortable' }),
+    )
+    assert.equal(
+      await popup.evaluate((node) => getComputedStyle(node).backgroundColor),
+      'rgb(23, 29, 39)',
+    )
+    assert.equal(
+      await popup.evaluate((node) => Boolean(node.closest('#shell'))),
+      true,
+    )
+    await page.getByRole('button', { name: 'Close help', exact: true }).focus()
+    await page.keyboard.press('Escape')
+    await expect(popup).toBeHidden()
+    await expect(help).toBeFocused()
+    await expect(navigation).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(navigation).toBeHidden()
+    await expect(toggle).toBeFocused()
+  })
+  await test('Dialog and nested popup retain focus, theme, and table geometry across resizing', async () => {
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.evaluate(() => window.layoutFixture.start())
+    const trigger = page.getByRole('button', {
+      name: 'Workspace preferences',
+      exact: true,
+    })
+    const before = await page.locator('#results').boundingBox()
+    await trigger.press('Enter')
+    const dialog = page.getByRole('dialog', {
+      name: 'Workspace preferences',
+      exact: true,
+    })
+    await expect(dialog).toBeVisible()
+    await expect(
+      page.getByRole('textbox', { name: 'Preference draft', exact: true }),
+    ).toBeFocused()
+    for (let index = 0; index < 8; index++) {
+      await page.keyboard.press('Tab')
+      await expect
+        .poll(() =>
+          dialog.evaluate((node) => node.contains(document.activeElement)),
+        )
+        .toBe(true)
+    }
+    await page
+      .getByRole('button', { name: 'Preference help', exact: true })
+      .click()
+    await expect(page.locator('.ui-popover')).toBeVisible()
+    await page
+      .getByRole('button', { name: 'Close preference help', exact: true })
+      .focus()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('.ui-popover')).toBeHidden()
+    await expect(
+      page.getByRole('button', { name: 'Preference help', exact: true }),
+    ).toBeFocused()
+    await expect(dialog).toBeVisible()
+    await page.evaluate(() =>
+      window.layoutFixture.configure({ theme: 'dark', density: 'comfortable' }),
+    )
+    assert.equal(
+      await dialog.evaluate((node) => getComputedStyle(node).backgroundColor),
+      'rgb(23, 29, 39)',
+    )
+    await page.setViewportSize({ width: 390, height: 800 })
+    assert.equal(
+      await dialog.evaluate((node) => node.contains(document.activeElement)),
+      true,
+    )
+    const bounds = await dialog.boundingBox()
+    assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= 390)
+    await page.keyboard.press('Escape')
+    await expect(dialog).toBeHidden()
+    await expect(trigger).toBeFocused()
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.evaluate(() =>
+      window.layoutFixture.configure({ density: 'compact' }),
+    )
+    assert.deepEqual(await page.locator('#results').boundingBox(), before)
+  })
+  await test('Disposal with an open dialog releases portals and page locks', async () => {
+    await page
+      .getByRole('button', { name: 'Workspace preferences', exact: true })
+      .click()
+    await expect(page.getByRole('dialog')).toBeVisible()
+    await page.evaluate(() => window.layoutFixture.stop())
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+    await expect(
+      page.locator('.ui-dialog-portal, .ui-popup-portal'),
+    ).toHaveCount(0)
+    assert.equal(await page.evaluate(() => document.body.style.overflow), '')
+    assert.equal(
+      await page.locator('#root[aria-hidden="true"], #root[inert]').count(),
+      0,
+    )
+    await page.setViewportSize({ width: 390, height: 800 })
+    assert.equal(await page.locator('#root').textContent(), '')
+  })
   const diagnostics = await page.evaluate(() =>
     window.layoutFixture.diagnostics(),
   )

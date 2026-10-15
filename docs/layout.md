@@ -91,6 +91,10 @@ Applications can override CSS variables through the shell's `style` prop.
 `--ui-panel-min-width` defaults to 18rem.
 
 The layout contract fixture covers desktop and narrow screens, focus, scrolling, state preservation, theme, density, and disposal.
+It composes the shared Table and virtual renderer with 100,000 logical rows.
+Only visible rows and a small buffer occupy the DOM.
+The tests compare actual row height with compact and comfortable geometry.
+Dialog and popup cases cover Escape order, focus restoration, live themes, resizing, and cleanup.
 The qualification suite runs it against source, built-package, and development inputs.
 The hydration fixture also attaches the shell to server nodes and tests navigation keyboard behavior.
 
@@ -104,6 +108,8 @@ This sample uses the normal Table renderer and does not fetch pages on scroll.
 
 On desktop, the table fills the space beside the form and status panels.
 On narrow screens, the workspace scrolls vertically and keeps the form below the table.
-The table keeps its assigned height across result counts.
+The table keeps its assigned height across result counts and expanded grouping controls.
+Its left controls panel scrolls independently from the results.
+The [Table workspace guide](table-workspace.md) describes sections, application slots, and the narrow drawer.
 Its empty message stays inside its scroll area.
 See [the example instructions](../examples/README.md) for the preview command.
