@@ -1,4 +1,5 @@
 import {
+  Show,
   createSignal,
   createUniqueId,
   onCleanup,
@@ -11,6 +12,7 @@ import type { JSX } from '@solidjs/web'
 
 export type TableWorkspaceProps = {
   controls: JSX.Element
+  footer?: JSX.Element
   children: JSX.Element
   label?: string
   controlsLabel?: string
@@ -140,6 +142,11 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         }}
       >
         {props.children}
+        <Show when={props.footer != null && props.footer !== false}>
+          <footer class="table-workspace-summary" role="status">
+            {props.footer}
+          </footer>
+        </Show>
       </div>
     </section>
   )

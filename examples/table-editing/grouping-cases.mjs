@@ -117,7 +117,7 @@ export async function groupingCases({
       )
       assert.equal(
         await page.locator('[data-summary-header=note]').innerText(),
-        'filled',
+        'FILLED',
       )
       await page
         .getByRole('combobox', { name: 'Note summary', exact: true })
@@ -130,7 +130,7 @@ export async function groupingCases({
       )
       assert.equal(
         await page.locator('[data-summary-header=note]').innerText(),
-        'distinct',
+        'DISTINCT',
       )
       await button('Expand all groups').click()
       await button('Sort by Name').click()

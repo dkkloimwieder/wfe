@@ -177,6 +177,41 @@ try {
       'none',
     )
   }
+  for (const id of ['light', 'dark', 'comfortable']) {
+    const transform = (selector) =>
+      page
+        .locator(selector)
+        .evaluate((node) => getComputedStyle(node).textTransform)
+    assert.equal(await transform(`#${id}-case-label`), 'uppercase')
+    assert.equal(await transform(`#${id}-button`), 'uppercase')
+    assert.equal(await transform(`#${id}-case-placeholder`), 'uppercase')
+    assert.equal(await transform(`#${id}-case-system`), 'uppercase')
+    assert.equal(await transform(`#${id}-case-system option`), 'uppercase')
+    for (const kind of ['input', 'value', 'choice', 'cell', 'prose'])
+      assert.equal(await transform(`#${id}-case-${kind}`), 'none')
+    assert.equal(
+      await page.locator(`#${id}-case-input`).inputValue(),
+      'West Coast',
+    )
+    assert.equal(
+      await page
+        .locator(`#${id}-case-input`)
+        .evaluate(
+          (node) => getComputedStyle(node, '::placeholder').textTransform,
+        ),
+      'uppercase',
+    )
+    assert.equal(
+      await page.locator(`#${id}-case-prose`).textContent(),
+      'Keep this sentence in normal case.',
+    )
+  }
+  assert.equal(
+    await page
+      .locator('#outside-button')
+      .evaluate((node) => getComputedStyle(node).textTransform),
+    'none',
+  )
   await page.emulateMedia({ forcedColors: 'active' })
   assert.equal(
     await page

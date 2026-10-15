@@ -2,6 +2,8 @@
 
 `ReadOnlyTable` places controls on the left and results on the right.
 The controls and results scroll independently.
+The record count stays in a footer outside the results scroller.
+The controls panel and the table start at the same height.
 Expanded filters and grouping levels cannot consume the results height.
 Sorting, grouping, filtering, visibility, and column movement use the existing Table engine and renderer.
 The application still owns records, processing callbacks, requests, permissions, and persistence.
@@ -54,6 +56,7 @@ These slots do not add backend rules or persistence.
 `TableWorkspace` and `TableControlSection` are public presentation components.
 Use them to compose custom controls beside the shared `Table` renderer or virtual rows.
 Give the result scroller the shared `table-scroll` class.
+Pass `footer` content to `TableWorkspace` for application summaries below that scroller.
 Set `--ui-table-controls-width` on an owning scope to change the panel width.
 Interactive resizing and sections placed side by side remain separate work.
 

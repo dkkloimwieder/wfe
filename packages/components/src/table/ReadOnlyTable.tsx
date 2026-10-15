@@ -44,6 +44,12 @@ export function ReadOnlyTable<T, M>(props: {
     <TableWorkspace
       class="table-component"
       label={props.title ?? 'Read-only table'}
+      footer={
+        <>
+          {table.getFilteredRowIds().length}/{table.getSourceIds().length}{' '}
+          records
+        </>
+      }
       controls={
         <>
           <Show
@@ -147,10 +153,6 @@ export function ReadOnlyTable<T, M>(props: {
         </>
       }
     >
-      <p role="status">
-        {table.getFilteredRowIds().length} of {table.getSourceIds().length}{' '}
-        records
-      </p>
       <div
         class="table-scroll"
         tabindex={0}

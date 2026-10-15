@@ -25,7 +25,6 @@
 :where([data-ui]) .table-workspace-results {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-gap, 6px);
   min-width: 0;
   min-height: 0;
   padding-inline-start: var(--ui-gap, 6px);
@@ -37,6 +36,12 @@
 :where([data-ui]) .table-workspace-results > .table-scroll {
   flex: 1;
   min-height: 0;
+}
+:where([data-ui]) .table-workspace-summary {
+  flex: none;
+  padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
+  border: 1px solid var(--ui-border, #ccc);
+  border-top: 0;
 }
 :where([data-ui]) .table-control-section {
   border-bottom: 1px solid var(--ui-divider, #ddd);

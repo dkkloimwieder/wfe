@@ -1,0 +1,72 @@
+:where([data-ui])
+  :where(
+    button,
+    label,
+    legend,
+    summary,
+    th,
+    caption,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .ui-label,
+    .ui-badge,
+    .ui-menu-item,
+    .ui-menu-label,
+    .ui-dialog-title,
+    .ui-popup-title,
+    .ui-toast-title,
+    .grouping-level-label,
+    .group-count,
+    .table-control-summary,
+    .table-workspace-summary,
+    .result-count
+  ) {
+  text-transform: uppercase;
+}
+
+:where([data-ui])
+  :where(
+    input,
+    textarea,
+    select,
+    option,
+    .popup-trigger,
+    .popup-option,
+    [data-group-toggle],
+    .cell-value,
+    [data-value],
+    .ui-radio-item .ui-label,
+    p,
+    .ui-help,
+    .ui-field-error,
+    .ui-dialog-description,
+    .ui-popup-description,
+    .ui-toast-description,
+    .summary-help
+  ) {
+  text-transform: none;
+}
+
+:where([data-ui])
+  :where(
+    .grouping-controls select,
+    .grouping-controls option,
+    .popup-trigger [data-placeholder-shown],
+    [data-ui-text='system'],
+    [data-ui-text='system'] > option
+  ) {
+  text-transform: uppercase;
+}
+
+:where([data-ui]) input::placeholder,
+:where([data-ui]) textarea::placeholder {
+  text-transform: uppercase;
+}
+
+:where([data-ui]) :where([data-ui-text='value'], [data-ui-text='prose']) {
+  text-transform: none;
+}

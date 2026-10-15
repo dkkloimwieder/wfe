@@ -51,3 +51,14 @@ The isolated fixture in `../../../../examples/styles` tests scope isolation, ind
 Analytics tests compare CSS row height with virtual geometry after density changes.
 Popup tests keep popup size and placement stable through a live theme change.
 The standard qualification command runs these tests with the existing fixture suites.
+
+## System text
+
+Buttons, labels, headings, table headers, and other system text use uppercase visual text.
+Input values, record cells, selected record choices, grouping values, and prose keep their original case.
+The stylesheet changes presentation and does not rewrite application strings.
+Placeholders and grouping configuration choices use uppercase.
+
+Use `data-ui-text="system"` for custom system labels or configuration choices.
+Use `data-ui-text="value"` for record text inside an action or heading.
+Use `data-ui-text="prose"` for custom prose inside a system label.

@@ -500,6 +500,67 @@ try {
       1000,
     )
   })
+  await test('The Table starts level with controls and keeps its summary pinned below scrolling records', async () => {
+    const controls = page.locator('.table-workspace-controls')
+    const scroller = page.locator('.table-scroll')
+    const footer = page.locator('.table-workspace-summary')
+    const controlsBox = await controls.boundingBox()
+    const tableBox = await scroller.boundingBox()
+    assert.equal(tableBox.y, controlsBox.y)
+    const before = await footer.boundingBox()
+    assert.equal(await footer.textContent(), '2/2 records')
+    await page.evaluate(() => window.dashboardFixture.replaceRows(500))
+    await scroller.evaluate((node) => {
+      node.scrollTop = node.scrollHeight
+    })
+    assert.deepEqual(await footer.boundingBox(), before)
+    assert.equal(await footer.textContent(), '500/500 records')
+    assert.ok(before.y >= tableBox.y + tableBox.height)
+    await page
+      .getByRole('textbox', { name: 'Filter Region', exact: true })
+      .fill('West')
+    assert.equal(await footer.textContent(), '250/500 records')
+    assert.deepEqual(await footer.boundingBox(), before)
+    assert.equal(
+      await page
+        .getByText('Filters', { exact: true })
+        .evaluate((node) => getComputedStyle(node).textTransform),
+      'uppercase',
+    )
+    assert.equal(
+      await footer.evaluate((node) => getComputedStyle(node).textTransform),
+      'uppercase',
+    )
+    assert.equal(
+      await page
+        .locator('thead th')
+        .first()
+        .evaluate((node) => getComputedStyle(node).textTransform),
+      'uppercase',
+    )
+    const value = page.locator(
+      'tr[data-row="record-1"] td[data-column="region"]',
+    )
+    await scroller.evaluate((node) => {
+      node.scrollTop = 0
+    })
+    assert.equal(await value.textContent(), 'West')
+    assert.equal(
+      await value.evaluate((node) => getComputedStyle(node).textTransform),
+      'none',
+    )
+    await page
+      .getByRole('combobox', { name: 'Add grouping', exact: true })
+      .selectOption('region')
+    const groupValue = page.locator('[data-group-toggle]').first()
+    assert.equal(
+      await groupValue.evaluate((node) => getComputedStyle(node).textTransform),
+      'none',
+    )
+    await page.evaluate(() => window.dashboardFixture.replaceRows(0))
+    assert.deepEqual(await footer.boundingBox(), before)
+    assert.equal(await footer.textContent(), '0/0 records')
+  })
   await test('The main Table remains readable at doubled browser scale', async () => {
     const zoomed = await browser.newPage({
       viewport: { width: 960, height: 540 },

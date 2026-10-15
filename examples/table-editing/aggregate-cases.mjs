@@ -51,7 +51,10 @@ export async function aggregateCases({
       ]) {
         await choice('Amount').selectOption(name)
         assert.equal(await value('amount'), result)
-        assert.equal(await header('amount'), name === 'mean' ? 'avg' : name)
+        assert.equal(
+          await header('amount'),
+          (name === 'mean' ? 'avg' : name).toUpperCase(),
+        )
       }
       await choice('Amount').selectOption('mean')
       await call('grouping', ['priority', 'name'])
@@ -85,7 +88,7 @@ export async function aggregateCases({
       ]) {
         await choice('Due date').selectOption(name)
         assert.equal(await value('dueDate'), result)
-        assert.equal(await header('dueDate'), name)
+        assert.equal(await header('dueDate'), name.toUpperCase())
       }
       await call('filter', 'name', 'Bea')
       await choice('Due date').selectOption('range')
@@ -120,7 +123,7 @@ export async function aggregateCases({
       ]) {
         await choice('Note').selectOption(name)
         assert.equal(await value('note'), String(result))
-        assert.equal(await header('note'), name)
+        assert.equal(await header('note'), name.toUpperCase())
       }
       assert.equal(
         await choice('Note').locator('option[value=median]').count(),
@@ -162,7 +165,7 @@ export async function aggregateCases({
         '▸ normal',
       )
       assert.equal(await value('priority'), '5')
-      assert.equal(await header('priority'), 'group · count')
+      assert.equal(await header('priority'), 'GROUP · COUNT')
       await call('grouping', ['name'])
       await choice('Name').selectOption('first')
       await call('sorting', [{ id: 'name', desc: false }])
@@ -171,7 +174,7 @@ export async function aggregateCases({
         '▸ A',
       )
       assert.equal(await value('name'), 'Ada')
-      assert.equal(await header('name'), 'group · first')
+      assert.equal(await header('name'), 'GROUP · FIRST')
     },
   )
   await record(
@@ -180,7 +183,7 @@ export async function aggregateCases({
       await seed()
 
       assert.equal(await value('note'), '5')
-      assert.equal(await header('note'), 'filled')
+      assert.equal(await header('note'), 'FILLED')
       await choice('Note').selectOption('empty')
       assert.equal(await value('note'), '0')
       await choice('Amount').focus()
