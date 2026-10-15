@@ -62,6 +62,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
       'styles',
       'layout',
       'dashboard',
+      'date-picker',
       'virtualization',
     ]) {
       if (mode === 'development' && fixture === 'virtualization') continue

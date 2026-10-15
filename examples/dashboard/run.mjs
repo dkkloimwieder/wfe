@@ -229,11 +229,11 @@ try {
       name: 'Clear Created end',
       exact: true,
     })
-    assert.equal(await start.getAttribute('type'), 'date')
-    assert.equal(await end.getAttribute('type'), 'date')
+    assert.equal(await start.getAttribute('type'), 'text')
+    assert.equal(await end.getAttribute('type'), 'text')
     assert.equal(
       await start.evaluate((node) => getComputedStyle(node).textTransform),
-      'uppercase',
+      'none',
     )
     await start.fill('2026-01-02')
     assert.equal(

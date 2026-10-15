@@ -1,0 +1,53 @@
+:where([data-ui]) .ui-calendar {
+  width: 18rem;
+  max-width: 100%;
+}
+:where([data-ui]) .ui-calendar-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-calendar table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--ui-gap, 6px) 0 0;
+  table-layout: fixed;
+}
+:where([data-ui]) .ui-calendar :is(th, td) {
+  padding: 1px;
+  text-align: center;
+  border: 0;
+}
+:where([data-ui]) .ui-calendar td button {
+  width: 100%;
+  padding: 4px 0;
+  border-color: transparent;
+}
+:where([data-ui]) .ui-calendar [data-outside] {
+  color: var(--ui-muted-text, #666);
+}
+:where([data-ui]) .ui-calendar [data-selected] {
+  border-color: var(--ui-control-border, #999);
+  background: var(--ui-highlight, #edf3fb);
+}
+:where([data-ui]) .ui-date-popup {
+  padding: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-date-trigger {
+  display: flex;
+  align-items: center;
+  border-inline-start: 0;
+  padding-inline: var(--ui-control-padding-x, 8px);
+}
+:where([data-ui]) .ui-date-trigger svg {
+  pointer-events: none;
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+:where([data-ui]) .ui-date-picker [hidden] {
+  display: none;
+}

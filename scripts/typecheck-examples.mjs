@@ -7,6 +7,7 @@ for (const example of [
   'styles',
   'layout',
   'dashboard',
+  'date-picker',
   'virtualization',
   'hydration',
   'accessor-profile',

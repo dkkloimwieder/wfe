@@ -56,7 +56,8 @@ The component does not infer column types from record values.
 Other columns keep their text filters.
 
 For date columns, return `'date-range'` from `filterKind`.
-The control shows separate Start and End dates, and either date can stay empty.
+The control shows separate Start and End date pickers, and either date can stay empty.
+Each picker uses the shared styled calendar and supports typed `YYYY-MM-DD` values.
 The filter value has optional `start` and `end` strings in `YYYY-MM-DD` format.
 Clearing both dates removes the filter.
 The application defines inclusive comparisons, date storage, and timezone rules in its `filterFn`.

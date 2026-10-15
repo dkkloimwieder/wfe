@@ -27,3 +27,8 @@ export * from './components/Display'
 export * from './components/Toast'
 export * from './table'
 export * from './layout'
+
+export { Calendar } from './components/Calendar'
+export type { CalendarProps } from './components/Calendar'
+export { DatePicker } from './components/DatePicker'
+export type { DatePickerProps } from './components/DatePicker'

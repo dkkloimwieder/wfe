@@ -22,6 +22,7 @@ const { values } = parseArgs({
     bundles: { type: 'boolean', default: false },
     'kobalte-upstream': { type: 'string' },
     'virtual-upstream': { type: 'string' },
+    'calendar-upstream': { type: 'string' },
   },
 })
 const output = resolve(root, values.output)
@@ -31,7 +32,9 @@ const ui = resolve(root, 'packages/components')
 const core = ui
 const kobalte = resolve(core, 'src/vendor/kobalte')
 const virtual = resolve(ui, 'src/vendor/virtual-core')
+const calendar = resolve(ui, 'src/vendor/corvu-calendar')
 const origins = {
+  calendar: await json(resolve(calendar, 'provenance.json')),
   kobalte: await json(resolve(kobalte, 'provenance.json')),
   virtual: await json(resolve(virtual, 'provenance.json')),
 }
@@ -49,6 +52,7 @@ const report = {
 await mkdir(output, { recursive: true })
 
 for (const script of [
+  'scripts/check-calendar.mjs',
   'scripts/check-kobalte.mjs',
   'scripts/check-virtual.mjs',
 ]) {
@@ -179,9 +183,17 @@ for (const path of sourceFiles) {
     ? 'kobalte'
     : path.startsWith(virtual + '/')
       ? 'virtual'
-      : 'repository'
+      : path.startsWith(calendar + '/')
+        ? 'calendar'
+        : 'repository'
   const name = relative(
-    upstream === 'kobalte' ? kobalte : upstream === 'virtual' ? virtual : root,
+    upstream === 'kobalte'
+      ? kobalte
+      : upstream === 'virtual'
+        ? virtual
+        : upstream === 'calendar'
+          ? calendar
+          : root,
     path,
   )
   const upstreamSha256 =
@@ -189,7 +201,9 @@ for (const path of sourceFiles) {
       ? origins.kobalte.sources[name].upstreamSha256
       : upstream === 'virtual'
         ? origins.virtual.upstreamSha256[name]
-        : undefined
+        : upstream === 'calendar'
+          ? origins.calendar.sources[name].upstreamSha256
+          : undefined
   if (upstream !== 'repository') {
     assert.match(
       upstreamSha256,
@@ -205,7 +219,9 @@ for (const path of sourceFiles) {
         ? 'packages/' + name
         : upstream === 'virtual'
           ? 'src/' + name
-          : undefined,
+          : upstream === 'calendar'
+            ? origins.calendar.sources[name].upstreamPath
+            : undefined,
     localSha256: hash(bytes),
     upstreamSha256,
     imports: imported,
@@ -309,9 +325,20 @@ if (values['virtual-upstream']) {
   )
 }
 
+if (values['calendar-upstream']) {
+  await compare(
+    'calendar',
+    resolve(values['calendar-upstream']),
+    origins.calendar.sources,
+    calendar,
+    (path) => origins.calendar.sources[path].upstreamPath,
+  )
+}
+
 function group(id) {
   if (id.includes('/components/src/vendor/kobalte/')) return 'kobalte'
   if (id.includes('/components/src/vendor/virtual-core/')) return 'virtual'
+  if (id.includes('/components/src/vendor/corvu-calendar/')) return 'calendar'
   if (id.includes('/components/src/internal/')) return 'owned-core'
   if (id.includes('/components/src/')) return 'owned-ui'
   return id.includes('/node_modules/')
@@ -367,6 +394,7 @@ if (values.bundles) {
     'table-editing',
     'analytics',
     'components',
+    'date-picker',
   ]) {
     let measured
     await build({

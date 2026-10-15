@@ -1,0 +1,22 @@
+{
+  "repository": "https://github.com/corvudev/corvu",
+  "commit": "8b441a0c6d17f64b17b3ee64d5d94b92e1711754",
+  "license": "MIT",
+  "sources": {
+    "utils.ts": {
+      "upstreamPath": "packages/calendar/src/utils.ts",
+      "upstreamSha256": "e8d6514efda029745e5c510a8625ac91da6ec8c91c4c250337819e6765da4aea",
+      "localSha256": "f5f1ad3d847c9d89b8cb2e643c33c187d02fd2807697ea06d395f7cd1392df12"
+    },
+    "navigation.ts": {
+      "upstreamPath": "packages/calendar/src/CellTrigger.tsx",
+      "upstreamSha256": "ddcf1239d795c87e2cd5dd838842e2cb440a465ce9ad609c94a5cb58225f1463",
+      "localSha256": "10d21f34ebefe98f1a7ecbf1cbfe5f63016603e199f1a5eeaccb9d0cae87c3c3"
+    },
+    "LICENSE": {
+      "upstreamPath": "LICENSE",
+      "upstreamSha256": "5b6dcf19b1aeaa28a33c1baa85ece8c0cbe1ee6b9f8d7a44a6c98eac525d8c0f",
+      "localSha256": "5b6dcf19b1aeaa28a33c1baa85ece8c0cbe1ee6b9f8d7a44a6c98eac525d8c0f"
+    }
+  }
+}
