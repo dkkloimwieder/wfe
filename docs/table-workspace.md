@@ -103,3 +103,8 @@ The suite runs source, built-package, and development consumers serially.
 The `formatting` slot adds a FORMATTING section. The application supplies controlled `TableFormatting` choices and applies them through `formatValue`. See [Table value formatting](./table-formatting.md).
 
 Filter and display choices use column names without Filter or Show prefixes. Boolean filters use a bare three-state checkbox. Its state text remains available to screen readers. Filters and search wait for the section's APPLY action. Display and formatting choices take effect immediately.
+
+Drag a column heading to move its column. A movement of at least five pixels
+starts the drag. The separate sort arrow has padding and does not start a drag.
+Activate a heading to open its move menu. Use Left, Right, Home, or End to move
+a focused heading with the keyboard. Press Escape to cancel a drag.

@@ -22,7 +22,6 @@ export function TableHeaderName(props: {
             sorted={props.sorted}
             class="header-sort"
             accessibleLabel={'Sort ' + props.label}
-            unsortedMark=""
             onSort={props.onSort}
             disabled={props.sortingDisabled}
           />

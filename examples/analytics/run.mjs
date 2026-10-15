@@ -919,13 +919,14 @@ try {
     )
     assert.equal(await pencil.count(), 0)
     assert.deepEqual(await header.boundingBox(), headerBounds)
+    assert.equal(await header.locator('.column-move').isVisible(), false)
+    await editor.fill('Discarded')
+    await editor.press('Escape')
+    assert.deepEqual(await pencil.boundingBox(), pencilBounds)
     assert.deepEqual(
       await header.locator('.column-move').boundingBox(),
       handleBounds,
     )
-    await editor.fill('Discarded')
-    await editor.press('Escape')
-    assert.deepEqual(await pencil.boundingBox(), pencilBounds)
     assert.equal(
       await pencil.evaluate((node) => node === document.activeElement),
       true,

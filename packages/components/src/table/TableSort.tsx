@@ -20,7 +20,7 @@ export function TableSort(props: {
         click: (event) => props.onSort(event.shiftKey),
       })}
     >
-      {props.label}{' '}
+      <span class="column-sort-label">{props.label}</span>
       <span aria-hidden="true">
         {props.sorted === 'asc'
           ? '↑'

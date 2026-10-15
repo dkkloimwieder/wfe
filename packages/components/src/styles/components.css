@@ -173,7 +173,8 @@
 }
 :where([data-ui]) .column-heading .column-move {
   float: none;
-  flex: 0 0 18px;
+  flex: 1;
+  min-width: 0;
   margin: 0;
 }
 :where([data-ui]) .column-heading .column-sort,
@@ -671,31 +672,37 @@
   background: transparent;
   color: var(--ui-muted-text, #666);
 }
+/* The header label fills the drag area. Sort and rename stay separate controls. */
 :where([data-ui]) .column-move {
-  float: left;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
+  display: block;
+  width: 100%;
+  min-height: var(--ui-header-height, 22px);
   padding: 0;
-  margin: 2px 6px 2px 0;
-  border-color: var(--ui-handle-border, #d8d8d8);
+  border: 0;
   background: transparent;
   touch-action: none;
   user-select: none;
   cursor: grab;
-  color: var(--ui-muted-text, #666);
+  color: inherit;
+  font-weight: inherit;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-:where([data-ui]) .column-move-dots {
-  display: grid;
-  grid-template-columns: repeat(2, 2px);
-  grid-template-rows: repeat(2, 2px);
-  gap: 2px;
+:where([data-ui]) .column-heading:has(.column-move) .column-sort-label,
+:where([data-ui]) .column-heading:has(.column-move) .column-title,
+:where([data-ui]) .column-heading:has(.header-name) .column-move {
+  display: none;
 }
-:where([data-ui]) .column-move-dots span {
-  background: var(--ui-subtle-text, #888);
-  border-radius: 50%;
+:where([data-ui]) .column-heading:has(.column-move) .column-sort,
+:where([data-ui]) .column-heading:has(.column-move) .header-sort {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-height: var(--ui-header-height, 22px);
+  padding: 0 var(--ui-cell-padding-x, 8px);
 }
 :where([data-ui]) .column-move:active {
   cursor: grabbing;

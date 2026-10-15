@@ -260,12 +260,7 @@ export function TableColumnMove(props: {
           }),
         ]}
       >
-        <span class="column-move-dots" aria-hidden="true">
-          <span />
-          <span />
-          <span />
-          <span />
-        </span>
+        {props.label}
       </Button>
       <span id={helpId} class="sr-only">
         Drag to move the column. Left and Right move one place. Home and End

@@ -100,6 +100,42 @@ export async function reorderCases({
   idle,
 }) {
   await record(
+    'header text fills the drag target and padded sorting cannot reorder columns',
+    async () => {
+      await start()
+      const label = handle(page)
+      assert.equal(await label.textContent(), 'Name')
+      assert.equal(await page.locator('.column-move-dots').count(), 0)
+      const bounds = await label.boundingBox()
+      assert.ok(bounds.width > 40)
+      const sort = page.getByRole('button', {
+        name: 'Sort by Name',
+        exact: true,
+      })
+      const padding = await sort.evaluate(
+        (node) => getComputedStyle(node).paddingInlineStart,
+      )
+      assert.ok(parseFloat(padding) >= 6)
+      await sort.click()
+      await settle()
+      assert.deepEqual((await read()).visibleColumns, initial)
+      const box = await sort.boundingBox()
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+      await page.mouse.down()
+      const target = await pointAt(page, 'priority', 'after')
+      await page.mouse.move(target.x, target.y, { steps: 5 })
+      await page.mouse.up()
+      await settle()
+      assert.deepEqual((await read()).visibleColumns, initial)
+      assert.equal((await read()).counts.reorderStarts, 0)
+      assert.equal((await read()).counts.reorderListeners, 0)
+      assert.equal(
+        await page.locator('[data-column-moving], [data-column-drop]').count(),
+        0,
+      )
+    },
+  )
+  await record(
     'column drag moves headers and cells together on release without record work',
     async () => {
       await start()
