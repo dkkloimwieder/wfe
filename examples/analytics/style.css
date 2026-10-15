@@ -62,6 +62,8 @@ details {
   max-width: 100%;
 }
 .table-scroll thead {
+  /* Match the table surface so scrolling records cannot show through. */
+  background: var(--ui-surface, white);
   position: sticky;
   top: 0;
   z-index: 1;

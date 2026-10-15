@@ -9,7 +9,8 @@
   height: 100%;
   min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: var(--ui-shadow-overflow, 0px);
 }
 :where([data-ui]) .table-workspace-toolbar,
 :where([data-ui]) .table-controls-close {
@@ -40,7 +41,7 @@
   min-width: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
   border-bottom: 1px solid var(--ui-border, #ccc);
-  background: var(--ui-header-surface, var(--ui-surface, white));
+  background: transparent;
 }
 :where([data-ui]) .table-workspace-results-header {
   font-weight: 650;
@@ -77,7 +78,7 @@
   flex: 1;
   min-height: 0;
   margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
-  box-shadow: none;
+  box-shadow: var(--ui-section-shadow, none);
 }
 :where([data-ui]) .table-workspace-summary {
   flex: none;
@@ -86,6 +87,7 @@
   border-top: 1px solid var(--ui-border, #ccc);
 }
 :where([data-ui]) .table-control-section {
+  box-shadow: var(--ui-section-shadow, none);
   flex: none;
   border: 1px solid var(--ui-border, #ccc);
   background: var(--ui-surface, white);
@@ -95,10 +97,7 @@
   padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
   line-height: var(--ui-header-height, 22px);
   list-style-position: inside;
-  background: var(
-    --ui-section-surface,
-    var(--ui-header-surface, var(--ui-surface, white))
-  );
+  background: transparent;
   font-weight: 600;
 }
 :where([data-ui]) .table-control-summary {

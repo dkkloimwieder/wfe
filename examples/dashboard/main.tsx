@@ -31,8 +31,14 @@ import type {
 import { nativeEvents } from '@wfe/components/events'
 import '@wfe/components/styles.css'
 import './style.css'
+import type { Depth, SurfaceLayers } from './appearance'
 import { AppearanceReview } from './AppearanceReview'
-import { monochrome, neutralAccent, appearanceStyle } from './appearance'
+import {
+  monochrome,
+  neutralAccent,
+  appearanceStyle,
+  defaultLayers,
+} from './appearance'
 import './review-shadows.css'
 
 type RecordData = {
@@ -264,7 +270,8 @@ function createFormatting() {
 function TablePage() {
   const [scheme, setScheme] = createSignal(monochrome)
   const [accent, setAccent] = createSignal(neutralAccent)
-  const [depth, setDepth] = createSignal(false)
+  const [depth, setDepth] = createSignal<Depth>(1)
+  const [layers, setLayers] = createSignal<SurfaceLayers>(defaultLayers)
   const scope = uiScope()
   const rows = createRecordsData()
   replaceRows = rows.replace
@@ -275,7 +282,7 @@ function TablePage() {
       {...scope}
       style={{
         ...scope.style,
-        ...appearanceStyle(scheme(), accent(), depth()),
+        ...appearanceStyle(scheme(), accent(), depth(), layers()),
       }}
       data-ui-portal-root=""
       class="table-page"
@@ -285,6 +292,8 @@ function TablePage() {
         scheme={scheme()}
         accent={accent()}
         depth={depth()}
+        layers={layers()}
+        onLayersChange={setLayers}
         onSchemeChange={setScheme}
         onAccentChange={setAccent}
         onDepthChange={setDepth}

@@ -5,25 +5,34 @@ BLACK / WHITE, LIGHT, and DARK. The initial mode remains BLACK / WHITE.
 LIGHT and DARK use the neutral roles from Open Props. Color applies only to
 accents. Each mode keeps APPLY at full contrast.
 
-The top row separates surface modes from accent colors. Use Tab to focus a
-control. Press Enter or Space to activate it. The second row shows SURFACE 1–4
-and TEXT 1–2 with their exact values. Both rows scroll horizontally on narrow
-screens. The Table fills the remaining height.
+The top row separates surface modes, accent colors, and shadow depth.
+Use Tab to focus a control. Press Enter or Space to activate it.
+BASE, PANES, and CONTENT each offer SURFACE 1, 2, or 3.
+BASE sets the backdrop. PANES sets both pane backgrounds.
+CONTENT sets filter cards, table content, and popup backgrounds.
+The sample row shows SURFACE 1–4 and TEXT 1–2 with their exact values.
+All control rows scroll horizontally on narrow screens.
+The Table fills the remaining height.
 
-SURFACE 1 sits behind the panes and supplies content backgrounds. SURFACE 2
-supplies both pane shells and their matching header bands. SURFACE 3 supplies
-subsection headings, table column headings, hover, and selection backgrounds.
-SURFACE 4 supplies neutral borders. Popups use SURFACE 2. TEXT 1 supplies primary text. TEXT 2 supplies secondary text.
-BLACK / WHITE collapses these roles to white surfaces and black text and borders.
+The initial backdrop uses SURFACE 2. Panes and content use SURFACE 1.
+The controls preserve these choices across mode changes.
+Pane titles, section summaries, and table headings remain unfilled.
+SURFACE 3 supplies hover and selection backgrounds.
+SURFACE 4 supplies neutral borders. TEXT 1 supplies primary text.
+TEXT 2 supplies secondary text.
+BLACK / WHITE keeps white surfaces and black text and borders.
 
-The DEPTH control turns shadows on or off. Surface samples show increasing
-shadow depth. Panes use shadow 1. Popups use shadow 3. These shadows follow the
-Open Props shadow values and their light and dark strength. Corners stay square.
+DEPTH offers OFF and three increasing shadow levels. It starts at level 1.
+Filter sections and the table share the selected shadow level.
+Panes use the next level, up to level 3. Popups use level 3.
+OFF removes these shadows. The sample shadows show the available levels.
+The workspace allows shadows beyond its edges. The page contains overflow.
+Corners stay square.
 
 The accent controls change focus and selection marks. They preserve every
 neutral surface and text value. The preview changes CSS properties without
 changing records, pending filters, sorting, grouping, formatting, or column order.
-Reloading restores BLACK / WHITE, a neutral accent, and disabled depth.
+Reloading restores BLACK / WHITE, a neutral accent, depth 1, and the initial surface choices.
 No preview saves or approves a final theme.
 
 The application owns the review controls. The components expose shared surface,

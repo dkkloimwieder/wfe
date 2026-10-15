@@ -11,6 +11,14 @@ export type SurfaceScheme = {
   surfaces: readonly [string, string, string, string]
   text: readonly [string, string]
 }
+export type Depth = 0 | 1 | 2 | 3
+export type SurfaceLevel = 0 | 1 | 2
+export type SurfaceLayers = {
+  canvas: SurfaceLevel
+  pane: SurfaceLevel
+  content: SurfaceLevel
+}
+export const defaultLayers: SurfaceLayers = { canvas: 1, pane: 0, content: 0 }
 export type Accent = { name: string; light: string; dark: string }
 export const monochrome: SurfaceScheme = {
   name: 'Black / white',
@@ -55,21 +63,23 @@ export function accentColor(accent: Accent, scheme: SurfaceScheme) {
 export function appearanceStyle(
   scheme: SurfaceScheme,
   accent: Accent,
-  depth: boolean,
+  depth: Depth,
+  layers: SurfaceLayers,
 ): JSX.CSSProperties {
-  const [surface, header, hover, edge] = scheme.surfaces
+  const [, , hover, edge] = scheme.surfaces
+  const canvas = scheme.surfaces[layers.canvas]
+  const pane = scheme.surfaces[layers.pane]
+  const surface = scheme.surfaces[layers.content]
   const [text, secondary] = scheme.text
   const border = scheme === monochrome ? text : edge
   const focus = accentColor(accent, scheme)
   return {
     '--ui-color-scheme': scheme.mode,
-    '--ui-canvas-surface': surface,
-    '--ui-pane-surface': header,
-    '--ui-section-surface': hover,
+    '--ui-canvas-surface': canvas,
+    '--ui-pane-surface': pane,
     '--ui-surface': surface,
-    '--ui-header-surface': header,
-    '--ui-muted-surface': header,
-    '--ui-popup-surface': header,
+    '--ui-muted-surface': surface,
+    '--ui-popup-surface': surface,
     '--ui-highlight': hover,
     '--ui-hover': hover,
     '--ui-text': text,
@@ -81,7 +91,11 @@ export function appearanceStyle(
     '--ui-button-border': border,
     '--ui-handle-border': border,
     '--ui-focus': focus,
-    '--ui-panel-shadow': depth ? 'var(--review-shadow-1)' : 'none',
+    '--ui-shadow-overflow': '24px',
+    '--ui-panel-shadow': depth
+      ? `var(--review-shadow-${Math.min(depth + 1, 3)})`
+      : 'none',
+    '--ui-section-shadow': depth ? `var(--review-shadow-${depth})` : 'none',
     '--ui-popup-shadow': depth ? 'var(--review-shadow-3)' : 'none',
     '--review-shadow-color':
       scheme.mode === 'dark' ? '220 40% 2%' : '220 3% 15%',

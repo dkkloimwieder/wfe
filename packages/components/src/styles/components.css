@@ -126,7 +126,7 @@
   table-layout: fixed;
 }
 :where([data-ui]) caption {
-  background: var(--ui-header-surface, var(--ui-surface, white));
+  background: transparent;
   text-align: left;
   padding: 8px 10px;
   font-weight: 650;
@@ -139,10 +139,7 @@
   vertical-align: middle;
 }
 :where([data-ui]) thead {
-  background: var(
-    --ui-section-surface,
-    var(--ui-header-surface, var(--ui-surface, white))
-  );
+  background: transparent;
   color: var(--ui-text, #000);
   font-size: var(--ui-small-font-size, 11px);
 }

@@ -1,7 +1,13 @@
 import { For } from 'solid-js'
 import { Button } from '@wfe/components'
 import { schemes, accents, accentColor } from './appearance'
-import type { Accent, SurfaceScheme } from './appearance'
+import type {
+  Accent,
+  SurfaceScheme,
+  Depth,
+  SurfaceLayers,
+  SurfaceLevel,
+} from './appearance'
 
 const roles = [
   { name: 'Surface 1', source: 'surfaces', index: 0, shadow: 0 },
@@ -16,10 +22,12 @@ const roles = [
 export function AppearanceReview(props: {
   scheme: SurfaceScheme
   accent: Accent
-  depth: boolean
+  depth: Depth
+  layers: SurfaceLayers
+  onLayersChange: (layers: SurfaceLayers) => void
   onSchemeChange: (scheme: SurfaceScheme) => void
   onAccentChange: (accent: Accent) => void
-  onDepthChange: (depth: boolean) => void
+  onDepthChange: (depth: Depth) => void
 }) {
   return (
     <section class="appearance-review" aria-label="Appearance review">
@@ -61,16 +69,62 @@ export function AppearanceReview(props: {
             )}
           </For>
         </div>
-        <Button
-          aria-label="Layered shadows"
-          aria-pressed={props.depth ? 'true' : 'false'}
-          onClick={() => props.onDepthChange(!props.depth)}
-        >
-          Depth
-        </Button>
+        <div class="appearance-options" role="group" aria-label="Shadow depth">
+          <span data-ui-text="system">Depth</span>
+          <For each={[0, 1, 2, 3] as const}>
+            {(depth) => (
+              <Button
+                aria-label={depth ? `Depth ${depth}` : 'No shadows'}
+                aria-pressed={props.depth === depth ? 'true' : 'false'}
+                onClick={() => props.onDepthChange(depth)}
+              >
+                {depth || 'Off'}
+              </Button>
+            )}
+          </For>
+        </div>
         <a href="https://open-props.style/#color" data-ui-text="system">
           Open Props
         </a>
+      </div>
+      <div class="appearance-layers">
+        <For
+          each={
+            [
+              { key: 'canvas', name: 'Base' },
+              { key: 'pane', name: 'Panes' },
+              { key: 'content', name: 'Content' },
+            ] as const
+          }
+        >
+          {(layer) => (
+            <div
+              class="appearance-options"
+              role="group"
+              aria-label={`${layer.name} surface`}
+            >
+              <span data-ui-text="system">{layer.name}</span>
+              <For each={[0, 1, 2] as const}>
+                {(level: SurfaceLevel) => (
+                  <Button
+                    aria-label={`${layer.name} Surface ${level + 1}`}
+                    aria-pressed={
+                      props.layers[layer.key] === level ? 'true' : 'false'
+                    }
+                    onClick={() =>
+                      props.onLayersChange({
+                        ...props.layers,
+                        [layer.key]: level,
+                      })
+                    }
+                  >
+                    {level + 1}
+                  </Button>
+                )}
+              </For>
+            </div>
+          )}
+        </For>
       </div>
       <div
         class="surface-swatches"

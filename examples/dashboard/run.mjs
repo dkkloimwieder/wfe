@@ -1195,7 +1195,7 @@ try {
     assert.equal(main.height, 1000)
     const results = await page.locator('.table-workspace-results').boundingBox()
     assert.ok(results.width > 1100)
-    assert.ok((await page.locator('.table-scroll').boundingBox()).height > 800)
+    assert.ok((await page.locator('.table-scroll').boundingBox()).height > 750)
     assert.equal(
       await page.evaluate(() => document.documentElement.scrollHeight),
       1000,
@@ -1206,10 +1206,11 @@ try {
       page.getByRole('button', { name: `${name} surfaces`, exact: true })
     const accentButton = (name) =>
       page.getByRole('button', { name: `${name} accent`, exact: true })
-    const depth = page.getByRole('button', {
-      name: 'Layered shadows',
-      exact: true,
-    })
+    const depth = (level) =>
+      page.getByRole('button', {
+        name: level ? `Depth ${level}` : 'No shadows',
+        exact: true,
+      })
     const header = page.locator('.table-workspace-controls-header')
     const caption = page.locator('.table-workspace-results-header')
     const tableHeader = page.locator('thead')
@@ -1253,33 +1254,41 @@ try {
       )
       assert.equal(paneBoxes[0].y, paneBoxes[1].y)
       assert.equal(paneBoxes[0].height, paneBoxes[1].height)
+      const paneSurface = 'Surface 1'
       for (const pane of panes)
         assert.equal(
           await background(pane),
-          await background(sample('Surface 2')),
+          await background(sample(paneSurface)),
         )
       const leftHeader = await header.boundingBox()
       const rightHeader = await caption.boundingBox()
       assert.equal(leftHeader.y, rightHeader.y)
       assert.equal(leftHeader.height, rightHeader.height)
-      assert.equal(
-        await background(
-          page.locator('.table-control-section > summary').first(),
-        ),
-        await background(sample('Surface 3')),
-      )
-      for (const node of [header, caption])
-        assert.equal(
-          await background(node),
-          await background(sample('Surface 2')),
-        )
+      for (const node of [
+        header,
+        caption,
+        tableHeader,
+        page.locator('.table-control-section > summary').first(),
+      ])
+        assert.equal(await background(node), 'rgba(0, 0, 0, 0)')
       assert.equal(
         await background(surface),
-        await background(sample('Surface 1')),
+        await background(sample(paneSurface)),
       )
+      const sectionShadow = await surface.evaluate(
+        (node) => getComputedStyle(node).boxShadow,
+      )
+      assert.notEqual(sectionShadow, 'none')
       assert.equal(
-        await background(tableHeader),
-        await background(sample('Surface 3')),
+        await page
+          .locator('.table-control-section')
+          .first()
+          .evaluate((node) => getComputedStyle(node).boxShadow),
+        sectionShadow,
+      )
+      assert.notEqual(
+        await panes[0].evaluate((node) => getComputedStyle(node).boxShadow),
+        'none',
       )
       assert.equal(
         await tableHeader.evaluate((node) => getComputedStyle(node).color),
@@ -1313,14 +1322,59 @@ try {
         neutralColors,
       )
       for (const node of [header, caption])
-        assert.equal(
-          await background(node),
-          await background(sample('Surface 2')),
-        )
+        assert.equal(await background(node), 'rgba(0, 0, 0, 0)')
       assert.deepEqual(await surface.boundingBox(), geometry)
       assert.deepEqual(await rows(), initialRows)
       await expect(name).toHaveValue('Record 1')
     }
+    for (const mode of ['Light', 'Dark']) {
+      await schemeButton(mode).click()
+      for (const [layer, selector] of [
+        ['Base', '.table-page'],
+        ['Panes', '.table-workspace-results'],
+        ['Content', '.table-scroll'],
+      ]) {
+        for (const level of [1, 2, 3]) {
+          const button = page.getByRole('button', {
+            name: `${layer} Surface ${level}`,
+            exact: true,
+          })
+          await button.focus()
+          await page.keyboard.press('Enter')
+          await expect(button).toHaveAttribute('aria-pressed', 'true')
+          assert.equal(
+            await background(page.locator(selector)),
+            await background(sample(`Surface ${level}`)),
+          )
+          assert.deepEqual(await surface.boundingBox(), geometry)
+          assert.deepEqual(await rows(), initialRows)
+          await expect(name).toHaveValue('Record 1')
+          for (const node of [header, caption, tableHeader])
+            assert.equal(await background(node), 'rgba(0, 0, 0, 0)')
+        }
+      }
+    }
+    await page
+      .getByRole('button', { name: 'Base Surface 2', exact: true })
+      .click()
+    await page
+      .getByRole('button', { name: 'Panes Surface 1', exact: true })
+      .click()
+    await page
+      .getByRole('button', { name: 'Content Surface 1', exact: true })
+      .click()
+    const shadows = []
+    for (const level of [1, 2, 3]) {
+      await depth(level).click()
+      await expect(depth(level)).toHaveAttribute('aria-pressed', 'true')
+      shadows.push(
+        await surface.evaluate((node) => getComputedStyle(node).boxShadow),
+      )
+      assert.deepEqual(await surface.boundingBox(), geometry)
+    }
+    assert.equal(new Set(shadows).size, 3)
+    await depth(1).click()
+    await schemeButton('Light').click()
     await accentButton('Blue').click()
     assert.equal(
       await page
@@ -1330,17 +1384,16 @@ try {
         ),
       '#1864ab',
     )
-    await depth.click()
     await choiceTrigger('Region').click()
     const popup = page.locator('.popup-content')
-    assert.equal(await background(popup), await background(sample('Surface 2')))
+    assert.equal(await background(popup), await background(sample('Surface 1')))
     assert.notEqual(
       await popup.evaluate((node) => getComputedStyle(node).boxShadow),
       'none',
     )
     await page.keyboard.press('Escape')
-    await depth.click()
-    await expect(depth).toHaveAttribute('aria-pressed', 'false')
+    await depth(0).click()
+    await expect(depth(0)).toHaveAttribute('aria-pressed', 'true')
     assert.equal(
       await surface.evaluate((node) => getComputedStyle(node).boxShadow),
       'none',
@@ -1351,7 +1404,7 @@ try {
       ),
       'none',
     )
-    await depth.click()
+    await depth(1).click()
     assert.notEqual(
       await sample('Surface 4').evaluate(
         (node) => getComputedStyle(node).boxShadow,
@@ -1367,7 +1420,11 @@ try {
       'true',
     )
     await page.setViewportSize({ width: 390, height: 568 })
-    for (const selector of ['.appearance-pickers', '.surface-swatches'])
+    for (const selector of [
+      '.appearance-pickers',
+      '.appearance-layers',
+      '.surface-swatches',
+    ])
       assert.ok(
         await page
           .locator(selector)
