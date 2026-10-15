@@ -82,7 +82,7 @@ export async function consumerCases({ page, url, record, press, settle }) {
       await open()
       await page.getByText('Display columns', { exact: true }).click()
       const column = page.getByRole('checkbox', {
-        name: 'Show Region',
+        name: 'Region',
         exact: true,
       })
       assert.equal(await column.isChecked(), true)
@@ -109,7 +109,10 @@ export async function consumerCases({ page, url, record, press, settle }) {
         await page.locator('.display-fields .ui-check-mark').count(),
         3,
       )
-      await page.getByText('Show Region', { exact: true }).click()
+      await page
+        .getByRole('group', { name: 'Visible columns', exact: true })
+        .getByText('Region', { exact: true })
+        .click()
       assert.equal(await column.isChecked(), false)
       assert.equal(
         await page.getByRole('columnheader', { name: /Region/ }).count(),
@@ -341,8 +344,9 @@ export async function consumerCases({ page, url, record, press, settle }) {
         'Review record',
       )
       await page
-        .getByRole('textbox', { name: 'Filter Name', exact: true })
+        .getByRole('textbox', { name: 'Name', exact: true })
         .fill('Existing')
+      await button('Apply filters').click()
       assert.equal(
         await page.locator('[aria-label="Saved records"] tbody tr').count(),
         1,

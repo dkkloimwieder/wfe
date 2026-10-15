@@ -79,7 +79,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats select")]</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats select"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -166,6 +166,29 @@ try {
   await page
     .getByRole('combobox', { name: 'Hydrated number format', exact: true })
     .selectOption('number-decimal')
+  const pendingName = page
+    .locator('#adopt-table')
+    .getByRole('textbox', { name: 'Name', exact: true })
+  const applyTable = page.getByRole('button', {
+    name: 'Apply filters',
+    exact: true,
+  })
+  await pendingName.fill('pending')
+  await expect(page.locator('#applied-table-filters')).toHaveText('')
+  assert.equal(
+    await page.evaluate(() => window.hydrationFixture.lifecycle.applyChanges),
+    0,
+  )
+  await applyTable.press('Enter')
+  await expect(page.locator('#applied-table-filters')).toHaveText('pending')
+  await expect(applyTable).toBeDisabled()
+  assert.equal(
+    await page.evaluate(() => window.hydrationFixture.lifecycle.applyChanges),
+    1,
+  )
+  report.assertions.push(
+    'Hydrated server-owned filters remain pending until one Apply callback accepts their criteria',
+  )
   await expect(page.locator('#adopt-formatted-boolean')).toHaveText('No')
   await expect(page.locator('#adopt-formatted-date')).toHaveText(
     'February 29, 2024',
@@ -189,9 +212,8 @@ try {
   await expect(dateEnd).toHaveValue('2026-01-02')
   await booleanFilter.press('Space')
   await booleanFilter.press('Space')
-  await page
-    .getByRole('button', { name: 'Clear active filter', exact: true })
-    .click()
+  await booleanFilter.press('Space')
+  await booleanFilter.press('Space')
   await dateStart.fill('2026-01-02')
   await page
     .getByRole('button', { name: 'Clear created end', exact: true })
@@ -200,7 +222,7 @@ try {
   await expect(page.locator('#filter-values')).toHaveText('|2026-01-02|')
   assert.equal(
     await page.evaluate(() => window.hydrationFixture.lifecycle.filterChanges),
-    5,
+    6,
   )
   report.assertions.push(
     'Boolean and date filters preserve server controls and attach one listener per interaction',
@@ -235,7 +257,7 @@ try {
   ])
   assert.equal(
     await page.evaluate(() => window.hydrationFixture.lifecycle.filterChanges),
-    8,
+    9,
   )
   report.assertions.push(
     'Text, multiple choices, and numeric filters retain server controls and apply each change once',
@@ -312,6 +334,8 @@ try {
   report.assertions.push(
     'Hydrated dialog opens from Enter, closes from Escape, and restores trigger focus',
   )
+  await pendingName.fill('discarded pending criteria')
+  await expect(applyTable).toBeEnabled()
   await page.getByRole('button', { name: 'View record', exact: true }).click()
   await expect(dialog).toBeVisible()
 
@@ -322,6 +346,7 @@ try {
     const changes = fixture.lifecycle.changes
     const filterChanges = fixture.lifecycle.filterChanges
     const formatChanges = fixture.lifecycle.formatChanges
+    const applyChanges = fixture.lifecycle.applyChanges
     fixture.lifecycle.rename('After disposal')
     window.serverNodes[1].click()
     window.serverNodes[2].value = 'Detached input'
@@ -332,6 +357,9 @@ try {
     window.serverNodes[10].dispatchEvent(new Event('change', { bubbles: true }))
     window.serverNodes[11].value = '2026-02-01'
     window.serverNodes[11].dispatchEvent(new Event('input', { bubbles: true }))
+    window.serverNodes[23].click()
+    window.serverNodes[24].value = 'detached draft'
+    window.serverNodes[24].dispatchEvent(new Event('input', { bubbles: true }))
     for (const node of window.serverNodes.slice(20))
       node.dispatchEvent(new Event('change', { bubbles: true }))
     for (const node of window.serverNodes.slice(13))
@@ -347,6 +375,8 @@ try {
       afterFilterChanges: fixture.lifecycle.filterChanges,
       formatChanges,
       afterFormatChanges: fixture.lifecycle.formatChanges,
+      applyChanges,
+      afterApplyChanges: fixture.lifecycle.applyChanges,
       changes,
       afterChanges: fixture.lifecycle.changes,
       portals: document.querySelectorAll('.ui-dialog-portal').length,
@@ -364,6 +394,7 @@ try {
   assert.equal(cleanup.afterChanges, cleanup.changes)
   assert.equal(cleanup.afterFilterChanges, cleanup.filterChanges)
   assert.equal(cleanup.afterFormatChanges, cleanup.formatChanges)
+  assert.equal(cleanup.afterApplyChanges, cleanup.applyChanges)
   assert.equal(cleanup.portals, 0)
   assert.equal(cleanup.blocked, 0)
   assert.equal(cleanup.pointerEvents, '')

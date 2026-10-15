@@ -23,6 +23,7 @@ import {
 import type {
   TableColumnFilterValue,
   TableDateRange,
+  NativeTableState,
 } from '@wfe/components/table'
 
 export const lifecycle = {
@@ -31,6 +32,7 @@ export const lifecycle = {
   changes: 0,
   filterChanges: 0,
   formatChanges: 0,
+  applyChanges: 0,
   rename: (_value: string) => {},
   configure: (_value: {
     name?: string
@@ -40,6 +42,9 @@ export const lifecycle = {
 }
 
 export default function App() {
+  const [appliedFilters, setAppliedFilters] = createSignal<
+    NativeTableState['columnFilters']
+  >([])
   const [formats, setFormats] = createSignal<Record<string, ValueFormat>>({
     active: 'boolean-symbol',
     created: 'date-iso',
@@ -82,6 +87,12 @@ export default function App() {
     },
   }
   const table = createNativeTable({
+    manualFiltering: true,
+    state: {
+      get columnFilters() {
+        return appliedFilters()
+      },
+    },
     source: { ids: () => ['a'], get: () => record },
     columns: [
       {
@@ -142,6 +153,10 @@ export default function App() {
         <ReadOnlyTable
           table={table}
           title="Hydrated records"
+          onApplyFilters={(criteria) => {
+            lifecycle.applyChanges++
+            setAppliedFilters(criteria.columnFilters)
+          }}
           formatting={
             <section id="adopt-value-formats">
               <TableFormatting
@@ -164,13 +179,16 @@ export default function App() {
             </section>
           }
           controls={{
-            filtering: false,
+            filtering: true,
             search: false,
             grouping: false,
             columnReordering: false,
           }}
         />
       </section>
+      <output id="applied-table-filters">
+        {String(appliedFilters()[0]?.value ?? '')}
+      </output>
       <section id="adopt-filters">
         <TableFilter
           kind="boolean"

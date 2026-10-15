@@ -74,9 +74,6 @@ export function TableFilter(props: TableFilterProps) {
               <Checkbox.Control>
                 <Checkbox.Indicator />
               </Checkbox.Control>
-              <label for={id} class="ui-label" data-ui-text="system">
-                {stateLabel()}
-              </label>
               <span id={stateHelp} class="sr-only">
                 {stateLabel()}. Press Space to cycle Yes, No, and Either.
               </span>
@@ -153,16 +150,18 @@ export function TableFilter(props: TableFilterProps) {
             )}
           </Show>
         </Show>
-        <Button
-          type="button"
-          class="clear-input"
-          aria-label={props.clearLabel}
-          title={props.clearLabel}
-          disabled={props.disabled || !props.value}
-          ref={nativeEvents({ click: clear })}
-        >
-          ×
-        </Button>
+        <Show when={props.kind !== 'boolean'}>
+          <Button
+            type="button"
+            class="clear-input"
+            aria-label={props.clearLabel}
+            title={props.clearLabel}
+            disabled={props.disabled || !props.value}
+            ref={nativeEvents({ click: clear })}
+          >
+            ×
+          </Button>
+        </Show>
       </div>
     </div>
   )

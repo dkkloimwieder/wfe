@@ -30,3 +30,7 @@ export type { TableFilterConfig } from './ReadOnlyTable'
 
 export { TableFormatting } from './TableFormatting'
 export type { TableFormattingProps } from './TableFormatting'
+
+export { createTableFilterDraft } from './createTableFilterDraft'
+
+export type { TableFilterCriteria } from './createTableFilterDraft'

@@ -89,6 +89,13 @@ try {
     page
       .locator('tr[data-row]')
       .evaluateAll((nodes) => nodes.map((node) => node.dataset.row))
+  const apply = () =>
+    page.getByRole('button', { name: 'Apply filters', exact: true })
+  async function applyAndReadRows() {
+    const button = page.locator('.table-filter-actions button')
+    if (await button.isEnabled()) await button.click()
+    return rows()
+  }
   const choiceTrigger = (label) =>
     page.getByRole('button', { name: new RegExp('^' + label + '(?:\\s|$)') })
   async function pick(label, value) {
@@ -130,7 +137,7 @@ try {
       ['Two records', 2],
     ]) {
       await page.getByRole('button', { name: button, exact: true }).click()
-      assert.equal((await rows()).length, count)
+      assert.equal((await applyAndReadRows()).length, count)
       const box = await bounds()
       assert.equal(box.height, initial.height)
       assert.equal(box.y, initial.y)
@@ -167,12 +174,14 @@ try {
         .getAttribute('aria-invalid'),
       'true',
     )
-    assert.equal((await rows()).length, 2)
+    assert.equal((await applyAndReadRows()).length, 2)
     await page.getByLabel('Record name', { exact: true }).fill('New shelf')
-    await page.getByLabel('Region', { exact: true }).selectOption('East')
+    await page
+      .getByRole('combobox', { name: 'Region', exact: true })
+      .selectOption('East')
     await page.getByText('Active record', { exact: true }).click()
     await page.getByRole('button', { name: 'Save record', exact: true }).click()
-    assert.equal((await rows()).length, 3)
+    assert.equal((await applyAndReadRows()).length, 3)
     assert.equal(
       await page.locator('#application-status').textContent(),
       'Saved New shelf.',
@@ -186,9 +195,67 @@ try {
       '',
     )
   })
+  await test('One Apply action commits pending column filters and search, while clears and invalid dates stay pending', async () => {
+    await page.evaluate(() => window.dashboardFixture.replaceRows(8))
+    const active = page.getByRole('checkbox', { name: 'Active', exact: true })
+    const date = page.getByRole('textbox', {
+      name: 'Created start',
+      exact: true,
+    })
+    const search = page.getByRole('searchbox', {
+      name: 'Search all columns',
+      exact: true,
+    })
+    await expect(apply()).toBeDisabled()
+    await active.press('Space')
+    await date.fill('2026-01-03')
+    await search.fill('West')
+    assert.equal((await rows()).length, 8)
+    await expect(page.locator('.table-workspace-summary')).toHaveText(
+      '8/8 records',
+    )
+    await expect(
+      page.getByText('Unapplied changes', { exact: true }),
+    ).toBeVisible()
+    await expect(page.getByText('0 active', { exact: true })).toBeVisible()
+    await apply().click()
+    assert.deepEqual(await rows(), ['record-3', 'record-5', 'record-7'])
+    await expect(apply()).toBeDisabled()
+    await expect(page.getByText('3 active', { exact: true })).toBeVisible()
+    await page
+      .getByRole('button', { name: 'Clear Created start', exact: true })
+      .click()
+    await page
+      .getByRole('button', { name: 'Clear search', exact: true })
+      .click()
+    await active.press('Space')
+    await active.press('Space')
+    assert.deepEqual(await rows(), ['record-3', 'record-5', 'record-7'])
+    await apply().press('Enter')
+    assert.equal((await rows()).length, 8)
+    await active.press('Space')
+    await date.fill('2026-02-30')
+    await apply().click()
+    await expect(date).toBeFocused()
+    assert.equal((await rows()).length, 8)
+    await date.press('Escape')
+    await apply().click()
+    assert.deepEqual(await rows(), [
+      'record-1',
+      'record-3',
+      'record-5',
+      'record-7',
+    ])
+    await active.press('Space')
+    await page.evaluate(() => window.dashboardFixture.replaceRows(2))
+    await expect(active).toHaveAttribute('aria-checked', 'false')
+    assert.deepEqual(await rows(), ['record-1'])
+    await apply().click()
+    assert.deepEqual(await rows(), ['record-2'])
+  })
   await test('Boolean filters preserve false and clear to either even with empty results', async () => {
     const filter = page.getByRole('checkbox', {
-      name: 'Filter Active',
+      name: 'Active',
       exact: true,
     })
     const clear = page.getByRole('button', {
@@ -197,14 +264,14 @@ try {
     })
     await expect(filter).toHaveAttribute('aria-checked', 'mixed')
     await filter.press('Space')
-    assert.deepEqual(await rows(), ['record-1'])
+    assert.deepEqual(await applyAndReadRows(), ['record-1'])
     await expect(
       page
         .locator('tr[data-row] td[data-column="active"]')
         .getByRole('img', { name: 'Yes', exact: true }),
     ).toHaveCount(1)
     await page.locator('.table-boolean-filter .ui-check-control').click()
-    assert.deepEqual(await rows(), ['record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2'])
     await expect(
       page
         .locator('tr[data-row] td[data-column="active"]')
@@ -217,17 +284,24 @@ try {
     await page.evaluate(() => window.dashboardFixture.replaceRows(0))
     await expect(filter).toHaveAttribute('aria-checked', 'false')
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
-    assert.deepEqual(await rows(), ['record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2'])
     await filter.press('Space')
-    assert.equal((await rows()).length, 2)
+    assert.equal((await applyAndReadRows()).length, 2)
     await page.evaluate(() =>
       window.dashboardFixture.setFilter('active', false),
     )
-    await clear.click()
+    await filter.press('Space')
     await expect(filter).toHaveAttribute('aria-checked', 'mixed')
-    assert.equal((await rows()).length, 2)
     await expect(filter).toBeFocused()
-    await expect(clear).toBeDisabled()
+    assert.equal((await applyAndReadRows()).length, 2)
+    await expect(clear).toHaveCount(0)
+    await expect(page.locator('.table-boolean-filter label')).toHaveCount(0)
+    assert.equal(
+      await page
+        .locator('.table-boolean-filter')
+        .evaluate((node) => getComputedStyle(node).borderWidth),
+      '0px',
+    )
     assert.equal(
       await page.getByText('0 active', { exact: true }).isVisible(),
       true,
@@ -237,20 +311,20 @@ try {
       window.dashboardFixture.setFilter('active', false),
     )
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
-    assert.deepEqual(await rows(), ['record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2'])
   })
   await test('Column formatting changes symbols, dates and numbers without changing filter or sort values', async () => {
     await page.evaluate(() => window.dashboardFixture.replaceRows(8))
     const active = page.getByRole('combobox', {
-      name: 'Active format',
+      name: 'Active',
       exact: true,
     })
     const date = page.getByRole('combobox', {
-      name: 'Created format',
+      name: 'Created',
       exact: true,
     })
     const amount = page.getByRole('combobox', {
-      name: 'Amount format',
+      name: 'Amount',
       exact: true,
     })
     const cell = (row, id) =>
@@ -278,14 +352,14 @@ try {
     await page.evaluate(() =>
       window.dashboardFixture.setFilter('active', false),
     )
-    assert.deepEqual(await rows(), [
+    assert.deepEqual(await applyAndReadRows(), [
       'record-2',
       'record-4',
       'record-6',
       'record-8',
     ])
     await active.selectOption('boolean-symbol')
-    assert.deepEqual(await rows(), [
+    assert.deepEqual(await applyAndReadRows(), [
       'record-2',
       'record-4',
       'record-6',
@@ -299,16 +373,22 @@ try {
         max: 0,
       })
     })
-    assert.deepEqual(await rows(), ['record-1', 'record-5'])
+    assert.deepEqual(await applyAndReadRows(), ['record-1', 'record-5'])
     await page.evaluate(() =>
       window.dashboardFixture.setFilter('amount', undefined),
     )
     await page
       .getByRole('button', { name: 'Sort by Amount', exact: true })
       .click()
-    assert.deepEqual((await rows()).slice(0, 2), ['record-4', 'record-8'])
+    assert.deepEqual((await applyAndReadRows()).slice(0, 2), [
+      'record-4',
+      'record-8',
+    ])
     await amount.selectOption('number-grouped')
-    assert.deepEqual((await rows()).slice(0, 2), ['record-4', 'record-8'])
+    assert.deepEqual((await applyAndReadRows()).slice(0, 2), [
+      'record-4',
+      'record-8',
+    ])
     const grouping = page.getByRole('combobox', {
       name: 'Add grouping',
       exact: true,
@@ -364,20 +444,20 @@ try {
       await start.evaluate((node) => getComputedStyle(node).textTransform),
       'none',
     )
-    assert.deepEqual(await rows(), ['record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2'])
     await end.fill('2026-01-02')
-    assert.deepEqual(await rows(), ['record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2'])
     assert.equal(
       await page.getByText('1 active', { exact: true }).isVisible(),
       true,
     )
     await clearStart.click()
     await expect(start).toBeFocused()
-    assert.equal((await rows()).length, 2)
+    assert.equal((await applyAndReadRows()).length, 2)
     await end.fill('2026-01-01')
-    assert.deepEqual(await rows(), ['record-1'])
+    assert.deepEqual(await applyAndReadRows(), ['record-1'])
     await start.fill('2026-01-02')
-    assert.deepEqual(await rows(), [])
+    assert.deepEqual(await applyAndReadRows(), [])
     assert.equal(
       await page
         .getByText('No records match your search or filters.', { exact: true })
@@ -386,22 +466,22 @@ try {
     )
     await clearEnd.click()
     await expect(end).toBeFocused()
-    assert.deepEqual(await rows(), ['record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2'])
     await page.evaluate(() => window.dashboardFixture.replaceRows(0))
     assert.equal(await start.inputValue(), '2026-01-02')
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
-    assert.deepEqual(await rows(), ['record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2'])
     await page.evaluate(() => window.dashboardFixture.setFilter('active', true))
-    assert.deepEqual(await rows(), [])
+    assert.deepEqual(await applyAndReadRows(), [])
     await page.evaluate(() =>
       window.dashboardFixture.setFilter('active', false),
     )
-    assert.deepEqual(await rows(), ['record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2'])
     await page.evaluate(() =>
       window.dashboardFixture.setFilter('active', undefined),
     )
     await clearStart.click()
-    assert.equal((await rows()).length, 2)
+    assert.equal((await applyAndReadRows()).length, 2)
     assert.equal(
       await page.getByText('0 active', { exact: true }).isVisible(),
       true,
@@ -411,11 +491,11 @@ try {
     await page
       .getByRole('button', { name: 'Sort by Created', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['record-1', 'record-2'])
+    assert.deepEqual(await applyAndReadRows(), ['record-1', 'record-2'])
     await page
       .getByRole('button', { name: 'Sort by Created', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['record-2', 'record-1'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2', 'record-1'])
     await page
       .getByRole('combobox', { name: 'Add grouping', exact: true })
       .selectOption('created')
@@ -431,40 +511,40 @@ try {
     await page
       .getByRole('button', { name: 'Eight records', exact: true })
       .click()
-    const text = page.getByRole('textbox', { name: 'Filter Name', exact: true })
+    const text = page.getByRole('textbox', { name: 'Name', exact: true })
     const match = page.getByRole('combobox', {
-      name: 'Filter Name match',
+      name: 'Name match',
       exact: true,
     })
     await text.fill('RECORD 1')
-    assert.deepEqual(await rows(), ['record-1'])
+    assert.deepEqual(await applyAndReadRows(), ['record-1'])
     for (const mode of ['equals', 'starts-with']) {
       await match.selectOption(mode)
-      assert.deepEqual(await rows(), ['record-1'])
+      assert.deepEqual(await applyAndReadRows(), ['record-1'])
     }
     await match.selectOption('not-contains')
-    assert.equal((await rows()).length, 7)
+    assert.equal((await applyAndReadRows()).length, 7)
     await text.press('Escape')
-    assert.equal((await rows()).length, 8)
     await expect(text).toBeFocused()
+    assert.equal((await applyAndReadRows()).length, 8)
     assert.equal(await match.inputValue(), 'contains')
   })
   await test('Single choices and exclusions retain record casing and clear to Any', async () => {
     await page
       .getByRole('button', { name: 'Eight records', exact: true })
       .click()
-    const trigger = choiceTrigger('Filter Region')
-    await pick('Filter Region', 'West')
-    assert.deepEqual(await rows(), [
+    const trigger = choiceTrigger('Region')
+    await pick('Region', 'West')
+    assert.deepEqual(await applyAndReadRows(), [
       'record-1',
       'record-3',
       'record-5',
       'record-7',
     ])
     await page
-      .getByRole('combobox', { name: 'Filter Region match', exact: true })
+      .getByRole('combobox', { name: 'Region match', exact: true })
       .selectOption('not-in')
-    assert.deepEqual(await rows(), [
+    assert.deepEqual(await applyAndReadRows(), [
       'record-2',
       'record-4',
       'record-6',
@@ -478,34 +558,34 @@ try {
       .getByRole('button', { name: 'Clear Region filter', exact: true })
       .click()
     await expect(trigger).toBeFocused()
-    assert.equal((await rows()).length, 8)
+    assert.equal((await applyAndReadRows()).length, 8)
     await expect(trigger).toHaveText('Any')
     await trigger.press('Enter')
     await page.keyboard.press('e')
     await page.keyboard.press('Enter')
     await expect(trigger).toHaveText('East')
-    assert.equal((await rows()).length, 4)
+    assert.equal((await applyAndReadRows()).length, 4)
   })
   await test('Multiple choices match any selection and support exclusion and an empty selection', async () => {
     await page
       .getByRole('button', { name: 'Eight records', exact: true })
       .click()
-    await pickMany('Filter Status', ['Open', 'Closed'])
-    assert.equal((await rows()).length, 6)
-    await pickMany('Filter Status', ['Closed'])
-    assert.equal((await rows()).length, 4)
+    await pickMany('Status', ['Open', 'Closed'])
+    assert.equal((await applyAndReadRows()).length, 6)
+    await pickMany('Status', ['Closed'])
+    assert.equal((await applyAndReadRows()).length, 4)
     await page
-      .getByRole('combobox', { name: 'Filter Status match', exact: true })
+      .getByRole('combobox', { name: 'Status match', exact: true })
       .selectOption('not-in')
-    assert.deepEqual(await rows(), [
+    assert.deepEqual(await applyAndReadRows(), [
       'record-2',
       'record-3',
       'record-6',
       'record-7',
     ])
-    await pickMany('Filter Status', ['Open'])
-    assert.equal((await rows()).length, 8)
-    await expect(choiceTrigger('Filter Status')).toHaveText('Any')
+    await pickMany('Status', ['Open'])
+    assert.equal((await applyAndReadRows()).length, 8)
+    await expect(choiceTrigger('Status')).toHaveText('Any')
     assert.equal(
       await page.getByText('0 active', { exact: true }).isVisible(),
       true,
@@ -516,28 +596,28 @@ try {
       .getByRole('button', { name: 'Eight records', exact: true })
       .click()
     const min = page.getByRole('spinbutton', {
-      name: 'Filter Amount minimum',
+      name: 'Amount minimum',
       exact: true,
     })
     const max = page.getByRole('spinbutton', {
-      name: 'Filter Amount maximum',
+      name: 'Amount maximum',
       exact: true,
     })
     const mode = page.getByRole('combobox', {
-      name: 'Filter Amount match',
+      name: 'Amount match',
       exact: true,
     })
     await min.fill('0')
-    assert.deepEqual(await rows(), [
+    assert.deepEqual(await applyAndReadRows(), [
       'record-1',
       'record-2',
       'record-5',
       'record-6',
     ])
     await max.fill('0')
-    assert.deepEqual(await rows(), ['record-1', 'record-5'])
+    assert.deepEqual(await applyAndReadRows(), ['record-1', 'record-5'])
     await min.fill('')
-    assert.deepEqual(await rows(), [
+    assert.deepEqual(await applyAndReadRows(), [
       'record-1',
       'record-4',
       'record-5',
@@ -545,74 +625,74 @@ try {
     ])
     await min.fill('-3.25')
     await max.fill('12.5')
-    assert.equal((await rows()).length, 6)
+    assert.equal((await applyAndReadRows()).length, 6)
     await min.fill('')
     await min.press('-')
     await expect(min).toHaveAttribute('aria-invalid', 'true')
-    assert.equal((await rows()).length, 6)
+    assert.equal((await applyAndReadRows()).length, 6)
     await min.press('Escape')
     await expect(min).toHaveValue('')
     await expect(min).not.toHaveAttribute('aria-invalid', 'true')
     await min.fill('20')
-    assert.deepEqual(await rows(), [])
+    assert.deepEqual(await applyAndReadRows(), [])
     await mode.selectOption('empty')
-    assert.deepEqual(await rows(), ['record-3', 'record-7'])
+    assert.deepEqual(await applyAndReadRows(), ['record-3', 'record-7'])
     await mode.selectOption('not-empty')
-    assert.equal((await rows()).length, 6)
+    assert.equal((await applyAndReadRows()).length, 6)
     await page
       .getByRole('button', { name: 'Clear Amount filter', exact: true })
       .click()
     await expect(min).toHaveValue('')
     await expect(max).toHaveValue('')
-    assert.equal((await rows()).length, 8)
+    assert.equal((await applyAndReadRows()).length, 8)
   })
   await test('Nullable text distinguishes empty records from ordinary text and negative matching', async () => {
     await page
       .getByRole('button', { name: 'Eight records', exact: true })
       .click()
     const mode = page.getByRole('combobox', {
-      name: 'Filter Notes match',
+      name: 'Notes match',
       exact: true,
     })
     await mode.selectOption('empty')
-    assert.deepEqual(await rows(), [
+    assert.deepEqual(await applyAndReadRows(), [
       'record-1',
       'record-3',
       'record-5',
       'record-7',
     ])
     await mode.selectOption('not-empty')
-    assert.equal((await rows()).length, 4)
+    assert.equal((await applyAndReadRows()).length, 4)
     await mode.selectOption('equals')
     await page
-      .getByRole('textbox', { name: 'Filter Notes', exact: true })
+      .getByRole('textbox', { name: 'Notes', exact: true })
       .fill('Ready to review')
-    assert.deepEqual(await rows(), ['record-2', 'record-6'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2', 'record-6'])
     await mode.selectOption('not-contains')
-    assert.deepEqual(await rows(), ['record-4', 'record-8'])
+    assert.deepEqual(await applyAndReadRows(), ['record-4', 'record-8'])
   })
   await test('Tags support Any, All, exclusion, and empty values', async () => {
     await page
       .getByRole('button', { name: 'Eight records', exact: true })
       .click()
-    await pickMany('Filter Tags', ['Priority', 'External'])
-    assert.equal((await rows()).length, 6)
+    await pickMany('Tags', ['Priority', 'External'])
+    assert.equal((await applyAndReadRows()).length, 6)
     const mode = page.getByRole('combobox', {
-      name: 'Filter Tags match',
+      name: 'Tags match',
       exact: true,
     })
     await mode.selectOption('all')
-    assert.deepEqual(await rows(), ['record-4', 'record-8'])
+    assert.deepEqual(await applyAndReadRows(), ['record-4', 'record-8'])
     await mode.selectOption('not-in')
-    assert.deepEqual(await rows(), [])
+    assert.deepEqual(await applyAndReadRows(), [])
     await mode.selectOption('empty')
-    assert.deepEqual(await rows(), ['record-3', 'record-7'])
+    assert.deepEqual(await applyAndReadRows(), ['record-3', 'record-7'])
     await mode.selectOption('not-empty')
-    assert.equal((await rows()).length, 6)
+    assert.equal((await applyAndReadRows()).length, 6)
     await page
       .getByRole('button', { name: 'Clear Tags filter', exact: true })
       .click()
-    assert.equal((await rows()).length, 8)
+    assert.equal((await applyAndReadRows()).length, 8)
   })
   await test('Application-controlled filter values and mixed filter types update the same Table', async () => {
     await page
@@ -631,27 +711,27 @@ try {
     })
     await expect(
       page.getByRole('spinbutton', {
-        name: 'Filter Amount minimum',
+        name: 'Amount minimum',
         exact: true,
       }),
     ).toHaveValue('0')
-    await expect(choiceTrigger('Filter Region')).toHaveText('West')
-    assert.deepEqual(await rows(), ['record-1', 'record-5'])
+    await expect(choiceTrigger('Region')).toHaveText('West')
+    assert.deepEqual(await applyAndReadRows(), ['record-1', 'record-5'])
     await page.evaluate(() =>
       window.dashboardFixture.setFilter('active', false),
     )
-    assert.deepEqual(await rows(), [])
+    assert.deepEqual(await applyAndReadRows(), [])
     await page.evaluate(() => window.dashboardFixture.setFilter('active', true))
     await page
-      .getByRole('textbox', { name: 'Filter Name', exact: true })
+      .getByRole('textbox', { name: 'Name', exact: true })
       .fill('Record 5')
-    assert.deepEqual(await rows(), ['record-5'])
+    assert.deepEqual(await applyAndReadRows(), ['record-5'])
     for (const id of ['name', 'region', 'amount', 'active'])
       await page.evaluate(
         (id) => window.dashboardFixture.setFilter(id, undefined),
         id,
       )
-    assert.equal((await rows()).length, 8)
+    assert.equal((await applyAndReadRows()).length, 8)
     await page.evaluate(() =>
       window.dashboardFixture.setFilter('amount', { operator: 'empty' }),
     )
@@ -660,7 +740,7 @@ try {
     )
     await expect(
       page.getByRole('spinbutton', {
-        name: 'Filter Amount minimum',
+        name: 'Amount minimum',
         exact: true,
       }),
     ).toBeVisible()
@@ -685,10 +765,10 @@ try {
       ['2026-01-08', ['record-8']],
     ]) {
       await search.fill(query)
-      assert.deepEqual(await rows(), expected)
+      assert.deepEqual(await applyAndReadRows(), expected)
     }
     await search.fill('')
-    assert.equal((await rows()).length, 8)
+    assert.equal((await applyAndReadRows()).length, 8)
   })
   await test('Sorting filtering grouping and display controls use the shared Table', async () => {
     await page
@@ -697,12 +777,13 @@ try {
     await page
       .getByRole('button', { name: 'Sort by Name', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['record-2', 'record-1'])
-    await pick('Filter Region', 'West')
-    assert.deepEqual(await rows(), ['record-1'])
+    assert.deepEqual(await applyAndReadRows(), ['record-2', 'record-1'])
+    await pick('Region', 'West')
+    assert.deepEqual(await applyAndReadRows(), ['record-1'])
     await page
       .getByRole('button', { name: 'Clear Region filter', exact: true })
       .click()
+    await apply().click()
     await page
       .getByRole('combobox', { name: 'Add grouping', exact: true })
       .selectOption('region')
@@ -711,7 +792,10 @@ try {
       .getByRole('button', { name: 'Clear grouping', exact: true })
       .click()
     await page.getByText('Display columns', { exact: true }).click()
-    await page.getByText('Show Active', { exact: true }).click()
+    await page
+      .getByRole('group', { name: 'Visible columns', exact: true })
+      .getByText('Active', { exact: true })
+      .click()
     assert.equal(
       await page.locator('thead th[data-column="active"]').count(),
       0,
@@ -775,7 +859,7 @@ try {
           .click()
       }
       const filters = await page
-        .locator('.column-filters .filter-input')
+        .locator('.column-filters .table-column-filter')
         .first()
         .boundingBox()
       const search = await page
@@ -874,8 +958,9 @@ try {
     assert.deepEqual(await scroller.boundingBox(), narrow)
   })
   await test('The controls drawer preserves nodes and state and restores visible keyboard focus', async () => {
-    const filter = choiceTrigger('Filter Region')
-    await pick('Filter Region', 'West')
+    const filter = choiceTrigger('Region')
+    await pick('Region', 'West')
+    await apply().click()
     await filter.evaluate((node) => {
       window.savedTableFilter = node
     })
@@ -917,7 +1002,7 @@ try {
       await page.getByText('1 active', { exact: true }).isVisible(),
       true,
     )
-    assert.deepEqual(await rows(), ['record-1'])
+    assert.deepEqual(await applyAndReadRows(), ['record-1'])
     await page.getByText('Filters', { exact: true }).click()
     assert.equal(await filter.textContent(), 'West')
   })
@@ -992,7 +1077,7 @@ try {
     })
     assert.equal(await page.locator('#root').textContent(), '')
     await page.evaluate(() => window.dashboardFixture.start())
-    assert.equal((await rows()).length, 8)
+    assert.equal((await applyAndReadRows()).length, 8)
   })
   await test('The default page contains only table controls and main results', async () => {
     report.diagnostics.push(
@@ -1039,7 +1124,8 @@ try {
     assert.deepEqual(await footer.boundingBox(), before)
     assert.equal(await footer.textContent(), '500/500 records')
     assert.ok(before.y >= tableBox.y + tableBox.height)
-    await pick('Filter Region', 'West')
+    await pick('Region', 'West')
+    await apply().click()
     assert.equal(await footer.textContent(), '250/500 records')
     assert.deepEqual(await footer.boundingBox(), before)
     assert.equal(

@@ -66,4 +66,16 @@ The component reuses the shared Select for both choice modes.
 Calendar popups and date entry use the shared DatePicker.
 Nested condition groups remain outside this first implementation.
 
-Boolean filters use a three-state checkbox. A check means Yes, an empty box means No, and a dash means Either. Click the box or press Space to cycle through Yes, No, and Either. Clear restores Either.
+Boolean filters use a three-state checkbox. A check means Yes, an empty box means No, and a dash means Either. Click the box or press Space to cycle through Yes, No, and Either. The checkbox has no visible state text or clear button. A screen reader announces the state and cycle guidance.
+
+## Apply criteria
+
+`ReadOnlyTable` keeps pending criteria until the user presses APPLY. Changes to any column filter, global search, and clear controls stay pending. One action applies the pending column criteria and search together. Sorting and grouping remain immediate.
+
+The section shows UNAPPLIED CHANGES while pending criteria differ from applied criteria. Its active count describes applied filters. Application changes to the table criteria replace the pending snapshot. Replacing records keeps the pending criteria.
+
+`createTableFilterDraft(table)` provides the same behavior for custom control layouts. Low-level filter controls emit values. The coordinator keeps those values separate from applied table state. It calls each changed table setter once when the user applies the criteria. It does not perform requests. The application owns controlled state and data loading.
+
+If a filter contains an invalid draft, APPLY focuses that control and keeps the current results.
+
+For server requests, pass `onApplyFilters` to `ReadOnlyTable`. The callback receives all column criteria and search in one `TableFilterCriteria` value. The application owns the request and updates controlled table state. The component does not call table setters when this callback is present. Custom layouts can pass the same callback through `createTableFilterDraft(table, { onApply })`.

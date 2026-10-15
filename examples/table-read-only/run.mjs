@@ -124,6 +124,14 @@ try {
     page
       .locator('tr[data-row]')
       .evaluateAll((nodes) => nodes.map((node) => node.dataset.row))
+  async function applyAndReadRows() {
+    const button = page.getByRole('button', {
+      name: 'Apply filters',
+      exact: true,
+    })
+    if (await button.isEnabled()) await button.click()
+    return rows()
+  }
   async function test(name, run) {
     await page.evaluate(() => window.readOnlyFixture.start())
     await run()
@@ -145,11 +153,11 @@ try {
     await page
       .getByRole('button', { name: 'Sort by Amount', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['b', 'c', 'a'])
+    assert.deepEqual(await applyAndReadRows(), ['b', 'c', 'a'])
     await page
       .getByRole('button', { name: 'Sort by Amount', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['a', 'c', 'b'])
+    assert.deepEqual(await applyAndReadRows(), ['a', 'c', 'b'])
   })
   await test('Column filters and search process application records', async () => {
     assert.equal(
@@ -159,21 +167,21 @@ try {
       'Search values…',
     )
     await page
-      .getByRole('textbox', { name: 'Filter Category', exact: true })
+      .getByRole('textbox', { name: 'Category', exact: true })
       .fill('West')
-    assert.deepEqual(await rows(), ['a', 'c'])
+    assert.deepEqual(await applyAndReadRows(), ['a', 'c'])
     await page
       .getByRole('searchbox', { name: 'Search all columns', exact: true })
       .fill('Chair')
-    assert.deepEqual(await rows(), ['c'])
+    assert.deepEqual(await applyAndReadRows(), ['c'])
     await page
       .getByRole('button', { name: 'Clear search', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['a', 'c'])
+    assert.deepEqual(await applyAndReadRows(), ['a', 'c'])
     await page
       .getByRole('button', { name: 'Clear Category filter', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['a', 'b', 'c'])
+    assert.deepEqual(await applyAndReadRows(), ['a', 'b', 'c'])
   })
   await test('Nested grouping, expansion, ordering and filtered summaries work without editing', async () => {
     await page
@@ -200,18 +208,16 @@ try {
     await page
       .getByRole('button', { name: 'Expand Category: West', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['a', 'c'])
+    assert.deepEqual(await applyAndReadRows(), ['a', 'c'])
     await page
       .getByRole('combobox', { name: 'Add grouping', exact: true })
       .selectOption('name')
     await page
       .getByRole('button', { name: 'Expand all groups', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['b', 'a', 'c'])
-    await page
-      .getByRole('textbox', { name: 'Filter Name', exact: true })
-      .fill('Desk')
-    assert.deepEqual(await rows(), ['a'])
+    assert.deepEqual(await applyAndReadRows(), ['b', 'a', 'c'])
+    await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Desk')
+    assert.deepEqual(await applyAndReadRows(), ['a'])
     assert.equal(
       await page
         .locator('tr[data-group]')
@@ -223,18 +229,24 @@ try {
     await page
       .getByRole('button', { name: 'Clear grouping', exact: true })
       .click()
-    assert.deepEqual(await rows(), ['a'])
+    assert.deepEqual(await applyAndReadRows(), ['a'])
   })
   await test('Display controls and application replacements preserve table state', async () => {
     await page.getByText('Display columns', { exact: true }).click()
     const amount = page.getByRole('checkbox', {
-      name: 'Show Amount',
+      name: 'Amount',
       exact: true,
     })
     assert.equal(await amount.isDisabled(), true)
-    await page.getByText('Show Amount', { exact: true }).click({ force: true })
+    await page
+      .getByRole('group', { name: 'Visible columns', exact: true })
+      .getByText('Amount', { exact: true })
+      .click({ force: true })
     assert.equal(await amount.isChecked(), true)
-    await page.getByText('Show Category', { exact: true }).click()
+    await page
+      .getByRole('group', { name: 'Visible columns', exact: true })
+      .getByText('Category', { exact: true })
+      .click()
     await page
       .getByRole('button', { name: 'Move Amount column', exact: true })
       .focus()
@@ -257,13 +269,15 @@ try {
         { id: 'd', values: { category: 'North', name: 'Shelf', amount: 5 } },
       ]),
     )
-    assert.deepEqual(await rows(), ['a', 'd'])
+    assert.deepEqual(await applyAndReadRows(), ['a', 'd'])
     assert.equal(
       await page.locator('tr[data-row="a"] [data-column="name"]').textContent(),
       'Desk updated',
     )
     assert.equal(
-      await page.getByLabel('Show Category', { exact: true }).isChecked(),
+      await page
+        .getByRole('checkbox', { name: 'Category', exact: true })
+        .isChecked(),
       false,
     )
   })
@@ -271,6 +285,7 @@ try {
     await page
       .getByRole('searchbox', { name: 'Search all columns', exact: true })
       .fill('missing')
+    await applyAndReadRows()
     assert.equal(
       await page
         .getByText('No records match your search or filters.', { exact: true })

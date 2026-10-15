@@ -232,9 +232,9 @@ function createFormatting() {
     { shallow: true, name: 'dashboard.formats' },
   )
   const columns = [
-    { id: 'active', label: 'Active format', kind: 'boolean' },
-    { id: 'created', label: 'Created format', kind: 'date' },
-    { id: 'amount', label: 'Amount format', kind: 'number' },
+    { id: 'active', label: 'Active', kind: 'boolean' },
+    { id: 'created', label: 'Created', kind: 'date' },
+    { id: 'amount', label: 'Amount', kind: 'number' },
   ] as const
   return {
     controls: (

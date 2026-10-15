@@ -1,5 +1,8 @@
 import { For, Show, createMemo } from 'solid-js'
 import { Checkbox } from '../components/Checkbox'
+import { Button } from '../components/NativeFields'
+import { createTableFilterDraft } from './createTableFilterDraft'
+import type { TableFilterCriteria } from './createTableFilterDraft'
 import { TableSort } from './TableSort'
 import { Table } from './Table'
 import { TableControlSection, TableWorkspace } from './TableWorkspace'
@@ -33,6 +36,7 @@ export function ReadOnlyTable<T, M>(props: {
   actions?: JSX.Element
   configuration?: JSX.Element
   formatting?: JSX.Element
+  onApplyFilters?: (criteria: TableFilterCriteria) => void
   label?: (column: NativeColumn<T, M>) => string
   filter?: (column: NativeColumn<T, M>) => TableFilterConfig | undefined
   filterKind?: (column: NativeColumn<T, M>) => 'text' | 'boolean' | 'date-range'
@@ -41,9 +45,18 @@ export function ReadOnlyTable<T, M>(props: {
   formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
 }) {
   const table = props.table
+  const filters = createTableFilterDraft(table, {
+    get onApply() {
+      return props.onApplyFilters
+    },
+  })
+  let filterControls: HTMLDivElement | undefined
   const label = (column: NativeColumn<T, M>) =>
     props.label?.(column) ?? String(column.columnDef?.header ?? column.id)
   const processing = () => !table.options.manualProcessing
+  const filtering = () =>
+    Boolean(props.onApplyFilters) ||
+    (processing() && !table.options.manualFiltering)
   const movable = createMemo(() =>
     table
       .getVisibleColumns()
@@ -76,9 +89,32 @@ export function ReadOnlyTable<T, M>(props: {
               defaultOpen
               summary={`${table.state.columnFilters.length + (table.state.globalFilter ? 1 : 0)} active`}
             >
+              <div class="table-filter-actions">
+                <Button
+                  aria-label="Apply filters"
+                  disabled={!filtering()}
+                  aria-disabled={!filters.changed ? 'true' : undefined}
+                  onClick={() => {
+                    if (!filtering() || !filters.changed) return
+                    const invalid = filterControls?.querySelector<HTMLElement>(
+                      '[aria-invalid="true"]:not(:disabled)',
+                    )
+                    if (invalid) invalid.focus()
+                    else filters.apply()
+                  }}
+                >
+                  Apply
+                </Button>
+                <Show when={filters.changed}>
+                  <span data-ui-text="system">Unapplied changes</span>
+                </Show>
+              </div>
               <Show when={props.controls?.filtering !== false}>
                 <div
                   class="column-filters"
+                  ref={(node) => {
+                    filterControls = node
+                  }}
                   role="region"
                   aria-label="Column filters"
                 >
@@ -96,9 +132,8 @@ export function ReadOnlyTable<T, M>(props: {
                           : undefined
                       }
                       const disabled = () =>
-                        !processing() ||
-                        table.options.manualFiltering ||
-                        !column.columnDef?.filterFn
+                        !filtering() ||
+                        (!props.onApplyFilters && !column.columnDef?.filterFn)
                       return (
                         <Show
                           when={advanced()}
@@ -110,12 +145,15 @@ export function ReadOnlyTable<T, M>(props: {
                                   kind={
                                     kind() === 'boolean' ? 'boolean' : 'text'
                                   }
-                                  label={`Filter ${label(column)}`}
+                                  label={label(column)}
                                   clearLabel={`Clear ${label(column)} filter`}
-                                  value={String(column.getFilterValue() ?? '')}
+                                  value={String(
+                                    filters.getValue(column.id) ?? '',
+                                  )}
                                   disabled={disabled()}
                                   onValueChange={(value) =>
-                                    column.setFilterValue(
+                                    filters.setValue(
+                                      column.id,
                                       value === ''
                                         ? undefined
                                         : kind() === 'boolean'
@@ -127,18 +165,18 @@ export function ReadOnlyTable<T, M>(props: {
                               }
                             >
                               <TableDateFilter
-                                label={`Filter ${label(column)}`}
+                                label={label(column)}
                                 startLabel={`${label(column)} start`}
                                 endLabel={`${label(column)} end`}
                                 clearStartLabel={`Clear ${label(column)} start`}
                                 clearEndLabel={`Clear ${label(column)} end`}
                                 value={
-                                  column.getFilterValue() as
+                                  filters.getValue(column.id) as
                                     TableDateRange | undefined
                                 }
                                 disabled={disabled()}
                                 onValueChange={(value) =>
-                                  column.setFilterValue(value)
+                                  filters.setValue(column.id, value)
                                 }
                               />
                             </Show>
@@ -146,16 +184,16 @@ export function ReadOnlyTable<T, M>(props: {
                         >
                           {(config) => (
                             <TableColumnFilter
-                              label={`Filter ${label(column)}`}
+                              label={label(column)}
                               clearLabel={`Clear ${label(column)} filter`}
                               config={config()}
                               value={
-                                column.getFilterValue() as
+                                filters.getValue(column.id) as
                                   TableColumnFilterValue | undefined
                               }
                               disabled={disabled()}
                               onValueChange={(value) =>
-                                column.setFilterValue(value)
+                                filters.setValue(column.id, value)
                               }
                             />
                           )}
@@ -171,9 +209,9 @@ export function ReadOnlyTable<T, M>(props: {
                     label="Search all columns"
                     clearLabel="Clear search"
                     search
-                    value={table.state.globalFilter}
-                    disabled={!processing() || table.options.manualFiltering}
-                    onValueChange={(value) => table.setGlobalFilter(value)}
+                    value={filters.globalFilter}
+                    disabled={!filtering()}
+                    onValueChange={(value) => filters.setGlobalFilter(value)}
                   />
                 </div>
               </Show>
@@ -211,7 +249,7 @@ export function ReadOnlyTable<T, M>(props: {
                     <Checkbox.Control>
                       <Checkbox.Indicator />
                     </Checkbox.Control>
-                    <Checkbox.Label>Show {label(column)}</Checkbox.Label>
+                    <Checkbox.Label>{label(column)}</Checkbox.Label>
                   </Checkbox>
                 )}
               </For>
