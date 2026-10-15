@@ -165,6 +165,7 @@ export function TableHeaderFilter(
           onValueChange={props.onValueChange}
           disabled={props.disabled}
           choices={props.choices}
+          kind={props.kind}
           controlRef={(node) => {
             control = node
           }}

@@ -48,6 +48,13 @@ Each heading shows its active filter count, grouping depth, or visible column co
 Collapsing a section preserves its controls and Table state.
 The `controls` prop keeps its existing feature switches.
 
+The application declares boolean controls through `filterKind`, for example `filterKind={(column) => column.id === 'active' ? 'boolean' : 'text'}`.
+Boolean controls offer True, False, and Either.
+They store boolean filter values, and Either removes the filter.
+The application supplies an equality `filterFn` and boolean records.
+The component does not infer column types from record values.
+Other columns keep their text filters.
+
 Use `actions` for application buttons.
 Use `configuration` for application controls in another expandable section.
 The Actions section starts expanded, and Configuration starts collapsed.

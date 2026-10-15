@@ -155,12 +155,68 @@ try {
     )
     assert.match(
       await page.locator('tr[data-row="created-1"]').textContent(),
-      /New shelfEastNo/,
+      /New shelfEastfalse/,
     )
     assert.equal(
       await page.getByLabel('Record name', { exact: true }).inputValue(),
       '',
     )
+  })
+  await test('Boolean filters preserve false and clear to either even with empty results', async () => {
+    const filter = page.getByRole('combobox', {
+      name: 'Filter Active',
+      exact: true,
+    })
+    const clear = page.getByRole('button', {
+      name: 'Clear Active filter',
+      exact: true,
+    })
+    assert.deepEqual(await filter.locator('option').allTextContents(), [
+      'Either',
+      'True',
+      'False',
+    ])
+    assert.equal(await filter.inputValue(), '')
+    assert.equal(
+      await filter.evaluate((node) => getComputedStyle(node).textTransform),
+      'uppercase',
+    )
+    await filter.selectOption('true')
+    assert.deepEqual(await rows(), ['record-1'])
+    assert.equal(
+      await page.locator('tr[data-row] td[data-column="active"]').textContent(),
+      'true',
+    )
+    await filter.selectOption('false')
+    assert.deepEqual(await rows(), ['record-2'])
+    assert.equal(
+      await page.locator('tr[data-row] td[data-column="active"]').textContent(),
+      'false',
+    )
+    assert.equal(
+      await page.getByText('1 active', { exact: true }).isVisible(),
+      true,
+    )
+    await page.evaluate(() => window.dashboardFixture.replaceRows(0))
+    assert.equal(await filter.inputValue(), 'false')
+    await page.evaluate(() => window.dashboardFixture.replaceRows(2))
+    assert.deepEqual(await rows(), ['record-2'])
+    await filter.selectOption('')
+    assert.equal((await rows()).length, 2)
+    await filter.selectOption('false')
+    await clear.click()
+    assert.equal(await filter.inputValue(), '')
+    assert.equal((await rows()).length, 2)
+    await expect(filter).toBeFocused()
+    await expect(clear).toBeDisabled()
+    assert.equal(
+      await page.getByText('0 active', { exact: true }).isVisible(),
+      true,
+    )
+    await page.evaluate(() => window.dashboardFixture.replaceRows(0))
+    await filter.selectOption('false')
+    await page.evaluate(() => window.dashboardFixture.replaceRows(2))
+    assert.deepEqual(await rows(), ['record-2'])
   })
   await test('Sorting filtering grouping and display controls use the shared Table', async () => {
     await page

@@ -20,7 +20,7 @@ import { nativeEvents } from '@wfe/components/events'
 import '@wfe/components/styles.css'
 import './style.css'
 
-type RecordData = { id: string; name: string; region: string; active: string }
+type RecordData = { id: string; name: string; region: string; active: boolean }
 function records(count: number): Map<string, RecordData> {
   return new Map(
     Array.from({ length: count }, (_, index) => {
@@ -31,7 +31,7 @@ function records(count: number): Map<string, RecordData> {
           id,
           name: `Record ${index + 1}`,
           region: index % 2 ? 'East' : 'West',
-          active: 'Yes',
+          active: index % 2 === 0,
         },
       ]
     }),
@@ -74,7 +74,13 @@ function createRecordsTable(rows: () => Map<string, RecordData>) {
         enableHiding: false,
       },
       { ...textColumn, id: 'region', header: 'Region', accessorKey: 'region' },
-      { ...textColumn, id: 'active', header: 'Active', accessorKey: 'active' },
+      {
+        id: 'active',
+        header: 'Active',
+        accessorKey: 'active',
+        filterFn: (value, filter) => value === filter,
+        sortFn: (a, b) => Number(a) - Number(b),
+      },
     ],
   })
 }
@@ -92,6 +98,7 @@ function TablePage() {
       <ReadOnlyTable
         table={table}
         title="Records"
+        filterKind={(column) => (column.id === 'active' ? 'boolean' : 'text')}
         actions={<RecordActions />}
       />
     </main>
@@ -138,7 +145,7 @@ function Dashboard() {
               id,
               name: accepted,
               region: region(),
-              active: active() ? 'Yes' : 'No',
+              active: active(),
             },
           ],
         ]),
@@ -183,6 +190,9 @@ function Dashboard() {
           <ReadOnlyTable
             table={table}
             title="Records"
+            filterKind={(column) =>
+              column.id === 'active' ? 'boolean' : 'text'
+            }
             actions={<RecordActions />}
           />
         </DashboardPanel>

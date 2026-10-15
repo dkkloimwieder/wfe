@@ -23,6 +23,7 @@ export function ReadOnlyTable<T, M>(props: {
   actions?: JSX.Element
   configuration?: JSX.Element
   label?: (column: NativeColumn<T, M>) => string
+  filterKind?: (column: NativeColumn<T, M>) => 'text' | 'boolean'
   groupable?: (id: string) => boolean
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
@@ -72,6 +73,7 @@ export function ReadOnlyTable<T, M>(props: {
                   <For each={table.getColumns()}>
                     {(column) => (
                       <TableFilter
+                        kind={props.filterKind?.(column)}
                         label={`Filter ${label(column)}`}
                         clearLabel={`Clear ${label(column)} filter`}
                         value={String(column.getFilterValue() ?? '')}
@@ -81,7 +83,13 @@ export function ReadOnlyTable<T, M>(props: {
                           !column.columnDef?.filterFn
                         }
                         onValueChange={(value) =>
-                          column.setFilterValue(value || undefined)
+                          column.setFilterValue(
+                            value === ''
+                              ? undefined
+                              : props.filterKind?.(column) === 'boolean'
+                                ? value === 'true'
+                                : value,
+                          )
                         }
                       />
                     )}

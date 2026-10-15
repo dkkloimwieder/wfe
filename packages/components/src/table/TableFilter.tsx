@@ -8,6 +8,7 @@ export type TableFilterProps = {
   value: string
   onValueChange: (value: string) => void
   disabled?: boolean
+  kind?: 'text' | 'boolean'
   search?: boolean
   placeholder?: string
   hideLabel?: boolean
@@ -19,6 +20,13 @@ export type TableFilterProps = {
 
 export function TableFilter(props: TableFilterProps) {
   const id = createUniqueId()
+  const choices = () =>
+    props.kind === 'boolean'
+      ? [
+          { value: 'true', label: 'True' },
+          { value: 'false', label: 'False' },
+        ]
+      : props.choices
   let control!: HTMLInputElement | HTMLSelectElement
   function clear() {
     if (props.disabled) return
@@ -32,7 +40,7 @@ export function TableFilter(props: TableFilterProps) {
       </label>
       <div class="filter-input">
         <Show
-          when={props.choices}
+          when={choices()}
           fallback={
             <Input
               id={id}
@@ -74,6 +82,7 @@ export function TableFilter(props: TableFilterProps) {
           {(choices) => (
             <NativeSelect
               id={id}
+              data-ui-text={props.kind === 'boolean' ? 'system' : undefined}
               value={props.value}
               disabled={props.disabled}
               ref={[
@@ -89,7 +98,9 @@ export function TableFilter(props: TableFilterProps) {
                 }),
               ]}
             >
-              <option value="">All</option>
+              <option value="">
+                {props.kind === 'boolean' ? 'Either' : 'All'}
+              </option>
               <For each={choices().filter((choice) => choice.value !== '')}>
                 {(choice) => (
                   <option value={choice.value} disabled={choice.disabled}>
