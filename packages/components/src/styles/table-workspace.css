@@ -3,7 +3,8 @@
   isolation: isolate;
   display: grid;
   grid-template-columns: var(--ui-table-controls-width, 18rem) minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: 'toolbar toolbar' 'controls results';
   gap: 0;
   border: 1px solid var(--ui-border, #ccc);
   box-shadow: var(--ui-panel-shadow, none);
@@ -14,17 +15,31 @@
   overflow: clip;
   overflow-clip-margin: var(--ui-shadow-overflow, 0px);
 }
-:where([data-ui]) .table-workspace-toolbar,
+:where([data-ui]) .table-workspace-toolbar {
+  grid-area: toolbar;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
+  border-bottom: 1px solid var(--ui-border, #ccc);
+  background: var(--ui-pane-surface, var(--ui-surface, white));
+}
+:where([data-ui]) .table-workspace-toolbar button {
+  height: var(--ui-control-height, 26px);
+  padding-block: 0;
+}
 :where([data-ui]) .table-controls-close {
   display: none;
 }
 :where([data-ui]) .table-workspace-controls,
 :where([data-ui]) .table-workspace-results {
+  grid-area: results;
   border: 0;
   background: var(--ui-pane-surface, var(--ui-surface, white));
   box-shadow: none;
 }
 :where([data-ui]) .table-workspace-controls {
+  grid-area: controls;
   border-inline-end: 1px solid var(--ui-border, #ccc);
   display: flex;
   flex-direction: column;
@@ -160,14 +175,25 @@
 :where([data-ui]) .table-workspace[data-controls-placement='top'] {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows:
-    minmax(0, min(var(--ui-table-controls-height, 18rem), 40%))
+    auto fit-content(min(var(--ui-table-controls-height, 18rem), 40%))
     minmax(0, 1fr);
+  grid-template-areas: 'toolbar' 'controls' 'results';
 }
 :where([data-ui])
   .table-workspace[data-controls-placement='top']
   > .table-workspace-controls {
   border-inline-end: 0;
   border-bottom: 1px solid var(--ui-border, #ccc);
+}
+:where([data-ui]) .table-workspace[data-controls-placement='right'] {
+  grid-template-columns: minmax(0, 1fr) var(--ui-table-controls-width, 18rem);
+  grid-template-areas: 'toolbar toolbar' 'results controls';
+}
+:where([data-ui])
+  .table-workspace[data-controls-placement='right']
+  > .table-workspace-controls {
+  border-inline-end: 0;
+  border-inline-start: 1px solid var(--ui-border, #ccc);
 }
 @media (width >= 48rem) {
   :where([data-ui])
@@ -216,7 +242,8 @@
 }
 :where([data-ui]) .table-workspace[data-controls-collapsed] {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: 'toolbar' 'results';
 }
 :where([data-ui])
   .table-workspace[data-controls-collapsed]
@@ -229,13 +256,7 @@
   :where([data-ui]) .table-workspace[data-controls-collapsed] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
-  }
-  :where([data-ui]) .table-workspace-toolbar {
-    display: flex;
-    padding-block-end: var(--ui-gap, 6px);
-  }
-  :where([data-ui]) .table-controls-desktop-toggle {
-    display: none;
+    grid-template-areas: 'toolbar' 'results';
   }
   :where([data-ui]) .table-controls-close {
     display: inline-block;
@@ -246,6 +267,7 @@
   :where([data-ui])
     .table-workspace[data-controls-placement]
     > .table-workspace-controls {
+    grid-area: results;
     border: 1px solid var(--ui-border, #ccc);
     box-shadow: var(--ui-panel-shadow, none);
     display: none;
@@ -259,6 +281,12 @@
     .table-workspace[data-controls-open][data-controls-placement]
     > .table-workspace-controls {
     display: flex;
+  }
+  :where([data-ui])
+    .table-workspace[data-controls-placement='right']
+    > .table-workspace-controls {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
   }
   :where([data-ui]) .table-workspace-results {
     padding-inline-start: 0;

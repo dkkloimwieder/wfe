@@ -10,8 +10,8 @@ Use Tab to focus a control. Press Enter or Space to activate it.
 BASE, PANES, and CONTENT each offer SURFACE 1, 2, or 3.
 BASE sets the backdrop. PANES sets both pane backgrounds.
 CONTENT sets control sections, table content, and popup backgrounds.
-LEFT and TOP select the controls placement.
-The table header button hides or shows the whole controls pane.
+LEFT, TOP, and RIGHT select the controls placement.
+The left-aligned workspace toolbar button hides or shows the controls pane.
 The sample row shows SURFACE 1–4 and TEXT 1–2 with their exact values.
 All control rows scroll horizontally on narrow screens.
 The Table fills the remaining height.

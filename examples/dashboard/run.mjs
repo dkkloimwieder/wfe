@@ -1122,9 +1122,7 @@ try {
     await expect(filter).toBeHidden()
     await toggle.focus()
     await page.setViewportSize({ width: 1440, height: 1000 })
-    await expect(
-      page.getByRole('complementary', { name: 'Table controls', exact: true }),
-    ).toBeFocused()
+    await expect(toggle).toBeFocused()
     assert.equal(await filter.textContent(), 'West')
     assert.equal(
       await filter.evaluate((node) => node === window.savedTableFilter),
@@ -1518,6 +1516,15 @@ try {
     })
     const draft = page.getByRole('textbox', { name: 'Name', exact: true })
     await draft.fill('Record 1')
+    await expect(page.locator('.table-controls-toggle')).toHaveCount(1)
+    await expect(
+      page.locator('.table-workspace-results-header button'),
+    ).toHaveCount(0)
+    const toggleBox = await toggle.boundingBox()
+    const toolbarBox = await page
+      .locator('.table-workspace-toolbar')
+      .boundingBox()
+    assert.ok(toggleBox.x < toolbarBox.x + 20)
     const savedTable = await page.locator('table').elementHandle()
     const savedDraft = await draft.elementHandle()
     const initialRows = await rows()
@@ -1530,6 +1537,19 @@ try {
     assert.equal(full.height, original.height)
     const frame = await workspace.boundingBox()
     assert.equal(full.width, frame.width - 2)
+    await page
+      .getByRole('button', { name: 'right controls pane', exact: true })
+      .click()
+    assert.deepEqual(await surface.boundingBox(), full)
+    await toggle.click()
+    const rightPane = await pane.boundingBox()
+    const rightResults = await page
+      .locator('.table-workspace-results')
+      .boundingBox()
+    assert.equal(rightResults.x + rightResults.width, rightPane.x)
+    assert.equal((await surface.boundingBox()).width, original.width)
+    await expect(draft).toHaveValue('Record 1')
+    await toggle.click()
     await page
       .getByRole('button', { name: 'top controls pane', exact: true })
       .click()
@@ -1581,6 +1601,35 @@ try {
     })
     await expect(draft).toHaveValue('Record 1')
     assert.deepEqual(await rows(), initialRows)
+    const expandedHeight = (await pane.boundingBox()).height
+    await pane.locator('.table-control-section').evaluateAll((nodes) =>
+      nodes.forEach((node) => {
+        node.open = false
+      }),
+    )
+    const compactHeight = (await pane.boundingBox()).height
+    assert.ok(compactHeight < expandedHeight)
+    const contentHeight = await pane.evaluate((node) => {
+      const header = node
+        .querySelector('.table-workspace-controls-header')
+        .getBoundingClientRect().height
+      const sections = [
+        ...node.querySelectorAll('.table-control-section'),
+      ].reduce(
+        (height, section) => height + section.getBoundingClientRect().height,
+        0,
+      )
+      return (
+        header + sections + parseFloat(getComputedStyle(node).borderBottomWidth)
+      )
+    })
+    assert.equal(compactHeight, contentHeight)
+    await pane
+      .locator('.table-control-section')
+      .first()
+      .evaluate((node) => {
+        node.open = true
+      })
     await choiceTrigger('Region').click()
     await expect(page.getByRole('listbox')).toBeVisible()
     await page.evaluate(() =>
@@ -1651,7 +1700,10 @@ try {
       .getByRole('button', { name: 'top controls pane', exact: true })
       .click()
     await page.setViewportSize({ width: 960, height: 540 })
-    assert.ok((await surface.boundingBox()).height > 150)
+    assert.ok((await surface.boundingBox()).height > 120)
+    await page
+      .getByRole('button', { name: 'right controls pane', exact: true })
+      .click()
     await page.setViewportSize({ width: 390, height: 568 })
     await toggle.click()
     await expect(pane).toBeVisible()
@@ -1757,7 +1809,7 @@ try {
         before,
       )
       assert.ok(before.width > 600)
-      assert.ok(before.height > 320)
+      assert.ok(before.height > 280)
       assert.equal(await zoomed.getByRole('navigation').count(), 0)
       assert.equal(await zoomed.locator('form').count(), 0)
       assert.equal(await zoomed.locator('thead th').count(), 8)

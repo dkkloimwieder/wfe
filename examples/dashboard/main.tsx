@@ -272,7 +272,9 @@ function createFormatting() {
 function TablePage() {
   const [scheme, setScheme] = createSignal(monochrome)
   const [accent, setAccent] = createSignal(neutralAccent)
-  const [placement, setPlacement] = createSignal<'left' | 'top'>('left')
+  const [placement, setPlacement] = createSignal<'left' | 'top' | 'right'>(
+    'left',
+  )
   const [collapsed, setCollapsed] = createSignal(false)
   collapseControls = setCollapsed
   const [depth, setDepth] = createSignal<Depth>(1)

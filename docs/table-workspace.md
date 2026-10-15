@@ -84,16 +84,17 @@ Interactive resizing remains separate work.
 
 ## Placement and collapse
 
-Set `controlsPlacement="left"` or `controlsPlacement="top"` on `ReadOnlyTable` or `TableWorkspace`.
-The dashboard preview has LEFT and TOP buttons above the workspace.
+Set `controlsPlacement="left"`, `controlsPlacement="top"`, or `controlsPlacement="right"` on `ReadOnlyTable` or `TableWorkspace`.
+The dashboard preview has LEFT, TOP, and RIGHT buttons above the workspace.
 Top placement stacks full-width sections in a bounded scroll area.
 Filters come first, followed by Grouping and the remaining sections.
 Controls inside each section run horizontally and wrap as needed.
-Expanding sections does not reduce the assigned results height.
+The top pane shrinks when sections collapse and expands only to its height limit.
 Narrow screens use the same drawer for either placement.
 
-Use the results header button to hide or show the whole controls pane.
-The results reclaim the pane width in left placement and its height in top placement.
+Use the left-aligned workspace toolbar button to hide or show the controls pane.
+The toolbar sits above both panes and leaves the Records heading intact.
+The results reclaim the pane width in left or right placement and its height in top placement.
 The control nodes and results stay mounted, so drafts and Table state survive.
 An unhandled Escape from desktop controls also hides the pane.
 The button receives focus before its controls become hidden.
@@ -111,7 +112,7 @@ import type { NativeTable } from '@wfe/components/table'
 
 export function RecordsWithControls(props: {
   table: NativeTable<{ name: string }>
-  placement: 'left' | 'top'
+  placement: 'left' | 'top' | 'right'
 }) {
   const [collapsed, setCollapsed] = createSignal(false)
   return (
@@ -135,6 +136,7 @@ Filter inputs keep their existing Escape behavior.
 Focusing the results closes the drawer so focused content stays visible.
 Resizing moves focus before its current control becomes hidden.
 The same control nodes survive desktop and narrow layouts.
+Right placement anchors the narrow drawer to the right edge.
 
 Applications can localize the labels through `TableWorkspace` props.
 Place popup portals in the owning UI scope outside either scroller.
