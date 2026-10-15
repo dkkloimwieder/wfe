@@ -14,13 +14,29 @@
   display: none;
 }
 :where([data-ui]) .table-workspace-controls {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--ui-border, #ccc);
+  padding: 0;
+  background: var(--ui-surface, white);
+}
+:where([data-ui]) .table-workspace-controls-header {
+  flex: none;
+  min-width: 0;
+  padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
+  border-bottom: 1px solid var(--ui-border, #ccc);
+  background: var(--ui-muted-surface, #f0f0f0);
+}
+:where([data-ui]) .table-workspace-controls-body {
+  flex: 1;
   min-height: 0;
   min-width: 0;
   overflow: auto;
   overscroll-behavior: contain;
-  border-inline-end: 1px solid var(--ui-border, #ccc);
-  padding-inline-end: var(--ui-gap, 6px);
-  background: var(--ui-surface, white);
+  padding: 0 var(--ui-cell-padding-x, 8px) var(--ui-gap, 6px);
 }
 :where([data-ui]) .table-workspace-results {
   display: flex;
@@ -112,7 +128,9 @@
   }
   :where([data-ui]) .table-controls-close {
     display: inline-block;
-    margin-block-end: var(--ui-gap, 6px);
+    flex: none;
+    align-self: start;
+    margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
   }
   :where([data-ui]) .table-workspace-controls {
     display: none;
@@ -121,12 +139,11 @@
     inset-inline-start: 0;
     z-index: 10;
     width: min(var(--ui-table-controls-width, 18rem), 100%);
-    padding: var(--ui-gap, 6px);
   }
   :where([data-ui])
     .table-workspace[data-controls-open]
     > .table-workspace-controls {
-    display: block;
+    display: flex;
   }
   :where([data-ui]) .table-workspace-results {
     padding-inline-start: 0;

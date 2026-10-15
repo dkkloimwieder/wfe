@@ -108,3 +108,9 @@ Drag a column heading to move its column. A movement of at least five pixels
 starts the drag. The separate sort arrow has padding and does not start a drag.
 Activate a heading to open its move menu. Use Left, Right, Home, or End to move
 a focused heading with the keyboard. Press Escape to cancel a drag.
+
+The optional `controlsHeader` slot stays above the scrolling controls. The Table
+uses this slot for its APPLY bar. The bar fills the pane width and uses the
+shared muted surface and divider. Filter, grouping, display, and formatting
+sections scroll below it. The narrow controls drawer keeps its close button
+and APPLY bar outside this scrolling area.

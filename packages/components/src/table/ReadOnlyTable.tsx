@@ -76,6 +76,35 @@ export function ReadOnlyTable<T, M>(props: {
           records
         </>
       }
+      controlsHeader={
+        <Show
+          when={
+            props.controls?.filtering !== false ||
+            props.controls?.search !== false
+          }
+        >
+          <div class="table-filter-actions">
+            <Button
+              aria-label="Apply filters"
+              disabled={!filtering()}
+              aria-disabled={!filters.changed ? 'true' : undefined}
+              onClick={() => {
+                if (!filtering() || !filters.changed) return
+                const invalid = filterControls?.querySelector<HTMLElement>(
+                  '[aria-invalid="true"]:not(:disabled)',
+                )
+                if (invalid) invalid.focus()
+                else filters.apply()
+              }}
+            >
+              Apply
+            </Button>
+            <Show when={filters.changed}>
+              <span data-ui-text="system">Unapplied changes</span>
+            </Show>
+          </div>
+        </Show>
+      }
       controls={
         <>
           <Show
@@ -89,26 +118,6 @@ export function ReadOnlyTable<T, M>(props: {
               defaultOpen
               summary={`${table.state.columnFilters.length + (table.state.globalFilter ? 1 : 0)} active`}
             >
-              <div class="table-filter-actions">
-                <Button
-                  aria-label="Apply filters"
-                  disabled={!filtering()}
-                  aria-disabled={!filters.changed ? 'true' : undefined}
-                  onClick={() => {
-                    if (!filtering() || !filters.changed) return
-                    const invalid = filterControls?.querySelector<HTMLElement>(
-                      '[aria-invalid="true"]:not(:disabled)',
-                    )
-                    if (invalid) invalid.focus()
-                    else filters.apply()
-                  }}
-                >
-                  Apply
-                </Button>
-                <Show when={filters.changed}>
-                  <span data-ui-text="system">Unapplied changes</span>
-                </Show>
-              </div>
               <Show when={props.controls?.filtering !== false}>
                 <div
                   class="column-filters"

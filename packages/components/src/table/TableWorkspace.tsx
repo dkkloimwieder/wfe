@@ -12,6 +12,7 @@ import type { JSX } from '@solidjs/web'
 
 export type TableWorkspaceProps = {
   controls: JSX.Element
+  controlsHeader?: JSX.Element
   footer?: JSX.Element
   children: JSX.Element
   label?: string
@@ -133,7 +134,12 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         <Button class="table-controls-close" onClick={close}>
           {props.closeLabel ?? 'Close table controls'}
         </Button>
-        {props.controls}
+        <Show when={props.controlsHeader} keyed>
+          {(header) => (
+            <div class="table-workspace-controls-header">{header}</div>
+          )}
+        </Show>
+        <div class="table-workspace-controls-body">{props.controls}</div>
       </aside>
       <div
         class="table-workspace-results"

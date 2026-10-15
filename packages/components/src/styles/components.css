@@ -1227,14 +1227,9 @@
 }
 
 :where([data-ui]) .table-filter-actions {
-  position: sticky;
-  top: 0;
-  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--ui-gap, 6px);
-  padding-bottom: var(--ui-gap, 6px);
-  background: var(--ui-surface, white);
 }
 
 :where([data-ui]) .table-filter-actions button[aria-disabled='true'] {

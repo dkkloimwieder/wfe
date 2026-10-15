@@ -935,6 +935,72 @@ try {
       )
     }
   })
+  await test('APPLY stays in a full-width pane header while sections scroll below it', async () => {
+    for (const viewport of [
+      { width: 1440, height: 500 },
+      { width: 390, height: 568 },
+    ]) {
+      await page.setViewportSize(viewport)
+      if (viewport.width < 768)
+        await page
+          .getByRole('button', { name: 'Table controls', exact: true })
+          .click()
+      const pane = page.locator('.table-workspace-controls')
+      const header = pane.locator('.table-workspace-controls-header')
+      const body = pane.locator('.table-workspace-controls-body')
+      const paneBox = await pane.boundingBox()
+      const headerBox = await header.boundingBox()
+      const bodyBox = await body.boundingBox()
+      assert.equal(headerBox.x, paneBox.x + 1)
+      assert.equal(headerBox.width, paneBox.width - 2)
+      assert.ok(bodyBox.y >= headerBox.y + headerBox.height)
+      assert.equal(
+        await header.evaluate(
+          (node) => getComputedStyle(node).borderBottomWidth,
+        ),
+        '1px',
+      )
+      assert.equal(
+        await pane.evaluate((node) => getComputedStyle(node).borderTopColor),
+        await page
+          .locator('.table-scroll')
+          .evaluate((node) => getComputedStyle(node).borderTopColor),
+      )
+      assert.equal(
+        await header.evaluate((node) => getComputedStyle(node).backgroundColor),
+        await page
+          .locator('thead')
+          .evaluate((node) => getComputedStyle(node).backgroundColor),
+      )
+      await body.evaluate((node) => {
+        node.scrollTop = node.scrollHeight
+      })
+      assert.ok(await body.evaluate((node) => node.scrollTop > 0))
+      assert.deepEqual(await header.boundingBox(), headerBox)
+      await expect(apply()).toBeVisible()
+      await page
+        .getByText('Filters', { exact: true })
+        .evaluate((node) => (node.closest('details').open = false))
+      await expect(apply()).toBeVisible()
+      assert.deepEqual(await header.boundingBox(), headerBox)
+      await page
+        .getByText('Filters', { exact: true })
+        .evaluate((node) => (node.closest('details').open = true))
+      await body.evaluate((node) => {
+        node.scrollTop = 0
+      })
+      await page
+        .getByRole('textbox', { name: 'Name', exact: true })
+        .fill('Record 1')
+      await body.evaluate((node) => {
+        node.scrollTop = node.scrollHeight
+      })
+      await apply().click()
+      await expect(apply()).toBeFocused()
+      assert.deepEqual(await rows(), ['record-1'])
+      await page.evaluate(() => window.dashboardFixture.start())
+    }
+  })
   await test('Expanded filters and grouping never consume the results height', async () => {
     await page.setViewportSize({ width: 1440, height: 500 })
     const scroller = page.locator('.table-scroll')
@@ -947,10 +1013,7 @@ try {
     }
     await page.getByText('Display columns', { exact: true }).click()
     assert.deepEqual(await scroller.boundingBox(), before)
-    const controls = page.getByRole('complementary', {
-      name: 'Table controls',
-      exact: true,
-    })
+    const controls = page.locator('.table-workspace-controls-body')
     assert.equal(
       await controls.evaluate((node) => node.scrollHeight > node.clientHeight),
       true,
