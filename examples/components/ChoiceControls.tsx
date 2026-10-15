@@ -80,6 +80,9 @@ export function ChoiceControls() {
           itemComponent={(item) => (
             <Select.Item as={CustomItem} marker="select" item={item.item}>
               <Select.ItemLabel>{item.item.rawValue.label}</Select.ItemLabel>
+              <Select.ItemIndicator class="custom-selection">
+                ✓
+              </Select.ItemIndicator>
             </Select.Item>
           )}
         >
@@ -125,6 +128,9 @@ export function ChoiceControls() {
               <Combobox.ItemLabel>
                 {item.item.rawValue.label}
               </Combobox.ItemLabel>
+              <Combobox.ItemIndicator class="custom-selection">
+                ✓
+              </Combobox.ItemIndicator>
             </Combobox.Item>
           )}
         >

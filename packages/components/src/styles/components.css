@@ -761,6 +761,8 @@
 }
 :where([data-ui]) .popup-option {
   display: flex;
+  align-items: center;
+  min-height: var(--ui-row-height, 32px);
   justify-content: space-between;
   gap: 8px;
   padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
@@ -1231,4 +1233,19 @@
 :where([data-ui]) .table-filter-actions button[aria-disabled='true'] {
   opacity: var(--ui-disabled-opacity, 0.55);
   cursor: not-allowed;
+}
+
+:where([data-ui]) .popup-item-indicator {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: calc(var(--ui-font-size, 12px) + 4px);
+  height: calc(var(--ui-font-size, 12px) + 4px);
+  line-height: 1;
+  pointer-events: none;
+}
+:where([data-ui]) .popup-item-indicator > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }

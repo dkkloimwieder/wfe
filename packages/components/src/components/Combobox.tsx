@@ -104,6 +104,25 @@ export function ComboboxItem<T extends ValidComponent = 'li'>(
   const Primitive = Core.Item as Component<typeof props>
   return <Primitive {...props} class={'popup-option ' + (props.class ?? '')} />
 }
+/** Fixed-size selection marker shared by every choice popup. */
+export function ComboboxItemIndicator<T extends ValidComponent = 'div'>(
+  props: PolymorphicProps<
+    T,
+    Core.ComboboxItemIndicatorProps<T> & {
+      class?: string
+      children?: JSX.Element
+    }
+  >,
+) {
+  const Primitive = Core.ItemIndicator as Component<typeof props>
+  return (
+    <Primitive
+      {...props}
+      class={'popup-item-indicator ' + (props.class ?? '')}
+    />
+  )
+}
+
 export function ComboboxPortal(props: Core.ComboboxPortalProps) {
   const scope = useChoiceScope()
   return <Core.Portal {...props} mount={props.mount ?? scope.mount()} />
@@ -161,7 +180,7 @@ export const Combobox = /* @__PURE__ */ Object.assign(ComboboxRoot, {
   HiddenSelect: Core.HiddenSelect,
   Icon: Core.Icon,
   ItemDescription: Core.ItemDescription,
-  ItemIndicator: Core.ItemIndicator,
+  ItemIndicator: ComboboxItemIndicator,
   ItemLabel: Core.ItemLabel,
   Label: Core.Label,
   Section: Core.Section,

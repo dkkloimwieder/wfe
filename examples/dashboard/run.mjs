@@ -671,6 +671,36 @@ try {
     await mode.selectOption('not-contains')
     assert.deepEqual(await applyAndReadRows(), ['record-4', 'record-8'])
   })
+  await test('Selected tags keep compact indicators and stable option heights', async () => {
+    await page
+      .getByRole('button', { name: 'Eight records', exact: true })
+      .click()
+    const trigger = choiceTrigger('Tags')
+    await trigger.click()
+    const list = page.getByRole('listbox')
+    const option = list.getByRole('option', { name: 'Priority', exact: true })
+    const before = await option.boundingBox()
+    await option.click()
+    await expect(option).toHaveAttribute('aria-selected', 'true')
+    const after = await option.boundingBox()
+    assert.equal(after.height, before.height)
+    assert.ok(after.height <= 36)
+    const indicator = option.locator('.popup-item-indicator')
+    for (const element of [indicator, indicator.locator('svg')]) {
+      const box = await element.boundingBox()
+      assert.equal(box.width, 16)
+      assert.equal(box.height, 16)
+      assert.ok(
+        Math.abs(box.y + box.height / 2 - after.y - after.height / 2) <= 1,
+      )
+    }
+    await list.getByRole('option', { name: 'External', exact: true }).click()
+    await expect(list.locator('[aria-selected="true"]')).toHaveCount(2)
+    assert.equal((await rows()).length, 8)
+    await page.keyboard.press('Escape')
+    await expect(trigger).toBeFocused()
+    assert.equal((await applyAndReadRows()).length, 6)
+  })
   await test('Tags support Any, All, exclusion, and empty values', async () => {
     await page
       .getByRole('button', { name: 'Eight records', exact: true })

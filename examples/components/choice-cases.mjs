@@ -9,6 +9,32 @@ export async function choiceCases({ page, url, record, press, settle }) {
     page.evaluate((next) => window.choiceFixture.configure(next), next)
 
   await record(
+    'choices: Select and Combobox keep selection markers compact',
+    async () => {
+      await open()
+      for (const show of [
+        () => select().click(),
+        async () => {
+          await input().focus()
+          await press('ArrowDown')
+        },
+      ]) {
+        await show()
+        const selected = page.getByRole('option', {
+          name: 'Alpha',
+          exact: true,
+        })
+        const marker = selected.locator('.custom-selection')
+        assert.equal(await marker.textContent(), '✓')
+        const box = await marker.boundingBox()
+        assert.equal(box.width, 16)
+        assert.equal(box.height, 16)
+        assert.ok((await selected.boundingBox()).height <= 36)
+        await press('Escape')
+      }
+    },
+  )
+  await record(
     'choices: custom items select by pointer and disabled options reject changes',
     async () => {
       await open()

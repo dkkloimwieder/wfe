@@ -109,6 +109,25 @@ export function SelectItem<T extends ValidComponent = 'li'>(
   const Primitive = Core.Item as Component<typeof props>
   return <Primitive {...props} class={'popup-option ' + (props.class ?? '')} />
 }
+/** Fixed-size selection marker shared by every choice popup. */
+export function SelectItemIndicator<T extends ValidComponent = 'div'>(
+  props: PolymorphicProps<
+    T,
+    Core.SelectItemIndicatorProps<T> & {
+      class?: string
+      children?: JSX.Element
+    }
+  >,
+) {
+  const Primitive = Core.ItemIndicator as Component<typeof props>
+  return (
+    <Primitive
+      {...props}
+      class={'popup-item-indicator ' + (props.class ?? '')}
+    />
+  )
+}
+
 export function SelectPortal(props: Core.SelectPortalProps) {
   const scope = useChoiceScope()
   return <Core.Portal {...props} mount={props.mount ?? scope.mount()} />
@@ -136,7 +155,7 @@ export const Select = /* @__PURE__ */ Object.assign(SelectRoot, {
   HiddenSelect: Core.HiddenSelect,
   Icon: Core.Icon,
   ItemDescription: Core.ItemDescription,
-  ItemIndicator: Core.ItemIndicator,
+  ItemIndicator: SelectItemIndicator,
   ItemLabel: Core.ItemLabel,
   Label: Core.Label,
   Section: Core.Section,
