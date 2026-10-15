@@ -29,6 +29,8 @@ export default defineConfig({
         ? '.dist-package'
         : '.dist',
     target: 'esnext',
+    minify: process.env.BENCH_PROFILE ? false : undefined,
+    sourcemap: Boolean(process.env.BENCH_PROFILE),
     ssr: server ? fileURLToPath(new URL('server.tsx', import.meta.url)) : false,
   },
 })

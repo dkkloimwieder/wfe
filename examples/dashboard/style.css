@@ -61,3 +61,7 @@ h2 {
 .table-page table {
   width: 100%;
 }
+
+.table-component .table-scroll > table {
+  min-width: 72rem;
+}

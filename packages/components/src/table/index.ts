@@ -18,3 +18,12 @@ export { TableChoiceEditor } from './TableChoiceEditor'
 export type { TableChoice, TableChoiceEditorProps } from './TableChoiceEditor'
 export { createTable, createNativeTable, nativeAggregations } from './engine'
 export type * from './engine/types'
+
+export { TableColumnFilter } from './TableColumnFilter'
+export type {
+  TableColumnFilterConfig,
+  TableColumnFilterValue,
+  TableColumnFilterProps,
+} from './TableColumnFilter'
+
+export type { TableFilterConfig } from './ReadOnlyTable'

@@ -15,8 +15,12 @@ import {
   ReadOnlyTable,
   TableFilter,
   TableDateFilter,
+  TableColumnFilter,
 } from '@wfe/components/table'
-import type { TableDateRange } from '@wfe/components/table'
+import type {
+  TableColumnFilterValue,
+  TableDateRange,
+} from '@wfe/components/table'
 
 export const lifecycle = {
   reads: 0,
@@ -32,6 +36,15 @@ export const lifecycle = {
 }
 
 export default function App() {
+  const [textMatch, setTextMatch] = createSignal<
+    TableColumnFilterValue | undefined
+  >({ operator: 'contains', value: 'Ada' })
+  const [statusMatch, setStatusMatch] = createSignal<
+    TableColumnFilterValue | undefined
+  >({ operator: 'in', values: ['Open'] })
+  const [numberMatch, setNumberMatch] = createSignal<
+    TableColumnFilterValue | undefined
+  >({ operator: 'between', min: 0, max: 12.5 })
   const [booleanFilter, setBooleanFilter] = createSignal('false')
   const [dateFilter, setDateFilter] = createSignal<TableDateRange | undefined>({
     start: '2026-01-01',
@@ -149,6 +162,47 @@ export default function App() {
         <output id="filter-values">
           {booleanFilter()}|{dateFilter()?.start ?? ''}|
           {dateFilter()?.end ?? ''}
+        </output>
+      </section>
+      <section id="adopt-extra-filters">
+        <TableColumnFilter
+          label="Hydrated text"
+          clearLabel="Clear hydrated text"
+          config={{ kind: 'text', empty: true }}
+          value={textMatch()}
+          onValueChange={(value) => {
+            lifecycle.filterChanges++
+            setTextMatch(value)
+          }}
+        />
+        <TableColumnFilter
+          label="Hydrated status"
+          clearLabel="Clear hydrated status"
+          config={{
+            kind: 'multi-select',
+            choices: [
+              { value: 'Open', label: 'Open' },
+              { value: 'Closed', label: 'Closed' },
+            ],
+          }}
+          value={statusMatch()}
+          onValueChange={(value) => {
+            lifecycle.filterChanges++
+            setStatusMatch(value)
+          }}
+        />
+        <TableColumnFilter
+          label="Hydrated amount"
+          clearLabel="Clear hydrated amount"
+          config={{ kind: 'number-range', empty: true }}
+          value={numberMatch()}
+          onValueChange={(value) => {
+            lifecycle.filterChanges++
+            setNumberMatch(value)
+          }}
+        />
+        <output id="extra-filter-values">
+          {JSON.stringify([textMatch(), statusMatch(), numberMatch()])}
         </output>
       </section>
       <Button id="rename" type="button" onClick={() => setName('Grace')}>

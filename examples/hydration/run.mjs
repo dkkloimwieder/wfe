@@ -79,7 +79,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input")]</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]")]</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -177,6 +177,41 @@ try {
   report.assertions.push(
     'Boolean and date filters preserve server controls and attach one listener per interaction',
   )
+  const textMatch = page.getByRole('textbox', {
+    name: 'Hydrated text',
+    exact: true,
+  })
+  const statusMatch = page.getByRole('button', {
+    name: /^Hydrated status(?:\s|$)/,
+  })
+  const minimum = page.getByRole('spinbutton', {
+    name: 'Hydrated amount minimum',
+    exact: true,
+  })
+  await expect(textMatch).toHaveValue('Ada')
+  await expect(statusMatch).toHaveText('Open')
+  await expect(minimum).toHaveValue('0')
+  await textMatch.fill('Grace')
+  await minimum.fill('-3.25')
+  await statusMatch.click()
+  await page.getByRole('option', { name: 'Closed', exact: true }).click()
+  await page.keyboard.press('Escape')
+  await expect(statusMatch).toBeFocused()
+  const values = JSON.parse(
+    await page.locator('#extra-filter-values').textContent(),
+  )
+  assert.deepEqual(values, [
+    { operator: 'contains', value: 'Grace' },
+    { operator: 'in', values: ['Open', 'Closed'] },
+    { operator: 'between', min: -3.25, max: 12.5 },
+  ])
+  assert.equal(
+    await page.evaluate(() => window.hydrationFixture.lifecycle.filterChanges),
+    8,
+  )
+  report.assertions.push(
+    'Text, multiple choices, and numeric filters retain server controls and apply each change once',
+  )
   await page.locator('#rename').click()
   await page.waitForFunction(
     () => document.getElementById('name').textContent === 'Grace',
@@ -268,6 +303,8 @@ try {
     window.serverNodes[10].dispatchEvent(new Event('change', { bubbles: true }))
     window.serverNodes[11].value = '2026-02-01'
     window.serverNodes[11].dispatchEvent(new Event('input', { bubbles: true }))
+    for (const node of window.serverNodes.slice(13))
+      node.dispatchEvent(new Event('input', { bubbles: true }))
     await new Promise((done) =>
       requestAnimationFrame(() => requestAnimationFrame(done)),
     )

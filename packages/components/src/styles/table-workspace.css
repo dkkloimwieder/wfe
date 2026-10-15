@@ -132,3 +132,39 @@
     padding-inline-start: 0;
   }
 }
+
+:where([data-ui]) .table-filter-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .table-filter-heading > button {
+  padding: 0 var(--ui-control-padding-x, 8px);
+}
+:where([data-ui]) .table-number-bounds {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .table-number-bounds > label {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+:where([data-ui]) .table-number-bounds > .ui-field-error {
+  grid-column: 1 / -1;
+}
+
+:where([data-ui]) .ui-filter-chevron {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+:where([data-ui]) .table-filter-heading > .ui-label {
+  font-weight: inherit;
+}

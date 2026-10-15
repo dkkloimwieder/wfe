@@ -54,6 +54,7 @@ They store boolean filter values, and Either removes the filter.
 The application supplies an equality `filterFn` and boolean records.
 The component does not infer column types from record values.
 Other columns keep their text filters.
+The `filter` callback configures the full set of [filter controls](./table-filters.md).
 
 For date columns, return `'date-range'` from `filterKind`.
 The control shows separate Start and End date pickers, and either date can stay empty.

@@ -47,7 +47,7 @@ assert.ok(
     ),
   ),
 )
-const ownedCheckboxModules = modules.filter((path) =>
+const ownedControlModules = modules.filter((path) =>
   path.includes(
     process.env.BENCH_DISTRIBUTION
       ? '/components/dist/source/vendor/kobalte/'
@@ -55,16 +55,32 @@ const ownedCheckboxModules = modules.filter((path) =>
   ),
 )
 assert.ok(
-  ownedCheckboxModules.some((path) => /\/checkbox-root\.(tsx|jsx)$/.test(path)),
+  ownedControlModules.some((path) => /\/checkbox-root\.(tsx|jsx)$/.test(path)),
   'column controls use the owned shared checkbox',
 )
 assert.ok(
-  ownedCheckboxModules.every((path) =>
-    /\/utils\/src\/|\/core\/src\/(checkbox|form-control|polymorphic)\/|\/core\/src\/primitives\/(create-tag-name|create-toggle-state)\//.test(
+  ownedControlModules.every((path) =>
+    /\/utils\/src\/|\/core\/src\/(checkbox|form-control|polymorphic|select|listbox|list|selection|i18n|popper|dismissable-layer|popover|button)\/|\/core\/src\/primitives\/(create-tag-name|create-toggle-state|create-collection|create-disclosure-state|create-register-id)\//.test(
       path,
     ),
   ),
-  'read-only Table retains only checkbox behavior and its shared helpers',
+  'read-only Table retains only its control, selection, and popup behavior',
+)
+assert.ok(
+  ownedControlModules.some((path) => /\/select-root\.(tsx|jsx)$/.test(path)),
+  'choice filters use the shared Select',
+)
+assert.ok(
+  ownedControlModules.some((path) => /\/popover-root\.(tsx|jsx)$/.test(path)),
+  'date filters use the shared Popover',
+)
+assert.ok(
+  modules.some((path) =>
+    /\/components\/(src|dist\/source)\/components\/DatePicker\.(tsx|jsx)$/.test(
+      path,
+    ),
+  ),
+  'date filters use the shared DatePicker',
 )
 report.moduleAudit = true
 const server = createServer(async (request, response) => {

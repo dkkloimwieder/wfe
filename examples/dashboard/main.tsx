@@ -16,7 +16,12 @@ import {
   DashboardShell,
 } from '@wfe/components/layout'
 import { createTable, ReadOnlyTable } from '@wfe/components/table'
-import type { NativeSource, TableDateRange } from '@wfe/components/table'
+import type {
+  NativeSource,
+  TableDateRange,
+  TableFilterConfig,
+  TableColumnFilterValue,
+} from '@wfe/components/table'
 import { nativeEvents } from '@wfe/components/events'
 import '@wfe/components/styles.css'
 import './style.css'
@@ -27,6 +32,10 @@ type RecordData = {
   region: string
   active: boolean
   created: string
+  status: string
+  amount: number | null
+  tags: string[]
+  notes: string | null
 }
 function records(count: number): Map<string, RecordData> {
   return new Map(
@@ -39,6 +48,15 @@ function records(count: number): Map<string, RecordData> {
           name: `Record ${index + 1}`,
           region: index % 2 ? 'East' : 'West',
           active: index % 2 === 0,
+          status: ['Open', 'Closed', 'Archived', 'Open'][index % 4]!,
+          amount: [0, 12.5, null, -3.25][index % 4]!,
+          tags: [
+            ['Priority', 'Internal'],
+            ['External'],
+            [],
+            ['Priority', 'External'],
+          ][index % 4]!,
+          notes: [null, 'Ready to review', '', 'Follow up'][index % 4]!,
           created: new Date(Date.UTC(2026, 0, 1 + (index % 365)))
             .toISOString()
             .slice(0, 10),
@@ -49,7 +67,7 @@ function records(count: number): Map<string, RecordData> {
 }
 function createRecordsData() {
   const [rows, setRows] = createStore<Record<string, RecordData | undefined>>(
-    Object.fromEntries(records(2)),
+    Object.fromEntries(records(8)),
     { shallow: true, name: 'dashboard.records' },
   )
   return {
@@ -63,21 +81,66 @@ function createRecordsData() {
       }),
   }
 }
+const choice = (values: string[]) =>
+  values.map((value) => ({ value, label: value }))
+const filterConfigurations: Record<string, TableFilterConfig> = {
+  active: { kind: 'boolean' },
+  created: { kind: 'date-range' },
+  name: { kind: 'text' },
+  region: { kind: 'select', choices: choice(['West', 'East']), exclude: true },
+  status: {
+    kind: 'multi-select',
+    choices: choice(['Open', 'Closed', 'Archived']),
+    exclude: true,
+  },
+  amount: { kind: 'number-range', empty: true },
+  tags: {
+    kind: 'tags',
+    choices: choice(['Priority', 'Internal', 'External']),
+    empty: true,
+    exclude: true,
+  },
+  notes: { kind: 'text', empty: true },
+}
+function matchFilter(value: unknown, filter: unknown) {
+  const term = filter as TableColumnFilterValue
+  const empty =
+    value == null || value === '' || (Array.isArray(value) && !value.length)
+  if (term.operator === 'empty') return empty
+  if (term.operator === 'not-empty') return !empty
+  if (empty) return false
+  if (term.operator === 'between')
+    return (
+      typeof value === 'number' &&
+      Number.isFinite(value) &&
+      (term.min === undefined || value >= term.min) &&
+      (term.max === undefined || value <= term.max)
+    )
+  if ('values' in term) {
+    const values = Array.isArray(value) ? value : [String(value)]
+    if (term.operator === 'all')
+      return term.values.every((selected) => values.includes(selected))
+    const matches = term.values.some((selected) => values.includes(selected))
+    return term.operator === 'not-in' ? !matches : matches
+  }
+  if (!('value' in term)) return false
+  const text = String(value).toLowerCase()
+  const query = term.value.toLowerCase()
+  if (term.operator === 'equals') return text === query
+  if (term.operator === 'starts-with') return text.startsWith(query)
+  if (term.operator === 'not-contains') return !text.includes(query)
+  return text.includes(query)
+}
 const textColumn = {
-  filterFn: (value: unknown, filter: unknown) =>
-    String(value ?? '')
-      .toLowerCase()
-      .includes(String(filter).toLowerCase()),
+  filterFn: matchFilter,
   sortFn: (a: unknown, b: unknown) =>
     String(a ?? '').localeCompare(String(b ?? ''), undefined, {
       numeric: true,
     }),
 }
-function filterKind(column: { id: string }) {
-  if (column.id === 'active') return 'boolean'
-  if (column.id === 'created') return 'date-range'
-  return 'text'
-}
+const displayValue = (value: unknown) =>
+  Array.isArray(value) ? value.join(', ') : String(value ?? '')
+let applyFilter: ((id: string, value: unknown) => void) | undefined
 let release: (() => void) | undefined
 let replaceRows: ((count: number) => void) | undefined
 let capture:
@@ -92,10 +155,13 @@ function stop() {
   flush()
   release = undefined
   replaceRows = undefined
+  applyFilter = undefined
 }
 function createRecordsTable(source: NativeSource<RecordData>) {
-  return createTable<RecordData>({
+  const table = createTable<RecordData>({
     source,
+    globalFilterFn: (value, query) =>
+      displayValue(value).toLowerCase().includes(query.toLowerCase()),
     columns: [
       {
         ...textColumn,
@@ -126,8 +192,33 @@ function createRecordsTable(source: NativeSource<RecordData>) {
         },
         sortFn: (a, b) => String(a).localeCompare(String(b)),
       },
+      { ...textColumn, id: 'status', header: 'Status', accessorKey: 'status' },
+      {
+        id: 'amount',
+        header: 'Amount',
+        accessorKey: 'amount',
+        filterFn: matchFilter,
+        sortFn: (a, b) => Number(a) - Number(b),
+        sortMissing: 'last',
+      },
+      {
+        ...textColumn,
+        id: 'tags',
+        header: 'Tags',
+        accessorKey: 'tags',
+        getGroupingValue: (record) => record.tags.join(', ') || undefined,
+      },
+      {
+        ...textColumn,
+        id: 'notes',
+        header: 'Notes',
+        accessorKey: 'notes',
+        getGroupingValue: (record) => record.notes || undefined,
+      },
     ],
   })
+  applyFilter = (id, value) => table.getColumn(id)?.setFilterValue(value)
+  return table
 }
 function TablePage() {
   const rows = createRecordsData()
@@ -143,7 +234,8 @@ function TablePage() {
       <ReadOnlyTable
         table={table}
         title="Records"
-        filterKind={filterKind}
+        filter={(column) => filterConfigurations[column.id]}
+        formatValue={displayValue}
         actions={<RecordActions />}
       />
     </main>
@@ -154,6 +246,7 @@ function RecordActions() {
     <div class="buttons" aria-label="Example data">
       <Button onClick={() => replaceRows?.(0)}>Empty results</Button>
       <Button onClick={() => replaceRows?.(2)}>Two records</Button>
+      <Button onClick={() => replaceRows?.(8)}>Eight records</Button>
       <Button onClick={() => replaceRows?.(500)}>500 records</Button>
     </div>
   )
@@ -186,6 +279,10 @@ function Dashboard() {
       region: region(),
       active: active(),
       created: new Date().toISOString().slice(0, 10),
+      status: 'Open',
+      amount: 0,
+      tags: [],
+      notes: null,
     })
     setStatus(`Saved ${accepted}.`)
     setName('')
@@ -227,7 +324,8 @@ function Dashboard() {
           <ReadOnlyTable
             table={table}
             title="Records"
-            filterKind={filterKind}
+            filter={(column) => filterConfigurations[column.id]}
+            formatValue={displayValue}
             actions={<RecordActions />}
           />
         </DashboardPanel>
@@ -287,6 +385,10 @@ function start() {
 const api = {
   start,
   stop,
+  setFilter: (id: string, value: unknown) => {
+    applyFilter?.(id, value)
+    flush()
+  },
   replaceRows: (count: number) => {
     replaceRows?.(count)
     flush()

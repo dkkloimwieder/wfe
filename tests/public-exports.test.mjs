@@ -31,6 +31,7 @@ test('all public source, client, server, style, and type targets exist', async (
     'Table',
     'ReadOnlyTable',
     'TableDateFilter',
+    'TableColumnFilter',
     'TableWorkspace',
     'TableControlSection',
     'DashboardShell',
