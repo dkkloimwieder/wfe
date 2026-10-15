@@ -18,7 +18,7 @@ export type SurfaceLayers = {
   pane: SurfaceLevel
   content: SurfaceLevel
 }
-export const defaultLayers: SurfaceLayers = { canvas: 1, pane: 0, content: 0 }
+export const defaultLayers: SurfaceLayers = { canvas: 0, pane: 0, content: 0 }
 export type Accent = { name: string; light: string; dark: string }
 export const monochrome: SurfaceScheme = {
   name: 'Black / white',

@@ -296,8 +296,8 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
                     }
                   </Select.Value>
                   <Select.Icon aria-hidden="true">
-                    <svg class="ui-filter-chevron" viewBox="0 0 16 16">
-                      <path d="m4 6 4 4 4-4" />
+                    <svg class="ui-filter-chevron" viewBox="0 0 10 6">
+                      <path d="m1 1 4 4 4-4" />
                     </svg>
                   </Select.Icon>
                 </Select.Trigger>

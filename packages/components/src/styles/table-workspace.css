@@ -207,8 +207,9 @@
 }
 
 :where([data-ui]) .ui-filter-chevron {
-  width: 12px;
-  height: 12px;
+  display: block;
+  width: 10px;
+  height: 6px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;

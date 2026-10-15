@@ -14,7 +14,7 @@ The sample row shows SURFACE 1–4 and TEXT 1–2 with their exact values.
 All control rows scroll horizontally on narrow screens.
 The Table fills the remaining height.
 
-The initial backdrop uses SURFACE 2. Panes and content use SURFACE 1.
+The backdrop, panes, and content start with SURFACE 1.
 The controls preserve these choices across mode changes.
 Pane titles, section summaries, and table headings remain unfilled.
 SURFACE 3 supplies hover and selection backgrounds.

@@ -138,6 +138,9 @@
   text-align: left;
   vertical-align: middle;
 }
+:where([data-ui]) .table-scroll > table > thead > tr:first-child > :is(th, td) {
+  border-top: 0;
+}
 :where([data-ui]) thead {
   background: transparent;
   color: var(--ui-text, #000);
@@ -735,13 +738,14 @@
 }
 :where([data-ui]) .popup-trigger {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: calc(var(--ui-font-size, 12px) * 0.6);
   width: 100%;
   min-height: var(--ui-control-height, 26px);
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
   background: var(--ui-surface, white);
-  border: 1px solid var(--ui-muted-text, #666);
+  border: 1px solid var(--ui-control-border, #999);
   border-radius: 0;
 }
 :where([data-ui]) .popup-trigger[aria-invalid='true'] {
