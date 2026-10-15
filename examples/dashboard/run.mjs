@@ -1907,7 +1907,7 @@ try {
         .evaluate((node, key) => getComputedStyle(node)[key], property)
     const head = 'thead th:not(:last-child)'
     const body = 'tr[data-row] td:not(:last-child)'
-    const first = 'rgb(248, 249, 250)'
+    const first = 'rgb(255, 255, 255)'
     assert.equal(await color(head, 'borderInlineEndColor'), first)
     assert.equal(await color(body, 'borderInlineEndColor'), first)
     assert.equal(await color(body, 'borderTopColor'), first)

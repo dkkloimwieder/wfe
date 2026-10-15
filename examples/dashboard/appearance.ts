@@ -3,6 +3,7 @@
 // Source: https://raw.githubusercontent.com/argyleink/open-props/f39ab7c377a0e047f930982e3611bbc95254a260/src/props.colors.js
 // Source SHA-256: 9197aaccf67264fa1f4acc6c19504f3b79fa7c4c1d684af7e29368dcca4cf39f
 // Neutral roles follow extra/theme.light.css and extra/theme.dark.css at this commit.
+// Local adaptation: Light Surface 1 uses pure white for lighter content.
 import type { JSX } from '@solidjs/web'
 
 export type SurfaceScheme = {
@@ -34,7 +35,7 @@ export const schemes: readonly SurfaceScheme[] = [
   {
     name: 'Light',
     mode: 'light',
-    surfaces: ['#f8f9fa', '#e9ecef', '#dee2e6', '#ced4da'],
+    surfaces: ['#ffffff', '#e9ecef', '#dee2e6', '#ced4da'],
     text: ['#030507', '#495057'],
   },
   {

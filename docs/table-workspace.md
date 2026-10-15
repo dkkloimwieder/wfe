@@ -192,6 +192,6 @@ Shared table styles draw column dividers through headings and record cells.
 Set `--ui-table-row-divider` and `--ui-table-column-divider` on the owning scope for separate colors.
 Both tokens fall back to `--ui-divider`.
 The dashboard review starts both at Surface 1 and offers four surface levels independently.
-Black/white uses the Light neutral surfaces for these lines so they retain a visible shade.
+Black/white uses the Light neutral surfaces for these lines.
 Light and Dark use their own neutral surfaces.
 Pane borders keep their existing color.
