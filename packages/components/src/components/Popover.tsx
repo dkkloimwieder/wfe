@@ -1,3 +1,5 @@
+import { buttonAttributes } from '../internal/buttonPresentation'
+import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/popover'
 import { untrack } from 'solid-js'
 import { PopupScope, createPopupScope, usePopupScope } from './popupScope'
@@ -13,16 +15,19 @@ export function PopoverRoot(props: Core.PopoverRootProps) {
     </PopupScope>
   )
 }
+export type PopoverTriggerProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.PopoverTriggerProps<T> & ButtonAppearanceProps
 export function PopoverTrigger<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, Core.PopoverTriggerProps<T> & { class?: string }>,
+  props: PolymorphicProps<T, PopoverTriggerProps<T>>,
 ) {
+  const attributes = buttonAttributes(props) as typeof props
   const Primitive = Core.Trigger as Component<typeof props>
   const scope = usePopupScope()
   return (
     <Primitive
-      {...props}
+      {...attributes}
       data-ui=""
-      class={'ui-button ' + (props.class ?? '')}
       ref={[scope.setTrigger, untrack(() => props.ref)]}
     />
   )
@@ -39,20 +44,15 @@ export function PopoverContent<T extends ValidComponent = 'div'>(
     />
   )
 }
+export type PopoverCloseButtonProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.PopoverCloseButtonProps<T> & ButtonAppearanceProps
 export function PopoverCloseButton<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<
-    T,
-    Core.PopoverCloseButtonProps<T> & { class?: string }
-  >,
+  props: PolymorphicProps<T, PopoverCloseButtonProps<T>>,
 ) {
+  const attributes = buttonAttributes(props) as typeof props
   const Primitive = Core.CloseButton as Component<typeof props>
-  return (
-    <Primitive
-      {...props}
-      data-ui=""
-      class={'ui-button ' + (props.class ?? '')}
-    />
-  )
+  return <Primitive {...attributes} data-ui="" />
 }
 export function PopoverTitle<T extends ValidComponent = 'h2'>(
   props: PolymorphicProps<T, Core.PopoverTitleProps<T> & { class?: string }>,

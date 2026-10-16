@@ -1,3 +1,5 @@
+import { buttonAttributes } from '../internal/buttonPresentation'
+import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/alert-dialog'
 import { untrack } from 'solid-js'
 import { Dialog, DialogRoot } from './Dialog'
@@ -32,21 +34,19 @@ export function AlertDialogContent<T extends ValidComponent = 'div'>(
     />
   )
 }
+export type AlertDialogCancelProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.AlertDialogCloseButtonProps<T> &
+  ButtonAppearanceProps & { children?: JSX.Element }
 export function AlertDialogCancel<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<
-    T,
-    Core.AlertDialogCloseButtonProps<T> & {
-      class?: string
-      children?: JSX.Element
-    }
-  >,
+  props: PolymorphicProps<T, AlertDialogCancelProps<T>>,
 ) {
+  const attributes = buttonAttributes(props) as typeof props
   const Primitive = Core.CloseButton as Component<typeof props>
   const scope = useDialogScope()
   return (
     <Primitive
-      {...props}
-      class={'ui-button ' + (props.class ?? '')}
+      {...attributes}
       aria-label={
         props['aria-label'] ??
         (typeof props.children === 'string' ? props.children : 'Cancel')
@@ -71,3 +71,8 @@ export const AlertDialog = /* @__PURE__ */ Object.assign(AlertDialogRoot, {
   Action: Button,
 })
 export type * from '../internal/controls/alert-dialog'
+
+export type {
+  DialogTriggerProps as AlertDialogTriggerProps,
+  DialogCloseButtonProps as AlertDialogCloseButtonProps,
+} from './Dialog'

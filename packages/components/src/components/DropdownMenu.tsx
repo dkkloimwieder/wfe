@@ -1,3 +1,5 @@
+import { buttonAttributes } from '../internal/buttonPresentation'
+import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/dropdown-menu'
 import { untrack } from 'solid-js'
 import { PopupScope, createPopupScope, usePopupScope } from './popupScope'
@@ -13,19 +15,19 @@ export function DropdownMenuRoot(props: Core.DropdownMenuRootProps) {
     </PopupScope>
   )
 }
+export type DropdownMenuTriggerProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.DropdownMenuTriggerProps<T> & ButtonAppearanceProps
 export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<
-    T,
-    Core.DropdownMenuTriggerProps<T> & { class?: string }
-  >,
+  props: PolymorphicProps<T, DropdownMenuTriggerProps<T>>,
 ) {
+  const attributes = buttonAttributes(props) as typeof props
   const Primitive = Core.Trigger as Component<typeof props>
   const scope = usePopupScope()
   return (
     <Primitive
-      {...props}
+      {...attributes}
       data-ui=""
-      class={'ui-button ' + (props.class ?? '')}
       ref={[scope.setTrigger, untrack(() => props.ref)]}
     />
   )

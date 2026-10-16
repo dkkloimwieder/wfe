@@ -218,3 +218,77 @@ pnpm test:contracts
 
 This command compiles every TypeScript example in this decision.
 The examples specify contracts. Component tests establish behavior.
+
+## Overlay button presentation
+
+Overlay buttons use the Button variant and tone contract.
+Dialog and Sheet share their trigger and close implementations.
+The following example covers the public button prop types and custom element composition.
+
+```tsx
+import { Button, Dialog, Popover, Tooltip } from '@wfe/components'
+import type {
+  DialogTriggerProps,
+  DialogCloseButtonProps,
+  AlertDialogTriggerProps,
+  AlertDialogCloseButtonProps,
+  AlertDialogCancelProps,
+  PopoverTriggerProps,
+  PopoverCloseButtonProps,
+  DropdownMenuTriggerProps,
+  TooltipTriggerProps,
+} from '@wfe/components'
+
+export const overlayAppearances: [
+  DialogTriggerProps,
+  DialogCloseButtonProps,
+  AlertDialogTriggerProps,
+  AlertDialogCloseButtonProps,
+  AlertDialogCancelProps,
+  PopoverTriggerProps,
+  PopoverCloseButtonProps,
+  DropdownMenuTriggerProps,
+  TooltipTriggerProps,
+] = [
+  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'accent' },
+]
+
+// @ts-expect-error Variants use the same finite values as Button.
+export const invalidOverlay: DialogTriggerProps = { variant: 'primary' }
+
+export function OverlayExample() {
+  return (
+    <>
+      <Dialog>
+        <Dialog.Trigger as={Button} variant="filled" tone="accent">
+          Details
+        </Dialog.Trigger>
+        <Dialog.Portal>
+          <Dialog.Content>
+            <Dialog.Title>Details</Dialog.Title>
+            <Dialog.CloseButton variant="ghost" tone="accent">
+              Close
+            </Dialog.CloseButton>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+      <Popover>
+        <Popover.Trigger variant="inverted">Display</Popover.Trigger>
+      </Popover>
+      <Tooltip>
+        <Tooltip.Trigger as="a" href="#help" variant="outline" tone="accent">
+          Help
+        </Tooltip.Trigger>
+      </Tooltip>
+    </>
+  )
+}
+```

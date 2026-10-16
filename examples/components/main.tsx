@@ -1,3 +1,4 @@
+import { OverlayButtonControls } from './OverlayButtonControls'
 import './style.css'
 import { action, flush } from 'solid-js'
 import { render } from '@solidjs/web'
@@ -14,7 +15,20 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('consumer')) {
+if (new URLSearchParams(location.search).has('overlayButtons')) {
+  const dispose = render(
+    () => <OverlayButtonControls />,
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  window.overlayButtonFixture.stop = () => {
+    cleanup()
+    flush()
+  }
+} else if (new URLSearchParams(location.search).has('consumer')) {
   const start = () => {
     const dispose = render(
       () => <GenericConsumer />,

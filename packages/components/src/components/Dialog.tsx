@@ -1,3 +1,5 @@
+import { buttonAttributes } from '../internal/buttonPresentation'
+import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/dialog'
 import { untrack } from 'solid-js'
 import { DialogScope, createDialogScope, useDialogScope } from './dialogScope'
@@ -25,28 +27,32 @@ export function DialogPortal(props: Core.DialogPortalProps) {
   )
 }
 
+export type DialogTriggerProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.DialogTriggerProps<T> & ButtonAppearanceProps
 export function DialogTrigger<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, Core.DialogTriggerProps<T> & { class?: string }>,
+  props: PolymorphicProps<T, DialogTriggerProps<T>>,
 ) {
+  const attributes = buttonAttributes(props) as typeof props
   const Primitive = Core.Trigger as Component<typeof props>
   const scope = useDialogScope()
   return (
     <Primitive
-      {...props}
-      class={'ui-button ' + (props.class ?? '')}
+      {...attributes}
       ref={[scope.setTrigger, untrack(() => props.ref)]}
     />
   )
 }
 
+export type DialogCloseButtonProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.DialogCloseButtonProps<T> & ButtonAppearanceProps
 export function DialogCloseButton<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<
-    T,
-    Core.DialogCloseButtonProps<T> & { class?: string }
-  >,
+  props: PolymorphicProps<T, DialogCloseButtonProps<T>>,
 ) {
+  const attributes = buttonAttributes(props) as typeof props
   const Primitive = Core.CloseButton as Component<typeof props>
-  return <Primitive {...props} class={'ui-button ' + (props.class ?? '')} />
+  return <Primitive {...attributes} />
 }
 
 export function DialogOverlay<T extends ValidComponent = 'div'>(

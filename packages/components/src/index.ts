@@ -13,17 +13,36 @@ export type { SwitchRootProps } from './internal/controls/switch'
 export { RadioGroup } from './components/RadioGroup'
 export type { RadioGroupRootProps } from './internal/controls/radio-group'
 export { Dialog } from './components/Dialog'
-export type { DialogRootProps } from './components/Dialog'
+export type {
+  DialogRootProps,
+  DialogTriggerProps,
+  DialogCloseButtonProps,
+} from './components/Dialog'
 export { AlertDialog } from './components/AlertDialog'
-export type { AlertDialogRootProps } from './components/AlertDialog'
+export type {
+  AlertDialogRootProps,
+  AlertDialogTriggerProps,
+  AlertDialogCloseButtonProps,
+  AlertDialogCancelProps,
+} from './components/AlertDialog'
 export { Sheet } from './components/Sheet'
 export type { SheetRootProps, SheetSide } from './components/Sheet'
 export { Popover } from './components/Popover'
-export type { PopoverRootProps } from './internal/controls/popover'
+export type {
+  PopoverRootProps,
+  PopoverTriggerProps,
+  PopoverCloseButtonProps,
+} from './components/Popover'
 export { DropdownMenu } from './components/DropdownMenu'
-export type { DropdownMenuRootProps } from './internal/controls/dropdown-menu'
+export type {
+  DropdownMenuRootProps,
+  DropdownMenuTriggerProps,
+} from './components/DropdownMenu'
 export { Tooltip } from './components/Tooltip'
-export type { TooltipRootProps } from './internal/controls/tooltip'
+export type {
+  TooltipRootProps,
+  TooltipTriggerProps,
+} from './components/Tooltip'
 export * from './components/Display'
 export * from './components/Toast'
 export * from './table'

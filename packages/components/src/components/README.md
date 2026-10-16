@@ -36,3 +36,17 @@ The application accepts or rejects value changes through its controlled value.
 `NativeSelect` remains a compatibility export for native browser integration.
 Normal interfaces use `SelectField` or `Select`.
 Native interoperability fixtures and style-isolation fixtures can use native controls explicitly.
+
+## Overlay buttons
+
+Dialog, AlertDialog, Sheet, Popover, DropdownMenu, and Tooltip buttons share Button presentation.
+Their triggers and close or cancel buttons accept `variant` and `tone`.
+The defaults are `outline` and `neutral`.
+The variants are `outline`, `filled`, `inverted`, and `ghost`.
+The tones are `neutral` and `accent`.
+
+The primitive owns overlay events, focus, and accessibility attributes.
+Shared presentation adds no wrapper element or event handler.
+Custom elements through `as`, including `as={Button}`, retain the selected presentation.
+A default Tooltip trigger uses `type="button"` to avoid accidental form submission.
+Custom links keep their link behavior, and an explicit `type` takes precedence.

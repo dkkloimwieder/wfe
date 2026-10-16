@@ -268,7 +268,12 @@ export default function App() {
         Rename
       </Button>
       <Dialog id="adopt-dialog" open={open()} onOpenChange={setOpen}>
-        <Dialog.Trigger as={Button} id="adopt-trigger">
+        <Dialog.Trigger
+          as={Button}
+          id="adopt-trigger"
+          variant={name() === 'Ada' ? 'filled' : 'inverted'}
+          tone="accent"
+        >
           View record
         </Dialog.Trigger>
         <Dialog.Portal>
@@ -278,7 +283,9 @@ export default function App() {
             <Dialog.Description>
               The current application value is {name()}.
             </Dialog.Description>
-            <Dialog.CloseButton as={Button}>Close preview</Dialog.CloseButton>
+            <Dialog.CloseButton as={Button} variant="ghost" tone="accent">
+              Close preview
+            </Dialog.CloseButton>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog>

@@ -1,3 +1,6 @@
+import { buttonAttributes } from '../internal/buttonPresentation'
+import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
+export type { ButtonTone, ButtonVariant } from '../internal/buttonPresentation'
 import { FieldContext } from '../internal/fieldContext'
 import type { FieldState } from '../internal/fieldContext'
 import { renderAfterRegistration } from '../internal/fieldRendering'
@@ -250,22 +253,15 @@ export function Textarea(props: TextareaProps) {
     />
   ))
 }
-export type ButtonTone = 'neutral' | 'accent'
-export type ButtonVariant = 'outline' | 'filled' | 'inverted' | 'ghost'
-export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: ButtonVariant
-  tone?: ButtonTone
-}
+export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> &
+  ButtonAppearanceProps
 export function Button(props: ButtonProps) {
-  const attributes = omit(props, 'ref', 'variant', 'tone', ...nativeEventProps)
+  const attributes = buttonAttributes(omit(props, 'ref', ...nativeEventProps))
   const events = ownedElementEvents(props)
   return (
     <button
       {...attributes}
       type={props.type ?? 'button'}
-      class={'ui-button ' + (props.class ?? '')}
-      data-variant={props.variant ?? 'outline'}
-      data-tone={props.tone ?? 'neutral'}
       ref={[props.ref, events]}
     />
   )

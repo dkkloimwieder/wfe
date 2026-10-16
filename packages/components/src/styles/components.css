@@ -1,10 +1,12 @@
 :where([data-ui]) button,
+:where([data-ui]) :where(.ui-button),
 :where([data-ui]) input,
 :where([data-ui]) textarea,
 :where([data-ui]) select {
   font: inherit;
 }
-:where([data-ui]) button {
+:where([data-ui]) button,
+:where([data-ui]) :where(.ui-button) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -16,17 +18,22 @@
   padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 8px);
   cursor: pointer;
 }
-:where([data-ui]) button[hidden] {
+:where([data-ui]) button[hidden],
+:where([data-ui]) :where(.ui-button)[hidden] {
   display: none;
 }
-:where([data-ui]) button:hover:not(:disabled, [aria-disabled='true']) {
+:where([data-ui]) button:hover:not(:disabled, [aria-disabled='true']),
+:where([data-ui])
+  :where(.ui-button):hover:not(:disabled, [aria-disabled='true']) {
   background-color: var(--ui-highlight, #edf3fb);
 }
-:where([data-ui]) button:disabled {
+:where([data-ui]) button:disabled,
+:where([data-ui]) :where(.ui-button):is(:disabled, [aria-disabled='true']) {
   cursor: default;
   opacity: var(--ui-disabled-opacity, 0.55);
 }
 :where([data-ui]) button:focus-visible,
+:where([data-ui]) :where(.ui-button):focus-visible,
 :where([data-ui]) input:focus-visible,
 :where([data-ui]) textarea:focus-visible,
 :where([data-ui]) select:focus-visible {
@@ -34,6 +41,7 @@
   outline-offset: 2px;
 }
 :where([data-ui]) .ui-button {
+  text-decoration: none;
   --_button-color: var(--ui-text, #000);
   --_button-contrast: var(--ui-surface, #fff);
   --_button-hover: var(
@@ -104,7 +112,8 @@
 }
 @media (forced-colors: active) {
   :where([data-ui])
-    button.ui-button[data-variant][data-tone]:is(:enabled, :disabled) {
+    button.ui-button[data-variant][data-tone]:is(:enabled, :disabled),
+  :where([data-ui]) .ui-button[data-variant][data-tone]:not(button) {
     border-color: ButtonText;
     background: ButtonFace;
     color: ButtonText;

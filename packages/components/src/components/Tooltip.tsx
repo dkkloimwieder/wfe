@@ -1,3 +1,5 @@
+import { buttonAttributes } from '../internal/buttonPresentation'
+import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/tooltip'
 import { untrack } from 'solid-js'
 import { PopupScope, createPopupScope, usePopupScope } from './popupScope'
@@ -13,16 +15,23 @@ export function TooltipRoot(props: Core.TooltipRootProps) {
     </PopupScope>
   )
 }
+export type TooltipTriggerProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.TooltipTriggerProps<T> & ButtonAppearanceProps
 export function TooltipTrigger<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, Core.TooltipTriggerProps<T> & { class?: string }>,
+  props: PolymorphicProps<T, TooltipTriggerProps<T>>,
 ) {
+  const attributes = buttonAttributes(props) as typeof props
   const Primitive = Core.Trigger as Component<typeof props>
   const scope = usePopupScope()
   return (
     <Primitive
-      {...props}
+      {...attributes}
+      type={
+        props.type ??
+        (props.as == null || props.as === 'button' ? 'button' : undefined)
+      }
       data-ui=""
-      class={'ui-button ' + (props.class ?? '')}
       ref={[scope.setTrigger, untrack(() => props.ref)]}
     />
   )

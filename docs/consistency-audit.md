@@ -56,18 +56,19 @@ NativeSelect remains a compatibility export for native browser integration.
 Raw controls remain in explicit browser interoperability and scope-isolation tests.
 They do not define another visual standard for application examples.
 
-## P1: overlay triggers bypass the Button contract
+## Fixed: overlay buttons share the Button contract
 
-Follow-up: `wfe-w2y.13`.
+Issue: `wfe-w2y.13`.
 
-[Dialog](../packages/components/src/components/Dialog.tsx), [Popover](../packages/components/src/components/Popover.tsx), [Tooltip](../packages/components/src/components/Tooltip.tsx), and [DropdownMenu](../packages/components/src/components/DropdownMenu.tsx) assign `ui-button` directly.
-[AlertDialog.Cancel](../packages/components/src/components/AlertDialog.tsx) does the same.
-These wrappers do not supply the variant and tone defaults that [Button](../packages/components/src/components/NativeFields.tsx) supplies.
-A shared class alone does not provide a shared component contract.
+[Dialog](../packages/components/src/components/Dialog.tsx), [Popover](../packages/components/src/components/Popover.tsx), [Tooltip](../packages/components/src/components/Tooltip.tsx), and [DropdownMenu](../packages/components/src/components/DropdownMenu.tsx) use the shared Button presentation helper.
+[AlertDialog.Cancel](../packages/components/src/components/AlertDialog.tsx) uses that helper too.
+Sheet inherits the Dialog buttons.
+The helper owns classes, variant and tone defaults, and public presentation attributes.
+It preserves explicit presentation through `as={Button}` composition.
 
-Use the same Button presentation and variant API for these parts.
-Preserve the primitive behavior, caller handlers, polymorphic composition, focus, and references.
-The overlay behavior does not justify different button appearance.
+Primitive behavior still owns overlay events and focus.
+Custom elements receive the same button styles without another wrapper.
+Default Tooltip buttons avoid form submission while custom links retain link behavior.
 
 ## P1: common style contracts remain fragmented
 
@@ -143,6 +144,16 @@ Use the shared block layout when integration work resumes.
 Preserve the application row adapter, measurements, focus, and transport boundary.
 This audit does not authorize changes to external WAMN inputs or optional integration preparation.
 
+## P2: structured class values become strings
+
+Follow-up: `wfe-w2y.19`.
+
+[Styled native fields](../packages/components/src/components/NativeFields.tsx) and other wrappers concatenate class values into strings.
+Solid also accepts arrays and conditional maps as class values.
+Those structured values lose their intended meaning during string conversion.
+The overlay Button migration preserves the existing public class type and runtime behavior.
+A separate repair must preserve structured values alongside required component classes.
+
 ## Differences that remain intentional
 
 SelectField is a convenient composition. Select exposes the same underlying parts for richer choices.
@@ -162,7 +173,8 @@ Package source contains no application request or persistence implementation.
 ## Order of follow-up work
 
 Table controls and normal consumer interfaces now use shared controls.
-Next, make overlay triggers use the Button contract and consolidate common state styles.
+Overlay buttons now share the Button contract.
+Next, consolidate common state styles.
 Use the shared interaction matrix to prevent new divergence.
 Centralize repeated icons and correct obsolete documentation in focused changes.
 

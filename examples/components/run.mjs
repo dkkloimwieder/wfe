@@ -1,3 +1,4 @@
+import { overlayButtonCases } from './overlay-button-cases.mjs'
 import assert from 'node:assert/strict'
 import { consumerCases } from './consumer-cases.mjs'
 import { displayCases } from './display-cases.mjs'
@@ -223,6 +224,7 @@ async function record(name, work) {
 try {
   await consumerCases({ page, url, record, press, settle })
   await displayCases({ createPage, url, record })
+  await overlayButtonCases({ page, url, record, settle })
   await overlayCases({ page, url, record, press, settle })
   await dialogCases({ page, url, record, press, settle })
   await booleanCases({ page, url, record, press, settle })

@@ -79,6 +79,13 @@ try {
   )
   assert.match(markup, /data-variant="filled"/)
   assert.match(markup, /data-tone="accent"/)
+  const triggerMarkup = markup.match(
+    /<button\b[^>]*\bid="adopt-trigger"[^>]*>/,
+  )?.[0]
+  assert.ok(triggerMarkup)
+  assert.match(triggerMarkup, /data-variant="filled"/)
+  assert.match(triggerMarkup, /data-tone="accent"/)
+  assert.doesNotMatch(triggerMarkup, /\s(?:variant|tone)=/)
   const html = template.replace('<!--ssr-->', markup)
   // Capture the original nodes before the deferred module attaches the client.
   await writeFile(
@@ -108,6 +115,14 @@ try {
       .then(() => page.waitForSelector('html[data-hydrated="true"]')),
     new Promise((_, reject) => page.once('pageerror', reject)),
   ])
+  await expect(page.locator('#adopt-trigger')).toHaveAttribute(
+    'data-variant',
+    'filled',
+  )
+  await expect(page.locator('#adopt-trigger')).toHaveAttribute(
+    'data-tone',
+    'accent',
+  )
   await page.setViewportSize({ width: 390, height: 800 })
   const navigationToggle = page.getByRole('button', {
     name: 'Navigation',
@@ -358,6 +373,16 @@ try {
   })
   await expect(dialog).toBeVisible()
   await expect(dialog).toContainText('Keyboard value')
+  await expect(page.locator('#adopt-trigger')).toHaveAttribute(
+    'data-variant',
+    'inverted',
+  )
+  await expect(
+    dialog.getByRole('button', { name: 'Dismiss', exact: true }),
+  ).toHaveAttribute('data-variant', 'ghost')
+  await expect(
+    dialog.getByRole('button', { name: 'Dismiss', exact: true }),
+  ).toHaveAttribute('data-tone', 'accent')
   await page.keyboard.press('Escape')
   await expect(dialog).not.toBeVisible()
   await expect(
