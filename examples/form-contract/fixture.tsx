@@ -3,7 +3,7 @@ import { OBSERVE, action, flush } from 'solid-js'
 import { App } from './App'
 import type { createApplication } from './application'
 import './style.css'
-export function createFixture() {
+export function createFixture(Example = App) {
   let release: (() => void) | undefined
   let application: ReturnType<typeof createApplication> | undefined
   let capture:
@@ -27,7 +27,7 @@ export function createFixture() {
     capture = OBSERVE?.diagnostics.capture()
     release = render(
       () => (
-        <App
+        <Example
           ready={(value) => {
             application = value
           }}
@@ -45,7 +45,7 @@ export function createFixture() {
       capture = OBSERVE?.diagnostics.capture()
       release = await hydrate(
         () => (
-          <App
+          <Example
             ready={(value) => {
               application = value
             }}

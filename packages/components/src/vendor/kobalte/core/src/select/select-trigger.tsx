@@ -1,3 +1,4 @@
+import { renderAfterRegistration } from '../../../../../internal/fieldRendering.tsx'
 /*
  * Portions of this file are based on code from react-spectrum.
  * Apache License Version 2.0, Copyright 2020 Adobe.
@@ -99,7 +100,10 @@ export function SelectTrigger<T extends ValidComponent = 'button'>(
 
   const ariaLabelledBy = () => {
     return (
-      [context.listboxAriaLabelledBy(), context.valueId()]
+      [
+        context.listboxAriaLabelledBy() ?? fieldProps.ariaLabelledBy(),
+        context.valueId(),
+      ]
         .filter(Boolean)
         .join(' ') || undefined
     )
@@ -238,7 +242,7 @@ export function SelectTrigger<T extends ValidComponent = 'button'>(
     },
   )
 
-  return (
+  return renderAfterRegistration(() => (
     <Button.Root<
       Component<
         Omit<SelectTriggerRenderProps, keyof Button.ButtonRootRenderProps>
@@ -265,5 +269,5 @@ export function SelectTrigger<T extends ValidComponent = 'button'>(
       {...formControlContext.dataset()}
       {...others}
     />
-  )
+  ))
 }

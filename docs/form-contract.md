@@ -169,6 +169,7 @@ Focused unit cases cover ownership, immutable snapshots, cancellation, response 
 Browser cases exercise those rules through the shared controls in source, built-package, and development modes.
 The hydration runner renders this same screen on the server and attaches the client to its original nodes.
 It tests accessible controls before attachment, keyboard submission, field errors, service failures, retry, cancellation, reset, and external replacement.
+Custom ID changes and conditional descriptions retain their controls and remove obsolete references.
 Six lifetimes exercise pending validation and submission, detached controls, released subscriptions, and stale responses without page navigation.
 Source, built-package, and development modes reject server warnings, browser warnings, and reactive diagnostics.
 
@@ -190,8 +191,9 @@ The client attaches event handlers through `hydrate` from `@solidjs/web`.
 Release its owner and remove the retained server markup when the host closes the view.
 The shared example fixture demonstrates this host cleanup.
 
-The example supplies explicit checkbox input IDs, label IDs, and label associations for accessible server markup.
-Automatic checkbox labels currently depend on client registration.
-Native descriptions after their input also lack automatic associations before client attachment.
-Issue `wfe-w2y.3.5` tracks those component defaults.
-Use explicit input and description associations when server markup must expose them before attachment.
+Fields and checkboxes establish automatic label and description associations in server markup.
+Labels can precede custom control IDs, and descriptions can follow their controls.
+Conditional descriptions and invalid messages update after client attachment without replacing controls.
+Caller description IDs remain intact.
+The example uses automatic checkbox associations and requires no explicit label workaround.
+The hydration cases also cover textarea, native choices, switches, Select, and Combobox associations.

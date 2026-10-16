@@ -1,3 +1,4 @@
+import { renderAfterRegistration } from '../../../../../internal/fieldRendering.tsx'
 /*
  * Portions of this file are based on code from react-spectrum.
  * Apache License Version 2.0, Copyright 2020 Adobe.
@@ -122,7 +123,7 @@ export function SwitchInput<T extends ValidComponent = 'input'>(
     context.setIsFocused(false)
   }
 
-  return (
+  return renderAfterRegistration(() => (
     <Polymorphic<SwitchInputRenderProps>
       as="input"
       ref={[context.setInputRef, mergedProps.ref]}
@@ -153,5 +154,5 @@ export function SwitchInput<T extends ValidComponent = 'input'>(
       {...context.dataset()}
       {...others}
     />
-  )
+  ))
 }

@@ -105,19 +105,11 @@ export function App(props: {
             checked={form.values.enabled}
             onChange={(value) => form.setValue('enabled', value)}
           >
-            <Checkbox.Input
-              id="record-enabled-input"
-              aria-labelledby="record-enabled-label"
-            />
+            <Checkbox.Input />
             <Checkbox.Control>
               <Checkbox.Indicator />
             </Checkbox.Control>
-            <Checkbox.Label
-              id="record-enabled-label"
-              for="record-enabled-input"
-            >
-              Enabled
-            </Checkbox.Label>
+            <Checkbox.Label>Enabled</Checkbox.Label>
           </Checkbox>
           <Show when={form.errors.form || form.phase === 'error'}>
             <p role="alert">
@@ -165,19 +157,11 @@ export function App(props: {
               application.setHold(value ? 'submission' : undefined)
             }
           >
-            <Checkbox.Input
-              id="pause-response-input"
-              aria-labelledby="pause-response-label"
-            />
+            <Checkbox.Input />
             <Checkbox.Control>
               <Checkbox.Indicator />
             </Checkbox.Control>
-            <Checkbox.Label
-              id="pause-response-label"
-              for="pause-response-input"
-            >
-              Pause response
-            </Checkbox.Label>
+            <Checkbox.Label>Pause response</Checkbox.Label>
           </Checkbox>
           <div class="buttons">
             <Button

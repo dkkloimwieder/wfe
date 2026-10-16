@@ -1,3 +1,4 @@
+import { isServer } from '@solidjs/web'
 import type { ValidComponent } from '@solidjs/web'
 import { createEffect, merge } from 'solid-js'
 
@@ -34,6 +35,10 @@ export function FormControlDescription<T extends ValidComponent = 'div'>(
     props as FormControlDescriptionProps,
   )
 
+  if (isServer) {
+    const id = mergedProps.id!
+    if (id) context.registerDescription(id)
+  }
   createEffect(
     () => mergedProps.id!,
     (id) => context.registerDescription(id),

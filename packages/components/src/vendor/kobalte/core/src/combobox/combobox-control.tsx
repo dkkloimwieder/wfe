@@ -1,3 +1,4 @@
+import { renderAfterRegistration } from '../../../../../internal/fieldRendering.tsx'
 import type { JSX, ValidComponent } from '@solidjs/web'
 import { type Accessor, children, omit, type Ref } from 'solid-js'
 
@@ -65,7 +66,7 @@ export function ComboboxControl<Option, T extends ValidComponent = 'div'>(
 
   const selectionManager = () => context.listState().selectionManager()
 
-  return (
+  return renderAfterRegistration(() => (
     <Polymorphic<ComboboxControlRenderProps>
       as="div"
       ref={[context.setControlRef, props.ref as (el: HTMLElement) => void]}
@@ -83,7 +84,7 @@ export function ComboboxControl<Option, T extends ValidComponent = 'div'>(
         {props.children}
       </ComboboxControlChild>
     </Polymorphic>
-  )
+  ))
 }
 
 interface ComboboxControlChildProps<Option> extends Pick<

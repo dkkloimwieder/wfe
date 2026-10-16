@@ -1,3 +1,4 @@
+import { renderAfterRegistration } from '../internal/fieldRendering'
 import {
   callHandler,
   nativeEventProps,
@@ -112,14 +113,14 @@ export function Label(props: LabelProps) {
   const field = useContext(FieldContext)
   const attributes = omit(props, 'ref', ...nativeEventProps)
   const events = ownedElementEvents(props)
-  return (
+  return renderAfterRegistration(() => (
     <label
       {...attributes}
       for={props.for ?? field?.controlId()}
       class={'ui-label ' + (props.class ?? '')}
       ref={[props.ref, events]}
     />
-  )
+  ))
 }
 export type HelpTextProps = JSX.HTMLAttributes<HTMLDivElement>
 export function HelpText(props: HelpTextProps) {
@@ -226,7 +227,7 @@ function textControl<T extends TextElement>(props: TextProps<T>) {
 }
 export function Input(props: InputProps) {
   const state = textControl<HTMLInputElement>(props)
-  return (
+  return renderAfterRegistration(() => (
     <input
       {...state.attributes}
       id={state.id()}
@@ -240,11 +241,11 @@ export function Input(props: InputProps) {
       class={'ui-input ' + (props.class ?? '')}
       ref={[props.ref, state.events]}
     />
-  )
+  ))
 }
 export function Textarea(props: TextareaProps) {
   const state = textControl<HTMLTextAreaElement>(props)
-  return (
+  return renderAfterRegistration(() => (
     <textarea
       {...state.attributes}
       id={state.id()}
@@ -258,7 +259,7 @@ export function Textarea(props: TextareaProps) {
       class={'ui-textarea ' + (props.class ?? '')}
       ref={[props.ref, state.events]}
     />
-  )
+  ))
 }
 export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement>
 export function Button(props: ButtonProps) {
@@ -347,7 +348,7 @@ export function NativeSelect(props: NativeSelectProps) {
       },
     }),
   )
-  return (
+  return renderAfterRegistration(() => (
     <select
       {...attributes}
       id={id()}
@@ -365,5 +366,5 @@ export function NativeSelect(props: NativeSelectProps) {
       class={'ui-native-select ' + (props.class ?? '')}
       ref={[props.ref, events]}
     />
-  )
+  ))
 }

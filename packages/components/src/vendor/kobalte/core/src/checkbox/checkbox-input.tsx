@@ -1,3 +1,4 @@
+import { renderAfterRegistration } from '../../../../../internal/fieldRendering.tsx'
 /*
  * Portions of this file are based on code from react-spectrum.
  * Apache License Version 2.0, Copyright 2020 Adobe.
@@ -164,7 +165,7 @@ export function CheckboxInput<T extends ValidComponent = 'input'>(
     },
   )
 
-  return (
+  return renderAfterRegistration(() => (
     <Polymorphic<CheckboxInputRenderProps>
       as="input"
       ref={[
@@ -199,5 +200,5 @@ export function CheckboxInput<T extends ValidComponent = 'input'>(
       {...context.dataset()}
       {...others}
     />
-  )
+  ))
 }

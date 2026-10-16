@@ -1,3 +1,4 @@
+import { isServer } from '@solidjs/web'
 import type { ValidComponent } from '@solidjs/web'
 import { createEffect, merge, omit, Show } from 'solid-js'
 
@@ -52,6 +53,10 @@ export function FormControlErrorMessage<T extends ValidComponent = 'div'>(
 
   const isInvalid = () => context.validationState() === 'invalid'
 
+  if (isServer) {
+    const id = isInvalid() ? others.id! : undefined
+    if (id) context.registerErrorMessage(id)
+  }
   createEffect(
     () => (isInvalid() ? others.id! : undefined),
     (id) => {

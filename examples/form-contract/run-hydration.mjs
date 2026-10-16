@@ -106,7 +106,7 @@ try {
     .replace('<!--ssr-->', rendered.html)
     .replace(
       '</body>',
-      '<script>window.serverNodes = [...document.querySelectorAll("#root form, #root input, #root select, #root button, #root label")];</script></body>',
+      '<script>window.serverNodes = [...document.querySelectorAll("#root main :is(form, input, select, button, label)")];</script></body>',
     )
   await new Promise((done, reject) => {
     server.once('error', reject)
@@ -154,7 +154,79 @@ try {
           node.isConnected && document.getElementById('root').contains(node),
       ),
     )
+  async function associations() {
+    const area = page.getByRole('region', {
+      name: 'Association cases',
+      exact: true,
+    })
+    const cases = [
+      ['textbox', 'Custom text', 'Conditional text help.', 'Text error.'],
+      ['textbox', 'Custom notes', 'Notes help.'],
+      ['combobox', 'Custom choice', 'Choice help.'],
+      ['checkbox', 'Custom check', 'Conditional check help.', 'Check error.'],
+      ['switch', 'Automatic switch', 'Switch help.'],
+      ['button', 'Automatic select', 'Select help.'],
+      ['combobox', 'Automatic search', 'Search help.'],
+    ]
+    for (const [role, name, ...messages] of cases) {
+      const control = area.getByRole(role, { name, exact: true })
+      await expect(control).toHaveCount(1)
+      const references = await control.evaluate((node) => ({
+        id: node.id,
+        labels: [...document.querySelectorAll('label')]
+          .filter((label) => label.htmlFor === node.id)
+          .map((label) => label.textContent),
+        described: (node.getAttribute('aria-describedby') ?? '')
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((id) => ({
+            id,
+            text: document.getElementById(id)?.textContent,
+          })),
+        labelled: (node.getAttribute('aria-labelledby') ?? '')
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((id) => document.getElementById(id)?.textContent),
+      }))
+      assert.ok(references.id)
+      assert.ok(
+        references.labels.some((label) => label === name) ||
+          references.labelled.some((label) => label === name),
+        name,
+      )
+      assert.ok(
+        references.described.every((item) => item.text !== undefined),
+        name,
+      )
+      for (const message of messages)
+        assert.ok(
+          references.described.some((item) => item.text === message),
+          `${name}: ${message}`,
+        )
+    }
+    await expect(
+      area.getByRole('textbox', { name: 'No description', exact: true }),
+    ).not.toHaveAttribute('aria-describedby')
+    await expect(
+      area.getByRole('checkbox', { name: 'Standalone check', exact: true }),
+    ).not.toHaveAttribute('aria-labelledby')
+    await expect(
+      area.getByRole('checkbox', { name: 'Span check', exact: true }),
+    ).toHaveCount(1)
+    assert.equal(
+      await area.getByText('Span check', { exact: true }).getAttribute('for'),
+      null,
+    )
+    return area
+  }
   await test('Server markup provides the same values, labels and controls before and after attachment', async () => {
+    const help = await name.evaluate((node) =>
+      (node.getAttribute('aria-describedby') ?? '')
+        .split(/\s+/)
+        .map((id) => document.getElementById(id)?.textContent)
+        .join(' '),
+    )
+    assert.ok(help.includes('Enter a record name.'))
     await expect(name).toHaveValue('Draft record')
     await expect(category).toHaveValue('General')
     await expect(enabled).not.toBeChecked()
@@ -162,8 +234,13 @@ try {
       await page.evaluate(() => Boolean(window.formContractFixture)),
       false,
     )
+    await associations()
+    const failed = new Promise((_, reject) => page.once('pageerror', reject))
     releaseScripts()
-    await page.waitForSelector('html[data-hydrated="true"]')
+    await Promise.race([
+      page.waitForSelector('html[data-hydrated="true"]'),
+      failed,
+    ])
     assert.equal(await retained(), true)
     assert.deepEqual((await snapshot()).requests, [])
     assert.equal(
@@ -173,6 +250,7 @@ try {
       0,
     )
     await phase('idle')
+    await associations()
   })
   await test('Hydrated controls request each edit once and only explicit Save validates or submits', async () => {
     await name.fill('Hydrated record')
@@ -292,6 +370,50 @@ try {
     await expect(enabled).toBeChecked()
     await phase('Unchanged')
     assert.equal(await retained(), true)
+  })
+  await test('Custom IDs and conditional descriptions update without replacing controls or retaining old references', async () => {
+    const area = await associations()
+    const text = area.getByRole('textbox', { name: 'Custom text', exact: true })
+    const check = area.getByRole('checkbox', {
+      name: 'Custom check',
+      exact: true,
+    })
+    const originalText = await text.elementHandle()
+    const originalCheck = await check.elementHandle()
+    await area
+      .getByRole('button', { name: 'Change association IDs', exact: true })
+      .click()
+    await expect(text).toHaveAttribute('id', 'custom-input-b')
+    await expect(check).toHaveAttribute('id', 'custom-check-b')
+    await associations()
+    await area
+      .getByRole('button', { name: 'Toggle association help', exact: true })
+      .click()
+    await area
+      .getByRole('button', { name: 'Toggle association errors', exact: true })
+      .click()
+    for (const control of [text, check]) {
+      await expect(control).toHaveAttribute(
+        'aria-describedby',
+        'external-description',
+      )
+      assert.equal(
+        await control.evaluate(
+          (node, original) => node === original,
+          control === text ? originalText : originalCheck,
+        ),
+        true,
+      )
+    }
+    await area
+      .getByRole('button', { name: 'Toggle association help', exact: true })
+      .click()
+    await area
+      .getByRole('button', { name: 'Toggle association errors', exact: true })
+      .click()
+    await associations()
+    await originalText.dispose()
+    await originalCheck.dispose()
   })
   await test('Six lifetimes release listeners, subscriptions and pending work without navigation', async () => {
     for (let index = 0; index < 6; index++) {

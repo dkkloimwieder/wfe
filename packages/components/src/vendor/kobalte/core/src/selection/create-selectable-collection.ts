@@ -6,7 +6,7 @@
  * https://github.com/adobe/react-spectrum/blob/8f2f2acb3d5850382ebe631f055f88c704aa7d17/packages/@react-aria/selection/src/useSelectableCollection.ts
  */
 
-import { createEventListener } from '@solid-primitives/event-listener'
+import { makeEventListener } from '@solid-primitives/event-listener'
 import { getFocusableTreeWalker } from '@solid-primitives/focus'
 import { access } from '@solid-primitives/utils'
 import {
@@ -109,20 +109,14 @@ export function createSelectableCollection<
 
   // Store the scroll position, so we can restore it later.
   let scrollPos = { top: 0, left: 0 }
-  createEventListener(
+  // Declare the same effect on the server and client to preserve hydration IDs.
+  createEffect(
     () => (!access(mergedProps.isVirtualized) ? finalScrollRef() : undefined),
-    'scroll',
-    () => {
-      const scrollEl = finalScrollRef()
-
-      if (!scrollEl) {
-        return
-      }
-
-      scrollPos = {
-        top: scrollEl.scrollTop,
-        left: scrollEl.scrollLeft,
-      }
+    (scrollEl) => {
+      if (!scrollEl) return
+      return makeEventListener(scrollEl, 'scroll', () => {
+        scrollPos = { top: scrollEl.scrollTop, left: scrollEl.scrollLeft }
+      })
     },
   )
 

@@ -1,3 +1,4 @@
+import { renderAfterRegistration } from '../../../../../internal/fieldRendering.tsx'
 /*
  * Portions of this file are based on code from react-spectrum.
  * Apache License Version 2.0, Copyright 2020 Adobe.
@@ -298,7 +299,7 @@ export function ComboboxInput<T extends ValidComponent = 'input'>(
   }
 
   // Omit `formControlContext.name()` here because it's used in the hidden select.
-  return (
+  return renderAfterRegistration(() => (
     <Polymorphic<ComboboxInputRenderProps>
       as="input"
       ref={[
@@ -343,5 +344,5 @@ export function ComboboxInput<T extends ValidComponent = 'input'>(
       {...formControlContext.dataset()}
       {...others}
     />
-  )
+  ))
 }

@@ -1,3 +1,5 @@
+import { renderAfterRegistration } from '../../../../../internal/fieldRendering.tsx'
+import { isServer } from '@solidjs/web'
 import { createEffect, createSignal, merge, omit, untrack } from 'solid-js'
 
 import { Polymorphic } from '../polymorphic/index.tsx'
@@ -47,15 +49,19 @@ export function FormControlLabel<T extends ValidComponent = 'label'>(
 
   const others = omit(mergedProps, 'ref')
 
-  const tagName = createTagName(ref, () => 'label')
+  const tagName = createTagName(ref, () => props.as ?? 'label')
   const forwardedRef = untrack(() => mergedProps.ref)
 
+  if (isServer) {
+    const id = others.id
+    if (id) context.registerLabel(id)
+  }
   createEffect(
     () => others.id,
     (id) => context.registerLabel(id),
   )
 
-  return (
+  return renderAfterRegistration(() => (
     <Polymorphic<FormControlLabelRenderProps>
       as="label"
       ref={[setRef, forwardedRef]}
@@ -63,5 +69,5 @@ export function FormControlLabel<T extends ValidComponent = 'label'>(
       {...context.dataset()}
       {...others}
     />
-  )
+  ))
 }

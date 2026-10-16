@@ -178,10 +178,11 @@ Applications call `submit()` only after an explicit user action.
 The server and client use the same form implementation and their own Solid runtime conditions.
 The [form fixture configuration](../examples/form-contract/vite.hydration.config.ts) aligns those conditions.
 
-Provide explicit checkbox input IDs, label IDs, and label associations for accessible server markup.
-Automatic checkbox labels currently depend on client registration.
-Provide explicit description associations when the server output needs help or error messages before attachment.
-Issue `wfe-w2y.3.5` tracks automatic server associations in the shared components.
+Fields and toggles establish automatic label and description associations on the server and client.
+Custom control IDs can follow their labels, and help text can follow its control.
+Conditional descriptions release their references when they leave the view.
+Caller `aria-describedby` IDs remain part of the association.
+Nonlabel tags do not receive a `for` attribute.
 
 The [hydration runner](../examples/form-contract/run-hydration.mjs) preserves the form's original controls and rejects duplicate callbacks.
 It tests errors, retry, cancellation, reset, and external values after attachment.

@@ -53,7 +53,7 @@ node examples/form-contract/run-hydration.mjs
 ```
 
 The runner builds and renders the same `App` on the server, then attaches the client to its original nodes.
-It exercises six scenarios and six mount and disposal cycles without navigation.
+It exercises seven scenarios and six mount and disposal cycles without navigation.
 Set `BENCH_DISTRIBUTION=1` for built packages.
 Set `NODE_ENV=development` and `BENCH_DEVELOPMENT=1` for development behavior.
 Run these modes serially.
@@ -63,5 +63,6 @@ The main qualification command includes all three modes.
 `server.tsx` renders a fresh application for each request.
 `hydration-client.tsx` attaches the shared fixture through `hydrate`.
 `fixture.tsx` releases owners and removes retained server markup during host cleanup.
-The example uses explicit checkbox IDs and label associations for accessible server markup.
-Issue `wfe-w2y.3.5` tracks automatic server associations in the shared components.
+The example uses automatic checkbox label associations in server markup.
+`AssociationCases.tsx` adds custom IDs, conditional descriptions, caller descriptions, and the other field families.
+The tests inspect these associations before client scripts attach and after conditional updates.

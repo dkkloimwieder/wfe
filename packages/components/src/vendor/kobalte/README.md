@@ -65,6 +65,27 @@ Solid, Solid Primitives, Floating UI, and internationalized number formatting re
 No installed Kobalte module supplies the library implementation.
 Beads `table-gd3.6.7.9` retains the earlier repair evidence and upstream retirement scope.
 
+## Server field associations
+
+Form labels, input IDs, descriptions, and invalid messages register during server construction as well as client effects.
+The server context stores ID strings without signal writes and delegates ARIA formatting to external Solid Primitives.
+The client uses the external primitive context directly.
+The library does not copy that primitive.
+Server and client retain the same effect declarations to preserve hydration positions.
+
+Fields render through a shared lazy memo after sibling metadata registers.
+The memo gives the returned view one owner in both builds.
+Native fields, checkbox and switch inputs, Select triggers, and Combobox inputs use this path.
+Combobox controls defer their nested input until later sibling labels register.
+Explicit IDs, caller descriptions, conditional messages, and custom label tags keep their supported behavior.
+Tag detection reads its initial fallback through `untrack` and tracks later ref and fallback changes in its effect.
+Select triggers use the field label when the listbox label has not registered yet.
+
+Collection scroll listeners use an explicit shared effect and the external `makeEventListener` primitive.
+The effect occupies the same position in server and client owners.
+The primitive releases its listener when the target changes or the owner closes.
+This avoids the combobox hydration mismatch caused by a listener helper that returned before declaring its server effect.
+
 ## Integrity
 
 From the repository root, run:
