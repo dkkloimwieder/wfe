@@ -1831,58 +1831,100 @@ try {
     await table.dispose()
     await draftNode.dispose()
   })
-  await test('Button variants follow surfaces and accents with readable filled text', async () => {
+  await test('Button tones keep colored outlines, true inversion and contrasting hover states', async () => {
     const samples = page.getByRole('group', {
       name: 'Button variants',
       exact: true,
     })
-    const filled = samples.getByRole('button', { name: 'filled', exact: true })
-    const inverted = samples.getByRole('button', {
-      name: 'inverted',
-      exact: true,
-    })
+    const tones = page.getByRole('group', { name: 'Button tone', exact: true })
+    const sample = (variant) =>
+      samples.getByRole('button', { name: variant, exact: true })
     const values = (button) =>
       button.evaluate((node) => {
         const style = getComputedStyle(node)
-        return {
-          background: style.backgroundColor,
-          color: style.color,
-          height: node.getBoundingClientRect().height,
-        }
+        return { background: style.backgroundColor, color: style.color }
       })
+    const luminance = (color) => {
+      const channels = color
+        .match(/[\d.]+/g)
+        .slice(0, 3)
+        .map(Number)
+        .map((value) => {
+          const channel = color.startsWith('color(') ? value : value / 255
+          return channel <= 0.04045
+            ? channel / 12.92
+            : ((channel + 0.055) / 1.055) ** 2.4
+        })
+      return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722
+    }
+    const readable = (colors) => {
+      const a = luminance(colors.background),
+        b = luminance(colors.color)
+      assert.ok(
+        (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) >= 4.5,
+        JSON.stringify(colors),
+      )
+    }
     for (const mode of ['Black / white', 'Light', 'Dark']) {
       await page
         .getByRole('button', { name: `${mode} surfaces`, exact: true })
         .click()
-      const neutral = await values(inverted)
+      await tones.getByRole('button', { name: 'accent', exact: true }).click()
       for (const accent of await page
         .getByRole('group', { name: 'Accent colors', exact: true })
         .getByRole('button')
         .all()) {
         await accent.click()
-        const colors = await values(filled)
-        const luminance = (color) => {
-          const channels = color
-            .match(/[\d.]+/g)
-            .slice(0, 3)
-            .map(Number)
-            .map((v) => {
-              const channel = v / 255
-              return channel <= 0.04045
-                ? channel / 12.92
-                : ((channel + 0.055) / 1.055) ** 2.4
-            })
-          return (
-            channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722
+        const filled = await values(sample('filled'))
+        const inverted = await values(sample('inverted'))
+        const outline = await sample('outline').evaluate((node) => {
+          const style = getComputedStyle(node)
+          return { text: style.color, border: style.borderTopColor }
+        })
+        assert.equal(outline.text, filled.background)
+        assert.equal(outline.border, filled.background)
+        assert.deepEqual(inverted, {
+          background: filled.color,
+          color: filled.background,
+        })
+        for (const variant of ['filled', 'inverted']) {
+          const button = sample(variant)
+          const before = await values(button)
+          readable(before)
+          await button.hover()
+          const hovered = await values(button)
+          assert.notDeepEqual(hovered, before)
+          readable(hovered)
+          await page.mouse.move(0, 0)
+        }
+        for (const button of await samples.getByRole('button').all()) {
+          await button.hover()
+          assert.equal(
+            await button.evaluate((node) =>
+              getComputedStyle(node).textDecorationLine.includes('underline'),
+            ),
+            false,
           )
         }
-        const a = luminance(colors.background),
-          b = luminance(colors.color)
-        assert.ok((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) >= 4.5)
-        assert.deepEqual(await values(inverted), neutral)
-        await filled.hover()
-        assert.deepEqual(await values(filled), colors)
       }
+      const node = await sample('outline').elementHandle()
+      const original = await sample('outline').boundingBox()
+      await tones.getByRole('button', { name: 'neutral', exact: true }).click()
+      const filled = await values(sample('filled'))
+      assert.deepEqual(await values(sample('inverted')), {
+        background: filled.color,
+        color: filled.background,
+      })
+      assert.equal(await sample('outline').getAttribute('data-tone'), 'neutral')
+      assert.equal(
+        await sample('outline').evaluate(
+          (node) => getComputedStyle(node).color,
+        ),
+        filled.background,
+      )
+      assert.deepEqual(await sample('outline').boundingBox(), original)
+      assert.equal(await node.evaluate((node) => node.isConnected), true)
+      await node.dispose()
       const heights = await samples
         .getByRole('button')
         .evaluateAll((nodes) =>

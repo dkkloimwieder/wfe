@@ -74,6 +74,7 @@ try {
     'Built HTML must retain the server markup placeholder',
   )
   assert.match(markup, /data-variant="filled"/)
+  assert.match(markup, /data-tone="accent"/)
   const html = template.replace('<!--ssr-->', markup)
   // Capture the original nodes before the deferred module attaches the client.
   await writeFile(
@@ -287,7 +288,9 @@ try {
     'data-variant',
     'filled',
   )
+  await expect(page.locator('#rename')).toHaveAttribute('data-tone', 'accent')
   await page.locator('#rename').click()
+  await expect(page.locator('#rename')).toHaveAttribute('data-tone', 'neutral')
   await expect(page.locator('#rename')).toHaveAttribute(
     'data-variant',
     'inverted',

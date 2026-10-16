@@ -261,6 +261,7 @@ export default function App() {
       <Button
         id="rename"
         variant={name() === 'Ada' ? 'filled' : 'inverted'}
+        tone={name() === 'Ada' ? 'accent' : 'neutral'}
         type="button"
         onClick={() => setName('Grace')}
       >

@@ -12,11 +12,12 @@ import {
   Textarea,
   uiScope,
 } from '@wfe/components'
-import type { ButtonVariant } from '@wfe/components'
+import type { ButtonTone, ButtonVariant } from '@wfe/components'
 import { For, Show, createSignal, flush, onCleanup } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
 
 export function NativeFieldsFixture() {
+  const [tone, setTone] = createSignal<ButtonTone>('neutral')
   const [variant, setVariant] = createSignal<ButtonVariant>('outline')
   const [text, setText] = createSignal('Initial')
   const [choice, setChoice] = createSignal('alpha')
@@ -42,6 +43,7 @@ export function NativeFieldsFixture() {
   })
   window.nativeFieldFixture = {
     configure(next) {
+      if ('tone' in next) setTone(next.tone!)
       if ('variant' in next) setVariant(next.variant!)
       if ('choice' in next) setChoice(next.choice!)
       if ('preventChoice' in next) setPreventChoice(next.preventChoice!)
@@ -178,6 +180,7 @@ export function NativeFieldsFixture() {
             {(variant) => (
               <Button
                 variant={variant}
+                tone={tone()}
                 onClick={() => {
                   actions++
                 }}
@@ -188,6 +191,7 @@ export function NativeFieldsFixture() {
           </For>
           <IconButton
             variant={variant()}
+            tone={tone()}
             aria-label="Variant icon"
             onClick={() => {
               actions++
@@ -212,6 +216,7 @@ declare global {
   interface Window {
     nativeFieldFixture: {
       configure: (next: {
+        tone?: ButtonTone
         variant?: ButtonVariant
         choice?: string
         preventChoice?: boolean

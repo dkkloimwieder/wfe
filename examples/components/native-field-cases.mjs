@@ -66,6 +66,13 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
           true,
         )
       }
+      for (const tone of ['accent', 'neutral']) {
+        await configure({ tone })
+        assert.equal(await icon.getAttribute('data-tone'), tone)
+        assert.equal(await icon.getAttribute('tone'), null)
+        assert.deepEqual(await icon.boundingBox(), original)
+        assert.equal(await node.evaluate((node) => node.isConnected), true)
+      }
       await icon.focus()
       assert.equal(
         await icon.evaluate((node) => getComputedStyle(node).outlineStyle),
@@ -77,23 +84,37 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     },
   )
   await record(
-    'fields: filled and inverted keep contrast on hover and expose borders in forced colors',
+    'fields: both button tones avoid hover underlines and retain forced-color borders',
     async () => {
       await open()
-      for (const variant of ['filled', 'inverted']) {
-        const button = page.getByRole('button', {
-          name: `${variant} action`,
-          exact: true,
-        })
-        const colors = () =>
-          button.evaluate((node) => {
-            const style = getComputedStyle(node)
-            return [style.backgroundColor, style.color]
+      for (const tone of ['neutral', 'accent']) {
+        await configure({ tone })
+        for (const variant of ['outline', 'filled', 'inverted', 'ghost']) {
+          const button = page.getByRole('button', {
+            name: `${variant} action`,
+            exact: true,
           })
-        const before = await colors()
-        assert.notEqual(before[0], before[1])
-        await button.hover()
-        assert.deepEqual(await colors(), before)
+          assert.equal(await button.getAttribute('data-tone'), tone)
+          assert.equal(await button.getAttribute('tone'), null)
+          await page.mouse.move(0, 0)
+          const before = await button.evaluate(
+            (node) => getComputedStyle(node).backgroundColor,
+          )
+          await button.hover()
+          if (variant === 'filled' || variant === 'inverted')
+            assert.notEqual(
+              await button.evaluate(
+                (node) => getComputedStyle(node).backgroundColor,
+              ),
+              before,
+            )
+          assert.equal(
+            await button.evaluate((node) =>
+              getComputedStyle(node).textDecorationLine.includes('underline'),
+            ),
+            false,
+          )
+        }
       }
       await page.emulateMedia({ forcedColors: 'active' })
       try {

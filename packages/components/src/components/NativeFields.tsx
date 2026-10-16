@@ -261,12 +261,14 @@ export function Textarea(props: TextareaProps) {
     />
   ))
 }
+export type ButtonTone = 'neutral' | 'accent'
 export type ButtonVariant = 'outline' | 'filled' | 'inverted' | 'ghost'
 export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant
+  tone?: ButtonTone
 }
 export function Button(props: ButtonProps) {
-  const attributes = omit(props, 'ref', 'variant', ...nativeEventProps)
+  const attributes = omit(props, 'ref', 'variant', 'tone', ...nativeEventProps)
   const events = ownedElementEvents(props)
   return (
     <button
@@ -274,6 +276,7 @@ export function Button(props: ButtonProps) {
       type={props.type ?? 'button'}
       class={'ui-button ' + (props.class ?? '')}
       data-variant={props.variant ?? 'outline'}
+      data-tone={props.tone ?? 'neutral'}
       ref={[props.ref, events]}
     />
   )

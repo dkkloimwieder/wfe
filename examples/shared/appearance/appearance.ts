@@ -93,6 +93,12 @@ export function appearanceStyle(
   const [text, secondary] = scheme.text
   const border = scheme === monochrome ? text : edge
   const focus = accentColor(accent, scheme)
+  const onAccent = accentText(focus)
+  const opposite =
+    onAccent === monochrome.text[0]
+      ? monochrome.surfaces[0]
+      : monochrome.text[0]
+  const hoverTarget = focus === opposite ? onAccent : opposite
   return {
     '--ui-color-scheme': scheme.mode,
     '--ui-canvas-surface': canvas,
@@ -114,7 +120,9 @@ export function appearanceStyle(
     '--ui-handle-border': border,
     '--ui-focus': focus,
     '--ui-accent': focus,
-    '--ui-on-accent': accentText(focus),
+    '--ui-on-accent': onAccent,
+    '--ui-accent-hover': `color-mix(in srgb, ${focus} 90%, ${hoverTarget})`,
+    '--ui-accent-inverted-hover': `color-mix(in srgb, ${onAccent} 95%, ${focus})`,
     '--ui-shadow-overflow': '24px',
     '--ui-panel-shadow': depth ? `var(--review-shadow-${depth})` : 'none',
     '--ui-popup-shadow': depth ? 'var(--review-shadow-3)' : 'none',

@@ -1,4 +1,5 @@
-import { For, Show } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
+import type { ButtonTone } from '@wfe/components'
 import { Button } from '@wfe/components'
 import { schemes, accents, accentColor, dividerSurfaces } from './appearance'
 import type {
@@ -34,6 +35,7 @@ export function AppearanceReview(props: {
   onAccentChange: (accent: Accent) => void
   onDepthChange: (depth: Depth) => void
 }) {
+  const [buttonTone, setButtonTone] = createSignal<ButtonTone>('accent')
   return (
     <section class="appearance-review" aria-label="Appearance review">
       <div class="appearance-pickers">
@@ -88,6 +90,19 @@ export function AppearanceReview(props: {
             )}
           </For>
         </div>
+        <div class="appearance-options" role="group" aria-label="Button tone">
+          <span data-ui-text="system">Tone</span>
+          <For each={['neutral', 'accent'] as const}>
+            {(tone) => (
+              <Button
+                aria-pressed={buttonTone() === tone ? 'true' : 'false'}
+                onClick={() => setButtonTone(tone)}
+              >
+                {tone}
+              </Button>
+            )}
+          </For>
+        </div>
         <div
           class="appearance-options"
           role="group"
@@ -96,7 +111,11 @@ export function AppearanceReview(props: {
           <span data-ui-text="system">Buttons</span>
           <For each={['outline', 'filled', 'inverted', 'ghost'] as const}>
             {(variant) => (
-              <Button variant={variant} title={`${variant} button sample`}>
+              <Button
+                variant={variant}
+                tone={buttonTone()}
+                title={`${variant} button sample`}
+              >
                 {variant}
               </Button>
             )}
