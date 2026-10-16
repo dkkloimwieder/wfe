@@ -70,12 +70,18 @@ Boolean filters use a three-state checkbox. A check means Yes, an empty box mean
 
 ## Apply criteria
 
-`ReadOnlyTable` keeps pending criteria until the user presses APPLY. Changes to any column filter, global search, and clear controls stay pending. One action applies the pending column criteria and search together. Sorting and grouping remain immediate.
+`ReadOnlyTable` keeps pending criteria until the user presses the refresh icon. Changes to any column filter, global search, and clear controls stay pending. One action applies the pending column criteria and search together. Sorting and grouping remain immediate.
 
 The section shows UNAPPLIED CHANGES while pending criteria differ from applied criteria. Its active count describes applied filters. Application changes to the table criteria replace the pending snapshot. Replacing records keeps the pending criteria.
 
 `createTableFilterDraft(table)` provides the same behavior for custom control layouts. Low-level filter controls emit values. The coordinator keeps those values separate from applied table state. It calls each changed table setter once when the user applies the criteria. It does not perform requests. The application owns controlled state and data loading.
 
-If a filter contains an invalid draft, APPLY focuses that control and keeps the current results.
+If a filter contains an invalid draft, the refresh action focuses that control and keeps the current results.
 
 For server requests, pass `onApplyFilters` to `ReadOnlyTable`. The callback receives all column criteria and search in one `TableFilterCriteria` value. The application owns the request and updates controlled table state. The component does not call table setters when this callback is present. Custom layouts can pass the same callback through `createTableFilterDraft(table, { onApply })`.
+
+The refresh icon applies pending criteria and requests results through one action.
+With `onApplyFilters`, pressing it also sends unchanged criteria so the application can reload the current query.
+Without that callback, the action applies local criteria and stays inactive when criteria match.
+For custom layouts, `draft.apply({ refresh: true })` also sends unchanged criteria to `onApply`.
+Calling `draft.apply()` preserves the existing behavior and skips unchanged criteria.

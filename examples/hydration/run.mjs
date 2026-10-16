@@ -184,7 +184,7 @@ try {
     .locator('#adopt-table')
     .getByRole('textbox', { name: 'Name', exact: true })
   const applyTable = page.getByRole('button', {
-    name: 'Apply filters',
+    name: 'Refresh results',
     exact: true,
   })
   await pendingName.fill('pending')
@@ -195,11 +195,17 @@ try {
   )
   await applyTable.press('Enter')
   await expect(page.locator('#applied-table-filters')).toHaveText('pending')
-  await expect(applyTable).toBeDisabled()
+  await expect(applyTable).toBeEnabled()
   assert.equal(
     await page.evaluate(() => window.hydrationFixture.lifecycle.applyChanges),
     1,
   )
+  await applyTable.press('Enter')
+  assert.equal(
+    await page.evaluate(() => window.hydrationFixture.lifecycle.applyChanges),
+    2,
+  )
+  await expect(page.locator('#applied-table-filters')).toHaveText('pending')
   report.assertions.push(
     'Hydrated server-owned filters remain pending until one Apply callback accepts their criteria',
   )

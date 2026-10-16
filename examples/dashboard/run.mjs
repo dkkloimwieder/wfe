@@ -100,7 +100,7 @@ try {
       .locator('tr[data-row]')
       .evaluateAll((nodes) => nodes.map((node) => node.dataset.row))
   const apply = () =>
-    page.getByRole('button', { name: 'Apply filters', exact: true })
+    page.getByRole('button', { name: 'Refresh results', exact: true })
   async function applyAndReadRows() {
     const button = page.locator('.table-filter-actions button')
     if (await button.isEnabled()) await button.click()
@@ -1302,9 +1302,9 @@ try {
           await background(sample(paneSurface)),
         )
       assert.equal(await background(header), await background(panes[0]))
+      assert.equal(await background(tableHeader), await background(surface))
       for (const node of [
         caption,
-        tableHeader,
         page.locator('.table-control-section > summary').first(),
       ])
         assert.equal(await background(node), 'rgba(0, 0, 0, 0)')
@@ -1388,8 +1388,8 @@ try {
           assert.deepEqual(await surface.boundingBox(), geometry)
           assert.deepEqual(await rows(), initialRows)
           await expect(name).toHaveValue('Record 1')
-          for (const node of [caption, tableHeader])
-            assert.equal(await background(node), 'rgba(0, 0, 0, 0)')
+          assert.equal(await background(caption), 'rgba(0, 0, 0, 0)')
+          assert.equal(await background(tableHeader), await background(surface))
         }
       }
     }
@@ -1830,6 +1830,58 @@ try {
     await expect(pane).toBeHidden()
     await table.dispose()
     await draftNode.dispose()
+  })
+  await test('Column headers stay visible while rows scroll in every pane placement', async () => {
+    await page.evaluate(() => window.dashboardFixture.replaceRows(500))
+    for (const placement of ['left', 'top', 'right']) {
+      await page
+        .getByRole('button', {
+          name: `${placement} controls pane`,
+          exact: true,
+        })
+        .click()
+      const viewport = page.locator('.table-scroll')
+      const header = viewport.locator('thead')
+      await viewport.evaluate((node) => {
+        node.scrollTop = 800
+      })
+      await expect
+        .poll(() =>
+          header.evaluate((node) => {
+            const viewport = node.closest('.table-scroll')
+            return Math.abs(
+              node.getBoundingClientRect().top -
+                viewport.getBoundingClientRect().top,
+            )
+          }),
+        )
+        .toBeLessThanOrEqual(1)
+      assert.ok(await viewport.evaluate((node) => node.scrollTop > 0))
+      const first = header.locator('th').first()
+      assert.equal(
+        await first.evaluate((node) => {
+          const rect = node.getBoundingClientRect()
+          return node.contains(
+            document.elementFromPoint(
+              rect.left + 10,
+              rect.top + rect.height / 2,
+            ),
+          )
+        }),
+        true,
+      )
+      const before = await first.boundingBox()
+      await viewport.evaluate((node) => {
+        node.scrollLeft = 100
+      })
+      const moved = await viewport.evaluate((node) => node.scrollLeft)
+      const after = await first.boundingBox()
+      assert.ok(Math.abs(after.x - before.x + moved) <= 1)
+      await viewport.evaluate((node) => {
+        node.scrollTop = 0
+        node.scrollLeft = 0
+      })
+    }
   })
   await test('Shared APPLY reveals invalid fields in a collapsed pane or closed narrow drawer', async () => {
     const pane = page.locator('.table-workspace-controls')

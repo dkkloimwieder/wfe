@@ -105,8 +105,8 @@ export function createTableFilterDraft<T, M>(
     setGlobalFilter(value: string) {
       setDraft((old) => ({ ...old, globalFilter: value }))
     },
-    apply() {
-      if (!untrack(changed)) return
+    apply({ refresh = false }: { refresh?: boolean } = {}) {
+      if (!untrack(changed) && !refresh) return
       const value = untrack(draft)
       if (options.onApply) {
         options.onApply({

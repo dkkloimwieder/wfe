@@ -15,7 +15,8 @@
   overflow: clip;
   overflow-clip-margin: var(--ui-shadow-overflow, 0px);
 }
-:where([data-ui]) .table-controls-toggle {
+:where([data-ui]) .table-controls-toggle,
+:where([data-ui]) .table-refresh {
   width: var(--ui-control-height, 26px);
   height: var(--ui-control-height, 26px);
   flex: none;

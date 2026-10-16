@@ -47,6 +47,7 @@ export function ReadOnlyTable<T, M>(props: {
   actions?: JSX.Element
   configuration?: JSX.Element
   formatting?: JSX.Element
+  /** Receives criteria on refresh, including unchanged criteria for reloading. */
   onApplyFilters?: (criteria: TableFilterCriteria) => void
   label?: (column: NativeColumn<T, M>) => string
   filter?: (column: NativeColumn<T, M>) => TableFilterConfig | undefined
@@ -119,19 +120,31 @@ export function ReadOnlyTable<T, M>(props: {
         >
           <div class="table-filter-actions">
             <Button
-              aria-label="Apply filters"
+              aria-label="Refresh results"
+              title="Apply filters and refresh results"
+              class="table-refresh"
               disabled={!filtering()}
-              aria-disabled={!filters.changed ? 'true' : undefined}
+              aria-disabled={
+                !filters.changed && !props.onApplyFilters ? 'true' : undefined
+              }
               onClick={() => {
-                if (!filtering() || !filters.changed) return
+                if (!filtering() || (!filters.changed && !props.onApplyFilters))
+                  return
                 const invalid = filterControls?.querySelector<HTMLElement>(
                   '[aria-invalid="true"]:not(:disabled)',
                 )
                 if (invalid) workspaceControls?.focus(invalid)
-                else filters.apply()
+                else filters.apply({ refresh: true })
               }}
             >
-              Apply
+              <svg
+                class="table-controls-icon"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M20 7v5h-5M4 17v-5h5" />
+                <path d="M6.1 6.1A8 8 0 0 1 20 12M4 12a8 8 0 0 0 13.9 5.9" />
+              </svg>
             </Button>
             <Show when={filters.changed}>
               <span data-ui-text="system">Unapplied changes</span>

@@ -61,14 +61,6 @@ details {
   min-height: 0;
   max-width: 100%;
 }
-.table-scroll thead {
-  /* Match the table surface so scrolling records cannot show through. */
-  background: var(--ui-surface, white);
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  box-shadow: 0 1px #ddd;
-}
 .table-scroll tbody tr {
   height: var(--ui-row-height);
 }

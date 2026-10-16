@@ -418,6 +418,19 @@ try {
       node.scrollTop = 50000 * 32
     })
     await page.locator('[data-row="row-50000"]').waitFor()
+    const stickyHeader = viewport.locator('thead')
+    const headerBounds = await stickyHeader.boundingBox()
+    const viewportBounds = await viewport.boundingBox()
+    assert.ok(Math.abs(headerBounds.y - viewportBounds.y) <= 1)
+    assert.equal(
+      await stickyHeader.evaluate((node) => {
+        const rect = node.querySelector('th').getBoundingClientRect()
+        return node.contains(
+          document.elementFromPoint(rect.left + 10, rect.top + rect.height / 2),
+        )
+      }),
+      true,
+    )
     await page.getByText('2000 of 100005 rows', { exact: true }).waitFor()
     assert.ok((await page.locator('tbody tr[data-row]').count()) < 60)
     await viewport.evaluate((node) => {

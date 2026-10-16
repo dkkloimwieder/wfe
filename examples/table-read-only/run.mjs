@@ -126,7 +126,7 @@ try {
       .evaluateAll((nodes) => nodes.map((node) => node.dataset.row))
   async function applyAndReadRows() {
     const button = page.getByRole('button', {
-      name: 'Apply filters',
+      name: 'Refresh results',
       exact: true,
     })
     if (await button.isEnabled()) await button.click()

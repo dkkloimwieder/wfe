@@ -210,6 +210,13 @@ test('an application callback receives one complete request and owns table state
     expect(h.draft.changed).toBe(false)
     h.draft.apply()
     expect(h.apply).toHaveBeenCalledTimes(1)
+    h.draft.apply({ refresh: true })
+    expect(h.apply).toHaveBeenCalledTimes(2)
+    expect(h.apply).toHaveBeenLastCalledWith({
+      columnFilters: [{ id: 'active', value: false }],
+      globalFilter: 'Bob',
+    })
+    expect(h.draft.changed).toBe(false)
   } finally {
     h.dispose()
     flush()

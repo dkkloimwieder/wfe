@@ -182,6 +182,14 @@
   color: var(--ui-text, #000);
   font-size: var(--ui-small-font-size, 11px);
 }
+/* Keep all header rows together within the shared scrolling viewport. */
+:where([data-ui]) .table-scroll > table > thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ui-surface, white);
+  box-shadow: 0 1px var(--ui-table-row-divider, var(--ui-divider, #ddd));
+}
 :where([data-ui]) tbody tr[data-row]:hover {
   background: var(--ui-hover, #f6f6f6);
 }
