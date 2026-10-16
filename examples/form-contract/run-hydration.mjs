@@ -1,0 +1,389 @@
+import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
+import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { dirname } from 'node:path'
+import { createServer } from 'node:http'
+import { fileURLToPath } from 'node:url'
+import { chromium, expect } from '@playwright/test'
+
+const suffix = process.env.BENCH_DEVELOPMENT
+  ? '-dev'
+  : process.env.BENCH_DISTRIBUTION
+    ? '-package'
+    : ''
+const assets = fileURLToPath(
+  new URL(`.dist-hydration${suffix}/`, import.meta.url),
+)
+const report = {
+  cases: [],
+  errors: [],
+  warnings: [],
+  serverWarnings: [],
+  diagnostics: [],
+}
+let browser
+let html
+const server = createServer(async (request, response) => {
+  try {
+    const path = new URL(request.url, 'http://localhost').pathname
+    if (path === '/favicon.ico') return void response.writeHead(204).end()
+    response.setHeader(
+      'Content-Type',
+      path.endsWith('.js')
+        ? 'text/javascript'
+        : path.endsWith('.css')
+          ? 'text/css'
+          : 'text/html',
+    )
+    response.end(path === '/' ? html : await readFile(assets + path.slice(1)))
+  } catch {
+    response.writeHead(404).end()
+  }
+})
+try {
+  for (const ssr of [true, false]) {
+    execFileSync(
+      'pnpm',
+      [
+        'exec',
+        'vite',
+        'build',
+        '--config',
+        'examples/form-contract/vite.hydration.config.ts',
+      ],
+      {
+        stdio: 'inherit',
+        env: { ...process.env, HYDRATION_SERVER: ssr ? '1' : '' },
+      },
+    )
+    const modules = JSON.parse(
+      await readFile(
+        fileURLToPath(
+          new URL(
+            `.dist-hydration${ssr ? '-server' : ''}${suffix}/modules.json`,
+            import.meta.url,
+          ),
+        ),
+        'utf8',
+      ),
+    )
+    const directory = process.env.BENCH_DISTRIBUTION
+      ? '/packages/form/dist/'
+      : '/packages/form/src/'
+    assert.ok(
+      modules.some((id) => id.includes(directory)),
+      `Missing ${ssr ? 'server' : 'client'} form modules from ${directory}`,
+    )
+  }
+  const { render } = await import(
+    new URL(`.dist-hydration-server${suffix}/server.js`, import.meta.url)
+  )
+  const warn = console.warn
+  const error = console.error
+  let rendered
+  try {
+    console.warn = console.error = (...args) =>
+      report.serverWarnings.push(args.map(String).join(' '))
+    rendered = await render()
+    const second = await render()
+    assert.deepEqual(second.snapshot, rendered.snapshot)
+  } finally {
+    console.warn = warn
+    console.error = error
+  }
+  assert.deepEqual(report.serverWarnings, [])
+  assert.deepEqual(rendered.snapshot.values, {
+    name: 'Draft record',
+    category: 'General',
+    enabled: false,
+  })
+  assert.equal(rendered.snapshot.phase, 'idle')
+  assert.equal(rendered.snapshot.dirty, false)
+  assert.deepEqual(rendered.snapshot.requests, [])
+  const template = await readFile(assets + 'hydration.html', 'utf8')
+  assert.ok(template.includes('<!--ssr-->'))
+  html = template
+    .replace('<!--ssr-->', rendered.html)
+    .replace(
+      '</body>',
+      '<script>window.serverNodes = [...document.querySelectorAll("#root form, #root input, #root select, #root button, #root label")];</script></body>',
+    )
+  await new Promise((done, reject) => {
+    server.once('error', reject)
+    server.listen(0, '127.0.0.1', done)
+  })
+  browser = await chromium.launch({
+    executablePath: process.env.BENCH_EXECUTABLE_PATH,
+  })
+  report.browser = browser.version()
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  page.on('pageerror', (error) => report.errors.push(error.stack))
+  page.on('console', (message) => {
+    if (['warning', 'error'].includes(message.type()))
+      report.warnings.push(message.text())
+  })
+  let releaseScripts
+  const scripts = new Promise((resolve) => {
+    releaseScripts = resolve
+  })
+  await page.route('**/*.js', async (route) => {
+    await scripts
+    await route.continue()
+  })
+  await page.goto(`http://127.0.0.1:${server.address().port}/`, {
+    waitUntil: 'commit',
+  })
+  await page.waitForFunction(() => window.serverNodes?.length > 0)
+  const name = page.getByRole('textbox', { name: 'Name', exact: true })
+  const category = page.getByRole('combobox', { name: 'Category', exact: true })
+  const enabled = page.getByRole('checkbox', { name: 'Enabled', exact: true })
+  const save = page.getByRole('button', { name: 'Save', exact: true })
+  const status = page.getByRole('status')
+  const phase = (value) => expect(status).toContainText(value)
+  const snapshot = () =>
+    page.evaluate(() => window.formContractFixture.snapshot())
+  async function test(name, run) {
+    await run()
+    report.cases.push({ name, status: 'passed' })
+    console.log('PASS ' + name)
+  }
+  const retained = () =>
+    page.evaluate(() =>
+      window.serverNodes.every(
+        (node) =>
+          node.isConnected && document.getElementById('root').contains(node),
+      ),
+    )
+  await test('Server markup provides the same values, labels and controls before and after attachment', async () => {
+    await expect(name).toHaveValue('Draft record')
+    await expect(category).toHaveValue('General')
+    await expect(enabled).not.toBeChecked()
+    assert.equal(
+      await page.evaluate(() => Boolean(window.formContractFixture)),
+      false,
+    )
+    releaseScripts()
+    await page.waitForSelector('html[data-hydrated="true"]')
+    assert.equal(await retained(), true)
+    assert.deepEqual((await snapshot()).requests, [])
+    assert.equal(
+      await page.evaluate(
+        () => window.formContractFixture.capture().lifecycle.changes,
+      ),
+      0,
+    )
+    await phase('idle')
+  })
+  await test('Hydrated controls request each edit once and only explicit Save validates or submits', async () => {
+    await name.fill('Hydrated record')
+    await name.press('Enter')
+    await category.selectOption('Research')
+    await enabled.focus()
+    await page.keyboard.press('Space')
+    await expect(enabled).toBeChecked()
+    assert.deepEqual((await snapshot()).requests, [])
+    assert.equal(
+      await page.evaluate(
+        () => window.formContractFixture.capture().lifecycle.changes,
+      ),
+      3,
+    )
+    await name.fill('')
+    await save.press('Enter')
+    await phase('invalid')
+    await expect(name).toBeFocused()
+    await expect(name).toHaveAttribute('aria-invalid', 'true')
+    const descriptions = await name.evaluate((node) =>
+      (node.getAttribute('aria-describedby') ?? '')
+        .split(/\s+/)
+        .map((id) => document.getElementById(id)?.textContent)
+        .join(' '),
+    )
+    assert.ok(descriptions.includes('Enter a name.'))
+    assert.deepEqual(
+      (await snapshot()).requests.map((request) => request.stage),
+      ['validation'],
+    )
+    await name.fill('Saved after hydration')
+    await save.press('Space')
+    await phase('success')
+    await phase('Unchanged')
+    assert.deepEqual(
+      (await snapshot()).requests.map((request) => request.stage),
+      ['validation', 'validation', 'submission'],
+    )
+    assert.equal(await retained(), true)
+  })
+  await test('Server rejections and unexpected failures remain accessible and allow explicit retry', async () => {
+    const response = page.getByRole('combobox', {
+      name: 'Simulated response',
+      exact: true,
+    })
+    const before = (await snapshot()).requests.length
+    await response.selectOption('field-error')
+    await save.click()
+    await phase('rejected')
+    await expect(name).toBeFocused()
+    await expect(
+      page.getByText('This name is already in use.', { exact: true }),
+    ).toBeVisible()
+    await response.selectOption('form-error')
+    await save.click()
+    await phase('rejected')
+    await expect(page.getByRole('alert')).toHaveText(
+      'The service rejected this record.',
+    )
+    await response.selectOption('failure')
+    await save.click()
+    await phase('error')
+    await expect(page.getByRole('alert')).toHaveText(
+      'The save failed. Try again.',
+    )
+    await response.selectOption('success')
+    await save.click()
+    await phase('success')
+    await expect(page.getByRole('alert')).toHaveCount(0)
+    assert.equal((await snapshot()).requests.length - before, 8)
+    assert.equal(await retained(), true)
+  })
+  await test('Hydrated pending work deduplicates, cancels accepted edits and ignores old responses', async () => {
+    await page.evaluate(() => window.formContractFixture.hold('submission'))
+    await name.fill('First request')
+    await save.click()
+    await phase('submitting')
+    assert.equal(
+      await page.evaluate(() => {
+        const form = window.formContractFixture.capture().form
+        return form.submit() === form.submit()
+      }),
+      true,
+    )
+    const first = (await snapshot()).requests.at(-1).attempt
+    await name.fill('Second request')
+    await phase('idle')
+    await save.click()
+    await phase('submitting')
+    const second = (await snapshot()).requests.at(-1).attempt
+    assert.ok(second > first)
+    await page.evaluate(
+      (attempt) => window.formContractFixture.complete(attempt, 'submission'),
+      first,
+    )
+    await phase('submitting')
+    await page.evaluate(
+      (attempt) => window.formContractFixture.complete(attempt, 'submission'),
+      second,
+    )
+    await phase('success')
+    await expect(name).toHaveValue('Second request')
+    assert.equal((await snapshot()).defaults.name, 'Second request')
+    assert.equal(await retained(), true)
+  })
+  await test('External replacement and reset preserve hydrated nodes and application defaults', async () => {
+    await page
+      .getByRole('button', { name: 'Load other record', exact: true })
+      .click()
+    await name.fill('Unsaved edit')
+    await page
+      .getByRole('button', { name: 'Reset', exact: true })
+      .press('Enter')
+    await expect(name).toHaveValue('External record')
+    await expect(category).toHaveValue('Research')
+    await expect(enabled).toBeChecked()
+    await phase('Unchanged')
+    assert.equal(await retained(), true)
+  })
+  await test('Six lifetimes release listeners, subscriptions and pending work without navigation', async () => {
+    for (let index = 0; index < 6; index++) {
+      const stage = index % 2 ? 'validation' : 'submission'
+      await page.evaluate(
+        (stage) => window.formContractFixture.hold(stage),
+        stage,
+      )
+      await save.click()
+      await phase(stage === 'validation' ? 'validating' : 'submitting')
+      const result = await page.evaluate(async () => {
+        const fixture = window.formContractFixture
+        const old = fixture.capture()
+        const pending = old.form.submit()
+        const nodes = [
+          ...document.querySelectorAll('form input, form select, form button'),
+        ]
+        fixture.stop()
+        const reads = old.lifecycle.reads
+        const changes = old.lifecycle.changes
+        const requests = old.snapshot().requests.length
+        const afterSnapshotReads = old.lifecycle.reads
+        for (const node of nodes) {
+          if ('value' in node) node.value = 'Detached value'
+          node.dispatchEvent(new Event('input', { bubbles: true }))
+          node.dispatchEvent(new Event('change', { bubbles: true }))
+          node.click()
+        }
+        old.form.setValue('name', 'Detached edit')
+        old.form.reset()
+        old.form.cancel()
+        const stale = await old.form.submit()
+        old.complete()
+        await Promise.resolve()
+        await Promise.resolve()
+        const finalReads = old.lifecycle.reads
+        const state = old.snapshot()
+        return {
+          outcome: await pending,
+          stale,
+          cleanups: old.lifecycle.cleanups,
+          changes,
+          afterChanges: old.lifecycle.changes,
+          requests,
+          afterRequests: state.requests.length,
+          aborted: state.requests.at(-1).aborted,
+          afterSnapshotReads,
+          finalReads,
+          reads,
+          detached: nodes.every((node) => !node.isConnected),
+          remaining: document.querySelectorAll(
+            '#root form, #root input, #root button',
+          ).length,
+        }
+      })
+      assert.deepEqual(result.outcome, { status: 'disposed' })
+      assert.deepEqual(result.stale, { status: 'disposed' })
+      assert.equal(result.cleanups, 1)
+      assert.equal(result.afterChanges, result.changes)
+      assert.equal(result.afterRequests, result.requests)
+      assert.equal(result.aborted, true)
+      assert.equal(result.finalReads, result.afterSnapshotReads)
+      assert.equal(result.detached, true)
+      assert.equal(result.remaining, 0)
+      await page.evaluate(() => window.formContractFixture.start())
+      await expect(name).toHaveValue('Draft record')
+      await expect(category).toHaveValue('General')
+      await expect(enabled).not.toBeChecked()
+      assert.deepEqual((await snapshot()).requests, [])
+      assert.equal(
+        await page.evaluate(
+          () => window.formContractFixture.capture().lifecycle.changes,
+        ),
+        0,
+      )
+    }
+    await page.evaluate(() => window.formContractFixture.stop())
+  })
+  report.diagnostics = (
+    await page.evaluate(() => window.formContractFixture.diagnostics())
+  ).filter((event) => event.code !== 'HOT_SCOPE_TIME')
+  assert.deepEqual(report.errors, [])
+  assert.deepEqual(report.warnings, [])
+  assert.deepEqual(report.diagnostics, [])
+} catch (error) {
+  report.failure = error.stack
+  process.exitCode = 1
+} finally {
+  await browser?.close()
+  if (server.listening) await new Promise((done) => server.close(done))
+  const output = process.env.BENCH_OUTPUT ?? '/tmp/form-hydration.json'
+  await mkdir(dirname(output), { recursive: true })
+  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
+  console.log(JSON.stringify(report, null, 2))
+}

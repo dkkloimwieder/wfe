@@ -12,7 +12,8 @@ pnpm test:qualification
 
 The runner tests formatting, lint, types, exports, unit behavior, mock transport, server rendering, hydration, and vendor ownership.
 It builds browser examples against source, the built package, and the development runtime.
-Hydration runs in all three modes and rejects server warnings as well as browser diagnostics.
+Component and form hydration run in all three modes and reject server warnings as well as browser diagnostics.
+The form runner preserves server nodes and exercises six mount and disposal cycles without navigation.
 Live checks test component exports, hot updates, interaction, focus, and cleanup.
 The virtual demo also tests scrolling and bounded DOM rows.
 The bundle guard rejects modules outside the wfe checkout.

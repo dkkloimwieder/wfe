@@ -41,8 +41,9 @@ function genericHarness<T extends object & { [K in keyof T]: FormScalar }>(
     const submit = vi.fn<FormBindings<T>['onSubmit']>(
       overrides.onSubmit ?? (() => ({ ok: true })),
     )
+    const readValues = vi.fn(values)
     const form = createForm<T>({
-      values,
+      values: readValues,
       defaults,
       onValuesChange: change,
       validate,
@@ -50,6 +51,7 @@ function genericHarness<T extends object & { [K in keyof T]: FormScalar }>(
     })
     return {
       dispose,
+      readValues,
       values,
       setValues,
       defaults,
@@ -373,4 +375,19 @@ describe('generic field records', () => {
       h.stop()
     }
   })
+})
+
+it('disposal releases value subscriptions and stale methods do not read or request values', async () => {
+  const h = genericHarness(inventory)
+  h.stop()
+  const reads = h.readValues.mock.calls.length
+  h.setValues({ ...inventory, title: 'After disposal' })
+  flush()
+  expect(h.read(h.values).title).toBe('After disposal')
+  h.form.setValue('title', 'Detached edit')
+  h.form.reset()
+  h.form.cancel()
+  expect(await h.form.submit()).toEqual({ status: 'disposed' })
+  expect(h.readValues).toHaveBeenCalledTimes(reads)
+  expect(h.change).not.toHaveBeenCalled()
 })

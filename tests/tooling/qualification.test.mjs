@@ -65,6 +65,18 @@ test('qualification covers both browser inputs and keeps heap work separate', ()
   assert.equal(live.env.BENCH_URL, undefined)
   for (const mode of ['source', 'distribution', 'development']) {
     assert.ok(stages.some(({ name }) => name === `hydration-${mode}`))
+    const form = stages.find(({ name }) => name === `form-hydration-${mode}`)
+    assert.ok(form)
+    assert.equal(form.args.at(-1), 'examples/form-contract/run-hydration.mjs')
+    assert.equal(
+      form.env.BENCH_OUTPUT,
+      `/tmp/solid-gates/form-hydration-${mode}.json`,
+    )
+    assert.equal(
+      form.env.BENCH_DISTRIBUTION,
+      mode === 'distribution' ? '1' : '',
+    )
+    assert.equal(form.env.BENCH_DEVELOPMENT, mode === 'development' ? '1' : '')
   }
   assert.ok(stages.some(({ name }) => name === 'analytics-server'))
   assert.ok(stages.every(({ env }) => !env.BENCH_HEAPS && !env.BENCH_WORKLOAD))

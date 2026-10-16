@@ -165,6 +165,30 @@ They require fresh records, cancelled requests, removed portals, and released ba
 Browser errors and accessibility warnings fail these cases.
 See [qualification](qualification.md) for the commands and reports.
 
+## Form rendering and hydration
+
+Add `@wfe/form` as a workspace dependency when the application needs form coordination.
+Import `createForm` and its types from that package.
+Keep field controls and styles in `@wfe/components`.
+The [form guide](form-contract.md) includes a typed application example.
+
+Create one form inside each rendered owner and supply the same initial values on the server and client.
+The package does not validate or submit during initial rendering.
+Applications call `submit()` only after an explicit user action.
+The server and client use the same form implementation and their own Solid runtime conditions.
+The [form fixture configuration](../examples/form-contract/vite.hydration.config.ts) aligns those conditions.
+
+Provide explicit checkbox input IDs, label IDs, and label associations for accessible server markup.
+Automatic checkbox labels currently depend on client registration.
+Provide explicit description associations when the server output needs help or error messages before attachment.
+Issue `wfe-w2y.3.5` tracks automatic server associations in the shared components.
+
+The [hydration runner](../examples/form-contract/run-hydration.mjs) preserves the form's original controls and rejects duplicate callbacks.
+It tests errors, retry, cancellation, reset, and external values after attachment.
+Six mount and disposal cycles require cancelled work, inert detached controls, and fresh application state.
+The host removes retained server markup after it releases the hydrated owner.
+The example shares that cleanup with its normal browser entry.
+
 ## Dependencies and updates
 
 Solid, Solid Primitives, Floating UI, and internationalized number helpers remain external dependencies.

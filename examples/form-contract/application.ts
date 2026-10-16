@@ -25,6 +25,7 @@ export function createApplication() {
   const [hold, setHold] = createSignal<Stage | undefined>(undefined)
   const [rejectEdits, setRejectEdits] = createSignal(false)
   const [waiting, setWaiting] = createSignal(0)
+  const lifecycle = { changes: 0, reads: 0, cleanups: 0 }
   let alive = true
   const requests: Request[] = []
   const held: Held[] = []
@@ -56,9 +57,13 @@ export function createApplication() {
     })
   }
   const form = createForm<ExampleValues>({
-    values,
+    values: () => {
+      lifecycle.reads++
+      return values()
+    },
     defaults,
     onValuesChange(next) {
+      lifecycle.changes++
       if (!untrack(rejectEdits)) setValues(next)
     },
     validate(snapshot, context) {
@@ -89,10 +94,12 @@ export function createApplication() {
     },
   })
   onCleanup(() => {
+    lifecycle.cleanups++
     alive = false
   })
   return {
     form,
+    lifecycle,
     response,
     hold,
     rejectEdits,

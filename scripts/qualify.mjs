@@ -90,6 +90,16 @@ export function qualificationStages(output, { wamn = false } = {}) {
     }
     stages.push(
       stage(
+        `form-hydration-${mode}`,
+        ['exec', 'node', 'examples/form-contract/run-hydration.mjs'],
+        {
+          ...env,
+          BENCH_OUTPUT: resolve(output, `form-hydration-${mode}.json`),
+        },
+      ),
+    )
+    stages.push(
+      stage(
         `hydration-${mode}`,
         ['exec', 'node', 'examples/hydration/run.mjs'],
         { ...env, BENCH_OUTPUT: resolve(output, `hydration-${mode}.json`) },

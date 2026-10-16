@@ -167,6 +167,31 @@ RESET uses the current application defaults.
 The type examples reject unknown fields and mismatched field values.
 Focused unit cases cover ownership, immutable snapshots, cancellation, response identity, reset, errors, and disposal.
 Browser cases exercise those rules through the shared controls in source, built-package, and development modes.
-The current example runs in the browser.
-A server smoke test covers the package import and initial values.
-Task `wfe-w2y.3.3` adds the reusable form package's server rendering, hydration, and broader integration qualification.
+The hydration runner renders this same screen on the server and attaches the client to its original nodes.
+It tests accessible controls before attachment, keyboard submission, field errors, service failures, retry, cancellation, reset, and external replacement.
+Six lifetimes exercise pending validation and submission, detached controls, released subscriptions, and stale responses without page navigation.
+Source, built-package, and development modes reject server warnings, browser warnings, and reactive diagnostics.
+
+Run the form hydration cases from the repository root after `pnpm build`:
+
+```sh
+node examples/form-contract/run-hydration.mjs
+```
+
+Set `BENCH_DISTRIBUTION=1` to use the built packages.
+Set `NODE_ENV=development` and `BENCH_DEVELOPMENT=1` for development behavior.
+The runner builds its server and client serially and preserves their module inventories.
+`pnpm test:qualification` includes these three modes.
+
+Use the same accepted values and defaults on the server and client.
+Create a separate form inside each rendered owner.
+Do not share an editable form across server requests or call `submit()` during rendering.
+The client attaches event handlers through `hydrate` from `@solidjs/web`.
+Release its owner and remove the retained server markup when the host closes the view.
+The shared example fixture demonstrates this host cleanup.
+
+The example supplies explicit checkbox input IDs, label IDs, and label associations for accessible server markup.
+Automatic checkbox labels currently depend on client registration.
+Native descriptions after their input also lack automatic associations before client attachment.
+Issue `wfe-w2y.3.5` tracks those component defaults.
+Use explicit input and description associations when server markup must expose them before attachment.
