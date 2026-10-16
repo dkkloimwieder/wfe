@@ -1,4 +1,7 @@
-import { reviewAppearanceFocus } from '../shared/appearance/focus-review.mjs'
+import {
+  appearanceColor,
+  reviewAppearanceFocus,
+} from '../shared/appearance/focus-review.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -96,9 +99,8 @@ try {
           exact: true,
         })
         await swatch.click()
-        const expected = await swatch
-          .locator('span')
-          .evaluate((node) => getComputedStyle(node).backgroundColor)
+        const expected = await appearanceColor(page, '--ui-focus-ring')
+        assert.ok(expected.includes('0.85'))
         await page.keyboard.press('Tab')
         for (const field of [name, category]) {
           await field.focus()
@@ -345,7 +347,7 @@ try {
       await page
         .locator('main')
         .evaluate((node) => node.style.getPropertyValue('--ui-focus')),
-      '#74c0fc',
+      '#a5d8ff',
     )
     await button('No shadows').click()
     assert.equal(

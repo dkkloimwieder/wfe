@@ -52,12 +52,12 @@ export const neutralAccent: Accent = {
 }
 export const accents: readonly Accent[] = [
   neutralAccent,
-  { name: 'Blue', light: '#1864ab', dark: '#74c0fc' },
+  { name: 'Blue', light: '#1971c2', dark: '#a5d8ff' },
   { name: 'Teal', light: '#087f5b', dark: '#63e6be' },
   { name: 'Green', light: '#2b8a3e', dark: '#8ce99a' },
-  { name: 'Violet', light: '#5f3dc4', dark: '#b197fc' },
+  { name: 'Violet', light: '#6741d9', dark: '#d0bfff' },
   { name: 'Pink', light: '#a61e4d', dark: '#faa2c1' },
-  { name: 'Orange', light: '#d9480f', dark: '#ffc078' },
+  { name: 'Orange', light: '#e8590c', dark: '#ffd8a8' },
   { name: 'Brown', light: '#6f4b2d', dark: '#d3b79e' },
   { name: 'Choco', light: '#8a4513', dark: '#f1b280' },
 ]
@@ -119,6 +119,9 @@ export function appearanceStyle(
     '--ui-button-border': border,
     '--ui-handle-border': border,
     '--ui-focus': focus,
+    '--ui-focus-ring': `color-mix(in srgb, ${focus} 85%, transparent)`,
+    '--ui-selection': focus,
+    '--ui-on-selection': onAccent,
     '--ui-accent': focus,
     '--ui-on-accent': onAccent,
     '--ui-accent-hover': `color-mix(in srgb, ${focus} 90%, ${hoverTarget})`,

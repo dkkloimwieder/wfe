@@ -57,3 +57,14 @@ The form example at `http://127.0.0.1:7787/` uses the same appearance controls a
 BASE sets its backdrop, PANES sets its outer panel, and CONTENT sets its form and service sections.
 Appearance changes preserve values, errors, and pending requests.
 Table placement and divider controls stay in the Table example.
+
+Blue, Violet, and Orange use one lighter Open Props step in both modes.
+Focus rings use a separate `--ui-focus-ring` role at 85% opacity.
+Other accent roles remain opaque. Select and Combobox highlights use `--ui-selection` and `--ui-on-selection`.
+These roles default to the accent pair when supplied.
+Native dropdown selects use [customizable select CSS](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select) on supporting browsers.
+Their native markup, form values, and events remain unchanged.
+Other browsers and forced-color mode retain the native picker.
+
+In the customizable picker, ArrowDown opens the list and moves its focus. Enter confirms an option.
+Escape closes the picker before the surrounding pane. The supplied `onKeyDown` callback still receives the event.

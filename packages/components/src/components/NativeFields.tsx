@@ -330,6 +330,23 @@ export function NativeSelect(props: NativeSelectProps) {
   )
   const events = ownedElementEvents(
     merge(props, {
+      onKeyDown(
+        event: KeyboardEvent & {
+          currentTarget: HTMLSelectElement
+          target: HTMLSelectElement
+        },
+      ) {
+        callHandler(
+          event,
+          props.onKeyDown as JSX.EventHandlerUnion<
+            HTMLSelectElement,
+            KeyboardEvent
+          >,
+        )
+        // The browser closes its picker. The same Escape must not close its parent.
+        if (event.key === 'Escape' && event.target instanceof HTMLOptionElement)
+          event.stopPropagation()
+      },
       onChange(
         event: Event & {
           currentTarget: HTMLSelectElement

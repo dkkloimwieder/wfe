@@ -47,7 +47,7 @@
 }
 
 :where([data-ui]) textarea:focus-visible {
-  outline: 2px solid var(--ui-focus, #1657a8);
+  outline: 2px solid var(--ui-focus-ring, var(--ui-focus, #1657a8));
   outline-offset: 2px;
 }
 

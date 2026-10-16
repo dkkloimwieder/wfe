@@ -1,4 +1,7 @@
-import { reviewAppearanceFocus } from '../shared/appearance/focus-review.mjs'
+import {
+  appearanceColor,
+  reviewAppearanceFocus,
+} from '../shared/appearance/focus-review.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -1424,7 +1427,7 @@ try {
         .evaluate((node) =>
           getComputedStyle(node).getPropertyValue('--ui-focus').trim(),
         ),
-      '#1864ab',
+      '#1971c2',
     )
     await choiceTrigger('Region').click()
     const popup = page.locator('.popup-content')
@@ -1483,7 +1486,7 @@ try {
         .evaluate((node) =>
           getComputedStyle(node).getPropertyValue('--ui-focus').trim(),
         ),
-      '#74c0fc',
+      '#a5d8ff',
     )
     assert.deepEqual(await surface.boundingBox(), narrow)
     assert.equal(
@@ -1932,6 +1935,66 @@ try {
           nodes.map((node) => node.getBoundingClientRect().height),
         )
       assert.equal(new Set(heights).size, 1)
+    }
+  })
+  await test('Native and shared select highlights follow the lighter accents', async () => {
+    const native = page.getByRole('combobox', {
+      name: 'Region match',
+      exact: true,
+    })
+    const original = await native.boundingBox()
+    for (const mode of ['Light', 'Dark']) {
+      await page
+        .getByRole('button', { name: `${mode} surfaces`, exact: true })
+        .click()
+      for (const accent of ['Blue', 'Violet', 'Orange']) {
+        await page
+          .getByRole('button', { name: `${accent} accent`, exact: true })
+          .click()
+        const fill = await appearanceColor(page, '--ui-selection')
+        const ink = await appearanceColor(page, '--ui-on-selection')
+        assert.ok(
+          (await appearanceColor(page, '--ui-focus-ring')).includes('0.85'),
+        )
+        await native.click()
+        assert.equal(
+          await native.evaluate((node) => node.matches(':open')),
+          true,
+        )
+        const selected = native.locator('option:checked')
+        assert.deepEqual(
+          await selected.evaluate((node) => {
+            const style = getComputedStyle(node)
+            return { fill: style.backgroundColor, ink: style.color }
+          }),
+          { fill, ink },
+        )
+        await page.keyboard.press('ArrowDown')
+        const focused = native.locator('option:focus')
+        assert.equal(
+          await focused.evaluate(
+            (node) => getComputedStyle(node).backgroundColor,
+          ),
+          fill,
+        )
+        await page.keyboard.press('Escape')
+        await expect(native).toBeFocused()
+        assert.deepEqual(await native.boundingBox(), original)
+        await choiceTrigger('Region').click()
+        await page.getByRole('listbox').getByRole('option').first().hover()
+        const option = page
+          .getByRole('listbox')
+          .locator('[data-highlighted]')
+          .first()
+        assert.deepEqual(
+          await option.evaluate((node) => {
+            const style = getComputedStyle(node)
+            return { fill: style.backgroundColor, ink: style.color }
+          }),
+          { fill, ink },
+        )
+        await page.keyboard.press('Escape')
+      }
     }
   })
   await test('Appearance button focus rings stay complete across desktop and narrow strips', async () => {

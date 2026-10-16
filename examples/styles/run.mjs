@@ -132,8 +132,20 @@ try {
       '-3px',
     )
     const select = page.locator(`#${id}-select`)
+    const enhanced = await select.evaluate(
+      (node) => getComputedStyle(node).appearance === 'base-select',
+    )
     await select.focus()
     await page.keyboard.press('ArrowDown')
+    if (enhanced) {
+      assert.equal(await select.evaluate((node) => node.matches(':open')), true)
+      await page.keyboard.press('ArrowDown')
+      await page.keyboard.press('Enter')
+      assert.equal(
+        await select.evaluate((node) => node.matches(':open')),
+        false,
+      )
+    }
     assert.equal(await select.inputValue(), 'second')
     for (const direction of ['ltr', 'rtl']) {
       await select.evaluate(
@@ -151,7 +163,7 @@ try {
           color: style.color,
         }
       })
-      assert.equal(layout.appearance, 'none')
+      assert.equal(layout.appearance, enhanced ? 'base-select' : 'none')
       const caretInset =
         direction === 'rtl'
           ? layout.positions[0]

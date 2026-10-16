@@ -65,3 +65,14 @@ export async function reviewAppearanceFocus(page) {
     )
   }
 }
+
+export async function appearanceColor(page, role) {
+  return page.locator('main').evaluate((scope, role) => {
+    const probe = document.createElement('span')
+    probe.style.color = `var(${role})`
+    scope.append(probe)
+    const color = getComputedStyle(probe).color
+    probe.remove()
+    return color
+  }, role)
+}
