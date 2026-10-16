@@ -78,6 +78,16 @@ try {
   })
   report.browser = browser.version()
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  async function resize(viewport) {
+    await page.setViewportSize(viewport)
+    // Media-query listeners and reactive updates finish before the next interaction.
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    )
+  }
   page.on('pageerror', (error) => report.errors.push(error.stack))
   page.on('console', (message) => {
     if (['warning', 'error'].includes(message.type()))
@@ -118,7 +128,7 @@ try {
     await expect(trigger).toBeFocused()
   }
   async function test(name, run) {
-    await page.setViewportSize({ width: 1440, height: 1000 })
+    await resize({ width: 1440, height: 1000 })
     await page.evaluate(() => {
       window.dashboardFixture.start()
       window.dashboardFixture.replaceRows(2)
@@ -877,7 +887,7 @@ try {
         .selectOption(id)
     }
     for (const width of [1440, 1100, 700, 390]) {
-      await page.setViewportSize({ width, height: 1000 })
+      await resize({ width, height: 1000 })
       if (
         width < 768 &&
         (await page
@@ -935,34 +945,26 @@ try {
       )
     }
   })
-  await test('APPLY stays in a full-width pane header while sections scroll below it', async () => {
+  await test('APPLY stays in the shared header while control sections scroll below it', async () => {
     for (const viewport of [
       { width: 1440, height: 500 },
       { width: 390, height: 568 },
     ]) {
-      await page.setViewportSize(viewport)
+      await resize(viewport)
       if (viewport.width < 768)
         await page
           .getByRole('button', { name: 'Table controls', exact: true })
           .click()
       const pane = page.locator('.table-workspace-controls')
-      const header = pane.locator('.table-workspace-controls-header')
+      const header = page.locator('.table-workspace-header')
       const body = pane.locator('.table-workspace-controls-body')
       const paneBox = await pane.boundingBox()
       const headerBox = await header.boundingBox()
       const bodyBox = await body.boundingBox()
-      const borders = await pane.evaluate((node) => {
-        const style = getComputedStyle(node)
-        return {
-          left: parseFloat(style.borderLeftWidth),
-          right: parseFloat(style.borderRightWidth),
-        }
-      })
-      assert.equal(headerBox.x, paneBox.x + borders.left)
-      assert.equal(
-        headerBox.width,
-        paneBox.width - borders.left - borders.right,
-      )
+      const frame = await page.locator('.table-workspace').boundingBox()
+      assert.equal(headerBox.x, frame.x + 1)
+      assert.equal(headerBox.width, frame.width - 2)
+      assert.ok(paneBox.y >= headerBox.y + headerBox.height)
       assert.ok(bodyBox.y >= headerBox.y + headerBox.height)
       assert.equal(
         await header.evaluate(
@@ -979,7 +981,7 @@ try {
       assert.equal(
         await header.evaluate((node) => getComputedStyle(node).backgroundColor),
         await page
-          .locator('.table-workspace-results-header')
+          .locator('.table-workspace-results')
           .evaluate((node) => getComputedStyle(node).backgroundColor),
       )
       await body.evaluate((node) => {
@@ -1012,7 +1014,7 @@ try {
     }
   })
   await test('Expanded filters and grouping never consume the results height', async () => {
-    await page.setViewportSize({ width: 1440, height: 500 })
+    await resize({ width: 1440, height: 500 })
     const scroller = page.locator('.table-scroll')
     const before = await scroller.boundingBox()
     assert.ok(before.height > 300)
@@ -1048,7 +1050,7 @@ try {
       await page.evaluate(() => document.documentElement.scrollHeight),
       500,
     )
-    await page.setViewportSize({ width: 390, height: 568 })
+    await resize({ width: 390, height: 568 })
     const narrow = await scroller.boundingBox()
     assert.ok(narrow.height > 300)
     await page
@@ -1097,12 +1099,13 @@ try {
     await filter.evaluate((node) => {
       window.savedTableFilter = node
     })
-    await page.setViewportSize({ width: 390, height: 844 })
+    await resize({ width: 390, height: 844 })
     const toggle = page.getByRole('button', {
       name: 'Table controls',
       exact: true,
     })
-    await expect(toggle).toBeFocused()
+    await expect(apply()).toBeFocused()
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false')
     await toggle.press('Enter')
     await expect(filter).toBeVisible()
     assert.equal(await filter.textContent(), 'West')
@@ -1121,7 +1124,7 @@ try {
     await expect(page.locator('.table-scroll')).toBeFocused()
     await expect(filter).toBeHidden()
     await toggle.focus()
-    await page.setViewportSize({ width: 1440, height: 1000 })
+    await resize({ width: 1440, height: 1000 })
     await expect(toggle).toBeFocused()
     assert.equal(await filter.textContent(), 'West')
     assert.equal(
@@ -1138,7 +1141,7 @@ try {
     assert.equal(await filter.textContent(), 'West')
   })
   await test('The controls drawer stays below application navigation and preserves its state', async () => {
-    await page.setViewportSize({ width: 390, height: 844 })
+    await resize({ width: 390, height: 844 })
     const controls = page.getByRole('complementary', {
       name: 'Table controls',
       exact: true,
@@ -1162,7 +1165,7 @@ try {
   })
   await test('Narrow layout keeps form draft and application navigation', async () => {
     await page.getByLabel('Record name', { exact: true }).fill('Keep draft')
-    await page.setViewportSize({ width: 390, height: 844 })
+    await resize({ width: 390, height: 844 })
     await page.getByRole('button', { name: 'Navigation', exact: true }).click()
     await page.getByRole('button', { name: 'Activity', exact: true }).click()
     assert.equal(
@@ -1192,7 +1195,7 @@ try {
       await page.getByLabel('Record name', { exact: true }).isVisible(),
       true,
     )
-    await page.setViewportSize({ width: 1440, height: 1000 })
+    await resize({ width: 1440, height: 1000 })
     assert.equal(
       await page.getByLabel('Record name', { exact: true }).inputValue(),
       'Keep draft',
@@ -1249,8 +1252,8 @@ try {
         name: level ? `Depth ${level}` : 'No shadows',
         exact: true,
       })
-    const header = page.locator('.table-workspace-controls-header')
-    const caption = page.locator('.table-workspace-results-header')
+    const header = page.locator('.table-workspace-header')
+    const caption = page.locator('.table-workspace-title')
     const tableHeader = page.locator('thead')
     const surface = page.locator('.table-scroll')
     const samples = page.locator('.surface-sample')
@@ -1298,12 +1301,8 @@ try {
           await background(pane),
           await background(sample(paneSurface)),
         )
-      const leftHeader = await header.boundingBox()
-      const rightHeader = await caption.boundingBox()
-      assert.equal(leftHeader.y, rightHeader.y)
-      assert.equal(leftHeader.height, rightHeader.height)
+      assert.equal(await background(header), await background(panes[0]))
       for (const node of [
-        header,
         caption,
         tableHeader,
         page.locator('.table-control-section > summary').first(),
@@ -1361,7 +1360,7 @@ try {
         ),
         neutralColors,
       )
-      for (const node of [header, caption])
+      for (const node of [caption])
         assert.equal(await background(node), 'rgba(0, 0, 0, 0)')
       assert.deepEqual(await surface.boundingBox(), geometry)
       assert.deepEqual(await rows(), initialRows)
@@ -1389,7 +1388,7 @@ try {
           assert.deepEqual(await surface.boundingBox(), geometry)
           assert.deepEqual(await rows(), initialRows)
           await expect(name).toHaveValue('Record 1')
-          for (const node of [header, caption, tableHeader])
+          for (const node of [caption, tableHeader])
             assert.equal(await background(node), 'rgba(0, 0, 0, 0)')
         }
       }
@@ -1461,7 +1460,7 @@ try {
       'aria-pressed',
       'true',
     )
-    await page.setViewportSize({ width: 390, height: 568 })
+    await resize({ width: 390, height: 568 })
     for (const selector of [
       '.appearance-pickers',
       '.appearance-layers',
@@ -1519,14 +1518,22 @@ try {
     await expect(page.locator('.table-controls-toggle')).toHaveCount(1)
     await expect(page.locator('.table-workspace-toolbar')).toHaveCount(0)
     await expect(
-      page.locator('.table-workspace-results-header button'),
-    ).toHaveCount(1)
-    const heading = page.locator('.table-workspace-results-header > span')
+      page.locator('.table-workspace-header-actions button'),
+    ).toHaveCount(2)
+    const heading = page.locator('.table-workspace-title > span')
     const headingBox = await heading.boundingBox()
     const toggleBox = await toggle.boundingBox()
     assert.equal(toggleBox.width, toggleBox.height)
-    assert.ok(toggleBox.x > headingBox.x + headingBox.width)
-    assert.ok(toggleBox.x - headingBox.x - headingBox.width <= 8)
+    const initialFrame = await workspace.boundingBox()
+    assert.ok(
+      Math.abs(
+        headingBox.x +
+          headingBox.width / 2 -
+          initialFrame.x -
+          initialFrame.width / 2,
+      ) < 1,
+    )
+    assert.ok(toggleBox.x < headingBox.x)
     await expect(toggle).toHaveAttribute('title', 'HIDE CONTROLS')
     const iconBox = await toggle.locator('svg').boundingBox()
     assert.ok(
@@ -1624,18 +1631,13 @@ try {
     const compactHeight = (await pane.boundingBox()).height
     assert.ok(compactHeight < expandedHeight)
     const contentHeight = await pane.evaluate((node) => {
-      const header = node
-        .querySelector('.table-workspace-controls-header')
-        .getBoundingClientRect().height
       const sections = [
         ...node.querySelectorAll('.table-control-section'),
       ].reduce(
         (height, section) => height + section.getBoundingClientRect().height,
         0,
       )
-      return (
-        header + sections + parseFloat(getComputedStyle(node).borderBottomWidth)
-      )
+      return sections + parseFloat(getComputedStyle(node).borderBottomWidth)
     })
     assert.equal(compactHeight, contentHeight)
     await pane
@@ -1697,7 +1699,7 @@ try {
     assert.deepEqual(await surface.boundingBox(), original)
     await toggle.click()
     await toggle.focus()
-    await page.setViewportSize({ width: 390, height: 568 })
+    await resize({ width: 390, height: 568 })
     await expect(toggle).toBeFocused()
     const narrow = await surface.boundingBox()
     await toggle.press('Enter')
@@ -1706,19 +1708,19 @@ try {
     await page
       .getByRole('button', { name: 'Close table controls', exact: true })
       .click()
-    await page.setViewportSize({ width: 1440, height: 1000 })
+    await resize({ width: 1440, height: 1000 })
     await expect(toggle).toBeFocused()
     await expect(pane).toBeHidden()
     await toggle.click()
     await page
       .getByRole('button', { name: 'top controls pane', exact: true })
       .click()
-    await page.setViewportSize({ width: 960, height: 540 })
+    await resize({ width: 960, height: 540 })
     assert.ok((await surface.boundingBox()).height > 120)
     await page
       .getByRole('button', { name: 'right controls pane', exact: true })
       .click()
-    await page.setViewportSize({ width: 390, height: 568 })
+    await resize({ width: 390, height: 568 })
     await toggle.click()
     await expect(pane).toBeVisible()
     assert.equal(
@@ -1735,6 +1737,133 @@ try {
       ),
       true,
     )
+  })
+  await test('The merged header centers its title and places actions at the configured edge', async () => {
+    const header = page.locator('.table-workspace-header')
+    const title = page.locator('.table-workspace-title')
+    const actions = page.locator('.table-workspace-header-actions')
+    const pane = page.locator('.table-workspace-controls')
+    const toggle = page.getByRole('button', {
+      name: 'Table controls',
+      exact: true,
+    })
+    const table = await page.locator('table').elementHandle()
+    const draft = page.getByRole('textbox', { name: 'Name', exact: true })
+    await draft.fill('Record 1')
+    const draftNode = await draft.elementHandle()
+    for (const placement of ['left', 'top', 'right']) {
+      await page
+        .getByRole('button', {
+          name: `${placement} controls pane`,
+          exact: true,
+        })
+        .click()
+      for (const width of [1440, 390]) {
+        await resize({ width, height: 900 })
+        await expect(toggle).toHaveAttribute(
+          'aria-expanded',
+          width === 390 ? 'false' : 'true',
+        )
+        for (let step = 0; step < 2; step++) {
+          const bounds = await header.boundingBox()
+          assert.equal(bounds.height, 35)
+          const titleBox = await title.boundingBox()
+          const actionsBox = await actions.boundingBox()
+          assert.ok(
+            Math.abs(
+              titleBox.x + titleBox.width / 2 - bounds.x - bounds.width / 2,
+            ) < 1,
+          )
+          if (placement === 'right') {
+            assert.ok(actionsBox.x >= titleBox.x + titleBox.width)
+            const lastButton = await actions
+              .locator(':scope > *')
+              .last()
+              .boundingBox()
+            assert.ok(
+              Math.abs(
+                lastButton.x + lastButton.width - bounds.x - bounds.width + 8,
+              ) < 1,
+            )
+          } else {
+            assert.ok(actionsBox.x + actionsBox.width <= titleBox.x)
+            const firstButton = await actions
+              .getByRole('button')
+              .first()
+              .boundingBox()
+            assert.ok(Math.abs(firstButton.x - bounds.x - 8) < 1)
+          }
+          assert.equal(await page.locator('.table-workspace-header').count(), 1)
+          assert.equal(
+            await page
+              .locator(
+                '.table-workspace-results-header, .table-workspace-controls-header',
+              )
+              .count(),
+            0,
+          )
+          await toggle.click()
+          if (await pane.isVisible()) {
+            const paneBox = await pane.boundingBox()
+            assert.ok(paneBox.y >= bounds.y + bounds.height)
+          }
+        }
+      }
+    }
+    assert.equal(
+      await table.evaluate((n) => n === document.querySelector('table')),
+      true,
+    )
+    assert.equal(
+      await draftNode.evaluate(
+        (n) => n === document.querySelector('input[aria-label="Name"]'),
+      ),
+      true,
+    )
+    assert.equal(await draftNode.evaluate((node) => node.value), 'Record 1')
+    await resize({ width: 1440, height: 900 })
+    await page.evaluate(() =>
+      window.dashboardFixture.setControlsCollapsed(true),
+    )
+    await apply().click()
+    assert.deepEqual(await rows(), ['record-1'])
+    await expect(pane).toBeHidden()
+    await table.dispose()
+    await draftNode.dispose()
+  })
+  await test('Shared APPLY reveals invalid fields in a collapsed pane or closed narrow drawer', async () => {
+    const pane = page.locator('.table-workspace-controls')
+    const toggle = page.getByRole('button', {
+      name: 'Table controls',
+      exact: true,
+    })
+    const start = page.getByRole('textbox', {
+      name: 'Created start',
+      exact: true,
+    })
+    for (const width of [1440, 390]) {
+      await resize({ width, height: 900 })
+      await expect(toggle).toHaveAttribute(
+        'aria-expanded',
+        width === 390 ? 'false' : 'true',
+      )
+      if (!(await pane.isVisible())) await toggle.click()
+      await page
+        .getByRole('textbox', { name: 'Name', exact: true })
+        .fill(width === 1440 ? 'Record 1' : 'Record 2')
+      await start.fill('invalid')
+      await start.press('Tab')
+      await expect(start).toHaveAttribute('aria-invalid', 'true')
+      await toggle.click()
+      await expect(pane).toBeHidden()
+      await apply().click()
+      await expect(pane).toBeVisible()
+      await expect(start).toBeFocused()
+      await expect(start).toHaveValue('invalid')
+      await start.fill('2026-01-01')
+      await start.press('Tab')
+      await apply().click()
+    }
   })
   await test('The Table starts level with controls and keeps its summary pinned below scrolling records', async () => {
     const controls = page.locator('.table-workspace-controls')

@@ -1,5 +1,5 @@
 export { TableWorkspace, TableControlSection } from './TableWorkspace'
-export type { TableWorkspaceProps } from './TableWorkspace'
+export type { TableWorkspaceProps, TableControlsHandle } from './TableWorkspace'
 export { Table, TableRow } from './Table'
 export type {
   TableEdge,

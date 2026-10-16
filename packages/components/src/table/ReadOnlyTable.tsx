@@ -7,7 +7,7 @@ import { TableSort } from './TableSort'
 import { Table } from './Table'
 import type { TableColumnAlignment, TableColumnAlignments } from './Table'
 import { TableControlSection, TableWorkspace } from './TableWorkspace'
-import type { TableWorkspaceProps } from './TableWorkspace'
+import type { TableWorkspaceProps, TableControlsHandle } from './TableWorkspace'
 import { TableFilter } from './TableFilter'
 import { TableDateFilter } from './TableDateFilter'
 import { TableColumnFilter } from './TableColumnFilter'
@@ -74,6 +74,7 @@ export function ReadOnlyTable<T, M>(props: {
     },
   })
   let filterControls: HTMLDivElement | undefined
+  let workspaceControls: TableControlsHandle | undefined
   const label = (column: NativeColumn<T, M>) =>
     props.label?.(column) ?? String(column.columnDef?.header ?? column.id)
   const processing = () => !table.options.manualProcessing
@@ -92,6 +93,9 @@ export function ReadOnlyTable<T, M>(props: {
   return (
     <TableWorkspace
       class="table-component"
+      controlsRef={(handle) => {
+        workspaceControls = handle
+      }}
       controlsPlacement={props.controlsPlacement}
       controlsCollapsed={props.controlsCollapsed}
       defaultControlsCollapsed={props.defaultControlsCollapsed}
@@ -123,7 +127,7 @@ export function ReadOnlyTable<T, M>(props: {
                 const invalid = filterControls?.querySelector<HTMLElement>(
                   '[aria-invalid="true"]:not(:disabled)',
                 )
-                if (invalid) invalid.focus()
+                if (invalid) workspaceControls?.focus(invalid)
                 else filters.apply()
               }}
             >

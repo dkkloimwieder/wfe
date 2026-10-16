@@ -92,8 +92,11 @@ Controls inside each section run horizontally and wrap as needed.
 The top pane shrinks when sections collapse and expands only to its height limit.
 Narrow screens use the same drawer for either placement.
 
-Use the square sliders icon immediately after the results title to hide or show controls.
-The icon stays next to the title in every placement.
+One shared header spans the controls and results panes.
+The table title stays centered across the full workspace.
+The square sliders icon and header actions sit at the left for Left and Top placement.
+Right placement puts these controls at the right.
+Use the icon to hide or show the controls.
 Its tooltip shows Show controls or Hide controls, and its accessible state follows the pane.
 There is no separate toolbar row.
 The results reclaim the pane width in left or right placement and its height in top placement.
@@ -138,7 +141,7 @@ Filter inputs keep their existing Escape behavior.
 Focusing the results closes the drawer so focused content stays visible.
 Resizing moves focus before its current control becomes hidden.
 The same control nodes survive desktop and narrow layouts.
-The drawer starts below the results heading so the icon stays available.
+The drawer starts below the shared header so its actions stay available.
 Right placement anchors the narrow drawer to the right edge.
 
 Applications can localize the labels through `TableWorkspace` props.
@@ -161,17 +164,19 @@ starts the drag. The separate sort arrow has padding and does not start a drag.
 Activate a heading to open its move menu. Use Left, Right, Home, or End to move
 a focused heading with the keyboard. Press Escape to cancel a drag.
 
-The optional `controlsHeader` slot stays above the scrolling controls. The Table
-uses this slot for its APPLY bar. The bar fills the pane width and uses the
-shared pane surface and divider. Filter, grouping, display, and formatting
-sections scroll below it. The narrow controls drawer keeps its close button
-and APPLY bar outside this scrolling area.
+The optional `controlsHeader` slot supplies actions in the shared header.
+ReadOnlyTable uses it for APPLY and its pending-change message.
+The optional `resultsHeader` slot supplies the centered title.
+These existing prop names remain available for custom compositions.
+The header stays outside both scrollers and uses the same surface as the panes.
+ReadOnlyTable keeps application buttons in the Actions section.
 
-The optional `resultsHeader` slot gives the results pane the same header band as
-`controlsHeader`. ReadOnlyTable places its title there and names the table with
-`aria-label`. Both panes share one frame and its optional shadow.
-Control sections meet without card padding or gaps.
-The results fill the frame when the controls collapse.
+APPLY remains available when the controls collapse.
+Invalid fields reopen their pane and section, then receive focus.
+For custom header actions, `controlsRef` receives a `TableControlsHandle` with `focus(target?)`.
+This method requests an open pane and focuses its optional descendant.
+The application must accept the visibility request when it controls collapse state.
+A handle from a disposed workspace does nothing.
 
 ## Column alignment and dividers
 
