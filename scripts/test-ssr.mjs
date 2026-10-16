@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { renderToString } from '@solidjs/web'
+import { Toast } from '@wfe/components'
 import {
   createTable as createNativeTable,
   nativeAggregations,
@@ -113,3 +114,26 @@ const formOutput = await renderToString(() => {
 assert.equal(formOutput, 'Server record|0|false|idle|false|false')
 assert.equal(formCallbacks, 0)
 console.log('Form package import and initial server state passed.')
+
+const toastWarnings = []
+const originalWarn = console.warn
+let toastOutput
+try {
+  console.warn = (...args) => {
+    toastWarnings.push(args.map(String).join(' '))
+    originalWarn(...args)
+  }
+  toastOutput = await renderToString(() =>
+    Toast({ open: true, persistent: true, children: 'Server notification' }),
+  )
+} finally {
+  console.warn = originalWarn
+}
+assert.match(toastOutput, /ui-toast/)
+assert.match(toastOutput, /Server notification/)
+assert.deepEqual(
+  toastWarnings,
+  [],
+  'Toast server rendering and disposal remain pure',
+)
+console.log('Toast server rendering and disposal passed.')

@@ -15,7 +15,7 @@ import {
 } from 'solid-js'
 import { Button } from './NativeFields'
 import type { ToastOptions } from '../internal/controls/toast'
-import type { JSX } from '@solidjs/web'
+import { isServer, type JSX } from '@solidjs/web'
 import type { ButtonProps } from './NativeFields'
 
 const ToastContext = createContext<ReturnType<typeof createToastState> | null>(
@@ -43,7 +43,7 @@ function ToastSurface(
   },
 ) {
   const state = props.state
-  onCleanup(() => props.setNode(undefined))
+  if (!isServer) onCleanup(() => props.setNode(undefined))
   const handlers = {
     onPointerEnter(
       event: PointerEvent & { currentTarget: HTMLDivElement; target: Element },
