@@ -13,6 +13,114 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     await settle()
   }
   await record(
+    'fields: button variants preserve keyboard actions and disabled form behavior',
+    async () => {
+      await open()
+      const heights = []
+      for (const variant of ['outline', 'filled', 'inverted', 'ghost']) {
+        const button = page.getByRole('button', {
+          name: `${variant} action`,
+          exact: true,
+        })
+        assert.equal(await button.getAttribute('data-variant'), variant)
+        assert.equal(await button.getAttribute('variant'), null)
+        heights.push((await button.boundingBox()).height)
+        await button.focus()
+        await press('Enter')
+        await press('Space')
+      }
+      assert.equal(new Set(heights).size, 1)
+      assert.equal((await read()).actions, 8)
+      assert.equal((await read()).submits, 0)
+      await configure({ disabled: true })
+      for (const variant of ['outline', 'filled', 'inverted', 'ghost']) {
+        const button = page.getByRole('button', {
+          name: `${variant} action`,
+          exact: true,
+        })
+        assert.equal(await button.isDisabled(), true)
+        await button.evaluate((node) => node.click())
+      }
+      assert.equal((await read()).actions, 8)
+    },
+  )
+  await record(
+    'fields: icon variants update without replacing the button or changing geometry',
+    async () => {
+      await open()
+      const icon = page.getByRole('button', {
+        name: 'Variant icon',
+        exact: true,
+      })
+      const node = await icon.elementHandle()
+      const original = await icon.boundingBox()
+      for (const variant of ['filled', 'inverted', 'ghost', 'outline']) {
+        await configure({ variant })
+        assert.equal(await icon.getAttribute('data-variant'), variant)
+        assert.deepEqual(await icon.boundingBox(), original)
+        assert.equal(
+          await node.evaluate(
+            (node) =>
+              node === document.querySelector('[aria-label="Variant icon"]'),
+          ),
+          true,
+        )
+      }
+      await icon.focus()
+      assert.equal(
+        await icon.evaluate((node) => getComputedStyle(node).outlineStyle),
+        'solid',
+      )
+      await press('Enter')
+      assert.equal((await read()).actions, 1)
+      await node.dispose()
+    },
+  )
+  await record(
+    'fields: filled and inverted keep contrast on hover and expose borders in forced colors',
+    async () => {
+      await open()
+      for (const variant of ['filled', 'inverted']) {
+        const button = page.getByRole('button', {
+          name: `${variant} action`,
+          exact: true,
+        })
+        const colors = () =>
+          button.evaluate((node) => {
+            const style = getComputedStyle(node)
+            return [style.backgroundColor, style.color]
+          })
+        const before = await colors()
+        assert.notEqual(before[0], before[1])
+        await button.hover()
+        assert.deepEqual(await colors(), before)
+      }
+      await page.emulateMedia({ forcedColors: 'active' })
+      try {
+        for (const variant of ['outline', 'filled', 'inverted', 'ghost']) {
+          const button = page.getByRole('button', {
+            name: `${variant} action`,
+            exact: true,
+          })
+          assert.equal(
+            await button.evaluate(
+              (node) => getComputedStyle(node).borderTopStyle,
+            ),
+            'solid',
+          )
+          assert.notEqual(
+            await button.evaluate(
+              (node) => getComputedStyle(node).borderTopColor,
+            ),
+            'rgba(0, 0, 0, 0)',
+          )
+        }
+      } finally {
+        await page.emulateMedia({ forcedColors: 'none' })
+      }
+    },
+  )
+  await record(
     'fields: native select preserves accepted values, rejected changes and field links',
     async () => {
       await open()

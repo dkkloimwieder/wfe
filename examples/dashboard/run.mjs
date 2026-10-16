@@ -1831,6 +1831,66 @@ try {
     await table.dispose()
     await draftNode.dispose()
   })
+  await test('Button variants follow surfaces and accents with readable filled text', async () => {
+    const samples = page.getByRole('group', {
+      name: 'Button variants',
+      exact: true,
+    })
+    const filled = samples.getByRole('button', { name: 'filled', exact: true })
+    const inverted = samples.getByRole('button', {
+      name: 'inverted',
+      exact: true,
+    })
+    const values = (button) =>
+      button.evaluate((node) => {
+        const style = getComputedStyle(node)
+        return {
+          background: style.backgroundColor,
+          color: style.color,
+          height: node.getBoundingClientRect().height,
+        }
+      })
+    for (const mode of ['Black / white', 'Light', 'Dark']) {
+      await page
+        .getByRole('button', { name: `${mode} surfaces`, exact: true })
+        .click()
+      const neutral = await values(inverted)
+      for (const accent of await page
+        .getByRole('group', { name: 'Accent colors', exact: true })
+        .getByRole('button')
+        .all()) {
+        await accent.click()
+        const colors = await values(filled)
+        const luminance = (color) => {
+          const channels = color
+            .match(/[\d.]+/g)
+            .slice(0, 3)
+            .map(Number)
+            .map((v) => {
+              const channel = v / 255
+              return channel <= 0.04045
+                ? channel / 12.92
+                : ((channel + 0.055) / 1.055) ** 2.4
+            })
+          return (
+            channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722
+          )
+        }
+        const a = luminance(colors.background),
+          b = luminance(colors.color)
+        assert.ok((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) >= 4.5)
+        assert.deepEqual(await values(inverted), neutral)
+        await filled.hover()
+        assert.deepEqual(await values(filled), colors)
+      }
+      const heights = await samples
+        .getByRole('button')
+        .evaluateAll((nodes) =>
+          nodes.map((node) => node.getBoundingClientRect().height),
+        )
+      assert.equal(new Set(heights).size, 1)
+    }
+  })
   await test('Column headers stay visible while rows scroll in every pane placement', async () => {
     await page.evaluate(() => window.dashboardFixture.replaceRows(500))
     for (const placement of ['left', 'top', 'right']) {

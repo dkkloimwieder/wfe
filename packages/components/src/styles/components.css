@@ -33,6 +33,38 @@
   outline: 2px solid var(--ui-focus, #1657a8);
   outline-offset: 2px;
 }
+:where([data-ui]) .ui-button[data-variant='filled'] {
+  border-color: var(--ui-accent, var(--ui-text, #000));
+  background: var(--ui-accent, var(--ui-text, #000));
+  color: var(--ui-on-accent, var(--ui-surface, #fff));
+}
+:where([data-ui]) .ui-button[data-variant='inverted'] {
+  border-color: var(--ui-text, #000);
+  background: var(--ui-text, #000);
+  color: var(--ui-surface, #fff);
+}
+:where([data-ui]) .ui-button[data-variant='ghost'] {
+  border-color: transparent;
+  background: transparent;
+}
+:where([data-ui]) .ui-button[data-variant='ghost']:hover {
+  background: var(--ui-highlight, var(--ui-surface, #fff));
+}
+:where([data-ui])
+  .ui-button:is([data-variant='filled'], [data-variant='inverted']):hover:not(
+    :disabled,
+    [aria-disabled='true']
+  ) {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+@media (forced-colors: active) {
+  :where([data-ui]) .ui-button[data-variant] {
+    border-color: ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+}
 :where([data-ui]) summary {
   cursor: pointer;
 }

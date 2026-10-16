@@ -12,10 +12,12 @@ import {
   Textarea,
   uiScope,
 } from '@wfe/components'
-import { Show, createSignal, flush, onCleanup } from 'solid-js'
+import type { ButtonVariant } from '@wfe/components'
+import { For, Show, createSignal, flush, onCleanup } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
 
 export function NativeFieldsFixture() {
+  const [variant, setVariant] = createSignal<ButtonVariant>('outline')
   const [text, setText] = createSignal('Initial')
   const [choice, setChoice] = createSignal('alpha')
   const [preventChoice, setPreventChoice] = createSignal(false)
@@ -40,6 +42,7 @@ export function NativeFieldsFixture() {
   })
   window.nativeFieldFixture = {
     configure(next) {
+      if ('variant' in next) setVariant(next.variant!)
       if ('choice' in next) setChoice(next.choice!)
       if ('preventChoice' in next) setPreventChoice(next.preventChoice!)
       if ('text' in next) setText(next.text!)
@@ -171,6 +174,27 @@ export function NativeFieldsFixture() {
           >
             Local action
           </Button>
+          <For each={['outline', 'filled', 'inverted', 'ghost'] as const}>
+            {(variant) => (
+              <Button
+                variant={variant}
+                onClick={() => {
+                  actions++
+                }}
+              >
+                {variant} action
+              </Button>
+            )}
+          </For>
+          <IconButton
+            variant={variant()}
+            aria-label="Variant icon"
+            onClick={() => {
+              actions++
+            }}
+          >
+            +
+          </IconButton>
           <Button type="submit">Submit form</Button>
         </FieldSet>
       </form>
@@ -188,6 +212,7 @@ declare global {
   interface Window {
     nativeFieldFixture: {
       configure: (next: {
+        variant?: ButtonVariant
         choice?: string
         preventChoice?: boolean
         text?: string

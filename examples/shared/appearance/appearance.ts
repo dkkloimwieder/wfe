@@ -64,6 +64,18 @@ export const accents: readonly Accent[] = [
 export function accentColor(accent: Accent, scheme: SurfaceScheme) {
   return accent[scheme.mode]
 }
+function accentText(color: string) {
+  const channels = color
+    .slice(1)
+    .match(/../g)!
+    .map((part) => {
+      const value = parseInt(part, 16) / 255
+      return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4
+    })
+  const luminance =
+    channels[0]! * 0.2126 + channels[1]! * 0.7152 + channels[2]! * 0.0722
+  return luminance > 0.179 ? monochrome.text[0] : monochrome.surfaces[0]
+}
 export function dividerSurfaces(scheme: SurfaceScheme) {
   return (scheme === monochrome ? schemes[1]! : scheme).surfaces
 }
@@ -101,6 +113,8 @@ export function appearanceStyle(
     '--ui-button-border': border,
     '--ui-handle-border': border,
     '--ui-focus': focus,
+    '--ui-accent': focus,
+    '--ui-on-accent': accentText(focus),
     '--ui-shadow-overflow': '24px',
     '--ui-panel-shadow': depth ? `var(--review-shadow-${depth})` : 'none',
     '--ui-popup-shadow': depth ? 'var(--review-shadow-3)' : 'none',

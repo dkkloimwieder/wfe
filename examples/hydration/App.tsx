@@ -258,7 +258,12 @@ export default function App() {
           {JSON.stringify([textMatch(), statusMatch(), numberMatch()])}
         </output>
       </section>
-      <Button id="rename" type="button" onClick={() => setName('Grace')}>
+      <Button
+        id="rename"
+        variant={name() === 'Ada' ? 'filled' : 'inverted'}
+        type="button"
+        onClick={() => setName('Grace')}
+      >
         Rename
       </Button>
       <Dialog id="adopt-dialog" open={open()} onOpenChange={setOpen}>

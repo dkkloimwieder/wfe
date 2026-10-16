@@ -88,6 +88,20 @@ export function AppearanceReview(props: {
             )}
           </For>
         </div>
+        <div
+          class="appearance-options"
+          role="group"
+          aria-label="Button variants"
+        >
+          <span data-ui-text="system">Buttons</span>
+          <For each={['outline', 'filled', 'inverted', 'ghost'] as const}>
+            {(variant) => (
+              <Button variant={variant} title={`${variant} button sample`}>
+                {variant}
+              </Button>
+            )}
+          </For>
+        </div>
         <a href="https://open-props.style/#color" data-ui-text="system">
           Open Props
         </a>

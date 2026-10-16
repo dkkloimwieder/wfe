@@ -346,7 +346,7 @@ export async function consumerCases({ page, url, record, press, settle }) {
       await page
         .getByRole('textbox', { name: 'Name', exact: true })
         .fill('Existing')
-      await button('Apply filters').click()
+      await button('Refresh results').click()
       assert.equal(
         await page.locator('[aria-label="Saved records"] tbody tr').count(),
         1,

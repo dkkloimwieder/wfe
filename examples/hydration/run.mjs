@@ -73,6 +73,7 @@ try {
     template.includes('<!--ssr-->'),
     'Built HTML must retain the server markup placeholder',
   )
+  assert.match(markup, /data-variant="filled"/)
   const html = template.replace('<!--ssr-->', markup)
   // Capture the original nodes before the deferred module attaches the client.
   await writeFile(
@@ -282,7 +283,15 @@ try {
   report.assertions.push(
     'Text, multiple choices, and numeric filters retain server controls and apply each change once',
   )
+  await expect(page.locator('#rename')).toHaveAttribute(
+    'data-variant',
+    'filled',
+  )
   await page.locator('#rename').click()
+  await expect(page.locator('#rename')).toHaveAttribute(
+    'data-variant',
+    'inverted',
+  )
   await page.waitForFunction(
     () => document.getElementById('name').textContent === 'Grace',
   )
