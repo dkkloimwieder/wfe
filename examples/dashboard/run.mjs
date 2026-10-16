@@ -1427,7 +1427,7 @@ try {
         .evaluate((node) =>
           getComputedStyle(node).getPropertyValue('--ui-focus').trim(),
         ),
-      '#1971c2',
+      '#1c7ed6',
     )
     await choiceTrigger('Region').click()
     const popup = page.locator('.popup-content')
@@ -1486,7 +1486,7 @@ try {
         .evaluate((node) =>
           getComputedStyle(node).getPropertyValue('--ui-focus').trim(),
         ),
-      '#a5d8ff',
+      '#d0ebff',
     )
     assert.deepEqual(await surface.boundingBox(), narrow)
     assert.equal(

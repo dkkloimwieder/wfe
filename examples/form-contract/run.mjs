@@ -347,7 +347,7 @@ try {
       await page
         .locator('main')
         .evaluate((node) => node.style.getPropertyValue('--ui-focus')),
-      '#a5d8ff',
+      '#d0ebff',
     )
     await button('No shadows').click()
     assert.equal(

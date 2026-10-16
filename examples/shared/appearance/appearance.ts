@@ -52,12 +52,12 @@ export const neutralAccent: Accent = {
 }
 export const accents: readonly Accent[] = [
   neutralAccent,
-  { name: 'Blue', light: '#1971c2', dark: '#a5d8ff' },
+  { name: 'Blue', light: '#1c7ed6', dark: '#d0ebff' },
   { name: 'Teal', light: '#087f5b', dark: '#63e6be' },
   { name: 'Green', light: '#2b8a3e', dark: '#8ce99a' },
-  { name: 'Violet', light: '#6741d9', dark: '#d0bfff' },
+  { name: 'Violet', light: '#7048e8', dark: '#e5dbff' },
   { name: 'Pink', light: '#a61e4d', dark: '#faa2c1' },
-  { name: 'Orange', light: '#e8590c', dark: '#ffd8a8' },
+  { name: 'Orange', light: '#f76707', dark: '#ffe8cc' },
   { name: 'Brown', light: '#6f4b2d', dark: '#d3b79e' },
   { name: 'Choco', light: '#8a4513', dark: '#f1b280' },
 ]

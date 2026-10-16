@@ -58,7 +58,7 @@ BASE sets its backdrop, PANES sets its outer panel, and CONTENT sets its form an
 Appearance changes preserve values, errors, and pending requests.
 Table placement and divider controls stay in the Table example.
 
-Blue, Violet, and Orange use one lighter Open Props step in both modes.
+Blue, Violet, and Orange use Open Props step 7 in light mode and step 1 in dark mode.
 Focus rings use a separate `--ui-focus-ring` role at 85% opacity.
 Other accent roles remain opaque. Select and Combobox highlights use `--ui-selection` and `--ui-on-selection`.
 These roles default to the accent pair when supplied.
