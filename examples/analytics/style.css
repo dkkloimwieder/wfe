@@ -32,7 +32,7 @@ main > label {
   gap: 6px;
   margin: 6px 0;
 }
-main > label select {
+main > label .ui-select-field {
   width: auto;
 }
 main > button {

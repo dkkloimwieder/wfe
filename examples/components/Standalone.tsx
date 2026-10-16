@@ -1,3 +1,4 @@
+import { Button } from '@wfe/components/fields'
 import { uiScope } from '@wfe/components'
 import { createSignal, flush } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
@@ -27,7 +28,7 @@ export function Standalone() {
     <main data-ui-portal-root="" {...uiScope()}>
       <h1>Popup compatibility</h1>
       <div class="standalone-controls">
-        <button>Before popup</button>
+        <Button>Before popup</Button>
         <PopupPriorityEditor
           value={value()}
           disabled={disabled()}
@@ -44,13 +45,13 @@ export function Standalone() {
             setValue(value)
           }}
         />
-        <button>After popup</button>
+        <Button>After popup</Button>
       </div>
       <p id="standalone-message">{invalid() ? 'Choose a priority.' : ''}</p>
       <output>{value() || '(empty)'}</output>
-      <button ref={nativeEvents({ click: () => setValue('low') })}>
+      <Button ref={nativeEvents({ click: () => setValue('low') })}>
         Set Low externally
-      </button>
+      </Button>
     </main>
   )
 }

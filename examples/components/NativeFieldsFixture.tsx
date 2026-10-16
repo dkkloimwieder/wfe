@@ -204,29 +204,43 @@ export function NativeFieldsFixture() {
         </FieldSet>
       </form>
       <form data-select-field-form="">
-        <SelectField
-          label="Shared choice"
-          name="shared-choice"
-          choices={[
-            { value: 'alpha', label: 'Alpha' },
-            { value: 'beta', label: 'Beta' },
-            { value: 'disabled', label: 'Disabled', disabled: true },
-          ]}
-          value={choice()}
+        <Field
           disabled={disabled()}
+          readonly={readonly()}
           invalid={invalid()}
-          onValueChange={(value) => {
-            if (accept()) setChoice(value)
-          }}
-        />
+          required
+        >
+          <Label>Shared choice</Label>
+          <SelectField
+            id={`shared-${id()}`}
+            aria-describedby="extra-help"
+            label="Shared choice"
+            name="shared-choice"
+            choices={[
+              { value: 'alpha', label: 'Alpha' },
+              { value: 'beta', label: 'Beta' },
+              { value: 'disabled', label: 'Disabled', disabled: true },
+            ]}
+            value={choice()}
+            onValueChange={(value) => {
+              if (accept()) setChoice(value)
+            }}
+          />
+          <Show when={help()}>
+            <HelpText id="shared-choice-help">Choose a shared value.</HelpText>
+          </Show>
+          <FieldError id="shared-choice-error">
+            The shared value is invalid.
+          </FieldError>
+        </Field>
       </form>
       <p id="extra-help">Caller description.</p>
-      <button
+      <Button
         type="button"
         ref={nativeEvents({ click: () => setHelp(!help()) })}
       >
         Toggle help
-      </button>
+      </Button>
     </main>
   )
 }

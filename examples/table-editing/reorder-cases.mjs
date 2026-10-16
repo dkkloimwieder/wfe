@@ -440,13 +440,9 @@ export async function reorderCases({
       await settle()
       assert.equal((await read()).visibleColumns[0], 'name')
       await page.getByText('Display options', { exact: true }).click()
-      await page
-        .getByRole('checkbox', { name: 'Column rearrangement', exact: true })
-        .uncheck()
+      await page.getByText('Column rearrangement', { exact: true }).click()
       assert.equal(await handle(page).count(), 0)
-      await page
-        .getByRole('checkbox', { name: 'Column rearrangement', exact: true })
-        .check()
+      await page.getByText('Column rearrangement', { exact: true }).click()
       assert.equal(await handle(page).count(), 1)
       assert.equal((await read()).visibleColumns[0], 'name')
     },

@@ -1,3 +1,5 @@
+import { FieldContext } from '../internal/fieldContext'
+import type { FieldState } from '../internal/fieldContext'
 import { renderAfterRegistration } from '../internal/fieldRendering'
 import {
   callHandler,
@@ -5,7 +7,6 @@ import {
   ownedElementEvents,
 } from '../internal/events'
 import {
-  createContext,
   createSignal,
   createUniqueId,
   merge,
@@ -17,18 +18,6 @@ import {
 import { isServer } from '@solidjs/web'
 import type { JSX } from '@solidjs/web'
 
-type FieldState = {
-  controlId: () => string
-  baseControlId: () => string
-  disabled: () => boolean | undefined
-  readonly: () => boolean | undefined
-  required: () => boolean | undefined
-  invalid: () => boolean | undefined
-  describedBy: () => string | undefined
-  registerControl: (id: () => string) => void
-  registerDescription: (id: () => string, error: boolean) => void
-}
-const FieldContext = createContext<FieldState | null>(null)
 export type FieldProps = JSX.HTMLAttributes<HTMLDivElement> & {
   controlId?: string
   disabled?: boolean
@@ -315,7 +304,7 @@ export type NativeSelectProps = JSX.SelectHTMLAttributes<HTMLSelectElement> & {
   invalid?: boolean
   onValueChange?: (value: string, event: Event) => void
 }
-/** Native select for small option lists. Applications supply the option children. */
+/** Compatibility control for native browser integration. Use SelectField in normal interfaces. */
 export function NativeSelect(props: NativeSelectProps) {
   const field = useContext(FieldContext)
   const generated = `select-${createUniqueId()}`

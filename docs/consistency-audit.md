@@ -42,19 +42,19 @@ An open choice menu consumes Escape before the header popup.
 Table editor menus retain their owner marker so focus does not cancel an edit.
 Applications still own values, validation, filtering, and save requests.
 
-## P1: consumer examples bypass shared controls
+## Fixed: consumer examples use shared controls
 
-Follow-up: `wfe-w2y.12`.
+Issue: `wfe-w2y.12`.
 
-[The form example](../examples/form-contract/App.tsx) still uses NativeSelect for category and response configuration.
-[The dashboard example](../examples/dashboard/main.tsx) uses NativeSelect in its application form.
-[Editing controls](../examples/table-editing/Table.tsx), [table configuration](../examples/table-editing/TableOptions.tsx), and [saved views](../examples/table-editing/TableViews.tsx) also retain it.
-[Analytics](../examples/analytics/main.tsx), [virtualization](../examples/virtualization/NativeApp.tsx), and [the WAMN fixture](../examples/wamn/App.tsx) contain raw HTML controls.
+[The form example](../examples/form-contract/App.tsx) and [the dashboard example](../examples/dashboard/main.tsx) use SelectField.
+[Editing controls](../examples/table-editing/Table.tsx), [table configuration](../examples/table-editing/TableOptions.tsx), and [saved views](../examples/table-editing/TableViews.tsx) use shared controls.
+[Analytics](../examples/analytics/main.tsx), [virtualization](../examples/virtualization/NativeApp.tsx), and [the WAMN fixture](../examples/wamn/App.tsx) also use shared controls.
+SelectField inherits Field metadata and preserves accepted values and named form submission.
+The examples retain their application callbacks and data rules.
 
-Normal consumer interfaces must use shared controls.
-NativeSelect remains a compatibility export during the migration.
-Raw controls remain appropriate in explicit browser interoperability and scope-isolation tests.
-They are not a second visual standard for application examples.
+NativeSelect remains a compatibility export for native browser integration.
+Raw controls remain in explicit browser interoperability and scope-isolation tests.
+They do not define another visual standard for application examples.
 
 ## P1: overlay triggers bypass the Button contract
 
@@ -104,7 +104,7 @@ No external icon dependency is necessary.
 
 Follow-up: `wfe-w2y.16`.
 
-[The component README](../packages/components/src/components/README.md) still describes future work and names `@table/ui-core`.
+[The component README](../packages/components/src/components/README.md) now documents current controls after `wfe-w2y.12`.
 [The virtualization README](../packages/components/src/virtual/README.md) imports `@table/ui/virtual` and names an obsolete package command.
 [The internal controls README](../packages/components/src/internal/controls/README.md) describes completed extraction passes as future work.
 These documents give contributors conflicting instructions about the canonical implementation.
@@ -161,7 +161,7 @@ Package source contains no application request or persistence implementation.
 
 ## Order of follow-up work
 
-Finish the shared-control fix before migrating the remaining normal consumer interfaces.
+Table controls and normal consumer interfaces now use shared controls.
 Next, make overlay triggers use the Button contract and consolidate common state styles.
 Use the shared interaction matrix to prevent new divergence.
 Centralize repeated icons and correct obsolete documentation in focused changes.

@@ -1,4 +1,5 @@
-import { Button, NativeSelect } from '@wfe/components/fields'
+import { Button } from '@wfe/components/fields'
+import { SelectField } from '@wfe/components/select'
 import './style.css'
 import { uiScope } from '@wfe/components'
 import { For, Show, createSignal, flush, onSettled, untrack } from 'solid-js'
@@ -217,19 +218,19 @@ export function App(props: {
             <Show when={!model.isGrouped()}>
               <label class="child-dataset">
                 Sub-table dataset
-                <NativeSelect
+                <SelectField
+                  label="Sub-table dataset"
+                  data-ui-text="system"
                   value={scope()}
                   disabled={model.locked()}
-                  ref={nativeEvents<HTMLSelectElement>({
-                    change: (event) => {
-                      if (!changeScope(event.currentTarget.value))
-                        event.currentTarget.value = scope()
-                    },
-                  })}
-                >
-                  <option value="current">Current period</option>
-                  <option value="previous">Previous period</option>
-                </NativeSelect>
+                  choices={[
+                    { value: 'current', label: 'Current period' },
+                    { value: 'previous', label: 'Previous period' },
+                  ]}
+                  onValueChange={(value) => {
+                    changeScope(value)
+                  }}
+                />
               </label>
               <p class="column-layout">
                 Expand a row to load its sub-table. Each table saves its own

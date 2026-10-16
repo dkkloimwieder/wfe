@@ -1,3 +1,5 @@
+import { Button, Checkbox, Input, uiScope } from '@wfe/components'
+import '@wfe/components/styles.css'
 import {
   For,
   Show,
@@ -238,7 +240,7 @@ export default function NativeApp(props: {
       },
     })
     return (
-      <input
+      <Input
         ref={(element) => {
           input = element
           inputEvents(element)
@@ -371,25 +373,25 @@ export default function NativeApp(props: {
                           </Show>
                         }
                       >
-                        <button
+                        <Button
                           ref={nativeEvents({
                             click: () => row!.toggleSelected(),
                           })}
                           aria-label={`Select ${item.kind === 'row' ? item.id : ''}`}
                         >
                           {String(cell.getValue())}
-                        </button>
+                        </Button>
                       </Show>
                     }
                   >
-                    <button
+                    <Button
                       ref={nativeEvents({
                         click: () => group!.toggleExpanded(),
                       })}
                       aria-label="Toggle group"
                     >
                       {group!.getIsExpanded() ? '−' : '+'} {group!.count}
-                    </button>
+                    </Button>
                   </Show>
                 </div>
               )
@@ -409,7 +411,7 @@ export default function NativeApp(props: {
     keydown: interaction.keydown,
   })
   return (
-    <main class="native-demo">
+    <main {...uiScope()} data-ui-portal-root="" class="native-demo">
       <div
         class="native-measure"
         aria-hidden="true"
@@ -426,7 +428,7 @@ export default function NativeApp(props: {
                   {column.id === 'description' ? (
                     'Record 99999. A description that can wrap when this column becomes narrow.'
                   ) : column.id === 'id' ? (
-                    <button tabindex={-1}>r99999</button>
+                    <Button tabindex={-1}>r99999</Button>
                   ) : (
                     'Sample'
                   )}
@@ -438,21 +440,21 @@ export default function NativeApp(props: {
         <div ref={groupProbe} class="native-row native-group">
           <div class="native-cells">
             <div class="native-cell">
-              <button tabindex={-1}>+ 100</button>
+              <Button tabindex={-1}>+ 100</Button>
             </div>
           </div>
         </div>
       </div>
       <h1>Native Solid table</h1>
       <div class="native-controls">
-        <button
+        <Button
           ref={nativeEvents({
             click: () => table.getColumn('amount')!.toggleSorting(),
           })}
         >
           Sort amounts
-        </button>
-        <button
+        </Button>
+        <Button
           ref={nativeEvents({
             click: () =>
               table
@@ -465,23 +467,23 @@ export default function NativeApp(props: {
           })}
         >
           Filter amounts
-        </button>
-        <button
+        </Button>
+        <Button
           ref={nativeEvents({
             click: () =>
               table.setGrouping(table.state.grouping.length ? [] : ['region']),
           })}
         >
           Group regions
-        </button>
-        <button
+        </Button>
+        <Button
           ref={nativeEvents({
             click: () => table.toggleAllGroupsExpanded(true),
           })}
         >
           Expand groups
-        </button>
-        <button
+        </Button>
+        <Button
           ref={nativeEvents({
             click: () =>
               table
@@ -490,9 +492,9 @@ export default function NativeApp(props: {
           })}
         >
           Pin first record
-        </button>
-        <button ref={nativeEvents({ click: append })}>Append record</button>
-        <button ref={nativeEvents({ click: replace })}>Refresh amounts</button>
+        </Button>
+        <Button ref={nativeEvents({ click: append })}>Append record</Button>
+        <Button ref={nativeEvents({ click: replace })}>Refresh amounts</Button>
       </div>
       <p>
         {ids().length.toLocaleString()} loaded records. Use arrow keys to move.
@@ -502,23 +504,22 @@ export default function NativeApp(props: {
         {(id) => (
           <div class="native-editor-actions">
             <span>Editing {id()}</span>
-            <button ref={nativeEvents({ click: interaction.save })}>
+            <Button ref={nativeEvents({ click: interaction.save })}>
               Save edit
-            </button>
-            <button ref={nativeEvents({ click: interaction.cancel })}>
+            </Button>
+            <Button ref={nativeEvents({ click: interaction.cancel })}>
               Cancel edit
-            </button>
-            <label>
-              <input
-                ref={nativeEvents({
-                  change: (event) =>
-                    interaction.setRefuseNext(event.currentTarget.checked),
-                })}
-                type="checkbox"
-                checked={interaction.refuseNext()}
-              />
-              Refuse next save (demo)
-            </label>
+            </Button>
+            <Checkbox
+              checked={interaction.refuseNext()}
+              onChange={(value) => interaction.setRefuseNext(value)}
+            >
+              <Checkbox.Input />
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              <Checkbox.Label>Refuse next save (demo)</Checkbox.Label>
+            </Checkbox>
             <Show when={interaction.drafts[id()]?.message}>
               {(message) => <span role="alert">{message()}</span>}
             </Show>

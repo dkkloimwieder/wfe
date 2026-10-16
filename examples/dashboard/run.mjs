@@ -118,6 +118,7 @@ try {
   }
   const choiceTrigger = (label) =>
     page
+      .locator('.table-workspace-controls')
       .getByRole('button', { name: new RegExp('^' + label + '(?:\\s|$)') })
       .and(page.locator(':not([data-ui-text="system"])'))
   async function pick(label, value) {

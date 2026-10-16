@@ -11,7 +11,8 @@ import {
   untrack,
 } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
-import { Button, Input, NativeSelect } from '@wfe/components/fields'
+import { Button, Input } from '@wfe/components/fields'
+import { SelectField } from '@wfe/components/select'
 import {
   TableColumnMove,
   TableColumnResize,
@@ -79,7 +80,7 @@ export function Table(props: {
   let headerFilter: HTMLButtonElement | undefined
   let search: HTMLInputElement | undefined
   let element!: HTMLTableElement
-  let modeControl!: HTMLSelectElement
+  let modeControl!: HTMLButtonElement
   let saveAllButton!: HTMLButtonElement
   let disposed = false
   let focusIntent = 0
@@ -953,27 +954,25 @@ export function Table(props: {
         <Show when={!isGrouped()}>
           <label>
             Save mode
-            <NativeSelect
-              aria-label="Save mode"
+            <SelectField
+              label="Save mode"
+              data-ui-text="system"
               value={saveMode()}
               disabled={model.locked()}
-              ref={[
-                (node) => {
-                  modeControl = node
-                },
-                nativeEvents<HTMLSelectElement>({
-                  change: (event) => {
-                    if (!model.locked()) {
-                      setSaveMode(event.currentTarget.value as SaveMode)
-                      setNotice('')
-                    }
-                  },
-                }),
+              ref={(node) => {
+                modeControl = node
+              }}
+              choices={[
+                { value: 'row', label: 'Per row' },
+                { value: 'table', label: 'Whole table' },
               ]}
-            >
-              <option value="row">Per row</option>
-              <option value="table">Whole table</option>
-            </NativeSelect>
+              onValueChange={(value) => {
+                if (!model.locked()) {
+                  setSaveMode(value as SaveMode)
+                  setNotice('')
+                }
+              }}
+            />
           </label>
           <Show when={saveMode() === 'table'}>
             <Button

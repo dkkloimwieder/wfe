@@ -1,3 +1,8 @@
+import {
+  choiceControl,
+  expectValue,
+  selectValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
@@ -135,7 +140,7 @@ try {
   })
   await page.waitForFunction(() => window.serverNodes?.length > 0)
   const name = page.getByRole('textbox', { name: 'Name', exact: true })
-  const category = page.getByRole('combobox', { name: 'Category', exact: true })
+  const category = choiceControl(page, { name: 'Category', exact: true })
   const enabled = page.getByRole('checkbox', { name: 'Enabled', exact: true })
   const save = page.getByRole('button', { name: 'Save', exact: true })
   const status = page.getByRole('status')
@@ -163,13 +168,22 @@ try {
       ['textbox', 'Custom text', 'Conditional text help.', 'Text error.'],
       ['textbox', 'Custom notes', 'Notes help.'],
       ['combobox', 'Custom choice', 'Choice help.'],
+      [
+        'button',
+        'Shared field choice',
+        'Conditional choice help.',
+        'Choice error.',
+      ],
       ['checkbox', 'Custom check', 'Conditional check help.', 'Check error.'],
       ['switch', 'Automatic switch', 'Switch help.'],
       ['button', 'Automatic select', 'Select help.'],
       ['combobox', 'Automatic search', 'Search help.'],
     ]
     for (const [role, name, ...messages] of cases) {
-      const control = area.getByRole(role, { name, exact: true })
+      const control =
+        name === 'Shared field choice'
+          ? choiceControl(area, { name, exact: true })
+          : area.getByRole(role, { name, exact: true })
       await expect(control).toHaveCount(1)
       const references = await control.evaluate((node) => ({
         id: node.id,
@@ -227,8 +241,8 @@ try {
         .join(' '),
     )
     assert.ok(help.includes('Enter a record name.'))
-    await expect(name).toHaveValue('Draft record')
-    await expect(category).toHaveValue('General')
+    await expectValue(name, 'Draft record')
+    await expectValue(category, 'General')
     await expect(enabled).not.toBeChecked()
     assert.equal(
       await page.evaluate(() => Boolean(window.formContractFixture)),
@@ -255,7 +269,7 @@ try {
   await test('Hydrated controls request each edit once and only explicit Save validates or submits', async () => {
     await name.fill('Hydrated record')
     await name.press('Enter')
-    await category.selectOption('Research')
+    await selectValue(category, 'Research')
     await enabled.focus()
     await page.keyboard.press('Space')
     await expect(enabled).toBeChecked()
@@ -293,31 +307,31 @@ try {
     assert.equal(await retained(), true)
   })
   await test('Server rejections and unexpected failures remain accessible and allow explicit retry', async () => {
-    const response = page.getByRole('combobox', {
+    const response = choiceControl(page, {
       name: 'Simulated response',
       exact: true,
     })
     const before = (await snapshot()).requests.length
-    await response.selectOption('field-error')
+    await selectValue(response, 'field-error')
     await save.click()
     await phase('rejected')
     await expect(name).toBeFocused()
     await expect(
       page.getByText('This name is already in use.', { exact: true }),
     ).toBeVisible()
-    await response.selectOption('form-error')
+    await selectValue(response, 'form-error')
     await save.click()
     await phase('rejected')
     await expect(page.getByRole('alert')).toHaveText(
       'The service rejected this record.',
     )
-    await response.selectOption('failure')
+    await selectValue(response, 'failure')
     await save.click()
     await phase('error')
     await expect(page.getByRole('alert')).toHaveText(
       'The save failed. Try again.',
     )
-    await response.selectOption('success')
+    await selectValue(response, 'success')
     await save.click()
     await phase('success')
     await expect(page.getByRole('alert')).toHaveCount(0)
@@ -353,7 +367,7 @@ try {
       second,
     )
     await phase('success')
-    await expect(name).toHaveValue('Second request')
+    await expectValue(name, 'Second request')
     assert.equal((await snapshot()).defaults.name, 'Second request')
     assert.equal(await retained(), true)
   })
@@ -365,8 +379,8 @@ try {
     await page
       .getByRole('button', { name: 'Reset', exact: true })
       .press('Enter')
-    await expect(name).toHaveValue('External record')
-    await expect(category).toHaveValue('Research')
+    await expectValue(name, 'External record')
+    await expectValue(category, 'Research')
     await expect(enabled).toBeChecked()
     await phase('Unchanged')
     assert.equal(await retained(), true)
@@ -378,13 +392,19 @@ try {
       name: 'Custom check',
       exact: true,
     })
+    const shared = choiceControl(area, {
+      name: 'Shared field choice',
+      exact: true,
+    })
     const originalText = await text.elementHandle()
     const originalCheck = await check.elementHandle()
+    const originalShared = await shared.elementHandle()
     await area
       .getByRole('button', { name: 'Change association IDs', exact: true })
       .click()
     await expect(text).toHaveAttribute('id', 'custom-input-b')
     await expect(check).toHaveAttribute('id', 'custom-check-b')
+    await expect(shared).toHaveAttribute('id', 'custom-shared-choice-b')
     await associations()
     await area
       .getByRole('button', { name: 'Toggle association help', exact: true })
@@ -392,16 +412,17 @@ try {
     await area
       .getByRole('button', { name: 'Toggle association errors', exact: true })
       .click()
-    for (const control of [text, check]) {
+    for (const [control, original] of [
+      [text, originalText],
+      [check, originalCheck],
+      [shared, originalShared],
+    ]) {
       await expect(control).toHaveAttribute(
         'aria-describedby',
         'external-description',
       )
       assert.equal(
-        await control.evaluate(
-          (node, original) => node === original,
-          control === text ? originalText : originalCheck,
-        ),
+        await control.evaluate((node, original) => node === original, original),
         true,
       )
     }
@@ -414,6 +435,7 @@ try {
     await associations()
     await originalText.dispose()
     await originalCheck.dispose()
+    await originalShared.dispose()
   })
   await test('Six lifetimes release listeners, subscriptions and pending work without navigation', async () => {
     for (let index = 0; index < 6; index++) {
@@ -479,8 +501,8 @@ try {
       assert.equal(result.detached, true)
       assert.equal(result.remaining, 0)
       await page.evaluate(() => window.formContractFixture.start())
-      await expect(name).toHaveValue('Draft record')
-      await expect(category).toHaveValue('General')
+      await expectValue(name, 'Draft record')
+      await expectValue(category, 'General')
       await expect(enabled).not.toBeChecked()
       assert.deepEqual((await snapshot()).requests, [])
       assert.equal(

@@ -1,3 +1,4 @@
+import { Button, SelectField } from '@wfe/components'
 import { uiScope } from '@wfe/components'
 import { render } from '@solidjs/web'
 import {
@@ -288,26 +289,26 @@ function start(
         </p>
         <label>
           Example query
-          <select
+          <SelectField
+            label="Example query"
             value={choice()}
-            ref={nativeEvents<HTMLSelectElement>({
-              change: (event) => {
-                setChoice(event.currentTarget.value)
-                runQuery(event.currentTarget.value)
-              },
-            })}
-          >
-            <option value="sales">Sales</option>
-            <option value="inventory">Inventory</option>
-            <option value="large">Large result</option>
-          </select>
+            choices={[
+              { value: 'sales', label: 'Sales' },
+              { value: 'inventory', label: 'Inventory' },
+              { value: 'large', label: 'Large result' },
+            ]}
+            onValueChange={(value) => {
+              setChoice(value)
+              runQuery(value)
+            }}
+          />
         </label>
-        <button
+        <Button
           type="button"
           ref={nativeEvents({ click: () => runQuery(choice()) })}
         >
           Run query
-        </button>
+        </Button>
         <Table
           density={density()}
           query={query()}
@@ -387,7 +388,7 @@ function start(
         {pageError() && (
           <p role="alert">
             {pageError()}{' '}
-            <button
+            <Button
               type="button"
               ref={nativeEvents({
                 click: () => {
@@ -398,7 +399,7 @@ function start(
               })}
             >
               Retry rows
-            </button>
+            </Button>
           </p>
         )}
       </main>

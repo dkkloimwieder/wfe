@@ -1,6 +1,7 @@
+import { FieldContext } from '../internal/fieldContext'
 import * as Core from '../internal/controls/select'
 import { callHandler } from '../internal/events'
-import { Show, omit, untrack } from 'solid-js'
+import { Show, createUniqueId, omit, untrack, useContext } from 'solid-js'
 import { ChoiceScope, createChoiceScope, useChoiceScope } from './choiceScope'
 import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
@@ -157,6 +158,8 @@ export type SelectFieldProps = Omit<
   name?: string
   contentProps?: { [key: `data-${string}`]: string | undefined }
   disabled?: boolean
+  readonly?: boolean
+  required?: boolean
   label: string
   choices: readonly SelectChoice[]
   value: string | undefined
@@ -167,6 +170,12 @@ export type SelectFieldProps = Omit<
 
 /** A single choice composed from the same Select parts as multiple choices. */
 export function SelectField(props: SelectFieldProps) {
+  const field = useContext(FieldContext)
+  const generated = `select-field-${createUniqueId()}`
+  const id = () => props.id || field?.baseControlId() || generated
+  const disabled = () => props.disabled ?? field?.disabled()
+  const readonly = () => props.readonly ?? field?.readonly()
+  field?.registerControl(id)
   const rest = omit(
     props,
     'label',
@@ -178,6 +187,8 @@ export function SelectField(props: SelectFieldProps) {
     'disabled',
     'name',
     'contentProps',
+    'readonly',
+    'required',
   )
   return (
     <SelectRoot<SelectChoice>
@@ -191,10 +202,18 @@ export function SelectField(props: SelectFieldProps) {
         props.choices.find((choice) => choice.value === props.value) ?? null
       }
       onChange={(choice) =>
-        untrack(() => props.onValueChange(choice?.value ?? ''))
+        untrack(() => {
+          if (!disabled() && !readonly())
+            props.onValueChange(choice?.value ?? '')
+        })
       }
-      disabled={props.disabled}
-      validationState={props.invalid ? 'invalid' : undefined}
+      disabled={disabled()}
+      readOnly={readonly()}
+      required={props.required ?? field?.required()}
+      open={readonly() ? false : undefined}
+      validationState={
+        (props.invalid ?? field?.invalid()) ? 'invalid' : undefined
+      }
       placeholder={props.placeholder}
       itemComponent={(item) => (
         <SelectItem
@@ -212,6 +231,13 @@ export function SelectField(props: SelectFieldProps) {
     >
       <SelectTrigger
         {...rest}
+        id={id()}
+        aria-disabled={readonly() ? 'true' : props['aria-disabled']}
+        aria-describedby={
+          [field?.describedBy(), props['aria-describedby']]
+            .filter(Boolean)
+            .join(' ') || undefined
+        }
         aria-label={props.label}
         data-value={props.value ?? ''}
       >

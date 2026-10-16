@@ -1,3 +1,4 @@
+import { Button } from '@wfe/components/fields'
 import { uiScope } from '@wfe/components'
 import { Combobox } from '@wfe/components/combobox'
 import { createSignal } from 'solid-js'
@@ -39,7 +40,7 @@ export function ComboboxSmoke() {
         </Combobox.Portal>
       </Combobox>
       <output aria-label="Selected category">{value()?.id ?? '(empty)'}</output>
-      <button>After combobox</button>
+      <Button>After combobox</Button>
     </main>
   )
 }

@@ -537,7 +537,8 @@
   max-width: 100%;
 }
 :where([data-ui]) .view-controls input,
-:where([data-ui]) .view-controls select {
+:where([data-ui]) .view-controls select,
+:where([data-ui]) .view-controls .ui-select-field {
   width: 170px;
   max-width: 100%;
 }

@@ -1,5 +1,4 @@
-import { NativeSelect } from '@wfe/components/fields'
-import { nativeEvents } from '@wfe/components/events'
+import { Checkbox, SelectField } from '@wfe/components'
 import type { TableControls } from './Table'
 
 export function TableOptions(props: {
@@ -13,97 +12,100 @@ export function TableOptions(props: {
       <fieldset class="display-fields" disabled={props.disabled}>
         <label>
           Column filter controls
-          <NativeSelect
+          <SelectField
+            label="Column filter controls"
+            data-ui-text="system"
             value={props.controls.filters}
-            ref={nativeEvents<HTMLSelectElement>({
-              change: (event) =>
-                props.configure({
-                  filters: event.currentTarget
-                    .value as TableControls['filters'],
-                }),
-            })}
-          >
-            <option value="external">Above the table</option>
-            <option value="headers">In column headers</option>
-            <option value="both">Both</option>
-            <option value="none">Hidden</option>
-          </NativeSelect>
-        </label>
-        <label class="check-option">
-          <input
-            type="checkbox"
-            checked={props.controls.headerSorting}
-            ref={nativeEvents<HTMLInputElement>({
-              change: (event) =>
-                props.configure({ headerSorting: event.currentTarget.checked }),
-            })}
+            disabled={props.disabled}
+            choices={[
+              { value: 'external', label: 'Above the table' },
+              { value: 'headers', label: 'In column headers' },
+              { value: 'both', label: 'Both' },
+              { value: 'none', label: 'Hidden' },
+            ]}
+            onValueChange={(value) =>
+              props.configure({ filters: value as TableControls['filters'] })
+            }
           />
-          Header sorting
         </label>
-        <label class="check-option">
-          <input
-            type="checkbox"
-            checked={props.controls.globalSearch}
-            ref={nativeEvents<HTMLInputElement>({
-              change: (event) =>
-                props.configure({ globalSearch: event.currentTarget.checked }),
-            })}
-          />
-          Global search
-        </label>
-        <label class="check-option">
-          <input
-            type="checkbox"
-            checked={props.controls.grouping}
-            ref={nativeEvents<HTMLInputElement>({
-              change: (event) =>
-                props.configure({ grouping: event.currentTarget.checked }),
-            })}
-          />
-          Grouping controls
-        </label>
-        <label class="check-option">
-          <input
-            type="checkbox"
-            checked={props.controls.columnResizing}
-            ref={nativeEvents<HTMLInputElement>({
-              change: (event) =>
-                props.configure({
-                  columnResizing: event.currentTarget.checked,
-                }),
-            })}
-          />
-          Column resizing
-        </label>
+        <Checkbox
+          class="check-option"
+          checked={props.controls.headerSorting}
+          disabled={props.disabled}
+          onChange={(checked) => props.configure({ headerSorting: checked })}
+        >
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Header sorting</Checkbox.Label>
+        </Checkbox>
+        <Checkbox
+          class="check-option"
+          checked={props.controls.globalSearch}
+          disabled={props.disabled}
+          onChange={(checked) => props.configure({ globalSearch: checked })}
+        >
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Global search</Checkbox.Label>
+        </Checkbox>
+        <Checkbox
+          class="check-option"
+          checked={props.controls.grouping}
+          disabled={props.disabled}
+          onChange={(checked) => props.configure({ grouping: checked })}
+        >
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Grouping controls</Checkbox.Label>
+        </Checkbox>
+        <Checkbox
+          class="check-option"
+          checked={props.controls.columnResizing}
+          disabled={props.disabled}
+          onChange={(checked) => props.configure({ columnResizing: checked })}
+        >
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Column resizing</Checkbox.Label>
+        </Checkbox>
         <label>
           Resize behavior
-          <NativeSelect
+          <SelectField
+            label="Resize behavior"
+            data-ui-text="system"
             value={props.controls.resizeBehavior}
-            ref={nativeEvents<HTMLSelectElement>({
-              change: (event) =>
-                props.configure({
-                  resizeBehavior: event.currentTarget
-                    .value as TableControls['resizeBehavior'],
-                }),
-            })}
-          >
-            <option value="grow">Grow table</option>
-            <option value="fixed">Keep table width</option>
-          </NativeSelect>
-        </label>
-        <label class="check-option">
-          <input
-            type="checkbox"
-            checked={props.controls.columnReordering}
-            ref={nativeEvents<HTMLInputElement>({
-              change: (event) =>
-                props.configure({
-                  columnReordering: event.currentTarget.checked,
-                }),
-            })}
+            disabled={props.disabled}
+            choices={[
+              { value: 'grow', label: 'Grow table' },
+              { value: 'fixed', label: 'Keep table width' },
+            ]}
+            onValueChange={(value) =>
+              props.configure({
+                resizeBehavior: value as TableControls['resizeBehavior'],
+              })
+            }
           />
-          Column rearrangement
         </label>
+        <Checkbox
+          class="check-option"
+          checked={props.controls.columnReordering}
+          disabled={props.disabled}
+          onChange={(checked) => props.configure({ columnReordering: checked })}
+        >
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Column rearrangement</Checkbox.Label>
+        </Checkbox>
       </fieldset>
     </details>
   )

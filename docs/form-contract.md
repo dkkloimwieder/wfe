@@ -143,9 +143,9 @@ The coordinator owns no keyboard policy or DOM nodes.
 The example uses an explicit SAVE button.
 Enter in a text field does not submit, validate, or open a dialog.
 Enter and Space on SAVE activate that button normally.
-Choice controls and checkboxes keep their native keyboard behavior.
+Choice controls and checkboxes keep their shared keyboard behavior.
 
-The application composes `Field`, `Label`, `Input`, `NativeSelect`, `Checkbox`, and `FieldError`.
+The application composes `Field`, `Label`, `Input`, `SelectField`, `Checkbox`, and `FieldError`.
 Those existing components own label and error associations.
 The application renders form errors, pending state, failure messages, and action buttons.
 No backend schema, transport, permission rule, or persistence enters the contract.

@@ -7,7 +7,7 @@ import {
   HelpText,
   Input,
   Label,
-  NativeSelect,
+  SelectField,
   uiScope,
 } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
@@ -92,13 +92,15 @@ export function App(props: {
           </Field>
           <Field invalid={Boolean(form.errors.fields?.category)}>
             <Label>Category</Label>
-            <NativeSelect
+            <SelectField
+              label="Category"
+              choices={[
+                { value: 'General', label: 'General' },
+                { value: 'Research', label: 'Research' },
+              ]}
               value={form.values.category}
               onValueChange={(value) => form.setValue('category', value)}
-            >
-              <option value="General">General</option>
-              <option value="Research">Research</option>
-            </NativeSelect>
+            />
             <FieldError>{form.errors.fields?.category}</FieldError>
           </Field>
           <Checkbox
@@ -138,18 +140,20 @@ export function App(props: {
           <h2>Example service</h2>
           <Field>
             <Label>Simulated response</Label>
-            <NativeSelect
+            <SelectField
               data-ui-text="system"
+              label="Simulated response"
+              choices={[
+                { value: 'success', label: 'Success' },
+                { value: 'field-error', label: 'Field rejection' },
+                { value: 'form-error', label: 'Form rejection' },
+                { value: 'failure', label: 'Unexpected failure' },
+              ]}
               value={application.response()}
               onValueChange={(value) =>
                 application.setResponse(value as ResponseMode)
               }
-            >
-              <option value="success">Success</option>
-              <option value="field-error">Field rejection</option>
-              <option value="form-error">Form rejection</option>
-              <option value="failure">Unexpected failure</option>
-            </NativeSelect>
+            />
           </Field>
           <Checkbox
             checked={application.hold() === 'submission'}

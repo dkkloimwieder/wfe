@@ -1,8 +1,4 @@
 .native-demo {
-  font:
-    14px/20px system-ui,
-    sans-serif;
-  color: #17212b;
   padding: 16px;
 }
 .native-demo * {
@@ -12,10 +8,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-.native-demo button {
-  font: inherit;
-  cursor: pointer;
 }
 .native-viewport {
   position: relative;

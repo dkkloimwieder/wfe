@@ -9,18 +9,6 @@ body {
   color: #183041;
   background: #f5f8fa;
 }
-button,
-input,
-select {
-  font: inherit;
-  padding: 5px;
-}
-button {
-  cursor: pointer;
-}
-button:disabled {
-  cursor: default;
-}
 .toolbar,
 .actions {
   display: flex;

@@ -408,9 +408,7 @@ try {
       await settle()
       assert.equal(await controlValue(nameFilter()), '0002')
       assert.deepEqual((await read()).ids, ['R0002'])
-      await page
-        .getByRole('checkbox', { name: 'Header sorting', exact: true })
-        .uncheck()
+      await page.getByText('Header sorting', { exact: true }).click()
       assert.equal(
         await page
           .getByRole('button', { name: 'Sort by Name', exact: true })
@@ -426,9 +424,7 @@ try {
       await call('filter', 'name', '0003')
       await selectValue(placement, 'external')
       assert.equal(await controlValue(nameFilter()), '0003')
-      await page
-        .getByRole('checkbox', { name: 'Header sorting', exact: true })
-        .check()
+      await page.getByText('Header sorting', { exact: true }).click()
       await clearFilters().click()
       await page
         .getByRole('button', { name: 'Sort by Name', exact: true })

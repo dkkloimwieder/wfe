@@ -7,7 +7,7 @@ import {
   FieldError,
   Input,
   Label,
-  NativeSelect,
+  SelectField,
   uiScope,
   ValueDisplay,
 } from '@wfe/components'
@@ -460,10 +460,15 @@ function Dashboard() {
               </Field>
               <Field>
                 <Label>Region</Label>
-                <NativeSelect value={region()} onValueChange={setRegion}>
-                  <option>West</option>
-                  <option>East</option>
-                </NativeSelect>
+                <SelectField
+                  label="Region"
+                  value={region()}
+                  onValueChange={setRegion}
+                  choices={[
+                    { value: 'West', label: 'West' },
+                    { value: 'East', label: 'East' },
+                  ]}
+                />
               </Field>
               <Checkbox checked={active()} onChange={setActive}>
                 <Checkbox.Input />

@@ -10,6 +10,7 @@ import {
   Label,
   NativeSelect,
   Select,
+  SelectField,
   Switch,
   Textarea,
   uiScope,
@@ -59,6 +60,28 @@ function AssociationCases() {
           <option value="a">Alpha</option>
         </NativeSelect>
         <HelpText>Choice help.</HelpText>
+      </Field>
+      <Field invalid={invalid()} required>
+        <Label>Shared field choice</Label>
+        <SelectField
+          id={`custom-shared-choice-${suffix()}`}
+          label="Shared field choice"
+          aria-describedby="external-description"
+          value="a"
+          choices={[
+            { value: 'a', label: 'Alpha' },
+            { value: 'b', label: 'Beta' },
+          ]}
+          onValueChange={() => undefined}
+        />
+        <Show when={help()}>
+          <HelpText id={`custom-shared-help-${suffix()}`}>
+            Conditional choice help.
+          </HelpText>
+        </Show>
+        <FieldError id={`custom-shared-error-${suffix()}`}>
+          Choice error.
+        </FieldError>
       </Field>
       <Field>
         <Label>No description</Label>

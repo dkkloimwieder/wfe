@@ -1,3 +1,8 @@
+import {
+  choiceControl,
+  selectValue,
+  expectValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
 import { createServer } from 'node:http'
@@ -37,10 +42,25 @@ assert.ok(modules.some((path) => path.includes('/.input/widget.ts')))
 assert.ok(modules.some((path) => path.includes('/.input/widget_maker.ts')))
 assert.ok(
   !modules.some((path) =>
-    /table-core|@tanstack\/store|solid-form|kobalte|sonner|lucide|\.input\/components\//.test(
+    /table-core|@tanstack\/store|solid-form|node_modules\/@kobalte\/|sonner|lucide|\.input\/components\//.test(
       path,
     ),
   ),
+)
+const ownedControls = modules.filter((path) =>
+  path.includes('/vendor/kobalte/'),
+)
+assert.ok(
+  ownedControls.some((path) => /\/checkbox-root\.(tsx|jsx)$/.test(path)),
+)
+assert.ok(ownedControls.some((path) => /\/select-root\.(tsx|jsx)$/.test(path)))
+assert.ok(
+  ownedControls.every((path) =>
+    /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
+      path,
+    ),
+  ),
+  'WAMN controls use only the shared checkbox and select families',
 )
 const server = createServer(async (request, response) => {
   try {
@@ -75,6 +95,9 @@ const report = {
   errors: [],
   diagnostics: [],
 }
+const definition = JSON.parse(
+  await readFile(new URL('./.input/definition.json', import.meta.url), 'utf8'),
+)
 const id = (index) =>
   `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`
 try {
@@ -200,7 +223,9 @@ try {
     'browser edit preserves record identity and sends an exact int64 revision',
     async () => {
       await call('remember', id(0))
-      await call('select', id(0))
+      await page
+        .getByRole('checkbox', { name: `Select ${id(0)}`, exact: true })
+        .press('Space')
       await page
         .getByRole('button', { name: `Edit ${id(0)}`, exact: true })
         .click()
@@ -377,18 +402,29 @@ try {
       const action = JSON.parse(
         await page.locator('[data-action]').textContent(),
       )
-      assert.equal(
-        action.operation,
-        'platform-fixture:widget/record-batch@1.0.0',
+      const declaredForm = definition.rowForms[0]
+      assert.ok(declaredForm.operation)
+      assert.ok(declaredForm.pairs.length > 0)
+      assert.ok(declaredForm.pairs.every(([source]) => source === 'id'))
+      assert.equal(action.operation, declaredForm.operation)
+      assert.deepEqual(
+        action.pairs,
+        declaredForm.pairs.map(([, target]) => [target, id(3)]),
       )
-      assert.deepEqual(action.pairs, [['value.line[].widgetId', id(3)]])
     },
   )
   await record(
     'explicit browse pages append stable records and preserve the server order',
     async () => {
       await start(230)
-      await call('configure', { mode: 'browse', cap: 250 })
+      await call('configure', { cap: 250 })
+      await idle()
+      const beforeMode = (await read()).sent.filter(
+        (request) => request.path === '/widget/query',
+      ).length
+      const mode = choiceControl(page, { name: 'Mode', exact: true })
+      await selectValue(mode, 'browse')
+      await expectValue(mode, 'browse')
       await idle()
       await call('remember', id(0))
       await call('select', id(0))
@@ -406,6 +442,7 @@ try {
       assert.deepEqual(
         value.sent
           .filter((request) => request.path === '/widget/query')
+          .slice(beforeMode)
           .map((request) => request.item),
         [
           { limit: 100 },

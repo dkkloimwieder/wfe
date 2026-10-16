@@ -117,6 +117,7 @@ export async function viewCases({
         .click()
       await ready()
       assert.equal((await state()).views[1].name, 'Second record')
+      await choose(all)
       await choose(high)
       assert.deepEqual((await read()).ids, ['R0002'])
       await toolbar(page)

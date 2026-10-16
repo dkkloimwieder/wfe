@@ -33,6 +33,18 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
           ),
         )
       assert.equal(await submitted(), 'alpha')
+      assert.equal(await control.getAttribute('id'), 'shared-account-name')
+      assert.equal(await control.getAttribute('data-required'), '')
+      assert.equal(
+        await page
+          .getByText('Shared choice', { exact: true })
+          .getAttribute('for'),
+        'shared-account-name',
+      )
+      assert.equal(
+        await control.getAttribute('aria-describedby'),
+        'shared-choice-help extra-help',
+      )
       const options = await choiceOptions(control)
       assert.equal(options.at(-1).disabled, true)
       await control.focus()
@@ -48,6 +60,31 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
       await configure({ choice: 'alpha', invalid: true })
       await expectValue(control, 'alpha')
       assert.equal(await control.getAttribute('aria-invalid'), 'true')
+      assert.equal(
+        await control.getAttribute('aria-describedby'),
+        'shared-choice-help shared-choice-error extra-help',
+      )
+      await configure({ readonly: true, id: 'changed-account', help: false })
+      await expectValue(control, 'alpha')
+      assert.equal(await control.getAttribute('id'), 'shared-changed-account')
+      assert.equal(
+        await page
+          .getByText('Shared choice', { exact: true })
+          .getAttribute('for'),
+        'shared-changed-account',
+      )
+      assert.equal(
+        await control.getAttribute('aria-describedby'),
+        'shared-choice-error extra-help',
+      )
+      assert.equal(await control.getAttribute('aria-disabled'), 'true')
+      await control.focus()
+      await press('ArrowDown')
+      await press('b')
+      assert.equal(await page.getByRole('listbox').count(), 0)
+      await expectValue(control, 'alpha')
+      assert.equal(await submitted(), 'alpha')
+      await configure({ readonly: false })
       await configure({ disabled: true })
       assert.equal(await control.isDisabled(), true)
       assert.equal(await submitted(), null)

@@ -1,4 +1,9 @@
 import {
+  choiceControl,
+  selectValue,
+  expectValue,
+} from '../shared/controls/select-review.mjs'
+import {
   appearanceColor,
   reviewAppearanceFocus,
 } from '../shared/appearance/focus-review.mjs'
@@ -71,7 +76,7 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}/`)
   await page.waitForFunction(() => Boolean(window.formContractFixture))
   const name = page.getByRole('textbox', { name: 'Name', exact: true })
-  const category = page.getByRole('combobox', { name: 'Category', exact: true })
+  const category = choiceControl(page, { name: 'Category', exact: true })
   const enabled = page.getByRole('checkbox', { name: 'Enabled', exact: true })
   const save = page.getByRole('button', { name: 'Save', exact: true })
   const cancel = page.getByRole('button', { name: 'Cancel', exact: true })
@@ -130,15 +135,15 @@ try {
   await test('Text, choices and boolean controls show only application-accepted values', async () => {
     await page.evaluate(() => window.formContractFixture.rejectEdits(true))
     await name.fill('Rejected')
-    await category.selectOption('Research')
+    await selectValue(category, 'Research')
     await page.getByText('Enabled', { exact: true }).click()
-    await expect(name).toHaveValue('Draft record')
-    await expect(category).toHaveValue('General')
+    await expectValue(name, 'Draft record')
+    await expectValue(category, 'General')
     await expect(enabled).not.toBeChecked()
     assert.equal((await snapshot()).dirty, false)
     await page.evaluate(() => window.formContractFixture.rejectEdits(false))
     await name.fill('Accepted')
-    await category.selectOption('Research')
+    await selectValue(category, 'Research')
     await page.getByText('Enabled', { exact: true }).click()
     assert.deepEqual((await snapshot()).values, {
       name: 'Accepted',
@@ -154,7 +159,10 @@ try {
     await page.keyboard.press('Space')
     await category.focus()
     await page.keyboard.press('Enter')
+    await expect(page.getByRole('listbox')).toBeVisible()
     await page.keyboard.press('Escape')
+    await expect(page.getByRole('listbox')).toBeHidden()
+    await expect(category).toBeFocused()
     assert.deepEqual((await snapshot()).requests, [])
     await save.focus()
     await page.keyboard.press('Enter')
@@ -182,30 +190,30 @@ try {
     await phase('Unchanged')
   })
   await test('Rejected fields, form errors and unexpected failures allow an explicit retry', async () => {
-    const response = page.getByRole('combobox', {
+    const response = choiceControl(page, {
       name: 'Simulated response',
       exact: true,
     })
-    await response.selectOption('field-error')
+    await selectValue(response, 'field-error')
     await save.click()
     await phase('rejected')
     await expect(name).toBeFocused()
     await expect(
       page.getByText('This name is already in use.', { exact: true }),
     ).toBeVisible()
-    await response.selectOption('form-error')
+    await selectValue(response, 'form-error')
     await save.click()
     await phase('rejected')
     await expect(page.getByRole('alert')).toHaveText(
       'The service rejected this record.',
     )
-    await response.selectOption('failure')
+    await selectValue(response, 'failure')
     await save.click()
     await phase('error')
     await expect(page.getByRole('alert')).toHaveText(
       'The save failed. Try again.',
     )
-    await response.selectOption('success')
+    await selectValue(response, 'success')
     await save.click()
     await phase('success')
     await expect(page.getByRole('alert')).toHaveCount(0)
@@ -257,7 +265,7 @@ try {
       first,
     )
     await phase('submitting')
-    await expect(name).toHaveValue('Second')
+    await expectValue(name, 'Second')
     await page.evaluate(
       (latest) => window.formContractFixture.complete(latest, 'submission'),
       latest,
@@ -274,13 +282,13 @@ try {
       .getByRole('button', { name: 'Load other record', exact: true })
       .click()
     await phase('idle')
-    await expect(name).toHaveValue('External record')
-    await expect(category).toHaveValue('Research')
+    await expectValue(name, 'External record')
+    await expectValue(category, 'Research')
     await expect(enabled).toBeChecked()
     await name.fill('Edited')
     await page.getByText('Enabled', { exact: true }).click()
     await reset.click()
-    await expect(name).toHaveValue('External record')
+    await expectValue(name, 'External record')
     await expect(enabled).toBeChecked()
     assert.equal((await snapshot()).dirty, false)
     await page
@@ -303,7 +311,7 @@ try {
     await name.fill('New lifetime')
     await page.evaluate(() => window.savedApplication.complete())
     await oldButton.evaluate((node) => node.click())
-    await expect(name).toHaveValue('New lifetime')
+    await expectValue(name, 'New lifetime')
     await phase('idle')
     assert.deepEqual((await snapshot()).requests, [])
     await oldButton.dispose()
@@ -325,7 +333,7 @@ try {
       page.getByRole('group', { name: 'Column lines', exact: true }),
     ).toHaveCount(0)
     await name.fill('Appearance draft')
-    await category.selectOption('Research')
+    await selectValue(category, 'Research')
     await page.getByText('Enabled', { exact: true }).click()
     const field = await name.elementHandle()
     await hold('submission')
@@ -375,8 +383,8 @@ try {
       .getByRole('button', { name: 'Complete response', exact: true })
       .click()
     await phase('success')
-    await expect(name).toHaveValue('Appearance draft')
-    await expect(category).toHaveValue('Research')
+    await expectValue(name, 'Appearance draft')
+    await expectValue(category, 'Research')
     await expect(enabled).toBeChecked()
     await name.fill('')
     await save.click()
@@ -390,7 +398,7 @@ try {
   await test('Narrow layout preserves labels and native keyboard behavior without page overflow', async () => {
     await page.setViewportSize({ width: 390, height: 568 })
     await name.fill('Narrow record')
-    await category.selectOption('Research')
+    await selectValue(category, 'Research')
     await enabled.focus()
     await page.keyboard.press('Space')
     await expect(enabled).toBeChecked()

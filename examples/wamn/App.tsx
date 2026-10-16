@@ -1,3 +1,5 @@
+import { Button, Checkbox, Input, SelectField, uiScope } from '@wfe/components'
+import '@wfe/components/styles.css'
 import {
   For,
   Show,
@@ -13,29 +15,8 @@ import { get as getWidget } from './.input/widget'
 import definition from './.input/definition.json'
 import { createWamnTable } from './createWamnTable'
 import type { CellType, Transport } from './.input/runtime'
-import type { JSX } from '@solidjs/web'
 import './style.css'
 
-function Button(props: {
-  children: JSX.Element
-  click: () => unknown
-  disabled?: boolean
-  label?: string
-}) {
-  return (
-    <button
-      aria-label={props.label}
-      disabled={props.disabled}
-      ref={nativeEvents({
-        click: () => {
-          void props.click()
-        },
-      })}
-    >
-      {props.children}
-    </button>
-  )
-}
 export function App(props: {
   transport: Transport
   ready: (value: FixtureController) => void
@@ -107,7 +88,7 @@ export function App(props: {
                       : cellText(cell.getValue(), meta.type as CellType)
                   }
                 >
-                  <input
+                  <Input
                     aria-label={`Note ${id}`}
                     value={model.drafts[id]?.note ?? ''}
                     disabled={model.drafts[id]?.busy}
@@ -122,45 +103,45 @@ export function App(props: {
           }}
         </For>
         <div role="gridcell" class="actions">
-          <input
-            type="checkbox"
-            aria-label={`Select ${id}`}
+          <Checkbox
             checked={row.getIsSelected()}
-            ref={nativeEvents<HTMLInputElement>({
-              change: (event) =>
-                row.toggleSelected(event.currentTarget.checked),
-            })}
-          />
+            onChange={(checked) => row.toggleSelected(checked)}
+          >
+            <Checkbox.Input aria-label={`Select ${id}`} />
+            <Checkbox.Control>
+              <Checkbox.Indicator />
+            </Checkbox.Control>
+          </Checkbox>
           <Show
             when={model.drafts[id]}
             fallback={
               <Button
-                label={`Edit ${id}`}
+                aria-label={`Edit ${id}`}
                 disabled={model.page().busy}
-                click={() => model.edit(id, {})}
+                onClick={() => model.edit(id, {})}
               >
                 Edit
               </Button>
             }
           >
             <Button
-              label={`Save ${id}`}
+              aria-label={`Save ${id}`}
               disabled={model.drafts[id]?.busy}
-              click={() => model.save(id)}
+              onClick={() => model.save(id)}
             >
               Save
             </Button>
             <Button
-              label={`Discard ${id}`}
+              aria-label={`Discard ${id}`}
               disabled={model.drafts[id]?.busy}
-              click={() => model.discard(id)}
+              onClick={() => model.discard(id)}
             >
               Discard
             </Button>
           </Show>
           <Button
-            label={`Open ${id}`}
-            click={async () => {
+            aria-label={`Open ${id}`}
+            onClick={async () => {
               const result = await getWidget(props.transport, [{ id }])
               if (!disposed)
                 setAction(
@@ -173,8 +154,8 @@ export function App(props: {
             Open
           </Button>
           <Button
-            label={`Prepare form ${id}`}
-            click={() =>
+            aria-label={`Prepare form ${id}`}
+            onClick={() =>
               setAction(
                 JSON.stringify({
                   operation: definition.rowForms[0]!.operation,
@@ -194,12 +175,12 @@ export function App(props: {
   }
   onSettled(() => props.ready({ model, virtualizer, viewport, counts }))
   return (
-    <main>
+    <main {...uiScope()} data-ui-portal-root="">
       <h1>Find widgets</h1>
       <p>WAMN integration fixture</p>
       <div class="toolbar">
-        <Button click={() => model.read()}>Read</Button>
-        <Button click={() => model.read()}>Refresh</Button>
+        <Button onClick={() => model.read()}>Read</Button>
+        <Button onClick={() => model.read()}>Refresh</Button>
         <Button
           disabled={
             model.load.mode !== 'browse' ||
@@ -207,28 +188,28 @@ export function App(props: {
             model.page().cursor === null ||
             model.page().rows.length >= model.load.cap
           }
-          click={() => model.read(true)}
+          onClick={() => model.read(true)}
         >
           Next page
         </Button>
         <label>
           Mode{' '}
-          <select
+          <SelectField
+            label="Mode"
+            data-ui-text="system"
             value={model.load.mode}
-            ref={nativeEvents<HTMLSelectElement>({
-              change: (event) =>
-                model.configure({
-                  mode: event.currentTarget.value as 'load' | 'browse',
-                }),
-            })}
-          >
-            <option value="load">Load</option>
-            <option value="browse">Browse</option>
-          </select>
+            choices={[
+              { value: 'load', label: 'Load' },
+              { value: 'browse', label: 'Browse' },
+            ]}
+            onValueChange={(value) => {
+              void model.configure({ mode: value as 'load' | 'browse' })
+            }}
+          />
         </label>
         <label>
           Cap{' '}
-          <input
+          <Input
             type="number"
             min="1"
             value={model.load.cap}
@@ -240,7 +221,7 @@ export function App(props: {
         </label>
         <label>
           Scope code{' '}
-          <input
+          <Input
             ref={nativeEvents<HTMLInputElement>({
               change: (event) =>
                 model.configure({ code: event.currentTarget.value }),
@@ -249,7 +230,7 @@ export function App(props: {
         </label>
         <label>
           Refine note{' '}
-          <input
+          <Input
             disabled={!model.local()}
             ref={nativeEvents<HTMLInputElement>({
               input: (event) =>
@@ -263,7 +244,7 @@ export function App(props: {
         </label>
         <Button
           disabled={!model.local()}
-          click={() =>
+          onClick={() =>
             table.setSorting(
               table.state.sorting.length ? [] : [{ id: 'note', desc: true }],
             )

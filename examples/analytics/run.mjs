@@ -1,3 +1,7 @@
+import {
+  selectValue,
+  choiceControl,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -47,10 +51,22 @@ assert.ok(
 )
 assert.ok(
   !modules.some((path) =>
-    /table-core|@tanstack\/store|zod\/|createEditing|solid-form|kobalte/.test(
+    /table-core|@tanstack\/store|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
       path,
     ),
   ),
+)
+const ownedControls = modules.filter((path) =>
+  path.includes('/vendor/kobalte/'),
+)
+assert.ok(ownedControls.some((path) => /\/select-root\.(tsx|jsx)$/.test(path)))
+assert.ok(
+  ownedControls.every((path) =>
+    /\/utils\/src\/|\/core\/src\/(button|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
+      path,
+    ),
+  ),
+  'analytics uses only the shared select family and its support modules',
 )
 assert.ok(
   modules.some((path) =>
@@ -369,9 +385,7 @@ try {
   })
   await test('Server preview sorts the complete query and exports beyond its limit', async () => {
     await page.evaluate(() => window.analyticsFixture.startServer())
-    await page
-      .getByRole('combobox', { name: 'Example query' })
-      .selectOption('large')
+    await selectValue(choiceControl(page, { name: 'Example query' }), 'large')
     await page.getByText('1000 of 100005 rows', { exact: true }).waitFor()
     assert.ok((await page.locator('tbody tr[data-row]').count()) < 60)
     const sort = page.getByRole('button', { name: 'Sort Index', exact: true })
@@ -404,9 +418,7 @@ try {
   })
   await test('Load all browses distant pages with bounded records and rendered rows', async () => {
     await page.evaluate(() => window.analyticsFixture.startServer())
-    await page
-      .getByRole('combobox', { name: 'Example query' })
-      .selectOption('large')
+    await selectValue(choiceControl(page, { name: 'Example query' }), 'large')
     await page.getByText('1000 of 100005 rows', { exact: true }).waitFor()
     const previewBounds = await page.locator('.table-scroll').boundingBox()
     await page.getByRole('button', { name: 'Load all', exact: true }).click()
@@ -467,9 +479,7 @@ try {
   await test('density drives both virtual geometry and cell styles while theme preserves bounds', async () => {
     await page.setViewportSize({ width: 1280, height: 900 })
     await page.evaluate(() => window.analyticsFixture.startServer())
-    await page
-      .getByRole('combobox', { name: 'Example query' })
-      .selectOption('large')
+    await selectValue(choiceControl(page, { name: 'Example query' }), 'large')
     await page.getByText('1000 of 100005 rows', { exact: true }).waitFor()
     await page.locator('tbody tr[data-row]').first().waitFor()
     await page.getByRole('button', { name: 'Load all' }).click()
@@ -544,9 +554,10 @@ try {
       const bounds = await page.locator('.table-scroll').boundingBox()
       assert.ok(bounds.height > 200)
       assert.ok(Math.abs(bounds.y + bounds.height - (size.height - 16)) < 1)
-      await page
-        .getByRole('combobox', { name: 'Example query' })
-        .selectOption('inventory')
+      await selectValue(
+        choiceControl(page, { name: 'Example query' }),
+        'inventory',
+      )
       await page.getByText('2 of 2 rows', { exact: true }).waitFor()
       assert.deepEqual(
         await page.locator('.table-scroll').boundingBox(),
@@ -585,9 +596,7 @@ try {
     page.on('request', listener)
     try {
       await page.evaluate(() => window.analyticsFixture.startServer())
-      await page
-        .getByRole('combobox', { name: 'Example query' })
-        .selectOption('large')
+      await selectValue(choiceControl(page, { name: 'Example query' }), 'large')
       await page.getByText('1000 of 100005 rows', { exact: true }).waitFor()
       await page.getByRole('button', { name: 'Load all', exact: true }).click()
       const viewport = page.locator('.virtual-scroll')
@@ -628,9 +637,7 @@ try {
       await page.evaluate(() =>
         window.analyticsFixture.startServer({ maxBytes: 1024, pageSize: 100 }),
       )
-      await page
-        .getByRole('combobox', { name: 'Example query' })
-        .selectOption('large')
+      await selectValue(choiceControl(page, { name: 'Example query' }), 'large')
       await page.getByText('1000 of 100005 rows', { exact: true }).waitFor()
       await page.getByRole('button', { name: 'Load all', exact: true }).click()
       await page.locator('.virtual-scroll').evaluate((node) => {
@@ -654,9 +661,7 @@ try {
   })
   await test('Paged failures retry and replaced requests cannot repopulate the cache', async () => {
     await page.evaluate(() => window.analyticsFixture.startServer())
-    await page
-      .getByRole('combobox', { name: 'Example query' })
-      .selectOption('large')
+    await selectValue(choiceControl(page, { name: 'Example query' }), 'large')
     await page.getByText('1000 of 100005 rows', { exact: true }).waitFor()
     await page.getByRole('button', { name: 'Load all', exact: true }).click()
     let failed = false
@@ -710,9 +715,10 @@ try {
         node.scrollTop = 70000 * 32
       })
       await held
-      await page
-        .getByRole('combobox', { name: 'Example query' })
-        .selectOption('inventory')
+      await selectValue(
+        choiceControl(page, { name: 'Example query' }),
+        'inventory',
+      )
       await page.getByText('2 of 2 rows', { exact: true }).waitFor()
       release()
       await finished
@@ -864,9 +870,10 @@ try {
     await page.getByText('Display columns', { exact: true }).click()
     await rename('Revenue', 'Amount')
     await page.getByLabel('Show Active', { exact: true }).uncheck()
-    await page
-      .getByRole('combobox', { name: 'Example query', exact: true })
-      .selectOption('inventory')
+    await selectValue(
+      choiceControl(page, { name: 'Example query', exact: true }),
+      'inventory',
+    )
     await page.waitForSelector('th[data-column=stock]')
     assert.deepEqual(await headers(), ['product', 'stock'])
     assert.deepEqual(await rows(), ['item-1', 'item-2'])

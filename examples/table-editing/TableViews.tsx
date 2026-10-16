@@ -1,5 +1,6 @@
-import { Button, NativeSelect } from '@wfe/components/fields'
-import { For, createSignal, onCleanup } from 'solid-js'
+import { Button, Input } from '@wfe/components/fields'
+import { SelectField } from '@wfe/components/select'
+import { createSignal, onCleanup } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
 import type { TableViews as Views } from './createTableViews'
 
@@ -40,7 +41,7 @@ export function TableViews(props: { views: Views; locked: boolean }) {
         ) {
           const control = target.matches(':disabled')
             ? element.querySelector<HTMLElement>(
-                props.views.views().length ? 'select' : 'input',
+                props.views.views().length ? '.popup-trigger' : 'input',
               )
             : target
           control?.focus({ preventScroll: true })
@@ -57,22 +58,18 @@ export function TableViews(props: { views: Views; locked: boolean }) {
         <div class="view-controls">
           <label>
             Saved view
-            <NativeSelect
+            <SelectField
+              label="Saved view"
               value={props.views.selected()}
-              ref={nativeEvents<HTMLSelectElement>({
-                change: (event) => {
-                  if (!props.views.choose(event.currentTarget.value))
-                    event.currentTarget.value = props.views.selected()
-                },
-              })}
-            >
-              <option value="" disabled>
-                Choose a view
-              </option>
-              <For each={props.views.views()}>
-                {(view) => <option value={view.id}>{view.name}</option>}
-              </For>
-            </NativeSelect>
+              disabled={props.locked || props.views.busy()}
+              placeholder="Choose a view"
+              choices={props.views
+                .views()
+                .map((view) => ({ value: view.id, label: view.name }))}
+              onValueChange={(value) => {
+                props.views.choose(value)
+              }}
+            />
           </label>
           <Button
             disabled={!props.views.selected()}
@@ -86,13 +83,7 @@ export function TableViews(props: { views: Views; locked: boolean }) {
           </Button>
           <label>
             View name
-            <input
-              value={name()}
-              maxlength={80}
-              ref={nativeEvents<HTMLInputElement>({
-                input: (event) => setName(event.currentTarget.value),
-              })}
-            />
+            <Input value={name()} maxlength={80} onValueChange={setName} />
           </label>
           <Button
             disabled={!name().trim()}

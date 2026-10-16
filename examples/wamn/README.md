@@ -2,7 +2,7 @@
 
 This browser fixture connects WAMN's actual runtime and generated Widget bindings to the native Solid 2 table.
 It uses one Solid record store and vertical virtualization.
-It tests the Table integration boundary with plain controls.
+It tests the Table integration boundary with shared Button, Input, Checkbox, and SelectField components.
 Production WAMN grid and Form adoption are deferred in Beads phase 5 and do not block Table qualification.
 Focused component vendoring remains a later assessment after Table is stable.
 
@@ -15,14 +15,15 @@ It writes fresh operation bindings and a small JSON table definition under the i
 The definition contains the primary key, columns, labels, page bounds, reference reads, row links, and form mappings.
 
 The helper also emits the current Solid 1 components for provenance. The browser does not import those components.
-The fixture adapts the generated definition with plain controls.
+The fixture adapts the generated definition with shared controls.
 Its Form button shows the generated mapping. It does not run TanStack Form or submit the mapped batch operation.
 The Open button calls the generated Widget read binding.
 Reference cells call the generated maker binding and display the returned names.
 
 Preparation copies `web/runtime/src` without changes and uses WAMN's installed zod package.
 `provenance.json` records the WAMN revision, relevant source diff hash, toolchain, zod version, and generated input hashes.
-The build emits `modules.json`. The browser runner rejects table-core, TanStack Store, and the excluded companion UI libraries in that graph.
+The build emits `modules.json`. The browser runner rejects table-core, TanStack Store, and external companion UI libraries in that graph.
+It permits only the owned Checkbox and Select families and their support modules.
 
 ## Record ownership
 

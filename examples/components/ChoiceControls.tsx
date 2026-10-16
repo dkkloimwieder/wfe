@@ -1,3 +1,4 @@
+import { Button } from '@wfe/components/fields'
 import { Combobox, Select, uiScope } from '@wfe/components'
 import { createSignal, flush, onCleanup } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
@@ -98,9 +99,9 @@ export function ChoiceControls() {
           <Select.Portal>
             <Select.Content
               footer={
-                <button type="button" ref={nativeEvents({ click: nextPage })}>
+                <Button type="button" ref={nativeEvents({ click: nextPage })}>
                   More select options
-                </button>
+                </Button>
               }
             >
               <Select.Listbox />
@@ -155,19 +156,19 @@ export function ChoiceControls() {
                     : undefined
               }
               footer={
-                <button type="button" ref={nativeEvents({ click: nextPage })}>
+                <Button type="button" ref={nativeEvents({ click: nextPage })}>
                   More search options
-                </button>
+                </Button>
               }
             >
               <Combobox.Listbox />
             </Combobox.Content>
           </Combobox.Portal>
         </Combobox>
-        <button type="button" ref={nativeEvents({ click: () => change(null) })}>
+        <Button type="button" ref={nativeEvents({ click: () => change(null) })}>
           Clear selection
-        </button>
-        <button type="submit">Submit choices</button>
+        </Button>
+        <Button type="submit">Submit choices</Button>
       </form>
       <output aria-label="Choice value">{value()?.id ?? '(empty)'}</output>
     </main>
