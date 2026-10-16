@@ -8,6 +8,7 @@ for (const example of [
   'layout',
   'dashboard',
   'date-picker',
+  'form-contract',
   'virtualization',
   'hydration',
   'accessor-profile',

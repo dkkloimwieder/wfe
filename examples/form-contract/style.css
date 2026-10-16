@@ -1,0 +1,36 @@
+@import '@wfe/components/styles.css';
+html,
+body {
+  margin: 0;
+}
+body {
+  background: white;
+}
+main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 12px;
+}
+h1,
+h2 {
+  font-size: inherit;
+  margin: 0;
+}
+form,
+section {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--ui-border);
+}
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+p {
+  margin: 0 0 12px;
+}
+form p {
+  margin: 0;
+}

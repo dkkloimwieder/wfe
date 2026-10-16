@@ -55,3 +55,7 @@ The dashboard uses the default split Table workspace.
 Filters, grouping, columns, and sample data actions occupy the left controls panel.
 Results fill the main panel and keep their height as controls expand.
 The layout fixture also covers a 100,000-row virtual Table, dialogs, and popup controls.
+
+The form contract example uses `examples/form-contract/vite.config.ts` on port 7787.
+It demonstrates application-owned values, explicit submission, validation, reset, cancellation, and late-response handling.
+Read [the proposed contract](../docs/form-contract.md) before the reusable form package implementation.

@@ -37,6 +37,7 @@ test('qualification covers both browser inputs and keeps heap work separate', ()
     'analytics',
     'table-read-only',
     'date-picker',
+    'form-contract',
   ]) {
     for (const mode of ['source', 'distribution']) {
       const browser = stages.find(
