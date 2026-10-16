@@ -67,3 +67,17 @@ test('the public table entry reads application records without an adapter', () =
     dispose()
   })
 })
+
+test('form package exposes its built entry and declarations', async () => {
+  const { createForm } = await import('@wfe/form')
+  assert.equal(typeof createForm, 'function')
+  const manifest = JSON.parse(
+    await readFile(
+      new URL('../packages/form/package.json', import.meta.url),
+      'utf8',
+    ),
+  )
+  for (const file of Object.values(manifest.exports['.'])) {
+    await access(new URL('../packages/form/' + file, import.meta.url))
+  }
+})

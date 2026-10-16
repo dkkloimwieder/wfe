@@ -4,7 +4,12 @@ import solid from '@solidjs/vite-plugin'
 export default defineConfig({
   plugins: [solid({ performanceTracks: false })],
   resolve: {
-    conditions: ['wfe-source', 'solid', 'browser', 'development|production'],
+    conditions: [
+      ...(process.env.BENCH_DISTRIBUTION ? [] : ['wfe-source']),
+      'solid',
+      'browser',
+      'development|production',
+    ],
     dedupe: ['solid-js', '@solidjs/web', '@solidjs/signals'],
   },
   test: {

@@ -145,7 +145,10 @@ For server results, preserve server order and use the manual-processing contract
 The application owns query requests, paging, memory budgets, and export transport.
 Server export receives the display labels and column order through the application callback.
 The [analytics example](../examples/analytics/README.md) shows that composition.
-Form coordination and generators remain separate planned packages.
+The private `@wfe/form` package coordinates errors, submission, reset, and cancellation.
+Applications own accepted values, validation rules, and requests.
+Read [the form contract](form-contract.md) for public imports and lifecycle rules.
+Generators remain a separate planned package.
 
 ## Cleanup and hydration
 

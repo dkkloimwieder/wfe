@@ -5,34 +5,45 @@ import type {
   FormErrors,
   FormOutcome,
   FormPhase,
-} from './contract'
-import { fields } from './values'
-import type { ExampleValues } from './values'
-
-type Snapshot = Readonly<ExampleValues>
-type Attempt = {
+  FormScalar,
+} from './types'
+type Attempt<T> = {
   id: number
-  snapshot: Snapshot
+  snapshot: Readonly<T>
   controller: AbortController
   promise: Promise<FormOutcome>
   resolve: (outcome: FormOutcome) => void
 }
-const copy = (values: Snapshot): Snapshot => Object.freeze({ ...values })
-const same = (left: Snapshot, right: Snapshot) =>
-  fields.every((field) => Object.is(left[field], right[field]))
-const hasErrors = (errors: FormErrors<ExampleValues>) =>
-  Boolean(errors.form || fields.some((field) => errors.fields?.[field]))
+function copy<T extends object>(values: Readonly<T>): Readonly<T> {
+  return Object.freeze({ ...values })
+}
+function same<T extends object>(left: Readonly<T>, right: Readonly<T>) {
+  const keys = Reflect.ownKeys(left)
+  return (
+    keys.length === Reflect.ownKeys(right).length &&
+    keys.every(
+      (key) =>
+        Object.hasOwn(right, key) &&
+        Object.is(Reflect.get(left, key), Reflect.get(right, key)),
+    )
+  )
+}
+function hasErrors<T>(errors: FormErrors<T>) {
+  return Boolean(
+    errors.form || Object.values(errors.fields ?? {}).some(Boolean),
+  )
+}
 
-/** Concrete three-field reference, not the reusable form package. */
-export function createExampleForm(
-  bindings: FormBindings<ExampleValues>,
-): FormContract<ExampleValues> {
+/** Create inside a Solid owner. Applications own accepted values and callbacks. */
+export function createForm<T extends object & { [K in keyof T]: FormScalar }>(
+  bindings: FormBindings<T>,
+): FormContract<T> {
   const [phase, setPhase] = createSignal<FormPhase>('idle')
-  const [errors, setErrors] = createSignal<FormErrors<ExampleValues>>({})
+  const [errors, setErrors] = createSignal<FormErrors<T>>({})
   const [failure, setFailure] = createSignal<unknown>(undefined)
   let alive = true
   let sequence = 0
-  let active: Attempt | undefined
+  let active: Attempt<T> | undefined
   let accepted = copy(untrack(bindings.values))
   function clear() {
     setPhase('idle')
@@ -48,7 +59,7 @@ export function createExampleForm(
       run.controller.abort()
     }
   }
-  function accept(next: Snapshot) {
+  function accept(next: Readonly<T>) {
     if (same(next, accepted)) return
     accepted = copy(next)
     cancel()
@@ -67,17 +78,17 @@ export function createExampleForm(
     alive = false
     cancel('disposed')
   })
-  function current(run: Attempt) {
+  function current(run: Attempt<T>) {
     if (!alive || active !== run) return false
     synchronize()
     return active === run
   }
-  function finish(run: Attempt, outcome: FormOutcome) {
+  function finish(run: Attempt<T>, outcome: FormOutcome) {
     if (!current(run)) return
     active = undefined
     run.resolve(outcome)
   }
-  function publishErrors(value: FormErrors<ExampleValues>) {
+  function publishErrors(value: FormErrors<T>) {
     setErrors(
       Object.freeze({
         fields: Object.freeze({ ...value.fields }),
@@ -85,7 +96,7 @@ export function createExampleForm(
       }),
     )
   }
-  async function execute(run: Attempt) {
+  async function execute(run: Attempt<T>) {
     const context = Object.freeze({
       attempt: run.id,
       signal: run.controller.signal,
@@ -140,7 +151,7 @@ export function createExampleForm(
       if (!alive) return
       synchronize()
       bindings.onValuesChange(
-        copy({ ...untrack(bindings.values), [field]: value }),
+        copy<T>({ ...untrack(bindings.values), [field]: value }),
       )
       synchronize()
     },
@@ -157,11 +168,11 @@ export function createExampleForm(
       if (!alive) return Promise.resolve({ status: 'disposed' })
       synchronize()
       if (active) return active.promise
-      let resolve!: Attempt['resolve']
+      let resolve!: Attempt<T>['resolve']
       const promise = new Promise<FormOutcome>((done) => {
         resolve = done
       })
-      const run: Attempt = {
+      const run: Attempt<T> = {
         id: ++sequence,
         snapshot: copy(untrack(bindings.values)),
         controller: new AbortController(),

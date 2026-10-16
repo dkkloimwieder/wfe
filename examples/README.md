@@ -2,7 +2,7 @@
 
 Run every command from the wfe repository root.
 Install dependencies with `pnpm install --frozen-lockfile`.
-Build components with `pnpm build` before testing the built package.
+Build the packages with `pnpm build` before testing their built exports.
 
 ## Preview
 
@@ -58,4 +58,5 @@ The layout fixture also covers a 100,000-row virtual Table, dialogs, and popup c
 
 The form contract example uses `examples/form-contract/vite.config.ts` on port 7787.
 It demonstrates application-owned values, explicit submission, validation, reset, cancellation, and late-response handling.
-Read [the proposed contract](../docs/form-contract.md) before the reusable form package implementation.
+It imports the generic `createForm` implementation from `@wfe/form`.
+Read [the form contract](../docs/form-contract.md) for the public API and ownership rules.

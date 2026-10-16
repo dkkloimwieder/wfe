@@ -1,15 +1,14 @@
-# First form contract
+# Form contract
 
-Beads task `wfe-w2y.3.1` defines this proposal through a runnable, three-field example.
+The private `@wfe/form` package coordinates errors, submission, reset, and cancellation.
+Its `createForm` function supports application-defined field names and scalar types.
 The example uses text, choice, and boolean controls from `@wfe/components`.
 Its application owns values, defaults, validation rules, service calls, and displayed messages.
-The reference coordinates errors and submission without copying control markup or behavior.
+The package owns no controls, styles, transport, or record schema.
 
-The proposal lives in `examples/form-contract/contract.ts`.
-The concrete reference lives in `examples/form-contract/reference.ts`.
-Task `wfe-w2y.3.2` implements the reusable `@wfe/form` package from this contract.
-The reference supports only its three declared fields.
-It is not a public form package or a second component implementation.
+The implementation and public types live in `packages/form/src`.
+The example imports that package and contains no separate form implementation.
+Create the form inside a Solid component or another Solid owner so that disposal cancels its work.
 
 ## Values and defaults
 
@@ -26,7 +25,8 @@ Controls continue to show the current application values if the application reje
 
 The form does not keep another editable value store.
 `dirty` compares accepted values against the current application defaults.
-The comparison uses scalar equality for the declared fields.
+The comparison uses `Object.is` for each own field and compares field names.
+A missing optional field differs from a field with an explicit undefined value.
 False, zero, empty text, null, and undefined remain distinct values.
 
 `reset()` cancels pending work, clears feedback, and requests the latest `defaults()` object.
@@ -40,6 +40,49 @@ Changing defaults alone changes the dirty comparison and the next reset target.
 It does not replace editable values or cancel a submission.
 The example updates defaults after a successful simulated save.
 That behavior belongs to the example application.
+
+## Public imports
+
+This example accepts application callbacks and keeps values and defaults in application signals.
+Call `createRecordForm` inside a Solid owner.
+Connect its returned getters and methods to existing components as the runnable example demonstrates.
+
+```ts
+import { createSignal } from 'solid-js'
+import { createForm } from '@wfe/form'
+import type { FormBindings } from '@wfe/form'
+
+interface RecordValues {
+  title: string
+  quantity: number
+  available: boolean
+  note?: string | null
+}
+
+export function createRecordForm(
+  initial: Readonly<RecordValues>,
+  validate: FormBindings<RecordValues>['validate'],
+  save: FormBindings<RecordValues>['onSubmit'],
+) {
+  const [values, setValues] = createSignal(initial)
+  const [defaults, setDefaults] = createSignal(initial)
+  return createForm({
+    values,
+    defaults,
+    onValuesChange: (requested) => setValues(requested),
+    validate,
+    async onSubmit(snapshot, context) {
+      const reply = await save(snapshot, context)
+      if (reply.ok && !context.signal.aborted) setDefaults(snapshot)
+      return reply
+    },
+  })
+}
+```
+
+Successful saves update defaults only because this application callback requests that change.
+The package uses the same compiled implementation in browser and server builds.
+It imports external Solid through a peer dependency and does not bundle another runtime.
 
 ## Validation and submission
 
@@ -85,7 +128,7 @@ The application can still reject an edit without cancelling the unchanged submis
 Callbacks must use the supplied signal to stop application work when possible.
 Cancellation cannot undo a save that a service already accepted.
 A callback can also ignore cancellation or finish after it.
-The reference ignores these late replies, including their errors and success messages.
+The coordinator ignores these late replies, including their errors and success messages.
 An older attempt cannot change a newer attempt's state.
 
 Disposal aborts current work and settles its outcome as `disposed`.
@@ -124,5 +167,6 @@ RESET uses the current application defaults.
 The type examples reject unknown fields and mismatched field values.
 Focused unit cases cover ownership, immutable snapshots, cancellation, response identity, reset, errors, and disposal.
 Browser cases exercise those rules through the shared controls in source, built-package, and development modes.
-The first reference is a client example.
+The current example runs in the browser.
+A server smoke test covers the package import and initial values.
 Task `wfe-w2y.3.3` adds the reusable form package's server rendering, hydration, and broader integration qualification.

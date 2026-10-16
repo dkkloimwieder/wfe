@@ -1,9 +1,9 @@
 # Form contract example
 
-This example defines the first form API before the reusable package implementation.
+This example uses the public `createForm` API from the private `@wfe/form` package.
 Read [the contract](../../docs/form-contract.md) for ownership, reset, validation, submission, and cancellation rules.
 The application owns accepted values and defaults.
-The concrete reference coordinates only its three fields.
+The generic package coordinates errors, submission, reset, and cancellation.
 Shared controls provide all field markup and behavior.
 
 From the repository root, start the example:
@@ -41,4 +41,4 @@ Run the focused contract tests:
 pnpm exec vitest run tests/unit/form-contract.test.ts
 ```
 
-The proposed types stay local to this example until `wfe-w2y.3.2` implements `@wfe/form`.
+The type examples use public package declarations and support application-defined field names.

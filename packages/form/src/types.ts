@@ -1,4 +1,3 @@
-/** Proposed contract. The reusable implementation belongs to wfe-w2y.3.2. */
 export type FormScalar = string | number | boolean | null | undefined
 export type FormValues = Record<string, FormScalar>
 export type FormErrors<T> = Readonly<{
@@ -19,7 +18,7 @@ export type FormPhase =
   | 'rejected'
   | 'error'
 export type MaybePromise<T> = T | PromiseLike<T>
-export type FormBindings<T extends FormValues> = {
+export type FormBindings<T extends object & { [K in keyof T]: FormScalar }> = {
   values: () => Readonly<T>
   defaults: () => Readonly<T>
   onValuesChange: (requested: Readonly<T>) => void
@@ -32,7 +31,7 @@ export type FormBindings<T extends FormValues> = {
     context: FormContext,
   ) => MaybePromise<FormReply<T>>
 }
-export type FormContract<T extends FormValues> = {
+export type FormContract<T extends object & { [K in keyof T]: FormScalar }> = {
   readonly values: Readonly<T>
   readonly errors: FormErrors<T>
   readonly failure: unknown

@@ -8,8 +8,8 @@
     "pnpm": ">=12.4.1"
   },
   "scripts": {
-    "build": "pnpm --filter @wfe/components build",
-    "types": "pnpm --filter @wfe/components types",
+    "build": "pnpm -r --workspace-concurrency=1 --filter \"@wfe/*\" build",
+    "types": "pnpm -r --workspace-concurrency=1 --filter \"@wfe/*\" types",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -44,6 +44,7 @@
     "vite": "8.3.0",
     "vitest": "4.1.11",
     "@wfe/components": "workspace:*",
-    "zod": "4.6.5"
+    "zod": "4.6.5",
+    "@wfe/form": "workspace:*"
   }
 }

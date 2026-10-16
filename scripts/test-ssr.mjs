@@ -89,3 +89,27 @@ const manualOutput = await renderToString(() => {
 })
 assert.equal(manualOutput, 'partial|0|undefined')
 console.log('Solid package imports and server cell rendering passed.')
+
+const { createForm } = await import('@wfe/form')
+let formCallbacks = 0
+const formOutput = await renderToString(() => {
+  const form = createForm({
+    values: () => ({ title: 'Server record', quantity: 0, enabled: false }),
+    defaults: () => ({ title: 'Server record', quantity: 0, enabled: false }),
+    onValuesChange: () => {
+      formCallbacks++
+    },
+    validate: () => {
+      formCallbacks++
+      return {}
+    },
+    onSubmit: () => {
+      formCallbacks++
+      return { ok: true }
+    },
+  })
+  return `${form.values.title}|${form.values.quantity}|${form.values.enabled}|${form.phase}|${form.pending}|${form.dirty}`
+})
+assert.equal(formOutput, 'Server record|0|false|idle|false|false')
+assert.equal(formCallbacks, 0)
+console.log('Form package import and initial server state passed.')

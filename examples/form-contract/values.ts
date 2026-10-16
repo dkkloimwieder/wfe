@@ -4,4 +4,3 @@ export const initialValues: Readonly<ExampleValues> = Object.freeze({
   category: 'General',
   enabled: false,
 })
-export const fields = ['name', 'category', 'enabled'] as const

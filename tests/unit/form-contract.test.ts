@@ -1,13 +1,9 @@
 import { action, createRoot, createSignal, flush, untrack } from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
-import { createExampleForm } from '../../examples/form-contract/reference'
+import { createForm } from '@wfe/form'
 import { initialValues } from '../../examples/form-contract/values'
 import type { ExampleValues } from '../../examples/form-contract/values'
-import type {
-  FormBindings,
-  FormErrors,
-  FormReply,
-} from '../../examples/form-contract/contract'
+import type { FormBindings, FormErrors, FormReply, FormScalar } from '@wfe/form'
 function deferred<T>() {
   let resolve!: (value: T) => void
   let reject!: (error: unknown) => void
@@ -22,20 +18,30 @@ function harness(
     Pick<FormBindings<ExampleValues>, 'validate' | 'onSubmit'>
   > = {},
 ) {
+  return genericHarness(initialValues, overrides)
+}
+function genericHarness<T extends object & { [K in keyof T]: FormScalar }>(
+  initial: Readonly<T>,
+  overrides: Partial<Pick<FormBindings<T>, 'validate' | 'onSubmit'>> = {},
+) {
   const root = createRoot((dispose) => {
-    const [values, setValues] = createSignal<Readonly<ExampleValues>>({
-      ...initialValues,
-    })
-    const [defaults, setDefaults] = createSignal<Readonly<ExampleValues>>({
-      ...initialValues,
-    })
+    const [values, setValues] = createSignal<Readonly<T>>(() => ({
+      ...initial,
+    }))
+    const [defaults, setDefaults] = createSignal<Readonly<T>>(() => ({
+      ...initial,
+    }))
     let rejects = false
-    const change = vi.fn((next: Readonly<ExampleValues>) => {
-      if (!rejects) setValues(next)
+    const change = vi.fn((next: Readonly<T>) => {
+      if (!rejects) setValues(() => next)
     })
-    const validate = vi.fn(overrides.validate ?? (() => ({})))
-    const submit = vi.fn(overrides.onSubmit ?? (() => ({ ok: true as const })))
-    const form = createExampleForm({
+    const validate = vi.fn<FormBindings<T>['validate']>(
+      overrides.validate ?? (() => ({})),
+    )
+    const submit = vi.fn<FormBindings<T>['onSubmit']>(
+      overrides.onSubmit ?? (() => ({ ok: true })),
+    )
+    const form = createForm<T>({
       values,
       defaults,
       onValuesChange: change,
@@ -86,7 +92,7 @@ async function settle() {
   flush()
 }
 
-describe('proposed form contract', () => {
+describe('public form contract', () => {
   it('reads only accepted application values and resets to the latest defaults', () => {
     const h = harness()
     try {
@@ -264,6 +270,105 @@ describe('proposed form contract', () => {
       })
       expect(h.submit).not.toHaveBeenCalled()
       expect(h.read(() => h.form.failure)).toBe('validation unavailable')
+    } finally {
+      h.stop()
+    }
+  })
+})
+
+interface InventoryValues {
+  title: string
+  quantity: number
+  available: boolean
+  note?: string | null
+  priority: number | undefined
+}
+const inventory: InventoryValues = {
+  title: 'Stock',
+  quantity: 0,
+  available: false,
+  priority: undefined,
+}
+
+describe('generic field records', () => {
+  it('supports interfaces, optional fields and scalar equality without a declared key list', () => {
+    const h = genericHarness(inventory)
+    try {
+      h.form.setValue('quantity', 12)
+      flush()
+      h.form.setValue('available', true)
+      flush()
+      h.form.setValue('note', null)
+      expect(h.read(() => h.form.values)).toEqual({
+        ...inventory,
+        quantity: 12,
+        available: true,
+        note: null,
+      })
+      expect(h.read(() => h.form.dirty)).toBe(true)
+      h.form.reset()
+      expect(h.read(() => h.form.dirty)).toBe(false)
+      h.form.setValue('note', undefined)
+      expect(h.read(() => h.form.dirty)).toBe(true)
+      h.setDefaults({ ...inventory, note: undefined })
+      expect(h.read(() => h.form.dirty)).toBe(false)
+      h.setDefaults(inventory)
+      flush()
+      h.form.reset()
+      flush()
+      h.form.setValue('quantity', -0)
+      expect(h.read(() => h.form.dirty)).toBe(true)
+      h.setDefaults({ ...inventory, quantity: NaN })
+      h.form.setValue('quantity', NaN)
+      expect(h.read(() => h.form.dirty)).toBe(false)
+    } finally {
+      h.stop()
+    }
+  })
+  it('blocks validation errors for absent optional fields and preserves immutable feedback', async () => {
+    const h = genericHarness(inventory, {
+      validate: (snapshot) =>
+        snapshot.note ? {} : { fields: { note: 'Enter a note.' } },
+    })
+    try {
+      expect(await h.begin()).toEqual({ status: 'invalid' })
+      expect(h.submit).not.toHaveBeenCalled()
+      const errors = h.read(() => h.form.errors)
+      expect(errors.fields?.note).toBe('Enter a note.')
+      expect(Object.isFrozen(errors)).toBe(true)
+      expect(Object.isFrozen(errors.fields)).toBe(true)
+      h.form.setValue('note', 'Ready')
+      expect(h.read(() => h.form.errors)).toEqual({})
+      expect(await h.begin()).toEqual({ status: 'success' })
+      expect(h.submit.mock.calls[0]?.[0]).toEqual({
+        ...inventory,
+        note: 'Ready',
+      })
+    } finally {
+      h.stop()
+    }
+  })
+  it('cancels changed numeric values and optional key additions while preserving equivalent replacements', async () => {
+    const validation = deferred<FormErrors<InventoryValues>>()
+    const h = genericHarness(inventory, { validate: () => validation.promise })
+    try {
+      const first = h.begin()
+      h.setValues({ ...inventory })
+      expect(h.read(() => h.form.pending)).toBe(true)
+      h.form.setValue('quantity', 1)
+      flush()
+      expect(await first).toEqual({ status: 'cancelled' })
+      const second = h.begin()
+      h.setValues({ ...inventory, quantity: 1, note: undefined })
+      flush()
+      expect(await second).toEqual({ status: 'cancelled' })
+      expect(
+        h.validate.mock.calls.every((call) => call[1].signal.aborted),
+      ).toBe(true)
+      validation.resolve({ fields: { note: 'Stale' } })
+      await settle()
+      expect(h.submit).not.toHaveBeenCalled()
+      expect(h.read(() => h.form.errors)).toEqual({})
     } finally {
       h.stop()
     }

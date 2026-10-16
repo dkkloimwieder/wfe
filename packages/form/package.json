@@ -1,0 +1,29 @@
+{
+  "name": "@wfe/form",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "wfe-source": "./src/index.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "types": "tsc --project tsconfig.json"
+  },
+  "peerDependencies": {
+    "solid-js": ">=2.0.0-rc.14 <3.0.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

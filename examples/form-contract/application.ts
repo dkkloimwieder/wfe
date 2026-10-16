@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, untrack } from 'solid-js'
-import { createExampleForm } from './reference'
+import { createForm } from '@wfe/form'
 import { initialValues } from './values'
 import type { ExampleValues } from './values'
 import type {
@@ -7,7 +7,7 @@ import type {
   FormErrors,
   FormReply,
   MaybePromise,
-} from './contract'
+} from '@wfe/form'
 
 type Stage = 'validation' | 'submission'
 export type ResponseMode = 'success' | 'field-error' | 'form-error' | 'failure'
@@ -55,7 +55,7 @@ export function createApplication() {
       setWaiting(held.length)
     })
   }
-  const form = createExampleForm({
+  const form = createForm<ExampleValues>({
     values,
     defaults,
     onValuesChange(next) {

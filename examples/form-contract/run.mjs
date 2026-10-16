@@ -40,6 +40,14 @@ const server = createServer(async (request, response) => {
     response.writeHead(404).end()
   }
 })
+const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
+const formDirectory = process.env.BENCH_DISTRIBUTION
+  ? '/packages/form/dist/'
+  : '/packages/form/src/'
+assert.ok(
+  modules.some((id) => id.includes(formDirectory)),
+  `Missing form modules from ${formDirectory}`,
+)
 let browser
 try {
   await new Promise((done, reject) => {
