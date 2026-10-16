@@ -21,6 +21,7 @@ export async function selectValue(control, value) {
     .getByRole('listbox')
     .locator(`[data-choice-value=${JSON.stringify(value)}]`)
     .click()
+  await expect(control.page().getByRole('listbox')).toHaveCount(0)
 }
 
 export async function controlValue(control) {

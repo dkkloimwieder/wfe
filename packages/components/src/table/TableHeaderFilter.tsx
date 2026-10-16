@@ -163,19 +163,21 @@ export function TableHeaderFilter(
         >
           <span aria-hidden="true">×</span>
         </Button>
-        <TableFilter
-          label={props.label}
-          clearLabel={props.clearLabel}
-          value={props.value}
-          onValueChange={props.onValueChange}
-          disabled={props.disabled}
-          choices={props.choices}
-          kind={props.kind}
-          controlRef={(node) => {
-            control = node
-          }}
-          onEscape={() => close(true)}
-        />
+        <div class="header-filter-popup-body">
+          <TableFilter
+            label={props.label}
+            clearLabel={props.clearLabel}
+            value={props.value}
+            onValueChange={props.onValueChange}
+            disabled={props.disabled}
+            choices={props.choices}
+            kind={props.kind}
+            controlRef={(node) => {
+              control = node
+            }}
+            onEscape={() => close(true)}
+          />
+        </div>
       </div>
     </span>
   )

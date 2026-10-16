@@ -1,3 +1,4 @@
+import { consistencyCases } from './consistency-cases.mjs'
 import { sharedStyleCases } from './shared-style-cases.mjs'
 import { overlayButtonCases } from './overlay-button-cases.mjs'
 import assert from 'node:assert/strict'
@@ -223,6 +224,7 @@ async function record(name, work) {
   }
 }
 try {
+  await consistencyCases({ page, url, record, settle })
   await sharedStyleCases({ page, url, record, settle })
   await consumerCases({ page, url, record, press, settle })
   await displayCases({ createPage, url, record })

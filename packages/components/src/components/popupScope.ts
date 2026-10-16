@@ -1,3 +1,4 @@
+import { portalMount } from '../internal/portalMount'
 import { createContext, onCleanup, useContext } from 'solid-js'
 
 export function createPopupScope() {
@@ -9,15 +10,7 @@ export function createPopupScope() {
     setTrigger: (node: HTMLElement) => {
       trigger = node
     },
-    mount: () => {
-      const scope = trigger?.closest<HTMLElement>('[data-ui]')
-      return (
-        trigger?.closest<HTMLElement>('[data-ui-portal-root]') ??
-        scope?.parentElement?.closest<HTMLElement>('[data-ui]') ??
-        scope ??
-        undefined
-      )
-    },
+    mount: () => portalMount(trigger),
   }
 }
 export const PopupScope = createContext<ReturnType<

@@ -1,3 +1,4 @@
+import { portalMount } from '../internal/portalMount'
 import { createContext, onCleanup, useContext } from 'solid-js'
 
 export function createDialogScope() {
@@ -27,16 +28,7 @@ export function createDialogScope() {
       event.preventDefault()
       ;(cancel ?? content)?.focus({ preventScroll: true })
     },
-    mount: () => {
-      const anchor = trigger ?? origin
-      const scope = anchor?.closest<HTMLElement>('[data-ui]')
-      return (
-        anchor?.closest<HTMLElement>('[data-ui-portal-root]') ??
-        scope?.parentElement?.closest<HTMLElement>('[data-ui]') ??
-        scope ??
-        undefined
-      )
-    },
+    mount: () => portalMount(trigger ?? origin),
   }
 }
 export const DialogScope = createContext<ReturnType<

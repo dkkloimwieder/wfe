@@ -1,3 +1,4 @@
+import { restoreTextValue } from '../internal/controlledText'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 export type { ButtonTone, ButtonVariant } from '../internal/buttonPresentation'
@@ -180,9 +181,10 @@ function textControl<T extends TextElement>(props: TextProps<T>) {
     ...nativeEventProps,
   )
   const restoreValue = (element: T) => {
-    const accepted = untrack(() => props.value)
-    if (accepted != null && element.value !== String(accepted))
-      element.value = String(accepted)
+    restoreTextValue(
+      element,
+      untrack(() => props.value),
+    )
   }
   const events = ownedElementEvents(
     merge(props, {

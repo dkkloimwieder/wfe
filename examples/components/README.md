@@ -179,3 +179,43 @@ Open `?display=1` for native display components and Toast.
 The fixture gives loading and empty content the same reserved viewport.
 Toast uses application-owned visibility and actions.
 Browser cases exercise progress semantics, announcements, themes, keyboard focus, timer pauses, rejection, and disposal.
+
+## Control consistency
+
+Open `?consistency=1` for public table controls beside form and popup controls.
+Add `&comfortable=1` or `&dark=1` to change density or theme.
+The fixture keeps its popup open while other consumers receive focus for comparison.
+This behavior belongs to the fixture and uses the public outside-event callbacks.
+
+Browser cases compare field geometry, caret appearance, hover, focus, disabled state, read-only fields, and invalid borders.
+They test text and choice acceptance, rejected values, and input-method composition.
+Table filters retain their own clear actions and three-state boolean behavior.
+Read-only comparisons cover text controls and choice editors, not a new read-only filter API.
+
+The filter section covers text, boolean, select, multiple choices, tags, numbers, and date boundaries.
+Nested cases place Select, Popover, DropdownMenu, Tooltip, and Dialog inside a native popover.
+They test pointer access to the complete option list, Escape, focus return, modal content, and disposal.
+Native hosts allow visible overflow and keep scrolling in an inner content element.
+Forced-color cases retain visible focus and field geometry.
+
+`check-controls.mjs` rejects raw controls, private control imports, and NativeSelect in normal example interfaces.
+Named exceptions allow the existing native interoperability and scope-isolation fixtures.
+Those exceptions do not permit other raw controls or private imports in the same file.
+The shared component implementation remains outside this example guard.
+
+## CSS provenance
+
+The example Vite plugin selects source CSS for source and development builds.
+It selects copied package CSS for distribution builds.
+PostCSS records the files that it processes, including imported styles.
+The compiler refreshes its input record after style imports change.
+A build fails if those inputs use the wrong directory or differ from current source files.
+
+Each client build emits `css-provenance.json` with input and asset hashes.
+The browser matrix compares that record with current files and the served CSS assets.
+Live Vite tests compare the injected styles with the compiler output.
+Both hydration suites use the same CSS selection and browser assertions.
+Server builds retain their normal CSS handling and do not emit client evidence.
+
+The regular qualification command runs the matrix in source, distribution, development, and live modes.
+It also runs the usage guard and negative CSS build tests through `pnpm check`.

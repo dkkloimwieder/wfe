@@ -1,3 +1,4 @@
+import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
 import {
   choiceControl,
   selectValue,
@@ -115,6 +116,10 @@ try {
       .then(() => page.waitForSelector('html[data-hydrated="true"]')),
     new Promise((_, reject) => page.once('pageerror', reject)),
   ])
+  report.cssProvenance = await reviewCssProvenance(
+    page,
+    `http://127.0.0.1:${server.address().port}`,
+  )
   await expect(page.locator('#adopt-trigger')).toHaveAttribute(
     'data-variant',
     'filled',

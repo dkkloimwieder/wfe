@@ -1,3 +1,4 @@
+import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
 import {
   choiceControl,
   expectValue,
@@ -255,6 +256,10 @@ try {
       page.waitForSelector('html[data-hydrated="true"]'),
       failed,
     ])
+    report.cssProvenance = await reviewCssProvenance(
+      page,
+      `http://127.0.0.1:${server.address().port}`,
+    )
     assert.equal(await retained(), true)
     assert.deepEqual((await snapshot()).requests, [])
     assert.equal(

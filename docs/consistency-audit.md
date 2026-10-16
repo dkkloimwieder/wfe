@@ -114,22 +114,27 @@ Update all tracked documentation examples to current exports and commands.
 Explain that SelectField composes Select, while Combobox adds editable search behavior.
 Document the temporary compatibility status of NativeSelect.
 
-## P1: tests do not enforce consistency across consumers
+## Fixed: consistency tests compare consumers and enforce shared control usage
 
-Follow-up: `wfe-w2y.17`.
+Issue: `wfe-w2y.17`.
 
-Existing tests cover behavior, accessibility, ownership, and selected geometry.
-They did not compare the operator and value selects or require hover feedback from every filter field.
-The current fix adds those comparisons across the approved accents and light/dark modes.
+[The shared matrix](../examples/components/ConsistencyControls.tsx) compares public table, form, and popup controls.
+It covers both densities and themes, shared field states, accepted and rejected values, all filter families, and forced colors.
+Native and custom popup cases exercise pointer access, Escape, focus return, modal content, and cleanup.
+These cases exposed two repairs: popup layers blocked nested choices, and table filters retained rejected text.
+Child portals now stay inside their owning dialog or native popover.
+Native header popups scroll their inner content so child options remain visible and reachable.
+The table adapter uses shared text restoration and preserves composition drafts until commit.
 
-Add a shared control fixture that exercises the same states across tables, forms, and overlays.
-Cover compact and comfortable density, disabled and read-only fields, invalid state, and forced colors.
-Compare appearance and geometry as well as interaction behavior.
-Portal resolution repeats in choiceScope, popupScope, and dialogScope.
-The Select repair adds native-popover handling to choiceScope. Other families need equivalent nested-popup tests.
-Share anchor resolution where policies match, but preserve intentional modal differences.
-Add a usage guard with explicit exceptions for native interoperability fixtures.
-A guard must not prohibit raw HTML inside the shared implementation itself.
+[The usage guard](../scripts/check-controls.mjs) rejects raw controls, private imports, and NativeSelect in normal examples.
+Its named exceptions retain native interoperability and scope-isolation cases.
+The guard leaves the shared component implementation outside its scope.
+
+[The CSS plugin](../scripts/css-provenance.mjs) selects the intended CSS entry and records actual compiler inputs.
+It rejects wrong input directories, stale package copies, and source changes after compilation.
+Client builds record input and asset hashes for browser comparison.
+Live and hydration cases use the same provenance assertions.
+Negative tests use real Vite builds with deliberately wrong or stale inputs.
 
 ## P2: the optional WAMN fixture repeats virtual window layout
 

@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test'
 import {
   choiceOptions,
   choiceControl,
@@ -196,11 +197,23 @@ export async function aggregateCases({
       assert.equal(await header('note'), 'FILLED')
       await selectValue(choice('Note'), 'empty')
       assert.equal(await value('note'), '0')
+      await expect(choice('Note')).toBeFocused()
       await choice('Amount').focus()
+      await expect(choice('Amount')).toBeFocused()
       await page.keyboard.press('ArrowDown')
+      await expect(page.getByRole('listbox')).toBeVisible()
       await page.keyboard.press('Home')
+      await expect(page.getByRole('option').first()).toHaveAttribute(
+        'data-highlighted',
+        '',
+      )
       await page.keyboard.press('ArrowDown')
+      await expect(page.locator('[data-choice-value="count"]')).toHaveAttribute(
+        'data-highlighted',
+        '',
+      )
       await page.keyboard.press('Enter')
+      await expect(choice('Amount')).toHaveAttribute('data-value', 'count')
       assert.equal((await read()).summaries.amount, 'count')
       await call('summary', 'amount', 'median')
       assert.equal(await controlValue(choice('Amount')), 'median')

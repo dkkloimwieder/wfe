@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { isAbsolute, sep } from 'node:path'
 import { defineConfig } from 'vite'
 import solid from '@solidjs/vite-plugin'
+import { cssProvenance } from '../scripts/css-provenance.mjs'
 import type { PluginOption } from 'vite'
 
 const dependencies = Object.keys(
@@ -20,11 +21,16 @@ const repository = fileURLToPath(new URL('../', import.meta.url)).replace(
 )
 
 export function exampleConfig(url: string, extra: PluginOption[] = []) {
+  const provenance = cssProvenance(
+    repository,
+    Boolean(process.env.BENCH_DISTRIBUTION),
+  )
   return defineConfig({
     root: fileURLToPath(new URL('.', url)),
     cacheDir: fileURLToPath(new URL('.vite/', url)),
     plugins: [
       ...extra,
+      provenance,
       solid({
         performanceTracks: process.env.BENCH_TRACE
           ? { minMs: 1, rich: false }

@@ -1,7 +1,4 @@
-import {
-  uiDensity,
-  uiScope,
-} from '../../packages/components/src/styles/density'
+import { uiDensity, uiScope } from '@wfe/components/density'
 
 function configure(
   id: string,

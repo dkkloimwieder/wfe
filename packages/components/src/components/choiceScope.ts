@@ -1,3 +1,4 @@
+import { portalMount } from '../internal/portalMount'
 import {
   createContext,
   createEffect,
@@ -46,16 +47,7 @@ export function createChoiceScope(props: {
     setContent: (node: HTMLElement) => {
       content = node
     },
-    mount: () => {
-      const scope = control?.closest<HTMLElement>('[data-ui]')
-      return (
-        control?.closest<HTMLElement>('[popover]') ??
-        control?.closest<HTMLElement>('[data-ui-portal-root]') ??
-        scope?.parentElement?.closest<HTMLElement>('[data-ui]') ??
-        scope ??
-        undefined
-      )
-    },
+    mount: () => portalMount(control),
     outside: () => {
       restoreFocus = false
     },

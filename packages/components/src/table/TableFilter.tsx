@@ -1,3 +1,4 @@
+import { restoreTextValue } from '../internal/controlledText'
 import { Show, createUniqueId, untrack } from 'solid-js'
 import { Button, Input } from '../components/NativeFields'
 import { SelectField } from '../components/Select'
@@ -27,6 +28,13 @@ export function TableFilter(props: TableFilterProps) {
     props.value === 'true' ? 'Yes' : props.value === 'false' ? 'No' : 'Either'
   const stateHelp = createUniqueId()
   let control!: HTMLInputElement | HTMLButtonElement
+  function commitText(element: HTMLInputElement) {
+    if (!props.disabled) props.onValueChange(element.value)
+    restoreTextValue(
+      element,
+      untrack(() => props.value),
+    )
+  }
   function clear() {
     if (props.disabled) return
     control.focus({ preventScroll: true })
@@ -101,12 +109,10 @@ export function TableFilter(props: TableFilterProps) {
                   },
                   nativeEvents<HTMLInputElement>({
                     input: (event) => {
-                      if (!props.disabled && !event.isComposing)
-                        props.onValueChange(event.currentTarget.value)
+                      if (!event.isComposing) commitText(event.currentTarget)
                     },
                     compositionend: (event) => {
-                      if (!props.disabled)
-                        props.onValueChange(event.currentTarget.value)
+                      commitText(event.currentTarget)
                     },
                     keydown: (event) => {
                       if (event.key === 'Escape' && !event.isComposing) {

@@ -8,8 +8,8 @@ Generic dashboard styles live in `layout.css`.
 Rectangular surfaces use square corners by default.
 Dashboard panels use one inset and remove default margins from direct headings and paragraphs.
 Grouping controls use a grid that keeps ordering fields and action groups aligned.
-The `wfe-source` condition selects the source CSS entry.
-Build the package before browser runs because CSS import resolution can reuse built CSS files.
+Example builds explicitly select source or distribution CSS.
+Each build records its actual CSS inputs and rejects stale or mixed copies.
 
 ## Scope and density
 
@@ -110,3 +110,18 @@ Compound filter focus surrounds the complete field and suppresses the inner inpu
 
 Real component browser cases cover both library themes, both densities, state transitions, surface overrides, and forced colors.
 Consumer suites cover the approved application palettes and table/form composition.
+
+## Nested floating content
+
+Choices, popovers, menus, and tooltips share the same popup layer.
+Dialogs use the next layer, and notifications remain above dialogs.
+A child portal stays inside the closest native popover or dialog portal.
+This keeps choices above their parent without clipping them to the dialog content scroller.
+Modal focus, dismissal, and accessibility rules remain with the dialog primitives.
+
+The component matrix opens nested content with real pointer and keyboard input.
+It tests Escape, focus return, application acceptance, composition, and disposal.
+
+Native popover hosts need visible overflow for child portals.
+Keep scrolling inside a separate content element.
+TableHeaderFilter provides this structure through its internal content wrapper.

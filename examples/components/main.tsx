@@ -1,3 +1,4 @@
+import { ConsistencyControls } from './ConsistencyControls'
 import { OverlayButtonControls } from './OverlayButtonControls'
 import './style.css'
 import { action, flush } from 'solid-js'
@@ -15,7 +16,20 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('overlayButtons')) {
+if (new URLSearchParams(location.search).has('consistency')) {
+  const dispose = render(
+    () => <ConsistencyControls />,
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  window.consistencyFixture.stop = () => {
+    cleanup()
+    flush()
+  }
+} else if (new URLSearchParams(location.search).has('overlayButtons')) {
   const dispose = render(
     () => <OverlayButtonControls />,
     document.getElementById('root')!,

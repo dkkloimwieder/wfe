@@ -689,12 +689,17 @@
   width: 220px;
   max-width: calc(100vw - 16px);
   max-height: calc(100vh - 16px);
-  overflow: auto;
+  overflow: visible;
   margin: 0;
   padding: 10px;
   font-size: 12px;
   font-weight: 400;
 }
+:where([data-ui]) .header-filter-popup-body {
+  max-height: calc(100dvh - 38px);
+  overflow: auto;
+}
+
 :where([data-ui]) .header-filter-popup .table-filter {
   margin: 0;
 }
@@ -784,7 +789,7 @@
 }
 
 :where([data-ui]) .popup-content {
-  z-index: 100;
+  z-index: 1001;
   min-width: calc(var(--ui-font-size, 12px) * 11);
   max-width: calc(100vw - calc(var(--ui-font-size, 12px) * 1));
 }
@@ -962,7 +967,7 @@
 :where([data-ui]) .ui-dialog-portal {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1002;
   pointer-events: none;
 }
 :where([data-ui]) .ui-dialog-overlay {

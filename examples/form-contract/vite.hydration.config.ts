@@ -1,3 +1,4 @@
+import { cssProvenance } from '../../scripts/css-provenance.mjs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import solid from '@solidjs/vite-plugin'
@@ -21,6 +22,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    cssProvenance(fileURLToPath(new URL('../../', import.meta.url)), built),
     solid({ ssr: true, observe: true, performanceTracks: false }),
     {
       name: 'form-hydration-inventory',
