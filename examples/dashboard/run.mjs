@@ -1,3 +1,4 @@
+import { reviewAppearanceFocus } from '../shared/appearance/focus-review.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -1932,6 +1933,9 @@ try {
         )
       assert.equal(new Set(heights).size, 1)
     }
+  })
+  await test('Appearance button focus rings stay complete across desktop and narrow strips', async () => {
+    await reviewAppearanceFocus(page)
   })
   await test('Column headers stay visible while rows scroll in every pane placement', async () => {
     await page.evaluate(() => window.dashboardFixture.replaceRows(500))

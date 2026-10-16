@@ -1,3 +1,4 @@
+import { reviewAppearanceFocus } from '../shared/appearance/focus-review.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -84,6 +85,46 @@ try {
     report.cases.push({ name, status: 'passed' })
     console.log('PASS ' + name)
   }
+  await test('Form focus follows accents and appearance rings stay complete', async () => {
+    for (const mode of ['Light', 'Dark']) {
+      await page
+        .getByRole('button', { name: `${mode} surfaces`, exact: true })
+        .click()
+      for (const accent of ['Blue', 'Pink']) {
+        const swatch = page.getByRole('button', {
+          name: `${accent} accent`,
+          exact: true,
+        })
+        await swatch.click()
+        const expected = await swatch
+          .locator('span')
+          .evaluate((node) => getComputedStyle(node).backgroundColor)
+        await page.keyboard.press('Tab')
+        for (const field of [name, category]) {
+          await field.focus()
+          assert.equal(
+            await field.evaluate((node) => getComputedStyle(node).outlineColor),
+            expected,
+          )
+          assert.equal(
+            await field.evaluate((node) => getComputedStyle(node).outlineStyle),
+            'solid',
+          )
+        }
+        await enabled.focus()
+        assert.equal(
+          await enabled.evaluate(
+            (node) =>
+              getComputedStyle(
+                node.closest('.ui-toggle').querySelector('.ui-check-control'),
+              ).outlineColor,
+          ),
+          expected,
+        )
+      }
+    }
+    await reviewAppearanceFocus(page)
+  })
   await test('Text, choices and boolean controls show only application-accepted values', async () => {
     await page.evaluate(() => window.formContractFixture.rejectEdits(true))
     await name.fill('Rejected')
