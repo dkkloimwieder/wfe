@@ -257,6 +257,85 @@ try {
     assert.deepEqual((await snapshot()).requests, [])
     await oldButton.dispose()
   })
+  await test('Shared appearance controls change surfaces without replacing fields or pending work', async () => {
+    const button = (label) =>
+      page.getByRole('button', { name: label, exact: true })
+    const background = (selector) =>
+      page
+        .locator(selector)
+        .evaluate((node) => getComputedStyle(node).backgroundColor)
+    await expect(
+      page.getByRole('group', { name: 'Controls placement', exact: true }),
+    ).toHaveCount(0)
+    await expect(
+      page.getByRole('group', { name: 'Row lines', exact: true }),
+    ).toHaveCount(0)
+    await expect(
+      page.getByRole('group', { name: 'Column lines', exact: true }),
+    ).toHaveCount(0)
+    await name.fill('Appearance draft')
+    await category.selectOption('Research')
+    await page.getByText('Enabled', { exact: true }).click()
+    const field = await name.elementHandle()
+    await hold('submission')
+    await save.click()
+    await phase('submitting')
+    const before = await snapshot()
+    await button('Light surfaces').click()
+    assert.equal(await background('.form-page'), 'rgb(252, 252, 253)')
+    await button('Base Surface 2').click()
+    await button('Panes Surface 3').click()
+    await button('Content Surface 2').click()
+    assert.equal(await background('.form-page'), 'rgb(233, 236, 239)')
+    assert.equal(await background('.form-example'), 'rgb(222, 226, 230)')
+    assert.equal(await background('form'), 'rgb(233, 236, 239)')
+    await button('Dark surfaces').click()
+    assert.equal(await background('.form-page'), 'rgb(52, 58, 64)')
+    await button('Blue accent').click()
+    assert.equal(
+      await page
+        .locator('main')
+        .evaluate((node) => node.style.getPropertyValue('--ui-focus')),
+      '#74c0fc',
+    )
+    await button('No shadows').click()
+    assert.equal(
+      await page
+        .locator('.form-example')
+        .evaluate((node) => getComputedStyle(node).boxShadow),
+      'none',
+    )
+    await button('Depth 3').click()
+    assert.notEqual(
+      await page
+        .locator('.form-example')
+        .evaluate((node) => getComputedStyle(node).boxShadow),
+      'none',
+    )
+    await expect(button('Depth 3')).toBeFocused()
+    await name.focus()
+    await expect(name).toBeFocused()
+    assert.equal(
+      await name.evaluate((node, original) => node === original, field),
+      true,
+    )
+    assert.deepEqual(await snapshot(), before)
+    await page
+      .getByRole('button', { name: 'Complete response', exact: true })
+      .click()
+    await phase('success')
+    await expect(name).toHaveValue('Appearance draft')
+    await expect(category).toHaveValue('Research')
+    await expect(enabled).toBeChecked()
+    await name.fill('')
+    await save.click()
+    await phase('invalid')
+    await button('Black / white surfaces').click()
+    await expect(name).toHaveAttribute('aria-invalid', 'true')
+    await expect(page.getByText('Enter a name.', { exact: true })).toBeVisible()
+    await phase('invalid')
+    await field.dispose()
+  })
   await test('Narrow layout preserves labels and native keyboard behavior without page overflow', async () => {
     await page.setViewportSize({ width: 390, height: 568 })
     await name.fill('Narrow record')

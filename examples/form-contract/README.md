@@ -18,6 +18,12 @@ Use the example service controls to pause or reject a response.
 LOAD OTHER RECORD replaces values and defaults through the application.
 No changes are persisted.
 
+The appearance controls match the Table example.
+Choose neutral surfaces, an accent, shadow depth, and separate Base, Panes, and Content surfaces.
+Appearance changes preserve field values, errors, and pending requests.
+Both examples share the controls and Open Props samples in `examples/shared/appearance`.
+Table placement and divider controls stay in the Table example.
+
 Build and test the browser example:
 
 ```sh

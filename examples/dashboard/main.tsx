@@ -32,16 +32,21 @@ import type {
 import { nativeEvents } from '@wfe/components/events'
 import '@wfe/components/styles.css'
 import './style.css'
-import type { Depth, SurfaceLayers, TableDividers } from './appearance'
-import { AppearanceReview } from './AppearanceReview'
+import type {
+  Depth,
+  SurfaceLayers,
+  TableDividers,
+} from '../shared/appearance/appearance'
+import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
   monochrome,
   neutralAccent,
   appearanceStyle,
   defaultLayers,
   defaultDividers,
-} from './appearance'
-import './review-shadows.css'
+} from '../shared/appearance/appearance'
+import '../shared/appearance/review-shadows.css'
+import '../shared/appearance/style.css'
 
 type RecordData = {
   id: string
@@ -306,7 +311,7 @@ function TablePage() {
         ...appearanceStyle(scheme(), accent(), depth(), layers(), dividers()),
       }}
       data-ui-portal-root=""
-      class="table-page"
+      class="table-page appearance-scope"
       aria-label="Records workspace"
     >
       <AppearanceReview

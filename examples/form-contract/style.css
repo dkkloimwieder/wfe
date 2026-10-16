@@ -1,14 +1,22 @@
 @import '@wfe/components/styles.css';
+@import '../shared/appearance/style.css';
+@import '../shared/appearance/review-shadows.css';
 html,
 body {
   margin: 0;
 }
-body {
-  background: white;
+.form-page {
+  min-height: 100dvh;
+  min-width: 0;
+  padding: var(--ui-gap, 6px);
+  background: var(--ui-canvas-surface);
 }
-main {
+.form-example {
   max-width: 42rem;
-  margin: 0 auto;
+  background: var(--ui-pane-surface);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-panel-shadow);
+  margin: var(--ui-gap, 6px) auto 0;
   padding: 12px;
 }
 h1,
@@ -16,11 +24,12 @@ h2 {
   font-size: inherit;
   margin: 0;
 }
-form,
-section {
+.form-example form,
+.form-example section {
   display: grid;
   gap: 12px;
-  padding: 12px 0;
+  padding: 12px;
+  background: var(--ui-surface);
   border-top: 1px solid var(--ui-border);
 }
 .buttons {

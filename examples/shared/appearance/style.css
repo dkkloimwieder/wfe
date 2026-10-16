@@ -1,0 +1,75 @@
+.appearance-review {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+  padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-panel-shadow);
+}
+.appearance-pickers,
+.appearance-layers,
+.appearance-options {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+}
+.appearance-pickers,
+.appearance-layers,
+.surface-swatches {
+  min-width: 0;
+  overflow-x: auto;
+}
+.appearance-options,
+.appearance-pickers > button,
+.appearance-pickers > a {
+  flex: none;
+}
+.appearance-pickers > a {
+  color: inherit;
+}
+.appearance-review button[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.appearance-review .accent-swatch {
+  padding: 4px;
+}
+.accent-swatch > span {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.surface-swatches {
+  display: flex;
+  gap: calc(var(--ui-gap, 6px) * 2);
+  padding: 2px 0 10px;
+}
+.surface-swatch {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  font-size: var(--ui-small-font-size, 11px);
+}
+.surface-sample {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ui-border);
+}
+.surface-swatch > span:last-child {
+  display: grid;
+}
+.surface-swatch code {
+  font: inherit;
+}
+
+.divider-sample {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-inline-end: 4px;
+  border: 1px solid var(--ui-border);
+}

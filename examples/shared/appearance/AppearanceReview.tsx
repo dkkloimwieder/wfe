@@ -1,4 +1,4 @@
-import { For } from 'solid-js'
+import { For, Show } from 'solid-js'
 import { Button } from '@wfe/components'
 import { schemes, accents, accentColor, dividerSurfaces } from './appearance'
 import type {
@@ -21,13 +21,13 @@ const roles = [
 
 /** Temporary application-owned review. Nothing is persisted. */
 export function AppearanceReview(props: {
-  placement: 'left' | 'top' | 'right'
-  onPlacementChange: (placement: 'left' | 'top' | 'right') => void
+  placement?: 'left' | 'top' | 'right'
+  onPlacementChange?: (placement: 'left' | 'top' | 'right') => void
   scheme: SurfaceScheme
   accent: Accent
   depth: Depth
-  dividers: TableDividers
-  onDividersChange: (dividers: TableDividers) => void
+  dividers?: TableDividers
+  onDividersChange?: (dividers: TableDividers) => void
   layers: SurfaceLayers
   onLayersChange: (layers: SurfaceLayers) => void
   onSchemeChange: (scheme: SurfaceScheme) => void
@@ -93,24 +93,28 @@ export function AppearanceReview(props: {
         </a>
       </div>
       <div class="appearance-layers">
-        <div
-          class="appearance-options"
-          role="group"
-          aria-label="Controls placement"
-        >
-          <span data-ui-text="system">Controls</span>
-          <For each={['left', 'top', 'right'] as const}>
-            {(placement) => (
-              <Button
-                aria-label={`${placement} controls pane`}
-                aria-pressed={props.placement === placement ? 'true' : 'false'}
-                onClick={() => props.onPlacementChange(placement)}
-              >
-                {placement}
-              </Button>
-            )}
-          </For>
-        </div>
+        <Show when={props.onPlacementChange}>
+          <div
+            class="appearance-options"
+            role="group"
+            aria-label="Controls placement"
+          >
+            <span data-ui-text="system">Controls</span>
+            <For each={['left', 'top', 'right'] as const}>
+              {(placement) => (
+                <Button
+                  aria-label={`${placement} controls pane`}
+                  aria-pressed={
+                    props.placement === placement ? 'true' : 'false'
+                  }
+                  onClick={() => props.onPlacementChange?.(placement)}
+                >
+                  {placement}
+                </Button>
+              )}
+            </For>
+          </div>
+        </Show>
         <For
           each={
             [
@@ -148,49 +152,55 @@ export function AppearanceReview(props: {
             </div>
           )}
         </For>
-        <For
-          each={
-            [
-              { key: 'rows', name: 'Row lines' },
-              { key: 'columns', name: 'Column lines' },
-            ] as const
-          }
-        >
-          {(divider) => (
-            <div
-              class="appearance-options"
-              role="group"
-              aria-label={divider.name}
-            >
-              <span data-ui-text="system">{divider.name}</span>
-              <For each={[0, 1, 2, 3] as const}>
-                {(level) => (
-                  <Button
-                    aria-label={`${divider.name} Surface ${level + 1}`}
-                    aria-pressed={
-                      props.dividers[divider.key] === level ? 'true' : 'false'
-                    }
-                    onClick={() =>
-                      props.onDividersChange({
-                        ...props.dividers,
-                        [divider.key]: level,
-                      })
-                    }
-                  >
-                    <span
-                      class="divider-sample"
-                      aria-hidden="true"
-                      style={{
-                        background: dividerSurfaces(props.scheme)[level],
-                      }}
-                    />
-                    {level + 1}
-                  </Button>
-                )}
-              </For>
-            </div>
-          )}
-        </For>
+        <Show when={props.dividers}>
+          <For
+            each={
+              [
+                { key: 'rows', name: 'Row lines' },
+                { key: 'columns', name: 'Column lines' },
+              ] as const
+            }
+          >
+            {(divider) => (
+              <div
+                class="appearance-options"
+                role="group"
+                aria-label={divider.name}
+              >
+                <span data-ui-text="system">{divider.name}</span>
+                <For each={[0, 1, 2, 3] as const}>
+                  {(level) => (
+                    <Button
+                      aria-label={`${divider.name} Surface ${level + 1}`}
+                      aria-pressed={
+                        props.dividers?.[divider.key] === level
+                          ? 'true'
+                          : 'false'
+                      }
+                      onClick={() =>
+                        props.onDividersChange?.({
+                          rows: 0,
+                          columns: 0,
+                          ...props.dividers,
+                          [divider.key]: level,
+                        })
+                      }
+                    >
+                      <span
+                        class="divider-sample"
+                        aria-hidden="true"
+                        style={{
+                          background: dividerSurfaces(props.scheme)[level],
+                        }}
+                      />
+                      {level + 1}
+                    </Button>
+                  )}
+                </For>
+              </div>
+            )}
+          </For>
+        </Show>
       </div>
       <div
         class="surface-swatches"

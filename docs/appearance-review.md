@@ -49,6 +49,11 @@ dependency is required.
 
 The samples come from [Open Props](https://open-props.style/#color), commit
 `f39ab7c377a0e047f930982e3611bbc95254a260`. The source URLs and SHA-256 hashes
-remain in `examples/dashboard/appearance.ts` and `review-shadows.css`.
-The exact MIT license remains in `examples/dashboard/OPEN-PROPS-LICENSE`.
-The shadow subset changes only its variable prefix.
+remain in `examples/shared/appearance/appearance.ts` and `review-shadows.css`.
+The exact MIT license remains in `examples/shared/appearance/OPEN-PROPS-LICENSE`.
+The shadow subset changes its variable prefix and scope selector.
+
+The form example at `http://127.0.0.1:7787/` uses the same appearance controls and samples.
+BASE sets its backdrop, PANES sets its outer panel, and CONTENT sets its form and service sections.
+Appearance changes preserve values, errors, and pending requests.
+Table placement and divider controls stay in the Table example.
