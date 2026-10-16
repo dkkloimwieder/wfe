@@ -20,6 +20,7 @@ export function ChoiceControls() {
   const [value, setValue] = createSignal<Option | null>(initial[0]!)
   const [query, setQuery] = createSignal('Alpha')
   const [disabled, setDisabled] = createSignal(false)
+  const [readOnly, setReadOnly] = createSignal(false)
   const [invalid, setInvalid] = createSignal(false)
   const [loading, setLoading] = createSignal(false)
   const [acceptSearch, setAcceptSearch] = createSignal(true)
@@ -49,6 +50,7 @@ export function ChoiceControls() {
       if ('value' in next) setValue(next.value ?? null)
       if ('query' in next) setQuery(next.query!)
       if ('disabled' in next) setDisabled(next.disabled!)
+      if ('readOnly' in next) setReadOnly(next.readOnly!)
       if ('invalid' in next) setInvalid(next.invalid!)
       if ('loading' in next) setLoading(next.loading!)
       if ('acceptSearch' in next) setAcceptSearch(next.acceptSearch!)
@@ -76,6 +78,7 @@ export function ChoiceControls() {
           optionDisabled="disabled"
           onChange={change}
           disabled={disabled()}
+          readOnly={readOnly()}
           name="category"
           validationState={invalid() ? 'invalid' : 'valid'}
           itemComponent={(item) => (
@@ -123,6 +126,7 @@ export function ChoiceControls() {
           optionDisabled="disabled"
           defaultFilter={() => true}
           disabled={disabled()}
+          readOnly={readOnly()}
           validationState={invalid() ? 'invalid' : 'valid'}
           itemComponent={(item) => (
             <Combobox.Item as="div" item={item.item}>
@@ -182,6 +186,7 @@ declare global {
         value?: Option | null
         query?: string
         disabled?: boolean
+        readOnly?: boolean
         invalid?: boolean
         loading?: boolean
         acceptSearch?: boolean

@@ -52,7 +52,13 @@ export function BooleanControls() {
     refs++
   }
   return (
-    <main {...uiScope()}>
+    <main
+      {...uiScope(
+        new URLSearchParams(location.search).has('comfortable')
+          ? 'comfortable'
+          : 'compact',
+      )}
+    >
       <h1>Boolean and radio controls</h1>
       <form
         ref={nativeEvents<HTMLFormElement>({

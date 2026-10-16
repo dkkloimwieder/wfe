@@ -1,0 +1,113 @@
+:where([data-ui]) button,
+:where([data-ui]) :where(.ui-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px solid var(--ui-button-border, #aaa);
+  background: var(--ui-surface, white);
+  color: inherit;
+  border-radius: 0;
+  padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 8px);
+  cursor: pointer;
+}
+:where([data-ui]) button[hidden],
+:where([data-ui]) :where(.ui-button)[hidden] {
+  display: none;
+}
+:where([data-ui])
+  button:hover:not(
+    :disabled,
+    [aria-disabled='true'],
+    [data-disabled],
+    [data-readonly]
+  ),
+:where([data-ui])
+  :where(.ui-button):hover:not(
+    :disabled,
+    [aria-disabled='true'],
+    [data-disabled],
+    [data-readonly]
+  ) {
+  background-color: var(--ui-highlight, #edf3fb);
+}
+
+:where([data-ui]) .ui-button {
+  text-decoration: none;
+  --_button-color: var(--ui-text, #000);
+  --_button-contrast: var(--ui-surface, #fff);
+  --_button-hover: var(
+    --ui-button-filled-hover,
+    color-mix(in srgb, var(--_button-color) 90%, var(--_button-contrast))
+  );
+  --_button-inverted-hover: var(
+    --ui-button-inverted-hover,
+    color-mix(in srgb, var(--_button-contrast) 95%, var(--_button-color))
+  );
+}
+:where([data-ui]) .ui-button[data-tone='accent'] {
+  --_button-color: var(--ui-accent, var(--ui-text, #000));
+  --_button-contrast: var(--ui-on-accent, var(--ui-surface, #fff));
+  --_button-hover: var(
+    --ui-accent-hover,
+    color-mix(in srgb, var(--_button-color) 90%, var(--_button-contrast))
+  );
+  --_button-inverted-hover: var(
+    --ui-accent-inverted-hover,
+    color-mix(in srgb, var(--_button-contrast) 95%, var(--_button-color))
+  );
+}
+:where([data-ui]) .ui-button[data-variant='filled'] {
+  border-color: var(--_button-color);
+  background: var(--_button-color);
+  color: var(--_button-contrast);
+}
+:where([data-ui]) .ui-button[data-variant='inverted'] {
+  border-color: var(--_button-contrast);
+  background: var(--_button-contrast);
+  color: var(--_button-color);
+}
+:where([data-ui])
+  .ui-button[data-variant='filled']:hover:not(
+    :disabled,
+    [aria-disabled='true']
+  ) {
+  border-color: var(--_button-hover);
+  background: var(--_button-hover);
+}
+:where([data-ui])
+  .ui-button[data-variant='inverted']:hover:not(
+    :disabled,
+    [aria-disabled='true']
+  ) {
+  border-color: var(--_button-inverted-hover);
+  background: var(--_button-inverted-hover);
+  color: var(--_button-hover);
+}
+:where([data-ui]) .ui-button[data-tone='accent'][data-variant='outline'],
+:where([data-ui]) .ui-button[data-tone='accent'][data-variant='ghost'] {
+  color: var(--_button-color);
+}
+:where([data-ui]) .ui-button[data-tone='accent'][data-variant='outline'] {
+  border-color: var(--_button-color);
+}
+:where([data-ui]) .ui-button[data-variant='ghost'] {
+  border-color: transparent;
+  background: transparent;
+}
+:where([data-ui])
+  .ui-button[data-variant='ghost']:hover:not(
+    :disabled,
+    [aria-disabled='true']
+  ) {
+  background: var(--ui-highlight, var(--ui-surface, #fff));
+}
+@media (forced-colors: active) {
+  :where([data-ui])
+    button.ui-button[data-variant][data-tone]:is(:enabled, :disabled),
+  :where([data-ui]) .ui-button[data-variant][data-tone]:not(button) {
+    border-color: ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+}

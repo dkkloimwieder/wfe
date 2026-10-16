@@ -70,23 +70,23 @@ Primitive behavior still owns overlay events and focus.
 Custom elements receive the same button styles without another wrapper.
 Default Tooltip buttons avoid form submission while custom links retain link behavior.
 
-## P1: common style contracts remain fragmented
+## Fixed: shared fields and floating surfaces have common style owners
 
-Follow-up: `wfe-w2y.14`.
+Issue: `wfe-w2y.14`.
 
-[styles.css](../packages/components/src/styles/styles.css) repeats textarea and focus rules from [components.css](../packages/components/src/styles/components.css).
-Select, Dialog, and Popover/Menu/Tooltip define their popup shells separately.
-Their fallback borders, text colors, padding, and shadows differ.
-Toast supplies a fixed shadow instead of the shared popup shadow role.
-Disabled styling uses different combinations of native attributes, ARIA attributes, and primitive data attributes.
-The package dark theme uses `#171d27` for its surface. The review switcher uses `#212529`.
-Focus defaults also differ between package CSS and the review switcher.
-Application overrides are valid, but previews need to distinguish overrides from the library defaults.
+[The shared CSS entry](../packages/components/src/styles/styles.css) imports separate theme, button, field, surface, and state files.
+Field borders and backgrounds have one owner.
+Floating components share popup surface, text, border, and shadow roles.
+Toast now honors the popup shadow role.
+Component layout retains dialog dimensions, modal layers, and Switch/Radio shapes.
+Existing hard and soft shadow defaults remain explicit.
 
-Consolidate common field and popup roles without changing approved colors.
-Define consistent hover, focus, disabled, read-only, invalid, selected, and forced-color states.
-Use the existing density values for geometry.
-Do not force dialogs and menus to share dimensions or modal behavior.
+Native fields honor the same disabled opacity role as buttons and toggles.
+Read-only compound fields suppress hover feedback on their triggers.
+Focus and invalid borders share state rules, with explicit compound-field focus suppression.
+The library palette and approved review palette remain unchanged.
+[The style guide](../packages/components/src/styles/README.md) distinguishes library defaults from application overrides.
+Real component cases cover light/dark themes, compact/comfortable density, states, popup overrides, and forced colors.
 
 ## P2: repeated icons lack one owner
 

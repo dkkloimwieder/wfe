@@ -73,7 +73,13 @@ export function NativeFieldsFixture() {
     }),
   }
   return (
-    <main {...uiScope()}>
+    <main
+      {...uiScope(
+        new URLSearchParams(location.search).has('comfortable')
+          ? 'comfortable'
+          : 'compact',
+      )}
+    >
       <h1>Native fields</h1>
       <form
         ref={nativeEvents<HTMLFormElement>({

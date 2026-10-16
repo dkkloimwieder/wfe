@@ -1,3 +1,4 @@
+import { sharedStyleCases } from './shared-style-cases.mjs'
 import { overlayButtonCases } from './overlay-button-cases.mjs'
 import assert from 'node:assert/strict'
 import { consumerCases } from './consumer-cases.mjs'
@@ -222,6 +223,7 @@ async function record(name, work) {
   }
 }
 try {
+  await sharedStyleCases({ page, url, record, settle })
   await consumerCases({ page, url, record, press, settle })
   await displayCases({ createPage, url, record })
   await overlayButtonCases({ page, url, record, settle })

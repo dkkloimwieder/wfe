@@ -8,7 +8,8 @@ Generic dashboard styles live in `layout.css`.
 Rectangular surfaces use square corners by default.
 Dashboard panels use one inset and remove default margins from direct headings and paragraphs.
 Grouping controls use a grid that keeps ordering fields and action groups aligned.
-Source consumers load source styles through the `wfe-source` condition.
+The `wfe-source` condition selects the source CSS entry.
+Build the package before browser runs because CSS import resolution can reuse built CSS files.
 
 ## Scope and density
 
@@ -62,3 +63,50 @@ Placeholders and grouping configuration choices use uppercase.
 Use `data-ui-text="system"` for custom system labels or configuration choices.
 Use `data-ui-text="value"` for record text inside an action or heading.
 Use `data-ui-text="prose"` for custom prose inside a system label.
+
+## Style ownership
+
+`theme.css` owns library colors, scope typography, and box sizing.
+`buttons.css` owns button variants and tones.
+`fields.css` owns common field borders and surfaces.
+`components.css` owns component layout, shapes, and selection states.
+`surfaces.css` owns floating borders, backgrounds, text, and shadows.
+`states.css` owns common focus, invalid, disabled, read-only, and field hover rules.
+The remaining files own layout, table workspace, calendar, and text presentation.
+
+## Library defaults and application overrides
+
+The library default is black text on white surfaces.
+Its optional dark theme uses surface `#171d27` and focus `#88baff`.
+The review examples supply their own approved palette through the shared appearance switcher.
+For example, the review dark Surface 1 uses `#212529`.
+Those application overrides do not change the library defaults.
+
+Floating components share `--ui-popup-surface`, `--ui-popup-text`, `--ui-popup-border`, and `--ui-popup-shadow`.
+Unset surface and text roles inherit `--ui-surface` and `--ui-text`.
+Choices and table header menus inherit `--ui-control-border`.
+Dialogs, popovers, menus, tooltips, and toasts inherit `--ui-border`.
+An explicit popup border role overrides both defaults.
+
+Choices, dialogs, and table header menus retain their existing hard shadow default.
+Popovers, action menus, tooltips, and toasts retain their existing soft shadow default.
+Set `--ui-popup-shadow: none` to remove shadows from all those components, including Toast.
+Sheet retains its edge placement and no shadow.
+Floating components share square corners by default and accept `--ui-radius`.
+Their dimensions, padding, positioning, and modal layers remain specific to each component.
+Roles resolve on each component so nested scopes and live application overrides work.
+
+Fields share `--ui-control-hover` with the existing `--ui-highlight` fallback.
+Disabled and read-only fields use `--ui-muted-surface` and suppress editable hover feedback.
+A selected Switch retains its highlight and thumb position in these states.
+`--ui-disabled-opacity` applies once to each visible control or toggle group.
+The default opacity is 1, so disabled actions do not acquire a gray fill.
+Unavailable choice options retain opacity 0.65 and muted text.
+Unavailable action menu items retain opacity 0.5.
+Choice selection uses `--ui-selection` and `--ui-on-selection`.
+Action menu focus retains the hover surface and inset focus border.
+All visible field focus uses `--ui-focus-ring` with the `--ui-focus` fallback.
+Compound filter focus surrounds the complete field and suppresses the inner input outline.
+
+Real component browser cases cover both library themes, both densities, state transitions, surface overrides, and forced colors.
+Consumer suites cover the approved application palettes and table/form composition.

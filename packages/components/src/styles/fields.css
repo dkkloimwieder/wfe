@@ -1,0 +1,24 @@
+:where([data-ui]) input,
+:where([data-ui]) textarea,
+:where([data-ui]) select {
+  width: 100%;
+  min-width: 0;
+  color: inherit;
+  padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
+}
+:where([data-ui]) input,
+:where([data-ui]) textarea,
+:where([data-ui]) select,
+:where([data-ui]) .popup-trigger,
+:where([data-ui]) .ui-check-control,
+:where([data-ui]) .ui-radio-control,
+:where([data-ui]) .ui-switch-control {
+  border: 1px solid var(--ui-control-border, #999);
+  background-color: var(--ui-surface, white);
+}
+:where([data-ui]) input,
+:where([data-ui]) textarea,
+:where([data-ui]) select,
+:where([data-ui]) .popup-trigger {
+  border-radius: 0;
+}

@@ -1,0 +1,123 @@
+:where([data-ui]) button:focus-visible,
+:where([data-ui]) :where(.ui-button):focus-visible,
+:where([data-ui]) input:focus-visible,
+:where([data-ui]) textarea:focus-visible,
+:where([data-ui]) select:focus-visible,
+:where([data-ui]) summary:focus-visible,
+:where([data-ui])
+  .ui-toggle:has(.ui-toggle-input:focus-visible)
+  .ui-check-control,
+:where([data-ui])
+  .ui-toggle:has(.ui-toggle-input:focus-visible)
+  .ui-switch-control,
+:where([data-ui])
+  .ui-radio-item:has(.ui-toggle-input:focus-visible)
+  .ui-radio-control,
+:where([data-ui]) .filter-input:has(:focus-visible) {
+  outline: 2px solid var(--ui-focus-ring, var(--ui-focus, #1657a8));
+  outline-offset: 2px;
+}
+:where([data-ui]) .filter-input input:focus-visible,
+:where([data-ui]) .filter-input select:focus-visible,
+:where([data-ui]) .filter-input .popup-trigger:focus-visible {
+  outline: none;
+}
+:where([data-ui]) .filter-input .clear-input:focus-visible {
+  outline-offset: -3px;
+}
+:where([data-ui]) input[aria-invalid='true'],
+:where([data-ui]) textarea[aria-invalid='true'],
+:where([data-ui]) select[aria-invalid='true'],
+:where([data-ui]) .popup-trigger[aria-invalid='true'],
+:where([data-ui]) [data-invalid],
+:where([data-ui]) .ui-check-control[data-invalid],
+:where([data-ui]) .ui-radio-control[data-invalid],
+:where([data-ui]) .ui-switch-control[data-invalid] {
+  border-color: var(--ui-error, #9d251e);
+}
+:where([data-ui]) button:disabled,
+:where([data-ui]) :where(.ui-button):is(:disabled, [aria-disabled='true']),
+:where([data-ui]) input:disabled,
+:where([data-ui]) textarea:disabled,
+:where([data-ui]) select:disabled {
+  cursor: default;
+  opacity: var(--ui-disabled-opacity, 0.55);
+}
+:where([data-ui]) .ui-toggle[data-disabled],
+:where([data-ui]) .ui-radio-item[data-disabled] {
+  opacity: var(--ui-disabled-opacity, 0.55);
+}
+
+:where([data-ui]) input:is([readonly], :disabled),
+:where([data-ui]) textarea:is([readonly], :disabled),
+:where([data-ui]) select:disabled,
+:where([data-ui]) .popup-trigger:is([data-readonly], [data-disabled]),
+:where([data-ui])
+  :is(.ui-check-control, .ui-radio-control, .ui-switch-control):is(
+    [data-readonly],
+    [data-disabled]
+  ) {
+  background-color: var(--ui-muted-surface, #f0f0f0);
+}
+:where([data-ui]) .popup-trigger:is([data-readonly], [data-disabled]),
+:where([data-ui])
+  :is(.ui-check-control, .ui-radio-control, .ui-switch-control):is(
+    [data-readonly],
+    [data-disabled]
+  ) {
+  cursor: default;
+}
+/* Preserve the selected switch state, including its disabled and readonly forms. */
+:where([data-ui]) .ui-switch-control[data-checked] {
+  background-color: var(--ui-highlight, #edf3fb);
+}
+
+/* All editable field surfaces share one hover state, including compound fields. */
+:where([data-ui])
+  :is(
+    .ui-input,
+    .ui-textarea,
+    .ui-native-select,
+    .popup-trigger,
+    .choice-input
+  ):hover:not(
+    :disabled,
+    [readonly],
+    [aria-disabled='true'],
+    [data-disabled],
+    [data-readonly]
+  ),
+:where([data-ui])
+  .filter-input:hover
+  :is(input, select, button):not(
+    :disabled,
+    [readonly],
+    [aria-disabled='true'],
+    [data-disabled],
+    [data-readonly]
+  ),
+:where([data-ui])
+  .choice-control:not([data-disabled], [data-readonly]):hover
+  :is(input, button):not(
+    :disabled,
+    [readonly],
+    [aria-disabled='true'],
+    [data-disabled],
+    [data-readonly]
+  ),
+:where([data-ui])
+  :is(.ui-check-control, .ui-radio-control, .ui-switch-control):hover:not(
+    [data-disabled],
+    [data-readonly]
+  ) {
+  background-color: var(--ui-control-hover, var(--ui-highlight, #edf3fb));
+}
+
+:where([data-ui]) .choice-control:is([data-disabled], [data-readonly]) button {
+  background-color: var(--ui-muted-surface, #f0f0f0);
+  cursor: default;
+}
+
+:where([data-ui]) .filter-input:has(.table-boolean-filter) {
+  outline: none;
+}
