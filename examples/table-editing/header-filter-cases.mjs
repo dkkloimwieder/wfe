@@ -1,3 +1,8 @@
+import {
+  controlValue,
+  choiceControl,
+  selectValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 export async function headerFilterCases({
@@ -47,7 +52,7 @@ export async function headerFilterCases({
       assert.equal(await focused(trigger()), true)
       assert.doesNotMatch(await page.locator('thead').innerText(), /0001/)
       await open()
-      assert.equal(await text().inputValue(), '0001')
+      assert.equal(await controlValue(text()), '0001')
       await popup()
         .getByRole('button', { name: 'Clear Name filter', exact: true })
         .click()
@@ -72,7 +77,7 @@ export async function headerFilterCases({
       assert.equal(await focused(trigger()), true)
       assert.deepEqual((await read()).ids, ['R0002'])
       await trigger().press('Enter')
-      assert.equal(await text().inputValue(), '0002')
+      assert.equal(await controlValue(text()), '0002')
       await text().fill('0003')
       await text().press('Enter')
       await settle()
@@ -106,10 +111,10 @@ export async function headerFilterCases({
       })
       await name.fill('0001')
       await open()
-      assert.equal(await text().inputValue(), '0001')
+      assert.equal(await controlValue(text()), '0001')
       await text().fill('0002')
       await settle()
-      assert.equal(await name.inputValue(), '0002')
+      assert.equal(await controlValue(name), '0002')
       await text().press('Escape')
       await external
         .getByRole('button', { name: 'Clear Name filter', exact: true })
@@ -118,13 +123,13 @@ export async function headerFilterCases({
       assert.equal(await trigger().getAttribute('data-filtered'), null)
       await call('filter', 'name', '0003')
       await open()
-      assert.equal(await text().inputValue(), '0003')
+      assert.equal(await controlValue(text()), '0003')
       await call('controls', { filters: 'none' })
       assert.equal(await popup().count(), 0)
       assert.deepEqual((await read()).ids, ['R0003'])
       await call('controls', { filters: 'headers' })
       await open()
-      assert.equal(await text().inputValue(), '0003')
+      assert.equal(await controlValue(text()), '0003')
     },
   )
   await record(
@@ -132,12 +137,12 @@ export async function headerFilterCases({
     async () => {
       await headers()
       await open('priority')
-      const select = popup('priority').getByRole('combobox', {
+      const select = choiceControl(popup('priority'), {
         name: 'Filter priority',
         exact: true,
       })
       assert.equal(await focused(select), true)
-      await select.selectOption('high')
+      await selectValue(select, 'high')
       await select.press('Escape')
       await settle()
       assert.equal(await popup('priority').isVisible(), false)
@@ -147,7 +152,7 @@ export async function headerFilterCases({
       )
       assert.deepEqual((await read()).ids, [])
       await open('priority')
-      assert.equal(await select.inputValue(), 'high')
+      assert.equal(await controlValue(select), 'high')
       await popup('priority')
         .getByRole('button', { name: 'Clear Priority filter', exact: true })
         .press('Enter')
@@ -173,11 +178,12 @@ export async function headerFilterCases({
       )
       assert.equal(await trigger().getAttribute('data-filtered'), 'true')
       assert.deepEqual((await read()).ids, ['R0001'])
-      await popup('priority')
-        .getByRole('combobox', { name: 'Filter priority', exact: true })
-        .press('Escape')
+      await choiceControl(popup('priority'), {
+        name: 'Filter priority',
+        exact: true,
+      }).press('Escape')
       await open()
-      assert.equal(await text().inputValue(), '0001')
+      assert.equal(await controlValue(text()), '0001')
     },
   )
   await record(

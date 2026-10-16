@@ -1,3 +1,7 @@
+import {
+  choiceControl,
+  selectValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 const scope = (page, parent) =>
@@ -59,9 +63,10 @@ export async function viewCases({
     return (await state(parent)).selected
   }
   const choose = async (id, parent) => {
-    await toolbar(page, parent)
-      .getByRole('combobox', { name: 'Saved view', exact: true })
-      .selectOption(id)
+    await selectValue(
+      choiceControl(toolbar(page, parent), { name: 'Saved view', exact: true }),
+      id,
+    )
     await settle()
   }
   const open = async (id) => {
@@ -143,9 +148,13 @@ export async function viewCases({
       await call('summary', 'amount', 'mean')
       await call('summary', 'note', 'distinct')
       await call('visibility', 'id', false)
-      await scope(page)
-        .getByRole('combobox', { name: 'Order Priority groups', exact: true })
-        .selectOption('amount:desc')
+      await selectValue(
+        choiceControl(scope(page), {
+          name: 'Order Priority groups',
+          exact: true,
+        }),
+        'amount:desc',
+      )
       await call('controls', {
         filters: 'both',
         headerSorting: false,
@@ -260,9 +269,10 @@ export async function viewCases({
       const storage = await call('viewStorageRead')
       const area = toolbar(page)
       assert.equal(
-        await area
-          .getByRole('combobox', { name: 'Saved view', exact: true })
-          .isDisabled(),
+        await choiceControl(area, {
+          name: 'Saved view',
+          exact: true,
+        }).isDisabled(),
         true,
       )
       assert.equal(await call('viewChoose', second), false)

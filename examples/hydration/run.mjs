@@ -1,3 +1,7 @@
+import {
+  choiceControl,
+  selectValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
@@ -81,7 +85,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats select"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -173,15 +177,18 @@ try {
       .locator('#adopt-formatted-boolean')
       .getByRole('img', { name: 'No', exact: true }),
   ).toHaveCount(1)
-  await page
-    .getByRole('combobox', { name: 'Hydrated boolean format', exact: true })
-    .selectOption('boolean-text')
-  await page
-    .getByRole('combobox', { name: 'Hydrated date format', exact: true })
-    .selectOption('date-long')
-  await page
-    .getByRole('combobox', { name: 'Hydrated number format', exact: true })
-    .selectOption('number-decimal')
+  await selectValue(
+    choiceControl(page, { name: 'Hydrated boolean format', exact: true }),
+    'boolean-text',
+  )
+  await selectValue(
+    choiceControl(page, { name: 'Hydrated date format', exact: true }),
+    'date-long',
+  )
+  await selectValue(
+    choiceControl(page, { name: 'Hydrated number format', exact: true }),
+    'number-decimal',
+  )
   const pendingName = page
     .locator('#adopt-table')
     .getByRole('textbox', { name: 'Name', exact: true })
@@ -253,9 +260,11 @@ try {
     name: 'Hydrated text',
     exact: true,
   })
-  const statusMatch = page.getByRole('button', {
-    name: /^Hydrated status(?:\s|$)/,
-  })
+  const statusMatch = page
+    .getByRole('button', {
+      name: /^Hydrated status(?:\s|$)/,
+    })
+    .and(page.locator(':not([data-ui-text="system"])'))
   const minimum = page.getByRole('spinbutton', {
     name: 'Hydrated amount minimum',
     exact: true,

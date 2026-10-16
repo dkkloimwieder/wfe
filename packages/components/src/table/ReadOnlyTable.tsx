@@ -1,6 +1,7 @@
 import { For, Show, createMemo, createStore } from 'solid-js'
 import { Checkbox } from '../components/Checkbox'
-import { Button, NativeSelect } from '../components/NativeFields'
+import { Button } from '../components/NativeFields'
+import { SelectField } from '../components/Select'
 import { createTableFilterDraft } from './createTableFilterDraft'
 import type { TableFilterCriteria } from './createTableFilterDraft'
 import { TableSort } from './TableSort'
@@ -308,18 +309,19 @@ export function ReadOnlyTable<T, M>(props: {
                       </Checkbox.Control>
                       <Checkbox.Label>{label(column)}</Checkbox.Label>
                     </Checkbox>
-                    <NativeSelect
+                    <SelectField
                       data-ui-text="system"
-                      aria-label={`${label(column)} alignment`}
+                      label={`${label(column)} alignment`}
+                      choices={[
+                        { value: 'left', label: 'Left' },
+                        { value: 'center', label: 'Center' },
+                        { value: 'right', label: 'Right' },
+                      ]}
                       value={alignment()[column.id] ?? 'left'}
                       onValueChange={(value) =>
                         changeAlignment(column.id, value)
                       }
-                    >
-                      <option value="left">Left</option>
-                      <option value="center">Center</option>
-                      <option value="right">Right</option>
-                    </NativeSelect>
+                    />
                   </div>
                 )}
               </For>

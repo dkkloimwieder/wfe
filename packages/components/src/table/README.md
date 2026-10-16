@@ -48,12 +48,14 @@ The suite also covers hydration, cleanup, vendor integrity, and import ownership
 
 ## Shared controls
 
-Table controls use the shared Button, Input, and NativeSelect components.
+Table controls use the shared Button, Input, and Select components.
+SelectField composes the same Select parts for a simple string choice.
+The trigger owns the chevron and spacing. Filters do not supply another icon.
 Native header popovers and pointer gestures retain their existing browser behavior and event cleanup.
 Header renaming uses an uncontrolled Input draft until Enter or blur commits it.
 Escape discards that draft and restores the rename button focus.
 
-`TableChoiceEditor` renders a native select for a complete small choice list.
+`TableChoiceEditor` renders the shared Select composition for a complete small choice list.
 `TableChoiceEditorProps` defines values, labels, choices, disabled and invalid state, and callbacks.
 `TableChoice` defines a string value, label, and optional disabled state.
 The application can implement another editor with the same interface and pass it through its row renderer.
@@ -65,3 +67,10 @@ TableGrouping defaults to summaries over filtered records and accepts caller `su
 Editing adapters supply any saved-record wording that their processing rules require.
 Read-only and analytics controls retain generic defaults.
 The application keeps editing locks, validation, revisions, stale responses, named views, actions, and server export descriptors.
+
+SelectField accepts application-owned `choices`, `value`, and `onValueChange` props.
+Each choice supplies a string value, label, and optional disabled state.
+Use `label` for the accessible name and `name` for native form submission.
+The `ref` points to the trigger button.
+TableFilter.controlRef receives an input or trigger button, depending on its filter kind.
+All editable field surfaces share hover feedback through `--ui-control-hover`, which defaults to `--ui-highlight`.

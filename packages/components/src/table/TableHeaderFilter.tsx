@@ -23,7 +23,7 @@ export function TableHeaderFilter(
   const [open, setOpen] = createSignal(false)
   let trigger: HTMLButtonElement | undefined
   let popup: HTMLDivElement | undefined
-  let control: HTMLInputElement | HTMLSelectElement | undefined
+  let control: HTMLInputElement | HTMLButtonElement | undefined
 
   function position() {
     if (!trigger || !popup) return
@@ -115,7 +115,12 @@ export function TableHeaderFilter(
               setOpen((event as ToggleEvent).newState === 'open')
             },
             keydown: (event) => {
-              if (event.isComposing || event.keyCode === 229) return
+              if (
+                event.defaultPrevented ||
+                event.isComposing ||
+                event.keyCode === 229
+              )
+                return
               if (
                 event.key === 'Escape' ||
                 (event.key === 'Enter' &&

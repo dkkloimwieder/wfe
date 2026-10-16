@@ -7,8 +7,8 @@ import {
   createUniqueId,
   untrack,
 } from 'solid-js'
-import { Button, Input, NativeSelect } from '../components/NativeFields'
-import { Select } from '../components/Select'
+import { Button, Input } from '../components/NativeFields'
+import { Select, SelectField } from '../components/Select'
 import { nativeEvents } from '../utils/nativeEvents'
 import type { TableChoice } from './TableChoiceEditor'
 
@@ -172,22 +172,22 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
           ×
         </Button>
       </div>
-      <NativeSelect
-        aria-label={`${props.label} match`}
+      <SelectField
+        label={`${props.label} match`}
         data-ui-text="system"
         value={operator()}
         disabled={props.disabled}
         ref={(node) => {
           control = node
         }}
+        choices={operations().map(([value, label]) => ({
+          value: value!,
+          label: label!,
+        }))}
         onValueChange={(value) =>
           changeOperator(value as TableColumnFilterValue['operator'])
         }
-      >
-        <For each={operations()}>
-          {(entry) => <option value={entry[0]}>{entry[1]}</option>}
-        </For>
-      </NativeSelect>
+      />
       <Show when={operator() !== 'empty' && operator() !== 'not-empty'}>
         <Show when={props.config.kind === 'text'}>
           <Input
@@ -295,11 +295,6 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
                         .join(', ')
                     }
                   </Select.Value>
-                  <Select.Icon aria-hidden="true">
-                    <svg class="ui-filter-chevron" viewBox="0 0 10 6">
-                      <path d="m1 1 4 4 4-4" />
-                    </svg>
-                  </Select.Icon>
                 </Select.Trigger>
                 <Select.Portal>
                   <Select.Content>

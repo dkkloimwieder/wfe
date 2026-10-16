@@ -1,3 +1,4 @@
+import { selectValue } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 export async function editingCallbackCases({
@@ -48,7 +49,7 @@ export async function editingCallbackCases({
           .getByRole('listbox')
           .getByRole('option', { name: 'Low', exact: true })
           .click()
-      } else await editor.selectOption('low')
+      } else await selectValue(editor, 'low')
       await save()
       await idle()
       const application = await call('applicationRead')

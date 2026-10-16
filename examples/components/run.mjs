@@ -330,7 +330,7 @@ try {
       await page.evaluate(() =>
         window.popupFixture.configure({ value: 'high' }),
       )
-      assert.equal(await page.locator('[data-editor]').innerText(), 'High\n▾')
+      assert.equal(await page.locator('[data-editor]').innerText(), 'High')
     },
   )
   await record(

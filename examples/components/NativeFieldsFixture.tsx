@@ -9,6 +9,7 @@ import {
   InputGroup,
   Label,
   NativeSelect,
+  SelectField,
   Textarea,
   uiScope,
 } from '@wfe/components'
@@ -201,6 +202,23 @@ export function NativeFieldsFixture() {
           </IconButton>
           <Button type="submit">Submit form</Button>
         </FieldSet>
+      </form>
+      <form data-select-field-form="">
+        <SelectField
+          label="Shared choice"
+          name="shared-choice"
+          choices={[
+            { value: 'alpha', label: 'Alpha' },
+            { value: 'beta', label: 'Beta' },
+            { value: 'disabled', label: 'Disabled', disabled: true },
+          ]}
+          value={choice()}
+          disabled={disabled()}
+          invalid={invalid()}
+          onValueChange={(value) => {
+            if (accept()) setChoice(value)
+          }}
+        />
       </form>
       <p id="extra-help">Caller description.</p>
       <button

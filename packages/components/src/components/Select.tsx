@@ -1,6 +1,6 @@
 import * as Core from '../internal/controls/select'
 import { callHandler } from '../internal/events'
-import { Show, omit } from 'solid-js'
+import { Show, omit, untrack } from 'solid-js'
 import { ChoiceScope, createChoiceScope, useChoiceScope } from './choiceScope'
 import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
@@ -49,7 +49,7 @@ export function SelectTrigger<T extends ValidComponent = 'button'>(
     <Primitive
       {...props}
       class={'popup-trigger ' + (props.class ?? '')}
-      ref={[scope.setControl, props.ref]}
+      ref={[scope.setControl, untrack(() => props.ref)]}
     />
   )
 }
@@ -71,7 +71,7 @@ export function SelectContent<T extends ValidComponent = 'div'>(
     <Primitive
       {...rest}
       class={'popup-content ' + (props.class ?? '')}
-      ref={[scope.setContent, props.ref]}
+      ref={[scope.setContent, untrack(() => props.ref)]}
       onPointerDownOutside={(event) => {
         props.onPointerDownOutside?.(event)
         if (!event.defaultPrevented) scope.outside()
@@ -145,6 +145,93 @@ export function SelectListbox<
 ) {
   const Primitive = Core.Listbox as Component<typeof props>
   return <Primitive {...props} class={'popup-listbox ' + (props.class ?? '')} />
+}
+
+export type SelectChoice = { value: string; label: string; disabled?: boolean }
+export type SelectFieldProps = Omit<
+  PolymorphicProps<'button', Core.SelectTriggerProps<'button'>>,
+  'children' | 'value' | 'onChange' | 'disabled' | 'class' | 'name'
+> & {
+  class?: string
+  'data-ui-text'?: 'system' | 'value' | 'prose'
+  name?: string
+  contentProps?: { [key: `data-${string}`]: string | undefined }
+  disabled?: boolean
+  label: string
+  choices: readonly SelectChoice[]
+  value: string | undefined
+  onValueChange: (value: string) => void
+  placeholder?: string
+  invalid?: boolean
+}
+
+/** A single choice composed from the same Select parts as multiple choices. */
+export function SelectField(props: SelectFieldProps) {
+  const rest = omit(
+    props,
+    'label',
+    'choices',
+    'value',
+    'onValueChange',
+    'placeholder',
+    'invalid',
+    'disabled',
+    'name',
+    'contentProps',
+  )
+  return (
+    <SelectRoot<SelectChoice>
+      class="ui-select-field"
+      name={props.name}
+      options={[...props.choices]}
+      optionValue="value"
+      optionTextValue="label"
+      optionDisabled="disabled"
+      value={
+        props.choices.find((choice) => choice.value === props.value) ?? null
+      }
+      onChange={(choice) =>
+        untrack(() => props.onValueChange(choice?.value ?? ''))
+      }
+      disabled={props.disabled}
+      validationState={props.invalid ? 'invalid' : undefined}
+      placeholder={props.placeholder}
+      itemComponent={(item) => (
+        <SelectItem
+          item={item.item}
+          data-choice-value={item.item.rawValue.value}
+        >
+          <Core.ItemLabel>{item.item.rawValue.label}</Core.ItemLabel>
+          <SelectItemIndicator>
+            <svg class="ui-check-mark" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="m2 8 4 4 8-9" />
+            </svg>
+          </SelectItemIndicator>
+        </SelectItem>
+      )}
+    >
+      <SelectTrigger
+        {...rest}
+        aria-label={props.label}
+        data-value={props.value ?? ''}
+      >
+        <Core.Value<SelectChoice>>
+          {(state) => state.selectedOption()?.label}
+        </Core.Value>
+      </SelectTrigger>
+      <Show when={props.name}>
+        <Core.HiddenSelect />
+      </Show>
+      <SelectPortal>
+        <SelectContent
+          {...props.contentProps}
+          data-ui-text={props['data-ui-text']}
+        >
+          <SelectListbox />
+        </SelectContent>
+      </SelectPortal>
+    </SelectRoot>
+  )
 }
 
 export const Select = /* @__PURE__ */ Object.assign(SelectRoot, {

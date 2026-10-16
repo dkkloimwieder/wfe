@@ -1,3 +1,8 @@
+import {
+  choiceControl,
+  selectValue,
+  controlValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 export async function groupingCases({
@@ -13,8 +18,7 @@ export async function groupingCases({
   save,
   focused,
 }) {
-  const add = () =>
-    page.getByRole('combobox', { name: 'Add grouping', exact: true })
+  const add = () => choiceControl(page, { name: 'Add grouping', exact: true })
   const button = (name) => page.getByRole('button', { name, exact: true })
   const group = (label) =>
     page.locator('tr[data-group]').filter({
@@ -28,7 +32,7 @@ export async function groupingCases({
         ),
     })
   const order = (name) =>
-    page.getByRole('combobox', { name: `Order ${name} groups`, exact: true })
+    choiceControl(page, { name: `Order ${name} groups`, exact: true })
   async function seed(mode = 'row') {
     await start(8, mode)
     await call('patch', 'R0001', {
@@ -47,7 +51,7 @@ export async function groupingCases({
       priority: 'normal',
       note: 'Fourth note',
     })
-    await add().selectOption('priority')
+    await selectValue(add(), 'priority')
     await settle()
   }
   await record(
@@ -60,7 +64,7 @@ export async function groupingCases({
       await group('Priority: high').evaluate((node) => {
         node.dataset.retained = 'yes'
       })
-      await add().selectOption('name')
+      await selectValue(add(), 'name')
       await button('Expand Priority level').click()
       assert.equal(await page.locator('[data-row]').count(), 0)
       await button('Expand Name initial level').click()
@@ -76,7 +80,7 @@ export async function groupingCases({
         await group('Priority: high').getAttribute('data-retained'),
         'yes',
       )
-      await order('Priority').selectOption('value:desc')
+      await selectValue(order('Priority'), 'value:desc')
       await button('Move Name initial up').click()
       await settle()
       assert.deepEqual((await read()).grouping, ['name', 'priority'])
@@ -99,12 +103,12 @@ export async function groupingCases({
     'group ordering uses values or selected summaries while leaf sorting stays independent',
     async () => {
       await seed()
-      await order('Priority').selectOption('value:asc')
+      await selectValue(order('Priority'), 'value:asc')
       assert.equal(
         await page.locator('[data-group-toggle]').first().innerText(),
         '▸ low',
       )
-      await order('Priority').selectOption('note:desc')
+      await selectValue(order('Priority'), 'note:desc')
       assert.equal(
         await page.locator('[data-group-toggle]').first().innerText(),
         '▸ normal',
@@ -119,9 +123,10 @@ export async function groupingCases({
         await page.locator('[data-summary-header=note]').innerText(),
         'FILLED',
       )
-      await page
-        .getByRole('combobox', { name: 'Note summary', exact: true })
-        .selectOption('distinct')
+      await selectValue(
+        choiceControl(page, { name: 'Note summary', exact: true }),
+        'distinct',
+      )
       assert.equal(
         await group('Priority: high')
           .locator('[data-group-summary=note]')
@@ -149,9 +154,10 @@ export async function groupingCases({
           'R0002',
         ],
       )
-      await page
-        .getByRole('combobox', { name: 'Note summary', exact: true })
-        .selectOption('none')
+      await selectValue(
+        choiceControl(page, { name: 'Note summary', exact: true }),
+        'none',
+      )
       assert.equal(await page.locator('[data-group-summary=note]').count(), 0)
     },
   )
@@ -222,7 +228,7 @@ export async function groupingCases({
       await call('grouping', [])
       await edit('R0001', 'note').click()
       assert.equal(
-        await input('R0001', 'note').inputValue(),
+        await controlValue(input('R0001', 'note')),
         'Saved before grouping',
       )
     },
@@ -307,7 +313,7 @@ export async function groupingCases({
       assert.deepEqual((await read()).drafts, {})
       assert.equal((await read()).sample[0].note, 'Held before grouping')
       assert.ok(await focused(button('After table')))
-      await add().selectOption('priority')
+      await selectValue(add(), 'priority')
       assert.equal(await page.locator('[data-row]').count(), 0)
     },
   )
@@ -333,7 +339,7 @@ export async function groupingCases({
     'repeated same-bucket updates and summary changes retain group DOM and release collapsed views',
     async () => {
       await seed()
-      await add().selectOption('name')
+      await selectValue(add(), 'name')
       await button('Expand all groups').click()
       const target = group('Priority: high / Name initial: A')
       await target.evaluate((node) => {

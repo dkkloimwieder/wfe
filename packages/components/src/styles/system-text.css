@@ -57,7 +57,8 @@
     .grouping-controls option,
     .popup-trigger [data-placeholder-shown],
     [data-ui-text='system'],
-    [data-ui-text='system'] > option
+    [data-ui-text='system'] > option,
+    .popup-content[data-ui-text='system'] .popup-option
   ) {
   text-transform: uppercase;
 }

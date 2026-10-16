@@ -33,7 +33,6 @@ export function PopupPriorityEditor(props: TableChoiceEditorProps) {
         <Select.Value<FieldChoice>>
           {(state) => state.selectedOption().label}
         </Select.Value>
-        <span aria-hidden="true">▾</span>
       </Select.Trigger>
       <Select.Portal>
         <Select.Content data-table-editor-owner={props.ownerId}>

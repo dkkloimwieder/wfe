@@ -1,5 +1,4 @@
-import { For } from 'solid-js'
-import { NativeSelect } from '../components/NativeFields'
+import { SelectField } from '../components/Select'
 
 export type TableChoice = { value: string; label: string; disabled?: boolean }
 export type TableChoiceEditorProps<Choice extends TableChoice = TableChoice> = {
@@ -20,26 +19,18 @@ export function TableChoiceEditor<Choice extends TableChoice = TableChoice>(
   props: TableChoiceEditorProps<Choice>,
 ) {
   return (
-    <NativeSelect
+    <SelectField
       data-editor={props.editorId}
-      aria-label={props.label}
+      label={props.label}
+      placeholder={props.placeholder}
+      choices={props.choices}
+      contentProps={{ 'data-table-editor-owner': props.ownerId }}
       aria-describedby={props.describedBy}
       invalid={props.invalid}
       value={props.value}
       disabled={props.disabled}
       onFocus={() => props.onFocus?.()}
       onValueChange={props.onValueChange}
-    >
-      <option value="" disabled>
-        {props.placeholder}
-      </option>
-      <For each={props.choices}>
-        {(choice) => (
-          <option value={choice.value} disabled={choice.disabled}>
-            {choice.label}
-          </option>
-        )}
-      </For>
-    </NativeSelect>
+    />
   )
 }

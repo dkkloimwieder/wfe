@@ -1,3 +1,8 @@
+import {
+  choiceControl,
+  selectValue,
+  controlValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 export async function subtableCases({
@@ -62,12 +67,14 @@ export async function subtableCases({
           (node) => node.getBoundingClientRect().width,
         )
         assert.ok(width <= 342)
-        await child()
-          .getByRole('combobox', { name: 'Save mode', exact: true })
-          .scrollIntoViewIfNeeded()
-        await child()
-          .getByRole('combobox', { name: 'Save mode', exact: true })
-          .selectOption('row')
+        await choiceControl(child(), {
+          name: 'Save mode',
+          exact: true,
+        }).scrollIntoViewIfNeeded()
+        await selectValue(
+          choiceControl(child(), { name: 'Save mode', exact: true }),
+          'row',
+        )
       } finally {
         await page.setViewportSize({ width: 1280, height: 900 })
       }
@@ -212,9 +219,10 @@ export async function subtableCases({
       assert.equal((await childRead()).ids.length, 1)
       assert.equal((await read()).ids.length, 8)
       assert.equal((await childRead('R0002')).ids.length, 5)
-      await child()
-        .getByRole('combobox', { name: 'Save mode', exact: true })
-        .selectOption('row')
+      await selectValue(
+        choiceControl(child(), { name: 'Save mode', exact: true }),
+        'row',
+      )
       const resize = child().getByRole('separator', {
         name: 'Resize Name column',
         exact: true,
@@ -225,12 +233,14 @@ export async function subtableCases({
         .getByRole('button', { name: 'Move Name column', exact: true })
         .focus()
       await page.keyboard.press('ArrowRight')
-      await child()
-        .getByRole('combobox', { name: 'Add grouping', exact: true })
-        .selectOption('priority')
-      await child()
-        .getByRole('combobox', { name: 'Amount summary', exact: true })
-        .selectOption('median')
+      await selectValue(
+        choiceControl(child(), { name: 'Add grouping', exact: true }),
+        'priority',
+      )
+      await selectValue(
+        choiceControl(child(), { name: 'Amount summary', exact: true }),
+        'median',
+      )
       const before = await childRead()
       await toggle().click()
       await open()
@@ -249,9 +259,9 @@ export async function subtableCases({
         .getByRole('button', { name: 'Clear grouping', exact: true })
         .click()
       assert.equal(
-        await child()
-          .getByRole('combobox', { name: 'Save mode', exact: true })
-          .inputValue(),
+        await controlValue(
+          choiceControl(child(), { name: 'Save mode', exact: true }),
+        ),
         'row',
       )
     },

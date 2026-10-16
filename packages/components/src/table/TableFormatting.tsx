@@ -1,5 +1,5 @@
 import { For, createUniqueId } from 'solid-js'
-import { NativeSelect } from '../components/NativeFields'
+import { SelectField } from '../components/Select'
 import type { ValueFormat } from '../utils/valueFormat'
 
 const choices: Record<
@@ -42,8 +42,10 @@ export function TableFormatting(props: TableFormattingProps) {
           return (
             <div class="table-filter">
               <label for={id}>{column.label}</label>
-              <NativeSelect
+              <SelectField
                 id={id}
+                label={column.label}
+                choices={choices[column.kind]}
                 value={props.value[column.id] ?? choices[column.kind][0]!.value}
                 disabled={props.disabled}
                 data-ui-text="system"
@@ -53,13 +55,7 @@ export function TableFormatting(props: TableFormattingProps) {
                   )
                   if (choice) props.onValueChange(column.id, choice.value)
                 }}
-              >
-                <For each={choices[column.kind]}>
-                  {(choice) => (
-                    <option value={choice.value}>{choice.label}</option>
-                  )}
-                </For>
-              </NativeSelect>
+              />
             </div>
           )
         }}

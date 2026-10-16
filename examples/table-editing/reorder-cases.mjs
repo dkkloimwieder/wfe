@@ -1,3 +1,7 @@
+import {
+  choiceControl,
+  selectValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 const initial = ['id', 'name', 'note', 'priority', 'amount', 'dueDate']
@@ -382,11 +386,11 @@ export async function reorderCases({
     async () => {
       await start()
       await edit('R0001', 'priority').click()
-      const select = page.getByRole('combobox', {
+      const select = choiceControl(page, {
         name: 'Priority R0001',
         exact: true,
       })
-      await select.selectOption('high')
+      await selectValue(select, 'high')
       await select.focus()
       await call('order', ['priority', 'name', 'note'])
       await settle()

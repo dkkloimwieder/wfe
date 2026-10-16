@@ -1,5 +1,6 @@
 import { For, Show, onSettled } from 'solid-js'
-import { Button, NativeSelect } from '../components/NativeFields'
+import { Button } from '../components/NativeFields'
+import { SelectField } from '../components/Select'
 import { nativeEvents } from '../utils/nativeEvents'
 import type { JSX } from '@solidjs/web'
 import type { NativeTable } from './engine'
@@ -30,7 +31,7 @@ export function TableGrouping<T, M>(props: {
     table.setGrouping(next)
     table.setGroupSorting(sorting)
   }
-  let addControl!: HTMLSelectElement
+  let addControl!: HTMLButtonElement
   const label = (id: string) => props.label(id)
   function move(id: string, offset: number) {
     const next = [...table.state.grouping]
@@ -68,36 +69,30 @@ export function TableGrouping<T, M>(props: {
       <div class="grouping-toolbar">
         <label>
           Add grouping
-          <NativeSelect
+          <SelectField
+            data-ui-text="system"
+            label="Add grouping"
             value=""
-            ref={[
-              (node) => {
-                addControl = node
-              },
-              nativeEvents<HTMLSelectElement>({
-                change: (event) => {
-                  const id = event.currentTarget.value
-                  if (id && !table.state.grouping.includes(id))
-                    configureGrouping([...table.state.grouping, id])
-                  event.currentTarget.value = ''
-                },
-              }),
+            disabled={props.disabled}
+            ref={(node) => {
+              addControl = node
+            }}
+            choices={[
+              { value: '', label: 'Choose a column' },
+              ...table
+                .getColumns()
+                .filter((column) => props.groupable(column.id))
+                .map((column) => ({
+                  value: column.id,
+                  label: label(column.id),
+                  disabled: table.state.grouping.includes(column.id),
+                })),
             ]}
-          >
-            <option value="">Choose a column</option>
-            <For each={table.getColumns()}>
-              {(column) => (
-                <Show when={props.groupable(column.id)}>
-                  <option
-                    value={column.id}
-                    disabled={table.state.grouping.includes(column.id)}
-                  >
-                    {label(column.id)}
-                  </option>
-                </Show>
-              )}
-            </For>
-          </NativeSelect>
+            onValueChange={(id) => {
+              if (id && !table.state.grouping.includes(id))
+                configureGrouping([...table.state.grouping, id])
+            }}
+          />
         </label>
         <Show when={table.state.grouping.length > 0}>
           <Button
@@ -130,7 +125,7 @@ export function TableGrouping<T, M>(props: {
         <ol class="grouping-levels" aria-label="Grouping levels">
           <For each={table.state.grouping}>
             {(id, index) => {
-              let orderControl!: HTMLSelectElement
+              let orderControl!: HTMLButtonElement
               return (
                 <li data-group-level={id}>
                   <span class="grouping-level-label">
@@ -166,49 +161,38 @@ export function TableGrouping<T, M>(props: {
                   </div>
                   <label>
                     Order {label(id)} groups
-                    <NativeSelect
+                    <SelectField
+                      data-ui-text="system"
+                      label={`Order ${label(id)} groups`}
                       value={orderValue(index(), id)}
-                      ref={[
-                        (node) => {
-                          orderControl = node
+                      disabled={props.disabled}
+                      ref={(node) => {
+                        orderControl = node
+                      }}
+                      onValueChange={(value) => setOrder(index(), id, value)}
+                      choices={[
+                        { value: '', label: 'Record order' },
+                        { value: 'value:asc', label: 'Group value: ascending' },
+                        {
+                          value: 'value:desc',
+                          label: 'Group value: descending',
                         },
-                        nativeEvents<HTMLSelectElement>({
-                          change: (event) =>
-                            setOrder(index(), id, event.currentTarget.value),
-                        }),
-                      ]}
-                    >
-                      <option value="">Record order</option>
-                      <option value="value:asc">Group value: ascending</option>
-                      <option value="value:desc">
-                        Group value: descending
-                      </option>
-                      <For each={table.getColumns()}>
-                        {(column) => (
-                          <Show
-                            when={
+                        ...table
+                          .getColumns()
+                          .filter(
+                            (column) =>
                               column.id !== id &&
-                              props.summaryChoices?.(column.id)
-                            }
-                          >
-                            <option
-                              value={`${column.id}:asc`}
-                              disabled={props.summary?.(column.id) === 'none'}
-                            >
-                              {String(column.columnDef?.header)} summary:
-                              ascending
-                            </option>
-                            <option
-                              value={`${column.id}:desc`}
-                              disabled={props.summary?.(column.id) === 'none'}
-                            >
-                              {String(column.columnDef?.header)} summary:
-                              descending
-                            </option>
-                          </Show>
-                        )}
-                      </For>
-                    </NativeSelect>
+                              props.summaryChoices?.(column.id),
+                          )
+                          .flatMap((column) =>
+                            ['asc', 'desc'].map((direction) => ({
+                              value: `${column.id}:${direction}`,
+                              label: `${String(column.columnDef?.header)} summary: ${direction === 'asc' ? 'ascending' : 'descending'}`,
+                              disabled: props.summary?.(column.id) === 'none',
+                            })),
+                          ),
+                      ]}
+                    />
                   </label>
                   <div class="grouping-level-actions">
                     <Button
@@ -260,22 +244,16 @@ export function TableGrouping<T, M>(props: {
               {(column) => (
                 <label>
                   {String(column.columnDef?.header)} summary
-                  <NativeSelect
+                  <SelectField
+                    data-ui-text="system"
+                    label={`${String(column.columnDef?.header)} summary`}
                     value={props.summary?.(column.id)}
-                    ref={nativeEvents<HTMLSelectElement>({
-                      change: (event) =>
-                        props.setSummary?.(
-                          column.id,
-                          event.currentTarget.value,
-                        ),
-                    })}
-                  >
-                    <For each={props.summaryChoices?.(column.id)}>
-                      {(choice) => (
-                        <option value={choice.value}>{choice.label}</option>
-                      )}
-                    </For>
-                  </NativeSelect>
+                    disabled={props.disabled}
+                    choices={props.summaryChoices?.(column.id) ?? []}
+                    onValueChange={(value) =>
+                      props.setSummary?.(column.id, value)
+                    }
+                  />
                 </label>
               )}
             </For>

@@ -1,3 +1,9 @@
+import {
+  choiceControl,
+  selectValue,
+  controlValue,
+  choiceOptions,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 export async function fieldConfigurationCases({
@@ -26,7 +32,7 @@ export async function fieldConfigurationCases({
         .getByRole('listbox')
         .getByRole('option', { name: label, exact: true })
         .click()
-    } else await editor(within).selectOption(value)
+    } else await selectValue(editor(within), value)
     await settle()
   }
   await record(
@@ -60,17 +66,12 @@ export async function fieldConfigurationCases({
         assert.equal(await options.last().getAttribute('aria-disabled'), 'true')
         await page.keyboard.press('Escape')
       } else {
-        assert.deepEqual(await editor().locator('option').allTextContents(), [
-          'Choose workflow',
-          'Queued',
-          'Active',
-          'Done',
-          'Blocked',
-        ])
-        assert.equal(
-          await editor().locator('option[value="blocked"]').isDisabled(),
-          true,
+        const options = await choiceOptions(editor())
+        assert.deepEqual(
+          options.map((option) => option.label),
+          ['Queued', 'Active', 'Done', 'Blocked'],
         )
+        assert.equal(options.at(-1).disabled, true)
       }
       await choose('done', 'Done')
       await root()
@@ -82,30 +83,25 @@ export async function fieldConfigurationCases({
       assert.equal(value.sample[0].priority, 'done')
       assert.equal(value.counts.requests, 1)
       await call('controls', { filters: 'external' })
-      const filter = root().getByRole('combobox', {
+      const filter = choiceControl(root(), {
         name: 'Filter workflow',
         exact: true,
       })
-      assert.deepEqual(await filter.locator('option').allTextContents(), [
-        'All',
-        'Queued',
-        'Active',
-        'Done',
-        'Blocked',
-      ])
-      assert.equal(
-        await filter.locator('option[value="blocked"]').isDisabled(),
-        true,
+      const options = await choiceOptions(filter)
+      assert.deepEqual(
+        options.map((option) => option.label),
+        ['All', 'Queued', 'Active', 'Done', 'Blocked'],
       )
-      await filter.selectOption('done')
+      assert.equal(options.at(-1).disabled, true)
+      await selectValue(filter, 'done')
       await settle()
       assert.deepEqual((await read()).ids, ['R0001'])
       await call('controls', { filters: 'headers' })
       await root().locator('[data-header-filter="priority"]').click()
       assert.equal(
-        await root()
-          .getByRole('combobox', { name: 'Filter workflow', exact: true })
-          .inputValue(),
+        await controlValue(
+          choiceControl(root(), { name: 'Filter workflow', exact: true }),
+        ),
         'done',
       )
     },

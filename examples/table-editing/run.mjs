@@ -1,3 +1,8 @@
+import {
+  choiceControl,
+  selectValue,
+  controlValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { createWriteStream } from 'node:fs'
@@ -68,11 +73,11 @@ if (!externalUrl) {
   )
   assert.ok(
     ownedControlModules.every((path) =>
-      /\/utils\/src\/|\/core\/src\/(checkbox|form-control|polymorphic)\/|\/core\/src\/primitives\/(create-tag-name|create-toggle-state)\//.test(
+      /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
         path,
       ),
     ),
-    'editing retains only shared checkbox behavior and its support modules',
+    'editing retains only shared checkbox and select behavior with their support modules',
   )
   assert.ok(modules.some((path) => /zod\/v4\/mini\//.test(path)))
   assert.ok(!modules.some((path) => /zod\/v4\/classic\//.test(path)))
@@ -185,7 +190,7 @@ try {
   const save = (id = 'R0001') =>
     page.getByRole('button', { name: `Save ${id}`, exact: true })
   const select = (id = 'R0001') =>
-    page.getByRole('combobox', { name: `Priority ${id}`, exact: true })
+    choiceControl(page, { name: `Priority ${id}`, exact: true })
   const focused = (locator) =>
     locator.evaluate((node) => node === document.activeElement)
   const idle = async () => {
@@ -256,7 +261,7 @@ try {
   const noteFilter = () =>
     filters().getByRole('textbox', { name: 'Filter saved notes', exact: true })
   const priorityFilter = () =>
-    filters().getByRole('combobox', { name: 'Filter priority', exact: true })
+    choiceControl(filters(), { name: 'Filter priority', exact: true })
   const search = () =>
     page.getByRole('searchbox', { name: 'Search all columns', exact: true })
   const results = () =>
@@ -358,7 +363,7 @@ try {
       await call('patch', 'R0002', { priority: 'low' })
       await nameFilter().fill('  RECORD 000  ')
       await noteFilter().fill('NOTE 1')
-      await priorityFilter().selectOption('high')
+      await selectValue(priorityFilter(), 'high')
       await settle()
       assert.deepEqual((await read()).ids, ['R0001'])
       assert.equal((await read()).filters.length, 3)
@@ -385,11 +390,11 @@ try {
       await start()
       await nameFilter().fill('0001')
       await page.getByText('Display options', { exact: true }).click()
-      const placement = page.getByRole('combobox', {
+      const placement = choiceControl(page, {
         name: 'Column filter controls',
         exact: true,
       })
-      await placement.selectOption('both')
+      await selectValue(placement, 'both')
       await page
         .getByRole('button', { name: 'Filter Name', exact: true })
         .click()
@@ -398,10 +403,10 @@ try {
         exact: true,
         includeHidden: true,
       })
-      assert.equal(await header.inputValue(), '0001')
+      assert.equal(await controlValue(header), '0001')
       await header.fill('0002')
       await settle()
-      assert.equal(await nameFilter().inputValue(), '0002')
+      assert.equal(await controlValue(nameFilter()), '0002')
       assert.deepEqual((await read()).ids, ['R0002'])
       await page
         .getByRole('checkbox', { name: 'Header sorting', exact: true })
@@ -412,15 +417,15 @@ try {
           .count(),
         0,
       )
-      await placement.selectOption('headers')
+      await selectValue(placement, 'headers')
       assert.equal(await filters().count(), 0)
-      assert.equal(await header.inputValue(), '0002')
-      await placement.selectOption('none')
+      assert.equal(await controlValue(header), '0002')
+      await selectValue(placement, 'none')
       assert.equal(await header.count(), 0)
       assert.deepEqual((await read()).ids, ['R0002'])
       await call('filter', 'name', '0003')
-      await placement.selectOption('external')
-      assert.equal(await nameFilter().inputValue(), '0003')
+      await selectValue(placement, 'external')
+      assert.equal(await controlValue(nameFilter()), '0003')
       await page
         .getByRole('checkbox', { name: 'Header sorting', exact: true })
         .check()
@@ -453,16 +458,16 @@ try {
       assert.deepEqual((await read()).ids, ['R0010', 'R0011', 'R0012'])
       await search().press('Escape')
       await settle()
-      assert.equal(await search().inputValue(), '')
-      assert.equal(await nameFilter().inputValue(), 'Record 001')
+      assert.equal(await controlValue(search()), '')
+      assert.equal(await controlValue(nameFilter()), 'Record 001')
       assert.ok(await focused(search()))
       await call('search', 'Note 12')
-      assert.equal(await search().inputValue(), 'Note 12')
+      assert.equal(await controlValue(search()), 'Note 12')
       await call('controls', { globalSearch: false })
       assert.equal(await search().count(), 0)
       assert.deepEqual((await read()).ids, ['R0012'])
       await call('controls', { globalSearch: true })
-      assert.equal(await search().inputValue(), 'Note 12')
+      assert.equal(await controlValue(search()), 'Note 12')
       await page
         .getByRole('button', { name: 'Clear search', exact: true })
         .click()
@@ -543,10 +548,10 @@ try {
           .isDisabled(),
         true,
       )
-      assert.equal(await nameFilter().inputValue(), '0001')
+      assert.equal(await controlValue(nameFilter()), '0001')
       await call('localProcessing', true)
       assert.deepEqual((await read()).ids, ['R0001'])
-      assert.equal(await search().inputValue(), 'Note 1')
+      assert.equal(await controlValue(search()), 'Note 1')
     },
   )
   await record(
@@ -590,9 +595,9 @@ try {
       await call('search', 'Note 2')
       await call('filter', 'note', 'Note 2')
       await settle()
-      assert.equal(await search().inputValue(), '')
-      assert.equal(await noteFilter().inputValue(), '')
-      assert.equal(await input('R0001', 'note').inputValue(), 'Unique draft')
+      assert.equal(await controlValue(search()), '')
+      assert.equal(await controlValue(noteFilter()), '')
+      assert.equal(await controlValue(input('R0001', 'note')), 'Unique draft')
       assert.equal((await read()).counts.requests, 0)
     },
   )
@@ -731,7 +736,7 @@ try {
       assert.equal((await read()).sample[0].name, 'Record 0001')
       assert.equal((await read()).counts.requests, 0)
       await edit('R0001', 'note').click()
-      assert.equal(await input().inputValue(), 'Draft on display')
+      assert.equal(await controlValue(input()), 'Draft on display')
       assert.ok(await focused(input('R0001', 'note')))
       await page
         .getByRole('button', { name: 'Cancel R0001', exact: true })
@@ -749,7 +754,7 @@ try {
     async () => {
       await start()
       await edit('R0001', 'priority').click()
-      await select().selectOption('high')
+      await selectValue(select(), 'high')
       await page.keyboard.press('Tab')
       assert.ok(await focused(save()))
       await page.keyboard.press('Tab')
@@ -781,7 +786,8 @@ try {
       await page.keyboard.press('Shift+Tab')
       assert.ok(await focused(edit('R0001', 'priority')))
       await page.keyboard.press('Enter')
-      assert.equal(await select().inputValue(), 'high')
+      await settle()
+      assert.equal(await controlValue(select()), 'high')
       assert.equal((await read()).counts.requests, 0)
     },
   )
@@ -821,7 +827,7 @@ try {
         /Enter a name/,
       )
       await edit().click()
-      assert.equal(await input().inputValue(), '')
+      assert.equal(await controlValue(input()), '')
       assert.equal(await input().getAttribute('aria-invalid'), 'true')
       await input().fill('Corrected')
       await input().press('Enter')
@@ -879,17 +885,23 @@ try {
     },
   )
   await record(
-    'native dropdown keys and Tab preserve the draft until explicit Cancel',
+    'shared dropdown keys and Tab preserve the draft until explicit Cancel',
     async () => {
       await start()
       await edit('R0001', 'priority').click()
       assert.ok(await focused(select()))
-      assert.equal(await select().inputValue(), 'normal')
+      assert.equal(await controlValue(select()), 'normal')
       await page.keyboard.press('ArrowDown')
-      await settle()
-      assert.equal(await select().inputValue(), 'high')
-      await page.keyboard.press('Enter')
+      await page.keyboard.press('ArrowDown')
+      assert.equal(await controlValue(select()), 'normal')
       await page.keyboard.press('Escape')
+      await settle()
+      assert.ok(await focused(select()))
+      await page.keyboard.press('ArrowDown')
+      await page.keyboard.press('ArrowDown')
+      await page.keyboard.press('Enter')
+      await settle()
+      assert.equal(await controlValue(select()), 'high')
       await settle()
       let value = await read()
       assert.equal(value.drafts.R0001.priority, 'high')
@@ -920,7 +932,7 @@ try {
       await call('remember', 'R0001')
       const before = await read()
       await edit('R0001', 'priority').click()
-      await select().selectOption('low')
+      await selectValue(select(), 'low')
       assert.equal((await read()).counts.requests, 0)
       await save().click()
       await idle()
@@ -944,7 +956,7 @@ try {
     async () => {
       await start()
       await edit('R0001', 'priority').click()
-      await select().selectOption('high')
+      await selectValue(select(), 'high')
       await call('fault', 'hold')
       await save().click()
       await settle()
@@ -953,7 +965,7 @@ try {
       await call('saveTwice', 'R0001')
       assert.equal((await read()).counts.requests, 1)
       await edit('R0002', 'priority').click()
-      await select('R0002').selectOption('low')
+      await selectValue(select('R0002'), 'low')
       await call('release')
       await idle()
       const value = await read()
@@ -983,7 +995,7 @@ try {
         /Choose Low/,
       )
       assert.ok(await focused(select()))
-      await select().selectOption('normal')
+      await selectValue(select(), 'normal')
       await settle()
       assert.equal(await select().getAttribute('aria-invalid'), null)
       await save().click()
@@ -998,7 +1010,7 @@ try {
       await start()
       await call('remember', 'R0001')
       await edit('R0001', 'priority').click()
-      await select().selectOption('low')
+      await selectValue(select(), 'low')
       const original = await page.locator('[data-row="R0001"]').elementHandle()
       await call('sorting', [{ id: 'name', desc: true }])
       await call('filter', 'name', '0002')
@@ -1006,7 +1018,7 @@ try {
       assert.equal((await read()).ids[0], 'R0001')
       assert.equal((await read()).identity, true)
       assert.equal(await original.evaluate((n) => n.isConnected), true)
-      assert.equal(await select().inputValue(), 'low')
+      assert.equal(await controlValue(select()), 'low')
       assert.equal((await read()).counts.requests, 0)
       await save().click()
       await idle()
@@ -1020,7 +1032,7 @@ try {
     async () => {
       await start()
       await edit('R0001', 'priority').click()
-      await select().selectOption('high')
+      await selectValue(select(), 'high')
       await call('fault', 'hold')
       await save().click()
       await call('patch', 'R0001', { priority: 'low' })
@@ -1030,12 +1042,12 @@ try {
       assert.equal(value.sample[0].priority, 'low')
       assert.equal(value.drafts.R0001.priority, 'high')
       assert.equal(value.drafts.R0001.status, 'conflict')
-      assert.equal(await select().inputValue(), 'high')
+      assert.equal(await controlValue(select()), 'high')
       await page
         .getByRole('button', { name: 'Cancel R0001', exact: true })
         .click()
       await edit('R0001', 'priority').click()
-      assert.equal(await select().inputValue(), 'low')
+      assert.equal(await controlValue(select()), 'low')
     },
   )
   await record(
@@ -1072,7 +1084,7 @@ try {
       await input().fill('First name')
       await input('R0001', 'note').fill('First note')
       await select().focus()
-      await select().selectOption('high')
+      await selectValue(select(), 'high')
       await edit('R0002').click()
       await input('R0002').fill('Second name')
       assert.equal((await read()).counts.requests, 0)
@@ -1234,7 +1246,7 @@ try {
         await start()
         await edit().click()
         await input().fill('Preserved draft')
-        await select().selectOption('high')
+        await selectValue(select(), 'high')
         await call('fault', fault)
         await save().click()
         await idle()
@@ -1242,7 +1254,7 @@ try {
         assert.equal(value.drafts.R0001.name, 'Preserved draft')
         assert.equal(value.drafts.R0001.priority, 'high')
         assert.equal(value.sample[0].priority, 'normal')
-        assert.equal(await select().inputValue(), 'high')
+        assert.equal(await controlValue(select()), 'high')
         assert.equal(value.sample[0].name, 'Record 0001')
         assert.ok(value.drafts.R0001.message)
         assert.equal(await save().isEnabled(), true)
@@ -1255,7 +1267,7 @@ try {
           value.drafts.R0001.message,
         )
         await edit('R0001', 'priority').click()
-        assert.equal(await select().inputValue(), 'high')
+        assert.equal(await controlValue(select()), 'high')
         await page
           .getByRole('button', { name: 'Cancel R0001', exact: true })
           .click()
@@ -1339,7 +1351,7 @@ try {
       await call('sorting', [{ id: 'name', desc: true }])
       await settle()
       assert.equal((await read()).ids[0], 'R0001')
-      assert.equal(await input().inputValue(), 'ZZZ moved')
+      assert.equal(await controlValue(input()), 'ZZZ moved')
       await input().press('Enter')
       await idle()
       assert.equal((await read()).ids.at(-1), 'R0001')
@@ -1362,7 +1374,7 @@ try {
       assert.equal((await read()).drafts.R0001.name, 'Visible draft')
       assert.equal((await read()).ids.length, 8)
       await edit().click()
-      assert.equal(await input().inputValue(), 'Visible draft')
+      assert.equal(await controlValue(input()), 'Visible draft')
       assert.ok(await focused(input()))
       assert.equal((await read()).counts.requests, 0)
     },
@@ -1401,7 +1413,7 @@ try {
       await input().dispatchEvent('keydown', { key: 'Enter', keyCode: 229 })
       await settle()
       assert.equal((await read()).counts.requests, 0)
-      assert.equal(await input().inputValue(), '入力中')
+      assert.equal(await controlValue(input()), '入力中')
       await input().press('Enter')
       await idle()
       assert.equal((await read()).sample[0].name, '入力中')
@@ -1431,15 +1443,14 @@ try {
       assert.equal((await read()).sample[0].name, 'Record 0001')
     },
   )
-  const mode = () =>
-    page.getByRole('combobox', { name: 'Save mode', exact: true })
+  const mode = () => choiceControl(page, { name: 'Save mode', exact: true })
   const saveAll = () =>
     page.getByRole('button', { name: 'Save all', exact: true })
   await record(
     'global mode saves visible drafts with exact revisions while filters stay locked',
     async () => {
       await start(8, 'table')
-      assert.equal(await mode().inputValue(), 'table')
+      assert.equal(await controlValue(mode()), 'table')
       await edit().click()
       await input().fill('Global name')
       assert.equal(await save().count(), 0)
@@ -1448,7 +1459,7 @@ try {
       assert.equal(await input().count(), 0)
       assert.equal((await read()).counts.requests, 0)
       await edit('R0002', 'priority').click()
-      await select('R0002').selectOption('high')
+      await selectValue(select('R0002'), 'high')
       await call('filter', 'name', '0002')
       assert.equal((await read()).ids.length, 8)
       await saveAll().click()
@@ -1588,17 +1599,17 @@ try {
     await edit().click()
     await input().fill('Mode-independent draft')
     assert.equal(await mode().isDisabled(), true)
-    assert.equal(await mode().inputValue(), 'row')
+    assert.equal(await controlValue(mode()), 'row')
     await save().click()
     await idle()
     assert.equal((await read()).sample[0].name, 'Mode-independent draft')
-    await mode().selectOption('table')
+    await selectValue(mode(), 'table')
     await edit().click()
     assert.equal(await save().count(), 0)
     await page
       .getByRole('button', { name: 'Cancel R0001', exact: true })
       .click()
-    await mode().selectOption('row')
+    await selectValue(mode(), 'row')
     await edit().click()
     assert.equal(await save().count(), 1)
     assert.equal((await read()).counts.requests, 1)
@@ -1653,7 +1664,7 @@ try {
     assert.ok(reads <= 4, `An edit reread ${reads} cells at size ${size}`)
     const beforeSelect = await read()
     await edit('R0001', 'priority').click()
-    await select().selectOption('high')
+    await selectValue(select(), 'high')
     await save().click()
     await idle()
     const selected = await read()
@@ -1721,7 +1732,7 @@ try {
       .getByRole('button', { name: 'Cancel R0001', exact: true })
       .click()
     await settle()
-    await mode().selectOption('table')
+    await selectValue(mode(), 'table')
     for (const id of ['R0001', 'R0002', 'R0003']) {
       await edit(id, 'note').click()
       await input(id, 'note').fill('Global measured draft')

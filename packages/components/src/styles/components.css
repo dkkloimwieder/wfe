@@ -19,8 +19,8 @@
 :where([data-ui]) button[hidden] {
   display: none;
 }
-:where([data-ui]) button:hover {
-  background: var(--ui-highlight, #edf3fb);
+:where([data-ui]) button:hover:not(:disabled, [aria-disabled='true']) {
+  background-color: var(--ui-highlight, #edf3fb);
 }
 :where([data-ui]) button:disabled {
   cursor: default;
@@ -95,7 +95,11 @@
   border-color: transparent;
   background: transparent;
 }
-:where([data-ui]) .ui-button[data-variant='ghost']:hover {
+:where([data-ui])
+  .ui-button[data-variant='ghost']:hover:not(
+    :disabled,
+    [aria-disabled='true']
+  ) {
   background: var(--ui-highlight, var(--ui-surface, #fff));
 }
 @media (forced-colors: active) {
@@ -126,6 +130,10 @@
 :where([data-ui])
   .ui-native-select:not([multiple]):is(:not([size]), [size='0'], [size='1']) {
   appearance: none;
+}
+:where([data-ui]) .popup-trigger,
+:where([data-ui])
+  .ui-native-select:not([multiple]):is(:not([size]), [size='0'], [size='1']) {
   padding-inline-end: calc(
     var(--ui-input-padding-x, 6px) + 10px + var(--ui-gap, 6px)
   );
@@ -150,6 +158,7 @@
     right calc(var(--ui-input-padding-x, 6px) + 5px) center,
     right var(--ui-input-padding-x, 6px) center;
 }
+:where([data-ui]) .popup-trigger:dir(rtl),
 :where([data-ui])
   .ui-native-select:not([multiple]):is(
     :not([size]),
@@ -472,7 +481,8 @@
   outline-offset: 2px;
 }
 :where([data-ui]) .filter-input input:focus-visible,
-:where([data-ui]) .filter-input select:focus-visible {
+:where([data-ui]) .filter-input select:focus-visible,
+:where([data-ui]) .filter-input .popup-trigger:focus-visible {
   outline: none;
 }
 :where([data-ui]) .filter-input .clear-input:focus-visible {
@@ -555,7 +565,7 @@
   gap: var(--ui-gap, 6px);
   width: 100%;
 }
-:where([data-ui]) .column-display-option .ui-native-select {
+:where([data-ui]) .column-display-option > .ui-select-field {
   width: 7.5rem;
   flex: none;
 }
@@ -918,9 +928,13 @@
   width: 100%;
   min-height: var(--ui-control-height, 26px);
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
-  background: var(--ui-surface, white);
+  background-color: var(--ui-surface, white);
   border: 1px solid var(--ui-control-border, #999);
   border-radius: 0;
+  text-align: start;
+  padding-inline-end: calc(
+    var(--ui-input-padding-x, 6px) + 10px + var(--ui-gap, 6px)
+  );
 }
 :where([data-ui]) .popup-trigger[aria-invalid='true'] {
   border-color: var(--ui-error, #9d251e);
@@ -1515,4 +1529,32 @@
   > [aria-hidden='true'] {
   inset-inline-start: 0;
   inset-inline-end: auto;
+}
+
+/* All editable field surfaces share one hover state, including compound fields. */
+:where([data-ui])
+  :is(
+    .ui-input,
+    .ui-textarea,
+    .ui-native-select,
+    .popup-trigger,
+    .choice-input
+  ):hover:not(:disabled, [readonly], [aria-disabled='true']),
+:where([data-ui])
+  .filter-input:hover
+  :is(input, select, button):not(:disabled, [readonly], [aria-disabled='true']),
+:where([data-ui])
+  .choice-control:hover
+  :is(input, button):not(:disabled, [readonly], [aria-disabled='true']),
+:where([data-ui])
+  :is(.ui-check-control, .ui-radio-control, .ui-switch-control):hover:not(
+    [data-disabled],
+    [data-readonly]
+  ) {
+  background-color: var(--ui-control-hover, var(--ui-highlight, #edf3fb));
+}
+
+:where([data-ui]) .filter-input > [data-ui] {
+  flex: 1;
+  min-width: 0;
 }

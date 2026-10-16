@@ -1,3 +1,4 @@
+import { selectValue, controlValue } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 export async function applicationRecordCases({
@@ -72,7 +73,7 @@ export async function applicationRecordCases({
           .getByRole('listbox')
           .getByRole('option', { name: 'Normal', exact: true })
           .click()
-      } else await editor.selectOption('normal')
+      } else await selectValue(editor, 'normal')
       await save()
       await idle()
       const value = await read()
@@ -104,7 +105,7 @@ export async function applicationRecordCases({
         revision: 'west:2',
       })
       await settle()
-      assert.equal(await input().inputValue(), 'App local draft')
+      assert.equal(await controlValue(input()), 'App local draft')
       let value = await read()
       assert.deepEqual(value.ids, [west])
       assert.equal(value.sample[0].name, 'App background')

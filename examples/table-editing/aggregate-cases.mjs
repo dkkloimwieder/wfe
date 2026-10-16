@@ -1,3 +1,9 @@
+import {
+  choiceOptions,
+  choiceControl,
+  selectValue,
+  controlValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 export async function aggregateCases({
@@ -12,7 +18,7 @@ export async function aggregateCases({
   idle,
 }) {
   const choice = (name) =>
-    page.getByRole('combobox', { name: `${name} summary`, exact: true })
+    choiceControl(page, { name: `${name} summary`, exact: true })
   const group = () => page.locator('[data-group]').first()
   const summary = (id) => group().locator(`[data-group-summary="${id}"]`)
   const value = (id) => summary(id).textContent()
@@ -49,23 +55,23 @@ export async function aggregateCases({
         ['empty', '1'],
         ['distinct', '3'],
       ]) {
-        await choice('Amount').selectOption(name)
+        await selectValue(choice('Amount'), name)
         assert.equal(await value('amount'), result)
         assert.equal(
           await header('amount'),
           (name === 'mean' ? 'avg' : name).toUpperCase(),
         )
       }
-      await choice('Amount').selectOption('mean')
+      await selectValue(choice('Amount'), 'mean')
       await call('grouping', ['priority', 'name'])
       assert.equal(await value('amount'), '35') // Child averages would be incorrect.
       await call('filter', 'name', 'a')
       assert.equal(await value('amount'), '40')
-      await choice('Amount').selectOption('median')
+      await selectValue(choice('Amount'), 'median')
       assert.equal(await value('amount'), '20')
       await call('filter', 'name', '')
       await call('patch', 'R0003', { amount: -10 })
-      await choice('Amount').selectOption('range')
+      await selectValue(choice('Amount'), 'range')
       assert.equal(await value('amount'), '-10 – 20')
     },
   )
@@ -74,7 +80,9 @@ export async function aggregateCases({
     async () => {
       await seed()
       assert.equal(
-        await choice('Due date').locator('option[value=sum]').count(),
+        (await choiceOptions(choice('Due date'))).filter(
+          (option) => option.value === 'sum',
+        ).length,
         0,
       )
       for (const [name, result] of [
@@ -86,16 +94,16 @@ export async function aggregateCases({
         ['empty', '1'],
         ['count', '5'],
       ]) {
-        await choice('Due date').selectOption(name)
+        await selectValue(choice('Due date'), name)
         assert.equal(await value('dueDate'), result)
         assert.equal(await header('dueDate'), name.toUpperCase())
       }
       await call('filter', 'name', 'Bea')
-      await choice('Due date').selectOption('range')
+      await selectValue(choice('Due date'), 'range')
       assert.equal(await value('dueDate'), '—')
-      await choice('Amount').selectOption('mean')
+      await selectValue(choice('Amount'), 'mean')
       assert.equal(await value('amount'), '—')
-      await choice('Amount').selectOption('sum')
+      await selectValue(choice('Amount'), 'sum')
       assert.equal(await value('amount'), '0')
       await call('filter', 'name', 'absent')
       assert.equal(await page.locator('[data-group]').count(), 0)
@@ -121,16 +129,18 @@ export async function aggregateCases({
         ['empty', 2],
         ['distinct', 2],
       ]) {
-        await choice('Note').selectOption(name)
+        await selectValue(choice('Note'), name)
         assert.equal(await value('note'), String(result))
         assert.equal(await header('note'), name.toUpperCase())
       }
       assert.equal(
-        await choice('Note').locator('option[value=median]').count(),
+        (await choiceOptions(choice('Note'))).filter(
+          (option) => option.value === 'median',
+        ).length,
         0,
       )
       await call('summary', 'note', 'median') // Reject a caller choice outside the column catalog.
-      assert.equal(await choice('Note').inputValue(), 'distinct')
+      assert.equal(await controlValue(choice('Note')), 'distinct')
       assert.equal((await read()).sample[4].note, ' same ')
     },
   )
@@ -139,16 +149,16 @@ export async function aggregateCases({
     async () => {
       await seed()
       await call('grouping', ['priority', 'name'])
-      await choice('Amount').selectOption('last')
+      await selectValue(choice('Amount'), 'last')
       assert.equal(await value('amount'), '20')
       await call('sorting', [{ id: 'name', desc: false }])
       assert.equal(await value('amount'), '20') // Ben is last.
-      await choice('Amount').selectOption('first')
+      await selectValue(choice('Amount'), 'first')
       assert.equal(await value('amount'), '90') // Ada is first.
       await call('sorting', [{ id: 'name', desc: true }])
       assert.equal(await value('amount'), '20')
       await call('sorting', [{ id: 'dueDate', desc: true }])
-      await choice('Amount').selectOption('last')
+      await selectValue(choice('Amount'), 'last')
       assert.equal(await value('amount'), '—') // Missing dates sort last, and first/last preserve blanks.
       assert.equal(await page.locator('[data-row]').count(), 0)
       await call('expandGroups', true)
@@ -159,7 +169,7 @@ export async function aggregateCases({
     'grouping columns retain their bucket labels while showing a selected aggregate',
     async () => {
       await seed()
-      await choice('Priority').selectOption('count')
+      await selectValue(choice('Priority'), 'count')
       assert.equal(
         await group().locator('[data-group-toggle]').innerText(),
         '▸ normal',
@@ -167,7 +177,7 @@ export async function aggregateCases({
       assert.equal(await value('priority'), '5')
       assert.equal(await header('priority'), 'GROUP · COUNT')
       await call('grouping', ['name'])
-      await choice('Name').selectOption('first')
+      await selectValue(choice('Name'), 'first')
       await call('sorting', [{ id: 'name', desc: false }])
       assert.equal(
         await group().locator('[data-group-toggle]').innerText(),
@@ -184,19 +194,20 @@ export async function aggregateCases({
 
       assert.equal(await value('note'), '5')
       assert.equal(await header('note'), 'FILLED')
-      await choice('Note').selectOption('empty')
+      await selectValue(choice('Note'), 'empty')
       assert.equal(await value('note'), '0')
       await choice('Amount').focus()
+      await page.keyboard.press('ArrowDown')
       await page.keyboard.press('Home')
       await page.keyboard.press('ArrowDown')
       await page.keyboard.press('Enter')
       assert.equal((await read()).summaries.amount, 'count')
       await call('summary', 'amount', 'median')
-      assert.equal(await choice('Amount').inputValue(), 'median')
+      assert.equal(await controlValue(choice('Amount')), 'median')
       await call('controls', { grouping: false })
       assert.equal(await choice('Amount').count(), 0)
       await call('controls', { grouping: true })
-      assert.equal(await choice('Amount').inputValue(), 'median')
+      assert.equal(await controlValue(choice('Amount')), 'median')
       await call('localProcessing', false)
       assert.ok(await choice('Amount').isDisabled())
       await call('localProcessing', true)
@@ -215,17 +226,17 @@ export async function aggregateCases({
     async () => {
       await seed()
       await call('patch', 'R0003', { priority: 'high' })
-      const order = page.getByRole('combobox', {
+      const order = choiceControl(page, {
         name: 'Order Priority groups',
         exact: true,
       })
-      await order.selectOption('amount:desc')
+      await selectValue(order, 'amount:desc')
       assert.equal(
         await group().locator('[data-group-toggle]').innerText(),
         '▸ high',
       )
-      await choice('Amount').selectOption('range')
-      await order.selectOption('amount:asc')
+      await selectValue(choice('Amount'), 'range')
+      await selectValue(order, 'amount:asc')
       assert.equal(
         await group().locator('[data-group-toggle]').innerText(),
         '▸ normal',
@@ -237,11 +248,11 @@ export async function aggregateCases({
         await group().locator('[data-group-toggle]').innerText(),
         '▸ high',
       )
-      await choice('Amount').selectOption('none')
+      await selectValue(choice('Amount'), 'none')
       assert.equal(await summary('amount').count(), 0)
       assert.equal(await header('amount'), '-')
       assert.equal((await read()).groupSorting[0].id, 'amount')
-      await choice('Amount').selectOption('sum')
+      await selectValue(choice('Amount'), 'sum')
       assert.equal(
         await group().locator('[data-group-toggle]').innerText(),
         '▸ high',
@@ -252,14 +263,14 @@ export async function aggregateCases({
     'equivalent ranges and repeated aggregate changes keep views stable and release them',
     async () => {
       await seed()
-      await choice('Amount').selectOption('range')
+      await selectValue(choice('Amount'), 'range')
       const before = await read()
       for (let i = 0; i < 8; i++)
         await call('patch', 'R0002', { amount: 21 + i })
       assert.equal(await value('amount'), '10 – 90')
       for (let i = 0; i < 8; i++) {
-        await choice('Amount').selectOption('median')
-        await choice('Amount').selectOption('range')
+        await selectValue(choice('Amount'), 'median')
+        await selectValue(choice('Amount'), 'range')
       }
       const after = await read()
       assert.equal(after.counts.groupReads, before.counts.groupReads)

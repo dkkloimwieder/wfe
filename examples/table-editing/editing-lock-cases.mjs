@@ -1,3 +1,7 @@
+import {
+  choiceControl,
+  selectValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 const root = (page) => page.locator('[data-table-scope="root"]')
@@ -112,15 +116,17 @@ export async function editingLockCases({
         true,
       )
       assert.equal(
-        await root(page)
-          .getByRole('combobox', { name: 'Add grouping', exact: true })
-          .isDisabled(),
+        await choiceControl(root(page), {
+          name: 'Add grouping',
+          exact: true,
+        }).isDisabled(),
         true,
       )
       assert.equal(
-        await root(page)
-          .getByRole('combobox', { name: 'Save mode', exact: true })
-          .isDisabled(),
+        await choiceControl(root(page), {
+          name: 'Save mode',
+          exact: true,
+        }).isDisabled(),
         true,
       )
       assert.equal(await root(page).getByRole('searchbox').isDisabled(), true)
@@ -158,9 +164,10 @@ export async function editingLockCases({
       await call('filter', 'priority', 'normal')
       await edit().click()
       await input().fill('ZZZ saved row')
-      await root(page)
-        .getByRole('combobox', { name: 'Priority R0001', exact: true })
-        .selectOption('high')
+      await selectValue(
+        choiceControl(root(page), { name: 'Priority R0001', exact: true }),
+        'high',
+      )
       await edit('R0002').click()
       await input('R0002').fill('Second draft')
       const before = await rows(root(page))

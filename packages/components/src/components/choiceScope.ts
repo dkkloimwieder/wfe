@@ -49,6 +49,7 @@ export function createChoiceScope(props: {
     mount: () => {
       const scope = control?.closest<HTMLElement>('[data-ui]')
       return (
+        control?.closest<HTMLElement>('[popover]') ??
         control?.closest<HTMLElement>('[data-ui-portal-root]') ??
         scope?.parentElement?.closest<HTMLElement>('[data-ui]') ??
         scope ??

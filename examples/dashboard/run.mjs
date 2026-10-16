@@ -1,4 +1,10 @@
 import {
+  choiceControl,
+  selectValue,
+  controlValue,
+  expectValue,
+} from '../shared/controls/select-review.mjs'
+import {
   appearanceColor,
   reviewAppearanceFocus,
 } from '../shared/appearance/focus-review.mjs'
@@ -111,7 +117,9 @@ try {
     return rows()
   }
   const choiceTrigger = (label) =>
-    page.getByRole('button', { name: new RegExp('^' + label + '(?:\\s|$)') })
+    page
+      .getByRole('button', { name: new RegExp('^' + label + '(?:\\s|$)') })
+      .and(page.locator(':not([data-ui-text="system"])'))
   async function pick(label, value) {
     await choiceTrigger(label).click()
     await page
@@ -190,9 +198,10 @@ try {
     )
     assert.equal((await applyAndReadRows()).length, 2)
     await page.getByLabel('Record name', { exact: true }).fill('New shelf')
-    await page
-      .getByRole('combobox', { name: 'Region', exact: true })
-      .selectOption('East')
+    await selectValue(
+      choiceControl(page, { name: 'Region', exact: true }),
+      'East',
+    )
     await page.getByText('Active record', { exact: true }).click()
     await page.getByRole('button', { name: 'Save record', exact: true }).click()
     assert.equal((await applyAndReadRows()).length, 3)
@@ -205,7 +214,7 @@ try {
       /New shelfEast/,
     )
     assert.equal(
-      await page.getByLabel('Record name', { exact: true }).inputValue(),
+      await controlValue(page.getByLabel('Record name', { exact: true })),
       '',
     )
   })
@@ -329,15 +338,15 @@ try {
   })
   await test('Column formatting changes symbols, dates and numbers without changing filter or sort values', async () => {
     await page.evaluate(() => window.dashboardFixture.replaceRows(8))
-    const active = page.getByRole('combobox', {
+    const active = choiceControl(page, {
       name: 'Active',
       exact: true,
     })
-    const date = page.getByRole('combobox', {
+    const date = choiceControl(page, {
       name: 'Created',
       exact: true,
     })
-    const amount = page.getByRole('combobox', {
+    const amount = choiceControl(page, {
       name: 'Amount',
       exact: true,
     })
@@ -351,14 +360,14 @@ try {
     await expect(
       cell(2, 'active').getByRole('img', { name: 'No', exact: true }),
     ).toHaveCount(1)
-    await active.selectOption('boolean-text')
+    await selectValue(active, 'boolean-text')
     await expect(cell(1, 'active')).toHaveText('Yes')
     await expect(cell(2, 'active')).toHaveText('No')
-    await date.selectOption('date-long')
+    await selectValue(date, 'date-long')
     await expect(cell(1, 'created')).toHaveText('January 1, 2026')
-    await date.selectOption('date-short')
+    await selectValue(date, 'date-short')
     await expect(cell(1, 'created')).toHaveText('01/01/2026')
-    await amount.selectOption('number-decimal')
+    await selectValue(amount, 'number-decimal')
     await expect(cell(1, 'amount')).toHaveText('0.00')
     await expect(cell(2, 'amount')).toHaveText('12.50')
     await expect(cell(3, 'amount')).toHaveText('')
@@ -372,7 +381,7 @@ try {
       'record-6',
       'record-8',
     ])
-    await active.selectOption('boolean-symbol')
+    await selectValue(active, 'boolean-symbol')
     assert.deepEqual(await applyAndReadRows(), [
       'record-2',
       'record-4',
@@ -398,16 +407,16 @@ try {
       'record-4',
       'record-8',
     ])
-    await amount.selectOption('number-grouped')
+    await selectValue(amount, 'number-grouped')
     assert.deepEqual((await applyAndReadRows()).slice(0, 2), [
       'record-4',
       'record-8',
     ])
-    const grouping = page.getByRole('combobox', {
+    const grouping = choiceControl(page, {
       name: 'Add grouping',
       exact: true,
     })
-    await grouping.selectOption('active')
+    await selectValue(grouping, 'active')
     await expect(
       page
         .locator('[data-group-toggle]')
@@ -421,7 +430,7 @@ try {
     await page
       .getByRole('button', { name: 'Clear grouping', exact: true })
       .click()
-    await grouping.selectOption('created')
+    await selectValue(grouping, 'created')
     assert.ok(
       (await page.locator('[data-group-toggle]').allTextContents()).some(
         (text) => text.includes('01/01/2026'),
@@ -432,9 +441,9 @@ try {
       .click()
     assert.equal((await results.boundingBox()).height, height)
     await page.evaluate(() => window.dashboardFixture.replaceRows(0))
-    await expect(active).toHaveValue('boolean-symbol')
-    await expect(date).toHaveValue('date-short')
-    await expect(amount).toHaveValue('number-grouped')
+    await expectValue(active, 'boolean-symbol')
+    await expectValue(date, 'date-short')
+    await expectValue(amount, 'number-grouped')
   })
   await test('Date boundaries work independently and include both endpoint dates', async () => {
     const start = page.getByLabel('Created start', { exact: true })
@@ -482,7 +491,7 @@ try {
     await expect(end).toBeFocused()
     assert.deepEqual(await applyAndReadRows(), ['record-2'])
     await page.evaluate(() => window.dashboardFixture.replaceRows(0))
-    assert.equal(await start.inputValue(), '2026-01-02')
+    assert.equal(await controlValue(start), '2026-01-02')
     await page.evaluate(() => window.dashboardFixture.replaceRows(2))
     assert.deepEqual(await applyAndReadRows(), ['record-2'])
     await page.evaluate(() => window.dashboardFixture.setFilter('active', true))
@@ -510,9 +519,10 @@ try {
       .getByRole('button', { name: 'Sort by Created', exact: true })
       .click()
     assert.deepEqual(await applyAndReadRows(), ['record-2', 'record-1'])
-    await page
-      .getByRole('combobox', { name: 'Add grouping', exact: true })
-      .selectOption('created')
+    await selectValue(
+      choiceControl(page, { name: 'Add grouping', exact: true }),
+      'created',
+    )
     assert.equal(await page.locator('tr[data-group]').count(), 2)
     const group = page.locator('[data-group-toggle]').first()
     assert.match(await group.textContent(), /2026-01-0[12]/)
@@ -526,22 +536,22 @@ try {
       .getByRole('button', { name: 'Eight records', exact: true })
       .click()
     const text = page.getByRole('textbox', { name: 'Name', exact: true })
-    const match = page.getByRole('combobox', {
+    const match = choiceControl(page, {
       name: 'Name match',
       exact: true,
     })
     await text.fill('RECORD 1')
     assert.deepEqual(await applyAndReadRows(), ['record-1'])
     for (const mode of ['equals', 'starts-with']) {
-      await match.selectOption(mode)
+      await selectValue(match, mode)
       assert.deepEqual(await applyAndReadRows(), ['record-1'])
     }
-    await match.selectOption('not-contains')
+    await selectValue(match, 'not-contains')
     assert.equal((await applyAndReadRows()).length, 7)
     await text.press('Escape')
     await expect(text).toBeFocused()
     assert.equal((await applyAndReadRows()).length, 8)
-    assert.equal(await match.inputValue(), 'contains')
+    assert.equal(await controlValue(match), 'contains')
   })
   await test('Single choices and exclusions retain record casing and clear to Any', async () => {
     await page
@@ -555,9 +565,10 @@ try {
       'record-5',
       'record-7',
     ])
-    await page
-      .getByRole('combobox', { name: 'Region match', exact: true })
-      .selectOption('not-in')
+    await selectValue(
+      choiceControl(page, { name: 'Region match', exact: true }),
+      'not-in',
+    )
     assert.deepEqual(await applyAndReadRows(), [
       'record-2',
       'record-4',
@@ -588,9 +599,10 @@ try {
     assert.equal((await applyAndReadRows()).length, 6)
     await pickMany('Status', ['Closed'])
     assert.equal((await applyAndReadRows()).length, 4)
-    await page
-      .getByRole('combobox', { name: 'Status match', exact: true })
-      .selectOption('not-in')
+    await selectValue(
+      choiceControl(page, { name: 'Status match', exact: true }),
+      'not-in',
+    )
     assert.deepEqual(await applyAndReadRows(), [
       'record-2',
       'record-3',
@@ -617,7 +629,7 @@ try {
       name: 'Amount maximum',
       exact: true,
     })
-    const mode = page.getByRole('combobox', {
+    const mode = choiceControl(page, {
       name: 'Amount match',
       exact: true,
     })
@@ -645,44 +657,44 @@ try {
     await expect(min).toHaveAttribute('aria-invalid', 'true')
     assert.equal((await applyAndReadRows()).length, 6)
     await min.press('Escape')
-    await expect(min).toHaveValue('')
+    await expectValue(min, '')
     await expect(min).not.toHaveAttribute('aria-invalid', 'true')
     await min.fill('20')
     assert.deepEqual(await applyAndReadRows(), [])
-    await mode.selectOption('empty')
+    await selectValue(mode, 'empty')
     assert.deepEqual(await applyAndReadRows(), ['record-3', 'record-7'])
-    await mode.selectOption('not-empty')
+    await selectValue(mode, 'not-empty')
     assert.equal((await applyAndReadRows()).length, 6)
     await page
       .getByRole('button', { name: 'Clear Amount filter', exact: true })
       .click()
-    await expect(min).toHaveValue('')
-    await expect(max).toHaveValue('')
+    await expectValue(min, '')
+    await expectValue(max, '')
     assert.equal((await applyAndReadRows()).length, 8)
   })
   await test('Nullable text distinguishes empty records from ordinary text and negative matching', async () => {
     await page
       .getByRole('button', { name: 'Eight records', exact: true })
       .click()
-    const mode = page.getByRole('combobox', {
+    const mode = choiceControl(page, {
       name: 'Notes match',
       exact: true,
     })
-    await mode.selectOption('empty')
+    await selectValue(mode, 'empty')
     assert.deepEqual(await applyAndReadRows(), [
       'record-1',
       'record-3',
       'record-5',
       'record-7',
     ])
-    await mode.selectOption('not-empty')
+    await selectValue(mode, 'not-empty')
     assert.equal((await applyAndReadRows()).length, 4)
-    await mode.selectOption('equals')
+    await selectValue(mode, 'equals')
     await page
       .getByRole('textbox', { name: 'Notes', exact: true })
       .fill('Ready to review')
     assert.deepEqual(await applyAndReadRows(), ['record-2', 'record-6'])
-    await mode.selectOption('not-contains')
+    await selectValue(mode, 'not-contains')
     assert.deepEqual(await applyAndReadRows(), ['record-4', 'record-8'])
   })
   await test('Selected tags keep compact indicators and stable option heights', async () => {
@@ -721,17 +733,17 @@ try {
       .click()
     await pickMany('Tags', ['Priority', 'External'])
     assert.equal((await applyAndReadRows()).length, 6)
-    const mode = page.getByRole('combobox', {
+    const mode = choiceControl(page, {
       name: 'Tags match',
       exact: true,
     })
-    await mode.selectOption('all')
+    await selectValue(mode, 'all')
     assert.deepEqual(await applyAndReadRows(), ['record-4', 'record-8'])
-    await mode.selectOption('not-in')
+    await selectValue(mode, 'not-in')
     assert.deepEqual(await applyAndReadRows(), [])
-    await mode.selectOption('empty')
+    await selectValue(mode, 'empty')
     assert.deepEqual(await applyAndReadRows(), ['record-3', 'record-7'])
-    await mode.selectOption('not-empty')
+    await selectValue(mode, 'not-empty')
     assert.equal((await applyAndReadRows()).length, 6)
     await page
       .getByRole('button', { name: 'Clear Tags filter', exact: true })
@@ -753,12 +765,13 @@ try {
         values: ['West'],
       })
     })
-    await expect(
+    await expectValue(
       page.getByRole('spinbutton', {
         name: 'Amount minimum',
         exact: true,
       }),
-    ).toHaveValue('0')
+      '0',
+    )
     await expect(choiceTrigger('Region')).toHaveText('West')
     assert.deepEqual(await applyAndReadRows(), ['record-1', 'record-5'])
     await page.evaluate(() =>
@@ -788,9 +801,10 @@ try {
         exact: true,
       }),
     ).toBeVisible()
-    await page
-      .getByRole('combobox', { name: 'Add grouping', exact: true })
-      .selectOption('tags')
+    await selectValue(
+      choiceControl(page, { name: 'Add grouping', exact: true }),
+      'tags',
+    )
     assert.equal(await page.locator('tr[data-group]').count(), 4)
   })
   await test('Global search includes boolean, numeric, date, and collection values', async () => {
@@ -828,9 +842,10 @@ try {
       .getByRole('button', { name: 'Clear Region filter', exact: true })
       .click()
     await apply().click()
-    await page
-      .getByRole('combobox', { name: 'Add grouping', exact: true })
-      .selectOption('region')
+    await selectValue(
+      choiceControl(page, { name: 'Add grouping', exact: true }),
+      'region',
+    )
     assert.equal(await page.locator('tr[data-group]').count(), 2)
     await page
       .getByRole('button', { name: 'Clear grouping', exact: true })
@@ -886,9 +901,10 @@ try {
     }
     assert.ok(appearance.paragraphs.every((value) => value === '0px'))
     for (const id of ['name', 'region']) {
-      await page
-        .getByRole('combobox', { name: 'Add grouping', exact: true })
-        .selectOption(id)
+      await selectValue(
+        choiceControl(page, { name: 'Add grouping', exact: true }),
+        id,
+      )
     }
     for (const width of [1440, 1100, 700, 390]) {
       await resize({ width, height: 1000 })
@@ -909,9 +925,10 @@ try {
       const search = await page
         .locator('.table-workspace .toolbar .filter-input')
         .boundingBox()
-      const add = await page
-        .getByRole('combobox', { name: 'Add grouping', exact: true })
-        .boundingBox()
+      const add = await choiceControl(page, {
+        name: 'Add grouping',
+        exact: true,
+      }).boundingBox()
       assert.equal(search.x, filters.x)
       assert.equal(search.width, filters.width)
       assert.equal(add.x, filters.x)
@@ -919,7 +936,7 @@ try {
       const levels = page.locator('.grouping-levels > li')
       const controls = []
       for (const level of await levels.all()) {
-        const order = await level.locator('select').boundingBox()
+        const order = await level.locator('.popup-trigger').boundingBox()
         const actions = await level
           .locator('.grouping-level-actions')
           .boundingBox()
@@ -1023,9 +1040,10 @@ try {
     const before = await scroller.boundingBox()
     assert.ok(before.height > 300)
     for (const id of ['name', 'region', 'active']) {
-      await page
-        .getByRole('combobox', { name: 'Add grouping', exact: true })
-        .selectOption(id)
+      await selectValue(
+        choiceControl(page, { name: 'Add grouping', exact: true }),
+        id,
+      )
     }
     await page.getByText('Display columns', { exact: true }).click()
     assert.deepEqual(await scroller.boundingBox(), before)
@@ -1183,7 +1201,7 @@ try {
       'Activity selected. This example keeps the records view open.',
     )
     assert.equal(
-      await page.getByLabel('Record name', { exact: true }).inputValue(),
+      await controlValue(page.getByLabel('Record name', { exact: true })),
       'Keep draft',
     )
     assert.equal(
@@ -1201,7 +1219,7 @@ try {
     )
     await resize({ width: 1440, height: 1000 })
     assert.equal(
-      await page.getByLabel('Record name', { exact: true }).inputValue(),
+      await controlValue(page.getByLabel('Record name', { exact: true })),
       'Keep draft',
     )
   })
@@ -1339,7 +1357,7 @@ try {
       )
       assert.deepEqual(await surface.boundingBox(), geometry)
       assert.deepEqual(await rows(), initialRows)
-      await expect(name).toHaveValue('Record 1')
+      await expectValue(name, 'Record 1')
       assert.equal(
         await table.evaluate(
           (node) =>
@@ -1368,7 +1386,7 @@ try {
         assert.equal(await background(node), 'rgba(0, 0, 0, 0)')
       assert.deepEqual(await surface.boundingBox(), geometry)
       assert.deepEqual(await rows(), initialRows)
-      await expect(name).toHaveValue('Record 1')
+      await expectValue(name, 'Record 1')
     }
     for (const mode of ['Light', 'Dark']) {
       await schemeButton(mode).click()
@@ -1391,7 +1409,7 @@ try {
           )
           assert.deepEqual(await surface.boundingBox(), geometry)
           assert.deepEqual(await rows(), initialRows)
-          await expect(name).toHaveValue('Record 1')
+          await expectValue(name, 'Record 1')
           assert.equal(await background(caption), 'rgba(0, 0, 0, 0)')
           assert.equal(await background(tableHeader), await background(surface))
         }
@@ -1573,7 +1591,7 @@ try {
       .boundingBox()
     assert.equal(rightResults.x + rightResults.width, rightPane.x)
     assert.equal((await surface.boundingBox()).width, original.width)
-    await expect(draft).toHaveValue('Record 1')
+    await expectValue(draft, 'Record 1')
     await toggle.click()
     await page
       .getByRole('button', { name: 'top controls pane', exact: true })
@@ -1624,7 +1642,7 @@ try {
     await body.evaluate((node) => {
       node.scrollTop = 0
     })
-    await expect(draft).toHaveValue('Record 1')
+    await expectValue(draft, 'Record 1')
     assert.deepEqual(await rows(), initialRows)
     const expandedHeight = (await pane.boundingBox()).height
     await pane.locator('.table-control-section').evaluateAll((nodes) =>
@@ -1682,7 +1700,7 @@ try {
       ),
       true,
     )
-    await expect(draft).toHaveValue('Record 1')
+    await expectValue(draft, 'Record 1')
     await apply().click()
     assert.deepEqual(await rows(), ['record-1'])
     const sections = await page
@@ -1937,12 +1955,13 @@ try {
       assert.equal(new Set(heights).size, 1)
     }
   })
-  await test('Native and shared select highlights follow the lighter accents', async () => {
-    const native = page.getByRole('combobox', {
+  await test('All filter selects share caret geometry, hover and accent highlights', async () => {
+    const operator = choiceControl(page, {
       name: 'Region match',
       exact: true,
     })
-    const original = await native.boundingBox()
+    const value = choiceTrigger('Region')
+    const original = await operator.boundingBox()
     for (const mode of ['Light', 'Dark']) {
       await page
         .getByRole('button', { name: `${mode} surfaces`, exact: true })
@@ -1956,46 +1975,82 @@ try {
         assert.ok(
           (await appearanceColor(page, '--ui-focus-ring')).includes('0.85'),
         )
-        await native.click()
-        assert.equal(
-          await native.evaluate((node) => node.matches(':open')),
-          true,
-        )
-        const selected = native.locator('option:checked')
-        assert.deepEqual(
-          await selected.evaluate((node) => {
+        const styles = []
+        for (const control of [operator, value]) {
+          await page.mouse.move(0, 0)
+          const rest = await control.evaluate((node) => {
             const style = getComputedStyle(node)
-            return { fill: style.backgroundColor, ink: style.color }
-          }),
-          { fill, ink },
-        )
-        await page.keyboard.press('ArrowDown')
-        const focused = native.locator('option:focus')
-        assert.equal(
-          await focused.evaluate(
+            return {
+              caret: style.backgroundImage,
+              position: style.backgroundPosition,
+              paddingStart: style.paddingInlineStart,
+              paddingEnd: style.paddingInlineEnd,
+              height: node.getBoundingClientRect().height,
+              fill: style.backgroundColor,
+            }
+          })
+          await control.hover()
+          const hover = await control.evaluate(
             (node) => getComputedStyle(node).backgroundColor,
-          ),
-          fill,
-        )
-        await page.keyboard.press('Escape')
-        await expect(native).toBeFocused()
-        assert.deepEqual(await native.boundingBox(), original)
-        await choiceTrigger('Region').click()
-        await page.getByRole('listbox').getByRole('option').first().hover()
-        const option = page
-          .getByRole('listbox')
-          .locator('[data-highlighted]')
-          .first()
-        assert.deepEqual(
-          await option.evaluate((node) => {
-            const style = getComputedStyle(node)
-            return { fill: style.backgroundColor, ink: style.color }
-          }),
-          { fill, ink },
-        )
-        await page.keyboard.press('Escape')
+          )
+          assert.notEqual(hover, rest.fill)
+          styles.push({ ...rest, fill: undefined, hover })
+          await control.click()
+          await page.getByRole('listbox').getByRole('option').first().hover()
+          const option = page
+            .getByRole('listbox')
+            .locator('[data-highlighted]')
+            .first()
+          assert.deepEqual(
+            await option.evaluate((node) => {
+              const style = getComputedStyle(node)
+              return { fill: style.backgroundColor, ink: style.color }
+            }),
+            { fill, ink },
+          )
+          await page.keyboard.press('Escape')
+          await expect(control).toBeFocused()
+          await expect(page.locator('.table-workspace')).toHaveAttribute(
+            'data-controls-placement',
+            'left',
+          )
+        }
+        assert.deepEqual(styles[0], styles[1])
+        assert.deepEqual(await operator.boundingBox(), original)
       }
     }
+  })
+  await test('All editable filter inputs share hover treatment without moving', async () => {
+    await page
+      .getByRole('button', { name: 'Light surfaces', exact: true })
+      .click()
+    const controls = page.locator(
+      '.table-workspace-controls-body .ui-input, .table-workspace-controls-body .popup-trigger, .table-workspace-controls-body .ui-check-control',
+    )
+    let count = 0
+    for (const control of await controls.all()) {
+      if (!(await control.isVisible()) || (await control.isDisabled())) continue
+      await page.mouse.move(0, 0)
+      await control.scrollIntoViewIfNeeded()
+      const before = await control.boundingBox()
+      const color = await control.evaluate(
+        (node) => getComputedStyle(node).backgroundColor,
+      )
+      await control.hover()
+      assert.notEqual(
+        await control.evaluate(
+          (node) => getComputedStyle(node).backgroundColor,
+        ),
+        color,
+      )
+      assert.deepEqual(await control.boundingBox(), before)
+      count++
+    }
+    assert.ok(count >= 12)
+    assert.equal(
+      await page.locator('.table-workspace select.ui-native-select').count(),
+      0,
+    )
   })
   await test('Appearance button focus rings stay complete across desktop and narrow strips', async () => {
     await reviewAppearanceFocus(page)
@@ -2080,7 +2135,7 @@ try {
       await apply().click()
       await expect(pane).toBeVisible()
       await expect(start).toBeFocused()
-      await expect(start).toHaveValue('invalid')
+      await expectValue(start, 'invalid')
       await start.fill('2026-01-01')
       await start.press('Tab')
       await apply().click()
@@ -2137,9 +2192,10 @@ try {
       await value.evaluate((node) => getComputedStyle(node).textTransform),
       'none',
     )
-    await page
-      .getByRole('combobox', { name: 'Add grouping', exact: true })
-      .selectOption('region')
+    await selectValue(
+      choiceControl(page, { name: 'Add grouping', exact: true }),
+      'region',
+    )
     const groupValue = page.locator('[data-group-toggle]').first()
     assert.equal(
       await groupValue.evaluate((node) => getComputedStyle(node).textTransform),
@@ -2152,12 +2208,12 @@ try {
   await test('Display alignment follows column identity across grouping, visibility and movement', async () => {
     await page.getByText('Display columns', { exact: true }).click()
     const align = (name) =>
-      page.getByRole('combobox', { name: `${name} alignment`, exact: true })
+      choiceControl(page, { name: `${name} alignment`, exact: true })
     const cell = (id) =>
       page.locator(`tr[data-row="record-1"] td[data-column="${id}"]`)
     const header = (id) => page.locator(`thead th[data-column="${id}"]`)
     for (const value of ['center', 'right', 'left']) {
-      await align('Name').selectOption(value)
+      await selectValue(align('Name'), value)
       assert.equal(
         await cell('name').evaluate((n) => getComputedStyle(n).textAlign),
         value,
@@ -2176,7 +2232,7 @@ try {
     await page.evaluate(() =>
       window.dashboardFixture.setColumnAlignment('active', 'center'),
     )
-    await expect(align('Active')).toHaveValue('center')
+    await expectValue(align('Active'), 'center')
     assert.equal(
       await cell('active').evaluate((n) => getComputedStyle(n).textAlign),
       'center',
@@ -2187,7 +2243,7 @@ try {
       const { x, width } = range.getBoundingClientRect()
       return { x, width }
     }
-    await align('Name').selectOption('center')
+    await selectValue(align('Name'), 'center')
     const nameCell = await cell('name').boundingBox()
     const nameLabel = await header('name')
       .locator('.column-move')
@@ -2197,7 +2253,7 @@ try {
         nameLabel.x + nameLabel.width / 2 - nameCell.x - nameCell.width / 2,
       ) < 1,
     )
-    await align('Amount').selectOption('right')
+    await selectValue(align('Amount'), 'right')
     await page
       .getByRole('button', { name: 'Move Amount column', exact: true })
       .focus()
@@ -2221,7 +2277,7 @@ try {
     })
     await visible.getByText('Amount', { exact: true }).click()
     await expect(header('amount')).toHaveCount(0)
-    await expect(align('Amount')).toHaveValue('right')
+    await expectValue(align('Amount'), 'right')
     await visible.getByText('Amount', { exact: true }).click()
     await expect(cell('amount')).toHaveAttribute(
       'data-column-alignment',
@@ -2231,9 +2287,10 @@ try {
     await page.evaluate(() =>
       window.dashboardFixture.setColumnAlignment('region', 'right'),
     )
-    await page
-      .getByRole('combobox', { name: 'Add grouping', exact: true })
-      .selectOption('region')
+    await selectValue(
+      choiceControl(page, { name: 'Add grouping', exact: true }),
+      'region',
+    )
     const grouped = page
       .locator('tr[data-group] td[data-column="region"]')
       .first()
@@ -2300,9 +2357,10 @@ try {
       await zoomed.waitForFunction(() => Boolean(window.dashboardFixture))
       const before = await zoomed.locator('.table-scroll').boundingBox()
       for (const id of ['name', 'region', 'active']) {
-        await zoomed
-          .getByRole('combobox', { name: 'Add grouping', exact: true })
-          .selectOption(id)
+        await selectValue(
+          choiceControl(zoomed, { name: 'Add grouping', exact: true }),
+          id,
+        )
       }
       assert.deepEqual(
         await zoomed.locator('.table-scroll').boundingBox(),

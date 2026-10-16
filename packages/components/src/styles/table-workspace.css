@@ -336,16 +336,6 @@
   grid-column: 1 / -1;
 }
 
-:where([data-ui]) .ui-filter-chevron {
-  display: block;
-  width: 10px;
-  height: 6px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.5;
-  pointer-events: none;
-}
-
 :where([data-ui]) .table-filter-heading > .ui-label {
   font-weight: inherit;
 }

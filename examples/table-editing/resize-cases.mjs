@@ -1,3 +1,7 @@
+import {
+  choiceControl,
+  selectValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 const work = (value) =>
@@ -193,9 +197,10 @@ export async function resizeCases({
     async () => {
       await start()
       await page.getByText('Display options', { exact: true }).click()
-      await page
-        .getByRole('combobox', { name: 'Resize behavior', exact: true })
-        .selectOption('fixed')
+      await selectValue(
+        choiceControl(page, { name: 'Resize behavior', exact: true }),
+        'fixed',
+      )
       const before = await read()
       const tableWidth = async () =>
         page
@@ -223,15 +228,17 @@ export async function resizeCases({
       assert.equal(await handle('Due date').count(), 0)
       assert.deepEqual(work(await read()), work(before))
       await aligned()
-      await page
-        .getByRole('combobox', { name: 'Resize behavior', exact: true })
-        .selectOption('grow')
+      await selectValue(
+        choiceControl(page, { name: 'Resize behavior', exact: true }),
+        'grow',
+      )
       await drag('Name', 20)
       assert.equal((await read()).widths.note, 340)
       assert.equal(await tableWidth(), total + 20)
-      await page
-        .getByRole('combobox', { name: 'Resize behavior', exact: true })
-        .selectOption('fixed')
+      await selectValue(
+        choiceControl(page, { name: 'Resize behavior', exact: true }),
+        'fixed',
+      )
       await drag('Name', 20)
       assert.equal(await tableWidth(), total + 20)
       await aligned()

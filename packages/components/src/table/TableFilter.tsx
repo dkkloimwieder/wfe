@@ -1,5 +1,6 @@
-import { For, Show, createUniqueId, untrack } from 'solid-js'
-import { Button, Input, NativeSelect } from '../components/NativeFields'
+import { Show, createUniqueId, untrack } from 'solid-js'
+import { Button, Input } from '../components/NativeFields'
+import { SelectField } from '../components/Select'
 import { Checkbox } from '../components/Checkbox'
 import { nativeEvents } from '../utils/nativeEvents'
 
@@ -15,7 +16,7 @@ export type TableFilterProps = {
   hideLabel?: boolean
   choices?: ReadonlyArray<{ value: string; label: string; disabled?: boolean }>
   inputRef?: (node: HTMLInputElement) => void
-  controlRef?: (node: HTMLInputElement | HTMLSelectElement) => void
+  controlRef?: (node: HTMLInputElement | HTMLButtonElement) => void
   onEscape?: () => void
 }
 
@@ -25,7 +26,7 @@ export function TableFilter(props: TableFilterProps) {
   const stateLabel = () =>
     props.value === 'true' ? 'Yes' : props.value === 'false' ? 'No' : 'Either'
   const stateHelp = createUniqueId()
-  let control!: HTMLInputElement | HTMLSelectElement
+  let control!: HTMLInputElement | HTMLButtonElement
   function clear() {
     if (props.disabled) return
     control.focus({ preventScroll: true })
@@ -121,32 +122,21 @@ export function TableFilter(props: TableFilterProps) {
             }
           >
             {(choices) => (
-              <NativeSelect
+              <SelectField
                 id={id}
+                label={props.label}
                 value={props.value}
-                disabled={props.disabled}
-                ref={[
-                  (node) => {
-                    control = node
-                    props.controlRef?.(node)
-                  },
-                  nativeEvents<HTMLSelectElement>({
-                    change: (event) => {
-                      if (!props.disabled)
-                        props.onValueChange(event.currentTarget.value)
-                    },
-                  }),
+                choices={[
+                  { value: '', label: 'All' },
+                  ...choices().filter((choice) => choice.value !== ''),
                 ]}
-              >
-                <option value="">All</option>
-                <For each={choices().filter((choice) => choice.value !== '')}>
-                  {(choice) => (
-                    <option value={choice.value} disabled={choice.disabled}>
-                      {choice.label}
-                    </option>
-                  )}
-                </For>
-              </NativeSelect>
+                disabled={props.disabled}
+                ref={(node) => {
+                  control = node
+                  props.controlRef?.(node)
+                }}
+                onValueChange={props.onValueChange}
+              />
             )}
           </Show>
         </Show>

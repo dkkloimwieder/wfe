@@ -1,3 +1,8 @@
+import {
+  choiceControl,
+  selectValue,
+  controlValue,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -141,9 +146,7 @@ try {
   await test('Read-only sorting uses numeric values and exposes no editing controls', async () => {
     assert.equal(await page.getByRole('button', { name: /^Save/ }).count(), 0)
     assert.equal(
-      await page
-        .getByRole('combobox', { name: 'Save mode', exact: true })
-        .count(),
+      await choiceControl(page, { name: 'Save mode', exact: true }).count(),
       0,
     )
     assert.equal(
@@ -184,9 +187,10 @@ try {
     assert.deepEqual(await applyAndReadRows(), ['a', 'b', 'c'])
   })
   await test('Nested grouping, expansion, ordering and filtered summaries work without editing', async () => {
-    await page
-      .getByRole('combobox', { name: 'Add grouping', exact: true })
-      .selectOption('category')
+    await selectValue(
+      choiceControl(page, { name: 'Add grouping', exact: true }),
+      'category',
+    )
     assert.equal(await page.locator('tr[data-group]').count(), 2)
     const west = page.locator('tr[data-group]').filter({
       has: page.getByRole('button', {
@@ -198,9 +202,10 @@ try {
       await west.locator('[data-group-summary="amount"]').textContent(),
       '54',
     )
-    await page
-      .getByRole('combobox', { name: 'Order Category groups', exact: true })
-      .selectOption('value:asc')
+    await selectValue(
+      choiceControl(page, { name: 'Order Category groups', exact: true }),
+      'value:asc',
+    )
     assert.deepEqual(
       await page.locator('tr[data-group] button').allTextContents(),
       ['▸ East', '▸ West'],
@@ -209,9 +214,10 @@ try {
       .getByRole('button', { name: 'Expand Category: West', exact: true })
       .click()
     assert.deepEqual(await applyAndReadRows(), ['a', 'c'])
-    await page
-      .getByRole('combobox', { name: 'Add grouping', exact: true })
-      .selectOption('name')
+    await selectValue(
+      choiceControl(page, { name: 'Add grouping', exact: true }),
+      'name',
+    )
     await page
       .getByRole('button', { name: 'Expand all groups', exact: true })
       .click()
@@ -283,11 +289,11 @@ try {
   })
   await test('Uncontrolled display alignment survives record replacement and hidden columns', async () => {
     await page.getByText('Display columns', { exact: true }).click()
-    const alignment = page.getByRole('combobox', {
+    const alignment = choiceControl(page, {
       name: 'Category alignment',
       exact: true,
     })
-    await alignment.selectOption('center')
+    await selectValue(alignment, 'center')
     const visible = page.getByRole('group', {
       name: 'Visible columns',
       exact: true,
@@ -299,7 +305,7 @@ try {
       ]),
     )
     await visible.getByText('Category', { exact: true }).click()
-    assert.equal(await alignment.inputValue(), 'center')
+    assert.equal(await controlValue(alignment), 'center')
     for (const selector of [
       'thead th[data-column="category"]',
       'tr[data-row="a"] td[data-column="category"]',

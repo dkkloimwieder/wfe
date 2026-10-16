@@ -1,3 +1,9 @@
+import {
+  choiceControl,
+  selectValue,
+  expectValue,
+  choiceOptions,
+} from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 
 export async function nativeFieldCases({ page, url, record, press, settle }) {
@@ -12,6 +18,41 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     )
     await settle()
   }
+  await record(
+    'fields: shared Select composition preserves accepted values and named form submission',
+    async () => {
+      await open()
+      const control = choiceControl(page, {
+        name: 'Shared choice',
+        exact: true,
+      })
+      const submitted = () =>
+        page.evaluate(() =>
+          new FormData(document.querySelector('[data-select-field-form]')).get(
+            'shared-choice',
+          ),
+        )
+      assert.equal(await submitted(), 'alpha')
+      const options = await choiceOptions(control)
+      assert.equal(options.at(-1).disabled, true)
+      await control.focus()
+      await press('ArrowDown')
+      await press('End')
+      await press('Enter')
+      await expectValue(control, 'beta')
+      assert.equal(await submitted(), 'beta')
+      await configure({ accept: false })
+      await selectValue(control, 'alpha')
+      await expectValue(control, 'beta')
+      assert.equal(await submitted(), 'beta')
+      await configure({ choice: 'alpha', invalid: true })
+      await expectValue(control, 'alpha')
+      assert.equal(await control.getAttribute('aria-invalid'), 'true')
+      await configure({ disabled: true })
+      assert.equal(await control.isDisabled(), true)
+      assert.equal(await submitted(), null)
+    },
+  )
   await record(
     'fields: button variants preserve keyboard actions and disabled form behavior',
     async () => {
