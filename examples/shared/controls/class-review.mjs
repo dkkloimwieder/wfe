@@ -116,13 +116,16 @@ export async function reviewDynamicIds(page, configure) {
       ['Checkbox.Input', 'Checkbox.Label'],
       ['Switch.Input', 'Switch.Label'],
       ['RadioGroup.ItemInput', 'RadioGroup.ItemLabel'],
+      ['Select.Trigger', 'Select.Label'],
+      ['Combobox.Input', 'Combobox.Label'],
     ]) {
       const control = page.locator('[data-id-part="' + inputPart + '"]')
       const label = page.locator('[data-id-part="' + labelPart + '"]')
-      await expect(label).toHaveAttribute(
-        'for',
-        await control.getAttribute('id'),
-      )
+      if (inputPart !== 'Select.Trigger')
+        await expect(label).toHaveAttribute(
+          'for',
+          await control.getAttribute('id'),
+        )
       const labelId = await label.getAttribute('id')
       const references = await control.evaluate((node) =>
         ['aria-labelledby', 'aria-describedby']
@@ -140,5 +143,71 @@ export async function reviewDynamicIds(page, configure) {
         true,
         await node.getAttribute('data-id-part'),
       )
+  }
+}
+
+export async function reviewChoiceMetadata(page, configure) {
+  const part = (name) => page.locator(`[data-id-part="${name}"]`)
+  const controls = { Select: 'Select.Trigger', Combobox: 'Combobox.Input' }
+  const references = (control) =>
+    control.evaluate((node) => ({
+      label: (node.getAttribute('aria-labelledby') ?? '').split(/\s+/),
+      described: (node.getAttribute('aria-describedby') ?? '').split(/\s+/),
+    }))
+  for (const family of Object.keys(controls)) {
+    const label = part(family + '.Label')
+    assert.equal(
+      await label.evaluate((node) => node.tagName),
+      family === 'Select' ? 'STRONG' : 'LABEL',
+    )
+    assert.equal(
+      await part(family + '.Description').evaluate((node) => node.tagName),
+      'P',
+    )
+    assert.equal(
+      await part(family + '.ErrorMessage').evaluate((node) => node.tagName),
+      'SPAN',
+    )
+  }
+  const nodes = await page
+    .locator('[data-id-part^="Select."], [data-id-part^="Combobox."]')
+    .elementHandles()
+  for (const invalid of [false, true]) {
+    await configure({ invalid, forceMount: true })
+    for (const [family, control] of Object.entries(controls)) {
+      const linked = await references(part(control))
+      assert.ok(
+        linked.label.includes(await part(family + '.Label').getAttribute('id')),
+      )
+      assert.ok(
+        linked.described.includes(
+          await part(family + '.Description').getAttribute('id'),
+        ),
+      )
+      assert.equal(
+        linked.described.includes(
+          await part(family + '.ErrorMessage').getAttribute('id'),
+        ),
+        invalid,
+      )
+    }
+    for (const node of nodes)
+      assert.equal(await node.evaluate((node) => node.isConnected), true)
+  }
+  await configure({ invalid: false, forceMount: false })
+  for (const [family, control] of Object.entries(controls)) {
+    assert.equal(await part(family + '.ErrorMessage').count(), 0)
+    const linked = await references(part(control))
+    assert.equal(linked.described.filter(Boolean).length, 1)
+  }
+  await configure({ invalid: true, forceMount: true })
+  for (const [family, control] of Object.entries(controls)) {
+    await expect(part(family + '.ErrorMessage')).toHaveCount(1)
+    const linked = await references(part(control))
+    assert.ok(
+      linked.described.includes(
+        await part(family + '.ErrorMessage').getAttribute('id'),
+      ),
+    )
   }
 }

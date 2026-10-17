@@ -206,17 +206,52 @@ export function ComboboxIcon<T extends ValidComponent = 'span'>(
   )
 }
 
+export function ComboboxLabel<T extends ValidComponent = 'label'>(
+  props: PolymorphicProps<
+    T,
+    Core.ComboboxLabelProps<T> & { class?: ClassValue }
+  >,
+) {
+  const Primitive = Core.Label as Component<typeof props>
+  return <Primitive {...props} class={styledClasses('ui-label', props.class)} />
+}
+
+export function ComboboxDescription<T extends ValidComponent = 'div'>(
+  props: PolymorphicProps<
+    T,
+    Core.ComboboxDescriptionProps & { class?: ClassValue }
+  >,
+) {
+  const Primitive = Core.Description as Component<typeof props>
+  return <Primitive {...props} class={styledClasses('ui-help', props.class)} />
+}
+
+export function ComboboxErrorMessage<T extends ValidComponent = 'div'>(
+  props: PolymorphicProps<
+    T,
+    Core.ComboboxErrorMessageProps<T> & { class?: ClassValue }
+  >,
+) {
+  const Primitive = Core.ErrorMessage as Component<typeof props>
+  return (
+    <Primitive
+      {...props}
+      class={styledClasses('ui-field-error', props.class)}
+    />
+  )
+}
+
 export const Combobox = /* @__PURE__ */ Object.assign(ComboboxRoot, {
   // Refresh proxies hide function keys. Copy named parts without enumerating them.
   Arrow: Core.Arrow,
-  Description: Core.Description,
-  ErrorMessage: Core.ErrorMessage,
+  Description: ComboboxDescription,
+  ErrorMessage: ComboboxErrorMessage,
   HiddenSelect: Core.HiddenSelect,
   Icon: ComboboxIcon,
   ItemDescription: Core.ItemDescription,
   ItemIndicator: ComboboxItemIndicator,
   ItemLabel: Core.ItemLabel,
-  Label: Core.Label,
+  Label: ComboboxLabel,
   Section: Core.Section,
   Root: ComboboxRoot,
   Trigger: ComboboxTrigger,

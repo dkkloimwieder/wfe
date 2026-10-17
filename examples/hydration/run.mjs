@@ -1,6 +1,7 @@
 import {
   reviewStructuredClasses,
   reviewDynamicIds,
+  reviewChoiceMetadata,
   initialClassTokens,
 } from '../shared/controls/class-review.mjs'
 import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
@@ -161,6 +162,12 @@ try {
       ),
     ),
     true,
+  )
+  await reviewChoiceMetadata(page, (next) =>
+    page.evaluate(
+      (next) => window.hydrationFixture.classes.configureMetadata(next),
+      next,
+    ),
   )
   report.assertions.push(
     'Structured classes survive server rendering, hydration and reactive changes without replacing server nodes',

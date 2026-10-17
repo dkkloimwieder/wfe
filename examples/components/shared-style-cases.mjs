@@ -321,4 +321,61 @@ export async function sharedStyleCases({ page, url, record, settle }) {
       }
     },
   )
+  for (const theme of ['light', 'dark']) {
+    for (const density of ['compact', 'comfortable']) {
+      await record(
+        `shared styles: ${theme} ${density} choice metadata matches native and boolean fields`,
+        async () => {
+          await page.goto(`${url}?classes=1`)
+          await page.locator('#class-root').evaluate(
+            (node, { theme, density }) => {
+              node.dataset.uiTheme = theme
+              node.dataset.uiDensity = density
+            },
+            { theme, density },
+          )
+          const part = (name) => page.locator(`[data-id-part="${name}"]`)
+          const typography = (node) =>
+            node.evaluate((node) => {
+              const style = getComputedStyle(node)
+              return Object.fromEntries(
+                ['fontSize', 'fontWeight', 'textTransform', 'color'].map(
+                  (key) => [key, style[key]],
+                ),
+              )
+            })
+          for (const [base, partName] of [
+            ['ui-label', 'Label'],
+            ['ui-help', 'Description'],
+            ['ui-field-error', 'ErrorMessage'],
+          ]) {
+            const expected = await typography(
+              page.locator(`[data-class-base="${base}"]`).first(),
+            )
+            assert.equal(
+              expected.textTransform,
+              partName === 'Label' ? 'uppercase' : 'none',
+            )
+            if (partName === 'Label') assert.equal(expected.fontWeight, '650')
+            for (const family of ['Checkbox', 'Select', 'Combobox'])
+              assert.deepEqual(
+                await typography(part(family + '.' + partName)),
+                expected,
+                `${family} ${partName}`,
+              )
+          }
+          assert.equal(
+            (await typography(part('Select.Trigger'))).textTransform,
+            'none',
+          )
+          assert.equal(
+            (await typography(part('Combobox.Input'))).textTransform,
+            'none',
+          )
+          await expect(part('Select.Trigger')).toContainText('Alpha')
+          await expect(part('Combobox.Input')).toHaveValue('Alpha')
+        },
+      )
+    }
+  }
 }

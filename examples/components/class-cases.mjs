@@ -3,6 +3,7 @@ import { expect } from '@playwright/test'
 import {
   reviewStructuredClasses,
   reviewDynamicIds,
+  reviewChoiceMetadata,
   initialClassTokens,
 } from '../shared/controls/class-review.mjs'
 
@@ -43,6 +44,18 @@ export async function classCases({ page, url, record, settle }) {
         ...before,
         clicks: 2,
       })
+      assert.equal(before.metadataRefs, 6)
+      await reviewChoiceMetadata(page, (next) =>
+        page.evaluate(
+          (next) => window.classFixture.configureMetadata(next),
+          next,
+        ),
+      )
+      await page.locator('[data-id-part="Select.Description"]').click()
+      assert.equal(
+        await page.evaluate(() => window.classFixture.read().metadataClicks),
+        1,
+      )
       await page.locator('#class-input').fill('Retained input events')
       await expect(page.locator('#class-input')).toHaveValue(
         'Retained input events',

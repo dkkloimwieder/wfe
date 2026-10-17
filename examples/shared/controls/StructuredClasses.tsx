@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   Checkbox,
+  Combobox,
   Dialog,
   EmptyState,
   Field,
@@ -19,6 +20,7 @@ import {
   Popover,
   Progress,
   RadioGroup,
+  Select,
   SelectField,
   Separator,
   Skeleton,
@@ -38,8 +40,18 @@ export const initialClasses: JSX.ClassValue = [
 export const classLifecycle = {
   configure: (_value: JSX.ClassValue) => {},
   configureIds: (_suffix?: string) => {},
+  configureMetadata: (_value: {
+    invalid?: boolean
+    forceMount?: boolean
+  }) => {},
   configureMap: (_enabled: boolean, _nested?: boolean) => {},
-  read: () => ({ refs: 0, clicks: 0, cleanups: 0 }),
+  read: () => ({
+    refs: 0,
+    clicks: 0,
+    cleanups: 0,
+    metadataRefs: 0,
+    metadataClicks: 0,
+  }),
 }
 
 /** Shared client and hydration fixture for native class values. */
@@ -72,6 +84,15 @@ export function StructuredClasses() {
     },
     'data-class-base': base,
   })
+  const [metadataInvalid, setMetadataInvalid] = createSignal(true)
+  const [forceMetadata, setForceMetadata] = createSignal(true)
+  classLifecycle.configureMetadata = (next) => {
+    if ('invalid' in next) setMetadataInvalid(next.invalid!)
+    if ('forceMount' in next) setForceMetadata(next.forceMount!)
+    flush()
+  }
+  let metadataRefs = 0
+  let metadataClicks = 0
   let refs = 0
   let clicks = 0
   let cleanups = 0
@@ -79,7 +100,13 @@ export function StructuredClasses() {
     setValue(next)
     flush()
   }
-  classLifecycle.read = () => ({ refs, clicks, cleanups })
+  classLifecycle.read = () => ({
+    refs,
+    clicks,
+    cleanups,
+    metadataRefs,
+    metadataClicks,
+  })
   onCleanup(() => cleanups++)
   return (
     <Card data-ui="" id="class-root" {...attributes('ui-card')}>
@@ -186,6 +213,82 @@ export function StructuredClasses() {
         choices={[{ value: 'a', label: 'Alpha' }]}
         onValueChange={() => {}}
       />
+      <Select
+        options={['Alpha', 'Beta']}
+        defaultValue="Alpha"
+        validationState={metadataInvalid() ? 'invalid' : 'valid'}
+        itemComponent={(item) => (
+          <Select.Item item={item.item}>
+            <Select.ItemLabel>{item.item.rawValue}</Select.ItemLabel>
+          </Select.Item>
+        )}
+      >
+        <Select.Trigger {...attributes('popup-trigger', 'Select.Trigger')}>
+          <Select.Value<string>>
+            {(state) => state.selectedOption()}
+          </Select.Value>
+        </Select.Trigger>
+        <Select.Label
+          as="strong"
+          ref={() => metadataRefs++}
+          {...attributes('ui-label', 'Select.Label')}
+        >
+          Class select metadata
+        </Select.Label>
+        <Select.Description
+          as="p"
+          ref={() => metadataRefs++}
+          onClick={() => metadataClicks++}
+          {...attributes('ui-help', 'Select.Description')}
+        >
+          Select prose help.
+        </Select.Description>
+        <Select.ErrorMessage
+          as="span"
+          forceMount={forceMetadata()}
+          ref={() => metadataRefs++}
+          {...attributes('ui-field-error', 'Select.ErrorMessage')}
+        >
+          Select prose error.
+        </Select.ErrorMessage>
+      </Select>
+      <Combobox
+        options={['Alpha', 'Beta']}
+        defaultValue="Alpha"
+        validationState={metadataInvalid() ? 'invalid' : 'valid'}
+        itemComponent={(item) => (
+          <Combobox.Item item={item.item}>
+            <Combobox.ItemLabel>{item.item.rawValue}</Combobox.ItemLabel>
+          </Combobox.Item>
+        )}
+      >
+        <Combobox.Control>
+          <Combobox.Input {...attributes('choice-input', 'Combobox.Input')} />
+        </Combobox.Control>
+        <Combobox.Label
+          as="label"
+          ref={() => metadataRefs++}
+          {...attributes('ui-label', 'Combobox.Label')}
+        >
+          Class combobox metadata
+        </Combobox.Label>
+        <Combobox.Description
+          as="p"
+          ref={() => metadataRefs++}
+          onClick={() => metadataClicks++}
+          {...attributes('ui-help', 'Combobox.Description')}
+        >
+          Combobox prose help.
+        </Combobox.Description>
+        <Combobox.ErrorMessage
+          as="span"
+          forceMount={forceMetadata()}
+          ref={() => metadataRefs++}
+          {...attributes('ui-field-error', 'Combobox.ErrorMessage')}
+        >
+          Combobox prose error.
+        </Combobox.ErrorMessage>
+      </Combobox>
       <Popover>
         <Popover.Trigger
           as={Button}

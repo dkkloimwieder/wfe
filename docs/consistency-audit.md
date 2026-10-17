@@ -196,14 +196,16 @@ A temporary editor restores exact source bytes on success, failure, and interrup
 Reports retain original backups, watcher events, and module details after failures.
 The current tests do not reproduce the earlier stale compilation, so this change adds coverage without a speculative runtime repair.
 
-## P2: choice metadata needs shared presentation
+## Fixed: choice metadata shares field presentation
 
-Issue: `wfe-w2y.25`.
+Resolved in `wfe-w2y.25`.
 
-Select and Combobox expose label, description, and error parts directly from behavior modules.
-Those parts lack the shared label, help, and error classes used by native fields and boolean controls.
-Select labels therefore miss uppercase text, and choice help and errors miss shared typography and colors.
-The follow-up adds presentation wrappers while preserving primitive props, refs, IDs, and accessibility associations.
+Select and Combobox now use presentation wrappers for field labels, help text, and errors.
+The wrappers use the same label, help, and error classes as native fields and boolean controls.
+Labels share uppercase text and weight, and help text and errors share typography and colors.
+The wrappers preserve primitive props, custom elements, refs, events, IDs, and accessibility associations.
+The shared class and hydration fixtures test reactive IDs, retained nodes, and conditional errors.
+Browser tests compare typography across both themes and densities.
 Option labels remain record values and retain their original case.
 
 ## Order of follow-up work
@@ -215,7 +217,7 @@ Use the shared interaction matrix to prevent new divergence.
 Repeated icons and current ownership documentation now use the shared implementation.
 
 The original control, style, icon, and ownership documentation repairs are complete.
-Metadata presentation remains in `wfe-w2y.25`.
+Choice metadata now shares field presentation in `wfe-w2y.25`.
 Live stylesheet saves now have regression coverage in `wfe-w2y.24`.
 Optional WAMN row presentation remains separate work in `wfe-w2y.18`.
 Cross-browser appearance remains an additional qualification task.

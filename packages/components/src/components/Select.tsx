@@ -278,17 +278,49 @@ export function SelectIcon<T extends ValidComponent = 'span'>(
   )
 }
 
+export function SelectLabel<T extends ValidComponent = 'span'>(
+  props: PolymorphicProps<T, Core.SelectLabelProps<T> & { class?: ClassValue }>,
+) {
+  const Primitive = Core.Label as Component<typeof props>
+  return <Primitive {...props} class={styledClasses('ui-label', props.class)} />
+}
+
+export function SelectDescription<T extends ValidComponent = 'div'>(
+  props: PolymorphicProps<
+    T,
+    Core.SelectDescriptionProps & { class?: ClassValue }
+  >,
+) {
+  const Primitive = Core.Description as Component<typeof props>
+  return <Primitive {...props} class={styledClasses('ui-help', props.class)} />
+}
+
+export function SelectErrorMessage<T extends ValidComponent = 'div'>(
+  props: PolymorphicProps<
+    T,
+    Core.SelectErrorMessageProps<T> & { class?: ClassValue }
+  >,
+) {
+  const Primitive = Core.ErrorMessage as Component<typeof props>
+  return (
+    <Primitive
+      {...props}
+      class={styledClasses('ui-field-error', props.class)}
+    />
+  )
+}
+
 export const Select = /* @__PURE__ */ Object.assign(SelectRoot, {
   // Refresh proxies hide function keys. Copy named parts without enumerating them.
   Arrow: Core.Arrow,
-  Description: Core.Description,
-  ErrorMessage: Core.ErrorMessage,
+  Description: SelectDescription,
+  ErrorMessage: SelectErrorMessage,
   HiddenSelect: Core.HiddenSelect,
   Icon: SelectIcon,
   ItemDescription: Core.ItemDescription,
   ItemIndicator: SelectItemIndicator,
   ItemLabel: Core.ItemLabel,
-  Label: Core.Label,
+  Label: SelectLabel,
   Section: Core.Section,
   Value: Core.Value,
   Root: SelectRoot,
