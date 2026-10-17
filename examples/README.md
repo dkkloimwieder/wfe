@@ -60,3 +60,8 @@ The form contract example uses `examples/form-contract/vite.config.ts` on port 7
 It demonstrates application-owned values, explicit submission, validation, reset, cancellation, and late-response handling.
 It imports the generic `createForm` implementation from `@wfe/form`.
 Read [the form contract](../docs/form-contract.md) for the public API and ownership rules.
+
+The [generator example](generator/README.md) composes a form, table, and dashboard through `@wfe/generator`.
+Use `examples/generator/vite.config.ts` with an unused port to preview it.
+Its README lists the build, browser, and hydration commands.
+The application owns data and callbacks, while descriptions control presentation and composition.

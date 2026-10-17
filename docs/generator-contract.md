@@ -1,11 +1,11 @@
 # Generator contract
 
 `@wfe/generator` defines typed descriptions and application bindings for forms, tables, and dashboard layouts.
-This private package currently exports types only.
-Issue `wfe-w2y.4.2` implements builders and rendering through the existing components.
-There are no placeholder runtime builders.
+This private package exports `FormView`, `TableView`, and `LayoutView` through its public entry.
+These functions compose existing components from typed descriptions and bindings.
+They do not create another form coordinator or table engine.
 
-The intended API creates runtime UI from descriptions and bindings.
+The API creates runtime UI from descriptions and bindings.
 It does not define a serialized metadata format, a source emitter, or a service client.
 Applications keep their data, validation rules, requests, and persistence.
 The generator supplies composition over the existing components and their styles.
@@ -50,6 +50,8 @@ Custom controls must honor the supplied DOM identity and existing Field context.
 
 A submit description explicitly enables the form's existing submission operation.
 Its label and ID remain presentation data.
+The enabled submit button and native form submission call the same bound operation.
+Without a submit description, the form prevents native submission.
 Extra actions use application callbacks keyed by their described IDs.
 Applications handle asynchronous extra actions and supply their own pending or error presentation.
 Disabled and read-only bindings remain application decisions.
@@ -72,12 +74,18 @@ Current header aliases belong to the application binding and override those labe
 Bindings also supply optional existing filter, grouping, alignment, refresh, and collapse contracts.
 The renderer passes the same table to `ReadOnlyTable` and uses its existing slots.
 Custom cell bindings receive the raw value and native column without changing sorting or filtering data.
+The shared table supplies one `renderCell` slot per mounted native cell.
+That slot receives the native cell with its reactive `getValue` method.
+The generator uses it to preserve custom components across record changes.
+Existing `formatValue` callbacks remain available for ordinary stateless formatting.
+Group labels and aggregate values retain the existing table presentation in this first renderer.
 
 The current `NativeTable` type does not encode its configured column IDs.
 TypeScript cannot prove that a described column exists on that particular instance.
 The renderer must report unknown column IDs at runtime before rendering.
 It must also report unknown alias keys, duplicate field, action, and panel identities, and missing dynamic bindings.
-These runtime guards belong to issue `wfe-w2y.4.2`.
+The renderers report these errors with a `Generator:` prefix.
+An application can use Solid `Errored` to present a rejected description.
 
 ## Layout and identity
 
@@ -86,18 +94,27 @@ The same view mechanism accepts ordinary components and generator compositions.
 Main panels and optional navigation use the existing dashboard shell, grid, and panels.
 Panel lists define order within their region.
 Columns, scrolling, titles, and navigation labels remain presentation choices.
+A main panel with `fill` makes the grid occupy the available main height.
+Its record contents do not determine the panel height.
+The existing child scroller handles content that exceeds this assigned space.
+Without a main fill panel, the grid follows its content height.
+Navigation fill does not change the main grid height.
 
 Labels, aliases, field order, panel order, callbacks, choices, loading, and errors can change without replacing form or table ownership.
 Form and table instances remain fixed for a mounted view.
 Replacing either instance requires a new view identity.
 Changing a field's control family or a custom component's identity also requires an explicit remount.
+A layout view callback defines a component and retains its identity while its panel remains mounted.
+Changing that callback requires a new panel identity.
+Action callbacks can change without replacing their buttons.
 Moving a panel between navigation and main content requires a new panel identity.
 These boundaries keep application state separate from DOM lifetime.
-The rendering issue must prove supported updates and cleanup before the API includes runtime exports.
+The renderer tests cover these updates and dispose removed fields, cells, and panels.
 
 ## Qualification
 
 From the repository root, run `pnpm build` before `pnpm test:contracts`.
 The contract command compiles the documentation and positive and negative generator examples against the built package declarations.
 Run `pnpm check` before committing.
-This type-only stage changes no component renderer or existing browser interaction.
+The [public example](../examples/generator/App.tsx) composes all three views without a backend.
+Its browser and hydration suites use source, distribution, and development builds.

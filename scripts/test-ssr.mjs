@@ -137,3 +137,61 @@ assert.deepEqual(
   'Toast server rendering and disposal remain pure',
 )
 console.log('Toast server rendering and disposal passed.')
+
+const { FormView, TableView, LayoutView } = await import('@wfe/generator')
+const generatorWarnings = []
+let generatorOutput
+try {
+  console.warn = (...args) => generatorWarnings.push(args.map(String).join(' '))
+  generatorOutput = await renderToString(() => {
+    const form = createForm({
+      values: () => ({ title: 'Generated record' }),
+      defaults: () => ({ title: 'Generated record' }),
+      onValuesChange() {},
+      validate: () => ({}),
+      onSubmit: () => ({ ok: true }),
+    })
+    const table = createNativeTable({
+      source: { ids: () => ['one'], get: () => ({ title: 'Generated row' }) },
+      columns: [{ id: 'title', accessorKey: 'title' }],
+    })
+    return LayoutView({
+      description: {
+        id: 'generated',
+        panels: [
+          { id: 'editor', view: 'editor' },
+          { id: 'records', view: 'records' },
+        ],
+      },
+      bindings: {
+        views: {
+          editor: () =>
+            FormView({
+              description: {
+                id: 'editor',
+                fields: [
+                  { field: 'title', label: 'Record title', control: 'text' },
+                ],
+              },
+              bindings: { form },
+            }),
+          records: () =>
+            TableView({
+              description: {
+                id: 'records',
+                columns: { title: { label: 'Heading' } },
+              },
+              bindings: { table },
+            }),
+        },
+      },
+    })
+  })
+} finally {
+  console.warn = originalWarn
+}
+assert.match(generatorOutput, /Generated record/)
+assert.match(generatorOutput, /Generated row/)
+assert.match(generatorOutput, /Record title/)
+assert.deepEqual(generatorWarnings, [])
+console.log('Generator public server rendering and disposal passed.')

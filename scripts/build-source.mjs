@@ -3,11 +3,14 @@ import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 
+const packageName = process.argv[2] ?? 'components'
+if (!['components', 'generator'].includes(packageName))
+  throw new Error('Unsupported source package')
 const source = fileURLToPath(
-  new URL('../packages/components/src/', import.meta.url),
+  new URL(`../packages/${packageName}/src/`, import.meta.url),
 )
 const output = fileURLToPath(
-  new URL('../packages/components/dist/source/', import.meta.url),
+  new URL(`../packages/${packageName}/dist/source/`, import.meta.url),
 )
 async function visit(directory) {
   const files = []
@@ -58,6 +61,7 @@ for (const file of files) {
   await writeFile(destination, code)
 }
 
-await cp(resolve(source, 'styles'), resolve(output, 'styles'), {
-  recursive: true,
-})
+if (packageName === 'components')
+  await cp(resolve(source, 'styles'), resolve(output, 'styles'), {
+    recursive: true,
+  })

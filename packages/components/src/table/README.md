@@ -74,3 +74,14 @@ Use `label` for the accessible name and `name` for native form submission.
 The `ref` points to the trigger button.
 TableFilter.controlRef receives an input or trigger button, depending on its filter kind.
 All editable field surfaces share hover feedback through `--ui-control-hover`, which defaults to `--ui-highlight`.
+
+## Stateful record cells
+
+`Table`, `TableRow`, and `ReadOnlyTable` accept `renderCell(cell)` for custom record components.
+The table calls this function once for each mounted native cell owner.
+The function takes a `NativeCell` and overrides `formatValue` for record cells.
+Read `cell.getValue()` within reactive JSX to receive current application values.
+Keep the function identity fixed while its row remains mounted.
+Column reordering preserves the cell owner.
+Hiding a column or removing a row disposes that owner's custom content.
+Group labels and aggregate formatting keep their existing callbacks.

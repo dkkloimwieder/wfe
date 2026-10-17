@@ -1,10 +1,10 @@
 import { Icon } from '../components/Icon'
-import { For, Show, onCleanup } from 'solid-js'
+import { For, Show, onCleanup, untrack } from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 import { TableSort } from './TableSort'
 import type { JSX } from '@solidjs/web'
-import type { NativeColumn, NativeTable } from './engine'
+import type { NativeCell, NativeColumn, NativeTable } from './engine'
 
 export type TableColumnAlignment = 'left' | 'center' | 'right'
 export type TableColumnAlignments = Readonly<
@@ -30,6 +30,7 @@ export function Table<T, M>(props: {
   ariaSort?: (column: NativeColumn<T, M>) => JSX.AriaAttributes['aria-sort']
   renderRow?: (id: string, grouped: boolean) => JSX.Element
   renderBody?: () => JSX.Element
+  renderCell?: (cell: NativeCell<T, M>) => JSX.Element
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   groupLabel?: (id: string) => string
@@ -158,6 +159,7 @@ export function Table<T, M>(props: {
                       table={table}
                       columnAlignment={props.columnAlignment}
                       id={id}
+                      renderCell={props.renderCell}
                       formatValue={props.formatValue}
                     />
                   )
@@ -176,6 +178,7 @@ export function Table<T, M>(props: {
                       table={table}
                       columnAlignment={props.columnAlignment}
                       id={item.id}
+                      renderCell={props.renderCell}
                       formatValue={props.formatValue}
                     />
                   )
@@ -210,6 +213,7 @@ export function TableRow<T, M>(props: {
   table: NativeTable<T, M>
   columnAlignment?: TableColumnAlignments
   id: string
+  renderCell?: (cell: NativeCell<T, M>) => JSX.Element
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   leading?: () => JSX.Element
   trailing?: () => JSX.Element
@@ -217,6 +221,7 @@ export function TableRow<T, M>(props: {
   onCell?: () => void
 }) {
   const row = props.table.createRowView(props.id)
+  const renderCell = untrack(() => props.renderCell)
   return (
     <tbody>
       <tr data-row={props.id}>
@@ -224,14 +229,21 @@ export function TableRow<T, M>(props: {
         <For each={row.getVisibleCells()}>
           {(cell) => {
             props.onCell?.()
+            const content = renderCell ? (
+              renderCell(cell)
+            ) : (
+              <>
+                {props.formatValue?.(cell.getValue(), cell.column) ??
+                  String(cell.getValue() ?? '')}
+              </>
+            )
             return (
               <td
                 data-column={cell.column.id}
                 class="read-only-value"
                 data-column-alignment={props.columnAlignment?.[cell.column.id]}
               >
-                {props.formatValue?.(cell.getValue(), cell.column) ??
-                  String(cell.getValue() ?? '')}
+                {content}
               </td>
             )
           }}

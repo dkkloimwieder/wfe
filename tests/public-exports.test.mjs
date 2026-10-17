@@ -84,7 +84,9 @@ test('form package exposes its built entry and declarations', async () => {
 })
 
 test('private generator exposes declarations and a valid package entry', async () => {
-  await import('@wfe/generator')
+  const generator = await import('@wfe/generator')
+  for (const name of ['FormView', 'TableView', 'LayoutView'])
+    assert.equal(typeof generator[name], 'function')
   const manifest = JSON.parse(
     await readFile(
       new URL('../packages/generator/package.json', import.meta.url),

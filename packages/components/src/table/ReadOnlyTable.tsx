@@ -21,7 +21,7 @@ import type { TableDateRange } from './TableDateFilter'
 import { TableGrouping } from './TableGrouping'
 import { TableColumnMove, moveColumn } from './TableColumnMove'
 import type { JSX } from '@solidjs/web'
-import type { NativeColumn, NativeTable } from './engine'
+import type { NativeCell, NativeColumn, NativeTable } from './engine'
 
 export type TableFilterConfig =
   TableColumnFilterConfig | { kind: 'boolean' | 'date-range' }
@@ -55,6 +55,7 @@ export function ReadOnlyTable<T, M>(props: {
   filter?: (column: NativeColumn<T, M>) => TableFilterConfig | undefined
   filterKind?: (column: NativeColumn<T, M>) => 'text' | 'boolean' | 'date-range'
   groupable?: (id: string) => boolean
+  renderCell?: (cell: NativeCell<T, M>) => JSX.Element
   formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
 }) {
@@ -358,6 +359,7 @@ export function ReadOnlyTable<T, M>(props: {
           }
           label={label}
           groupLabel={(id) => label(table.getColumn(id)!)}
+          renderCell={props.renderCell}
           formatValue={props.formatValue}
           formatSummary={props.formatSummary}
           header={(column) => (

@@ -1,9 +1,18 @@
 import { defineConfig } from 'tsdown'
-export default defineConfig({
+import solid from '@solidjs/vite-plugin'
+const shared = {
   entry: ['./src/index.ts'],
-  format: ['esm'],
+  format: ['esm'] as const,
   fixedExtension: false,
-  dts: true,
   clean: true,
   exports: false,
-})
+}
+export default defineConfig([
+  { ...shared, plugins: [solid()], outDir: 'dist/client', dts: true },
+  {
+    ...shared,
+    plugins: [solid({ solid: { generate: 'ssr' } })],
+    outDir: 'dist/server',
+    dts: false,
+  },
+])

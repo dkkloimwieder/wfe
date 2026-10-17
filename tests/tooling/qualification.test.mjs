@@ -38,6 +38,7 @@ test('qualification covers both browser inputs and keeps heap work separate', ()
     'table-read-only',
     'date-picker',
     'form-contract',
+    'generator',
   ]) {
     for (const mode of ['source', 'distribution']) {
       const browser = stages.find(
@@ -65,6 +66,11 @@ test('qualification covers both browser inputs and keeps heap work separate', ()
   assert.equal(live.env.BENCH_URL, undefined)
   for (const mode of ['source', 'distribution', 'development']) {
     assert.ok(stages.some(({ name }) => name === `hydration-${mode}`))
+    const generator = stages.find(
+      ({ name }) => name === `generator-hydration-${mode}`,
+    )
+    assert.ok(generator)
+    assert.equal(generator.args.at(-1), 'examples/generator/run-hydration.mjs')
     const form = stages.find(({ name }) => name === `form-hydration-${mode}`)
     assert.ok(form)
     assert.equal(form.args.at(-1), 'examples/form-contract/run-hydration.mjs')

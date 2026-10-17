@@ -15,3 +15,7 @@ export type {
   LayoutDescription,
   LayoutViewBindings,
 } from './types'
+
+export { FormView } from './FormView'
+export { TableView } from './TableView'
+export { LayoutView } from './LayoutView'
