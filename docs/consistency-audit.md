@@ -162,9 +162,9 @@ The shared class fixture tests class changes, stable nodes, refs, events, polymo
 Source and package browser tests also exercise a conditional map that retains its object identity.
 Server rendering and hydration use the same fixture and preserve the server nodes.
 
-Qualification exposed two separate issues that remain open.
-`wfe-w2y.20` tracks opening autofocus that overwrites keyboard focus.
-`wfe-w2y.21` tracks untracked default ID reads through dynamic property spreads.
+Qualification exposed two separate issues.
+`wfe-w2y.20` now preserves later navigation and focus changes while opening focus waits.
+`wfe-w2y.21` still tracks untracked default ID reads through dynamic property spreads.
 
 ## Differences that remain intentional
 

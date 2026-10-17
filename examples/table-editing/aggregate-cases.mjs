@@ -202,8 +202,6 @@ export async function aggregateCases({
       await expect(choice('Amount')).toBeFocused()
       await page.keyboard.press('ArrowDown')
       await expect(page.getByRole('listbox')).toBeVisible()
-      // Exercise navigation after the existing opening autofocus settles.
-      await settle()
       await expect
         .poll(() =>
           page

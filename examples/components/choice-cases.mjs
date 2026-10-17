@@ -9,6 +9,45 @@ export async function choiceCases({ page, url, record, press, settle }) {
     page.evaluate((next) => window.choiceFixture.configure(next), next)
 
   await record(
+    'choices: opening focus does not overwrite immediate keyboard navigation',
+    async () => {
+      await open()
+      await page.mouse.move(0, 0)
+      await page.evaluate(() => {
+        const trigger = document.querySelector(
+          'button[aria-haspopup="listbox"]',
+        )
+        trigger.focus()
+        const key = (key) => {
+          document.activeElement.dispatchEvent(
+            new KeyboardEvent('keydown', {
+              key,
+              bubbles: true,
+              cancelable: true,
+            }),
+          )
+          window.choiceFixture.configure({})
+        }
+        key('ArrowDown')
+        key('Home')
+        key('ArrowDown')
+      })
+      await settle()
+      const gamma = page.getByRole('option', { name: 'Gamma', exact: true })
+      assert.equal(await gamma.getAttribute('data-highlighted'), '')
+      assert.equal(
+        await gamma.evaluate((node) => node === document.activeElement),
+        true,
+      )
+      await press('Enter')
+      assert.equal((await read()).value, 'gamma')
+      assert.equal(
+        await select().evaluate((node) => node === document.activeElement),
+        true,
+      )
+    },
+  )
+  await record(
     'choices: Select and Combobox keep selection markers compact',
     async () => {
       await open()

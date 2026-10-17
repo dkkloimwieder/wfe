@@ -117,6 +117,9 @@ These components contain no application commands or services.
 Nonmodal Popover and menu focus restoration use the external focus restore primitive.
 Popover initial focus and menu focus strategies wait for mounted content and cancel that work on closure.
 Selectable collections also cancel their deferred initial focus on disposal.
+The defer flag reads accessor values instead of treating the accessor function as enabled.
+Deferred focus preserves later navigation, focus changes, and replacement collection elements.
+Initial selected-item focus and empty collection strategies retain their existing behavior.
 Enabled dismissable layers expose the shared accessibility exemption for nested modal content.
 Menu Escape handling runs before list navigation consumes the key.
 

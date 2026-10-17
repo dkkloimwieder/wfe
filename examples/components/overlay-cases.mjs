@@ -26,6 +26,20 @@ export async function overlayCases({ page, url, record, press, settle }) {
       document.documentElement.style.overflow,
     ])
   await record(
+    'overlays: opening from ArrowUp preserves last-item focus',
+    async () => {
+      await open()
+      await button('Open menu').focus()
+      await press('ArrowUp')
+      await item('More actions').waitFor()
+      await settle()
+      assert.equal(await focused(), 'More actions')
+      await press('Escape')
+      await settle()
+      assert.equal(await focused(), 'Open menu')
+    },
+  )
+  await record(
     'overlays: Popover custom parts, names, theme and Escape return focus',
     async () => {
       await page.goto(`${url}?overlays=1&dark=1`)

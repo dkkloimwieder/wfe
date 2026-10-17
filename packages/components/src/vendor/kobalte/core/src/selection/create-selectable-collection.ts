@@ -502,8 +502,27 @@ export function createSelectableCollection<
 
   onSettled(() =>
     untrack(() => {
-      if (mergedProps.deferAutoFocus) {
-        const timer = setTimeout(() => untrack(tryAutoFocus), 0)
+      if (access(mergedProps.deferAutoFocus)) {
+        const manager = access(mergedProps.selectionManager)
+        const focusedKey = manager.focusedKey()
+        const focused = manager.isFocused()
+        const element = ref()
+        const activeElement = element?.ownerDocument.activeElement
+        const timer = setTimeout(
+          () =>
+            untrack(() => {
+              // Opening focus must not overwrite navigation or a later focus target.
+              if (
+                ref() !== element ||
+                manager.focusedKey() !== focusedKey ||
+                manager.isFocused() !== focused ||
+                element?.ownerDocument.activeElement !== activeElement
+              )
+                return
+              tryAutoFocus()
+            }),
+          0,
+        )
         return () => clearTimeout(timer)
       }
       tryAutoFocus()
