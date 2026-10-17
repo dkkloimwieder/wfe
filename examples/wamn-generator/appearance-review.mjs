@@ -9,7 +9,7 @@ export async function reviewAppearance({ page, record }) {
         'background-color',
         'rgb(233, 236, 239)',
       )
-      const panels = page.locator('.ui-dashboard-panel')
+      const panels = page.locator('.ui-dashboard-panel:visible')
       for (const panel of await panels.all()) {
         await expect(panel).toHaveCSS('background-color', 'rgb(252, 252, 253)')
         assert.notEqual(
@@ -29,7 +29,7 @@ export async function reviewAppearance({ page, record }) {
       }
       await page.mouse.move(0, 0)
       const actions = page.locator(
-        '.ui-dashboard-header .ui-button, form .ui-button, .table-controls-toggle',
+        '.ui-dashboard-header:visible .ui-button, .table-controls-toggle',
       )
       for (const action of await actions.all()) {
         await expect(action).toHaveAttribute('data-variant', 'outline')
@@ -45,7 +45,9 @@ export async function reviewAppearance({ page, record }) {
         name: 'Table controls',
         exact: true,
       })
-      const main = page.locator('.ui-dashboard-main')
+      const records = page.locator('[data-wamn-screen=records]')
+      const editor = page.locator('[data-wamn-screen=editor]')
+      const main = records.locator('.ui-dashboard-main')
       const note = page.locator('form textarea')
       const save = page.getByRole('button', {
         name: 'Save widget',
@@ -59,12 +61,16 @@ export async function reviewAppearance({ page, record }) {
         [1280, 900],
       ]) {
         await page.setViewportSize({ width, height })
-        await note.click({ trial: true })
-        await expect(note).toBeInViewport()
-        await save.click({ trial: true })
-        await expect(save).toBeInViewport()
+        await expect(editor).toBeHidden()
+        const bounds = await main.boundingBox()
+        const panel = await records.locator('.ui-dashboard-panel').boundingBox()
+        assert.ok(
+          Math.abs(panel.width - bounds.width) < 1,
+          `${width}x${height}: records fill the main panel`,
+        )
+        assert.ok(Math.abs(panel.x - bounds.x) < 1)
         for (const action of await page
-          .locator('.ui-dashboard-header button')
+          .locator('[data-wamn-screen=records] .ui-dashboard-header button')
           .all()) {
           await action.click({ trial: true })
           await expect(action).toBeInViewport()
@@ -83,17 +89,19 @@ export async function reviewAppearance({ page, record }) {
           height: node.clientHeight,
         }))
         assert.ok(
-          geometry.content > geometry.width,
-          `${width}x${height}: long records stay inside a horizontal table scroller`,
+          geometry.content >= geometry.width,
+          `${width}x${height}: table content remains inside its scroll area`,
         )
         assert.ok(
           geometry.height >= 100,
           `${width}x${height}: the table retains a readable viewport`,
         )
-        await scroll.evaluate((node) => {
-          node.scrollLeft = node.scrollWidth
-        })
-        assert.ok(await scroll.evaluate((node) => node.scrollLeft > 0))
+        if (geometry.content > geometry.width) {
+          await scroll.evaluate((node) => {
+            node.scrollLeft = node.scrollWidth
+          })
+          assert.ok(await scroll.evaluate((node) => node.scrollLeft > 0))
+        }
         await scroll.evaluate((node) => {
           node.scrollLeft = 0
         })
@@ -103,13 +111,22 @@ export async function reviewAppearance({ page, record }) {
           ),
           true,
         )
-        if (width === 320 && height === 360) {
-          assert.ok(
-            await main.evaluate(
-              (node) => node.scrollHeight > node.clientHeight,
-            ),
-          )
-        }
+        await page
+          .getByRole('button', { name: 'Edit widget', exact: true })
+          .click()
+        await expect(records).toBeHidden()
+        await expect(editor).toBeVisible()
+        await note.click({ trial: true })
+        await expect(note).toBeInViewport()
+        await save.click({ trial: true })
+        await expect(save).toBeInViewport()
+        await page
+          .getByRole('button', { name: 'Back to records', exact: true })
+          .click()
+        await expect(records).toBeVisible()
+        await expect(
+          page.getByRole('button', { name: 'Edit widget', exact: true }),
+        ).toBeFocused()
       }
       await page.setViewportSize({ width: 1280, height: 900 })
       await main.evaluate((node) => {

@@ -28,7 +28,6 @@ const source: Metadata = {
   title: 'Widgets',
   formTitle: 'Edit widget',
   refreshLabel: 'Refresh',
-  reversePanels: false,
 }
 describe('isolated WAMN metadata projection', () => {
   it('maps both metadata variants with stable identities and explicit order', () => {
@@ -38,7 +37,6 @@ describe('isolated WAMN metadata projection', () => {
       title: 'Review',
       fields: [...source.fields].reverse(),
       columns: [...source.columns].reverse(),
-      reversePanels: true,
     })
     expect(first.form.fields.map((field) => field.field)).toEqual([
       'code',
@@ -49,10 +47,13 @@ describe('isolated WAMN metadata projection', () => {
       'code',
     ])
     expect(second.columnOrder).toEqual([...first.columnOrder].reverse())
-    expect(second.layout.panels.map((panel) => panel.id)).toEqual(
-      [...first.layout.panels].reverse().map((panel) => panel.id),
-    )
+    expect(second.layout.panels).toEqual(first.layout.panels)
     expect(second.table.id).toBe(first.table.id)
+    expect(first.layout.columns).toBe(1)
+    expect(first.layout.panels.map((panel) => panel.view)).toEqual(['records'])
+    expect(first.editorLayout.panels.map((panel) => panel.view)).toEqual([
+      'editor',
+    ])
   })
   for (const [name, change] of Object.entries({
     operation: { operation: 'other' },

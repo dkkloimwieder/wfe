@@ -1,10 +1,7 @@
 import { reviewAppearance } from './appearance-review.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
-import {
-  choiceControl,
-  selectValue,
-} from '../shared/controls/select-review.mjs'
+import { selectValue } from '../shared/controls/select-review.mjs'
 export async function reviewServer(page, name) {
   await expect(
     page
@@ -14,16 +11,31 @@ export async function reviewServer(page, name) {
       }),
   ).toHaveValue('Widget 0')
   await expect(
-    choiceControl(page.locator('form'), {
-      name: name === 'original' ? 'Widget code' : 'Handling class',
-      exact: true,
-    }),
+    page
+      .locator('form')
+      .getByLabel(name === 'original' ? 'Widget code' : 'Handling class', {
+        exact: true,
+      }),
   ).toHaveCount(1)
+  await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+  await expect(page.locator('[data-wamn-screen=editor]')).toBeHidden()
   await expect(page.locator('tbody tr')).toHaveCount(2)
   await expect(page.locator('table')).toContainText('9007199254740993')
 }
 export async function review({ page, record }) {
   await reviewAppearance({ page, record })
+  const edit = async () => {
+    if (await page.locator('[data-wamn-screen=editor]').isHidden())
+      await page
+        .getByRole('button', { name: 'Edit widget', exact: true })
+        .click()
+  }
+  const back = async () => {
+    if (await page.locator('[data-wamn-screen=records]').isHidden())
+      await page
+        .getByRole('button', { name: 'Back to records', exact: true })
+        .click()
+  }
   const state = () => page.evaluate(() => window.generatorFixture.snapshot())
   const note = () => page.locator('form textarea')
   const phase = (value) =>
@@ -32,6 +44,42 @@ export async function review({ page, record }) {
     page.getByRole('button', { name: /^(Refresh|Reload) widgets$/ })
   const save = () =>
     page.getByRole('button', { name: 'Save widget', exact: true })
+  await record(
+    'WAMN screen navigation preserves drafts and owners until explicit Cancel',
+    async () => {
+      await page.evaluate(() => {
+        window.adapterNodes = [
+          ...document.querySelectorAll('#root textarea, #root table'),
+        ]
+      })
+      await edit()
+      assert.equal(
+        await page
+          .locator('[data-wamn-screen=editor]')
+          .evaluate((node) => node.contains(document.activeElement)),
+        true,
+      )
+      await note().fill('Draft across screens')
+      const sent = (await state()).sent.length
+      await back()
+      await expect(note()).toHaveValue('Draft across screens')
+      await edit()
+      await expect(note()).toHaveValue('Draft across screens')
+      await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+      await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+      await expect(note()).toHaveValue('Widget 0')
+      await expect(
+        page.getByRole('button', { name: 'Edit widget', exact: true }),
+      ).toBeFocused()
+      assert.equal((await state()).sent.length, sent)
+      assert.equal(
+        await page.evaluate(() =>
+          window.adapterNodes.every((node) => node.isConnected),
+        ),
+        true,
+      )
+    },
+  )
   await record(
     'WAMN table controls use application-owned collapse state',
     async () => {
@@ -80,6 +128,7 @@ export async function review({ page, record }) {
   await record(
     'WAMN form updates exact revision and maps typed choices and values',
     async () => {
+      await edit()
       await note().fill('Saved through generic form')
       await selectValue(
         page.locator('form [aria-haspopup="listbox"]'),
@@ -107,6 +156,7 @@ export async function review({ page, record }) {
       await page.evaluate(() =>
         window.generatorFixture.fault('/widget/update', 'refuse'),
       )
+      await edit()
       await note().fill('Retry draft')
       await save().click()
       await phase('rejected')
@@ -120,6 +170,7 @@ export async function review({ page, record }) {
   await record(
     'WAMN metadata changes preserve draft, focus and mounted nodes',
     async () => {
+      await edit()
       await note().fill('Preserved local draft')
       await note().focus()
       const initialName = await page.locator('form').getAttribute('aria-label')
@@ -167,6 +218,7 @@ export async function review({ page, record }) {
     const count = (await state()).sent.length
     await refresh().click()
     await expect.poll(async () => (await state()).sent.length).toBe(count + 1)
+    await edit()
     await note().fill('New draft while reading')
     await page.evaluate(() => window.generatorFixture.release())
     await expect
@@ -179,6 +231,7 @@ export async function review({ page, record }) {
     'WAMN cancellation ignores late update publication',
     async () => {
       const settled = (await state()).lifecycle.writesSettled
+      await edit()
       await note().fill('Server can commit a cancelled request')
       await page.evaluate(() => {
         window.generatorFixture.fault('/widget/update', 'hold')
@@ -219,6 +272,7 @@ export async function review({ page, record }) {
         true,
       )
       const settled = (await state()).lifecycle.writesSettled
+      await edit()
       await note().fill('Disposed update')
       await page.evaluate(() => {
         window.generatorFixture.fault('/widget/update', 'hold')

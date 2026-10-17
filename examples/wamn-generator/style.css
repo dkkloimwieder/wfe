@@ -57,17 +57,11 @@ body,
   .wamn-page .ui-dashboard-header > [data-ui-text='system'] {
     flex-basis: 100%;
   }
-  .wamn-page .ui-dashboard[data-scroll='content'] > .ui-dashboard-main {
-    overflow: auto;
-  }
-  .wamn-page .ui-dashboard-grid {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: max-content minmax(16rem, 1fr);
-  }
-  .wamn-page .ui-dashboard-grid:has(> [data-fill]:first-child) {
-    grid-template-rows: minmax(16rem, 1fr) max-content;
-  }
-  .wamn-page [data-generator-panel='widget-records-panel'][data-fill] {
-    min-block-size: 16rem;
-  }
+}
+.wamn-screen {
+  height: 100%;
+  min-width: 0;
+}
+.wamn-screen[hidden] {
+  display: none;
 }

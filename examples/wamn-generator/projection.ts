@@ -18,7 +18,6 @@ export type Metadata = {
   title: string
   formTitle: string
   refreshLabel: string
-  reversePanels: boolean
 }
 const types: Record<string, string> = {
   code: 'text',
@@ -81,6 +80,7 @@ export function project(metadata: Metadata) {
     },
     actions: [
       { id: 'reset', label: 'Reset draft', variant: 'outline', tone: 'accent' },
+      { id: 'cancel', label: 'Cancel', variant: 'outline', tone: 'accent' },
     ],
   } as const satisfies FormDescription<Values>
   const table = {
@@ -91,16 +91,12 @@ export function project(metadata: Metadata) {
     ),
     controls: { search: false, filtering: false, grouping: false },
   } as const satisfies TableDescription
-  const panels = [
-    { id: 'widget-editor-panel', view: 'editor' },
-    { id: 'widget-records-panel', view: 'records', fill: true },
-  ] as const
   const layout = {
     id: 'widget-workspace',
     title: metadata.title,
-    columns: 2,
+    columns: 1,
     scroll: 'content',
-    panels: metadata.reversePanels ? [...panels].reverse() : panels,
+    panels: [{ id: 'widget-records-panel', view: 'records', fill: true }],
     actions: [
       {
         id: 'refresh',
@@ -109,12 +105,30 @@ export function project(metadata: Metadata) {
         tone: 'accent',
       },
       { id: 'open', label: 'Open widget', variant: 'outline', tone: 'accent' },
+      { id: 'edit', label: 'Edit widget', variant: 'outline', tone: 'accent' },
     ],
-  } as const satisfies LayoutDescription<'editor' | 'records'>
+  } as const satisfies LayoutDescription<'records'>
+  const editorLayout = {
+    id: 'widget-editor-screen',
+    title: metadata.formTitle,
+    columns: 1,
+    scroll: 'main',
+    panels: [{ id: 'widget-editor-panel', view: 'editor' }],
+    actions: [
+      {
+        id: 'back',
+        label: 'Back to records',
+        variant: 'outline',
+        tone: 'accent',
+      },
+      ...layout.actions.filter((action) => action.id !== 'edit'),
+    ],
+  } as const satisfies LayoutDescription<'editor'>
   return {
     form,
     table,
     layout,
+    editorLayout,
     choices,
     columnOrder: metadata.columns.map((column) => column.id),
   }

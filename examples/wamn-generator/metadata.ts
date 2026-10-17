@@ -23,7 +23,6 @@ export function metadata(name: string): Metadata {
     title: WidgetQueryTableLabel,
     formTitle: WidgetUpdateFormLabel,
     refreshLabel: 'Refresh widgets',
-    reversePanels: false,
   }
   return name === 'original'
     ? original
@@ -32,7 +31,6 @@ export function metadata(name: string): Metadata {
         title: 'Review widgets',
         formTitle: 'Review widget',
         refreshLabel: 'Reload widgets',
-        reversePanels: true,
         fields: [
           { id: 'note', label: 'Service note' },
           { id: 'code', label: 'Handling class' },

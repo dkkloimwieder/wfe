@@ -14,16 +14,19 @@ An empty draft sends an empty string.
 The adapter does not infer forms from nested command mappings.
 
 The original variant uses the prepared column labels and order.
-The review variant changes labels, choices, field order, column order, actions, and panel order.
-Both variants keep their field, column, action, and panel identities.
+The review variant changes labels, choices, field order, column order, and action labels.
+Both variants keep their field, column, action, and screen identities.
 The application updates the existing table order explicitly.
 
 The preview uses the shared Light palette and Blue accent.
 Buttons and icon actions use outlines.
 Components use Surface 1, and the page uses Surface 2.
 Panels use shadow depth 1.
-On narrow screens, the form uses its natural height above or below the table.
-Short screens scroll vertically, and long table values scroll horizontally inside the table.
+The records screen gives the table the full main panel.
+Edit widget opens the existing form on its own screen.
+Back to records keeps the draft, and Cancel discards it.
+Both screens retain their form and table owners across navigation.
+Short editor screens scroll vertically, and long table values scroll horizontally inside the table.
 
 The fixture starts with two deterministic records.
 Refresh runs the generated Widget query binding through the existing mock HTTP transport.
