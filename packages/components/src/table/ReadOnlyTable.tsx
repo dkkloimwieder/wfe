@@ -140,11 +140,11 @@ export function ReadOnlyTable<T, M>(props: {
             >
               <svg
                 class="table-controls-icon"
-                viewBox="0 0 24 24"
+                viewBox="0 0 16 16"
                 aria-hidden="true"
+                {...{ focusable: 'false' }}
               >
-                <path d="M20 7v5h-5M4 17v-5h5" />
-                <path d="M6.1 6.1A8 8 0 0 1 20 12M4 12a8 8 0 0 0 13.9 5.9" />
+                <path d="M3 6a5.4 5.4 0 0 1 10 0M13 2v4H9M13 10a5.4 5.4 0 0 1-10 0M3 14v-4h4" />
               </svg>
             </Button>
             <Show when={filters.changed}>
