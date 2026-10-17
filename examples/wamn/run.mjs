@@ -1,4 +1,8 @@
 import {
+  expectedTableBreadth,
+  expectedTableBreadthMessage,
+} from '../shared/table-diagnostics.mjs'
+import {
   choiceControl,
   selectValue,
   expectValue,
@@ -94,6 +98,8 @@ const report = {
   benchmarks: [],
   errors: [],
   diagnostics: [],
+  expectedDiagnostics: [],
+  timingDiagnostics: [],
 }
 const definition = JSON.parse(
   await readFile(new URL('./.input/definition.json', import.meta.url), 'utf8'),
@@ -111,8 +117,10 @@ try {
   })
   page.on('console', (message) => {
     if (['warning', 'error'].includes(message.type())) {
-      if (message.text().startsWith('[HUGE_FAN_IN]'))
-        report.diagnostics.push(message.text())
+      if (message.text().startsWith('[HOT_SCOPE_TIME]'))
+        report.timingDiagnostics.push(message.text())
+      else if (expectedTableBreadthMessage(message.text()))
+        report.expectedDiagnostics.push(message.text())
       else report.errors.push(message.text())
     }
   })
@@ -661,14 +669,21 @@ try {
       counts: value.counts,
       hostLoad: loadavg(),
     })
-    report.diagnostics.push(...(await call('diagnostics')))
+    const diagnostics = await call('diagnostics')
+    report.expectedDiagnostics.push(...diagnostics.filter(expectedTableBreadth))
+    report.timingDiagnostics.push(
+      ...diagnostics.filter((event) => event.code === 'HOT_SCOPE_TIME'),
+    )
+    report.diagnostics.push(
+      ...diagnostics.filter(
+        (event) =>
+          !expectedTableBreadth(event) && event.code !== 'HOT_SCOPE_TIME',
+      ),
+    )
     console.log(`PASS synthetic ${size} records`)
   }
   assert.deepEqual(report.errors, [])
-  const unexpected = report.diagnostics.filter(
-    (entry) => typeof entry !== 'string' && entry.code !== 'HUGE_FAN_IN',
-  )
-  assert.deepEqual(unexpected, [])
+  assert.deepEqual(report.diagnostics, [])
   report.provenance = await page.evaluate(() => window.wamn.provenance)
   await start()
   await call('reload')

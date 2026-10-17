@@ -128,7 +128,7 @@ export function createNativeGrouping<T, TMeta>(
         active: columns.length > 0,
       }
     }),
-    { lazy: true },
+    { name: 'createNativeGrouping.tree', lazy: true },
   )
 
   function* leaves(
@@ -215,6 +215,7 @@ export function createNativeGrouping<T, TMeta>(
   const roots = createMemo(
     holdRowProcessing(options, () => sortKeys(tree().roots, 0)),
     {
+      name: 'createNativeGrouping.roots',
       lazy: true,
       equals: sameKeys,
     },

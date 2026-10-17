@@ -105,6 +105,7 @@ export function createNativeFiltering<T, TMeta>(
       return matches ? input.filter((id) => matches(getRecord(id)!)) : input
     }),
     {
+      name: 'createNativeFiltering.filteredIds',
       lazy: true,
       equals: (left, right) =>
         left.length === right.length &&

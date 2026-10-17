@@ -112,6 +112,7 @@ export function createNativeTable<T, TMeta = unknown>(
       return keyed.map(({ id }) => id)
     }),
     {
+      name: 'createNativeTable.sortedIds',
       lazy: true,
       equals: (left, right) =>
         left === right ||
@@ -379,6 +380,7 @@ export function createNativeTable<T, TMeta = unknown>(
               ? group.getAggregateValue(column.id)
               : group.getValue(column.id),
           {
+            name: 'createGroupView.value',
             lazy: true,
             equals: (previous, next) =>
               column.columnDef?.aggregationEquals?.(previous, next) ??

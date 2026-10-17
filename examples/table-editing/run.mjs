@@ -1,4 +1,8 @@
 import {
+  expectedTableBreadth as expectedFanIn,
+  expectedTableBreadthMessage,
+} from '../shared/table-diagnostics.mjs'
+import {
   choiceControl,
   selectValue,
   controlValue,
@@ -121,17 +125,6 @@ const report = {
   expectedDiagnostics: [],
   timingDiagnostics: [],
 }
-// Local filters, sorting, grouping and summaries scan candidate records.
-// Record the breadth at these exact nodes; other diagnostics still fail.
-const expectedFanIn = (event) =>
-  ['WIDE_SCOPE_DEPS', 'HUGE_FAN_IN'].includes(event.code) &&
-  [
-    'createNativeFiltering.filteredIds',
-    'createNativeTable.sortedIds',
-    'createNativeGrouping.tree',
-    'createNativeGrouping.roots',
-    'createGroupView.value',
-  ].includes(event.nodeName)
 try {
   browser = await chromium.launch({
     executablePath: process.env.BENCH_EXECUTABLE_PATH,
@@ -146,15 +139,9 @@ try {
   })
   page.on('console', (message) => {
     if (['warning', 'error'].includes(message.type())) {
-      const breadth = /^\[(WIDE_SCOPE_DEPS|HUGE_FAN_IN)\] memo "([^"]+)"/.exec(
-        message.text(),
-      )
       if (message.text().startsWith('[HOT_SCOPE_TIME]'))
         report.timingDiagnostics.push(message.text())
-      else if (
-        breadth &&
-        expectedFanIn({ code: breadth[1], nodeName: breadth[2] })
-      )
+      else if (expectedTableBreadthMessage(message.text()))
         report.expectedDiagnostics.push(message.text())
       else report.errors.push(message.text())
     }
