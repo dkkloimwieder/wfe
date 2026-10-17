@@ -101,18 +101,18 @@ Popup positioning arrows remain with their positioning primitive.
 The refresh geometry fix is complete in `wfe-w2y.6`.
 No external icon dependency is necessary.
 
-## P2: ownership documentation contains obsolete guidance
+## Fixed: ownership documentation uses current exports
 
-Follow-up: `wfe-w2y.16`.
+Issue: `wfe-w2y.16`.
 
-[The component README](../packages/components/src/components/README.md) now documents current controls after `wfe-w2y.12`.
-[The virtualization README](../packages/components/src/virtual/README.md) imports `@table/ui/virtual` and names an obsolete package command.
-[The internal controls README](../packages/components/src/internal/controls/README.md) describes completed extraction passes as future work.
-These documents give contributors conflicting instructions about the canonical implementation.
-
-Update all tracked documentation examples to current exports and commands.
-Explain that SelectField composes Select, while Combobox adds editable search behavior.
-Document the temporary compatibility status of NativeSelect.
+[The component guide](../packages/components/src/components/README.md) describes current imports and composition.
+[The virtualization guide](../packages/components/src/virtual/README.md) uses `@wfe/components/virtual` and the root integrity command.
+[The internal behavior guide](../packages/components/src/internal/controls/README.md) lists the completed control families and their owned source.
+These guides distinguish public wrappers, internal behavior, and shared style ownership.
+They explain SelectField composition, editable Combobox search, and explicit NativeSelect compatibility use.
+Solid and Solid Primitives remain external dependencies.
+Tracked documentation examples use current imports and commands.
+Historical migration records retain their original source references.
 
 ## Fixed: consistency tests compare consumers and enforce shared control usage
 
@@ -182,12 +182,35 @@ The editing example imports shared Table presentation rather than a second rende
 Solid and Solid Primitives remain external imports.
 Package source contains no application request or persistence implementation.
 
+## P2: long-running previews need stylesheet update coverage
+
+Issue: `wfe-w2y.24`.
+
+A running preview retained old imported CSS after the source changed.
+Fresh servers supplied the current stylesheet, and the provenance endpoint detected the stale compilation.
+Live tests currently reload component modules but do not edit an imported stylesheet.
+The follow-up covers real atomic and in-place saves, retained drafts and nodes, and matching computed styles and provenance.
+The cause of the stale compilation remains unproved.
+
+## P2: choice metadata needs shared presentation
+
+Issue: `wfe-w2y.25`.
+
+Select and Combobox expose label, description, and error parts directly from behavior modules.
+Those parts lack the shared label, help, and error classes used by native fields and boolean controls.
+Select labels therefore miss uppercase text, and choice help and errors miss shared typography and colors.
+The follow-up adds presentation wrappers while preserving primitive props, refs, IDs, and accessibility associations.
+Option labels remain record values and retain their original case.
+
 ## Order of follow-up work
 
 Table controls and normal consumer interfaces now use shared controls.
 Overlay buttons now share the Button contract.
-Next, consolidate common state styles.
+Common state styles now have shared owners.
 Use the shared interaction matrix to prevent new divergence.
-Centralize repeated icons and correct obsolete documentation in focused changes.
+Repeated icons and current ownership documentation now use the shared implementation.
 
-The follow-up issues record remaining work. This report does not mark those repairs complete.
+The original control, style, icon, and ownership documentation repairs are complete.
+Additional metadata presentation and stylesheet update coverage remain in `wfe-w2y.25` and `wfe-w2y.24`.
+Optional WAMN row presentation remains separate work in `wfe-w2y.18`.
+Cross-browser appearance remains an additional qualification task.

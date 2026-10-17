@@ -1,12 +1,12 @@
 # Virtual presentation
 
-Import `createTableVirtualizer` and `VirtualRows` from `@table/ui/virtual`.
+Import `createTableVirtualizer` and `VirtualRows` from `@wfe/components/virtual`.
 The export also contains the `TableVirtualizerOptions` and `VirtualWindow` types.
 Virtual presentation remains optional. Normal tables can render their full record list.
 
 Both fixed and measured modes use one Solid binding and one owned `Virtualizer` class.
-The engine source, MIT license, and provenance live in `vendor/virtual-core`.
-The migration preserves the existing runtime source.
+The [owned engine directory](../vendor/virtual-core/README.md) contains its source, MIT license, and provenance.
+The owned source retains its license and upstream provenance.
 
 ## Modes
 
@@ -37,8 +37,8 @@ Analytics and measured native rows use the same package exports.
 
 ## Tests
 
-Existing native virtualizer tests consume the UI factory export.
+The native virtualizer tests consume the public factory export.
 They test shared engine identity, one million fixed rows, bounded key reads, measurements, and disposal.
 Browser cases test paging, density, wrapping, row expansion, pinning, resizing, anchors, and keyboard navigation.
 The WAMN fixture also consumes the same binding.
-Use `pnpm --filter @table/ui test:virtual:vendor` to test source and license hashes.
+From the repository root, use `node scripts/check-virtual.mjs` to test source and license hashes.

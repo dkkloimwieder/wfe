@@ -32,7 +32,8 @@ These behaviors need separate coverage from a fixed list of choices.
 Kobalte has a `solid2` branch at `e9d426d438b7c9ea0cc81bd1133831a20cd5fcae`, dated September 24, 2026.
 Its core manifest declares `2.0.0-alpha.2`.
 Its [workspace catalog](https://github.com/kobaltedev/kobalte/blob/e9d426d438b7c9ea0cc81bd1133831a20cd5fcae/pnpm-workspace.yaml) pins Solid, web, and signals to `2.0.0-rc.3`.
-Table currently uses `2.0.0-rc.13`. The branch name does not establish compatibility with that runtime.
+The original review used Solid `2.0.0-rc.13`. The current workspace pin is `2.0.0-rc.14`.
+The branch name does not establish compatibility with either runtime.
 
 Kobalte Select contains Solid 2 effects, DOM imports from `@solidjs/web`, and explicit `ownedWrite` declarations.
 Its [test source](https://github.com/kobaltedev/kobalte/blob/e9d426d438b7c9ea0cc81bd1133831a20cd5fcae/packages/core/src/select/select.test.tsx) covers controlled values, disabled choices, keyboard selection, Escape, and selection through typed letters.

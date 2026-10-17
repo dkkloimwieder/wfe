@@ -1,7 +1,8 @@
 # Generic UI boundaries
 
-This decision defines the generic UI library under Beads epic `table-qp8`.
+This decision originated under Beads epic `table-qp8`. Current implementation and maintenance belong to `wfe-w2y`.
 The private workspace package follows the organization below.
+
 Select and Combobox behavior exports exist in `@wfe/components`.
 Scoped styles and shared density values exist in `@wfe/components`.
 Shared Table and column exports exist in `@wfe/components/table`.
@@ -18,7 +19,7 @@ Component subpaths expose styled controls through the public API.
 `@wfe/components/table` exports Table, its controls, and the native engine.
 `@wfe/components/virtual` exports the shared virtual binding and row renderer.
 `@wfe/components/styles.css` supplies scoped styles and theme variables.
-The package remains private during extraction.
+The package remains private.
 
 ## Import directions
 
@@ -35,7 +36,7 @@ The canonical `nativeEvents` helper lives in `@wfe/components/events`.
 The example helper re-exports this implementation. Library source has no example imports.
 
 Solid and Solid Primitives remain external dependencies.
-Floating UI also remains external in the initial scope.
+Floating UI also remains external.
 Packages declare the runtime dependencies that they use directly.
 Solid runtime dependencies use peer declarations and matching development pins to preserve one runtime instance.
 The workspace lockfile keeps the currently qualified versions.
@@ -70,7 +71,7 @@ Custom element rendering through `as` remains supported where Kobalte provides i
 Custom triggers and input wrappers must preserve refs, event handlers, and accessibility attributes.
 Simple native controls use native attributes without introducing Kobalte behavior unnecessarily.
 
-The following type example defines the proposed controlled choice boundary.
+The following type example illustrates the controlled choice boundary.
 It describes a contract, not an implemented component.
 The documentation command compiles this example on the current pinned runtime.
 
@@ -181,30 +182,30 @@ Client hydration must retain server-rendered cells and support later interaction
 Package builds follow the existing Solid source, server, and distribution export conventions.
 Consumer tests must cover each supported condition before the package claims support.
 
-## Initial catalog
+## Current catalog
 
-The initial form catalog contains Button, IconButton, Input, Textarea, Field, Label, HelpText, FieldError, FieldSet, and InputGroup.
+The field catalog contains Button, IconButton, Input, Textarea, Field, Label, HelpText, FieldError, FieldSet, and InputGroup.
 Choice controls contain Select and Combobox.
 Boolean and exclusive-choice controls contain Checkbox, Switch, and RadioGroup.
 Overlays contain Dialog, AlertDialog, Popover, DropdownMenu, and Tooltip.
 Sheet uses Dialog behavior with a different presentation.
 Display components contain Badge, Card, Separator, InlineAlert, EmptyState, Spinner, Skeleton, Progress, and Toast.
+Icon supplies shared decorative glyphs.
 Table contains shared headers, cells, column controls, groups, summaries, optional editors, and optional virtual rows.
 
 Tabs, Collapsible, and Accordion remain later candidates.
-Date, time, and file controls require concrete use cases before design.
-WAMN wrappers, generated forms, navigation layouts, and production migration remain outside this milestone.
+Calendar and DatePicker supply date selection. Time and file controls remain outside the current catalog.
+DashboardShell, DashboardPanel, and DashboardGrid supply generic page layout.
+Programmatic generation follows epic `wfe-w2y.4`. Production WAMN integration remains application-owned.
 
-## Delivery order
+## Current maintenance
 
-The boundary task establishes this decision and compiles its examples.
-The workspace structure pass creates the private packages before source migration.
-Style and source tasks then follow their stored dependencies.
-The vendor task checks in Select, Combobox, and their required shared modules.
-Control families and Table extraction follow their stored Beads dependencies.
-Each implementation task includes its own behavior and cleanup tests.
-The isolated consumer fixture then proves composition through public imports.
-Final tests cover source and distribution builds, types, lint, server rendering, hydration, interaction, and disposal.
+Extraction and the initial control passes are complete.
+Components, Table, forms, layouts, shared styles, and owned vendor subsets now live in this workspace.
+Beads epic `wfe-w2y` records ongoing library work. `wfe-0dj` records external dependency and repair maintenance.
+Each implementation task includes relevant behavior and cleanup tests.
+Consumer tests cover source and distribution builds, types, lint, server rendering, hydration, interaction, and disposal.
+
 Heavy tests run serially because host load varies.
 Timing results remain advisory. Correctness and bounded resources remain required.
 

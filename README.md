@@ -32,7 +32,7 @@ The [standalone record](migration/standalone.md) describes the proof and cutover
 
 ## Organization
 
-`packages/components/src/components` contains individual controls.
+Within `packages/components`, `src/components` contains individual controls.
 `src/styles` contains shared typography, colors, density, spacing, borders, and focus styles.
 `src/utils` contains small shared helpers.
 `src/internal` contains shared behavior and component implementation support.

@@ -28,7 +28,8 @@ The unit tests cover one million rows, bounded key reads, page metadata stabilit
 Browser workloads cover paging, wrapped text, expansion, resizing, pinning, anchoring, and keyboard navigation.
 
 The engine has no external runtime package dependencies.
-Other repository examples can still use the installed TanStack Virtual package.
+Workspace examples use this owned engine through `@wfe/components/virtual`.
+The optional integration fixture currently supplies its own row layout around the same binding.
 
 ## Maintenance
 

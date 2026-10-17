@@ -19,10 +19,10 @@ Analytics keeps search and filtering disabled. Its server export includes the co
 
 Applications explicitly import `@wfe/components/styles.css` and apply `uiScope()` to their owning wrapper.
 The shared stylesheet contains Table, editor, column, and popup rules. Fixture CSS contains page layout.
-The components now live in `packages/components/src/table`. The package stays private during extraction.
+The components live in `packages/components/src/table`. The package remains private.
 Virtual presentation and its owned engine now live in `packages/components/src/virtual`.
 This directory retains the boundary decision and documentation.
 
-[Generic UI boundaries](./UI-BOUNDARIES.md) defines the planned private workspace packages,
-generic component contracts, styles, and extraction order under Beads epic `table-qp8`.
+[Generic UI boundaries](./UI-BOUNDARIES.md) defines current private packages, component contracts, styles, and maintenance boundaries.
+The original decision came from Beads epic `table-qp8`. Ongoing work belongs to `wfe-w2y`.
 Its TypeScript examples compile with `pnpm test:contracts`.

@@ -4,6 +4,12 @@ This directory contains the shared form, overlay, and display components.
 Table editors and application forms use these components and the styles in `../styles`.
 Application adapters own validation, requests, permissions, and persistence.
 
+Applications import these controls from `@wfe/components` or its public component subpaths.
+They explicitly import `@wfe/components/styles.css` and supply a `data-ui` scope through `uiScope()`.
+The [style guide](../styles/README.md) assigns shared presentation and state rules to their owning stylesheets.
+The [internal entry points](../internal/controls/README.md) delegate behavior to the single owned Kobalte subset.
+Solid and Solid Primitives remain external dependencies.
+
 ## Choice controls
 
 Use `SelectField` for one string value from a list of choices.

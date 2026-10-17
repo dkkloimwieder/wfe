@@ -1,9 +1,10 @@
-# Kobalte popup editing
+# Shared popup editing
 
-This fixture uses the real Kobalte Select with Table and Solid 2 rc.14.
+This fixture uses shared Select with Table and Solid 2 rc.14.
+The private components package supplies the owned Kobalte behavior.
 It replaces the Priority editor through a component supplied by the parent.
-The regular editing fixture continues to use an HTML select.
-The published Table package gains no Kobalte dependency.
+The regular editing fixture uses SelectField, which composes the same Select behavior.
+Neither fixture installs an external Kobalte package.
 
 The wrapper maps a scalar draft to a stable choice object.
 Labels remain separate from saved values.
@@ -119,7 +120,8 @@ Open `http://127.0.0.1:7782/?combobox=1` for the basic Combobox source-wiring fi
 Open `http://127.0.0.1:7782/?choices=1` for controlled choice fields and application-supplied pages.
 Open `http://127.0.0.1:7782/?dialogs=1` for Dialog, nested dialogs, explicit confirmation, and Sheet.
 Open `http://127.0.0.1:7782/?booleans=1` for controlled Checkbox, Switch, and RadioGroup fields.
-Open `http://127.0.0.1:7782/?fields=1` for native controls, field layouts, and native form submission.
+Open `http://127.0.0.1:7782/?fields=1` for native interoperability controls, field layouts, and native form submission.
+Open `http://127.0.0.1:7782/?icons=1` for shared glyphs and explicit icon slots.
 
 The choice cases test pointer and keyboard selection, disabled options, rejected text changes, empty lists, loading content, and changed pages.
 They also test off-page labels, native form values, custom item elements, footer focus, error links, and disposal.
@@ -132,7 +134,7 @@ pnpm exec vite build --config examples/components/vite.config.ts
 node examples/components/run.mjs
 ```
 
-The distribution fixture requires an existing Solid Table package build.
+Before building the distribution fixture, run `pnpm build` from the repository root.
 Use the unminified profile build for heap classification:
 
 ```sh
@@ -163,7 +165,7 @@ TypeScript tests the wrapper against the owned source.
 The module audit also rejects downloaded or installed Kobalte implementations.
 The basic Combobox case covers input filtering, selection, and Escape.
 The controlled choice cases cover the shared styled controls.
-Deeper component coverage remains separate work after the first source pass.
+The shared browser matrix covers component states, nested popups, structured classes, field associations, and cleanup.
 This fixture does not run the upstream Kobalte test suite.
 
 ## Contextual controls

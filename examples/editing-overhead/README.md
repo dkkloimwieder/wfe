@@ -70,7 +70,6 @@ Build the packages sequentially, because each package build replaces its distrib
 Install the browser version that matches the installed Playwright package.
 
 ```sh
-pnpm --filter @tanstack/table-core run build
 pnpm build
 PLAYWRIGHT_BROWSERS_PATH=/tmp/table-solid-export-browsers pnpm exec playwright install chromium
 pnpm exec vite build --config examples/editing-overhead/vite.config.ts
@@ -92,4 +91,4 @@ The summary compares exact contracts across source and distribution builds and r
 
 The fixture participates in `test:fixtures:types` and `test:fixtures:eslint`.
 The measurement campaign remains separate from routine qualification because host load affects timings.
-See the [heap findings](../heap-findings.md) for recorded results and the architecture recommendation.
+See the [heap findings](../../bench/heap-findings.md) for recorded results and the architecture recommendation.

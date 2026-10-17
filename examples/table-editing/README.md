@@ -438,27 +438,25 @@ The running save does not reclaim focus after a later user interaction.
 
 ## Dropdown behavior
 
-Priority uses a native select input with Low, Normal, and High as example choices.
+Priority uses the shared `TableChoiceEditor`, which composes SelectField with Low, Normal, and High as example choices.
 The dropdown uses the same row draft, validation callback, and save lifecycle as text inputs.
 Choosing an option changes only the draft.
 Save and Cancel return focus to the last edited field when no later interaction takes focus elsewhere.
 Each draft remembers its own focus target, including when several rows have drafts.
 
-The dropdown retains its [native select behavior](https://html.spec.whatwg.org/multipage/form-elements.html#the-select-element).
-The fixture attaches no Enter or Escape handler to the select.
-Those keys control the dropdown without saving or discarding the row.
-In Per row mode, Tab moves to Save and Shift+Tab moves to Note.
-In Whole table mode, Tab moves to Cancel. Save all saves the dropdown draft.
+SelectField uses the owned Select behavior and shared trigger, popup, and choice styles.
+Enter chooses a highlighted option. Escape closes the open popup before a surrounding editor handles another Escape.
+Tab follows the editor's ordinary focus order. Save actions remain application-owned.
 
-Tests cover native keyboard selection and menu dismissal in Chromium on Linux.
-They also cover pointer entry, option changes, invalid values, concurrent updates, refused saves, and blocked filter changes during editing.
-The fixture does not provide a custom popup, searchable choices, remote options, or multiple selection.
+Tests cover keyboard selection, pointer entry, menu dismissal, focus return, invalid values, concurrent updates, refused saves, and blocked filter changes during editing.
+The ordinary editor uses a fixed choice list. Applications supply custom editors for searchable or remote choices.
 Other browsers and operating systems need separate interaction tests.
+NativeSelect remains an explicit compatibility export for native browser integration fixtures.
 
-The [Zaidan and Kobalte review](./select-guidance.md) records WAMN controls and upstream Solid 2 branch status.
-The separate [popup fixture](../components/README.md) supplies a real Kobalte Select through the parent-owned `priorityEditor` component.
-It tests keyboard, focus, save behavior, and cleanup against the pinned Table runtime.
-The regular fixture keeps its HTML select and excludes Kobalte from its bundle.
+The [Zaidan and Kobalte review](./select-guidance.md) records the original source review and upstream revision.
+The separate [popup fixture](../components/README.md) exercises custom Select composition through the parent-owned `priorityEditor` component.
+Both fixtures use the same owned behavior and shared styles through public components.
+Neither fixture installs an external Kobalte package.
 
 ## Ownership and scope
 
