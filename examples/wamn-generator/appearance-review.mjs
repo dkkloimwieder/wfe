@@ -50,6 +50,27 @@ export async function reviewAppearance({ page, record }) {
           await cell.evaluate((node) => node.scrollWidth <= node.clientWidth),
         )
       }
+      for (const id of ['id', 'makerId', 'createdAt', 'editVersion']) {
+        const spaces = await page
+          .locator(`tbody td[data-column="${id}"]`)
+          .evaluateAll((cells) =>
+            cells.map((cell) => {
+              const range = document.createRange()
+              range.selectNodeContents(cell)
+              const value = range.getBoundingClientRect()
+              const box = cell.getBoundingClientRect()
+              return {
+                left: value.left - box.left,
+                right: box.right - value.right,
+              }
+            }),
+          )
+        assert.ok(spaces.length)
+        for (const space of spaces) {
+          assert.ok(space.left >= 7 && space.left <= 9)
+          assert.ok(space.right >= 7 && space.right <= 14)
+        }
+      }
       const handle = page.getByRole('separator', {
         name: 'Resize Widget code column',
         exact: true,

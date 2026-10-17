@@ -112,14 +112,14 @@ export function createApplication(name: string) {
           accessorFn: (row) => row[column.id as keyof WidgetQueryRow],
           size:
             column.type === 'uuid'
-              ? 304
+              ? 278
               : column.type === 'timestamptz'
-                ? 224
+                ? 192
                 : column.type === 'int64'
-                  ? 176
+                  ? 136
                   : column.id === 'note'
                     ? 240
-                    : 136,
+                    : 128,
           minSize: 96,
           maxSize: column.id === 'note' ? 960 : 640,
           sortFn:
@@ -131,9 +131,9 @@ export function createApplication(name: string) {
       {
         id: 'actions',
         accessorFn: () => undefined,
-        size: 136,
-        minSize: 136,
-        maxSize: 136,
+        size: 128,
+        minSize: 128,
+        maxSize: 128,
         enableResizing: false,
         enableHiding: false,
         enableGlobalFilter: false,
