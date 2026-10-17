@@ -1,3 +1,4 @@
+import { reviewAppearance } from './appearance-review.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 import {
@@ -22,6 +23,7 @@ export async function reviewServer(page, name) {
   await expect(page.locator('table')).toContainText('9007199254740993')
 }
 export async function review({ page, record }) {
+  await reviewAppearance({ page, record })
   const state = () => page.evaluate(() => window.generatorFixture.snapshot())
   const note = () => page.locator('form textarea')
   const phase = (value) =>

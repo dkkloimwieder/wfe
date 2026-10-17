@@ -1,21 +1,73 @@
 @import '@wfe/components/styles.css';
+@import '../shared/appearance/review-shadows.css';
 html,
 body,
 #root {
   height: 100%;
   margin: 0;
 }
-form {
+.wamn-page {
+  height: 100%;
+  min-width: 0;
+  padding: var(--ui-gap, 6px);
+  background: var(--ui-canvas-surface);
+}
+.wamn-page .ui-dashboard {
+  gap: var(--ui-gap, 6px);
+  background: var(--ui-canvas-surface);
+}
+.wamn-page .ui-dashboard-header {
+  flex-wrap: wrap;
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-panel-shadow);
+}
+.wamn-page .ui-dashboard-header > [data-ui-text='system'] {
+  flex: 1 1 12rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.wamn-page .ui-dashboard-header > .ui-button {
+  flex: none;
+}
+.wamn-page .ui-dashboard-main {
+  padding: 0;
+}
+.wamn-page .ui-dashboard-panel {
+  background: var(--ui-pane-surface);
+  box-shadow: var(--ui-panel-shadow);
+}
+.wamn-page .ui-dashboard-panel:not([data-fill]) {
+  overflow: auto;
+}
+.wamn-page form {
   display: flex;
   flex-direction: column;
   gap: var(--ui-gap, 6px);
 }
-h2 {
+.wamn-page h2 {
   font-size: inherit;
   margin: 0;
 }
-@media (width < 48rem) {
-  [data-generator-panel='widget-records-panel'][data-fill] {
+.wamn-page .table-scroll > table {
+  width: 100%;
+  min-width: 72rem;
+}
+@media (width < 40rem) {
+  .wamn-page .ui-dashboard-header > [data-ui-text='system'] {
+    flex-basis: 100%;
+  }
+  .wamn-page .ui-dashboard[data-scroll='content'] > .ui-dashboard-main {
+    overflow: auto;
+  }
+  .wamn-page .ui-dashboard-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: max-content minmax(16rem, 1fr);
+  }
+  .wamn-page .ui-dashboard-grid:has(> [data-fill]:first-child) {
+    grid-template-rows: minmax(16rem, 1fr) max-content;
+  }
+  .wamn-page [data-generator-panel='widget-records-panel'][data-fill] {
     min-block-size: 16rem;
   }
 }

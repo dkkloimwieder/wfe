@@ -73,8 +73,15 @@ export function project(metadata: Metadata) {
         ? ({ field: 'code', label: field.label, control: 'select' } as const)
         : ({ field: 'note', label: field.label, control: 'textarea' } as const),
     ),
-    submit: { id: 'save', label: 'Save widget' },
-    actions: [{ id: 'reset', label: 'Reset draft' }],
+    submit: {
+      id: 'save',
+      label: 'Save widget',
+      variant: 'outline',
+      tone: 'accent',
+    },
+    actions: [
+      { id: 'reset', label: 'Reset draft', variant: 'outline', tone: 'accent' },
+    ],
   } as const satisfies FormDescription<Values>
   const table = {
     id: 'widget-records',
@@ -95,8 +102,13 @@ export function project(metadata: Metadata) {
     scroll: 'content',
     panels: metadata.reversePanels ? [...panels].reverse() : panels,
     actions: [
-      { id: 'refresh', label: metadata.refreshLabel },
-      { id: 'open', label: 'Open widget' },
+      {
+        id: 'refresh',
+        label: metadata.refreshLabel,
+        variant: 'outline',
+        tone: 'accent',
+      },
+      { id: 'open', label: 'Open widget', variant: 'outline', tone: 'accent' },
     ],
   } as const satisfies LayoutDescription<'editor' | 'records'>
   return {
