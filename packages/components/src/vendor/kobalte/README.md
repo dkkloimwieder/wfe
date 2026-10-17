@@ -47,6 +47,8 @@ Disabled radio items reject pointer selection. Read-only radio groups restore ev
 Reset callbacks run after the native reset action and restore accepted controlled values or uncontrolled defaults.
 A shared Core helper cancels pending reset work on disposal and respects prevented reset events.
 The shared form label reads its one-time forwarded ref through `untrack`.
+Combobox Control snapshots its forwarded ref before the lazy view.
+This keeps ID and class spreads from rebuilding the control and its children.
 Checkbox, Switch, shared form parts, and radio items snapshot generated default IDs through `untrack` during setup.
 These defaults stay stable when a caller changes a property spread or a parent ID.
 Caller-supplied IDs remain reactive and retain their registration effects.

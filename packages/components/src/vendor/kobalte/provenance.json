@@ -41,7 +41,7 @@
     },
     "core/src/combobox/combobox-control.tsx": {
       "upstreamSha256": "869cab919275bcd2e11b828fbdc9c136407d9bea345414d119601740556cb518",
-      "localSha256": "6267a8687fab041d49e2595776b032092d96a9cc915ab99997dc082851f8d80b"
+      "localSha256": "e7caddd8fa6910d6f53202cafc24f5aea2e49ad3fc68d641ed21955faeb3e9d0"
     },
     "core/src/combobox/combobox-hidden-select.tsx": {
       "upstreamSha256": "d4bb9368452099a0d3c33fe1c49c9e1b53578f8fbd36dbd7ae035f6b9f0a2bbe",

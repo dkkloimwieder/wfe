@@ -1,6 +1,6 @@
 import { renderAfterRegistration } from '../../../../../internal/fieldRendering.tsx'
 import type { JSX, ValidComponent } from '@solidjs/web'
-import { type Accessor, children, omit, type Ref } from 'solid-js'
+import { type Accessor, children, omit, type Ref, untrack } from 'solid-js'
 
 import {
   type FormControlDataSet,
@@ -63,13 +63,14 @@ export function ComboboxControl<Option, T extends ValidComponent = 'div'>(
   const context = useComboboxContext()
 
   const others = omit(props as ComboboxControlProps<Option>, 'ref', 'children')
+  const forwardedRef = untrack(() => props.ref)
 
   const selectionManager = () => context.listState().selectionManager()
 
   return renderAfterRegistration(() => (
     <Polymorphic<ComboboxControlRenderProps>
       as="div"
-      ref={[context.setControlRef, props.ref as (el: HTMLElement) => void]}
+      ref={[context.setControlRef, forwardedRef as (el: HTMLElement) => void]}
       {...context.dataset()}
       {...formControlContext.dataset()}
       {...others}
