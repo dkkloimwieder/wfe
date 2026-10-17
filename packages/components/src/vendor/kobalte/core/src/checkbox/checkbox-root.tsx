@@ -14,6 +14,7 @@ import {
   createUniqueId,
   merge,
   omit,
+  untrack,
 } from 'solid-js'
 import { createNativeFormResetListener } from '../../../../../internal/formReset.ts'
 import { callHandler } from '../../../utils/src/index.ts'
@@ -209,12 +210,14 @@ export function CheckboxRoot<T extends ValidComponent = 'div'>(
     setInputRef,
   }
 
+  const forwardedRef = untrack(() => mergedProps.ref)
+
   return (
     <FormControlContext value={formControlContext}>
       <CheckboxContext value={context}>
         <Polymorphic<CheckboxRootRenderProps>
           as="div"
-          ref={[setRef, mergedProps.ref]}
+          ref={[setRef, forwardedRef]}
           role="group"
           id={access(formControlProps.id)}
           onPointerDown={onPointerDown}

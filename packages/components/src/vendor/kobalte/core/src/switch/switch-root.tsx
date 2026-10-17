@@ -14,6 +14,7 @@ import {
   createUniqueId,
   merge,
   omit,
+  untrack,
 } from 'solid-js'
 import { createNativeFormResetListener } from '../../../../../internal/formReset.ts'
 import { callHandler } from '../../../utils/src/index.ts'
@@ -180,12 +181,14 @@ export function SwitchRoot<T extends ValidComponent = 'div'>(
     setInputRef,
   }
 
+  const forwardedRef = untrack(() => mergedProps.ref)
+
   return (
     <FormControlContext value={formControlContext}>
       <SwitchContext value={context}>
         <Polymorphic<SwitchRootRenderProps>
           as="div"
-          ref={[setRef, mergedProps.ref]}
+          ref={[setRef, forwardedRef]}
           role="group"
           id={access(mergedProps.id)}
           onPointerDown={onPointerDown}

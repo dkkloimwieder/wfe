@@ -1,4 +1,4 @@
-import { merge } from 'solid-js'
+import { merge, untrack } from 'solid-js'
 
 import { useFormControlContext } from '../form-control/index.ts'
 import { Polymorphic } from '../polymorphic/index.tsx'
@@ -32,7 +32,7 @@ export function SwitchThumb<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('thumb'),
+      id: untrack(() => context.generateId('thumb')),
     },
     props as SwitchThumbProps,
   )

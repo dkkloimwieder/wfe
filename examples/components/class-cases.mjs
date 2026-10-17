@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 import {
   reviewStructuredClasses,
+  reviewDynamicIds,
   initialClassTokens,
 } from '../shared/controls/class-review.mjs'
 
@@ -27,6 +28,12 @@ export async function classCases({ page, url, record, settle }) {
               window.classFixture.configureMap(enabled, nested),
             { enabled, nested },
           ),
+      )
+      await reviewDynamicIds(page, (suffix) =>
+        page.evaluate(
+          (suffix) => window.classFixture.configureIds(suffix),
+          suffix,
+        ),
       )
       await page.locator('#class-button').click()
       await page

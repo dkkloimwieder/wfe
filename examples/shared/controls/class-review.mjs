@@ -17,6 +17,16 @@ export async function reviewStructuredClasses(page, configure, configureMap) {
     'Exercise native, styled, composed, layout and table wrappers',
   )
   const original = await nodes.elementHandles()
+  const associations = () =>
+    nodes.evaluateAll((nodes) =>
+      nodes.map((node) => ({
+        id: node.id,
+        for: node.getAttribute('for'),
+        labelled: node.getAttribute('aria-labelledby'),
+        described: node.getAttribute('aria-describedby'),
+      })),
+    )
+  const originalAssociations = await associations()
   async function classes(expected) {
     for (const node of await nodes.all()) {
       const base = (await node.getAttribute('data-class-base')).split(/\s+/)
@@ -62,6 +72,7 @@ export async function reviewStructuredClasses(page, configure, configureMap) {
   ]) {
     await configure(value)
     await classes(expected)
+    assert.deepEqual(await associations(), originalAssociations)
   }
   if (configureMap) {
     for (const nested of [false, true]) {
@@ -71,6 +82,7 @@ export async function reviewStructuredClasses(page, configure, configureMap) {
           ...(enabled ? ['caller-live'] : []),
           ...(nested ? ['caller-map-array'] : []),
         ])
+        assert.deepEqual(await associations(), originalAssociations)
       }
     }
   }
@@ -80,4 +92,53 @@ export async function reviewStructuredClasses(page, configure, configureMap) {
       true,
       'Class updates preserve existing nodes',
     )
+}
+
+export async function reviewDynamicIds(page, configure) {
+  const parts = page.locator('[data-id-part]')
+  const original = await parts.elementHandles()
+  const ids = () => parts.evaluateAll((nodes) => nodes.map((node) => node.id))
+  const defaults = await ids()
+  assert.ok(defaults.every(Boolean))
+  assert.equal(new Set(defaults).size, defaults.length)
+  for (const suffix of ['a', 'b', undefined]) {
+    await configure(suffix)
+    if (suffix) {
+      for (const part of await parts.all()) {
+        const name = await part.getAttribute('data-id-part')
+        await expect(part).toHaveAttribute(
+          'id',
+          'dynamic-' + name.replaceAll('.', '-') + '-' + suffix,
+        )
+      }
+    } else assert.deepEqual(await ids(), defaults)
+    for (const [inputPart, labelPart] of [
+      ['Checkbox.Input', 'Checkbox.Label'],
+      ['Switch.Input', 'Switch.Label'],
+      ['RadioGroup.ItemInput', 'RadioGroup.ItemLabel'],
+    ]) {
+      const control = page.locator('[data-id-part="' + inputPart + '"]')
+      const label = page.locator('[data-id-part="' + labelPart + '"]')
+      await expect(label).toHaveAttribute(
+        'for',
+        await control.getAttribute('id'),
+      )
+      const labelId = await label.getAttribute('id')
+      const references = await control.evaluate((node) =>
+        ['aria-labelledby', 'aria-describedby']
+          .flatMap((name) =>
+            (node.getAttribute(name) ?? '').split(/\s+/).filter(Boolean),
+          )
+          .map((id) => ({ id, connected: !!document.getElementById(id) })),
+      )
+      assert.ok(references.every((reference) => reference.connected))
+      assert.ok(references.some((reference) => reference.id === labelId))
+    }
+    for (const node of original)
+      assert.equal(
+        await node.evaluate((node) => node.isConnected),
+        true,
+        await node.getAttribute('data-id-part'),
+      )
+  }
 }

@@ -62,7 +62,7 @@ export function RadioGroupItemInput<T extends ValidComponent = 'input'>(
 
   const mergedProps = merge(
     {
-      id: radioContext.generateId('input'),
+      id: untrack(() => radioContext.generateId('input')),
     },
     props as RadioGroupItemInputProps,
   )
@@ -163,7 +163,7 @@ export function RadioGroupItemInput<T extends ValidComponent = 'input'>(
   return (
     <Polymorphic<RadioGroupItemInputRenderProps>
       as="input"
-      ref={[radioContext.setInputRef, mergedProps.ref]}
+      ref={[radioContext.setInputRef, untrack(() => mergedProps.ref)]}
       type="radio"
       name={formControlContext.name()}
       value={radioContext.value()}

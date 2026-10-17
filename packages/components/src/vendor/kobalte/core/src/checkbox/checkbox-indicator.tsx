@@ -1,5 +1,5 @@
 import { createPresence } from '@solid-primitives/presence'
-import { Show, createSignal, merge, omit } from 'solid-js'
+import { Show, createSignal, merge, omit, untrack } from 'solid-js'
 import { useFormControlContext } from '../form-control/index.ts'
 import { Polymorphic } from '../polymorphic/index.tsx'
 import { useCheckboxContext } from './checkbox-context.tsx'
@@ -46,7 +46,7 @@ export function CheckboxIndicator<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('indicator'),
+      id: untrack(() => context.generateId('indicator')),
     },
     props as CheckboxIndicatorProps,
   )
@@ -66,7 +66,7 @@ export function CheckboxIndicator<T extends ValidComponent = 'div'>(
     <Show when={present()}>
       <Polymorphic<CheckboxIndicatorRenderProps>
         as="div"
-        ref={[setRef, mergedProps.ref]}
+        ref={[setRef, untrack(() => mergedProps.ref)]}
         {...formControlContext.dataset()}
         {...context.dataset()}
         {...others}

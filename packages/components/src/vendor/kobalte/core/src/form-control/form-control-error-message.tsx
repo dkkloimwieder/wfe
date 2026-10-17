@@ -1,6 +1,6 @@
 import { isServer } from '@solidjs/web'
 import type { ValidComponent } from '@solidjs/web'
-import { createEffect, merge, omit, Show } from 'solid-js'
+import { createEffect, merge, omit, Show, untrack } from 'solid-js'
 
 import {
   type ElementOf,
@@ -44,7 +44,7 @@ export function FormControlErrorMessage<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('error-message'),
+      id: untrack(() => context.generateId('error-message')),
     },
     props as FormControlErrorMessageProps,
   )

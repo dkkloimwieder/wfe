@@ -8,7 +8,7 @@
  */
 
 import { access } from '@solid-primitives/utils'
-import { createSignal, createUniqueId, merge, omit } from 'solid-js'
+import { createSignal, createUniqueId, merge, omit, untrack } from 'solid-js'
 import { createNativeFormResetListener } from '../../../../../internal/formReset.ts'
 import {
   FORM_CONTROL_PROP_NAMES,
@@ -197,12 +197,14 @@ export function RadioGroupRoot<T extends ValidComponent = 'div'>(
     setSelectedValue,
   }
 
+  const forwardedRef = untrack(() => mergedProps.ref)
+
   return (
     <FormControlContext value={formControlContext}>
       <RadioGroupContext value={context}>
         <Polymorphic<RadioGroupRootRenderProps>
           as="div"
-          ref={[setRef, mergedProps.ref]}
+          ref={[setRef, forwardedRef]}
           role="radiogroup"
           id={access(formControlProps.id)}
           aria-invalid={

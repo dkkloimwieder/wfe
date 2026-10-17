@@ -1,5 +1,6 @@
 import {
   reviewStructuredClasses,
+  reviewDynamicIds,
   initialClassTokens,
 } from '../shared/controls/class-review.mjs'
 import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
@@ -145,6 +146,12 @@ try {
           window.hydrationFixture.classes.configureMap(enabled, nested),
         { enabled, nested },
       ),
+  )
+  await reviewDynamicIds(page, (suffix) =>
+    page.evaluate(
+      (suffix) => window.hydrationFixture.classes.configureIds(suffix),
+      suffix,
+    ),
   )
   assert.equal(
     await page.evaluate(() =>

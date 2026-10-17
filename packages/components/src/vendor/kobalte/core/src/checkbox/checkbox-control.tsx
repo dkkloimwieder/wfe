@@ -1,4 +1,4 @@
-import { merge, omit } from 'solid-js'
+import { merge, omit, untrack } from 'solid-js'
 import { callHandler } from '../../../utils/src/index.ts'
 
 import { useFormControlContext } from '../form-control/index.ts'
@@ -37,7 +37,7 @@ export function CheckboxControl<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('control'),
+      id: untrack(() => context.generateId('control')),
     },
     props as CheckboxControlProps,
   )

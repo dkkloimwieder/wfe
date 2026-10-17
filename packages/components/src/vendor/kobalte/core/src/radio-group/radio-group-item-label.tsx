@@ -1,4 +1,4 @@
-import { createEffect, merge } from 'solid-js'
+import { createEffect, merge, untrack } from 'solid-js'
 import { Polymorphic } from '../polymorphic/index.tsx'
 import { useRadioGroupItemContext } from './radio-group-item-context.tsx'
 import type { ElementOf, PolymorphicProps } from '../polymorphic/index.tsx'
@@ -34,7 +34,7 @@ export function RadioGroupItemLabel<T extends ValidComponent = 'label'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('label'),
+      id: untrack(() => context.generateId('label')),
     },
     props as RadioGroupItemLabelProps,
   )

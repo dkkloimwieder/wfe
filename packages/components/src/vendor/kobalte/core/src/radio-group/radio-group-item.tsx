@@ -6,7 +6,14 @@
  * https://github.com/adobe/react-spectrum/blob/70e7caf1946c423bc9aa9cb0e50dbdbe953d239b/packages/@react-aria/radio/src/useRadio.ts
  */
 
-import { createMemo, createSignal, createUniqueId, merge, omit } from 'solid-js'
+import {
+  createMemo,
+  createSignal,
+  createUniqueId,
+  merge,
+  omit,
+  untrack,
+} from 'solid-js'
 import { callHandler } from '../../../utils/src/index.ts'
 
 import { useFormControlContext } from '../form-control/index.ts'
@@ -58,8 +65,8 @@ export function RadioGroupItem<T extends ValidComponent = 'div'>(
   const formControlContext = useFormControlContext()
   const radioGroupContext = useRadioGroupContext()
 
-  const defaultId = `${formControlContext.generateId(
-    'item',
+  const defaultId = `${untrack(() =>
+    formControlContext.generateId('item'),
   )}-${createUniqueId()}`
 
   const mergedProps = merge(

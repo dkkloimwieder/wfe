@@ -42,7 +42,7 @@ export function FormControlLabel<T extends ValidComponent = 'label'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('label'),
+      id: untrack(() => context.generateId('label')),
     },
     props as FormControlLabelProps,
   )

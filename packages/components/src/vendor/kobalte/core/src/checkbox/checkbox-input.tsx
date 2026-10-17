@@ -74,7 +74,7 @@ export function CheckboxInput<T extends ValidComponent = 'input'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('input'),
+      id: untrack(() => context.generateId('input')),
     },
     props as CheckboxInputProps,
   )
@@ -165,6 +165,8 @@ export function CheckboxInput<T extends ValidComponent = 'input'>(
     },
   )
 
+  const forwardedRef = untrack(() => mergedProps.ref)
+
   return renderAfterRegistration(() => (
     <Polymorphic<CheckboxInputRenderProps>
       as="input"
@@ -173,7 +175,7 @@ export function CheckboxInput<T extends ValidComponent = 'input'>(
           context.setInputRef(el)
           setRef(el)
         },
-        mergedProps.ref,
+        forwardedRef,
       ]}
       type="checkbox"
       id={fieldProps.id()}

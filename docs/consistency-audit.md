@@ -164,7 +164,7 @@ Server rendering and hydration use the same fixture and preserve the server node
 
 Qualification exposed two separate issues.
 `wfe-w2y.20` now preserves later navigation and focus changes while opening focus waits.
-`wfe-w2y.21` still tracks untracked default ID reads through dynamic property spreads.
+`wfe-w2y.21` now marks stable default ID and ref snapshots explicitly while preserving reactive caller IDs through dynamic property spreads.
 
 ## Differences that remain intentional
 

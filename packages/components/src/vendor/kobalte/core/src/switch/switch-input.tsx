@@ -9,7 +9,7 @@ import { renderAfterRegistration } from '../../../../../internal/fieldRendering.
  */
 
 import { combineStyle } from '@solid-primitives/props'
-import { merge, omit } from 'solid-js'
+import { merge, omit, untrack } from 'solid-js'
 import { callHandler, visuallyHiddenStyles } from '../../../utils/src/index.ts'
 import {
   FORM_CONTROL_FIELD_PROP_NAMES,
@@ -70,7 +70,7 @@ export function SwitchInput<T extends ValidComponent = 'input'>(
   const context = useSwitchContext()
 
   const mergedProps = merge(
-    { id: context.generateId('input') },
+    { id: untrack(() => context.generateId('input')) },
     props as SwitchInputProps,
   )
 
@@ -123,10 +123,12 @@ export function SwitchInput<T extends ValidComponent = 'input'>(
     context.setIsFocused(false)
   }
 
+  const forwardedRef = untrack(() => mergedProps.ref)
+
   return renderAfterRegistration(() => (
     <Polymorphic<SwitchInputRenderProps>
       as="input"
-      ref={[context.setInputRef, mergedProps.ref]}
+      ref={[context.setInputRef, forwardedRef]}
       type="checkbox"
       role="switch"
       id={fieldProps.id()}

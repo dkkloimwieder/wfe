@@ -1,5 +1,5 @@
 import { createPresence } from '@solid-primitives/presence'
-import { Show, createSignal, merge, omit } from 'solid-js'
+import { Show, createSignal, merge, omit, untrack } from 'solid-js'
 import { Polymorphic } from '../polymorphic/index.tsx'
 import { useRadioGroupItemContext } from './radio-group-item-context.tsx'
 import type { Ref } from 'solid-js'
@@ -41,7 +41,7 @@ export function RadioGroupItemIndicator<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('indicator'),
+      id: untrack(() => context.generateId('indicator')),
     },
     props as RadioGroupItemIndicatorProps,
   )
@@ -59,7 +59,7 @@ export function RadioGroupItemIndicator<T extends ValidComponent = 'div'>(
     <Show when={present()}>
       <Polymorphic<RadioGroupItemIndicatorRenderProps>
         as="div"
-        ref={[setRef, mergedProps.ref]}
+        ref={[setRef, untrack(() => mergedProps.ref)]}
         {...context.dataset()}
         {...others}
       />

@@ -1,6 +1,6 @@
 import { isServer } from '@solidjs/web'
 import type { ValidComponent } from '@solidjs/web'
-import { createEffect, merge } from 'solid-js'
+import { createEffect, merge, untrack } from 'solid-js'
 
 import { Polymorphic, type PolymorphicProps } from '../polymorphic/index.tsx'
 import {
@@ -30,7 +30,7 @@ export function FormControlDescription<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('description'),
+      id: untrack(() => context.generateId('description')),
     },
     props as FormControlDescriptionProps,
   )

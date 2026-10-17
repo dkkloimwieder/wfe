@@ -37,6 +37,7 @@ export const initialClasses: JSX.ClassValue = [
 ]
 export const classLifecycle = {
   configure: (_value: JSX.ClassValue) => {},
+  configureIds: (_suffix?: string) => {},
   configureMap: (_enabled: boolean, _nested?: boolean) => {},
   read: () => ({ refs: 0, clicks: 0, cleanups: 0 }),
 }
@@ -56,6 +57,21 @@ export function StructuredClasses() {
     setValue(nested ? conditionalArray : conditional)
     flush()
   }
+  const [idSuffix, setIdSuffix] = createSignal<string>()
+  classLifecycle.configureIds = (suffix) => {
+    setIdSuffix(suffix)
+    flush()
+  }
+  const attributes = (base: string, part?: string) => ({
+    ...(part ? { 'data-id-part': part } : {}),
+    ...(part && idSuffix()
+      ? { id: 'dynamic-' + part.replaceAll('.', '-') + '-' + idSuffix() }
+      : {}),
+    get class() {
+      return value()
+    },
+    'data-class-base': base,
+  })
   let refs = 0
   let clicks = 0
   let cleanups = 0
@@ -66,117 +82,105 @@ export function StructuredClasses() {
   classLifecycle.read = () => ({ refs, clicks, cleanups })
   onCleanup(() => cleanups++)
   return (
-    <Card data-ui="" id="class-root" class={value()} data-class-base="ui-card">
-      <Field
-        class={value()}
-        data-class-base="ui-field"
-        controlId="class-input"
-        invalid
-      >
-        <Label class={value()} data-class-base="ui-label">
-          Class input
-        </Label>
-        <InputGroup class={value()} data-class-base="ui-input-group">
+    <Card data-ui="" id="class-root" {...attributes('ui-card')}>
+      <Field {...attributes('ui-field')} controlId="class-input" invalid>
+        <Label {...attributes('ui-label')}>Class input</Label>
+        <InputGroup {...attributes('ui-input-group')}>
           <Input
             id="class-input"
-            class={value()}
-            data-class-base="ui-input"
+            {...attributes('ui-input')}
             ref={() => refs++}
           />
           <IconButton
-            class={value()}
-            data-class-base="ui-button ui-icon-button"
+            {...attributes('ui-button ui-icon-button')}
             aria-label="Class action"
             onClick={() => clicks++}
           >
             +
           </IconButton>
         </InputGroup>
-        <HelpText class={value()} data-class-base="ui-help">
-          Help
-        </HelpText>
-        <FieldError class={value()} data-class-base="ui-field-error">
-          Error
-        </FieldError>
+        <HelpText {...attributes('ui-help')}>Help</HelpText>
+        <FieldError {...attributes('ui-field-error')}>Error</FieldError>
       </Field>
-      <FieldSet class={value()} data-class-base="ui-field-set">
-        <Textarea
-          class={value()}
-          data-class-base="ui-textarea"
-          aria-label="Class notes"
-        />
+      <FieldSet {...attributes('ui-field-set')}>
+        <Textarea {...attributes('ui-textarea')} aria-label="Class notes" />
       </FieldSet>
       <Button
         id="class-button"
-        class={value()}
-        data-class-base="ui-button"
+        {...attributes('ui-button')}
         onClick={() => clicks++}
         ref={() => refs++}
       >
         Class button
       </Button>
       <Checkbox
-        class={value()}
-        data-class-base="ui-toggle ui-checkbox"
+        {...attributes('ui-toggle ui-checkbox', 'Checkbox')}
         checked
         validationState="invalid"
       >
-        <Checkbox.Input class={value()} data-class-base="ui-toggle-input" />
-        <Checkbox.Control class={value()} data-class-base="ui-check-control">
+        <Checkbox.Input {...attributes('ui-toggle-input', 'Checkbox.Input')} />
+        <Checkbox.Control
+          {...attributes('ui-check-control', 'Checkbox.Control')}
+        >
           <Checkbox.Indicator
-            class={value()}
-            data-class-base="ui-check-indicator"
+            {...attributes('ui-check-indicator', 'Checkbox.Indicator')}
           />
         </Checkbox.Control>
-        <Checkbox.Label class={value()} data-class-base="ui-label">
+        <Checkbox.Label {...attributes('ui-label', 'Checkbox.Label')}>
           Class checkbox
         </Checkbox.Label>
-        <Checkbox.Description class={value()} data-class-base="ui-help">
+        <Checkbox.Description
+          {...attributes('ui-help', 'Checkbox.Description')}
+        >
           Help
         </Checkbox.Description>
-        <Checkbox.ErrorMessage class={value()} data-class-base="ui-field-error">
+        <Checkbox.ErrorMessage
+          {...attributes('ui-field-error', 'Checkbox.ErrorMessage')}
+        >
           Error
         </Checkbox.ErrorMessage>
       </Checkbox>
-      <Switch class={value()} data-class-base="ui-toggle ui-switch" checked>
-        <Switch.Input class={value()} data-class-base="ui-toggle-input" />
-        <Switch.Control class={value()} data-class-base="ui-switch-control">
-          <Switch.Thumb class={value()} data-class-base="ui-switch-thumb" />
+      <Switch {...attributes('ui-toggle ui-switch', 'Switch')} checked>
+        <Switch.Input {...attributes('ui-toggle-input', 'Switch.Input')} />
+        <Switch.Control {...attributes('ui-switch-control', 'Switch.Control')}>
+          <Switch.Thumb {...attributes('ui-switch-thumb', 'Switch.Thumb')} />
         </Switch.Control>
-        <Switch.Label class={value()} data-class-base="ui-label">
+        <Switch.Label {...attributes('ui-label', 'Switch.Label')}>
           Class switch
         </Switch.Label>
       </Switch>
-      <RadioGroup class={value()} data-class-base="ui-radio-group" value="a">
-        <RadioGroup.Label class={value()} data-class-base="ui-label">
+      <RadioGroup {...attributes('ui-radio-group', 'RadioGroup')} value="a">
+        <RadioGroup.Label {...attributes('ui-label', 'RadioGroup.Label')}>
           Class radio
         </RadioGroup.Label>
         <RadioGroup.Item
-          class={value()}
-          data-class-base="ui-radio-item"
+          {...attributes('ui-radio-item', 'RadioGroup.Item')}
           value="a"
         >
           <RadioGroup.ItemInput
-            class={value()}
-            data-class-base="ui-toggle-input"
+            {...attributes('ui-toggle-input', 'RadioGroup.ItemInput')}
           />
           <RadioGroup.ItemControl
-            class={value()}
-            data-class-base="ui-radio-control"
+            {...attributes('ui-radio-control', 'RadioGroup.ItemControl')}
           >
             <RadioGroup.ItemIndicator
-              class={value()}
-              data-class-base="ui-radio-indicator"
+              {...attributes('ui-radio-indicator', 'RadioGroup.ItemIndicator')}
             />
           </RadioGroup.ItemControl>
-          <RadioGroup.ItemLabel class={value()} data-class-base="ui-label">
+          <RadioGroup.ItemLabel
+            {...attributes('ui-label', 'RadioGroup.ItemLabel')}
+          >
             Alpha
           </RadioGroup.ItemLabel>
+          <RadioGroup.ItemDescription
+            {...attributes('ui-help', 'RadioGroup.ItemDescription')}
+          >
+            Radio help
+          </RadioGroup.ItemDescription>
         </RadioGroup.Item>
       </RadioGroup>
       <SelectField
-        class={value()}
-        data-class-base="popup-trigger"
+        {...attributes('popup-trigger')}
         label="Class select"
         value="a"
         choices={[{ value: 'a', label: 'Alpha' }]}
@@ -186,76 +190,58 @@ export function StructuredClasses() {
         <Popover.Trigger
           as={Button}
           id="class-popover-trigger"
-          class={value()}
-          data-class-base="ui-button"
+          {...attributes('ui-button')}
         >
           Class popover
         </Popover.Trigger>
         <Popover.Portal>
-          <Popover.Content class={value()} data-class-base="ui-popover">
-            <Popover.Title class={value()} data-class-base="ui-popup-title">
+          <Popover.Content {...attributes('ui-popover')}>
+            <Popover.Title {...attributes('ui-popup-title')}>
               Class popup
             </Popover.Title>
-            <Popover.Description
-              class={value()}
-              data-class-base="ui-popup-description"
-            >
+            <Popover.Description {...attributes('ui-popup-description')}>
               Description
             </Popover.Description>
-            <Popover.CloseButton class={value()} data-class-base="ui-button">
+            <Popover.CloseButton {...attributes('ui-button')}>
               Close class popup
             </Popover.CloseButton>
           </Popover.Content>
         </Popover.Portal>
       </Popover>
       <Dialog>
-        <Dialog.Trigger class={value()} data-class-base="ui-button" as={Button}>
+        <Dialog.Trigger {...attributes('ui-button')} as={Button}>
           Class dialog
         </Dialog.Trigger>
       </Dialog>
-      <Badge class={value()} data-class-base="ui-badge">
-        Badge
-      </Badge>
-      <Separator class={value()} data-class-base="ui-separator" />
-      <InlineAlert class={value()} data-class-base="ui-inline-alert">
-        Alert
-      </InlineAlert>
-      <EmptyState class={value()} data-class-base="ui-empty-state">
-        Empty
-      </EmptyState>
-      <Spinner class={value()} data-class-base="ui-spinner" />
-      <Skeleton class={value()} data-class-base="ui-skeleton" />
+      <Badge {...attributes('ui-badge')}>Badge</Badge>
+      <Separator {...attributes('ui-separator')} />
+      <InlineAlert {...attributes('ui-inline-alert')}>Alert</InlineAlert>
+      <EmptyState {...attributes('ui-empty-state')}>Empty</EmptyState>
+      <Spinner {...attributes('ui-spinner')} />
+      <Skeleton {...attributes('ui-skeleton')} />
       <Progress
-        class={value()}
-        data-class-base="ui-progress"
+        {...attributes('ui-progress')}
         value={50}
         aria-label="Class progress"
       />
-      <Toast.Region class={value()} data-class-base="ui-toast-region">
+      <Toast.Region {...attributes('ui-toast-region')}>
         <Toast open persistent>
-          <Toast.Title class={value()} data-class-base="ui-toast-title">
+          <Toast.Title {...attributes('ui-toast-title')}>
             Class notification
           </Toast.Title>
-          <Toast.Description
-            class={value()}
-            data-class-base="ui-toast-description"
-          >
+          <Toast.Description {...attributes('ui-toast-description')}>
             Description
           </Toast.Description>
         </Toast>
       </Toast.Region>
-      <DashboardGrid class={value()} data-class-base="ui-dashboard-grid">
-        <DashboardPanel
-          class={value()}
-          data-class-base="ui-card ui-dashboard-panel"
-        >
+      <DashboardGrid {...attributes('ui-dashboard-grid')}>
+        <DashboardPanel {...attributes('ui-card ui-dashboard-panel')}>
           Panel
         </DashboardPanel>
       </DashboardGrid>
       <TableWorkspace
         toggleLabel="Class controls"
-        class={value()}
-        data-class-base="table-workspace"
+        {...attributes('table-workspace')}
         controls={<p>Controls</p>}
       >
         <p>Results</p>

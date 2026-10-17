@@ -1,4 +1,4 @@
-import { createEffect, merge } from 'solid-js'
+import { createEffect, merge, untrack } from 'solid-js'
 
 import { Polymorphic } from '../polymorphic/index.tsx'
 import { useRadioGroupItemContext } from './radio-group-item-context.tsx'
@@ -32,7 +32,7 @@ export function RadioGroupItemDescription<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('description'),
+      id: untrack(() => context.generateId('description')),
     },
     props as RadioGroupItemDescriptionProps,
   )

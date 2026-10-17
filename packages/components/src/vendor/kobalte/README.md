@@ -47,6 +47,13 @@ Disabled radio items reject pointer selection. Read-only radio groups restore ev
 Reset callbacks run after the native reset action and restore accepted controlled values or uncontrolled defaults.
 A shared Core helper cancels pending reset work on disposal and respects prevented reset events.
 The shared form label reads its one-time forwarded ref through `untrack`.
+Checkbox, Switch, shared form parts, and radio items snapshot generated default IDs through `untrack` during setup.
+These defaults stay stable when a caller changes a property spread or a parent ID.
+Caller-supplied IDs remain reactive and retain their registration effects.
+Checkbox, Switch, and RadioGroup roots also snapshot their forwarded refs.
+Inputs use the same ref snapshots.
+Indicators read the current ref without tracking when their elements mount.
+This prevents spread updates from recreating indicator elements or producing untracked-read warnings.
 
 Dialog and AlertDialog now share the owned dismissable layer and external focus, interaction, and scroll primitives.
 Dismissable layers forward native and custom `as` elements through the repaired Polymorphic component.
