@@ -195,3 +195,46 @@ assert.match(generatorOutput, /Generated row/)
 assert.match(generatorOutput, /Record title/)
 assert.deepEqual(generatorWarnings, [])
 console.log('Generator public server rendering and disposal passed.')
+
+const { DatePicker, DateTimePicker } = await import('@wfe/components')
+let dateRequests = 0
+const datesOutput = await renderToString(() =>
+  DatePicker({
+    label: 'Server date',
+    value: '2024-02-29',
+    dateFormat: 'dd/MM/yyyy',
+    onValueChange() {
+      dateRequests++
+    },
+  }),
+)
+assert.match(datesOutput, /29\/02\/2024/)
+const explicitDateTime = await renderToString(() =>
+  DateTimePicker({
+    label: 'Server appointment',
+    value: '2024-02-29T02:15:16.123Z',
+    timeZone: 'America/New_York',
+    name: 'appointment',
+    onValueChange() {
+      dateRequests++
+    },
+  }),
+)
+assert.match(explicitDateTime, /2024-02-28/)
+assert.match(explicitDateTime, /21:15/)
+assert.match(explicitDateTime, /2024-02-29T02:15:16.123Z/)
+const browserDateTime = await renderToString(() =>
+  DateTimePicker({
+    label: 'Browser appointment',
+    value: '2024-02-29T02:15Z',
+    onValueChange() {
+      dateRequests++
+    },
+  }),
+)
+assert.match(browserDateTime, /Browser timezone pending/)
+assert.doesNotMatch(browserDateTime, /02:15/)
+assert.equal(dateRequests, 0)
+console.log(
+  'Date and datetime server rendering stay deterministic and do not request changes.',
+)

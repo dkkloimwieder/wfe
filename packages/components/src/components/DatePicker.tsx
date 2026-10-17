@@ -47,6 +47,19 @@ export type DatePickerProps = Pick<
 }
 
 export function DatePicker(props: DatePickerProps) {
+  return <DatePickerControl {...props} />
+}
+
+/** Internal composition keeps local drafts inside the shared date control. */
+export function DatePickerControl(
+  props: DatePickerProps & {
+    resetVersion?: number
+    onDraftReset?: () => void
+    onCalendarSelect?: () => void
+    onCalendarRef?: (node: HTMLDivElement) => void
+    onPopupFocusOut?: (event: FocusEvent) => void
+  },
+) {
   const field = useContext(FieldContext)
   const generated = createUniqueId()
   const id = () => props.id ?? field?.baseControlId() ?? generated
@@ -72,12 +85,17 @@ export function DatePicker(props: DatePickerProps) {
     alive = false
   })
   let calendar: HTMLDivElement | undefined
-  createEffect(
-    () => [display(), props.dateFormat, props.locale] as const,
-    ([value]) => {
-      setDraft(value)
+  const presentation = createMemo(
+    () =>
+      [display(), props.dateFormat, props.locale, props.resetVersion] as const,
+    {
+      equals: (left, right) =>
+        left.every((value, index) => value === right[index]),
     },
   )
+  createEffect(presentation, ([value]) => {
+    setDraft(value)
+  })
   createEffect(
     () => ({
       message: invalid()
@@ -160,6 +178,7 @@ export function DatePicker(props: DatePickerProps) {
               if (event.key === 'Escape' && !open()) {
                 event.preventDefault()
                 event.stopPropagation()
+                props.onDraftReset?.()
                 setDraft(display())
               }
             }}
@@ -189,6 +208,7 @@ export function DatePicker(props: DatePickerProps) {
         <Popover.Portal>
           <Popover.Content
             class="ui-date-popup"
+            onFocusOut={props.onPopupFocusOut}
             onOpenAutoFocus={(event) => {
               event.preventDefault()
               queueMicrotask(() => {
@@ -215,11 +235,13 @@ export function DatePicker(props: DatePickerProps) {
               startOfWeek={props.startOfWeek}
               ref={(node) => {
                 calendar = node
+                props.onCalendarRef?.(node)
               }}
               onValueChange={(value) => {
                 if (disabled() || readonly()) return
                 if (!accepted(value)) return
                 props.onValueChange(value)
+                props.onCalendarSelect?.()
                 setDraft(display())
                 setOpen(false)
               }}

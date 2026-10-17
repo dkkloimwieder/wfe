@@ -91,6 +91,16 @@ export function qualificationStages(output, { wamn = false } = {}) {
     }
     stages.push(
       stage(
+        `date-hydration-${mode}`,
+        ['exec', 'node', 'examples/date-picker/run-hydration.mjs'],
+        {
+          ...env,
+          BENCH_OUTPUT: resolve(output, `date-hydration-${mode}.json`),
+        },
+      ),
+    )
+    stages.push(
+      stage(
         `generator-hydration-${mode}`,
         ['exec', 'node', 'examples/generator/run-hydration.mjs'],
         {

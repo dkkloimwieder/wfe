@@ -24,6 +24,7 @@ test('all public source, client, server, style, and type targets exist', async (
     'Input',
     'Calendar',
     'DatePicker',
+    'DateTimePicker',
     'Checkbox',
     'Select',
     'Combobox',

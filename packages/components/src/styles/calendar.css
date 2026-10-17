@@ -1,3 +1,18 @@
+.ui-datetime-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  align-items: end;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+.ui-datetime-picker > :is(.ui-datetime-zone, .ui-field-error) {
+  grid-column: 1 / -1;
+}
+@media (max-width: 480px) {
+  .ui-datetime-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .ui-date-picker {
   display: grid;
   gap: 4px;

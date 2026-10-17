@@ -192,7 +192,7 @@ The example shares that cleanup with its normal browser entry.
 
 ## Dependencies and updates
 
-Solid, Solid Primitives, Floating UI, and internationalized number helpers remain external dependencies.
+Solid, Solid Primitives, Floating UI, and internationalized number and date helpers remain external dependencies.
 The component package owns selected Kobalte sources and the virtual engine.
 Application examples own their Zod validation usage.
 The component runtime does not import Zod or the legacy table-core engine.

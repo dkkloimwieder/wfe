@@ -2,6 +2,7 @@ import { render } from '@solidjs/web'
 import { OBSERVE, action, createSignal, flush, untrack } from 'solid-js'
 import {
   DatePicker,
+  DateTimePicker,
   Button,
   Field,
   Label,
@@ -10,6 +11,7 @@ import {
   uiScope,
 } from '@wfe/components'
 import '@wfe/components/styles.css'
+import type { DateTimePickerProps } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
 
 type State = {
@@ -26,6 +28,25 @@ type State = {
   excluded: string[]
   accept: boolean
 }
+type DateTimeState = Pick<
+  DateTimePickerProps,
+  | 'value'
+  | 'timeZone'
+  | 'dateFormat'
+  | 'timeFormat'
+  | 'locale'
+  | 'disambiguation'
+  | 'disabled'
+  | 'readonly'
+  | 'required'
+  | 'invalid'
+  | 'min'
+  | 'max'
+> & { accept: boolean }
+let updateDateTime: (next: Partial<DateTimeState>) => void
+let datetimeChanges = 0
+let datetimeSubmits = 0
+let datetimeValid = true
 let update: (next: Partial<State>) => void
 let snapshot: () => unknown
 let release: (() => void) | undefined
@@ -53,9 +74,26 @@ function App() {
     excluded: [],
     accept: true,
   })
+  const [datetime, setDateTime] = createSignal<DateTimeState>({
+    value: '2024-02-29T14:15:16.123Z',
+    timeZone: 'UTC',
+    dateFormat: 'dd/MM/yyyy',
+    timeFormat: 'HH:mm',
+    accept: true,
+  })
+  updateDateTime = (next) => setDateTime((old) => ({ ...old, ...next }))
   update = (next) => setState((old) => ({ ...old, ...next }))
   snapshot = () =>
-    untrack(() => ({ ...state(), changes, submits, intrinsicValid }))
+    untrack(() => ({
+      ...state(),
+      changes,
+      submits,
+      intrinsicValid,
+      datetime: datetime(),
+      datetimeChanges,
+      datetimeSubmits,
+      datetimeValid,
+    }))
   return (
     <main
       {...uiScope()}
@@ -102,6 +140,39 @@ function App() {
           <FieldError>Application date validation</FieldError>
         </Field>
       </form>
+      <form
+        id="datetime-test-form"
+        ref={nativeEvents<HTMLFormElement>({
+          submit(event) {
+            event.preventDefault()
+            datetimeSubmits++
+          },
+        })}
+      >
+        <Field
+          controlId="appointment"
+          disabled={datetime().disabled}
+          readonly={datetime().readonly}
+          required={datetime().required}
+          invalid={datetime().invalid}
+        >
+          <Label>Appointment</Label>
+          <DateTimePicker
+            {...datetime()}
+            label="Appointment"
+            name="appointment"
+            onValueChange={(value) => {
+              datetimeChanges++
+              if (datetime().accept) updateDateTime({ value })
+            }}
+            onValidityChange={(valid) => {
+              datetimeValid = valid
+            }}
+          />
+          <HelpText>Appointment help</HelpText>
+          <FieldError>Application appointment error</FieldError>
+        </Field>
+      </form>
       <Button type="button">After picker</Button>
     </main>
   )
@@ -113,6 +184,9 @@ function start() {
   changes = 0
   submits = 0
   intrinsicValid = true
+  datetimeChanges = 0
+  datetimeSubmits = 0
+  datetimeValid = true
   release = render(App, document.getElementById('root')!)
   flush()
 }
@@ -121,6 +195,10 @@ const api = {
   stop,
   set: (next: Partial<State>) => {
     update(next)
+    flush()
+  },
+  setDateTime: (next: Partial<DateTimeState>) => {
+    updateDateTime(next)
     flush()
   },
   snapshot: () => snapshot(),

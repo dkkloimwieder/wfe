@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Datetime hydration</title>
+  </head>
+  <body>
+    <div id="root"><!--ssr--></div>
+    <script>
+      window.dateServerNodes = [...document.querySelectorAll('#root input')]
+    </script>
+    <script type="module" src="/hydration.tsx"></script>
+  </body>
+</html>

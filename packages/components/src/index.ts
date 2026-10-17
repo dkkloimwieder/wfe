@@ -61,3 +61,7 @@ export { formatDisplayValue } from './utils/valueFormat'
 export type { ValueFormat } from './utils/valueFormat'
 
 export type { DateInputFormat } from './utils/dateFormat'
+
+export { DateTimePicker } from './components/DateTimePicker'
+export type { DateTimePickerProps } from './components/DateTimePicker'
+export type { TimeInputFormat, DateTimeDisambiguation } from './utils/dateTime'
