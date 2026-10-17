@@ -1,3 +1,4 @@
+import { styledClasses } from '../internal/classes'
 import { nativeEventProps, ownedElementEvents } from '../internal/events'
 import { omit } from 'solid-js'
 import type { JSX } from '@solidjs/web'
@@ -12,7 +13,7 @@ export function Badge(props: BadgeProps) {
   return (
     <span
       {...attributes}
-      class={'ui-badge ' + (props.class ?? '')}
+      class={styledClasses('ui-badge', props.class)}
       data-tone={props.tone ?? 'neutral'}
       ref={[props.ref, events]}
     />
@@ -25,7 +26,7 @@ export function Card(props: CardProps) {
   return (
     <div
       {...attributes}
-      class={'ui-card ' + (props.class ?? '')}
+      class={styledClasses('ui-card', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -51,7 +52,7 @@ export function Separator(props: SeparatorProps) {
         props.decorative ? undefined : (props.orientation ?? 'horizontal')
       }
       data-orientation={props.orientation ?? 'horizontal'}
-      class={'ui-separator ' + (props.class ?? '')}
+      class={styledClasses('ui-separator', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -78,7 +79,7 @@ export function InlineAlert(props: InlineAlertProps) {
         props.announce && props.announce !== 'off' ? 'true' : undefined
       }
       data-tone={props.tone ?? 'neutral'}
-      class={'ui-inline-alert ' + (props.class ?? '')}
+      class={styledClasses('ui-inline-alert', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -90,7 +91,7 @@ export function EmptyState(props: EmptyStateProps) {
   return (
     <div
       {...attributes}
-      class={'ui-empty-state ' + (props.class ?? '')}
+      class={styledClasses('ui-empty-state', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -104,7 +105,7 @@ export function Spinner(props: SpinnerProps) {
       {...attributes}
       role={props.role ?? (props['aria-label'] ? 'img' : undefined)}
       aria-hidden={props['aria-label'] ? undefined : 'true'}
-      class={'ui-spinner ' + (props.class ?? '')}
+      class={styledClasses('ui-spinner', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -117,7 +118,7 @@ export function Skeleton(props: SkeletonProps) {
     <div
       {...attributes}
       aria-hidden="true"
-      class={'ui-skeleton ' + (props.class ?? '')}
+      class={styledClasses('ui-skeleton', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -142,7 +143,7 @@ export function Progress(props: ProgressProps) {
       {...attributes}
       max={maximum()}
       value={value()}
-      class={'ui-progress ' + (props.class ?? '')}
+      class={styledClasses('ui-progress', props.class)}
       ref={[props.ref, events]}
     />
   )

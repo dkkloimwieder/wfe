@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/dialog'
@@ -56,16 +57,25 @@ export function DialogCloseButton<T extends ValidComponent = 'button'>(
 }
 
 export function DialogOverlay<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, Core.DialogOverlayProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.DialogOverlayProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Overlay as Component<typeof props>
   return (
-    <Primitive {...props} class={'ui-dialog-overlay ' + (props.class ?? '')} />
+    <Primitive
+      {...props}
+      class={styledClasses('ui-dialog-overlay', props.class)}
+    />
   )
 }
 
 export function DialogContent<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, Core.DialogContentProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.DialogContentProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   const scope = useDialogScope()
@@ -73,32 +83,35 @@ export function DialogContent<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-dialog-content ' + (props.class ?? '')}
+      class={styledClasses('ui-dialog-content', props.class)}
       ref={[scope.setContent, untrack(() => props.ref)]}
     />
   )
 }
 
 export function DialogTitle<T extends ValidComponent = 'h2'>(
-  props: PolymorphicProps<T, Core.DialogTitleProps<T> & { class?: string }>,
+  props: PolymorphicProps<T, Core.DialogTitleProps<T> & { class?: ClassValue }>,
 ) {
   const Primitive = Core.Title as Component<typeof props>
   return (
-    <Primitive {...props} class={'ui-dialog-title ' + (props.class ?? '')} />
+    <Primitive
+      {...props}
+      class={styledClasses('ui-dialog-title', props.class)}
+    />
   )
 }
 
 export function DialogDescription<T extends ValidComponent = 'p'>(
   props: PolymorphicProps<
     T,
-    Core.DialogDescriptionProps<T> & { class?: string }
+    Core.DialogDescriptionProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Description as Component<typeof props>
   return (
     <Primitive
       {...props}
-      class={'ui-dialog-description ' + (props.class ?? '')}
+      class={styledClasses('ui-dialog-description', props.class)}
     />
   )
 }

@@ -1,3 +1,4 @@
+import { StructuredClasses } from '../shared/controls/StructuredClasses'
 import '@wfe/components/styles.css'
 import { createSignal, onCleanup } from 'solid-js'
 import {
@@ -116,6 +117,9 @@ export default function App() {
         />
       )}
     >
+      <section hidden>
+        <StructuredClasses />
+      </section>
       <Checkbox
         id="adopt-check"
         checked={checked()}

@@ -1,3 +1,4 @@
+import { classLifecycle } from '../shared/controls/StructuredClasses'
 import { hydrate } from '@solidjs/web'
 import { OBSERVE, action, flush } from 'solid-js'
 import App, { lifecycle } from './App'
@@ -22,6 +23,7 @@ Object.assign(window, {
       flush()
     },
     lifecycle,
+    classes: classLifecycle,
     diagnostics: () => capture?.stop() ?? [],
   },
 })

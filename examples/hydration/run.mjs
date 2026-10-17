@@ -1,3 +1,7 @@
+import {
+  reviewStructuredClasses,
+  initialClassTokens,
+} from '../shared/controls/class-review.mjs'
 import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
 import {
   choiceControl,
@@ -87,13 +91,21 @@ try {
   assert.match(triggerMarkup, /data-variant="filled"/)
   assert.match(triggerMarkup, /data-tone="accent"/)
   assert.doesNotMatch(triggerMarkup, /\s(?:variant|tone)=/)
+  const classMarkup = markup.match(/<div\b[^>]*\bid="class-root"[^>]*>/)?.[0]
+  assert.ok(classMarkup, 'Render the shared class fixture on the server')
+  for (const token of [...initialClassTokens, 'ui-card'])
+    assert.ok(classMarkup.includes(token))
+  assert.doesNotMatch(
+    classMarkup,
+    /\[object Object\]|undefined|true|false|caller-off/,
+  )
   const html = template.replace('<!--ssr-->', markup)
   // Capture the original nodes before the deferred module attaches the client.
   await writeFile(
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")];</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -119,6 +131,32 @@ try {
   report.cssProvenance = await reviewCssProvenance(
     page,
     `http://127.0.0.1:${server.address().port}`,
+  )
+  await reviewStructuredClasses(
+    page,
+    (value) =>
+      page.evaluate(
+        (value) => window.hydrationFixture.classes.configure(value),
+        value,
+      ),
+    (enabled, nested) =>
+      page.evaluate(
+        ({ enabled, nested }) =>
+          window.hydrationFixture.classes.configureMap(enabled, nested),
+        { enabled, nested },
+      ),
+  )
+  assert.equal(
+    await page.evaluate(() =>
+      window.serverClassNodes.every(
+        (node, index) =>
+          node === document.querySelectorAll('[data-class-base]')[index],
+      ),
+    ),
+    true,
+  )
+  report.assertions.push(
+    'Structured classes survive server rendering, hydration and reactive changes without replacing server nodes',
   )
   await expect(page.locator('#adopt-trigger')).toHaveAttribute(
     'data-variant',

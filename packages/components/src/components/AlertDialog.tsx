@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/alert-dialog'
@@ -16,7 +17,7 @@ export function AlertDialogRoot(props: AlertDialogRootProps) {
 export function AlertDialogContent<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.AlertDialogContentProps<T> & { class?: string }
+    Core.AlertDialogContentProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Content as Component<typeof props>
@@ -25,7 +26,7 @@ export function AlertDialogContent<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-dialog-content ' + (props.class ?? '')}
+      class={styledClasses('ui-dialog-content', props.class)}
       ref={[scope.setContent, untrack(() => props.ref)]}
       onOpenAutoFocus={(event) => {
         props.onOpenAutoFocus?.(event)

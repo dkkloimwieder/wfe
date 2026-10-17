@@ -1,3 +1,4 @@
+import { styledClasses } from '../internal/classes'
 import { restoreTextValue } from '../internal/controlledText'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
@@ -94,7 +95,7 @@ export function Field(props: FieldProps) {
         id={props.id || generated}
         data-ui=""
         data-invalid={props.invalid ? '' : undefined}
-        class={'ui-field ' + (props.class ?? '')}
+        class={styledClasses('ui-field', props.class)}
         ref={[props.ref, events]}
       />
     </FieldContext>
@@ -110,7 +111,7 @@ export function Label(props: LabelProps) {
     <label
       {...attributes}
       for={props.for ?? field?.controlId()}
-      class={'ui-label ' + (props.class ?? '')}
+      class={styledClasses('ui-label', props.class)}
       ref={[props.ref, events]}
     />
   ))
@@ -127,7 +128,7 @@ export function HelpText(props: HelpTextProps) {
     <div
       {...attributes}
       id={id()}
-      class={'ui-help ' + (props.class ?? '')}
+      class={styledClasses('ui-help', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -145,7 +146,7 @@ export function FieldError(props: FieldErrorProps) {
       {...attributes}
       id={id()}
       hidden={props.hidden ?? (field ? !field.invalid() : undefined)}
-      class={'ui-field-error ' + (props.class ?? '')}
+      class={styledClasses('ui-field-error', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -232,7 +233,7 @@ export function Input(props: InputProps) {
         props['aria-invalid'] ?? (state.invalid() ? 'true' : undefined)
       }
       aria-describedby={state.describedBy()}
-      class={'ui-input ' + (props.class ?? '')}
+      class={styledClasses('ui-input', props.class)}
       ref={[props.ref, state.events]}
     />
   ))
@@ -250,7 +251,7 @@ export function Textarea(props: TextareaProps) {
         props['aria-invalid'] ?? (state.invalid() ? 'true' : undefined)
       }
       aria-describedby={state.describedBy()}
-      class={'ui-textarea ' + (props.class ?? '')}
+      class={styledClasses('ui-textarea', props.class)}
       ref={[props.ref, state.events]}
     />
   ))
@@ -270,7 +271,9 @@ export function Button(props: ButtonProps) {
 }
 export type IconButtonProps = ButtonProps & { 'aria-label': string }
 export function IconButton(props: IconButtonProps) {
-  return <Button {...props} class={'ui-icon-button ' + (props.class ?? '')} />
+  return (
+    <Button {...props} class={styledClasses('ui-icon-button', props.class)} />
+  )
 }
 export type FieldSetProps = JSX.FieldsetHTMLAttributes<HTMLFieldSetElement>
 export function FieldSet(props: FieldSetProps) {
@@ -280,7 +283,7 @@ export function FieldSet(props: FieldSetProps) {
     <fieldset
       {...attributes}
       data-ui=""
-      class={'ui-field-set ' + (props.class ?? '')}
+      class={styledClasses('ui-field-set', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -292,7 +295,7 @@ export function InputGroup(props: InputGroupProps) {
   return (
     <div
       {...attributes}
-      class={'ui-input-group ' + (props.class ?? '')}
+      class={styledClasses('ui-input-group', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -374,7 +377,7 @@ export function NativeSelect(props: NativeSelectProps) {
         props['aria-invalid'] ??
         ((props.invalid ?? field?.invalid()) ? 'true' : undefined)
       }
-      class={'ui-native-select ' + (props.class ?? '')}
+      class={styledClasses('ui-native-select', props.class)}
       ref={[props.ref, events]}
     />
   ))

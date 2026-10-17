@@ -1,3 +1,4 @@
+import { classCases } from './class-cases.mjs'
 import { consistencyCases } from './consistency-cases.mjs'
 import { sharedStyleCases } from './shared-style-cases.mjs'
 import { overlayButtonCases } from './overlay-button-cases.mjs'
@@ -224,6 +225,7 @@ async function record(name, work) {
   }
 }
 try {
+  await classCases({ page, url, record, settle })
   await consistencyCases({ page, url, record, settle })
   await sharedStyleCases({ page, url, record, settle })
   await consumerCases({ page, url, record, press, settle })

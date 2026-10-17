@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/dropdown-menu'
@@ -35,29 +36,37 @@ export function DropdownMenuTrigger<T extends ValidComponent = 'button'>(
 export function DropdownMenuContent<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuContentProps<T> & { class?: string }
+    Core.DropdownMenuContentProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   return (
-    <Primitive {...props} data-ui="" class={'ui-menu ' + (props.class ?? '')} />
+    <Primitive
+      {...props}
+      data-ui=""
+      class={styledClasses('ui-menu', props.class)}
+    />
   )
 }
 export function DropdownMenuSubContent<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuSubContentProps<T> & { class?: string }
+    Core.DropdownMenuSubContentProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.SubContent as Component<typeof props>
   return (
-    <Primitive {...props} data-ui="" class={'ui-menu ' + (props.class ?? '')} />
+    <Primitive
+      {...props}
+      data-ui=""
+      class={styledClasses('ui-menu', props.class)}
+    />
   )
 }
 export function DropdownMenuItem<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuItemProps<T> & { class?: string }
+    Core.DropdownMenuItemProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Item as Component<typeof props>
@@ -65,14 +74,14 @@ export function DropdownMenuItem<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-menu-item ' + (props.class ?? '')}
+      class={styledClasses('ui-menu-item', props.class)}
     />
   )
 }
 export function DropdownMenuCheckboxItem<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuCheckboxItemProps<T> & { class?: string }
+    Core.DropdownMenuCheckboxItemProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.CheckboxItem as Component<typeof props>
@@ -80,7 +89,7 @@ export function DropdownMenuCheckboxItem<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-menu-item ' + (props.class ?? '')}
+      class={styledClasses('ui-menu-item', props.class)}
     />
   )
 }
@@ -90,7 +99,7 @@ export function DropdownMenuRadioItem<
 >(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuRadioItemProps<T, TValue> & { class?: string }
+    Core.DropdownMenuRadioItemProps<T, TValue> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.RadioItem as Component<typeof props>
@@ -98,14 +107,14 @@ export function DropdownMenuRadioItem<
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-menu-item ' + (props.class ?? '')}
+      class={styledClasses('ui-menu-item', props.class)}
     />
   )
 }
 export function DropdownMenuSubTrigger<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuSubTriggerProps<T> & { class?: string }
+    Core.DropdownMenuSubTriggerProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.SubTrigger as Component<typeof props>
@@ -113,14 +122,14 @@ export function DropdownMenuSubTrigger<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-menu-item ' + (props.class ?? '')}
+      class={styledClasses('ui-menu-item', props.class)}
     />
   )
 }
 export function DropdownMenuGroupLabel<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuGroupLabelProps<T> & { class?: string }
+    Core.DropdownMenuGroupLabelProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.GroupLabel as Component<typeof props>
@@ -128,14 +137,14 @@ export function DropdownMenuGroupLabel<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-menu-label ' + (props.class ?? '')}
+      class={styledClasses('ui-menu-label', props.class)}
     />
   )
 }
 export function DropdownMenuItemDescription<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuItemDescriptionProps<T> & { class?: string }
+    Core.DropdownMenuItemDescriptionProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.ItemDescription as Component<typeof props>
@@ -143,14 +152,14 @@ export function DropdownMenuItemDescription<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-popup-description ' + (props.class ?? '')}
+      class={styledClasses('ui-popup-description', props.class)}
     />
   )
 }
 export function DropdownMenuSeparator<T extends ValidComponent = 'hr'>(
   props: PolymorphicProps<
     T,
-    Core.DropdownMenuSeparatorProps<T> & { class?: string }
+    Core.DropdownMenuSeparatorProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Separator as Component<typeof props>
@@ -158,7 +167,7 @@ export function DropdownMenuSeparator<T extends ValidComponent = 'hr'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-menu-separator ' + (props.class ?? '')}
+      class={styledClasses('ui-menu-separator', props.class)}
     />
   )
 }

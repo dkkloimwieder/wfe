@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/popover'
@@ -33,14 +34,17 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
   )
 }
 export function PopoverContent<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, Core.PopoverContentProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.PopoverContentProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   return (
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-popover ' + (props.class ?? '')}
+      class={styledClasses('ui-popover', props.class)}
     />
   )
 }
@@ -55,21 +59,24 @@ export function PopoverCloseButton<T extends ValidComponent = 'button'>(
   return <Primitive {...attributes} data-ui="" />
 }
 export function PopoverTitle<T extends ValidComponent = 'h2'>(
-  props: PolymorphicProps<T, Core.PopoverTitleProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.PopoverTitleProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Title as Component<typeof props>
   return (
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-popup-title ' + (props.class ?? '')}
+      class={styledClasses('ui-popup-title', props.class)}
     />
   )
 }
 export function PopoverDescription<T extends ValidComponent = 'p'>(
   props: PolymorphicProps<
     T,
-    Core.PopoverDescriptionProps<T> & { class?: string }
+    Core.PopoverDescriptionProps<T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Description as Component<typeof props>
@@ -77,7 +84,7 @@ export function PopoverDescription<T extends ValidComponent = 'p'>(
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-popup-description ' + (props.class ?? '')}
+      class={styledClasses('ui-popup-description', props.class)}
     />
   )
 }

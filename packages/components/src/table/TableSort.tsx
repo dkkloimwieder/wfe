@@ -1,3 +1,4 @@
+import { type ClassValue } from '../internal/classes'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 
@@ -6,7 +7,7 @@ export function TableSort(props: {
   sorted: 'asc' | 'desc' | false
   onSort: (multi: boolean) => void
   disabled?: boolean
-  class?: string
+  class?: ClassValue
   accessibleLabel?: string
   unsortedMark?: string
 }) {

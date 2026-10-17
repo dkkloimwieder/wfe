@@ -1,3 +1,7 @@
+import {
+  StructuredClasses,
+  classLifecycle,
+} from '../shared/controls/StructuredClasses'
 import { ConsistencyControls } from './ConsistencyControls'
 import { OverlayButtonControls } from './OverlayButtonControls'
 import './style.css'
@@ -16,7 +20,23 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('consistency')) {
+if (new URLSearchParams(location.search).has('classes')) {
+  const dispose = render(
+    () => <StructuredClasses />,
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose the fixture synchronously.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  window.classFixture = {
+    ...classLifecycle,
+    stop: () => {
+      cleanup()
+      flush()
+    },
+  }
+} else if (new URLSearchParams(location.search).has('consistency')) {
   const dispose = render(
     () => <ConsistencyControls />,
     document.getElementById('root')!,
@@ -145,3 +165,9 @@ if (new URLSearchParams(location.search).has('consistency')) {
 else if (new URLSearchParams(location.search).has('standalone'))
   render(() => <Standalone />, document.getElementById('root')!)
 else mountEditingFixture(PopupPriorityEditor, popupFields)
+
+declare global {
+  interface Window {
+    classFixture: typeof classLifecycle & { stop: () => void }
+  }
+}

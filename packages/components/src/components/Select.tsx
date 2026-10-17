@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import { FieldContext } from '../internal/fieldContext'
 import * as Core from '../internal/controls/select'
 import { callHandler } from '../internal/events'
@@ -42,14 +43,17 @@ export function SelectRoot<
 // Styled parts add HTML classes and slots at the polymorphic forwarding boundary.
 // Keep JSX reference arrays direct. The compiler drops callbacks behind outer assertions.
 export function SelectTrigger<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, Core.SelectTriggerProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.SelectTriggerProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Trigger as Component<typeof props>
   const scope = useChoiceScope()
   return (
     <Primitive
       {...props}
-      class={'popup-trigger ' + (props.class ?? '')}
+      class={styledClasses('popup-trigger', props.class)}
       ref={[scope.setControl, untrack(() => props.ref)]}
     />
   )
@@ -58,7 +62,7 @@ export function SelectContent<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
     Core.SelectContentProps<T> & {
-      class?: string
+      class?: ClassValue
       children?: JSX.Element
       footer?: JSX.Element
       status?: JSX.Element
@@ -71,7 +75,7 @@ export function SelectContent<T extends ValidComponent = 'div'>(
   return (
     <Primitive
       {...rest}
-      class={'popup-content ' + (props.class ?? '')}
+      class={styledClasses('popup-content', props.class)}
       ref={[scope.setContent, untrack(() => props.ref)]}
       onPointerDownOutside={(event) => {
         props.onPointerDownOutside?.(event)
@@ -105,17 +109,19 @@ export function SelectContent<T extends ValidComponent = 'div'>(
   )
 }
 export function SelectItem<T extends ValidComponent = 'li'>(
-  props: PolymorphicProps<T, Core.SelectItemProps<T> & { class?: string }>,
+  props: PolymorphicProps<T, Core.SelectItemProps<T> & { class?: ClassValue }>,
 ) {
   const Primitive = Core.Item as Component<typeof props>
-  return <Primitive {...props} class={'popup-option ' + (props.class ?? '')} />
+  return (
+    <Primitive {...props} class={styledClasses('popup-option', props.class)} />
+  )
 }
 /** Fixed-size selection marker shared by every choice popup. */
 export function SelectItemIndicator<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
     Core.SelectItemIndicatorProps<T> & {
-      class?: string
+      class?: ClassValue
       children?: JSX.Element
     }
   >,
@@ -124,7 +130,7 @@ export function SelectItemIndicator<T extends ValidComponent = 'div'>(
   return (
     <Primitive
       {...props}
-      class={'popup-item-indicator ' + (props.class ?? '')}
+      class={styledClasses('popup-item-indicator', props.class)}
     />
   )
 }
@@ -141,11 +147,13 @@ export function SelectListbox<
 >(
   props: PolymorphicProps<
     T,
-    Core.SelectListboxProps<Option, OptGroup, T> & { class?: string }
+    Core.SelectListboxProps<Option, OptGroup, T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Listbox as Component<typeof props>
-  return <Primitive {...props} class={'popup-listbox ' + (props.class ?? '')} />
+  return (
+    <Primitive {...props} class={styledClasses('popup-listbox', props.class)} />
+  )
 }
 
 export type SelectChoice = { value: string; label: string; disabled?: boolean }
@@ -153,7 +161,7 @@ export type SelectFieldProps = Omit<
   PolymorphicProps<'button', Core.SelectTriggerProps<'button'>>,
   'children' | 'value' | 'onChange' | 'disabled' | 'class' | 'name'
 > & {
-  class?: string
+  class?: ClassValue
   'data-ui-text'?: 'system' | 'value' | 'prose'
   name?: string
   contentProps?: { [key: `data-${string}`]: string | undefined }

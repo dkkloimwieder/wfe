@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import { omit } from 'solid-js'
 import { Dialog, DialogContent } from './Dialog'
 import type { DialogRootProps } from './Dialog'
@@ -11,7 +12,7 @@ export type SheetSide = 'left' | 'right' | 'top' | 'bottom'
 export function SheetContent<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    DialogContentProps<T> & { class?: string; side?: SheetSide }
+    DialogContentProps<T> & { class?: ClassValue; side?: SheetSide }
   >,
 ) {
   const rest = omit(props, 'side') as typeof props
@@ -19,7 +20,7 @@ export function SheetContent<T extends ValidComponent = 'div'>(
   return (
     <Primitive
       {...rest}
-      class={'ui-sheet ' + (props.class ?? '')}
+      class={styledClasses('ui-sheet', props.class)}
       data-side={props.side ?? 'right'}
     />
   )

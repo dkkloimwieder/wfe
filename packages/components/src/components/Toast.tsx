@@ -1,3 +1,4 @@
+import { styledClasses } from '../internal/classes'
 import { createToastState } from '../internal/controls/toast'
 import {
   callHandler,
@@ -105,7 +106,7 @@ function ToastSurface(
       aria-live={props.priority ?? 'polite'}
       aria-atomic="true"
       data-ui=""
-      class={'ui-toast ' + (props.class ?? '')}
+      class={styledClasses('ui-toast', props.class)}
       ref={[props.setNode, props.ref, events]}
     />
   )
@@ -120,7 +121,7 @@ export function ToastRegion(props: ToastRegionProps) {
       data-ui=""
       role="region"
       aria-label={props['aria-label'] ?? 'Notifications'}
-      class={'ui-toast-region ' + (props.class ?? '')}
+      class={styledClasses('ui-toast-region', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -131,7 +132,7 @@ export function ToastTitle(props: JSX.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       {...attributes}
-      class={'ui-toast-title ' + (props.class ?? '')}
+      class={styledClasses('ui-toast-title', props.class)}
       ref={[props.ref, events]}
     />
   )
@@ -144,7 +145,7 @@ export function ToastDescription(
   return (
     <p
       {...attributes}
-      class={'ui-toast-description ' + (props.class ?? '')}
+      class={styledClasses('ui-toast-description', props.class)}
       ref={[props.ref, events]}
     />
   )

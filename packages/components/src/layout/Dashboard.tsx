@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import {
   Show,
   createSignal,
@@ -28,7 +29,7 @@ export type DashboardShellProps = {
   density?: UIDensity
   theme?: 'dark'
   id?: string
-  class?: string
+  class?: ClassValue
   style?: JSX.CSSProperties
 }
 
@@ -162,7 +163,7 @@ export function DashboardShell(props: DashboardShellProps) {
       {...uiScope(props.density, props.theme)}
       id={props.id}
       data-ui-portal-root=""
-      class={'ui-dashboard ' + (props.class ?? '')}
+      class={styledClasses('ui-dashboard', props.class)}
       style={{ ...uiScope(props.density, props.theme).style, ...props.style }}
       data-navigation-open={open() ? '' : undefined}
       data-has-navigation={props.navigation ? '' : undefined}
@@ -191,7 +192,7 @@ export function DashboardPanel(props: DashboardPanelProps) {
   return (
     <Card
       {...rest}
-      class={'ui-dashboard-panel ' + (props.class ?? '')}
+      class={styledClasses('ui-dashboard-panel', props.class)}
       data-fill={props.fill ? '' : undefined}
     />
   )
@@ -204,7 +205,7 @@ export function DashboardGrid(props: DashboardGridProps) {
   return (
     <div
       {...rest}
-      class={'ui-dashboard-grid ' + (props.class ?? '')}
+      class={styledClasses('ui-dashboard-grid', props.class)}
       ref={[props.ref, events]}
     />
   )

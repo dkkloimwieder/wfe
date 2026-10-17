@@ -203,6 +203,17 @@ Named exceptions allow the existing native interoperability and scope-isolation 
 Those exceptions do not permit other raw controls or private imports in the same file.
 The shared component implementation remains outside this example guard.
 
+## Structured classes
+
+Open `?classes=1` to exercise native class values on styled components.
+The wrappers accept strings, nested arrays, conditional maps, numbers, booleans, and empty values.
+Library classes remain present when caller classes change.
+
+Browser cases test class replacement, a map with reactive properties, stable DOM nodes, refs, and events.
+They also test classes on composed popup triggers and content.
+The hydration suite uses the same fixture in a hidden section to preserve its existing layout tests.
+It compares server nodes with attached client nodes before testing further class changes.
+
 ## CSS provenance
 
 The example Vite plugin selects source CSS for source and development builds.

@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import {
   Show,
   createSignal,
@@ -30,7 +31,7 @@ export type TableWorkspaceProps = {
   controlsLabel?: string
   toggleLabel?: string
   closeLabel?: string
-  class?: string
+  class?: ClassValue
   style?: JSX.CSSProperties
 }
 
@@ -197,7 +198,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
   return (
     <section
       data-ui=""
-      class={'table-workspace ' + (props.class ?? '')}
+      class={styledClasses('table-workspace', props.class)}
       style={props.style}
       aria-label={props.label ?? 'Table workspace'}
       data-controls-open={open() ? '' : undefined}

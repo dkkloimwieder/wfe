@@ -149,15 +149,22 @@ Use the shared block layout when integration work resumes.
 Preserve the application row adapter, measurements, focus, and transport boundary.
 This audit does not authorize changes to external WAMN inputs or optional integration preparation.
 
-## P2: structured class values become strings
+## Fixed: structured class values remain native
 
-Follow-up: `wfe-w2y.19`.
+Resolved in `wfe-w2y.19`.
 
-[Styled native fields](../packages/components/src/components/NativeFields.tsx) and other wrappers concatenate class values into strings.
-Solid also accepts arrays and conditional maps as class values.
-Those structured values lose their intended meaning during string conversion.
-The overlay Button migration preserves the existing public class type and runtime behavior.
-A separate repair must preserve structured values alongside required component classes.
+[Styled class composition](../packages/components/src/internal/classes.ts) preserves arrays, conditional maps, numbers, booleans, and empty values.
+Native fields, styled controls, overlays, display components, dashboard layouts, and the table workspace use this shared helper.
+Library classes remain present when caller classes change.
+Public class properties accept the native Solid type.
+
+The shared class fixture tests class changes, stable nodes, refs, events, polymorphic controls, and popup cleanup.
+Source and package browser tests also exercise a conditional map that retains its object identity.
+Server rendering and hydration use the same fixture and preserve the server nodes.
+
+Qualification exposed two separate issues that remain open.
+`wfe-w2y.20` tracks opening autofocus that overwrites keyboard focus.
+`wfe-w2y.21` tracks untracked default ID reads through dynamic property spreads.
 
 ## Differences that remain intentional
 

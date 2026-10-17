@@ -227,6 +227,10 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
         name: 'Native choice',
         exact: true,
       })
+      assert.deepEqual(
+        await control.evaluate((node) => [...node.classList].sort()),
+        ['native-choice', 'ui-native-select'],
+      )
       await control.selectOption('beta')
       await settle()
       assert.equal((await read()).choice, 'beta')
@@ -236,6 +240,10 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
       await settle()
       assert.equal(await control.inputValue(), 'beta')
       await configure({ accept: true, preventChoice: true, invalid: true })
+      assert.deepEqual(
+        await control.evaluate((node) => [...node.classList].sort()),
+        ['native-choice', 'native-invalid', 'ui-native-select'],
+      )
       await control.evaluate((node) => {
         node.value = 'alpha'
       })

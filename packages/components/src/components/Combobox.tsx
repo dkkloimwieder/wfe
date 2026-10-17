@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/combobox'
 import { callHandler } from '../internal/events'
 import { Show, omit } from 'solid-js'
@@ -42,17 +43,22 @@ export function ComboboxRoot<
 // Styled parts add HTML classes and slots at the polymorphic forwarding boundary.
 // Keep JSX reference arrays direct. The compiler drops callbacks behind outer assertions.
 export function ComboboxTrigger<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<T, Core.ComboboxTriggerProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.ComboboxTriggerProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Trigger as Component<typeof props>
 
-  return <Primitive {...props} class={'choice-toggle ' + (props.class ?? '')} />
+  return (
+    <Primitive {...props} class={styledClasses('choice-toggle', props.class)} />
+  )
 }
 export function ComboboxContent<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
     Core.ComboboxContentProps<T> & {
-      class?: string
+      class?: ClassValue
       children?: JSX.Element
       footer?: JSX.Element
       status?: JSX.Element
@@ -65,7 +71,7 @@ export function ComboboxContent<T extends ValidComponent = 'div'>(
   return (
     <Primitive
       {...rest}
-      class={'popup-content ' + (props.class ?? '')}
+      class={styledClasses('popup-content', props.class)}
       ref={[scope.setContent, props.ref]}
       onPointerDownOutside={(event) => {
         props.onPointerDownOutside?.(event)
@@ -99,17 +105,22 @@ export function ComboboxContent<T extends ValidComponent = 'div'>(
   )
 }
 export function ComboboxItem<T extends ValidComponent = 'li'>(
-  props: PolymorphicProps<T, Core.ComboboxItemProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.ComboboxItemProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Item as Component<typeof props>
-  return <Primitive {...props} class={'popup-option ' + (props.class ?? '')} />
+  return (
+    <Primitive {...props} class={styledClasses('popup-option', props.class)} />
+  )
 }
 /** Fixed-size selection marker shared by every choice popup. */
 export function ComboboxItemIndicator<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
     Core.ComboboxItemIndicatorProps<T> & {
-      class?: string
+      class?: ClassValue
       children?: JSX.Element
     }
   >,
@@ -118,7 +129,7 @@ export function ComboboxItemIndicator<T extends ValidComponent = 'div'>(
   return (
     <Primitive
       {...props}
-      class={'popup-item-indicator ' + (props.class ?? '')}
+      class={styledClasses('popup-item-indicator', props.class)}
     />
   )
 }
@@ -135,21 +146,26 @@ export function ComboboxListbox<
 >(
   props: PolymorphicProps<
     T,
-    Core.ComboboxListboxProps<Option, OptGroup, T> & { class?: string }
+    Core.ComboboxListboxProps<Option, OptGroup, T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Listbox as Component<typeof props>
-  return <Primitive {...props} class={'popup-listbox ' + (props.class ?? '')} />
+  return (
+    <Primitive {...props} class={styledClasses('popup-listbox', props.class)} />
+  )
 }
 export function ComboboxInput<T extends ValidComponent = 'input'>(
-  props: PolymorphicProps<T, Core.ComboboxInputProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.ComboboxInputProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Input as Component<typeof props>
   const scope = useChoiceScope()
   return (
     <Primitive
       {...props}
-      class={'choice-input ' + (props.class ?? '')}
+      class={styledClasses('choice-input', props.class)}
       ref={[scope.setControl, props.ref]}
       onKeyDown={(
         event: KeyboardEvent & { currentTarget: ElementOf<T>; target: Element },
@@ -163,12 +179,15 @@ export function ComboboxInput<T extends ValidComponent = 'input'>(
 export function ComboboxControl<Option, T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.ComboboxControlProps<Option, T> & { class?: string }
+    Core.ComboboxControlProps<Option, T> & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Control as Component<typeof props>
   return (
-    <Primitive {...props} class={'choice-control ' + (props.class ?? '')} />
+    <Primitive
+      {...props}
+      class={styledClasses('choice-control', props.class)}
+    />
   )
 }
 

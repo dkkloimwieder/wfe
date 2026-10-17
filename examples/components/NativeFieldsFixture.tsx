@@ -149,6 +149,7 @@ export function NativeFieldsFixture() {
           <Field invalid={invalid()} required>
             <Label>Native choice</Label>
             <NativeSelect
+              class={['native-choice', { 'native-invalid': invalid() }]}
               name="choice"
               value={choice()}
               onValueChange={(value) => {

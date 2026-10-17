@@ -1,3 +1,4 @@
+import { styledClasses, type ClassValue } from '../internal/classes'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/tooltip'
@@ -37,14 +38,17 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
   )
 }
 export function TooltipContent<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, Core.TooltipContentProps<T> & { class?: string }>,
+  props: PolymorphicProps<
+    T,
+    Core.TooltipContentProps<T> & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   return (
     <Primitive
       {...props}
       data-ui=""
-      class={'ui-tooltip ' + (props.class ?? '')}
+      class={styledClasses('ui-tooltip', props.class)}
     />
   )
 }
