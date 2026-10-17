@@ -73,7 +73,11 @@ Static labels belong to the description.
 Current header aliases belong to the application binding and override those labels.
 Bindings also supply optional existing filter, grouping, alignment, refresh, and collapse contracts.
 The renderer passes the same table to `ReadOnlyTable` and uses its existing slots.
-Custom cell bindings receive the raw value and native column without changing sorting or filtering data.
+Custom cell bindings receive the raw value, native column, and native row.
+The row supplies its stable ID and a live `original` getter for the application record.
+These bindings do not change sorting or filtering data.
+Applications use this context for row actions and inline editors.
+The application still owns validation, permissions, requests, drafts, and save behavior.
 The shared table supplies one `renderCell` slot per mounted native cell.
 That slot receives the native cell with its reactive `getValue` method.
 The generator uses it to preserve custom components across record changes.

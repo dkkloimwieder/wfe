@@ -101,6 +101,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
     const Custom = renderer ? initialCells[renderer] : undefined
     return Custom ? (
       <Custom
+        row={cellProps.cell.row}
         value={cellProps.cell.getValue()}
         column={cellProps.cell.column}
       />

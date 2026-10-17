@@ -1,12 +1,13 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@solidjs/testing-library'
 import { createSignal, flush, onCleanup, Errored } from 'solid-js'
-import { Input } from '@wfe/components'
+import { Button, Input } from '@wfe/components'
 import { createForm } from '@wfe/form'
 import { createTable, TableColumnResize } from '@wfe/components/table'
 import type { NativeColumn } from '@wfe/components/table'
 import { FormView, LayoutView, TableView } from '@wfe/generator'
 import type {
+  CustomCellProps,
   FormDescription,
   LayoutDescription,
   TableDescription,
@@ -706,4 +707,74 @@ test('generated column sizing accepts and rejects application updates without re
   fireEvent.keyDown(replacement, { key: 'ArrowLeft' })
   flush()
   expect(sizes().name).toBe(390)
+})
+
+test('generated row context preserves identity and live records across sorting, movement and removal', () => {
+  type Row = { name: string; value: number }
+  const [rows, setRows] = createSignal<Record<string, Row>>({
+    a: { name: 'Ada', value: 1 },
+    b: { name: 'Bob', value: 2 },
+  })
+  const chosen: string[] = []
+  const removed: string[] = []
+  let table!: ReturnType<typeof createTable<Row, never>>
+  const Cell = (props: CustomCellProps<Row, never>) => {
+    onCleanup(() => {
+      removed.push(props.row.id)
+    })
+    return (
+      <Button
+        onClick={() => {
+          chosen.push(props.row.id)
+        }}
+      >
+        {props.row.original?.name}
+      </Button>
+    )
+  }
+  const mounted = render(() => {
+    table = createTable({
+      source: { ids: () => Object.keys(rows()), get: (id) => rows()[id] },
+      columns: [
+        {
+          id: 'name',
+          accessorKey: 'name',
+          sortFn: (a, b) => String(a).localeCompare(String(b)),
+        },
+        { id: 'value', accessorKey: 'value' },
+      ],
+    })
+    return (
+      <TableView
+        description={{
+          id: 'row-context',
+          columns: { name: { renderer: 'action' }, value: { label: 'Value' } },
+        }}
+        bindings={{ table, cells: { action: Cell } }}
+      />
+    )
+  })
+  const ada = mounted.getByRole('button', { name: 'Ada', exact: true })
+  const bob = mounted.getByRole('button', { name: 'Bob', exact: true })
+  table.setSorting([{ id: 'name', desc: true }])
+  flush()
+  expect(table.getRowIds()).toEqual(['b', 'a'])
+  fireEvent.click(bob)
+  table.setColumnOrder(['value', 'name'])
+  flush()
+  expect(mounted.getByRole('button', { name: 'Ada', exact: true })).toBe(ada)
+  fireEvent.click(ada)
+  setRows({ a: { name: 'Zoe', value: 3 }, b: { name: 'Bob', value: 2 } })
+  flush()
+  expect(ada.textContent).toBe('Zoe')
+  expect(table.getRowIds()).toEqual(['a', 'b'])
+  fireEvent.click(ada)
+  expect(chosen).toEqual(['b', 'a', 'a'])
+  setRows({ b: { name: 'Bob', value: 2 } })
+  flush()
+  expect(ada.isConnected).toBe(false)
+  expect(removed).toEqual(['a'])
+  fireEvent.click(ada)
+  expect(chosen).toEqual(['b', 'a', 'a'])
+  expect(mounted.getByRole('button', { name: 'Bob', exact: true })).toBe(bob)
 })

@@ -6,6 +6,14 @@ export async function reviewServer(initial, name) {
     for (const label of ['Title', 'Notes', 'Extra'])
       await expect(initial.getByLabel(label, { exact: true })).toHaveCount(1)
   } else if (name === 'records') {
+    await expect(initial.locator('[data-generator-amount]')).toHaveAttribute(
+      'data-row-id',
+      'record-0',
+    )
+    await expect(initial.locator('[data-generator-amount]')).toHaveAttribute(
+      'data-record-name',
+      'Sample record',
+    )
     for (const label of ['Name', 'Active', 'Alerts', 'Notes', 'Quantity'])
       await expect(
         initial.locator('form').getByLabel(label, { exact: true }),

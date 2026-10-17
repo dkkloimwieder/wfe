@@ -3,6 +3,7 @@ import { Input } from '@wfe/components'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
 import type {
+  CustomCellProps,
   FormDescription,
   LayoutDescription,
   TableDescription,
@@ -73,7 +74,9 @@ export function createRecordsApplication() {
       />
     )
   }
-  const Amount = (props: { value: unknown }) => {
+  const Amount = (
+    props: CustomCellProps<{ name: string; quantity: number }, never>,
+  ) => {
     lifecycle.cellMounts++
     onCleanup(() => {
       lifecycle.cellDisposals++
@@ -81,7 +84,13 @@ export function createRecordsApplication() {
     const [draft, setDraft] = createSignal('Cell draft')
     return (
       <>
-        <span data-generator-amount="">{String(props.value)}</span>
+        <span
+          data-generator-amount=""
+          data-row-id={props.row.id}
+          data-record-name={props.row.original?.name}
+        >
+          {String(props.value)}
+        </span>
         <Input
           aria-label="Cell note"
           value={draft()}

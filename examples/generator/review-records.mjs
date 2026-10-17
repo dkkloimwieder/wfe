@@ -113,6 +113,14 @@ export async function reviewRecords({ page, report, record }) {
       ).toHaveValue('Draft preserved')
       await expect(page.getByLabel('Cell note')).toHaveValue('Cell preserved')
       await expect(page.locator('[data-generator-amount]')).toHaveText('7')
+      await expect(page.locator('[data-generator-amount]')).toHaveAttribute(
+        'data-row-id',
+        'record-0',
+      )
+      await expect(page.locator('[data-generator-amount]')).toHaveAttribute(
+        'data-record-name',
+        'Updated row',
+      )
       await expect(page.locator('tbody td').first()).toHaveAttribute(
         'data-column',
         'quantity',

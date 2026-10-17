@@ -4,6 +4,7 @@ import type { ButtonTone, ButtonVariant } from '@wfe/components'
 import type { DashboardShellProps } from '@wfe/components/layout'
 import type {
   NativeColumn,
+  NativeRow,
   NativeTable,
   ReadOnlyTable,
   TableWorkspaceProps,
@@ -123,6 +124,7 @@ export type TableDescription = Readonly<{
   actions?: readonly ActionDescription[]
 }>
 export type CustomCellProps<Row, Meta> = Readonly<{
+  row: NativeRow<Row>
   value: unknown
   column: NativeColumn<Row, Meta>
 }>
