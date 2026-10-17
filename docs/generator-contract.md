@@ -118,3 +118,25 @@ The contract command compiles the documentation and positive and negative genera
 Run `pnpm check` before committing.
 The [public example](../examples/generator/App.tsx) composes all three views without a backend.
 Its browser and hydration suites use source, distribution, and development builds.
+
+## Independent application adapters
+
+The generator example contains separate records and dispatch applications.
+Their applications own accepted values.
+Their providers own distinct records, validation rules, and save behavior.
+The dispatch application computes a route column and formats cents through a custom cell.
+Its nullable amount uses a custom field with the supplied identity and shared Field context.
+The two applications use the same public views without changes to generic packages.
+
+An adapter supplies stable field, action, column, and panel identities.
+It can update labels, order, aliases, and action callbacks within those identities.
+It must remount a view when it replaces the form, table, or custom component identity.
+Applications must guard publication after asynchronous work with the supplied abort signal.
+Providers must also guard their own disposal when used outside the form coordinator.
+The coordinator rejects stale replies, but it cannot undo records already published by an application.
+
+Removing a view disposes its mounted controls.
+The application still owns any coordinator or provider created outside that view.
+The dispatch removal action explicitly cancels its form before removing the editor.
+Whole-application disposal aborts the coordinator and prevents provider publication.
+The tests settle late replies after both operations and require unchanged records and errors.

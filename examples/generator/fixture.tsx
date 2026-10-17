@@ -1,8 +1,16 @@
 import { OBSERVE, action, flush } from 'solid-js'
 import { hydrate, render } from '@solidjs/web'
-import { App } from './App'
+import { applications } from './applications'
+import type { Application, ApplicationName } from './applications'
+import type {
+  DispatchStage,
+  DispatchResponse,
+  DispatchValues,
+} from './dispatch-provider'
+import type { FormErrors, FormReply, FormOutcome } from '@wfe/form'
 import './style.css'
-export function createFixture() {
+export function createFixture(name: ApplicationName = 'records') {
+  const App = applications[name]
   let capture:
     | ReturnType<NonNullable<typeof OBSERVE>['diagnostics']['capture']>
     | undefined
@@ -12,8 +20,19 @@ export function createFixture() {
     capture = OBSERVE?.diagnostics.capture()
   }
   let release: (() => void) | undefined
-  let app:
-    Parameters<NonNullable<Parameters<typeof App>[0]['ready']>>[0] | undefined
+  let app: Application | undefined
+  let outcome: FormOutcome | undefined
+  function dispatch() {
+    if (app?.kind !== 'dispatch')
+      throw new Error('This operation needs the dispatch example')
+    return app
+  }
+  function records() {
+    if (app?.kind !== 'records')
+      throw new Error('This operation needs the records example')
+    return app
+  }
+
   // eslint-disable-next-line require-yield -- Disposal uses the existing synchronous action boundary.
   const dispose = action(function* () {
     release?.()
@@ -24,7 +43,7 @@ export function createFixture() {
       release = render(
         () => (
           <App
-            ready={(value) => {
+            ready={(value: Application) => {
               app = value
             }}
           />
@@ -38,7 +57,7 @@ export function createFixture() {
       release = await hydrate(
         () => (
           <App
-            ready={(value) => {
+            ready={(value: Application) => {
               app = value
             }}
           />
@@ -47,16 +66,54 @@ export function createFixture() {
       )
       flush()
     },
+    submit() {
+      outcome = undefined
+      void app!.form.submit().then((result) => {
+        outcome = result
+      })
+      flush()
+    },
+    outcome: () => outcome,
+    hold(stage: DispatchStage | undefined) {
+      dispatch().provider.setHold(stage)
+      flush()
+    },
+    response(value: DispatchResponse) {
+      dispatch().provider.setResponse(value)
+      flush()
+    },
+    rejectEdits(value: boolean) {
+      dispatch().setRejectEdits(value)
+      flush()
+    },
+    replace(value: DispatchValues) {
+      dispatch().replace(value)
+      flush()
+    },
+    cancel() {
+      app!.form.cancel()
+      flush()
+    },
+    completeValidation(id: number, errors?: FormErrors<DispatchValues>) {
+      const result = dispatch().provider.completeValidation(id, errors)
+      flush()
+      return result
+    },
+    completeSave(id: number, reply?: FormReply<DispatchValues>) {
+      const result = dispatch().provider.completeSave(id, reply)
+      flush()
+      return result
+    },
     fill(value: boolean) {
-      app!.setFill(value)
+      records().setFill(value)
       flush()
     },
     rows(count: number) {
-      app!.setCount(count)
+      records().setCount(count)
       flush()
     },
     columns(count: 1 | 2) {
-      app!.setColumns(count)
+      records().setColumns(count)
       flush()
     },
     revise() {

@@ -1,3 +1,6 @@
 import { createFixture } from './fixture'
-window.generatorFixture = createFixture()
+import { applicationName } from './applications'
+window.generatorFixture = createFixture(
+  applicationName(new URLSearchParams(location.search).get('app')),
+)
 window.generatorFixture.start()

@@ -20,3 +20,9 @@ h2 {
     min-block-size: 16rem;
   }
 }
+.dispatch-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--ui-gap, 6px);
+}

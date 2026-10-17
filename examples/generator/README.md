@@ -2,6 +2,11 @@
 
 This example composes `FormView`, `TableView`, and `LayoutView` through public package imports.
 The application owns accepted values, validation, actions, rows, and table state.
+The default records application uses `/?app=records`.
+The dispatch application uses `/?app=dispatch`.
+Each application owns a separate provider, form contract, table, and descriptions.
+Both applications use unchanged generic packages.
+
 The optional numeric field starts without a value and uses an application component.
 The custom table cell retains a local draft while the application replaces its row.
 
@@ -33,3 +38,16 @@ This example reserves a minimum height for its records panel on narrow screens.
 Its custom record cell contains a text control, so it needs more room than a plain text row.
 The application stylesheet owns this minimum.
 The shared renderer keeps the table height stable when the result count changes.
+
+The dispatch form uses tracking codes, carriers, insurance, a nullable amount, and a date.
+Its table uses a computed route column and formats integer cents as dollars.
+The application places its editor in navigation and its records in the main panel.
+Reply mode selects accepted replies, field errors, form errors, or service failures.
+The browser fixture can hold validation or save replies and complete them without timers.
+The suite completes held replies after cancellation, accepted value replacement, removal, and disposal.
+It requires unchanged records and no browser errors or reactive diagnostics.
+Removing the dispatch editor explicitly cancels its application-owned form.
+Removing a generated view alone does not dispose an application-owned coordinator.
+
+Both applications run in every browser and hydration mode through one shared harness.
+The provider unit tests also reject nonfinite amounts and invalid calendar dates.
