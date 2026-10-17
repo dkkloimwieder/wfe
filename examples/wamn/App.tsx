@@ -8,7 +8,7 @@ import {
   onCleanup,
   onSettled,
 } from 'solid-js'
-import { createTableVirtualizer } from '@wfe/components/virtual'
+import { createTableVirtualizer, VirtualRows } from '@wfe/components/virtual'
 import { nativeEvents } from '@wfe/components/events'
 import { cellText } from './.input/runtime'
 import { get as getWidget } from './.input/widget'
@@ -294,17 +294,13 @@ export function App(props: {
               Actions
             </div>
           </div>
-          <div
-            class="spacer"
-            style={{ height: `${virtualizer.getTotalSize()}px` }}
-          >
-            <div
-              class="window"
-              style={{ transform: `translateY(${virtualizer.getStart()}px)` }}
-            >
-              <For each={virtualizer.getKeys()}>{(id) => <Row id={id} />}</For>
-            </div>
-          </div>
+          <VirtualRows
+            window={virtualizer}
+            layout="block"
+            bodyClass="spacer"
+            windowClass="window"
+            renderRow={(id) => <Row id={id} />}
+          />
         </div>
       </div>
     </main>

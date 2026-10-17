@@ -51,15 +51,6 @@ body {
   font-weight: 600;
   background: #edf3f7;
 }
-.spacer {
-  position: relative;
-}
-.window {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
 [role='alert'],
 [data-draft] {
   color: #a32229;

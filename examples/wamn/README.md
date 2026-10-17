@@ -1,7 +1,8 @@
 # WAMN integration fixture
 
 This browser fixture connects WAMN's actual runtime and generated Widget bindings to the native Solid 2 table.
-It uses one Solid record store and vertical virtualization.
+It uses one Solid record store and the shared block-layout `VirtualRows` renderer.
+The existing measured virtualizer owns row geometry and scrolling.
 It tests the Table integration boundary with shared Button, Input, Checkbox, and SelectField components.
 Production WAMN grid and Form adoption are deferred in Beads phase 5 and do not block Table qualification.
 Focused component vendoring remains a later assessment after Table is stable.
