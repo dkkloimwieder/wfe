@@ -1,3 +1,4 @@
+import { iconCases } from './icon-cases.mjs'
 import { classCases } from './class-cases.mjs'
 import { consistencyCases } from './consistency-cases.mjs'
 import { sharedStyleCases } from './shared-style-cases.mjs'
@@ -225,6 +226,7 @@ async function record(name, work) {
   }
 }
 try {
+  await iconCases({ page, url, record, settle })
   await classCases({ page, url, record, settle })
   await consistencyCases({ page, url, record, settle })
   await sharedStyleCases({ page, url, record, settle })

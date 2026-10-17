@@ -64,7 +64,15 @@ export async function choiceCases({ page, url, record, press, settle }) {
           exact: true,
         })
         const marker = selected.locator('.custom-selection')
-        assert.equal(await marker.textContent(), '✓')
+        const glyph = marker.locator('svg')
+        assert.equal(await glyph.count(), 1)
+        assert.equal(await glyph.getAttribute('aria-hidden'), 'true')
+        assert.equal(await glyph.getAttribute('focusable'), 'false')
+        assert.ok(
+          await glyph
+            .locator('path')
+            .evaluate((path) => path.getBBox().width > 0),
+        )
         const box = await marker.boundingBox()
         assert.equal(box.width, 16)
         assert.equal(box.height, 16)

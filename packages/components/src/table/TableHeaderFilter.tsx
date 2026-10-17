@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import {
   Show,
   createEffect,
@@ -96,9 +97,7 @@ export function TableHeaderFilter(
           nativeEvents<HTMLButtonElement>({ click: toggle }),
         ]}
       >
-        <svg viewBox="0 0 16 16" aria-hidden="true">
-          <path d="M2 3h12L9 8v5l-2 1V8Z" />
-        </svg>
+        <Icon name="filter" />
       </Button>
       <Show when={props.value}>
         <span id={statusId} class="sr-only">

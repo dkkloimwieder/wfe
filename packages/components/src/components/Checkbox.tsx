@@ -1,3 +1,4 @@
+import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/checkbox'
 import type { Component } from 'solid-js'
@@ -67,9 +68,10 @@ export function CheckboxIndicator<T extends ValidComponent = 'div'>(
       class={styledClasses('ui-check-indicator', props.class)}
     >
       {props.children ?? (
-        <svg class="ui-check-mark" viewBox="0 0 16 16" aria-hidden="true">
-          <path d={context.indeterminate() ? 'M3 8h10' : 'm2 8 4 4 8-9'} />
-        </svg>
+        <Icon
+          class="ui-check-mark"
+          name={context.indeterminate() ? 'minus' : 'check'}
+        />
       )}
     </Primitive>
   )

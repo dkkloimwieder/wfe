@@ -1,3 +1,4 @@
+import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { FieldContext } from '../internal/fieldContext'
 import * as Core from '../internal/controls/select'
@@ -230,9 +231,7 @@ export function SelectField(props: SelectFieldProps) {
         >
           <Core.ItemLabel>{item.item.rawValue.label}</Core.ItemLabel>
           <SelectItemIndicator>
-            <svg class="ui-check-mark" viewBox="0 0 16 16" aria-hidden="true">
-              <path d="m2 8 4 4 8-9" />
-            </svg>
+            <Icon class="ui-check-mark" name="check" />
           </SelectItemIndicator>
         </SelectItem>
       )}
@@ -268,13 +267,24 @@ export function SelectField(props: SelectFieldProps) {
   )
 }
 
+export function SelectIcon<T extends ValidComponent = 'span'>(
+  props: PolymorphicProps<T, Core.SelectIconProps<T> & { class?: ClassValue }>,
+) {
+  const Primitive = Core.Icon as Component<typeof props>
+  return (
+    <Primitive {...props} class={styledClasses('ui-choice-icon', props.class)}>
+      {props.children ?? <Icon name="chevron-down" />}
+    </Primitive>
+  )
+}
+
 export const Select = /* @__PURE__ */ Object.assign(SelectRoot, {
   // Refresh proxies hide function keys. Copy named parts without enumerating them.
   Arrow: Core.Arrow,
   Description: Core.Description,
   ErrorMessage: Core.ErrorMessage,
   HiddenSelect: Core.HiddenSelect,
-  Icon: Core.Icon,
+  Icon: SelectIcon,
   ItemDescription: Core.ItemDescription,
   ItemIndicator: SelectItemIndicator,
   ItemLabel: Core.ItemLabel,

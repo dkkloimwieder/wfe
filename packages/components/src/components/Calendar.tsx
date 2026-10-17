@@ -1,3 +1,4 @@
+import { Icon } from './Icon'
 import {
   For,
   Show,
@@ -149,7 +150,9 @@ export function Calendar(props: CalendarProps) {
             )
           }
         >
-          ‹
+          <span class="ui-icon-text-slot">
+            <Icon name="chevron-left" />
+          </span>
         </Button>
         <Button
           class="ui-calendar-heading ui-label"
@@ -185,7 +188,9 @@ export function Calendar(props: CalendarProps) {
             )
           }
         >
-          ›
+          <span class="ui-icon-text-slot">
+            <Icon name="chevron-right" />
+          </span>
         </Button>
       </div>
       <p id={help} class="sr-only">

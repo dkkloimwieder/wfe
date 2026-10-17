@@ -50,3 +50,18 @@ Shared presentation adds no wrapper element or event handler.
 Custom elements through `as`, including `as={Button}`, retain the selected presentation.
 A default Tooltip trigger uses `type="button"` to avoid accidental form submission.
 Custom links keep their link behavior, and an explicit `type` takes precedence.
+
+## Icons
+
+`Icon` from `@wfe/components` supplies shared 16-pixel decorative SVGs.
+Its typed `name` selects the glyph, and `class` accepts native class values.
+The surrounding control supplies the accessible name.
+Icons have no tab stop and ignore pointer events within a UI scope.
+Existing context classes retain checkbox, value, calendar, and table dimensions.
+A shared text slot preserves the previous width and line height of navigation glyphs.
+
+Ordinary selects retain one automatic CSS caret, shared with compatibility NativeSelect.
+An explicit `Select.Icon` slot replaces that caret and its reserved padding.
+Select, Combobox, and DropdownMenu icon slots use shared chevrons by default.
+Custom children take precedence, including an explicit empty string or `false`.
+Popup positioning arrows remain with their positioning primitive.

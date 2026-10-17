@@ -88,17 +88,17 @@ The library palette and approved review palette remain unchanged.
 [The style guide](../packages/components/src/styles/README.md) distinguishes library defaults from application overrides.
 Real component cases cover light/dark themes, compact/comfortable density, states, popup overrides, and forced colors.
 
-## P2: repeated icons lack one owner
+## Fixed: repeated icons share one owner
 
-Follow-up: `wfe-w2y.15`. Existing refresh bug: `wfe-w2y.6`.
+Issues: `wfe-w2y.15` and `wfe-w2y.6`.
 
-Checkmarks appear in [Checkbox](../packages/components/src/components/Checkbox.tsx), [SelectField](../packages/components/src/components/Select.tsx), and [TableColumnFilter](../packages/components/src/table/TableColumnFilter.tsx).
-Consumer examples also draw choice indicators and chevrons.
-The current fix removes the filter-specific chevron, but repeated drawings remain elsewhere.
-The malformed refresh arrows already have a separate issue.
-
-Give repeated glyphs shared geometry, sizing, and decorative accessibility behavior.
-Preserve custom icon slots where applications need them.
+Shared `Icon` now owns repeated glyph geometry and decorative accessibility behavior.
+Checkboxes, choice indicators, boolean values, date pickers, table controls, and example consumers use it.
+Select, Combobox, and DropdownMenu icon slots retain custom children and share default chevrons.
+Ordinary selects retain one shared CSS caret. An explicit icon slot replaces that caret.
+Text-sized slots preserve calendar and expansion control dimensions.
+Popup positioning arrows remain with their positioning primitive.
+The refresh geometry fix is complete in `wfe-w2y.6`.
 No external icon dependency is necessary.
 
 ## P2: ownership documentation contains obsolete guidance

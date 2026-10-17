@@ -76,7 +76,16 @@ export async function booleanCases({ page, url, record, press, settle }) {
             geometry.inkRight <= 16 - geometry.stroke / 2 &&
               geometry.inkBottom <= 16 - geometry.stroke / 2,
           )
-          await mark.click()
+          assert.equal(
+            await mark.evaluate((node) => getComputedStyle(node).pointerEvents),
+            'none',
+          )
+          const bounds = await mark.boundingBox()
+          assert.ok(bounds)
+          await page.mouse.click(
+            bounds.x + bounds.width / 2,
+            bounds.y + bounds.height / 2,
+          )
           assert.equal(
             await checkbox().evaluate(
               (node) => node === document.activeElement,

@@ -1,3 +1,4 @@
+import { collapsedGroupLabel } from '../shared/controls/icon-review.mjs'
 import { expect } from '@playwright/test'
 import {
   choiceOptions,
@@ -172,8 +173,8 @@ export async function aggregateCases({
       await seed()
       await selectValue(choice('Priority'), 'count')
       assert.equal(
-        await group().locator('[data-group-toggle]').innerText(),
-        '▸ normal',
+        await collapsedGroupLabel(group().locator('[data-group-toggle]')),
+        'normal',
       )
       assert.equal(await value('priority'), '5')
       assert.equal(await header('priority'), 'GROUP · COUNT')
@@ -181,8 +182,8 @@ export async function aggregateCases({
       await selectValue(choice('Name'), 'first')
       await call('sorting', [{ id: 'name', desc: false }])
       assert.equal(
-        await group().locator('[data-group-toggle]').innerText(),
-        '▸ A',
+        await collapsedGroupLabel(group().locator('[data-group-toggle]')),
+        'A',
       )
       assert.equal(await value('name'), 'Ada')
       assert.equal(await header('name'), 'GROUP · FIRST')
@@ -252,21 +253,21 @@ export async function aggregateCases({
       })
       await selectValue(order, 'amount:desc')
       assert.equal(
-        await group().locator('[data-group-toggle]').innerText(),
-        '▸ high',
+        await collapsedGroupLabel(group().locator('[data-group-toggle]')),
+        'high',
       )
       await selectValue(choice('Amount'), 'range')
       await selectValue(order, 'amount:asc')
       assert.equal(
-        await group().locator('[data-group-toggle]').innerText(),
-        '▸ normal',
+        await collapsedGroupLabel(group().locator('[data-group-toggle]')),
+        'normal',
       )
       await call('patch', 'R0001', { amount: 100 })
       await call('patch', 'R0002', { amount: 100 })
       await call('patch', 'R0005', { amount: 100 })
       assert.equal(
-        await group().locator('[data-group-toggle]').innerText(),
-        '▸ high',
+        await collapsedGroupLabel(group().locator('[data-group-toggle]')),
+        'high',
       )
       await selectValue(choice('Amount'), 'none')
       assert.equal(await summary('amount').count(), 0)
@@ -274,8 +275,8 @@ export async function aggregateCases({
       assert.equal((await read()).groupSorting[0].id, 'amount')
       await selectValue(choice('Amount'), 'sum')
       assert.equal(
-        await group().locator('[data-group-toggle]').innerText(),
-        '▸ high',
+        await collapsedGroupLabel(group().locator('[data-group-toggle]')),
+        'high',
       )
     },
   )

@@ -1,3 +1,4 @@
+import { Icon } from '@wfe/components'
 import { Select } from '@wfe/components/select'
 import { createMemo, untrack } from 'solid-js'
 import type { TableChoiceEditorProps } from '@wfe/components/table'
@@ -19,7 +20,9 @@ export function PopupPriorityEditor(props: TableChoiceEditorProps) {
       itemComponent={(item) => (
         <Select.Item item={item.item}>
           <Select.ItemLabel>{item.item.rawValue.label}</Select.ItemLabel>
-          <Select.ItemIndicator aria-hidden="true">✓</Select.ItemIndicator>
+          <Select.ItemIndicator aria-hidden="true">
+            <Icon name="check" />
+          </Select.ItemIndicator>
         </Select.Item>
       )}
     >

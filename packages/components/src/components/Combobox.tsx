@@ -1,3 +1,4 @@
+import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/combobox'
 import { callHandler } from '../internal/events'
@@ -191,13 +192,27 @@ export function ComboboxControl<Option, T extends ValidComponent = 'div'>(
   )
 }
 
+export function ComboboxIcon<T extends ValidComponent = 'span'>(
+  props: PolymorphicProps<
+    T,
+    Core.ComboboxIconProps<T> & { class?: ClassValue }
+  >,
+) {
+  const Primitive = Core.Icon as Component<typeof props>
+  return (
+    <Primitive {...props} class={styledClasses('ui-choice-icon', props.class)}>
+      {props.children ?? <Icon name="chevron-down" />}
+    </Primitive>
+  )
+}
+
 export const Combobox = /* @__PURE__ */ Object.assign(ComboboxRoot, {
   // Refresh proxies hide function keys. Copy named parts without enumerating them.
   Arrow: Core.Arrow,
   Description: Core.Description,
   ErrorMessage: Core.ErrorMessage,
   HiddenSelect: Core.HiddenSelect,
-  Icon: Core.Icon,
+  Icon: ComboboxIcon,
   ItemDescription: Core.ItemDescription,
   ItemIndicator: ComboboxItemIndicator,
   ItemLabel: Core.ItemLabel,

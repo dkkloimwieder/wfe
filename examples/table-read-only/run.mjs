@@ -1,3 +1,4 @@
+import { collapsedGroupLabel } from '../shared/controls/icon-review.mjs'
 import {
   choiceControl,
   selectValue,
@@ -207,8 +208,12 @@ try {
       'value:asc',
     )
     assert.deepEqual(
-      await page.locator('tr[data-group] button').allTextContents(),
-      ['▸ East', '▸ West'],
+      await Promise.all(
+        (await page.locator('tr[data-group] button').all()).map(
+          collapsedGroupLabel,
+        ),
+      ),
+      ['East', 'West'],
     )
     await page
       .getByRole('button', { name: 'Expand Category: West', exact: true })

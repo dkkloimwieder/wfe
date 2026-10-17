@@ -3,6 +3,7 @@ import {
   Dialog,
   DropdownMenu,
   Input,
+  Icon,
   Popover,
   Tooltip,
   uiScope,
@@ -166,7 +167,9 @@ export function OverlayControls() {
               onChange={setChecked}
             >
               Show totals
-              <DropdownMenu.ItemIndicator>✓</DropdownMenu.ItemIndicator>
+              <DropdownMenu.ItemIndicator>
+                <Icon name="check" />
+              </DropdownMenu.ItemIndicator>
             </DropdownMenu.CheckboxItem>
             <DropdownMenu.RadioGroup value={radio()} onChange={setRadio}>
               <DropdownMenu.RadioItem value="compact">

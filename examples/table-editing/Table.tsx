@@ -1,3 +1,4 @@
+import { Icon } from '@wfe/components'
 import {
   For,
   Show,
@@ -580,8 +581,12 @@ export function Table(props: {
             },
           })}
         >
-          <span aria-hidden="true">
-            {props.details!.expanded(id) ? '▾' : '▸'}
+          <span class="ui-icon-text-slot">
+            <Icon
+              name={
+                props.details!.expanded(id) ? 'chevron-down' : 'chevron-right'
+              }
+            />
           </span>
           <Show when={props.details!.draftCount(id)}>
             <span id={domId(`child-drafts-${id}`)} class="sr-only">

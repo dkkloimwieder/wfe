@@ -1,3 +1,10 @@
+:where([data-ui]) .ui-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex: none;
+  pointer-events: none;
+}
+
 :where([data-ui]) summary {
   cursor: pointer;
 }
@@ -1331,4 +1338,25 @@
 :where([data-ui]) .filter-input > [data-ui] {
   flex: 1;
   min-width: 0;
+}
+
+:where([data-ui]) .ui-choice-icon {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+}
+:where([data-ui]) .popup-trigger:has(.ui-choice-icon) {
+  background-image: none;
+  padding-inline-end: var(--ui-input-padding-x, 6px);
+  gap: var(--ui-gap, 6px);
+}
+
+:where([data-ui]) .ui-icon-text-slot {
+  display: inline-flex;
+  inline-size: 1ch;
+  block-size: 1lh;
+  align-items: center;
+  justify-content: center;
+  vertical-align: top;
+  flex: none;
 }

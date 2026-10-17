@@ -1,3 +1,4 @@
+import { Icon } from './Icon'
 import { Show } from 'solid-js'
 import { formatDisplayValue } from '../utils/valueFormat'
 import type { ValueFormat } from '../utils/valueFormat'
@@ -23,9 +24,7 @@ export function ValueDisplay(props: ValueDisplayProps) {
         aria-label={props.value ? 'Yes' : 'No'}
         data-ui-text="value"
       >
-        <svg class="ui-check-mark" viewBox="0 0 16 16" aria-hidden="true">
-          <path d={props.value ? 'm2 8 4 4 8-9' : 'M3 3l10 10M13 3 3 13'} />
-        </svg>
+        <Icon class="ui-check-mark" name={props.value ? 'check' : 'cross'} />
       </span>
     </Show>
   )

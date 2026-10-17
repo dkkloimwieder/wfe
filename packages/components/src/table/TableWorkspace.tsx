@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import {
   Show,
@@ -240,13 +241,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
               } else changeCollapsed(!collapsed())
             }}
           >
-            <svg
-              class="table-controls-icon"
-              viewBox="0 0 16 16"
-              aria-hidden="true"
-            >
-              <path d="M2 4h3m3 0h6M2 12h7m3 0h2M5 2v4h3V2zM9 10v4h3v-4z" />
-            </svg>
+            <Icon class="table-controls-icon" name="controls" />
           </IconButton>
           <Show when={props.controlsHeader} keyed>
             {(actions) => actions}

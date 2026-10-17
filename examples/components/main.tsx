@@ -1,3 +1,4 @@
+import { IconControls } from './IconControls'
 import {
   StructuredClasses,
   classLifecycle,
@@ -20,7 +21,9 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('classes')) {
+if (new URLSearchParams(location.search).has('icons')) {
+  render(() => <IconControls />, document.getElementById('root')!)
+} else if (new URLSearchParams(location.search).has('classes')) {
   const dispose = render(
     () => <StructuredClasses />,
     document.getElementById('root')!,

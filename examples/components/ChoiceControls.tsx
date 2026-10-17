@@ -1,5 +1,5 @@
 import { Button } from '@wfe/components/fields'
-import { Combobox, Select, uiScope } from '@wfe/components'
+import { Combobox, Icon, Select, uiScope } from '@wfe/components'
 import { createSignal, flush, onCleanup } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
 import type { JSX } from '@solidjs/web'
@@ -85,7 +85,7 @@ export function ChoiceControls() {
             <Select.Item as={CustomItem} marker="select" item={item.item}>
               <Select.ItemLabel>{item.item.rawValue.label}</Select.ItemLabel>
               <Select.ItemIndicator class="custom-selection">
-                ✓
+                <Icon name="check" />
               </Select.ItemIndicator>
             </Select.Item>
           )}
@@ -134,7 +134,7 @@ export function ChoiceControls() {
                 {item.item.rawValue.label}
               </Combobox.ItemLabel>
               <Combobox.ItemIndicator class="custom-selection">
-                ✓
+                <Icon name="check" />
               </Combobox.ItemIndicator>
             </Combobox.Item>
           )}

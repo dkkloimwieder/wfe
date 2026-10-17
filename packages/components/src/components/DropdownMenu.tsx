@@ -1,3 +1,4 @@
+import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
@@ -181,11 +182,25 @@ export function DropdownMenuPortal(props: Core.DropdownMenuPortalProps) {
     </Core.Portal>
   )
 }
+export function DropdownMenuIcon<T extends ValidComponent = 'span'>(
+  props: PolymorphicProps<
+    T,
+    Core.DropdownMenuIconProps<T> & { class?: ClassValue }
+  >,
+) {
+  const Primitive = Core.Icon as Component<typeof props>
+  return (
+    <Primitive {...props} class={styledClasses('ui-choice-icon', props.class)}>
+      {props.children ?? <Icon name="chevron-down" />}
+    </Primitive>
+  )
+}
+
 export const DropdownMenu = /* @__PURE__ */ Object.assign(DropdownMenuRoot, {
   // Refresh proxies hide function keys. Copy named parts without enumerating them.
   Arrow: Core.Arrow,
   Group: Core.Group,
-  Icon: Core.Icon,
+  Icon: DropdownMenuIcon,
   ItemIndicator: Core.ItemIndicator,
   ItemLabel: Core.ItemLabel,
   RadioGroup: Core.RadioGroup,

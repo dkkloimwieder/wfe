@@ -1,3 +1,4 @@
+import { collapsedGroupLabel } from '../shared/controls/icon-review.mjs'
 import {
   choiceControl,
   selectValue,
@@ -105,13 +106,13 @@ export async function groupingCases({
       await seed()
       await selectValue(order('Priority'), 'value:asc')
       assert.equal(
-        await page.locator('[data-group-toggle]').first().innerText(),
-        '▸ low',
+        await collapsedGroupLabel(page.locator('[data-group-toggle]').first()),
+        'low',
       )
       await selectValue(order('Priority'), 'note:desc')
       assert.equal(
-        await page.locator('[data-group-toggle]').first().innerText(),
-        '▸ normal',
+        await collapsedGroupLabel(page.locator('[data-group-toggle]').first()),
+        'normal',
       )
       assert.equal(
         await group('Priority: high')

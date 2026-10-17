@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import {
   For,
   Show,
@@ -270,13 +271,7 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
                       {item.item.rawValue.label}
                     </Select.ItemLabel>
                     <Select.ItemIndicator>
-                      <svg
-                        class="ui-check-mark"
-                        viewBox="0 0 16 16"
-                        aria-hidden="true"
-                      >
-                        <path d="m2 8 4 4 8-9" />
-                      </svg>
+                      <Icon class="ui-check-mark" name="check" />
                     </Select.ItemIndicator>
                   </Select.Item>
                 )}

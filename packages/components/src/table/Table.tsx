@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { For, Show, onCleanup } from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
@@ -315,8 +316,14 @@ function TableGroup<T, M>(props: {
                       })}
                     >
                       <span>
-                        <span aria-hidden="true">
-                          {group.getIsExpanded() ? '▾' : '▸'}
+                        <span class="ui-icon-text-slot">
+                          <Icon
+                            name={
+                              group.getIsExpanded()
+                                ? 'chevron-down'
+                                : 'chevron-right'
+                            }
+                          />
                         </span>{' '}
                         {valueLabel()}
                       </span>

@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { For, Show, createMemo, createStore } from 'solid-js'
 import { Checkbox } from '../components/Checkbox'
 import { Button } from '../components/NativeFields'
@@ -138,14 +139,7 @@ export function ReadOnlyTable<T, M>(props: {
                 else filters.apply({ refresh: true })
               }}
             >
-              <svg
-                class="table-controls-icon"
-                viewBox="0 0 16 16"
-                aria-hidden="true"
-                {...{ focusable: 'false' }}
-              >
-                <path d="M3 6a5.4 5.4 0 0 1 10 0M13 2v4H9M13 10a5.4 5.4 0 0 1-10 0M3 14v-4h4" />
-              </svg>
+              <Icon class="table-controls-icon" name="refresh" />
             </Button>
             <Show when={filters.changed}>
               <span data-ui-text="system">Unapplied changes</span>

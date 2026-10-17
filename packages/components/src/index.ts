@@ -1,5 +1,7 @@
 export { UI_DENSITIES, uiDensity, uiScope } from './styles/density'
 export type { UIDensity } from './styles/density'
+export { Icon } from './components/Icon'
+export type { IconName, IconProps } from './components/Icon'
 export { Select, SelectField } from './components/Select'
 export type { SelectChoice, SelectFieldProps } from './components/Select'
 export { Combobox } from './components/Combobox'

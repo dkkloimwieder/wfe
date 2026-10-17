@@ -1,3 +1,4 @@
+import { Icon } from './Icon'
 import { createEffect, createSignal, createUniqueId, untrack } from 'solid-js'
 import { Calendar } from './Calendar'
 import { Popover } from './Popover'
@@ -108,9 +109,7 @@ export function DatePicker(props: DatePickerProps) {
             class="ui-date-trigger"
             aria-label={`Open ${props.label} calendar`}
           >
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M3 3h10v11H3zM5 1v4m6-4v4M3 6h10" />
-            </svg>
+            <Icon name="calendar" />
           </Popover.Trigger>
           <Button
             type="button"
