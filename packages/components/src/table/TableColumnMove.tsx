@@ -212,6 +212,7 @@ export function TableColumnMove(props: {
   return (
     <>
       <Button
+        tone="neutral"
         type="button"
         class="column-move"
         aria-label={`Move ${props.label} column`}

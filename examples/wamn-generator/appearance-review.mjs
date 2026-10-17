@@ -17,6 +17,17 @@ export async function reviewAppearance({ page, record }) {
           'none',
         )
       }
+      const headings = page.locator('thead .column-move, thead .column-sort')
+      assert.ok(await headings.count())
+      for (const heading of await headings.all()) {
+        const textColor = await heading.evaluate(
+          (node) => getComputedStyle(node.closest('th')).color,
+        )
+        await expect(heading).toHaveCSS('color', textColor)
+        await heading.hover()
+        await expect(heading).toHaveCSS('color', textColor)
+      }
+      await page.mouse.move(0, 0)
       const actions = page.locator(
         '.ui-dashboard-header .ui-button, form .ui-button, .table-controls-toggle',
       )

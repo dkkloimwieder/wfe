@@ -13,6 +13,7 @@ export function TableSort(props: {
 }) {
   return (
     <Button
+      tone="neutral"
       type="button"
       class={props.class ?? 'column-sort'}
       aria-label={props.accessibleLabel ?? `Sort by ${props.label}`}
