@@ -5,13 +5,37 @@ import { createServer } from 'node:http'
 import { dirname, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium, expect } from '@playwright/test'
-import { reviewFocus } from './review-focus.mjs'
 import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
-import { choiceControl } from '../shared/controls/select-review.mjs'
+import { reviewFocus } from './review-focus.mjs'
+import { reviewServer } from './review-server.mjs'
 import { reviewRecords } from './review-records.mjs'
 import { reviewDispatch } from './review-dispatch.mjs'
 
-export async function run({ hydration = false } = {}) {
+const defaultApplications = {
+  focus: {
+    label: 'Title',
+    value: 'Focused title',
+    server: (page) => reviewServer(page, 'focus'),
+    review: reviewFocus,
+  },
+  records: {
+    label: 'Name',
+    value: 'Sample record',
+    server: (page) => reviewServer(page, 'records'),
+    review: reviewRecords,
+  },
+  dispatch: {
+    label: 'Tracking code',
+    value: 'PKG-100',
+    server: (page) => reviewServer(page, 'dispatch'),
+    review: reviewDispatch,
+  },
+}
+export async function run({
+  hydration = false,
+  root = new URL('.', import.meta.url),
+  applications = defaultApplications,
+} = {}) {
   const suffix = process.env.BENCH_DEVELOPMENT
     ? '-dev'
     : process.env.BENCH_DISTRIBUTION
@@ -22,7 +46,7 @@ export async function run({ hydration = false } = {}) {
     : suffix
       ? `.dist${suffix}`
       : '.dist'
-  const assets = fileURLToPath(new URL(`${folder}/`, import.meta.url))
+  const assets = fileURLToPath(new URL(`${folder}/`, root))
   const report = {
     hydration,
     cases: [],
@@ -74,7 +98,7 @@ export async function run({ hydration = false } = {}) {
             'vite',
             'build',
             '--config',
-            'examples/generator/vite.hydration.config.ts',
+            fileURLToPath(new URL('vite.hydration.config.ts', root)),
           ],
           {
             stdio: 'inherit',
@@ -82,11 +106,11 @@ export async function run({ hydration = false } = {}) {
           },
         )
       const { render } = await import(
-        new URL(`.dist-hydration-server${suffix}/server.js`, import.meta.url)
+        new URL(`.dist-hydration-server${suffix}/server.js`, root)
       )
       const warnings = []
       const warn = console.warn
-      for (const name of ['records', 'dispatch', 'focus']) {
+      for (const name of Object.keys(applications)) {
         let result
         try {
           console.warn = (...args) => warnings.push(args.map(String).join(' '))
@@ -107,10 +131,7 @@ export async function run({ hydration = false } = {}) {
       ? [folder, `.dist-hydration-server${suffix}`]
       : [folder]) {
       const modules = JSON.parse(
-        await readFile(
-          new URL(`${directory}/modules.json`, import.meta.url),
-          'utf8',
-        ),
+        await readFile(new URL(`${directory}/modules.json`, root), 'utf8'),
       )
       for (const name of ['generator', 'form', 'components'])
         assert.ok(
@@ -130,7 +151,7 @@ export async function run({ hydration = false } = {}) {
     await new Promise((done) => server.listen(0, '127.0.0.1', done))
     const url = `http://127.0.0.1:${server.address().port}`
     browser = await chromium.launch({ headless: true })
-    for (const name of ['records', 'dispatch', 'focus']) {
+    for (const [name, checks] of Object.entries(applications)) {
       report.application = name
       const firstCase = report.cases.length
       const applicationUrl = `${url}/?app=${name}`
@@ -139,59 +160,7 @@ export async function run({ hydration = false } = {}) {
         try {
           const initial = await context.newPage()
           await initial.goto(applicationUrl)
-          if (name === 'focus') {
-            for (const label of ['Title', 'Notes', 'Extra'])
-              await expect(
-                initial.getByLabel(label, { exact: true }),
-              ).toHaveCount(1)
-          } else if (name === 'records') {
-            for (const label of [
-              'Name',
-              'Active',
-              'Alerts',
-              'Notes',
-              'Quantity',
-            ])
-              await expect(
-                initial.locator('form').getByLabel(label, { exact: true }),
-              ).toHaveCount(1)
-            await expect(
-              choiceControl(initial.locator('form'), {
-                name: 'Category',
-                exact: true,
-              }),
-            ).toHaveCount(1)
-            for (const label of ['Active', 'Alerts']) {
-              const metadata = await initial
-                .getByLabel(label, { exact: true })
-                .evaluate((node) => ({
-                  id: node.id,
-                  described: node
-                    .getAttribute('aria-describedby')
-                    ?.split(' ')
-                    .every((id) => document.getElementById(id)),
-                }))
-              assert.ok(metadata.id)
-              assert.equal(metadata.described, true)
-            }
-          } else {
-            for (const label of [
-              'Tracking code',
-              'Insured',
-              'Declared value',
-              'Dispatch date',
-            ])
-              await expect(
-                initial.locator('form').getByLabel(label, { exact: true }),
-              ).toHaveCount(1)
-            await expect(
-              choiceControl(initial.locator('form'), {
-                name: 'Carrier',
-                exact: true,
-              }),
-            ).toHaveCount(1)
-            await expect(initial.locator('tbody tr')).toHaveCount(2)
-          }
+          await checks.server(initial)
           report.cases.push(
             'server labels and boolean descriptions before JavaScript',
           )
@@ -209,25 +178,10 @@ export async function run({ hydration = false } = {}) {
       })
       await page.goto(applicationUrl)
       await expect(
-        page
-          .locator('form')
-          .getByLabel(
-            name === 'records'
-              ? 'Name'
-              : name === 'focus'
-                ? 'Title'
-                : 'Tracking code',
-            {
-              exact: true,
-            },
-          ),
-      ).toHaveValue(
-        name === 'records'
-          ? 'Sample record'
-          : name === 'focus'
-            ? 'Focused title'
-            : 'PKG-100',
-      )
+        page.locator('form').getByLabel(checks.label, {
+          exact: true,
+        }),
+      ).toHaveValue(checks.value)
       if (hydration) {
         await expect(page.locator('html')).toHaveAttribute(
           'data-hydrated',
@@ -250,9 +204,7 @@ export async function run({ hydration = false } = {}) {
         report.cases.push('hydration keeps server controls and table')
       }
       report.cssProvenance = await reviewCssProvenance(page, url)
-      if (name === 'records') await reviewRecords({ page, report, record })
-      else if (name === 'focus') await reviewFocus({ page, report, record })
-      else await reviewDispatch({ page, report, record })
+      await checks.review({ page, report, record })
       report.diagnostics = (
         await page.evaluate(() => window.generatorFixture.diagnostics())
       ).filter((event) => event.code !== 'HOT_SCOPE_TIME')

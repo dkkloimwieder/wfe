@@ -1,0 +1,21 @@
+@import '@wfe/components/styles.css';
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+}
+h2 {
+  font-size: inherit;
+  margin: 0;
+}
+@media (width < 48rem) {
+  [data-generator-panel='widget-records-panel'][data-fill] {
+    min-block-size: 16rem;
+  }
+}

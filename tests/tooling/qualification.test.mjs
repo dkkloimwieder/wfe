@@ -169,3 +169,35 @@ test('optional WAMN stages require prepared inputs and cover three builds', () =
     assert.equal(browser.env.BENCH_OUTPUT, `/tmp/gates/wamn-${mode}.json`)
   }
 })
+
+test('WAMN generator adapter stays optional and uses prepared inputs in every mode', () => {
+  assert.equal(
+    qualificationStages('/tmp/gates').some(({ name }) =>
+      name.startsWith('wamn-generator-'),
+    ),
+    false,
+  )
+  const stages = qualificationStages('/tmp/gates', { wamn: true })
+  for (const mode of ['source', 'distribution', 'development']) {
+    const build = stages.findIndex(
+      ({ name }) => name === `wamn-generator-${mode}-build`,
+    )
+    const browser = stages.findIndex(
+      ({ name }) => name === `wamn-generator-${mode}-browser`,
+    )
+    const hydration = stages.find(
+      ({ name }) => name === `wamn-generator-${mode}-hydration`,
+    )
+    assert.ok(build > stages.findIndex(({ name }) => name === 'wamn-inputs'))
+    assert.ok(browser > build)
+    assert.equal(hydration.args.at(-1), '--hydration')
+    assert.equal(
+      hydration.env.BENCH_DISTRIBUTION,
+      mode === 'distribution' ? '1' : '',
+    )
+    assert.equal(
+      hydration.env.BENCH_DEVELOPMENT,
+      mode === 'development' ? '1' : '',
+    )
+  }
+})

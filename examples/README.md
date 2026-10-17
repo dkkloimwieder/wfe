@@ -65,3 +65,7 @@ The [generator example](generator/README.md) composes a form, table, and dashboa
 Use `examples/generator/vite.config.ts` with an unused port to preview it.
 Its README lists the build, browser, and hydration commands.
 The application owns data and callbacks, while descriptions control presentation and composition.
+
+The [WAMN generator adapter](wamn-generator/README.md) maps prepared Widget metadata to the same public views.
+It tests two metadata variants with the existing mock HTTP transport and generated query, get, and update bindings.
+Its optional qualification reuses the prepared inputs and keeps production WAMN unchanged.

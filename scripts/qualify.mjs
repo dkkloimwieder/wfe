@@ -155,6 +155,14 @@ export function qualificationStages(output, { wamn = false } = {}) {
         ].map((file) => `examples/wamn/${file}`),
       ]),
     )
+    stages.push(
+      stage('wamn-generator-types', [
+        'exec',
+        'tsc',
+        '--project',
+        'examples/wamn-generator/tsconfig.json',
+      ]),
+    )
     for (const mode of ['source', 'distribution', 'development']) {
       const env = {
         NODE_ENV: mode === 'development' ? 'development' : 'production',
@@ -171,6 +179,38 @@ export function qualificationStages(output, { wamn = false } = {}) {
           `wamn-${mode}-browser`,
           ['exec', 'node', 'examples/wamn/run.mjs'],
           { ...env, BENCH_OUTPUT: resolve(output, `wamn-${mode}.json`) },
+        ),
+      )
+      stages.push(
+        stage(
+          `wamn-generator-${mode}-build`,
+          [
+            'exec',
+            'vite',
+            'build',
+            '--config',
+            'examples/wamn-generator/vite.config.ts',
+          ],
+          env,
+        ),
+        stage(
+          `wamn-generator-${mode}-browser`,
+          ['exec', 'node', 'examples/wamn-generator/run.mjs'],
+          {
+            ...env,
+            BENCH_OUTPUT: resolve(output, `wamn-generator-${mode}.json`),
+          },
+        ),
+        stage(
+          `wamn-generator-${mode}-hydration`,
+          ['exec', 'node', 'examples/wamn-generator/run.mjs', '--hydration'],
+          {
+            ...env,
+            BENCH_OUTPUT: resolve(
+              output,
+              `wamn-generator-hydration-${mode}.json`,
+            ),
+          },
         ),
       )
     }
