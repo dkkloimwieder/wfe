@@ -12,7 +12,7 @@ export type ButtonAppearanceProps = {
 
 type PresentationAttributes = ButtonAppearanceProps & {
   'data-variant'?: ButtonVariant
-  'data-tone'?: ButtonTone
+  'data-tone'?: ButtonTone | 'default'
 }
 
 export function buttonAttributes<T extends PresentationAttributes>(props: T) {
@@ -25,7 +25,7 @@ export function buttonAttributes<T extends PresentationAttributes>(props: T) {
       return props.variant ?? props['data-variant'] ?? 'outline'
     },
     get 'data-tone'() {
-      return props.tone ?? props['data-tone'] ?? 'neutral'
+      return props.tone ?? props['data-tone'] ?? 'default'
     },
   })
 }

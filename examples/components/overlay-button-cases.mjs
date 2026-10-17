@@ -31,7 +31,7 @@ export async function overlayButtonCases({ page, url, record, settle }) {
         ].map((key) => [key, style[key]]),
       )
     })
-  async function sameButton(name, variant = 'outline', tone = 'neutral') {
+  async function sameButton(name, variant = 'outline', tone = 'default') {
     const control = part(name)
     await expect(control).toHaveClass(/ui-button/)
     await expect(control).toHaveAttribute('data-variant', variant)
@@ -44,6 +44,70 @@ export async function overlayButtonCases({ page, url, record, settle }) {
       await appearance(part('reference')),
     )
   }
+  await record(
+    'overlay buttons: scoped defaults inherit live colors and preserve explicit tones',
+    async () => {
+      await open()
+      const scope = page.locator('[data-ui]').first()
+      const setColors = (color) =>
+        scope.evaluate((node, color) => {
+          node.style.setProperty('--ui-button-color', color)
+          node.style.setProperty('--ui-button-on-color', 'rgb(252, 252, 253)')
+        }, color)
+      await setColors('rgb(28, 126, 214)')
+      for (const variant of ['outline', 'filled', 'inverted', 'ghost']) {
+        await configure({ variant })
+        await sameButton('dialog-trigger', variant)
+        const style = await appearance(part('reference'))
+        assert.equal(
+          variant === 'filled' ? style.backgroundColor : style.color,
+          'rgb(28, 126, 214)',
+        )
+        if (variant === 'filled' || variant === 'inverted')
+          assert.equal(
+            variant === 'filled' ? style.color : style.backgroundColor,
+            'rgb(252, 252, 253)',
+          )
+      }
+      await configure({ variant: 'outline' })
+      await part('reference').evaluate((node) =>
+        node.style.setProperty('--ui-button-color', 'rgb(8, 127, 91)'),
+      )
+      await expect(part('reference')).toHaveCSS('color', 'rgb(8, 127, 91)')
+      await expect(part('dialog-trigger')).toHaveCSS(
+        'color',
+        'rgb(28, 126, 214)',
+      )
+      await part('reference').evaluate((node) =>
+        node.style.removeProperty('--ui-button-color'),
+      )
+      await setColors('rgb(112, 72, 232)')
+      await expect(part('dialog-trigger')).toHaveCSS(
+        'color',
+        'rgb(112, 72, 232)',
+      )
+      for (const tone of ['neutral', 'accent']) {
+        await configure({ tone })
+        await sameButton('dialog-trigger', 'outline', tone)
+        assert.notEqual(
+          (await appearance(part('dialog-trigger'))).color,
+          'rgb(112, 72, 232)',
+        )
+      }
+      await open()
+      await setColors('rgb(28, 126, 214)')
+      await page.emulateMedia({ forcedColors: 'active' })
+      try {
+        await sameButton('tooltip-link')
+        assert.notEqual(
+          (await appearance(part('tooltip-link'))).color,
+          'rgb(28, 126, 214)',
+        )
+      } finally {
+        await page.emulateMedia({ forcedColors: 'none' })
+      }
+    },
+  )
   const variants = ['outline', 'filled', 'inverted', 'ghost']
   await record(
     'overlay buttons: default presentation and reactive variants match Button without replacing triggers',

@@ -45,6 +45,17 @@
     color-mix(in srgb, var(--_button-contrast) 95%, var(--_button-color))
   );
 }
+:where([data-ui]) .ui-button[data-tone='default'] {
+  --_button-color: var(--ui-button-color, var(--ui-text, #000));
+  --_button-contrast: var(--ui-button-on-color, var(--ui-surface, #fff));
+}
+:where([data-ui]) .ui-button[data-tone='default'][data-variant='outline'] {
+  border-color: var(--ui-button-color, var(--ui-button-border, #aaa));
+  color: var(--ui-button-color, inherit);
+}
+:where([data-ui]) .ui-button[data-tone='default'][data-variant='ghost'] {
+  color: var(--ui-button-color, inherit);
+}
 :where([data-ui]) .ui-button[data-tone='accent'] {
   --_button-color: var(--ui-accent, var(--ui-text, #000));
   --_button-contrast: var(--ui-on-accent, var(--ui-surface, #fff));

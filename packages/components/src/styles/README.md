@@ -82,6 +82,12 @@ The review examples supply their own approved palette through the shared appeara
 For example, the review dark Surface 1 uses `#212529`.
 Those application overrides do not change the library defaults.
 
+Buttons without an explicit tone inherit `--ui-button-color` and `--ui-button-on-color`.
+These roles apply to internal icon actions and delegated overlay buttons too.
+Unset roles retain the existing neutral appearance.
+Explicit `tone="neutral"` uses the text and surface roles.
+Explicit `tone="accent"` uses the accent roles.
+
 Floating components share `--ui-popup-surface`, `--ui-popup-text`, `--ui-popup-border`, and `--ui-popup-shadow`.
 Unset surface and text roles inherit `--ui-surface` and `--ui-text`.
 Choices and table header menus inherit `--ui-control-border`.

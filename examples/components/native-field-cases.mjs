@@ -5,6 +5,7 @@ import {
   choiceOptions,
 } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
+import { expect } from '@playwright/test'
 
 export async function nativeFieldCases({ page, url, record, press, settle }) {
   const open = () => page.goto(`${url}?fields=1`)
@@ -18,6 +19,25 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     )
     await settle()
   }
+  await record(
+    'fields: default icon actions inherit button colors and retain visible focus',
+    async () => {
+      await open()
+      const icon = page.getByRole('button', { name: 'Reset name', exact: true })
+      const before = await icon.boundingBox()
+      await page
+        .locator('[data-ui]')
+        .first()
+        .evaluate((node) => {
+          node.style.setProperty('--ui-button-color', 'rgb(28, 126, 214)')
+        })
+      await expect(icon).toHaveCSS('color', 'rgb(28, 126, 214)')
+      await expect(icon).toHaveCSS('border-top-color', 'rgb(28, 126, 214)')
+      assert.deepEqual(await icon.boundingBox(), before)
+      await icon.focus()
+      await expect(icon).toHaveCSS('outline-style', 'solid')
+    },
+  )
   await record(
     'fields: shared Select composition preserves accepted values and named form submission',
     async () => {
