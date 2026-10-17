@@ -2,7 +2,7 @@ import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/combobox'
 import { callHandler } from '../internal/events'
-import { Show, omit } from 'solid-js'
+import { Show, omit, untrack } from 'solid-js'
 import { ChoiceScope, createChoiceScope, useChoiceScope } from './choiceScope'
 import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
@@ -73,7 +73,7 @@ export function ComboboxContent<T extends ValidComponent = 'div'>(
     <Primitive
       {...rest}
       class={styledClasses('popup-content', props.class)}
-      ref={[scope.setContent, props.ref]}
+      ref={[scope.setContent, untrack(() => props.ref)]}
       onPointerDownOutside={(event) => {
         props.onPointerDownOutside?.(event)
         if (!event.defaultPrevented) scope.outside()
@@ -167,7 +167,7 @@ export function ComboboxInput<T extends ValidComponent = 'input'>(
     <Primitive
       {...props}
       class={styledClasses('choice-input', props.class)}
-      ref={[scope.setControl, props.ref]}
+      ref={[scope.setControl, untrack(() => props.ref)]}
       onKeyDown={(
         event: KeyboardEvent & { currentTarget: ElementOf<T>; target: Element },
       ) => {
