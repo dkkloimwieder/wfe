@@ -99,6 +99,18 @@ export function createApplication(name: string) {
     columns: initialMetadata.columns.map((column) => ({
       id: column.id,
       accessorFn: (row) => row[column.id as keyof WidgetQueryRow],
+      size:
+        column.type === 'uuid'
+          ? 304
+          : column.type === 'timestamptz'
+            ? 224
+            : column.type === 'int64'
+              ? 176
+              : column.id === 'note'
+                ? 240
+                : 136,
+      minSize: 96,
+      maxSize: column.id === 'note' ? 960 : 640,
       sortFn:
         column.type === 'text' || column.type === 'timestamptz'
           ? (a, b) => String(a ?? '').localeCompare(String(b ?? ''))

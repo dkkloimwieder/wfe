@@ -49,9 +49,10 @@ body,
   font-size: inherit;
   margin: 0;
 }
-.wamn-page .table-scroll > table {
-  width: 100%;
-  min-width: 72rem;
+.wamn-page td:is([data-column='id'], [data-column='makerId']) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 @media (width < 40rem) {
   .wamn-page .ui-dashboard-header > [data-ui-text='system'] {

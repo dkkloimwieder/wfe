@@ -27,38 +27,42 @@ export type TableFilterConfig =
   TableColumnFilterConfig | { kind: 'boolean' | 'date-range' }
 
 /** Full display features over an application-owned table, without editing state. */
-export function ReadOnlyTable<T, M>(props: {
-  table: NativeTable<T, M>
-  columnAlignment?: TableColumnAlignments
-  onColumnAlignmentChange?: (
-    id: string,
-    alignment: TableColumnAlignment,
-  ) => void
-  controlsPlacement?: TableWorkspaceProps['controlsPlacement']
-  controlsCollapsed?: boolean
-  defaultControlsCollapsed?: boolean
-  onControlsCollapsedChange?: (collapsed: boolean) => void
-  title?: string
-  controls?: {
-    sorting?: boolean
-    filtering?: boolean
-    search?: boolean
-    grouping?: boolean
-    columnReordering?: boolean
-  }
-  actions?: JSX.Element
-  configuration?: JSX.Element
-  formatting?: JSX.Element
-  /** Receives criteria on refresh, including unchanged criteria for reloading. */
-  onApplyFilters?: (criteria: TableFilterCriteria) => void
-  label?: (column: NativeColumn<T, M>) => string
-  filter?: (column: NativeColumn<T, M>) => TableFilterConfig | undefined
-  filterKind?: (column: NativeColumn<T, M>) => 'text' | 'boolean' | 'date-range'
-  groupable?: (id: string) => boolean
-  renderCell?: (cell: NativeCell<T, M>) => JSX.Element
-  formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
-  formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
-}) {
+export function ReadOnlyTable<T, M>(
+  props: {
+    table: NativeTable<T, M>
+    columnAlignment?: TableColumnAlignments
+    onColumnAlignmentChange?: (
+      id: string,
+      alignment: TableColumnAlignment,
+    ) => void
+    controlsPlacement?: TableWorkspaceProps['controlsPlacement']
+    controlsCollapsed?: boolean
+    defaultControlsCollapsed?: boolean
+    onControlsCollapsedChange?: (collapsed: boolean) => void
+    title?: string
+    controls?: {
+      sorting?: boolean
+      filtering?: boolean
+      search?: boolean
+      grouping?: boolean
+      columnReordering?: boolean
+    }
+    actions?: JSX.Element
+    configuration?: JSX.Element
+    formatting?: JSX.Element
+    /** Receives criteria on refresh, including unchanged criteria for reloading. */
+    onApplyFilters?: (criteria: TableFilterCriteria) => void
+    label?: (column: NativeColumn<T, M>) => string
+    filter?: (column: NativeColumn<T, M>) => TableFilterConfig | undefined
+    filterKind?: (
+      column: NativeColumn<T, M>,
+    ) => 'text' | 'boolean' | 'date-range'
+    groupable?: (id: string) => boolean
+    renderCell?: (cell: NativeCell<T, M>) => JSX.Element
+    formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
+    formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
+  } & Pick<Parameters<typeof Table<T, M>>[0], 'width' | 'headerEnd'>,
+) {
   const [localAlignment, setLocalAlignment] = createStore<
     Record<string, TableColumnAlignment | undefined>
   >({})
@@ -350,6 +354,8 @@ export function ReadOnlyTable<T, M>(props: {
       >
         <Table
           table={table}
+          width={props.width}
+          headerEnd={props.headerEnd}
           columnAlignment={alignment()}
           accessibleLabel={props.title ?? 'Read-only records'}
           grouped={

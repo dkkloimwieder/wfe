@@ -28,6 +28,11 @@ Back to records keeps the draft, and Cancel discards it.
 Both screens retain their form and table owners across navigation.
 Short editor screens scroll vertically, and long table values scroll horizontally inside the table.
 
+Initial column widths follow field types and the approved compact typography.
+The preview does not scan query results to calculate widths.
+Header separators support pointer and keyboard resizing through the shared control and native engine.
+Identifier cells stay on one line and use an ellipsis when the user makes a column narrower.
+
 The fixture starts with two deterministic records.
 Refresh runs the generated Widget query binding through the existing mock HTTP transport.
 Open runs the generated Widget get binding.

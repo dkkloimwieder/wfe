@@ -24,6 +24,10 @@ Both panels scroll independently within the height that the application assigns.
 The `actions` and `configuration` slots accept application content.
 The [workspace guide](../../../../docs/table-workspace.md) describes sizing and the narrow controls drawer.
 Neither component copies the application records.
+ReadOnlyTable forwards `width` and `headerEnd` to Table.
+The application can render TableColumnResize in headerEnd and pass the sum of visible column sizes as width.
+The existing engine owns accepted sizing through its state contract.
+The presentation does not scan records to calculate initial widths.
 
 Column controls receive values, bounds, IDs, and callbacks.
 Applications own permissions, requests, validation, save rules, export, and persistence.

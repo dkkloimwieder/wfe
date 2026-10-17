@@ -6,6 +6,9 @@ import {
   schemes,
 } from '../shared/appearance/appearance'
 import { FormView, TableView, LayoutView } from '@wfe/generator'
+import { TableColumnResize } from '@wfe/components/table'
+import type { NativeColumn } from '@wfe/components/table'
+import type { WidgetQueryRow } from '../wamn/.input/widget'
 import { createApplication } from './application'
 export function App(props: {
   name: string
@@ -81,6 +84,15 @@ export function App(props: {
       />
     </>
   )
+  const resize = (column: NativeColumn<WidgetQueryRow, never>) => (
+    <TableColumnResize
+      label={app.description().table.columns[column.id]?.label ?? column.id}
+      size={column.getSize()}
+      min={column.columnDef?.minSize ?? 20}
+      max={column.columnDef?.maxSize ?? Number.MAX_SAFE_INTEGER}
+      onSizeChange={column.setSize}
+    />
+  )
   const Records = () => (
     <>
       <div role="status">{app.status()}</div>
@@ -88,6 +100,10 @@ export function App(props: {
         description={app.description().table}
         bindings={{
           table: app.table,
+          width: app.table
+            .getVisibleColumns()
+            .reduce((sum, column) => sum + column.getSize(), 0),
+          headerEnd: resize,
           controlsCollapsed: app.controlsCollapsed(),
           onControlsCollapsedChange: app.setControlsCollapsed,
         }}

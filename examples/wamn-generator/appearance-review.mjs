@@ -39,6 +39,58 @@ export async function reviewAppearance({ page, record }) {
     },
   )
   await record(
+    'WAMN column resizing uses the native widths and keeps identifiers on one line',
+    async () => {
+      const ids = page.locator(
+        'tbody td[data-column="id"], tbody td[data-column="makerId"]',
+      )
+      for (const cell of await ids.all()) {
+        await expect(cell).toHaveCSS('white-space', 'nowrap')
+        assert.ok(
+          await cell.evaluate((node) => node.scrollWidth <= node.clientWidth),
+        )
+      }
+      const handle = page.getByRole('separator', {
+        name: 'Resize Widget code column',
+        exact: true,
+      })
+      const start = Number(await handle.getAttribute('aria-valuenow'))
+      const table = await page.locator('table').elementHandle()
+      await handle.focus()
+      await handle.press('ArrowRight')
+      await expect(handle).toHaveAttribute('aria-valuenow', String(start + 10))
+      await expect(page.locator('col[data-column-width=code]')).toHaveCSS(
+        'width',
+        `${start + 10}px`,
+      )
+      await handle.press('ArrowLeft')
+      const bounds = await handle.boundingBox()
+      await page.mouse.move(
+        bounds.x + bounds.width / 2,
+        bounds.y + bounds.height / 2,
+      )
+      await page.mouse.down()
+      for (const delta of [10, 20, 30])
+        await page.mouse.move(
+          bounds.x + bounds.width / 2 + delta,
+          bounds.y + bounds.height / 2,
+        )
+      await page.mouse.up()
+      await expect(handle).toHaveAttribute('aria-valuenow', String(start + 30))
+      await handle.press('ArrowLeft')
+      await handle.press('ArrowLeft')
+      await handle.press('ArrowLeft')
+      await expect(handle).toHaveAttribute('aria-valuenow', String(start))
+      assert.equal(
+        await table.evaluate(
+          (node) => node === document.querySelector('table'),
+        ),
+        true,
+      )
+      await table.dispose()
+    },
+  )
+  await record(
     'WAMN preview keeps actions reachable on phones and short screens',
     async () => {
       const toggle = page.getByRole('button', {

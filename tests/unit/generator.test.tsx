@@ -3,7 +3,8 @@ import { cleanup, fireEvent, render } from '@solidjs/testing-library'
 import { createSignal, flush, onCleanup, Errored } from 'solid-js'
 import { Input } from '@wfe/components'
 import { createForm } from '@wfe/form'
-import { createTable } from '@wfe/components/table'
+import { createTable, TableColumnResize } from '@wfe/components/table'
+import type { NativeColumn } from '@wfe/components/table'
 import { FormView, LayoutView, TableView } from '@wfe/generator'
 import type {
   FormDescription,
@@ -596,3 +597,113 @@ for (const control of ['checkbox', 'switch'] as const) {
     expect(values().active).toBe(true)
   })
 }
+
+test('generated column sizing accepts and rejects application updates without reading records', () => {
+  const [sizes, setSizes] = createSignal<Record<string, number>>({
+    name: 180,
+    note: 160,
+  })
+  let accept = true
+  let reads = 0
+  let replaceHeader!: () => void
+  let table!: ReturnType<
+    typeof createTable<{ name: string; note: string }, never>
+  >
+  const mounted = render(() => {
+    table = createTable({
+      state: {
+        get columnSizing() {
+          return sizes()
+        },
+      },
+      onColumnSizingChange: (update) => {
+        if (accept)
+          setSizes(typeof update === 'function' ? update(sizes()) : update)
+      },
+      source: {
+        ids: () => ['a'],
+        get: () => {
+          reads++
+          return { name: 'Ada', note: 'Record' }
+        },
+      },
+      columns: [
+        { id: 'name', accessorKey: 'name' },
+        { id: 'note', accessorKey: 'note' },
+      ],
+    })
+    const headerEnd = (
+      column: NativeColumn<{ name: string; note: string }, never>,
+    ) => (
+      <TableColumnResize
+        label={column.id}
+        size={column.getSize()}
+        min={120}
+        max={400}
+        onSizeChange={column.setSize}
+      />
+    )
+    const [renderEnd, setRenderEnd] = createSignal(() => headerEnd)
+    replaceHeader = () => setRenderEnd(() => (column) => headerEnd(column))
+    return (
+      <TableView
+        description={{
+          id: 'sized',
+          columns: { name: { label: 'Name' }, note: { label: 'Note' } },
+        }}
+        bindings={{
+          table,
+          width: table
+            .getVisibleColumns()
+            .reduce((sum, column) => sum + column.getSize(), 0),
+          headerEnd: renderEnd(),
+        }}
+      />
+    )
+  })
+  const separator = mounted.getByRole('separator', {
+    name: 'Resize name column',
+  })
+  const col = () =>
+    mounted.container.querySelector<HTMLTableColElement>(
+      'col[data-column-width="name"]',
+    )!
+  const initialReads = reads
+  fireEvent.keyDown(separator, { key: 'ArrowRight' })
+  flush()
+  expect(sizes().name).toBe(190)
+  expect(separator.isConnected).toBe(true)
+  expect(col().style.width).toBe('190px')
+  accept = false
+  fireEvent.keyDown(separator, { key: 'ArrowRight' })
+  flush()
+  expect(sizes().name).toBe(190)
+  expect(col().style.width).toBe('190px')
+  accept = true
+  fireEvent.keyDown(separator, { key: 'Home' })
+  flush()
+  expect(sizes().name).toBe(120)
+  fireEvent.keyDown(separator, { key: 'End' })
+  flush()
+  expect(sizes().name).toBe(400)
+  table.setColumnOrder(['note', 'name'])
+  flush()
+  expect(col().style.width).toBe('400px')
+  table.getColumn('note')!.toggleVisibility(false)
+  flush()
+  expect(mounted.container.querySelector('table')!.style.width).toBe('400px')
+  expect(reads).toBe(initialReads)
+  replaceHeader()
+  flush()
+  expect(separator.isConnected).toBe(false)
+  fireEvent.keyDown(separator, { key: 'ArrowRight' })
+  flush()
+  expect(sizes().name).toBe(400)
+  const replacement = mounted.getByRole('separator', {
+    name: 'Resize name column',
+  })
+  expect(replacement).not.toBe(separator)
+  fireEvent.keyDown(replacement, { key: 'ArrowLeft' })
+  flush()
+  expect(sizes().name).toBe(390)
+})

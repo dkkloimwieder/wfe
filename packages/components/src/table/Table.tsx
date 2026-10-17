@@ -1,5 +1,5 @@
 import { Icon } from '../components/Icon'
-import { For, Show, onCleanup, untrack } from 'solid-js'
+import { For, Show, createMemo, onCleanup, untrack } from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 import { TableSort } from './TableSort'
@@ -45,6 +45,7 @@ export function Table<T, M>(props: {
   onGroupCell?: () => void
 }) {
   const table = props.table
+  const headerEnd = createMemo(() => props.headerEnd)
   const grouped = () => props.grouped ?? table.state.grouping.length > 0
   const label = (column: NativeColumn<T, M>) =>
     props.label?.(column) ?? String(column.columnDef?.header ?? column.id)
@@ -115,7 +116,7 @@ export function Table<T, M>(props: {
                     />
                   )}
                 </div>
-                {props.headerEnd?.(column)}
+                {headerEnd()?.(column)}
               </th>
             )}
           </For>

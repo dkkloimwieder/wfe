@@ -156,6 +156,8 @@ export type TableViewBindings<
 }> &
   Pick<
     Parameters<typeof ReadOnlyTable<Row, Meta>>[0],
+    | 'width'
+    | 'headerEnd'
     | 'onApplyFilters'
     | 'filter'
     | 'groupable'
