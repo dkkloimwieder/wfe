@@ -59,6 +59,23 @@ export function createFixture(name: string = 'original') {
       flush()
     },
     outcome: () => outcome,
+    beginEdit(id: string) {
+      const accepted = app!.beginEdit(id)
+      flush()
+      return accepted
+    },
+    open(id: string) {
+      void app!.open(id)
+      flush()
+    },
+    patch(
+      index: number,
+      change: Parameters<
+        ReturnType<typeof createApplication>['server']['patch']
+      >[1],
+    ) {
+      app!.server.patch(index, change)
+    },
     variant(value: string) {
       app!.setVariant(value)
       flush()

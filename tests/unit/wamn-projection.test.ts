@@ -46,7 +46,10 @@ describe('isolated WAMN metadata projection', () => {
       'note',
       'code',
     ])
-    expect(second.columnOrder).toEqual([...first.columnOrder].reverse())
+    expect(second.columnOrder).toEqual([
+      ...first.columnOrder.filter((id) => id !== 'actions').reverse(),
+      'actions',
+    ])
     expect(second.layout.panels).toEqual(first.layout.panels)
     expect(second.table.id).toBe(first.table.id)
     expect(first.layout.columns).toBe(1)

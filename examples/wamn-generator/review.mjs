@@ -24,17 +24,27 @@ export async function reviewServer(page, name) {
 }
 export async function review({ page, record }) {
   await reviewAppearance({ page, record })
-  const edit = async () => {
-    if (await page.locator('[data-wamn-screen=editor]').isHidden())
-      await page
-        .getByRole('button', { name: 'Edit widget', exact: true })
-        .click()
-  }
+  const rowId = (index) =>
+    page.evaluate(
+      (index) => window.generatorFixture.snapshot().rows[index].id,
+      index,
+    )
+  const rowAction = async (action, index = 0) =>
+    page.getByRole('button', {
+      name: `${action} ${await rowId(index)}`,
+      exact: true,
+    })
   const back = async () => {
     if (await page.locator('[data-wamn-screen=records]').isHidden())
       await page
         .getByRole('button', { name: 'Back to records', exact: true })
         .click()
+  }
+  const edit = async () => {
+    if (await page.locator('[data-wamn-screen=editor]').isHidden()) {
+      await back()
+      await (await rowAction('Edit')).click()
+    }
   }
   const state = () => page.evaluate(() => window.generatorFixture.snapshot())
   const note = () => page.locator('form textarea')
@@ -68,9 +78,7 @@ export async function review({ page, record }) {
       await page.getByRole('button', { name: 'Cancel', exact: true }).click()
       await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
       await expect(note()).toHaveValue('Widget 0')
-      await expect(
-        page.getByRole('button', { name: 'Edit widget', exact: true }),
-      ).toBeFocused()
+      await expect(await rowAction('Edit')).toBeFocused()
       assert.equal((await state()).sent.length, sent)
       assert.equal(
         await page.evaluate(() =>
@@ -94,16 +102,18 @@ export async function review({ page, record }) {
       await expect(toggle).toHaveAttribute('aria-expanded', 'false')
     },
   )
-  await record('WAMN query and Open use generated wire bindings', async () => {
+  await record('WAMN query and View use generated wire bindings', async () => {
     await refresh().click()
     await expect
       .poll(async () => (await state()).status)
       .toBe('Widgets refreshed')
     assert.equal((await state()).sent.at(-1).path, '/widget/query')
     assert.deepEqual((await state()).sent.at(-1).item, { limit: 2 })
-    await page.getByRole('button', { name: 'Open widget', exact: true }).click()
+    await (await rowAction('View')).click()
     await expect.poll(async () => (await state()).status).toMatch(/^Opened /)
     assert.equal((await state()).sent.at(-1).path, '/widget/get')
+    assert.equal((await state()).sent.at(-1).item.id, await rowId(0))
+    await back()
   })
   await record(
     'WAMN query rejects duplicate rows and read refusals without replacing records',
@@ -262,6 +272,182 @@ export async function review({ page, record }) {
     },
   )
   await record(
+    'WAMN row actions inspect and edit the exact second record without losing another draft',
+    async () => {
+      await back()
+      const first = await rowId(0)
+      const second = await rowId(1)
+      const sort = page.getByRole('button', { name: /^Sort by Created at$/i })
+      await sort.click()
+      await sort.click()
+      await expect(page.locator('th[data-column=createdAt]')).toHaveAttribute(
+        'aria-sort',
+        'descending',
+      )
+      await page
+        .getByRole('button', { name: 'Move Widget code column', exact: true })
+        .press('Home')
+      await expect(
+        page.locator('[data-row-action=view]').first(),
+      ).toHaveAttribute('data-row-id', second)
+      await (await rowAction('View', 1)).press('Enter')
+      await expect
+        .poll(async () => (await state()).inspectedRecord?.id)
+        .toBe(second)
+      await expect(page.locator('[data-wamn-screen=details]')).toContainText(
+        'Widget 1',
+      )
+      await expect(
+        page.locator(
+          '[data-wamn-screen=details] input, [data-wamn-screen=details] textarea',
+        ),
+      ).toHaveCount(0)
+      assert.equal((await state()).sent.at(-1).item.id, second)
+      const revision = (await state()).rows[1].editVersion
+      await page
+        .getByRole('button', { name: 'Edit record', exact: true })
+        .click()
+      await expect(note()).toHaveValue('Widget 1')
+      await note().fill('Saved second record')
+      await save().click()
+      await phase('success')
+      const sent = (await state()).sent.at(-1)
+      assert.equal(sent.item.id, second)
+      assert.equal(sent.item.expected_edit_version, revision)
+      assert.equal((await state()).rows[1].note, 'Saved second record')
+      assert.equal(
+        (await state()).rows[0].note,
+        'Server can commit a cancelled request',
+      )
+      await note().fill('Second record draft')
+      await back()
+      await (await rowAction('Edit', 0)).click()
+      await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+      assert.equal((await state()).selectedId, second)
+      assert.equal((await state()).values.note, 'Second record draft')
+      await (await rowAction('View', 0)).click()
+      await expect
+        .poll(async () => (await state()).inspectedRecord?.id)
+        .toBe(first)
+      assert.equal((await state()).selectedId, second)
+      assert.equal((await state()).values.note, 'Second record draft')
+      await back()
+      await (await rowAction('Edit', 1)).press('Space')
+      await expect(note()).toHaveValue('Second record draft')
+      await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+      await (await rowAction('Edit', 0)).click()
+      await expect(note()).toHaveValue('Server can commit a cancelled request')
+      await back()
+    },
+  )
+  await record(
+    'WAMN inspection ignores an older response and clears a refused target',
+    async () => {
+      const second = await rowId(1)
+      const settled = (await state()).lifecycle.readsSettled
+      await page.evaluate(() =>
+        window.generatorFixture.fault('/widget/get', 'hold'),
+      )
+      await (await rowAction('View', 0)).click()
+      await back()
+      await (await rowAction('View', 1)).click()
+      await expect
+        .poll(async () => (await state()).inspectedRecord?.id)
+        .toBe(second)
+      await page.evaluate(() => window.generatorFixture.release())
+      await expect
+        .poll(async () => (await state()).lifecycle.readsSettled)
+        .toBe(settled + 2)
+      assert.equal((await state()).inspectedRecord.id, second)
+      await back()
+      await page.evaluate(() =>
+        window.generatorFixture.fault('/widget/get', 'refuse'),
+      )
+      await (await rowAction('View', 0)).click()
+      await expect.poll(async () => (await state()).busy).toBe(false)
+      assert.equal((await state()).inspectedRecord, undefined)
+      await expect(page.locator('[data-wamn-screen=details] dl')).toHaveCount(0)
+      await expect(
+        page.getByRole('button', { name: 'Edit record', exact: true }),
+      ).toBeDisabled()
+      await back()
+    },
+  )
+  await record(
+    'WAMN missing inspection clears busy and mismatched reads never publish',
+    async () => {
+      const first = await rowId(0)
+      const before = await state()
+      await page.evaluate(() =>
+        window.generatorFixture.fault('/widget/get', 'hold'),
+      )
+      await (await rowAction('View', 0)).click()
+      await expect.poll(async () => (await state()).busy).toBe(true)
+      await page.evaluate(() => window.generatorFixture.open('missing'))
+      await expect.poll(async () => (await state()).busy).toBe(false)
+      assert.equal((await state()).inspectedRecord, undefined)
+      await page.evaluate(() => window.generatorFixture.release())
+      await expect
+        .poll(async () => (await state()).lifecycle.readsSettled)
+        .toBe(before.lifecycle.readsSettled + 1)
+      assert.equal((await state()).inspectedRecord, undefined)
+      await back()
+      await page.evaluate(() =>
+        window.generatorFixture.patch(0, {
+          id: '00000000-0000-4000-8000-999999999999',
+        }),
+      )
+      await (await rowAction('View', 0)).click()
+      await expect.poll(async () => (await state()).busy).toBe(false)
+      assert.equal((await state()).inspectedRecord, undefined)
+      await expect(page.locator('[data-wamn-screen=details]')).toContainText(
+        'read returned a different record',
+      )
+      await back()
+      await refresh().click()
+      await expect.poll(async () => (await state()).busy).toBe(false)
+      assert.deepEqual((await state()).rows, before.rows)
+      await page.evaluate(
+        (id) => window.generatorFixture.patch(0, { id }),
+        first,
+      )
+    },
+  )
+  await record(
+    'WAMN pending target guard and late cancellation preserve the next editor',
+    async () => {
+      await back()
+      await (await rowAction('Edit', 0)).click()
+      const before = await state()
+      await page.evaluate(() =>
+        window.generatorFixture.fault('/widget/update', 'hold'),
+      )
+      await save().click()
+      await phase('submitting')
+      await back()
+      await (await rowAction('Edit', 1)).click()
+      await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+      assert.equal((await state()).selectedId, before.selectedId)
+      await (await rowAction('Edit', 0)).click()
+      await expect(
+        page.getByRole('button', { name: 'Cancel', exact: true }),
+      ).toBeFocused()
+      await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+      await (await rowAction('Edit', 1)).click()
+      await expect(note()).toHaveValue('Saved second record')
+      await page.evaluate(() => window.generatorFixture.release())
+      await expect
+        .poll(async () => (await state()).lifecycle.writesSettled)
+        .toBe(before.lifecycle.writesSettled + 1)
+      assert.deepEqual((await state()).rows[0], before.rows[0])
+      assert.equal((await state()).selectedId, await rowId(1))
+      await expect(note()).toHaveValue('Saved second record')
+      await back()
+      await (await rowAction('Edit', 0)).click()
+      await back()
+    },
+  )
+  await record(
     'WAMN adapter stays within narrow viewport and disposes held requests',
     async () => {
       await page.setViewportSize({ width: 390, height: 844 })
@@ -289,6 +475,12 @@ export async function review({ page, record }) {
         .poll(async () => (await state()).lifecycle.writesSettled)
         .toBe(settled + 1)
       assert.equal((await state()).lifecycle.disposals, 1)
+      const disposedStatus = (await state()).status
+      assert.equal(
+        await page.evaluate(() => window.generatorFixture.beginEdit('missing')),
+        false,
+      )
+      assert.equal((await state()).status, disposedStatus)
       assert.equal(
         (await state()).rows[0].note,
         'Server can commit a cancelled request',

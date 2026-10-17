@@ -23,7 +23,10 @@ Buttons and icon actions use outlines.
 Components use Surface 1, and the page uses Surface 2.
 Panels use shadow depth 1.
 The records screen gives the table the full main panel.
-Edit widget opens the existing form on its own screen.
+Each row supplies View and Edit actions.
+Edit opens that record in the existing form on its own screen.
+View opens read-only details through the generated get operation.
+Inspection keeps its target separate from the editing draft.
 Back to records keeps the draft, and Cancel discards it.
 Both screens retain their form and table owners across navigation.
 Short editor screens scroll vertically, and long table values scroll horizontally inside the table.
@@ -35,8 +38,12 @@ Identifier cells stay on one line and use an ellipsis when the user makes a colu
 
 The fixture starts with two deterministic records.
 Refresh runs the generated Widget query binding through the existing mock HTTP transport.
-Open runs the generated Widget get binding.
-Save runs the generated update binding with the current record's exact revision string.
+View runs the generated Widget get binding for that row ID.
+Save runs the generated update binding with the selected record's exact revision string.
+The application blocks a different editing target while a draft is dirty or a save is pending.
+Returning to the same target preserves its draft.
+A new inspection clears the previous details and rejects older or mismatched replies.
+A list refresh that omits the editing target reports an error and retains the previous records.
 The real encoder and decoder process all three operations.
 The existing mock transport supplies replies without a WAMN server.
 The adapter converts refusals to form errors and permits retries.

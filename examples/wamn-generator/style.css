@@ -66,3 +66,38 @@ body,
 .wamn-screen[hidden] {
   display: none;
 }
+
+.wamn-page .record-row-actions {
+  display: flex;
+  gap: var(--ui-gap, 6px);
+  white-space: nowrap;
+}
+.wamn-page :is(th, td)[data-column='actions'] {
+  position: sticky;
+  inset-inline-end: 0;
+  z-index: 0;
+  background: var(--ui-surface);
+  box-shadow: -1px 0 var(--ui-border);
+}
+.wamn-page thead th[data-column='actions'] {
+  z-index: 3;
+}
+.wamn-page .record-details {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  margin: 0;
+}
+.wamn-page .record-details > div {
+  display: grid;
+  grid-template-columns: minmax(0, 10rem) minmax(0, 1fr);
+  gap: var(--ui-gap, 6px);
+}
+.wamn-page .record-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@media (width < 40rem) {
+  .wamn-page .record-details > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

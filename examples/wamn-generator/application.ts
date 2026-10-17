@@ -1,6 +1,7 @@
 import { createSignal, onCleanup } from 'solid-js'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
+import type { NativeColumnDef } from '@wfe/components/table'
 import { newRequestId, refusalSentence } from '../wamn/.input/runtime'
 import { query, update, get } from '../wamn/.input/widget'
 import type {
@@ -28,7 +29,12 @@ export function createApplication(name: string) {
     Readonly<Record<string, WidgetQueryRow>>
   >(Object.fromEntries(initialRows.map((row) => [row.id, row])))
   const firstId = first.id
-  const current = () => rows()[firstId]!
+  const [selectedId, setSelectedId] = createSignal(firstId)
+  const [inspectedId, setInspectedId] = createSignal(firstId)
+  const [inspectedRecord, setInspectedRecord] = createSignal<
+    WidgetQueryRow | undefined
+  >(undefined)
+  const current = () => rows()[selectedId()]!
   const [values, setValues] = createSignal<Values>({
     code: first.code,
     note: first.note ?? '',
@@ -94,51 +100,103 @@ export function createApplication(name: string) {
     },
   })
   const table = createTable<WidgetQueryRow, never>({
-    initialState: { columnOrder: initialProjection.columnOrder },
+    initialState: {
+      columnOrder: initialProjection.columnOrder,
+      columnPinning: { start: [], end: ['actions'] },
+    },
     source: { ids: () => Object.keys(rows()), get: (id) => rows()[id]! },
-    columns: initialMetadata.columns.map((column) => ({
-      id: column.id,
-      accessorFn: (row) => row[column.id as keyof WidgetQueryRow],
-      size:
-        column.type === 'uuid'
-          ? 304
-          : column.type === 'timestamptz'
-            ? 224
-            : column.type === 'int64'
-              ? 176
-              : column.id === 'note'
-                ? 240
-                : 136,
-      minSize: 96,
-      maxSize: column.id === 'note' ? 960 : 640,
-      sortFn:
-        column.type === 'text' || column.type === 'timestamptz'
-          ? (a, b) => String(a ?? '').localeCompare(String(b ?? ''))
-          : undefined,
-    })),
+    columns: [
+      ...initialMetadata.columns.map<NativeColumnDef<WidgetQueryRow, never>>(
+        (column) => ({
+          id: column.id,
+          accessorFn: (row) => row[column.id as keyof WidgetQueryRow],
+          size:
+            column.type === 'uuid'
+              ? 304
+              : column.type === 'timestamptz'
+                ? 224
+                : column.type === 'int64'
+                  ? 176
+                  : column.id === 'note'
+                    ? 240
+                    : 136,
+          minSize: 96,
+          maxSize: column.id === 'note' ? 960 : 640,
+          sortFn:
+            column.type === 'text' || column.type === 'timestamptz'
+              ? (a, b) => String(a ?? '').localeCompare(String(b ?? ''))
+              : undefined,
+        }),
+      ),
+      {
+        id: 'actions',
+        accessorFn: () => undefined,
+        size: 136,
+        minSize: 136,
+        maxSize: 136,
+        enableResizing: false,
+        enableHiding: false,
+        enableGlobalFilter: false,
+      },
+    ],
   })
   function setVariant(name: string) {
     const next = project(metadata(name))
     table.setColumnOrder(next.columnOrder)
     setDescription(next)
   }
-  async function read(kind: 'refresh' | 'open') {
-    if (!alive) return
+  function beginEdit(id: string) {
+    if (!alive) return false
+    if (!Object.hasOwn(rows(), id)) {
+      setStatus('This record is no longer available')
+      return false
+    }
+    if (id === selectedId()) return true
     if (form.dirty || form.pending) {
+      setStatus('Save or cancel the draft before choosing another record')
+      return false
+    }
+    readSequence++
+    setBusy(false)
+    form.cancel()
+    setSelectedId(id)
+    const row = rows()[id]!
+    setValues({ code: row.code, note: row.note ?? '' })
+    setStatus('Record selected for editing')
+    return true
+  }
+  async function read(kind: 'refresh' | 'open', id = selectedId()) {
+    if (!alive) return
+    if (kind === 'refresh' && (form.dirty || form.pending)) {
       setStatus('Save or reset the draft before reading')
       return
     }
     const sequence = ++readSequence
+    if (kind === 'open') {
+      setInspectedId(id)
+      setInspectedRecord(undefined)
+      if (!Object.hasOwn(rows(), id)) {
+        setBusy(false)
+        setStatus('This record is no longer available')
+        return
+      }
+      setStatus('Loading record')
+    }
     setBusy(true)
     try {
       if (kind === 'open') {
-        const outcome = await get(server.transport, [{ id: firstId }])
-        if (alive && sequence === readSequence)
-          setStatus(
-            outcome.status === 'completed'
-              ? `Opened ${outcome.value.id}: ${outcome.value.note ?? ''}`
-              : message(outcome),
-          )
+        const outcome = await get(server.transport, [{ id }])
+        if (!alive || sequence !== readSequence || inspectedId() !== id) return
+        if (outcome.status !== 'completed') {
+          setStatus(message(outcome))
+          return
+        }
+        if (outcome.value.id !== id) {
+          setStatus('WAMN adapter: read returned a different record')
+          return
+        }
+        setInspectedRecord(outcome.value)
+        setStatus(`Opened ${id}`)
       } else {
         const outcome = await query(server.transport, [{ limit: 2 }])
         if (!alive || sequence !== readSequence) return
@@ -150,14 +208,14 @@ export function createApplication(name: string) {
         if (
           fetched.length > 2 ||
           new Set(fetched.map((row) => row.id)).size !== fetched.length ||
-          !fetched.some((row) => row.id === firstId)
+          !fetched.some((row) => row.id === selectedId())
         ) {
           setStatus('WAMN adapter: invalid query identities or page size')
           return
         }
         setRows(Object.fromEntries(fetched.map((row) => [row.id, row])))
-        const first = fetched.find((row) => row.id === firstId)!
-        setValues({ code: first.code, note: first.note ?? '' })
+        const selected = fetched.find((row) => row.id === selectedId())!
+        setValues({ code: selected.code, note: selected.note ?? '' })
         setStatus(
           outcome.value.nextCursor === null
             ? 'Widgets refreshed'
@@ -174,6 +232,10 @@ export function createApplication(name: string) {
   return {
     form,
     table,
+    selectedId,
+    beginEdit,
+    inspectedId,
+    inspectedRecord,
     controlsCollapsed,
     setControlsCollapsed,
     description,
@@ -184,10 +246,13 @@ export function createApplication(name: string) {
     server,
     setVariant,
     refresh: () => read('refresh'),
-    open: () => read('open'),
+    open: (id = selectedId()) => read('open', id),
     snapshot: () => ({
       lifecycle: { ...lifecycle },
       values: values(),
+      selectedId: selectedId(),
+      inspectedId: inspectedId(),
+      inspectedRecord: inspectedRecord(),
       rows: Object.values(rows()),
       phase: form.phase,
       status: status(),

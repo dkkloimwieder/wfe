@@ -19,14 +19,14 @@ export type Metadata = {
   formTitle: string
   refreshLabel: string
 }
-const types: Record<string, string> = {
+const types = {
   code: 'text',
   createdAt: 'timestamptz',
   editVersion: 'int64',
   id: 'uuid',
   makerId: 'uuid',
   note: 'text',
-}
+} as const
 export function project(metadata: Metadata) {
   const fail = (reason: string): never => {
     throw new Error(`WAMN adapter: ${reason}`)
@@ -41,7 +41,10 @@ export function project(metadata: Metadata) {
   )
     fail('columns must contain each supported identity once')
   for (const column of metadata.columns) {
-    if (!Object.hasOwn(types, column.id) || types[column.id] !== column.type)
+    if (
+      !Object.hasOwn(types, column.id) ||
+      types[column.id as keyof typeof types] !== column.type
+    )
       fail(`unsupported column ${column.id}:${column.type}`)
     if (column.revision !== (column.id === 'editVersion'))
       fail(`unsupported revision mapping ${column.id}`)
@@ -86,9 +89,12 @@ export function project(metadata: Metadata) {
   const table = {
     id: 'widget-records',
     title: metadata.title,
-    columns: Object.fromEntries(
-      metadata.columns.map((column) => [column.id, { label: column.label }]),
-    ),
+    columns: {
+      ...(Object.fromEntries(
+        metadata.columns.map((column) => [column.id, { label: column.label }]),
+      ) as Record<keyof typeof types, { label: string }>),
+      actions: { label: 'Actions', renderer: 'row-actions' },
+    },
     controls: { search: false, filtering: false, grouping: false },
   } as const satisfies TableDescription
   const layout = {
@@ -104,8 +110,6 @@ export function project(metadata: Metadata) {
         variant: 'outline',
         tone: 'accent',
       },
-      { id: 'open', label: 'Open widget', variant: 'outline', tone: 'accent' },
-      { id: 'edit', label: 'Edit widget', variant: 'outline', tone: 'accent' },
     ],
   } as const satisfies LayoutDescription<'records'>
   const editorLayout = {
@@ -121,15 +125,43 @@ export function project(metadata: Metadata) {
         variant: 'outline',
         tone: 'accent',
       },
-      ...layout.actions.filter((action) => action.id !== 'edit'),
+      ...layout.actions,
     ],
   } as const satisfies LayoutDescription<'editor'>
+  const detailsLayout = {
+    id: 'widget-details-screen',
+    title: 'Record details',
+    columns: 1,
+    scroll: 'main',
+    panels: [{ id: 'widget-details-panel', view: 'details' }],
+    actions: [
+      {
+        id: 'back',
+        label: 'Back to records',
+        variant: 'outline',
+        tone: 'accent',
+      },
+      {
+        id: 'refreshView',
+        label: 'Refresh record',
+        variant: 'outline',
+        tone: 'accent',
+      },
+      {
+        id: 'editSelected',
+        label: 'Edit record',
+        variant: 'outline',
+        tone: 'accent',
+      },
+    ],
+  } as const satisfies LayoutDescription<'details'>
   return {
     form,
     table,
     layout,
     editorLayout,
+    detailsLayout,
     choices,
-    columnOrder: metadata.columns.map((column) => column.id),
+    columnOrder: [...metadata.columns.map((column) => column.id), 'actions'],
   }
 }

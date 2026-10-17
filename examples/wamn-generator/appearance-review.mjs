@@ -29,7 +29,7 @@ export async function reviewAppearance({ page, record }) {
       }
       await page.mouse.move(0, 0)
       const actions = page.locator(
-        '.ui-dashboard-header:visible .ui-button, .table-controls-toggle',
+        '.ui-dashboard-header:visible .ui-button, .table-controls-toggle, [data-row-action]',
       )
       for (const action of await actions.all()) {
         await expect(action).toHaveAttribute('data-variant', 'outline')
@@ -64,17 +64,22 @@ export async function reviewAppearance({ page, record }) {
         `${start + 10}px`,
       )
       await handle.press('ArrowLeft')
+      await handle.scrollIntoViewIfNeeded()
       const bounds = await handle.boundingBox()
-      await page.mouse.move(
-        bounds.x + bounds.width / 2,
-        bounds.y + bounds.height / 2,
+      // The pinned Actions column covers the right half of the final grip.
+      const resizeX = bounds.x + 2
+      const resizeY = bounds.y + bounds.height / 2
+      assert.ok(
+        await handle.evaluate(
+          (node, point) =>
+            node.contains(document.elementFromPoint(point.x, point.y)),
+          { x: resizeX, y: resizeY },
+        ),
       )
+      await page.mouse.move(resizeX, resizeY)
       await page.mouse.down()
       for (const delta of [10, 20, 30])
-        await page.mouse.move(
-          bounds.x + bounds.width / 2 + delta,
-          bounds.y + bounds.height / 2,
-        )
+        await page.mouse.move(resizeX + delta, resizeY)
       await page.mouse.up()
       await expect(handle).toHaveAttribute('aria-valuenow', String(start + 30))
       await handle.press('ArrowLeft')
@@ -163,9 +168,7 @@ export async function reviewAppearance({ page, record }) {
           ),
           true,
         )
-        await page
-          .getByRole('button', { name: 'Edit widget', exact: true })
-          .click()
+        await page.locator('[data-row-action=edit]').first().click()
         await expect(records).toBeHidden()
         await expect(editor).toBeVisible()
         await note.click({ trial: true })
@@ -177,7 +180,7 @@ export async function reviewAppearance({ page, record }) {
           .click()
         await expect(records).toBeVisible()
         await expect(
-          page.getByRole('button', { name: 'Edit widget', exact: true }),
+          page.locator('[data-row-action=edit]').first(),
         ).toBeFocused()
       }
       await page.setViewportSize({ width: 1280, height: 900 })
