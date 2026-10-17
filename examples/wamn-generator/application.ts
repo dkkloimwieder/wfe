@@ -165,6 +165,14 @@ export function createApplication(name: string) {
     setStatus('Record selected for editing')
     return true
   }
+  function beginInlineEdit(id: string) {
+    if (!alive) return false
+    if (form.dirty || form.pending) {
+      setStatus('Save or cancel the existing draft before inline editing')
+      return false
+    }
+    return beginEdit(id)
+  }
   async function read(kind: 'refresh' | 'open', id = selectedId()) {
     if (!alive) return
     if (kind === 'refresh' && (form.dirty || form.pending)) {
@@ -234,6 +242,7 @@ export function createApplication(name: string) {
     table,
     selectedId,
     beginEdit,
+    beginInlineEdit,
     inspectedId,
     inspectedRecord,
     controlsCollapsed,

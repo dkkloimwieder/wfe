@@ -93,6 +93,10 @@ export function project(metadata: Metadata) {
       ...(Object.fromEntries(
         metadata.columns.map((column) => [column.id, { label: column.label }]),
       ) as Record<keyof typeof types, { label: string }>),
+      code: {
+        label: metadata.columns.find((column) => column.id === 'code')!.label,
+        renderer: 'inline-code',
+      },
       actions: { label: 'Actions', renderer: 'row-actions' },
     },
     controls: { search: false, filtering: false, grouping: false },

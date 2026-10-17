@@ -24,6 +24,13 @@ Components use Surface 1, and the page uses Surface 2.
 Panels use shadow depth 1.
 The records screen gives the table the full main panel.
 Each row supplies View and Edit actions.
+The code cell also opens an inline editor with the shared select, Save, and Cancel.
+It reuses the same application form and update callback as the separate editor.
+Changing the select does not send a request.
+Escape or Cancel discards the inline draft.
+The cell shows pending state and errors supplied by the application form.
+A dirty or pending full-form draft blocks inline takeover.
+Shared packages contain no transport, permission, revision, or retry rules.
 Edit opens that record in the existing form on its own screen.
 View opens read-only details through the generated get operation.
 Inspection keeps its target separate from the editing draft.

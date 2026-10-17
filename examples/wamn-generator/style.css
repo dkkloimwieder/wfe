@@ -101,3 +101,20 @@ body,
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.wamn-page .inline-code-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+.wamn-page .inline-code-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}
+.wamn-page .inline-code-editor p {
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

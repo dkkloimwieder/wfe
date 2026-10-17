@@ -1,3 +1,4 @@
+import { reviewInline } from './inline-review.mjs'
 import { reviewAppearance } from './appearance-review.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
@@ -655,6 +656,7 @@ export async function review({ page, record }) {
       await back()
     },
   )
+  await reviewInline({ page, record })
   await record(
     'WAMN adapter stays within narrow viewport and disposes held requests',
     async () => {

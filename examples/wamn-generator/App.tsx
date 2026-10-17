@@ -1,5 +1,12 @@
-import { createSignal, onCleanup, onSettled, For, Show } from 'solid-js'
-import { Button, uiScope } from '@wfe/components'
+import {
+  createSignal,
+  onCleanup,
+  onSettled,
+  createUniqueId,
+  For,
+  Show,
+} from 'solid-js'
+import { Button, SelectField, uiScope } from '@wfe/components'
 import {
   accents,
   appearanceStyle,
@@ -7,6 +14,7 @@ import {
 } from '../shared/appearance/appearance'
 import { FormView, TableView, LayoutView } from '@wfe/generator'
 import type { CustomCellProps } from '@wfe/generator'
+import { nativeEvents } from '@wfe/components/events'
 import { TableColumnResize } from '@wfe/components/table'
 import type { NativeColumn } from '@wfe/components/table'
 import type { WidgetQueryRow } from '../wamn/.input/widget'
@@ -33,6 +41,8 @@ export function App(props: {
   let detailsScreen!: HTMLDivElement
   let returnFocus: HTMLButtonElement | undefined
   const [navigationError, setNavigationError] = createSignal('')
+  const [inlineId, setInlineId] = createSignal<string | undefined>(undefined)
+  let inlineAttempt = 0
   let position = 0
   let historyScope = ''
   let restoringTo: number | undefined
@@ -41,6 +51,10 @@ export function App(props: {
     alive = false
   })
   function showScreen(next: Screen) {
+    if (next === 'editor') {
+      inlineAttempt++
+      setInlineId(undefined)
+    }
     const focused = document.activeElement
     if (
       focused instanceof HTMLElement &&
@@ -190,6 +204,110 @@ export function App(props: {
       </Button>
     </div>
   )
+  function focusCode(id: string, editing: boolean) {
+    queueMicrotask(() => {
+      if (!alive || screen() !== 'records') return
+      if (editing ? inlineId() !== id : inlineId() !== undefined) return
+      const cell = [
+        ...recordsScreen.querySelectorAll<HTMLElement>('[data-code-cell]'),
+      ].find((node) => node.dataset.codeCell === id)
+      cell
+        ?.querySelector<HTMLElement>(
+          editing ? '[aria-haspopup=listbox]' : '[data-inline-code]',
+        )
+        ?.focus({ preventScroll: true })
+    })
+  }
+  function cancelInline(id: string) {
+    if (!alive || inlineId() !== id) return
+    inlineAttempt++
+    app.form.reset()
+    setInlineId(undefined)
+    focusCode(id, false)
+  }
+  async function saveInline(id: string) {
+    if (!alive || inlineId() !== id) return
+    const attempt = inlineAttempt
+    const result = await app.form.submit()
+    if (!alive || attempt !== inlineAttempt || inlineId() !== id) return
+    if (result.status === 'success') {
+      setInlineId(undefined)
+      focusCode(id, false)
+    }
+  }
+  const InlineCode = (cell: CustomCellProps<WidgetQueryRow, never>) => {
+    const errorId = `inline-code-${createUniqueId()}`
+    const error = () =>
+      app.form.errors.fields?.code ??
+      app.form.errors.form ??
+      (app.form.phase === 'error' ? 'The form action failed.' : undefined)
+    return (
+      <div data-code-cell={cell.row.id}>
+        <Show
+          when={inlineId() === cell.row.id}
+          fallback={
+            <Button
+              data-inline-code={cell.row.id}
+              data-ui-text="value"
+              aria-label={`Edit ${columnLabel('code')} for ${cell.row.id}`}
+              onClick={() => {
+                if (!alive || !app.beginInlineEdit(cell.row.id)) return
+                inlineAttempt++
+                setInlineId(cell.row.id)
+                focusCode(cell.row.id, true)
+              }}
+            >
+              {String(cell.value ?? '')}
+            </Button>
+          }
+        >
+          <div
+            class="inline-code-editor"
+            data-inline-editor={cell.row.id}
+            role="group"
+            aria-label={`Edit ${columnLabel('code')} for ${cell.row.id}`}
+            aria-busy={app.form.pending ? 'true' : 'false'}
+            ref={nativeEvents<HTMLDivElement>({
+              keydown: (event) => {
+                if (event.key !== 'Escape' || event.defaultPrevented) return
+                if (event.currentTarget.querySelector('[aria-expanded=true]'))
+                  return
+                event.preventDefault()
+                cancelInline(cell.row.id)
+              },
+            })}
+          >
+            <SelectField
+              label={`${columnLabel('code')} for ${cell.row.id}`}
+              choices={app.description().choices}
+              value={app.form.values.code}
+              onValueChange={(value) =>
+                app.form.setValue('code', value as 'priority' | 'standard')
+              }
+              disabled={app.form.pending}
+              invalid={Boolean(app.form.errors.fields?.code)}
+              aria-describedby={error() ? errorId : undefined}
+              data-ui-text="value"
+            />
+            <div class="inline-code-actions">
+              <Button
+                disabled={app.form.pending}
+                onClick={() => void saveInline(cell.row.id)}
+              >
+                Save
+              </Button>
+              <Button onClick={() => cancelInline(cell.row.id)}>Cancel</Button>
+            </div>
+            <Show when={error()}>
+              <p id={errorId} role="alert">
+                {error()}
+              </p>
+            </Show>
+          </div>
+        </Show>
+      </div>
+    )
+  }
   const Editor = () => (
     <>
       <div role="status">{app.status()}</div>
@@ -238,7 +356,7 @@ export function App(props: {
         description={app.description().table}
         bindings={{
           table: app.table,
-          cells: { 'row-actions': RowActions },
+          cells: { 'row-actions': RowActions, 'inline-code': InlineCode },
           width: app.table
             .getVisibleColumns()
             .reduce((sum, column) => sum + column.getSize(), 0),
