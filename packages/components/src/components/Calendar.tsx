@@ -59,12 +59,14 @@ export function Calendar(props: CalendarProps) {
   }
   const formatter = () =>
     new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+      calendar: 'gregory',
       month: 'long',
       year: 'numeric',
       timeZone: 'UTC',
     })
   const label = (day: Date) =>
     new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+      calendar: 'gregory',
       dateStyle: 'full',
       timeZone: 'UTC',
     }).format(day)
@@ -241,6 +243,7 @@ export function Calendar(props: CalendarProps) {
                     }}
                   >
                     {new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+                      calendar: 'gregory',
                       month: 'long',
                       timeZone: 'UTC',
                     }).format(utcDate(2024, index, 1))}
@@ -263,6 +266,7 @@ export function Calendar(props: CalendarProps) {
                 {(index) => (
                   <th scope="col">
                     {new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+                      calendar: 'gregory',
                       weekday: 'short',
                       timeZone: 'UTC',
                     }).format(utcDate(2024, 0, 7 + ((start() + index) % 7)))}

@@ -1,8 +1,24 @@
 import { Icon } from './Icon'
-import { createEffect, createSignal, createUniqueId, untrack } from 'solid-js'
+import {
+  createEffect,
+  createSignal,
+  createMemo,
+  onCleanup,
+  createUniqueId,
+  untrack,
+  useContext,
+  Show,
+} from 'solid-js'
 import { Calendar } from './Calendar'
 import { Popover } from './Popover'
 import { Button, Input } from './NativeFields'
+import { FieldContext } from '../internal/fieldContext'
+import {
+  dateInputPattern,
+  formatDateInput,
+  parseDateInput,
+} from '../utils/dateFormat'
+import type { DateInputFormat } from '../utils/dateFormat'
 import { parseDate } from '../utils/date'
 import type { CalendarProps } from './Calendar'
 
@@ -17,33 +33,67 @@ export type DatePickerProps = Pick<
   | 'initialMonth'
 > & {
   label: string
+  id?: string
+  name?: string
+  onValidityChange?: (valid: boolean) => void
+  dateFormat?: DateInputFormat
+  readonly?: boolean
+  required?: boolean
+  invalid?: boolean
+  'aria-describedby'?: string
   clearLabel?: string
   disabled?: boolean
   onValueChange: (value: string | undefined) => void
 }
 
 export function DatePicker(props: DatePickerProps) {
-  const id = createUniqueId()
+  const field = useContext(FieldContext)
+  const generated = createUniqueId()
+  const id = () => props.id ?? field?.baseControlId() ?? generated
+  const disabled = () => props.disabled ?? field?.disabled()
+  const readonly = () => props.readonly ?? field?.readonly()
+  const display = () =>
+    formatDateInput(props.value, props.dateFormat, props.locale)
+  const pattern = () => dateInputPattern(props.dateFormat, props.locale)
   const errorId = createUniqueId()
-  const [draft, setDraft] = createSignal(untrack(() => props.value ?? ''))
-  const [invalid, setInvalid] = createSignal(false)
+  const [draft, setDraft] = createSignal(untrack(display))
+  const invalid = createMemo(() => {
+    if (!draft().trim()) return false
+    const parsed = parseDateInput(draft(), props.dateFormat, props.locale)
+    return !parsed || !accepted(parsed)
+  })
   const [open, setOpen] = createSignal(false)
   const [initialMonth, setInitialMonth] = createSignal(
     untrack(() => props.value ?? props.initialMonth ?? '1970-01-01'),
   )
-  let input!: HTMLInputElement
+  let input: HTMLInputElement | undefined
+  let alive = true
+  onCleanup(() => {
+    alive = false
+  })
   let calendar: HTMLDivElement | undefined
   createEffect(
-    () => props.value,
-    (value) => {
-      setDraft(value ?? '')
-      setInvalid(false)
+    () => [display(), props.dateFormat, props.locale] as const,
+    ([value]) => {
+      setDraft(value)
     },
   )
   createEffect(
-    () => props.disabled,
-    (disabled) => {
-      if (disabled) setOpen(false)
+    () => ({
+      message: invalid()
+        ? `Enter an available date as ${pattern().replace(/yyyy|dd/g, (token) => token.toUpperCase())}.`
+        : '',
+      valid: Boolean(disabled() || readonly() || !invalid()),
+    }),
+    ({ message, valid }) => {
+      input?.setCustomValidity(message)
+      untrack(() => props.onValidityChange?.(valid))
+    },
+  )
+  createEffect(
+    () => Boolean(disabled() || readonly()),
+    (locked) => {
+      if (locked) setOpen(false)
     },
   )
   function accepted(value: string) {
@@ -55,19 +105,22 @@ export function DatePicker(props: DatePickerProps) {
     )
   }
   function change(value: string) {
-    if (props.disabled) return
+    if (disabled() || readonly()) return
     setDraft(value)
-    const valid = !value || accepted(value)
-    setInvalid(!valid)
-    if (valid) props.onValueChange(value || undefined)
+    const parsed = parseDateInput(value, props.dateFormat, props.locale)
+    const empty = !value.trim()
+    const valid = empty || Boolean(parsed && accepted(parsed))
+    if (valid) props.onValueChange(empty ? undefined : parsed)
   }
   return (
-    <div class="table-filter ui-date-picker" data-ui="">
-      <label for={id}>{props.label}</label>
+    <div class="ui-date-picker" data-ui="">
+      <Show when={!field}>
+        <label for={id()}>{props.label}</label>
+      </Show>
       <Popover
         open={open()}
         onOpenChange={(value) => {
-          if (props.disabled) return
+          if (disabled() || readonly()) return
           if (value)
             setInitialMonth(
               props.value ??
@@ -79,33 +132,41 @@ export function DatePicker(props: DatePickerProps) {
       >
         <div class="filter-input">
           <Input
-            id={id}
+            id={id()}
             type="text"
+            data-date-invalid={invalid() ? '' : undefined}
             value={draft()}
-            placeholder="YYYY-MM-DD"
-            aria-invalid={invalid() ? 'true' : undefined}
-            aria-describedby={invalid() ? errorId : undefined}
-            disabled={props.disabled}
+            placeholder={pattern().replace(/yyyy|dd/g, (token) =>
+              token.toUpperCase(),
+            )}
+            invalid={invalid() || (props.invalid ?? field?.invalid())}
+            aria-describedby={
+              [props['aria-describedby'], invalid() ? errorId : undefined]
+                .filter(Boolean)
+                .join(' ') || undefined
+            }
+            disabled={disabled()}
+            readonly={readonly()}
+            required={props.required}
             ref={(node) => {
               input = node
             }}
             onValueChange={change}
             onBlur={() => {
-              if (!invalid()) setDraft(props.value ?? '')
+              if (!invalid()) setDraft(display())
             }}
             onKeyDown={(event) => {
               if (event.isComposing) return
               if (event.key === 'Escape' && !open()) {
                 event.preventDefault()
                 event.stopPropagation()
-                setDraft(props.value ?? '')
-                setInvalid(false)
+                setDraft(display())
               }
             }}
           />
           <Popover.Trigger
             type="button"
-            disabled={props.disabled}
+            disabled={disabled() || readonly()}
             class="ui-date-trigger"
             aria-label={`Open ${props.label} calendar`}
           >
@@ -115,10 +176,10 @@ export function DatePicker(props: DatePickerProps) {
             type="button"
             class="clear-input"
             aria-label={props.clearLabel ?? `Clear ${props.label}`}
-            disabled={props.disabled || (!draft() && !props.value)}
+            disabled={disabled() || readonly() || (!draft() && !props.value)}
             onClick={() => {
-              if (props.disabled) return
-              input.focus({ preventScroll: true })
+              if (disabled() || readonly()) return
+              input?.focus({ preventScroll: true })
               change('')
             }}
           >
@@ -130,13 +191,14 @@ export function DatePicker(props: DatePickerProps) {
             class="ui-date-popup"
             onOpenAutoFocus={(event) => {
               event.preventDefault()
-              queueMicrotask(() =>
-                (
+              queueMicrotask(() => {
+                if (!alive || !open() || disabled() || readonly()) return
+                const target =
                   calendar?.querySelector<HTMLButtonElement>(
                     '[tabindex="0"]',
                   ) ?? calendar
-                )?.focus(),
-              )
+                if (target?.isConnected) target.focus()
+              })
             }}
           >
             <Popover.Title class="sr-only">
@@ -147,7 +209,7 @@ export function DatePicker(props: DatePickerProps) {
               initialMonth={initialMonth()}
               min={props.min}
               max={props.max}
-              disabled={props.disabled}
+              disabled={disabled()}
               isDateDisabled={props.isDateDisabled}
               locale={props.locale}
               startOfWeek={props.startOfWeek}
@@ -155,17 +217,27 @@ export function DatePicker(props: DatePickerProps) {
                 calendar = node
               }}
               onValueChange={(value) => {
-                if (props.disabled) return
-                change(value)
-                setDraft(props.value ?? '')
+                if (disabled() || readonly()) return
+                if (!accepted(value)) return
+                props.onValueChange(value)
+                setDraft(display())
                 setOpen(false)
               }}
             />
           </Popover.Content>
         </Popover.Portal>
       </Popover>
+      <Show when={props.name}>
+        <input
+          type="hidden"
+          name={props.name}
+          value={props.value ?? ''}
+          disabled={disabled()}
+        />
+      </Show>
       <span id={errorId} class="ui-field-error" hidden={!invalid()}>
-        Enter an available date as YYYY-MM-DD.
+        Enter an available date as{' '}
+        {pattern().replace(/yyyy|dd/g, (token) => token.toUpperCase())}.
       </span>
     </div>
   )

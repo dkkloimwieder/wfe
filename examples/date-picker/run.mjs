@@ -216,6 +216,94 @@ try {
     await trigger.click()
     await expect(day('2024-02-29')).toHaveAttribute('data-selected', '')
   })
+  await test('Configured date formats and locales preserve canonical values', async () => {
+    await set({ dateFormat: 'dd/MM/yyyy' })
+    await expect(input).toHaveValue('29/02/2024')
+    await input.fill('17/10/2026')
+    assert.equal((await state()).value, '2026-10-17')
+    const count = (await state()).changes
+    await set({ dateFormat: 'locale', locale: 'en-US' })
+    await expect(input).toHaveValue('10/17/2026')
+    assert.equal((await state()).changes, count)
+    await trigger.click()
+    await day('2026-10-18').click()
+    await expect(input).toHaveValue('10/18/2026')
+    assert.equal((await state()).value, '2026-10-18')
+    await set({ accept: false, dateFormat: 'dd.MM.yyyy' })
+    await input.fill('19.10.2026')
+    assert.equal((await state()).value, '2026-10-18')
+    await input.blur()
+    await expect(input).toHaveValue('18.10.2026')
+  })
+  await test('Shared field identity, descriptions and readonly state remain consistent', async () => {
+    await set({ required: true, invalid: true })
+    await expect(input).toHaveAttribute('id', 'review-date')
+    await expect(input).not.toHaveAttribute('name')
+    assert.equal(
+      await page
+        .locator('form')
+        .evaluate((form) => new FormData(form).get('reviewDate')),
+      '2024-02-29',
+    )
+    await expect(input).toHaveAttribute('required', '')
+    await expect(input).toHaveAttribute('aria-invalid', 'true')
+    await expect(input).toHaveAccessibleDescription(
+      'Date entry help Application date validation',
+    )
+    await set({ invalidOverride: false })
+    await expect(input).not.toHaveAttribute('aria-invalid', 'true')
+    await input.fill('2024-02-30')
+    await expect(input).toHaveAttribute('aria-invalid', 'true')
+    await input.press('Escape')
+    await expect(input).not.toHaveAttribute('aria-invalid', 'true')
+    await trigger.click()
+    await set({ readonly: true })
+    await expect(page.locator('.ui-date-popup')).toHaveCount(0)
+    await expect(input).toHaveAttribute('readonly', '')
+    await expect(trigger).toBeDisabled()
+    await expect(clear).toBeDisabled()
+    const before = await state()
+    await input.evaluate((node) => {
+      node.value = '2026-01-01'
+      node.dispatchEvent(new Event('input', { bubbles: true }))
+    })
+    assert.equal((await state()).changes, before.changes)
+    await set({ readonly: false, invalid: false })
+    await expect(input).not.toHaveAttribute('readonly')
+    await expect(input).not.toHaveAttribute('aria-invalid', 'true')
+  })
+  await test('Named forms submit only accepted ISO dates and intrinsic validity blocks drafts', async () => {
+    await set({ dateFormat: 'dd/MM/yyyy' })
+    const form = page.locator('form')
+    assert.deepEqual(await form.evaluate((node) => [...new FormData(node)]), [
+      ['reviewDate', '2024-02-29'],
+    ])
+    await input.fill('30/02/2024')
+    assert.equal((await state()).intrinsicValid, false)
+    assert.equal(await input.evaluate((node) => node.checkValidity()), false)
+    await form.evaluate((node) => node.requestSubmit())
+    assert.equal((await state()).submits, 0)
+    await input.press('Escape')
+    assert.equal((await state()).intrinsicValid, true)
+    await set({ min: '2025-01-01' })
+    await expect(input).toHaveAttribute('aria-invalid', 'true')
+    assert.equal((await state()).intrinsicValid, false)
+    await set({ disabled: true })
+    assert.equal((await state()).intrinsicValid, true)
+    assert.deepEqual(await form.evaluate((node) => [...new FormData(node)]), [])
+    await set({ disabled: false, min: undefined, readonly: true })
+    assert.deepEqual(await form.evaluate((node) => [...new FormData(node)]), [
+      ['reviewDate', '2024-02-29'],
+    ])
+  })
+  await test('Locale calendar extensions retain Gregorian date semantics', async () => {
+    await set({ locale: 'en-US-u-ca-buddhist', dateFormat: 'locale' })
+    await expect(input).toHaveValue('02/29/2024')
+    await trigger.click()
+    await expect(page.getByRole('grid')).toHaveAccessibleName('February 2024')
+    await day('2024-03-01').click()
+    assert.equal((await state()).value, '2024-03-01')
+  })
   await test('Disposal removes the open popup and detached field listeners', async () => {
     await trigger.click()
     await page.evaluate(() => {

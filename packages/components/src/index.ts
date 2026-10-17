@@ -59,3 +59,5 @@ export { ValueDisplay } from './components/ValueDisplay'
 export type { ValueDisplayProps } from './components/ValueDisplay'
 export { formatDisplayValue } from './utils/valueFormat'
 export type { ValueFormat } from './utils/valueFormat'
+
+export type { DateInputFormat } from './utils/dateFormat'
