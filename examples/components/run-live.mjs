@@ -1,3 +1,4 @@
+import { reviewImportedCssUpdates } from '../shared/controls/css-hot-update-review.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { mkdir, writeFile } from 'node:fs/promises'
@@ -126,6 +127,9 @@ const server = await createServer({
   server: { host: '127.0.0.1', port: 0, strictPort: true },
 })
 let browser
+const cleanupErrors = []
+let primaryFailure
+let failed = false
 try {
   await server.listen()
   const url = `http://127.0.0.1:${server.httpServer.address().port}/`
@@ -200,6 +204,7 @@ try {
   report.cases.push(
     'Hot updates preserve compound parts, form draft and confirmation interaction',
   )
+  await reviewImportedCssUpdates({ page, browser, server, url, output, report })
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
   await browser.close()
@@ -227,11 +232,30 @@ try {
     'Full popup interactions pass against the Vite development server',
   )
 } catch (error) {
-  report.failure = error.stack
-  throw error
+  primaryFailure = error
+  failed = true
+  report.failure = error?.stack ?? String(error)
 } finally {
-  await browser?.close()
-  await server.close()
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
+  for (const close of [() => browser?.close(), () => server.close()]) {
+    try {
+      await close()
+    } catch (error) {
+      cleanupErrors.push(error)
+    }
+  }
+  report.cleanupErrors = cleanupErrors.map(
+    (error) => error?.stack ?? String(error),
+  )
+  try {
+    await mkdir(dirname(output), { recursive: true })
+    await writeFile(output, JSON.stringify(report, null, 2) + '\n')
+  } catch (error) {
+    cleanupErrors.push(error)
+  }
 }
+if (cleanupErrors.length)
+  throw new AggregateError(
+    failed ? [primaryFailure, ...cleanupErrors] : cleanupErrors,
+    'Live review cleanup failed',
+  )
+if (failed) throw primaryFailure

@@ -182,15 +182,19 @@ The editing example imports shared Table presentation rather than a second rende
 Solid and Solid Primitives remain external imports.
 Package source contains no application request or persistence implementation.
 
-## P2: long-running previews need stylesheet update coverage
+## Fixed: live previews test real stylesheet saves
 
-Issue: `wfe-w2y.24`.
+Resolved in `wfe-w2y.24`.
 
 A running preview retained old imported CSS after the source changed.
 Fresh servers supplied the current stylesheet, and the provenance endpoint detected the stale compilation.
-Live tests currently reload component modules but do not edit an imported stylesheet.
-The follow-up covers real atomic and in-place saves, retained drafts and nodes, and matching computed styles and provenance.
-The cause of the stale compilation remains unproved.
+Live tests now edit an imported stylesheet through real atomic and in-place saves.
+Existing pages and fresh browser sessions must show each new value without a restart or document reload.
+The tests retain control nodes and drafts and compare computed styles with stylesheet provenance.
+Direct CSS requests run after the save phases to avoid changing watched dependencies during the test.
+A temporary editor restores exact source bytes on success, failure, and interruption and preserves unexpected concurrent edits.
+Reports retain original backups, watcher events, and module details after failures.
+The current tests do not reproduce the earlier stale compilation, so this change adds coverage without a speculative runtime repair.
 
 ## P2: choice metadata needs shared presentation
 
@@ -211,6 +215,7 @@ Use the shared interaction matrix to prevent new divergence.
 Repeated icons and current ownership documentation now use the shared implementation.
 
 The original control, style, icon, and ownership documentation repairs are complete.
-Additional metadata presentation and stylesheet update coverage remain in `wfe-w2y.25` and `wfe-w2y.24`.
+Metadata presentation remains in `wfe-w2y.25`.
+Live stylesheet saves now have regression coverage in `wfe-w2y.24`.
 Optional WAMN row presentation remains separate work in `wfe-w2y.18`.
 Cross-browser appearance remains an additional qualification task.
