@@ -166,6 +166,7 @@ overrides:
   rolldown: 1.2.8
 
 patchedDependencies:
+  '@solid-primitives/interaction@1.0.0-next.4': 6f8e4edec2e9cd7b520e60ae1cc3c85cc5be6fa1c20631a20f9a6c024348572b
   '@solid-primitives/scroll@3.0.0-next.4': d4b3cb7094f90fee487211aa6c0688917c3c19c6783630f8838e11dddc786343
 
 importers:
@@ -267,7 +268,7 @@ importers:
         version: 3.0.0-next.4(@solidjs/web@2.0.0-rc.14(solid-js@2.0.0-rc.14))(solid-js@2.0.0-rc.14)
       '@solid-primitives/interaction':
         specifier: 1.0.0-next.4
-        version: 1.0.0-next.4(@solidjs/web@2.0.0-rc.14(solid-js@2.0.0-rc.14))(solid-js@2.0.0-rc.14)
+        version: 1.0.0-next.4(patch_hash=6f8e4edec2e9cd7b520e60ae1cc3c85cc5be6fa1c20631a20f9a6c024348572b)(@solidjs/web@2.0.0-rc.14(solid-js@2.0.0-rc.14))(solid-js@2.0.0-rc.14)
       '@solid-primitives/keyboard':
         specifier: 2.0.0-next.5
         version: 2.0.0-next.5(@solidjs/web@2.0.0-rc.14(solid-js@2.0.0-rc.14))(solid-js@2.0.0-rc.14)
@@ -2399,7 +2400,7 @@ snapshots:
       '@solidjs/web': 2.0.0-rc.14(solid-js@2.0.0-rc.14)
       solid-js: 2.0.0-rc.14
 
-  '@solid-primitives/interaction@1.0.0-next.4(@solidjs/web@2.0.0-rc.14(solid-js@2.0.0-rc.14))(solid-js@2.0.0-rc.14)':
+  '@solid-primitives/interaction@1.0.0-next.4(patch_hash=6f8e4edec2e9cd7b520e60ae1cc3c85cc5be6fa1c20631a20f9a6c024348572b)(@solidjs/web@2.0.0-rc.14(solid-js@2.0.0-rc.14))(solid-js@2.0.0-rc.14)':
     dependencies:
       '@solid-primitives/utils': 7.0.0-next.4(@solidjs/web@2.0.0-rc.14(solid-js@2.0.0-rc.14))(solid-js@2.0.0-rc.14)
       '@solidjs/web': 2.0.0-rc.14(solid-js@2.0.0-rc.14)

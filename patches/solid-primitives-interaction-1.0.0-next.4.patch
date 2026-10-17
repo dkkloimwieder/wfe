@@ -1,0 +1,7 @@
+diff --git a/dist/index.js b/dist/index.js
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -256,0 +257 @@
++	ownerDoc.addEventListener("focusin", onFocusIn, true);
+@@ -260 +260,0 @@
+-		ownerDoc.addEventListener("focusin", onFocusIn, true);
