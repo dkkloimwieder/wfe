@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, For, Show } from 'solid-js'
+import { createSignal, onCleanup, onSettled, For, Show } from 'solid-js'
 import { Button, uiScope } from '@wfe/components'
 import {
   accents,
@@ -13,6 +13,8 @@ import type { WidgetQueryRow } from '../wamn/.input/widget'
 import { createApplication } from './application'
 
 type Screen = 'records' | 'editor' | 'details'
+type Route =
+  { screen: 'records' } | { screen: 'editor' | 'details'; id: string }
 export function App(props: {
   name: string
   ready?: (application: ReturnType<typeof createApplication>) => void
@@ -30,11 +32,15 @@ export function App(props: {
   let editorScreen!: HTMLDivElement
   let detailsScreen!: HTMLDivElement
   let returnFocus: HTMLButtonElement | undefined
+  const [navigationError, setNavigationError] = createSignal('')
+  let position = 0
+  let historyScope = ''
+  let restoringTo: number | undefined
   let alive = true
   onCleanup(() => {
     alive = false
   })
-  function navigate(next: Screen) {
+  function showScreen(next: Screen) {
     const focused = document.activeElement
     if (
       focused instanceof HTMLElement &&
@@ -59,15 +65,102 @@ export function App(props: {
       if (target?.isConnected) target.focus({ preventScroll: true })
     })
   }
+  function readPosition() {
+    const entry = window.history.state?.wamnNavigation
+    return entry?.scope === historyScope && Number.isSafeInteger(entry.position)
+      ? (entry.position as number)
+      : 0
+  }
+  function readRoute(): Route | undefined {
+    const params = new URL(window.location.href).searchParams
+    const next = params.get('screen')
+    const id = params.get('record')
+    if (next === null && id === null) return { screen: 'records' }
+    if (
+      (next === 'editor' || next === 'details') &&
+      id !== null &&
+      Object.hasOwn(app.rows(), id)
+    )
+      return { screen: next, id }
+    return undefined
+  }
+  function applyRoute(route: Route | undefined) {
+    if (!route) {
+      setNavigationError('The record URL does not match an available record')
+      return false
+    }
+    if (route.screen === 'editor' && !app.beginEdit(route.id)) return false
+    if (route.screen === 'details') void app.open(route.id)
+    setNavigationError('')
+    showScreen(route.screen)
+    return true
+  }
+  function navigate(route: Route) {
+    const next = route.screen
+    if (!alive || restoringTo !== undefined) return
+    const url = new URL(window.location.href)
+    if (route.screen === 'records') {
+      url.searchParams.delete('screen')
+      url.searchParams.delete('record')
+    } else {
+      url.searchParams.set('screen', next)
+      url.searchParams.set('record', route.id)
+    }
+    if (url.href !== window.location.href) {
+      window.history.pushState(
+        {
+          ...window.history.state,
+          wamnNavigation: { scope: historyScope, position: position + 1 },
+        },
+        '',
+        url,
+      )
+      position++
+    }
+    setNavigationError('')
+    showScreen(next)
+  }
+  onSettled(() => {
+    const url = new URL(window.location.href)
+    historyScope = `${url.pathname}?app=${url.searchParams.get('app') ?? 'original'}`
+    // The initial untagged table entry is position zero. A new branch reuses
+    // current position + 1 because pushState removes forward entries.
+    position = readPosition()
+    if (url.searchParams.has('screen') || url.searchParams.has('record'))
+      applyRoute(readRoute())
+    const pop = () => {
+      if (!alive) return
+      const target = readPosition()
+      if (restoringTo !== undefined) {
+        if (target !== restoringTo) {
+          window.history.go(restoringTo - target)
+          return
+        }
+        restoringTo = undefined
+        return
+      }
+      if (!applyRoute(readRoute())) {
+        if (position !== target) {
+          restoringTo = position
+          window.history.go(position - target)
+        }
+        return
+      }
+      position = target
+    }
+    window.addEventListener('popstate', pop)
+    return () => window.removeEventListener('popstate', pop)
+  })
   function edit(id: string, trigger?: HTMLButtonElement) {
-    if (!app.beginEdit(id)) return
+    if (!alive || restoringTo !== undefined || !app.beginEdit(id)) return
     if (trigger) returnFocus = trigger
-    navigate('editor')
+    navigate({ screen: 'editor', id })
   }
   function view(id: string, trigger: HTMLButtonElement) {
+    if (!alive || restoringTo !== undefined) return
     returnFocus = trigger
     void app.open(id)
-    navigate('details')
+    navigate({ screen: 'details', id })
   }
   const reads = {
     refresh: {
@@ -112,7 +205,7 @@ export function App(props: {
             cancel: {
               run: () => {
                 app.form.reset()
-                navigate('records')
+                navigate({ screen: 'records' })
               },
             },
           },
@@ -137,6 +230,9 @@ export function App(props: {
     )
   const Records = () => (
     <>
+      <Show when={navigationError()}>
+        <p role="alert">{navigationError()}</p>
+      </Show>
       <div role="status">{app.status()}</div>
       <TableView
         description={app.description().table}
@@ -217,7 +313,10 @@ export function App(props: {
           description={app.description().editorLayout}
           bindings={{
             views: { editor: Editor },
-            actions: { ...reads, back: { run: () => navigate('records') } },
+            actions: {
+              ...reads,
+              back: { run: () => navigate({ screen: 'records' }) },
+            },
           }}
         />
       </div>
@@ -235,7 +334,7 @@ export function App(props: {
           bindings={{
             views: { details: Details },
             actions: {
-              back: { run: () => navigate('records') },
+              back: { run: () => navigate({ screen: 'records' }) },
               refreshView: {
                 run: () => {
                   void app.open(app.inspectedId())

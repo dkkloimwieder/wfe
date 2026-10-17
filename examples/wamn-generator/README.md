@@ -28,7 +28,11 @@ Edit opens that record in the existing form on its own screen.
 View opens read-only details through the generated get operation.
 Inspection keeps its target separate from the editing draft.
 Back to records keeps the draft, and Cancel discards it.
-Both screens retain their form and table owners across navigation.
+The screens retain their form and table owners across navigation.
+Navigation pushes URL entries without replacing browser history.
+Browser Back and Forward restore the screen and record identity.
+A different editing target remains blocked while a draft is dirty or a save is pending.
+Invalid direct record links show the table with an error.
 Short editor screens scroll vertically, and long table values scroll horizontally inside the table.
 
 Initial column widths follow field types and the approved compact typography.

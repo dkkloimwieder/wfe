@@ -55,6 +55,214 @@ export async function review({ page, record }) {
   const save = () =>
     page.getByRole('button', { name: 'Save widget', exact: true })
   await record(
+    'WAMN direct record links load the target and invalid links keep the table',
+    async () => {
+      const target = await rowId(1)
+      const linkedContext = await page
+        .context()
+        .browser()
+        .newContext({
+          viewport: { width: 1280, height: 900 },
+        })
+      const linked = await linkedContext.newPage()
+      const errors = []
+      await linked.addInitScript(() => {
+        window.historyListeners = new Set()
+        const add = window.addEventListener
+        const remove = window.removeEventListener
+        window.addEventListener = function (name, listener, options) {
+          if (name === 'popstate') window.historyListeners.add(listener)
+          return add.call(this, name, listener, options)
+        }
+        window.removeEventListener = function (name, listener, options) {
+          if (name === 'popstate') window.historyListeners.delete(listener)
+          return remove.call(this, name, listener, options)
+        }
+      })
+      linked.on('pageerror', (error) => errors.push(error.message))
+      linked.on('console', (message) => {
+        if (message.type() === 'warning' || message.type() === 'error')
+          errors.push(message.text())
+      })
+      try {
+        for (const screen of ['editor', 'details', 'invalid']) {
+          const url = new URL(page.url())
+          url.searchParams.set(
+            'screen',
+            screen === 'invalid' ? 'editor' : screen,
+          )
+          url.searchParams.set(
+            'record',
+            screen === 'invalid' ? 'missing' : target,
+          )
+          await linked.goto(url.href)
+          const visible = screen === 'invalid' ? 'records' : screen
+          await expect(
+            linked.locator(`[data-wamn-screen=${visible}]`),
+          ).toBeVisible()
+          if (screen === 'editor') {
+            await expect(linked.locator('form textarea')).toHaveValue(
+              'Widget 1',
+            )
+            await linked
+              .getByRole('button', { name: 'Back to records', exact: true })
+              .click()
+            await linked
+              .getByRole('button', { name: `Edit ${target}`, exact: true })
+              .click()
+            const depth = await linked.evaluate(
+              () => history.state.wamnNavigation.position,
+            )
+            await linked.reload()
+            await expect(
+              linked.locator('[data-wamn-screen=editor]'),
+            ).toBeVisible()
+            await expect(linked.locator('form textarea')).toHaveValue(
+              'Widget 1',
+            )
+            assert.equal(
+              await linked.evaluate(
+                () => history.state.wamnNavigation.position,
+              ),
+              depth,
+            )
+            await linked.goBack()
+            await expect(
+              linked.locator('[data-wamn-screen=records]'),
+            ).toBeVisible()
+            await linked.goForward()
+            await expect(
+              linked.locator('[data-wamn-screen=editor]'),
+            ).toBeVisible()
+          }
+          if (screen === 'details')
+            await expect(linked.locator('.record-details')).toContainText(
+              target,
+            )
+          if (screen === 'invalid')
+            await expect(linked.getByRole('alert')).toContainText('record URL')
+          assert.equal(
+            await linked.evaluate(() => window.historyListeners.size),
+            1,
+          )
+          await linked.evaluate(() => {
+            window.generatorFixture.stop()
+            window.dispatchEvent(new PopStateEvent('popstate'))
+          })
+          assert.equal(
+            await linked.evaluate(() => window.historyListeners.size),
+            0,
+          )
+          assert.deepEqual(
+            (
+              await linked.evaluate(() => window.generatorFixture.diagnostics())
+            ).filter((event) => event.code !== 'HOT_SCOPE_TIME'),
+            [],
+          )
+        }
+        assert.deepEqual(errors, [])
+      } finally {
+        await linkedContext.close()
+      }
+    },
+  )
+  await record(
+    'WAMN browser Back and Forward restore records and preserve the draft',
+    async () => {
+      const second = await rowId(1)
+      const initialUrl = page.url()
+      const sent = (await state()).sent.length
+      await (await rowAction('Edit', 1)).click()
+      await expect(page).toHaveURL(
+        (url) =>
+          url.searchParams.get('screen') === 'editor' &&
+          url.searchParams.get('record') === second,
+      )
+      await note().fill('Draft across browser history')
+      await page.goBack()
+      await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+      await expect(page).toHaveURL(initialUrl)
+      await expect(await rowAction('Edit', 1)).toBeFocused()
+      await page.goForward()
+      await expect(page.locator('[data-wamn-screen=editor]')).toBeVisible()
+      await expect(note()).toHaveValue('Draft across browser history')
+      assert.equal(
+        await page
+          .locator('[data-wamn-screen=editor]')
+          .evaluate((node) => node.contains(document.activeElement)),
+        true,
+      )
+      assert.equal((await state()).selectedId, second)
+      assert.equal((await state()).sent.length, sent)
+      await page.goBack()
+      await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+      await (await rowAction('View')).click()
+      await expect
+        .poll(async () => (await state()).inspectedRecord?.id)
+        .toBe(await rowId(0))
+      await page.goBack()
+      await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+      await page.goForward()
+      await expect(page.locator('[data-wamn-screen=details]')).toBeVisible()
+      await expect(page).toHaveURL(
+        (url) =>
+          url.searchParams.get('screen') === 'details' &&
+          url.searchParams.get('record') !== second,
+      )
+      await expect
+        .poll(async () => (await state()).inspectedRecord?.id)
+        .toBe(await rowId(0))
+      assert.equal((await state()).selectedId, second)
+      await page.goBack()
+      await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+      await (await rowAction('Edit', 1)).click()
+      await expect(note()).toHaveValue('Draft across browser history')
+      await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+      await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+    },
+  )
+  await record(
+    'WAMN history branches reject older editing targets without replacing entries',
+    async () => {
+      await page.evaluate(() => {
+        window.savedHistoryReplace = history.replaceState
+        history.replaceState = () => {
+          throw new Error('Navigation must not replace history')
+        }
+      })
+      try {
+        await (await rowAction('Edit')).click()
+        await back()
+        await (await rowAction('Edit', 1)).click()
+        await page.goBack()
+        await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+        // A new branch replaces the discarded forward path at the same depth.
+        await (await rowAction('Edit', 1)).click()
+        await note().fill('Guarded history draft')
+        await page.goBack()
+        await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+        const tableUrl = page.url()
+        await page.goBack()
+        await expect(page).toHaveURL(tableUrl)
+        await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+        await expect
+          .poll(async () => (await state()).status)
+          .toMatch(/Save or cancel/)
+        assert.equal((await state()).selectedId, await rowId(1))
+        await expect(note()).toHaveValue('Guarded history draft')
+        await page.goForward()
+        await expect(page.locator('[data-wamn-screen=editor]')).toBeVisible()
+        await expect(note()).toHaveValue('Guarded history draft')
+        await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+        await expect(page.locator('[data-wamn-screen=records]')).toBeVisible()
+      } finally {
+        await page.evaluate(() => {
+          history.replaceState = window.savedHistoryReplace
+        })
+      }
+    },
+  )
+  await record(
     'WAMN screen navigation preserves drafts and owners until explicit Cancel',
     async () => {
       await page.evaluate(() => {
