@@ -1,7 +1,16 @@
 import { preserveReorderFocus } from './reorderFocus'
-import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
+import {
+  For,
+  Show,
+  createMemo,
+  createUniqueId,
+  onCleanup,
+  untrack,
+} from 'solid-js'
 import {
   Button,
+  DatePicker,
+  DateTimePicker,
   Checkbox,
   Field,
   FieldError,
@@ -17,6 +26,8 @@ import type { Accessor, Component } from 'solid-js'
 import type { FormContract, FormScalar } from '@wfe/form'
 import type {
   CustomFieldProps,
+  DateControlDescription,
+  DateTimeControlDescription,
   FormChoice,
   FormDescription,
   FormFieldDescription,
@@ -53,6 +64,10 @@ export function FormView<
   const form = untrack(() => bindings().form)
   const identity = untrack(() => props.description.id)
   const domId = `generated-form-${createUniqueId()}`
+  const invalidInputs = new Map<
+    Extract<keyof T, string>,
+    () => HTMLInputElement | undefined
+  >()
   const description = createMemo(() => {
     const value = props.description
     requireValue(
@@ -68,9 +83,16 @@ export function FormView<
     for (const field of value.fields) {
       const control = field.control
       requireValue(
-        ['text', 'textarea', 'select', 'checkbox', 'switch', 'custom'].includes(
-          control,
-        ),
+        [
+          'text',
+          'textarea',
+          'date',
+          'datetime',
+          'select',
+          'checkbox',
+          'switch',
+          'custom',
+        ].includes(control),
         `unsupported control "${control}"`,
       )
       if (control === 'custom')
@@ -89,7 +111,7 @@ export function FormView<
       else
         requireValue(
           typeof form.values[field.field] ===
-            (control === 'text' || control === 'textarea'
+            (['text', 'textarea', 'date', 'datetime'].includes(control)
               ? 'string'
               : 'boolean'),
           `incompatible control for field "${field.field}"`,
@@ -109,6 +131,37 @@ export function FormView<
       )
       return field()
     })
+    let host: HTMLDivElement | undefined
+    const validity = (valid: boolean) => {
+      if (valid) invalidInputs.delete(key)
+      else
+        invalidInputs.set(
+          key,
+          () =>
+            host?.querySelector<HTMLInputElement>('[data-date-invalid]') ??
+            undefined,
+        )
+    }
+    onCleanup(() => {
+      invalidInputs.delete(key)
+    })
+    const dateDescription = () => {
+      const value = checkedField()
+      requireValue(
+        value.control === 'date' || value.control === 'datetime',
+        'Date controls require a date description',
+      )
+      return value as FormFieldDescription<T> &
+        (DateControlDescription | DateTimeControlDescription)
+    }
+    const datetimeDescription = () => {
+      const value = dateDescription()
+      requireValue(
+        value.control === 'datetime',
+        'Datetime controls require a datetime description',
+      )
+      return value as FormFieldDescription<T> & DateTimeControlDescription
+    }
     const booleanControl = control === 'checkbox' || control === 'switch'
     const id = `${domId}-${encodeURIComponent(key)}`
     const disabled = () => Boolean(bindings().disabled?.(key))
@@ -130,6 +183,9 @@ export function FormView<
     }
     return (
       <Field
+        ref={(node) => {
+          host = node
+        }}
         controlId={id}
         required={checkedField().required}
         disabled={disabled()}
@@ -143,6 +199,33 @@ export function FormView<
           <Input value={String(form.values[key])} onValueChange={set} />
         ) : control === 'textarea' ? (
           <Textarea value={String(form.values[key])} onValueChange={set} />
+        ) : control === 'date' ? (
+          <DatePicker
+            label={checkedField().label}
+            value={String(form.values[key]) || undefined}
+            dateFormat={dateDescription().dateFormat}
+            locale={dateDescription().locale}
+            min={dateDescription().min}
+            max={dateDescription().max}
+            startOfWeek={dateDescription().startOfWeek}
+            onValueChange={(value) => set(value ?? '')}
+            onValidityChange={validity}
+          />
+        ) : control === 'datetime' ? (
+          <DateTimePicker
+            label={checkedField().label}
+            value={String(form.values[key]) || undefined}
+            dateFormat={datetimeDescription().dateFormat}
+            timeFormat={datetimeDescription().timeFormat}
+            locale={datetimeDescription().locale}
+            timeZone={datetimeDescription().timeZone}
+            disambiguation={datetimeDescription().disambiguation}
+            min={datetimeDescription().min}
+            max={datetimeDescription().max}
+            startOfWeek={datetimeDescription().startOfWeek}
+            onValueChange={(value) => set(value ?? '')}
+            onValidityChange={validity}
+          />
         ) : control === 'select' ? (
           <SelectField
             label={checkedField().label}
@@ -239,6 +322,16 @@ export function FormView<
       ref={nativeEvents<HTMLFormElement>({
         submit: (event) => {
           event.preventDefault()
+          const invalid = [...invalidInputs.values()]
+            .map((get) => get())
+            .find(
+              (input) =>
+                input?.isConnected && !input.disabled && !input.readOnly,
+            )
+          if (invalid) {
+            invalid.focus()
+            return
+          }
           if (description().submit) void form.submit()
         },
       })}

@@ -51,3 +51,10 @@ Removing a generated view alone does not dispose an application-owned coordinato
 
 Both applications run in every browser and hydration mode through one shared harness.
 The provider unit tests also reject nonfinite amounts and invalid calendar dates.
+
+The date input application uses `/?app=dates`.
+It shows a date-only field and two datetime fields with explicit and browser timezones.
+The display controls change numeric date formats, 12-hour or 24-hour time, and the application timezone.
+The accepted values remain canonical strings.
+The application owns validation and submission.
+Invalid local date text prevents the generated view from submitting an older accepted value.

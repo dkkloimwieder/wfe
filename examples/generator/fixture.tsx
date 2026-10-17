@@ -7,6 +7,7 @@ import type {
   DispatchResponse,
   DispatchValues,
 } from './dispatch-provider'
+import type { DateDemoConfiguration } from './DateApp'
 import type { FormErrors, FormReply, FormOutcome } from '@wfe/form'
 import './style.css'
 export function createFixture(name: ApplicationName = 'records') {
@@ -64,6 +65,22 @@ export function createFixture(name: ApplicationName = 'records') {
         ),
         document.getElementById('root')!,
       )
+      flush()
+    },
+    dateConfiguration(next: Partial<DateDemoConfiguration>) {
+      if (app?.kind !== 'dates')
+        throw new Error('This operation needs the date example')
+      app.configure(next)
+      flush()
+    },
+    dateValues(next: {
+      reviewDate: string
+      systemTime: string
+      browserTime: string
+    }) {
+      if (app?.kind !== 'dates')
+        throw new Error('This operation needs the date example')
+      app.replace(next)
       flush()
     },
     focusOrder(

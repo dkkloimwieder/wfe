@@ -1,6 +1,12 @@
 import type { Accessor, Component } from 'solid-js'
 import type { JSX } from '@solidjs/web'
-import type { ButtonTone, ButtonVariant } from '@wfe/components'
+import type {
+  DateInputFormat,
+  TimeInputFormat,
+  DateTimeDisambiguation,
+  ButtonTone,
+  ButtonVariant,
+} from '@wfe/components'
 import type { DashboardShellProps } from '@wfe/components/layout'
 import type {
   NativeColumn,
@@ -31,9 +37,30 @@ type ActionBindings<D> = [ActionIds<D>] extends [never]
   : { actions: Readonly<{ [Id in ActionIds<D>]: ActionBinding }> }
 
 type FieldKey<T> = Extract<keyof T, string>
+export type DateControlDescription = {
+  control: 'date'
+  dateFormat?: DateInputFormat
+  locale?: string
+  min?: string
+  max?: string
+  startOfWeek?: number
+}
+export type DateTimeControlDescription = Omit<
+  DateControlDescription,
+  'control'
+> & {
+  control: 'datetime'
+  timeFormat?: TimeInputFormat
+  timeZone?: string
+  disambiguation?: DateTimeDisambiguation
+}
 type BuiltInControl<V> = [V] extends [string]
   ? | { control: 'select' }
-    | (string extends V ? { control: 'text' | 'textarea' } : never)
+    | (string extends V
+        ? | { control: 'text' | 'textarea' }
+          | DateControlDescription
+          | DateTimeControlDescription
+        : never)
   : [V] extends [boolean]
     ? boolean extends V
       ? { control: 'checkbox' | 'switch' }

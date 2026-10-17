@@ -6,12 +6,19 @@ import { dirname, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium, expect } from '@playwright/test'
 import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
+import { reviewDates, reviewDateServer } from './review-dates.mjs'
 import { reviewFocus } from './review-focus.mjs'
 import { reviewServer } from './review-server.mjs'
 import { reviewRecords } from './review-records.mjs'
 import { reviewDispatch } from './review-dispatch.mjs'
 
 const defaultApplications = {
+  dates: {
+    label: 'Review date',
+    value: '29/02/2024',
+    server: reviewDateServer,
+    review: reviewDates,
+  },
   focus: {
     label: 'Title',
     value: 'Focused title',

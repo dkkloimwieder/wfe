@@ -26,3 +26,14 @@ h2 {
   align-items: end;
   gap: var(--ui-gap, 6px);
 }
+
+.date-demo-configuration {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+.date-demo-configuration output {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}

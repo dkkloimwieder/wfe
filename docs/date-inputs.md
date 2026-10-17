@@ -80,3 +80,21 @@ Clearing the date clears the complete datetime.
 Clearing only the time leaves an incomplete draft until the user completes or resets it.
 The control inherits `Field` state and serializes one canonical named value.
 Its `onValidityChange` callback reports only intrinsic input validity.
+
+## Generated forms
+
+`FormView` accepts `control: 'date'` and `control: 'datetime'` for string fields.
+Both controls use an empty string for an empty generated field.
+The application maps other storage types through its adapter or a custom field binding.
+Date descriptions accept `dateFormat`, `locale`, `min`, `max`, and `startOfWeek`.
+Datetime descriptions also accept `timeFormat`, `timeZone`, and `disambiguation`.
+These descriptions contain data, not application callbacks.
+
+The generated view blocks its DOM submit action while an editable date control contains an invalid draft.
+It focuses that control and does not call application validation or submission.
+Readonly, disabled, and removed fields release this local block.
+Application validation errors remain the application's responsibility and do not prevent a retry.
+A direct application call to `form.submit()` still submits accepted values.
+It does not inspect drafts in a rendered view.
+
+The [date example](../examples/generator/DateApp.tsx) shows these controls with application-owned values and callbacks.

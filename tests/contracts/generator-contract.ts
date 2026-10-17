@@ -238,3 +238,42 @@ void [
   wrongField,
   wrongAlias,
 ]
+
+const dateEditor = {
+  id: 'dates',
+  fields: [
+    {
+      field: 'date',
+      label: 'Date',
+      control: 'date',
+      dateFormat: 'dd/MM/yyyy',
+      locale: 'en-GB',
+    },
+    {
+      field: 'instant',
+      label: 'Instant',
+      control: 'datetime',
+      timeZone: 'America/New_York',
+      timeFormat: 'hh:mm a',
+      disambiguation: 'reject',
+    },
+  ],
+} as const satisfies FormDescription<{ date: string; instant: string }>
+const wrongDate: FormDescription<{ date: number }> = {
+  id: 'invalid',
+  // @ts-expect-error Date inputs request canonical strings.
+  fields: [{ field: 'date', label: 'Date', control: 'date' }],
+}
+const narrowDate: FormDescription<{ date: 'today' | 'tomorrow' }> = {
+  id: 'invalid',
+  // @ts-expect-error Date input strings cannot fit a fixed literal union.
+  fields: [{ field: 'date', label: 'Date', control: 'date' }],
+}
+const wrongTime: FormDescription<{ date: string }> = {
+  id: 'invalid',
+  fields: [
+    // @ts-expect-error Time formats use the supported numeric input grammar.
+    { field: 'date', label: 'Date', control: 'datetime', timeFormat: 'h:mm' },
+  ],
+}
+void [dateEditor, wrongDate, narrowDate, wrongTime]
