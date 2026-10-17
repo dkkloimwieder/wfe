@@ -2,9 +2,9 @@ import { spawnSync } from 'node:child_process'
 for (const script of [
   'format:check',
   'lint',
-  'types',
   'test:integrity',
   'build',
+  'types',
   'types:examples',
   'test',
 ]) {

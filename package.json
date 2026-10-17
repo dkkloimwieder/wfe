@@ -45,6 +45,7 @@
     "vitest": "4.1.11",
     "@wfe/components": "workspace:*",
     "zod": "4.6.5",
-    "@wfe/form": "workspace:*"
+    "@wfe/form": "workspace:*",
+    "@wfe/generator": "workspace:*"
   }
 }

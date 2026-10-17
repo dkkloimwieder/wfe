@@ -3,7 +3,8 @@
 Wfe is a generic frontend library for applications that use Solid.
 The private `@wfe/components` package contains controls, Table, shared styles, internal behavior, and owned vendor source.
 The private `@wfe/form` package coordinates errors, submission, reset, and cancellation through application callbacks.
-Programmatic generation follows its scoped Beads issues.
+The private `@wfe/generator` package defines typed descriptions and application bindings.
+Its rendering implementation follows in the next scoped issue.
 Application records, routing, permissions, validation rules, requests, and persistence remain application-owned.
 
 ## Development
@@ -16,7 +17,7 @@ pnpm install --frozen-lockfile
 pnpm check
 ```
 
-`pnpm check` runs formatting, lint, strict types, package builds, and the current tests serially.
+`pnpm check` runs formatting, lint, integrity tests, package builds, strict types, example types, and the current tests serially.
 `pnpm test:unit` runs native engine, editing, form, event, and virtualizer unit tests.
 `pnpm test:qualification` runs the complete serial qualification suite.
 The component source and native Table engine are extracted.
@@ -42,6 +43,8 @@ The [layout guide](docs/layout.md) describes slots, navigation, scrolling, and a
 `src/vendor` contains the owned Kobalte and virtual engine subsets with their attribution and provenance.
 `packages/form/src` contains the generic form implementation and its public types.
 The [form guide](docs/form-contract.md) describes controlled values, callbacks, reset, and cancellation.
+`packages/generator/src` contains the programmatic UI contracts.
+The [generator contract](docs/generator-contract.md) defines identities, bindings, and ownership.
 `examples` contains application composition, mock services, and optional integrations.
 `tests`, `bench`, and `scripts` contain qualification and maintenance tools.
 

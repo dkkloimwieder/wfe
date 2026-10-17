@@ -39,7 +39,12 @@ const readFile = host.readFile.bind(host)
 const fileExists = host.fileExists.bind(host)
 host.readFile = (path) => files.get(path) ?? readFile(path)
 host.fileExists = (path) => files.has(path) || fileExists(path)
-const program = ts.createProgram([...files.keys()], parsed.options, host)
+const generator = resolve(packageRoot, 'tests/contracts/generator-contract.ts')
+const program = ts.createProgram(
+  [...files.keys(), generator],
+  parsed.options,
+  host,
+)
 const diagnostics = [...parsed.errors, ...ts.getPreEmitDiagnostics(program)]
 if (diagnostics.length) {
   console.error(
@@ -51,5 +56,7 @@ if (diagnostics.length) {
   )
   process.exitCode = 1
 } else {
-  console.log(`Typechecked ${files.size} UI contract examples`)
+  console.log(
+    `Typechecked ${files.size} UI contract examples and generator contracts`,
+  )
 }

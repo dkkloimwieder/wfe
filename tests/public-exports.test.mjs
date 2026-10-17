@@ -82,3 +82,16 @@ test('form package exposes its built entry and declarations', async () => {
     await access(new URL('../packages/form/' + file, import.meta.url))
   }
 })
+
+test('private generator exposes declarations and a valid package entry', async () => {
+  await import('@wfe/generator')
+  const manifest = JSON.parse(
+    await readFile(
+      new URL('../packages/generator/package.json', import.meta.url),
+      'utf8',
+    ),
+  )
+  assert.equal(manifest.private, true)
+  for (const file of Object.values(manifest.exports['.']))
+    await access(new URL('../packages/generator/' + file, import.meta.url))
+})

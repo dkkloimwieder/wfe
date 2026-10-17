@@ -73,4 +73,4 @@ async function checkPackage(name) {
   await visit(root)
   console.log(`Checked import ownership for ${count} ${name} source files`)
 }
-for (const name of ['components', 'form']) await checkPackage(name)
+for (const name of ['components', 'form', 'generator']) await checkPackage(name)
