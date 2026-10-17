@@ -66,6 +66,22 @@ export function createFixture(name: ApplicationName = 'records') {
       )
       flush()
     },
+    focusOrder(
+      kind: 'fields' | 'panels',
+      reversed: boolean,
+      then?: 'elsewhere' | 'disable' | 'remove' | 'dispose',
+    ) {
+      if (app?.kind !== 'focus')
+        throw new Error('This operation needs the focus example')
+      if (kind === 'fields') app.moveFields(reversed)
+      else app.movePanels(reversed)
+      if (then === 'elsewhere')
+        document.getElementById('focus-elsewhere')!.focus()
+      if (then === 'disable') app.disable(true)
+      if (then === 'remove') app.remove()
+      if (then === 'dispose') dispose()
+      flush()
+    },
     submit() {
       outcome = undefined
       void app!.form.submit().then((result) => {

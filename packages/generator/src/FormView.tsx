@@ -1,3 +1,4 @@
+import { preserveReorderFocus } from './reorderFocus'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
 import {
   Button,
@@ -223,6 +224,9 @@ export function FormView<
       </Field>
     )
   }
+  preserveReorderFocus(domId, () =>
+    description().fields.map((field) => field.field as string),
+  )
   return (
     <form
       id={domId}

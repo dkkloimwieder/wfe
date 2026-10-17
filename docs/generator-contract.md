@@ -140,3 +140,11 @@ The application still owns any coordinator or provider created outside that view
 The dispatch removal action explicitly cancels its form before removing the editor.
 Whole-application disposal aborts the coordinator and prevents provider publication.
 The tests settle late replies after both operations and require unchanged records and errors.
+
+## Focus during reordering
+
+Keyed field and panel moves keep a retained control's focus and selection.
+The renderer restores focus after a DOM move only within the view that owns that control.
+A later focus move wins over restoration.
+Removed, disabled, hidden, inert, or disposed controls do not regain focus.
+The browser suite exercises native inputs, textareas, and custom fields in both reorder directions.

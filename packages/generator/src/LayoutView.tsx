@@ -1,3 +1,4 @@
+import { preserveReorderFocus } from './reorderFocus'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
 import {
   DashboardShell,
@@ -66,6 +67,11 @@ export function LayoutView<D extends LayoutDescription>(props: {
     regions = nextRegions
     return value
   })
+  preserveReorderFocus(domId, () =>
+    [...description().panels, ...(description().navigation ?? [])].map(
+      (panel) => panel.id,
+    ),
+  )
   function PanelView(panelProps: { panel: PanelDescription; main?: boolean }) {
     const view = untrack(() => panelProps.panel.view)
     const View = untrack(
