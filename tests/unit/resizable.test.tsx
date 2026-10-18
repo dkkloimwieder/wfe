@@ -184,3 +184,192 @@ test('fractional bounds stay valid after rounding at the endpoint', () => {
   flush()
   expect(Number(handle.getAttribute('aria-valuenow'))).toBe(33.33336)
 })
+
+test('divider collapse retains local size, pane nodes and drafts, and Enter restores them', () => {
+  const sizeChange = vi.fn()
+  const collapseChange = vi.fn()
+  const h = render(() => (
+    <Resizable
+      primaryLabel="Filters"
+      primary={<input />}
+      defaultSize={42}
+      onSizeChange={sizeChange}
+      onCollapsedChange={collapseChange}
+    >
+      Results
+    </Resizable>
+  ))
+  const handle = h.getByRole('separator')
+  const input = h.container.querySelector('input')!
+  input.value = 'Retained draft'
+  fireEvent.keyDown(handle, { key: 'ArrowRight' })
+  flush()
+  input.focus()
+  fireEvent.doubleClick(handle)
+  flush()
+  expect(handle.getAttribute('aria-valuenow')).toBe('0')
+  expect(input.closest('[hidden]')).not.toBeNull()
+  expect(document.activeElement).toBe(handle)
+  for (const key of ['Home', 'End', 'ArrowLeft'])
+    fireEvent.keyDown(handle, { key })
+  flush()
+  expect(sizeChange.mock.calls).toEqual([[43]])
+  fireEvent.keyDown(handle, { key: 'Enter' })
+  flush()
+  expect(handle.getAttribute('aria-valuenow')).toBe('43')
+  expect(h.container.querySelector('input')).toBe(input)
+  expect(input.value).toBe('Retained draft')
+  expect(input.closest('[hidden]')).toBeNull()
+  expect(collapseChange.mock.calls).toEqual([[true], [false]])
+})
+
+test('controlled collapse requests preserve application-owned size and accept independent updates', () => {
+  const [closed, setClosed] = createSignal(false)
+  const [size, setSize] = createSignal(37)
+  const collapseChange = vi.fn()
+  const sizeChange = vi.fn()
+  const h = render(() => (
+    <Resizable
+      primaryLabel="Filters"
+      primary="Filters"
+      collapsed={closed()}
+      onCollapsedChange={collapseChange}
+      size={size()}
+      onSizeChange={sizeChange}
+    >
+      Results
+    </Resizable>
+  ))
+  const handle = h.getByRole('separator')
+  fireEvent.doubleClick(handle)
+  flush()
+  expect(collapseChange.mock.calls).toEqual([[true]])
+  expect(handle.getAttribute('aria-valuenow')).toBe('37')
+  setClosed(true)
+  setSize(51)
+  flush()
+  fireEvent.keyDown(handle, { key: 'Enter' })
+  flush()
+  expect(collapseChange.mock.calls).toEqual([[true], [false]])
+  expect(handle.getAttribute('aria-valuenow')).toBe('0')
+  setClosed(false)
+  flush()
+  expect(handle.getAttribute('aria-valuenow')).toBe('51')
+  expect(sizeChange).not.toHaveBeenCalled()
+})
+
+test('disabled and caller-cancelled divider toggles do not change collapse state', () => {
+  const toggle = vi.fn()
+  const [disabled, setDisabled] = createSignal(false)
+  const h = render(() => (
+    <ResizeHandle
+      aria-label="Filters"
+      aria-controls="filters"
+      value={0}
+      collapsed
+      onToggle={toggle}
+      onValueChange={() => {}}
+      getAvailableSize={() => 100}
+      disabled={disabled()}
+      onDblClick={(e) => e.preventDefault()}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') e.preventDefault()
+      }}
+    />
+  ))
+  const handle = h.getByRole('separator')
+  fireEvent.doubleClick(handle)
+  fireEvent.keyDown(handle, { key: 'Enter' })
+  setDisabled(true)
+  flush()
+  fireEvent.doubleClick(handle)
+  fireEvent.keyDown(handle, { key: 'Enter' })
+  expect(toggle).not.toHaveBeenCalled()
+  h.unmount()
+  fireEvent.doubleClick(handle)
+  expect(toggle).not.toHaveBeenCalled()
+})
+
+test('table collapse and size requests remain independent and reopening retains the current size', () => {
+  const [closed, setClosed] = createSignal(false)
+  const collapseChange = vi.fn()
+  const sizeChange = vi.fn()
+  const h = render(() => (
+    <TableWorkspace
+      controls="Filters"
+      controlsCollapsed={closed()}
+      onControlsCollapsedChange={collapseChange}
+      controlsSize={34}
+      onControlsSizeChange={sizeChange}
+    >
+      Results
+    </TableWorkspace>
+  ))
+  const handle = h.getByRole('separator')
+  fireEvent.doubleClick(handle)
+  flush()
+  expect(collapseChange.mock.calls).toEqual([[true]])
+  expect(handle.getAttribute('aria-valuenow')).toBe('34')
+  setClosed(true)
+  flush()
+  fireEvent.keyDown(handle, { key: 'End' })
+  fireEvent.keyDown(handle, { key: 'Enter' })
+  flush()
+  expect(handle.getAttribute('aria-valuenow')).toBe('0')
+  setClosed(false)
+  flush()
+  expect(handle.getAttribute('aria-valuenow')).toBe('34')
+  expect(sizeChange).not.toHaveBeenCalled()
+  expect(collapseChange.mock.calls).toEqual([[true], [false]])
+})
+
+test('an initially closed pane mounts retained content and opens at its default size', () => {
+  const h = render(() => (
+    <Resizable
+      primaryLabel="Filters"
+      primary={<input />}
+      defaultCollapsed
+      defaultSize={46}
+    >
+      Results
+    </Resizable>
+  ))
+  const handle = h.getByRole('separator')
+  expect(handle.getAttribute('aria-valuenow')).toBe('0')
+  expect(h.container.querySelector('input')?.closest('[hidden]')).not.toBeNull()
+  fireEvent.keyDown(handle, { key: 'Enter', repeat: true })
+  flush()
+  expect(handle.getAttribute('aria-valuenow')).toBe('0')
+  fireEvent.keyDown(handle, { key: 'Enter' })
+  flush()
+  expect(handle.getAttribute('aria-valuenow')).toBe('46')
+})
+
+test('external collapse moves focus from a second linked popup to the retained divider', () => {
+  const [closed, setClosed] = createSignal(false)
+  const popup = document.createElement('button')
+  popup.id = 'second-popup'
+  document.body.append(popup)
+  try {
+    const h = render(() => (
+      <Resizable
+        primaryLabel="Filters"
+        primary={
+          <button aria-expanded="true" aria-controls="first-popup second-popup">
+            Open choices
+          </button>
+        }
+        collapsed={closed()}
+      >
+        Results
+      </Resizable>
+    ))
+    popup.focus()
+    expect(document.activeElement).toBe(popup)
+    setClosed(true)
+    flush()
+    expect(document.activeElement).toBe(h.getByRole('separator'))
+  } finally {
+    popup.remove()
+  }
+})

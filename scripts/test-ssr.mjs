@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { renderToString } from '@solidjs/web'
 import { Toast } from '@wfe/components'
+import { Resizable } from '@wfe/components/resizable'
 import {
   createTable as createNativeTable,
   nativeAggregations,
@@ -267,4 +268,25 @@ assert.equal(
 )
 console.log(
   'Read-only date and datetime presentation stay deterministic during server rendering.',
+)
+
+let resizeCallbacks = 0
+const closedPane = await renderToString(() =>
+  Resizable({
+    primaryLabel: 'Filters',
+    primary: 'Retained primary',
+    children: 'Results',
+    defaultCollapsed: true,
+    defaultSize: 46,
+    onCollapsedChange: () => resizeCallbacks++,
+    onSizeChange: () => resizeCallbacks++,
+  }),
+)
+assert.match(closedPane, /aria-valuenow="0"/)
+assert.match(closedPane, /hidden(?:="")?/)
+assert.match(closedPane, /Retained primary/)
+assert.match(closedPane, /Results/)
+assert.equal(resizeCallbacks, 0)
+console.log(
+  'Initially closed resizable panes retain server content without callback requests.',
 )

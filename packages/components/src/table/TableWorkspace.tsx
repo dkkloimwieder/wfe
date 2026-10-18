@@ -1,3 +1,4 @@
+import { ownsFocus } from '../internal/ownedFocus'
 import { ResizeHandle } from '../components/Resizable'
 import { Collapsible } from '../components/Collapsible'
 import { Icon } from '../components/Icon'
@@ -97,22 +98,18 @@ export function TableWorkspace(props: TableWorkspaceProps) {
   let panelFocused = false
   const [narrow, setNarrow] = createSignal(false)
   function controlsOwnFocus(target: Node | null = document.activeElement) {
-    if (!target || !panel) return false
-    if (panel.contains(target) || separator?.contains(target)) return true
-    // Portaled popups belong to their controls through the standard ARIA link.
-    for (const control of panel.querySelectorAll(
-      '[aria-expanded="true"][aria-controls]',
-    )) {
-      for (const id of control.getAttribute('aria-controls')!.split(/\s+/)) {
-        if (panel.ownerDocument.getElementById(id)?.contains(target))
-          return true
-      }
-    }
-    return false
+    return Boolean(
+      target && (separator?.contains(target) || ownsFocus(panel, target)),
+    )
   }
   function changeCollapsed(next: boolean) {
     if (!alive) return
-    if (next && controlsOwnFocus()) toggle?.focus({ preventScroll: true })
+    if (
+      next &&
+      controlsOwnFocus() &&
+      !separator?.contains(document.activeElement)
+    )
+      toggle?.focus({ preventScroll: true })
     if (props.controlsCollapsed === undefined) setLocalCollapsed(next)
     props.onControlsCollapsedChange?.(next)
   }
@@ -236,7 +233,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
       if (
         untrack(narrow) ||
         !untrack(collapsed) ||
-        !controlsOwnFocus(event.target as Node)
+        !controlsOwnFocus(event.target as Node) ||
+        separator?.contains(event.target as Node)
       )
         return
       queueMicrotask(() => {
@@ -244,7 +242,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
           alive &&
           !untrack(narrow) &&
           untrack(collapsed) &&
-          controlsOwnFocus()
+          controlsOwnFocus() &&
+          !separator?.contains(document.activeElement)
         )
           toggle?.focus({ preventScroll: true })
       })
@@ -268,7 +267,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     if (
       hidden &&
       !untrack(narrow) &&
-      (controlsOwnFocus() ||
+      ((controlsOwnFocus() && !separator?.contains(document.activeElement)) ||
         (panelFocused && document.activeElement === document.body))
     )
       toggle?.focus({ preventScroll: true })
@@ -381,9 +380,11 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         }}
         aria-label={props.controlsLabel ?? 'Table controls'}
         aria-controls={panelId}
-        value={size() ?? measuredSize()}
+        value={collapsed() ? 0 : (size() ?? measuredSize())}
+        collapsed={collapsed()}
+        onToggle={() => changeCollapsed(!collapsed())}
         onValueChange={changeSize}
-        disabled={props.controlsResizable === false || narrow() || collapsed()}
+        disabled={props.controlsResizable === false || narrow()}
         orientation={
           props.controlsPlacement === 'top' ? 'horizontal' : 'vertical'
         }

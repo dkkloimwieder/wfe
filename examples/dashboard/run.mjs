@@ -1580,11 +1580,17 @@ try {
     assert.ok(full.width > original.width + 250)
     assert.equal(full.height, original.height)
     const frame = await workspace.boundingBox()
-    assert.equal(full.width, frame.width - 2)
+    const closedDivider = await workspace
+      .locator('.table-workspace-resize')
+      .boundingBox()
+    assert.equal(full.width, frame.width - 2 - closedDivider.width)
     await page
       .getByRole('button', { name: 'right controls pane', exact: true })
       .click()
-    assert.deepEqual(await surface.boundingBox(), full)
+    const closedRight = await surface.boundingBox()
+    assert.equal(closedRight.width, full.width)
+    assert.equal(closedRight.height, full.height)
+    assert.equal(closedRight.x, frame.x + 1)
     await toggle.click()
     const rightPane = await pane.boundingBox()
     const rightResults = await page
@@ -1601,11 +1607,16 @@ try {
     await page
       .getByRole('button', { name: 'top controls pane', exact: true })
       .click()
-    assert.deepEqual(await surface.boundingBox(), full)
+    const closedTop = await surface.boundingBox()
+    const topDivider = await workspace
+      .locator('.table-workspace-resize')
+      .boundingBox()
+    assert.equal(closedTop.width, frame.width - 2)
+    assert.equal(closedTop.height, full.height - topDivider.height)
     await toggle.click()
     await expect(pane).toBeVisible()
     const top = await surface.boundingBox()
-    assert.equal(top.width, full.width)
+    assert.equal(top.width, closedTop.width)
     assert.ok(top.height > original.height * 0.5)
     const paneBox = await pane.boundingBox()
     assert.ok(paneBox.height <= frame.height * 0.4)
@@ -1687,7 +1698,7 @@ try {
     )
     await expect(toggle).toBeFocused()
     await expect(pane).toBeHidden()
-    assert.deepEqual(await surface.boundingBox(), full)
+    assert.deepEqual(await surface.boundingBox(), closedTop)
     await toggle.press('Space')
     await page
       .getByRole('button', { name: 'left controls pane', exact: true })

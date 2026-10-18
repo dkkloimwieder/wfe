@@ -70,3 +70,26 @@
 :where([data-ui]).ui-resizable[hidden]:not([hidden='until-found']) {
   display: none;
 }
+
+:where([data-ui]).ui-resizable > .ui-resizable-pane:first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+:where([data-ui]).ui-resizable > .ui-resize-handle {
+  grid-column: 2;
+  grid-row: 1;
+}
+:where([data-ui]).ui-resizable > .ui-resizable-pane:last-child {
+  grid-column: 3;
+  grid-row: 1;
+}
+:where([data-ui]).ui-resizable[data-orientation='vertical']
+  > .ui-resize-handle {
+  grid-column: 1;
+  grid-row: 2;
+}
+:where([data-ui]).ui-resizable[data-orientation='vertical']
+  > .ui-resizable-pane:last-child {
+  grid-column: 1;
+  grid-row: 3;
+}

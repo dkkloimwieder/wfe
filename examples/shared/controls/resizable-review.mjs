@@ -57,7 +57,11 @@ export async function reviewResizable(page, api) {
     await finish()
   }
   await settle()
-  assert.deepEqual(await read(), { requests: [], tableRequests: [] })
+  assert.deepEqual(await read(), {
+    requests: [],
+    tableRequests: [],
+    collapseRequests: [],
+  })
   await root.evaluate((node) => {
     node.hidden = true
   })
@@ -86,6 +90,39 @@ export async function reviewResizable(page, api) {
       ...node.querySelectorAll('input,.ui-resizable-pane,.ui-resize-handle'),
     ]
   })
+  await handle.dblclick()
+  await expect(handle).toHaveAttribute('aria-valuenow', '0')
+  await expect(page.locator('#resize-navigation')).not.toBeVisible()
+  await expect(handle).toBeFocused()
+  const closedRequests = (await read()).requests.length
+  await handle.press('End')
+  await handle.press('ArrowRight')
+  const closedBox = await handle.boundingBox()
+  await page.mouse.move(
+    closedBox.x + closedBox.width / 2,
+    closedBox.y + closedBox.height / 2,
+  )
+  await page.mouse.down()
+  await page.mouse.move(
+    closedBox.x + closedBox.width / 2 + 20,
+    closedBox.y + closedBox.height / 2,
+  )
+  await page.mouse.up()
+  await expect(handle).not.toHaveAttribute('data-resizing')
+  assert.equal((await read()).requests.length, closedRequests)
+  await handle.press('Enter')
+  await expect(handle).toHaveAttribute('aria-valuenow', '35')
+  await expect(page.locator('#resize-navigation')).toBeVisible()
+  await configure({ acceptCollapse: false })
+  await handle.dblclick()
+  await expect(handle).toHaveAttribute('aria-valuenow', '35')
+  await configure({ acceptCollapse: true })
+  await root.getByRole('button', { name: 'Navigation choice' }).click()
+  await expect(page.getByRole('listbox')).toBeVisible()
+  await configure({ paneCollapsed: true })
+  await expect(handle).toBeFocused()
+  await expect(page.getByRole('listbox')).not.toBeVisible()
+  await handle.press('Enter')
   await handle.focus()
   await page.keyboard.press('ArrowRight')
   await expect(handle).toHaveAttribute('aria-valuenow', '36')
@@ -98,6 +135,19 @@ export async function reviewResizable(page, api) {
   await page.keyboard.press('End')
   await expect(handle).toHaveAttribute('aria-valuenow', '80')
   await configure({ size: 35 })
+  const jitterSize = await value()
+  const jitterRequests = (await read()).requests.length
+  for (const clickCount of [1, 2]) {
+    const box = await handle.boundingBox()
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+    await page.mouse.down({ clickCount })
+    await page.mouse.move(box.x + box.width / 2 + 1, box.y + box.height / 2)
+    await page.mouse.up({ clickCount })
+  }
+  await expect(handle).toHaveAttribute('aria-valuenow', '0')
+  assert.equal((await read()).requests.length, jitterRequests)
+  await handle.press('Enter')
+  assert.equal(await value(), jitterSize)
   let point = await start()
   await page.mouse.move(point.x + 25, point.y)
   await expect.poll(value).toBeGreaterThan(35)
@@ -105,6 +155,19 @@ export async function reviewResizable(page, api) {
   await page.mouse.move(point.x + 70, point.y)
   await expect.poll(value).toBeGreaterThan(middle)
   await finish()
+  const draggedSize = await value()
+  const afterDragBox = await handle.boundingBox()
+  await page.mouse.move(
+    afterDragBox.x + afterDragBox.width / 2,
+    afterDragBox.y + afterDragBox.height / 2,
+  )
+  await page.mouse.down({ clickCount: 2 })
+  await page.mouse.up({ clickCount: 2 })
+  assert.equal(await value(), draggedSize)
+  await handle.dblclick()
+  await expect(handle).toHaveAttribute('aria-valuenow', '0')
+  await handle.press('Enter')
+  assert.equal(await value(), draggedSize)
   await configure({ size: 35, accept: false })
   point = await start()
   await page.mouse.move(point.x + 30, point.y)
@@ -278,16 +341,34 @@ export async function reviewResizable(page, api) {
         Number(await tableHandle.getAttribute('aria-valuenow')) - ratio,
       ) < 0.1,
     )
+    const expandedSize = await tableHandle.getAttribute('aria-valuenow')
+    const retainedRequests = (await read()).tableRequests.length
+    await tableHandle.dblclick()
+    await expect(panel).not.toBeVisible()
+    await expect(tableHandle).toBeFocused()
+    await expect(tableHandle).toHaveAttribute('aria-valuenow', '0')
+    await tableHandle.press('Home')
+    await tableHandle.press('ArrowRight')
+    assert.equal((await read()).tableRequests.length, retainedRequests)
+    await tableHandle.dblclick()
+    await expect(panel).toBeVisible()
+    await expect(tableHandle).toHaveAttribute('aria-valuenow', expandedSize)
+    await tableHandle.press('Enter')
+    await expect(panel).not.toBeVisible()
+    await workspace
+      .getByRole('button', { name: 'Table controls', exact: true })
+      .click()
+    await expect(panel).toBeVisible()
+    await expect(tableHandle).toHaveAttribute('aria-valuenow', expandedSize)
   }
   await tableHandle.focus()
   await configure({ collapsed: true })
-  await expect(
-    workspace.getByRole('button', { name: 'Table controls', exact: true }),
-  ).toBeFocused()
-  await expect(tableHandle).not.toBeVisible()
+  await expect(tableHandle).toBeFocused()
+  await expect(tableHandle).toBeVisible()
+  await expect(tableHandle).toHaveAttribute('aria-valuenow', '0')
   assert.ok(
     (await results.boundingBox()).width >
-      (await workspace.boundingBox()).width - 4,
+      (await workspace.boundingBox()).width - 10,
   )
   await configure({ collapsed: false })
   await tableHandle.focus()

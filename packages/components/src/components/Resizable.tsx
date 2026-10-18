@@ -1,6 +1,8 @@
+import { ownsFocus } from '../internal/ownedFocus'
 import {
   createEffect,
   createMemo,
+  createRenderEffect,
   createSignal,
   createUniqueId,
   merge,
@@ -36,6 +38,8 @@ export type ResizeHandleProps = Omit<
   max?: number
   step?: number
   disabled?: boolean
+  collapsed?: boolean
+  onToggle?: () => void
   getAvailableSize: () => number
   'aria-controls': string
 } & (
@@ -84,6 +88,8 @@ export function ResizeHandle(props: ResizeHandleProps) {
         sign: number
       }
     | undefined
+  let previousPointerDragged = false
+  let pointerDragged = false
   let detach: (() => void) | undefined
   const vertical = () => props.orientation !== 'horizontal'
   const disabled = () =>
@@ -130,6 +136,9 @@ export function ResizeHandle(props: ResizeHandleProps) {
       stop()
       return
     }
+    const delta = (vertical() ? event.clientX : event.clientY) - drag.start
+    if (!pointerDragged && Math.abs(delta) <= 3) return
+    pointerDragged = true
     event.preventDefault()
     request(
       drag.value +
@@ -156,6 +165,9 @@ export function ResizeHandle(props: ResizeHandleProps) {
           gesture
         )
           return
+        previousPointerDragged = pointerDragged
+        pointerDragged = false
+        if (props.collapsed) return
         const extent = props.getAvailableSize()
         if (!Number.isFinite(extent) || extent <= 0) return
         event.preventDefault()
@@ -217,6 +229,21 @@ export function ResizeHandle(props: ResizeHandleProps) {
         callHandler(event, props.onLostPointerCapture)
         if (gesture?.id === event.pointerId) stop()
       },
+      onDblClick(
+        event: MouseEvent & { currentTarget: HTMLDivElement; target: Element },
+      ) {
+        if (
+          callHandler(event, props.onDblClick) ||
+          previousPointerDragged ||
+          pointerDragged ||
+          disabled() ||
+          !props.onToggle
+        )
+          return
+        event.preventDefault()
+        stop()
+        props.onToggle()
+      },
       onKeyDown(
         event: KeyboardEvent & {
           currentTarget: HTMLDivElement
@@ -236,6 +263,15 @@ export function ResizeHandle(props: ResizeHandleProps) {
           return
         }
         if (disabled()) return
+        if (event.key === 'Enter' && props.onToggle) {
+          event.preventDefault()
+          if (!event.repeat) {
+            stop()
+            props.onToggle()
+          }
+          return
+        }
+        if (props.collapsed) return
         const { min, max, step } = configuration()
         const increase = vertical() ? 'ArrowRight' : 'ArrowDown'
         const decrease = vertical() ? 'ArrowLeft' : 'ArrowUp'
@@ -265,6 +301,7 @@ export function ResizeHandle(props: ResizeHandleProps) {
         props.min ?? 10,
         props.max ?? 90,
         props.step ?? 1,
+        Boolean(props.collapsed),
       ] as const,
     {
       equals: (left, right) =>
@@ -297,6 +334,8 @@ export function ResizeHandle(props: ResizeHandleProps) {
     'step',
     'disabled',
     'getAvailableSize',
+    'collapsed',
+    'onToggle',
     'class',
     'ref',
     ...nativeEventProps,
@@ -312,6 +351,12 @@ export function ResizeHandle(props: ResizeHandleProps) {
     <div
       {...attributes}
       data-ui=""
+      title={
+        props.title ??
+        (props.onToggle
+          ? 'Double-click or press Enter to close or reopen the pane'
+          : undefined)
+      }
       class={styledClasses('ui-resize-handle', props.class)}
       ref={references}
       role="separator"
@@ -342,16 +387,32 @@ export type ResizableProps = Omit<
   maxSize?: number
   step?: number
   disabled?: boolean
+  collapsed?: boolean
+  defaultCollapsed?: boolean
+  onCollapsedChange?: (collapsed: boolean) => void
 }
 
 /** Two retained panes. Size is the primary share of space excluding the handle. */
 export function Resizable(props: ResizableProps) {
+  const [localCollapsed, setLocalCollapsed] = createSignal(
+    untrack(() => props.defaultCollapsed ?? false),
+  )
+  const collapsed = () => props.collapsed ?? localCollapsed()
+  let primary: HTMLDivElement | undefined
+  let secondary: HTMLDivElement | undefined
+  let handle: HTMLDivElement | undefined
+  function changeCollapsed(next: boolean) {
+    if (next && ownsFocus(primary)) handle?.focus({ preventScroll: true })
+    if (props.collapsed === undefined) setLocalCollapsed(next)
+    props.onCollapsedChange?.(next)
+  }
+  createRenderEffect(collapsed, (hidden) => {
+    if (hidden && ownsFocus(primary)) handle?.focus({ preventScroll: true })
+  })
   const controlled = untrack(() => props.size !== undefined)
   const [local, setLocal] = createSignal(untrack(() => props.defaultSize ?? 30))
   const size = () => props.size ?? local()
   const id = `resizable-primary-${createUniqueId()}`
-  let primary: HTMLDivElement | undefined
-  let secondary: HTMLDivElement | undefined
   function validate(
     value: number,
     minSize?: number,
@@ -379,6 +440,9 @@ export function Resizable(props: ResizableProps) {
   }
   const attributes = omit(
     props,
+    'collapsed',
+    'defaultCollapsed',
+    'onCollapsedChange',
     'primary',
     'children',
     'primaryLabel',
@@ -401,23 +465,26 @@ export function Resizable(props: ResizableProps) {
   onCleanup(() => {
     primary = undefined
     secondary = undefined
+    handle = undefined
   })
   return (
     <div
       {...attributes}
       data-ui=""
       class={styledClasses('ui-resizable', props.class)}
+      data-collapsed={collapsed() ? '' : undefined}
       data-orientation={props.orientation ?? 'horizontal'}
       ref={references}
       style={{
         ...props.style,
-        '--ui-primary-size': `${size()}fr`,
-        '--ui-secondary-size': `${100 - size()}fr`,
+        '--ui-primary-size': `${collapsed() ? 0 : size()}fr`,
+        '--ui-secondary-size': `${collapsed() ? 100 : 100 - size()}fr`,
       }}
     >
       <div
         class="ui-resizable-pane"
         id={id}
+        hidden={collapsed()}
         role="region"
         aria-label={props.primaryLabel}
         ref={(node) => {
@@ -427,7 +494,12 @@ export function Resizable(props: ResizableProps) {
         {props.primary}
       </div>
       <ResizeHandle
-        value={size()}
+        value={collapsed() ? 0 : size()}
+        collapsed={collapsed()}
+        onToggle={() => changeCollapsed(!collapsed())}
+        ref={(node) => {
+          handle = node
+        }}
         onValueChange={change}
         min={props.minSize}
         max={props.maxSize}

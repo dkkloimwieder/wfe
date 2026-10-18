@@ -1,8 +1,17 @@
 import { createSignal, flush } from 'solid-js'
-import { Button, Field, Input, Label, Resizable } from '@wfe/components'
+import {
+  Button,
+  Field,
+  Input,
+  Label,
+  Resizable,
+  SelectField,
+} from '@wfe/components'
 import { TableWorkspace, Table, createTable } from '@wfe/components/table'
 export const resizableLifecycle = {
   configure: (_next: {
+    paneCollapsed?: boolean
+    acceptCollapse?: boolean
     size?: number
     accept?: boolean
     disabled?: boolean
@@ -12,10 +21,17 @@ export const resizableLifecycle = {
     collapsed?: boolean
     resizable?: boolean
   }) => {},
-  read: () => ({ requests: [] as number[], tableRequests: [] as number[] }),
+  read: () => ({
+    requests: [] as number[],
+    tableRequests: [] as number[],
+    collapseRequests: [] as boolean[],
+  }),
   stop: () => {},
 }
 export function ResizableControls() {
+  const [paneCollapsed, setPaneCollapsed] = createSignal(false)
+  let acceptCollapse = true
+  const collapseRequests: boolean[] = []
   const [size, setSize] = createSignal(35)
   const [disabled, setDisabled] = createSignal(false)
   const [orientation, setOrientation] = createSignal<'horizontal' | 'vertical'>(
@@ -31,6 +47,8 @@ export function ResizableControls() {
   const requests: number[] = []
   const tableRequests: number[] = []
   resizableLifecycle.configure = (next) => {
+    if (next.paneCollapsed !== undefined) setPaneCollapsed(next.paneCollapsed)
+    if (next.acceptCollapse !== undefined) acceptCollapse = next.acceptCollapse
     if (next.size !== undefined) setSize(next.size)
     if (next.accept !== undefined) accept = next.accept
     if (next.disabled !== undefined) setDisabled(next.disabled)
@@ -42,6 +60,7 @@ export function ResizableControls() {
     flush()
   }
   resizableLifecycle.read = () => ({
+    collapseRequests: [...collapseRequests],
     requests: [...requests],
     tableRequests: [...tableRequests],
   })
@@ -57,7 +76,8 @@ export function ResizableControls() {
     <section data-resizable-review dir={dir()}>
       <p class="ui-help">
         Drag a divider or focus it and use the arrow keys. Home and End select
-        its size limits.
+        its size limits. Double-click the divider or press Enter to close and
+        reopen the pane.
       </p>
       <div class="resize-review-actions">
         <Button onClick={() => setDir(dir() === 'ltr' ? 'rtl' : 'ltr')}>
@@ -76,6 +96,11 @@ export function ResizableControls() {
       <Resizable
         id="resizable-review"
         primaryLabel="Navigation"
+        collapsed={paneCollapsed()}
+        onCollapsedChange={(next) => {
+          collapseRequests.push(next)
+          if (acceptCollapse) setPaneCollapsed(next)
+        }}
         secondaryLabel="Content"
         {...{ size: size(), disabled: disabled(), orientation: orientation() }}
         onSizeChange={(next) => {
@@ -85,10 +110,24 @@ export function ResizableControls() {
         minSize={20}
         maxSize={80}
         primary={
-          <Field controlId="resize-navigation">
-            <Label>Navigation draft</Label>
-            <Input id="resize-navigation" defaultValue="Retained navigation" />
-          </Field>
+          <>
+            <Field controlId="resize-navigation">
+              <Label>Navigation draft</Label>
+              <Input
+                id="resize-navigation"
+                defaultValue="Retained navigation"
+              />
+            </Field>
+            <SelectField
+              label="Navigation choice"
+              value="a"
+              choices={[
+                { value: 'a', label: 'Alpha' },
+                { value: 'b', label: 'Beta' },
+              ]}
+              onValueChange={() => {}}
+            />
+          </>
         }
       >
         <Field controlId="resize-content">

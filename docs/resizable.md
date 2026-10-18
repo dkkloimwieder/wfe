@@ -23,7 +23,13 @@ Keep the control mode stable for the component lifetime.
 Use `minSize` and `maxSize` for limits. They default to 10 and 90.
 Bounds must be finite and strictly between 0 and 100. The selected size must stay within them.
 `step` defaults to one percentage point and must be finite and positive.
-Collapsing remains separate from resizing, so a resize does not hide focused content.
+Double-click the divider or press Enter to close and reopen the primary pane.
+Reopening retains the last open size. Before the first resize, this is the supplied size or the default.
+The closed pane stays mounted and hidden. The divider remains visible and reports size zero.
+Arrow keys, Home, End, and dragging do not resize a closed pane. Enter reopens it.
+Use `collapsed`, `defaultCollapsed`, and `onCollapsedChange` to control collapse separately from the expanded size.
+A controlled callback can reject collapse without a size request.
+An application size update while closed supplies the size for the next reopening.
 The component accepts native div attributes, structured classes, events, refs, and an object `style`.
 
 ```tsx
@@ -69,6 +75,10 @@ Rejected requests end a drag before its next movement. Accepted size echoes keep
 Disposal releases capture and removes the gesture listeners.
 
 `ResizeHandle` supplies the same behavior for an existing layout, such as TableWorkspace.
+Its optional `onToggle` handles double-click and Enter. Owners supply `collapsed` and effective `value={0}` while closed.
+Owners keep the expanded size separately and control the pane visibility.
+The pointer must move more than three pixels to resize. Small click movements do not request a size.
+A genuine drag suppresses the corresponding double-click toggle.
 It uses separator orientation: a vertical separator adjusts widths, and a horizontal separator adjusts heights.
 `reverse` identifies a pane after the separator in logical layout order. The handle accounts for RTL direction.
 Supply an accessible name, `aria-controls`, a controlled percentage `value`, and `onValueChange`.
@@ -86,8 +96,10 @@ Use `controlsSize`, `defaultControlsSize`, and `onControlsSizeChange` to manage 
 Explicit sizes stay between 10 and 90. `controlsResizable={false}` disables user resizing.
 ReadOnlyTable forwards these props. Generated Table bindings expose controlled size and resizing availability.
 The measurement excludes the merged header and the gutter.
-Collapsed controls hide the separator. The mobile drawer keeps its original width and does not expose a resize handle.
-The controls button receives focus before a focused separator becomes hidden.
+Collapsed desktop controls retain the thin separator for reopening with double-click or Enter.
+The existing controls button and divider share the same collapsed state and retain the last open size.
+The mobile drawer keeps its original width and does not expose a resize handle.
+The controls button receives focus before a focused separator becomes hidden on mobile or when resizing is disabled.
 The table, controls, scroll container, and drafts keep their existing nodes.
 
 The component preview route `?resizable=1` demonstrates both layouts with the approved appearance.
