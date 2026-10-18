@@ -155,6 +155,13 @@
       "solid": "./dist/source/components/Collapsible.jsx",
       "node": "./dist/server/components/Collapsible.js",
       "import": "./dist/client/components/Collapsible.js"
+    },
+    "./number-input": {
+      "types": "./dist/client/components/NumberInput.d.ts",
+      "wfe-source": "./src/components/NumberInput.tsx",
+      "solid": "./dist/source/components/NumberInput.jsx",
+      "node": "./dist/server/components/NumberInput.js",
+      "import": "./dist/client/components/NumberInput.js"
     }
   },
   "sideEffects": [

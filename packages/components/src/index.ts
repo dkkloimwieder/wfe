@@ -68,3 +68,6 @@ export type { TimeInputFormat, DateTimeDisambiguation } from './utils/dateTime'
 
 export { Collapsible } from './components/Collapsible'
 export type { CollapsibleProps } from './components/Collapsible'
+
+export { NumberInput } from './components/NumberInput'
+export type { NumberInputProps } from './components/NumberInput'

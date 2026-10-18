@@ -235,6 +235,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
             required={required()}
             invalid={invalid() || (props.invalid ?? field?.invalid())}
             data-date-invalid={invalid() ? '' : undefined}
+            data-ui-invalid-input={invalid() ? '' : undefined}
             aria-describedby={
               [
                 field?.describedBy(),

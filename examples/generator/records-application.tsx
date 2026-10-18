@@ -1,5 +1,5 @@
 import { createSignal, onCleanup } from 'solid-js'
-import { Input } from '@wfe/components'
+import { Input, NumberInput } from '@wfe/components'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
 import type {
@@ -19,6 +19,7 @@ export function createRecordsApplication() {
   const [fill, setFill] = createSignal(true)
   const [columns, setColumns] = createSignal<1 | 2>(2)
   const [revision, setRevision] = createSignal(0)
+  const [reversed, setReversed] = createSignal(false)
   const [removed, setRemoved] = createSignal(false)
   const [aliases, setAliases] = createSignal<{ quantity?: string }>({})
   const [calls, setCalls] = createSignal<number[]>([])
@@ -61,16 +62,12 @@ export function createRecordsApplication() {
       lifecycle.quantityDisposals++
     })
     return (
-      <Input
+      <NumberInput
         id={props.id}
-        value={props.value ?? ''}
+        value={props.value}
         disabled={props.disabled}
         readonly={props.readOnly}
-        onValueChange={(value) => {
-          if (value === '') props.onValueChange(undefined)
-          else if (Number.isFinite(Number(value)))
-            props.onValueChange(Number(value))
-        }}
+        onValueChange={props.onValueChange}
       />
     )
   }
@@ -126,7 +123,7 @@ export function createRecordsApplication() {
     return {
       id: 'editor',
       title: 'Editor',
-      fields: revision() ? [...fields].reverse() : fields,
+      fields: reversed() ? [...fields].reverse() : fields,
       submit: { id: 'save', label: 'Save' },
       actions: [
         { id: 'reset', label: 'Reset' },
@@ -162,7 +159,7 @@ export function createRecordsApplication() {
       columns: columns(),
       panels: removed()
         ? [panels[1]]
-        : revision()
+        : reversed()
           ? [...panels].reverse()
           : panels,
       actions: [
@@ -187,11 +184,13 @@ export function createRecordsApplication() {
     setCount: provider.setCount,
     setColumns,
     setFill,
+    setReversed,
     formDescription,
     tableDescription,
     layoutDescription,
     revise() {
       setRevision((old) => old + 1)
+      setReversed(true)
       setColumns(1)
       setAliases({ quantity: 'Units' })
       setAction(() => () => setCalls((old) => [...old, 2]))

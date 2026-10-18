@@ -127,7 +127,7 @@ const unknownField: FormDescription<MemberInput> = {
 }
 const numericField: FormDescription<StockInput> = {
   id: 'invalid',
-  // @ts-expect-error Numeric fields need an explicit custom control in this first contract.
+  // @ts-expect-error Text controls cannot edit numeric values.
   fields: [{ field: 'price', label: 'Price', control: 'text' }],
 }
 // @ts-expect-error The reset action binding is required.
@@ -277,3 +277,81 @@ const wrongTime: FormDescription<{ date: string }> = {
   ],
 }
 void [dateEditor, wrongDate, narrowDate, wrongTime]
+
+type Numbers = {
+  count: number
+  optional: number | undefined
+  nullable: number | null
+  both: number | null | undefined
+}
+const numericEditor = {
+  id: 'numeric-editor',
+  fields: [
+    { field: 'count', label: 'Count', control: 'number' },
+    {
+      field: 'optional',
+      label: 'Optional',
+      control: 'number',
+      empty: 'undefined',
+    },
+    { field: 'nullable', label: 'Nullable', control: 'number', empty: 'null' },
+    { field: 'both', label: 'Both', control: 'number', empty: 'null' },
+  ],
+} as const satisfies FormDescription<Numbers>
+const missingEmpty: FormDescription<Numbers> = {
+  id: 'invalid',
+  // @ts-expect-error Optional numeric fields require an explicit empty policy.
+  fields: [{ field: 'optional', label: 'Optional', control: 'number' }],
+}
+const wrongEmpty: FormDescription<Numbers> = {
+  id: 'invalid',
+  fields: [
+    {
+      field: 'nullable',
+      label: 'Nullable',
+      control: 'number',
+      // @ts-expect-error Undefined cannot enter a nullable numeric value.
+      empty: 'undefined',
+    },
+  ],
+}
+const requiredEmpty: FormDescription<Numbers> = {
+  id: 'invalid',
+  fields: [
+    // @ts-expect-error Plain numbers cannot accept an empty sentinel.
+    { field: 'count', label: 'Count', control: 'number', empty: 'null' },
+  ],
+}
+const undefinedPolicy: FormDescription<Numbers> = {
+  id: 'invalid',
+  fields: [
+    {
+      field: 'optional',
+      label: 'Optional',
+      control: 'number',
+      // @ts-expect-error Optional numeric fields require a literal policy, including with non-exact optional types.
+      empty: undefined,
+    },
+  ],
+}
+const literalNumber: FormDescription<{ count: 1 | 2 }> = {
+  id: 'invalid',
+  // @ts-expect-error Numeric inputs emit arbitrary finite numbers.
+  fields: [{ field: 'count', label: 'Count', control: 'number' }],
+}
+const nullNumber: FormDescription<{ count: null }> = {
+  id: 'invalid',
+  fields: [
+    // @ts-expect-error An empty-only value cannot accept a numeric edit.
+    { field: 'count', label: 'Count', control: 'number', empty: 'null' },
+  ],
+}
+void [
+  numericEditor,
+  missingEmpty,
+  wrongEmpty,
+  requiredEmpty,
+  undefinedPolicy,
+  literalNumber,
+  nullNumber,
+]

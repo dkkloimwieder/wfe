@@ -1,12 +1,5 @@
 import { preserveReorderFocus } from './reorderFocus'
-import {
-  For,
-  Show,
-  createMemo,
-  createUniqueId,
-  onCleanup,
-  untrack,
-} from 'solid-js'
+import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
 import {
   Button,
   DatePicker,
@@ -16,6 +9,7 @@ import {
   FieldError,
   HelpText,
   Input,
+  NumberInput,
   Label,
   SelectField,
   Switch,
@@ -28,6 +22,7 @@ import type {
   CustomFieldProps,
   DateControlDescription,
   DateTimeControlDescription,
+  NumberControlDescription,
   FormChoice,
   FormDescription,
   FormFieldDescription,
@@ -64,10 +59,6 @@ export function FormView<
   const form = untrack(() => bindings().form)
   const identity = untrack(() => props.description.id)
   const domId = `generated-form-${createUniqueId()}`
-  const invalidInputs = new Map<
-    Extract<keyof T, string>,
-    () => HTMLInputElement | undefined
-  >()
   const description = createMemo(() => {
     const value = props.description
     requireValue(
@@ -88,6 +79,7 @@ export function FormView<
           'textarea',
           'date',
           'datetime',
+          'number',
           'select',
           'checkbox',
           'switch',
@@ -101,7 +93,19 @@ export function FormView<
             typeof bindings().fields?.[field.field] === 'function',
           `missing custom field "${field.field}"`,
         )
-      else if (control === 'select')
+      else if (control === 'number') {
+        const current = form.values[field.field]
+        const numeric = field as FormFieldDescription<T> &
+          NumberControlDescription & { empty?: 'reject' | 'null' | 'undefined' }
+        const empty = numeric.empty === undefined ? 'reject' : numeric.empty
+        requireValue(
+          ['reject', 'null', 'undefined'].includes(empty) &&
+            ((typeof current === 'number' && Number.isFinite(current)) ||
+              (empty === 'null' && current === null) ||
+              (empty === 'undefined' && current === undefined)),
+          `incompatible numeric field "${field.field}"`,
+        )
+      } else if (control === 'select')
         requireValue(
           Object.hasOwn(bindings().choices ?? {}, field.field) &&
             typeof bindings().choices?.[field.field] === 'function' &&
@@ -131,20 +135,6 @@ export function FormView<
       )
       return field()
     })
-    let host: HTMLDivElement | undefined
-    const validity = (valid: boolean) => {
-      if (valid) invalidInputs.delete(key)
-      else
-        invalidInputs.set(
-          key,
-          () =>
-            host?.querySelector<HTMLInputElement>('[data-date-invalid]') ??
-            undefined,
-        )
-    }
-    onCleanup(() => {
-      invalidInputs.delete(key)
-    })
     const dateDescription = () => {
       const value = checkedField()
       requireValue(
@@ -161,6 +151,15 @@ export function FormView<
         'Datetime controls require a datetime description',
       )
       return value as FormFieldDescription<T> & DateTimeControlDescription
+    }
+    const numberDescription = () => {
+      const value = checkedField()
+      requireValue(
+        value.control === 'number',
+        'Numeric controls require a number description',
+      )
+      return value as FormFieldDescription<T> &
+        NumberControlDescription & { empty?: 'reject' | 'null' | 'undefined' }
     }
     const booleanControl = control === 'checkbox' || control === 'switch'
     const id = `${domId}-${encodeURIComponent(key)}`
@@ -183,9 +182,6 @@ export function FormView<
     }
     return (
       <Field
-        ref={(node) => {
-          host = node
-        }}
         controlId={id}
         required={checkedField().required}
         disabled={disabled()}
@@ -199,6 +195,21 @@ export function FormView<
           <Input value={String(form.values[key])} onValueChange={set} />
         ) : control === 'textarea' ? (
           <Textarea value={String(form.values[key])} onValueChange={set} />
+        ) : control === 'number' ? (
+          <NumberInput
+            value={(form.values[key] as number | null | undefined) ?? undefined}
+            min={numberDescription().min}
+            max={numberDescription().max}
+            allowEmpty={
+              numberDescription().empty === 'null' ||
+              numberDescription().empty === 'undefined'
+            }
+            onValueChange={(value) => {
+              if (value !== undefined) set(value)
+              else if (numberDescription().empty === 'null') set(null)
+              else if (numberDescription().empty === 'undefined') set(undefined)
+            }}
+          />
         ) : control === 'date' ? (
           <DatePicker
             label={checkedField().label}
@@ -209,7 +220,6 @@ export function FormView<
             max={dateDescription().max}
             startOfWeek={dateDescription().startOfWeek}
             onValueChange={(value) => set(value ?? '')}
-            onValidityChange={validity}
           />
         ) : control === 'datetime' ? (
           <DateTimePicker
@@ -224,7 +234,6 @@ export function FormView<
             max={datetimeDescription().max}
             startOfWeek={datetimeDescription().startOfWeek}
             onValueChange={(value) => set(value ?? '')}
-            onValidityChange={validity}
           />
         ) : control === 'select' ? (
           <SelectField
@@ -322,12 +331,17 @@ export function FormView<
       ref={nativeEvents<HTMLFormElement>({
         submit: (event) => {
           event.preventDefault()
-          const invalid = [...invalidInputs.values()]
-            .map((get) => get())
-            .find(
-              (input) =>
-                input?.isConnected && !input.disabled && !input.readOnly,
-            )
+          const invalid = [
+            ...event.currentTarget.querySelectorAll<HTMLInputElement>(
+              'input[data-ui-invalid-input]',
+            ),
+          ].find(
+            (input) =>
+              input.isConnected &&
+              !input.matches(':disabled') &&
+              !input.readOnly &&
+              input.form === event.currentTarget,
+          )
           if (invalid) {
             invalid.focus()
             return

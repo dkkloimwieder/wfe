@@ -42,7 +42,8 @@ Checkbox and switch controls require a full boolean type.
 A literal boolean requires a custom control because a toggle requests both values.
 Select bindings supply current typed choices through accessors.
 An accessor is a function that reads the current value.
-Numeric, nullable, optional, and other scalar controls use explicit custom field components in this first contract.
+Numeric fields use the shared [numeric input](number-inputs.md) through `control: 'number'`.
+Optional and nullable numbers declare their empty policy explicitly. Other unsupported scalar types use custom field components.
 This limit avoids adding a second numeric draft or conversion policy.
 Custom field props preserve the field's value type and request changes through the existing contract.
 The surrounding field supplies labels, help, errors, and accessibility associations.
@@ -129,7 +130,7 @@ The generator example contains separate records and dispatch applications.
 Their applications own accepted values.
 Their providers own distinct records, validation rules, and save behavior.
 The dispatch application computes a route column and formats cents through a custom cell.
-Its nullable amount uses a custom field with the supplied identity and shared Field context.
+Its nullable amount uses the generated number control with an explicit null policy and shared Field context.
 The two applications use the same public views without changes to generic packages.
 
 An adapter supplies stable field, action, column, and panel identities.

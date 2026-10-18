@@ -19,7 +19,6 @@ export function DispatchApp(props: {
               { value: 'courier', label: 'Courier' },
             ] as const,
         },
-        fields: { declaredValue: app.MoneyField },
         actions: {
           reset: { run: app.form.reset },
           cancel: { run: app.form.cancel, disabled: () => !app.form.pending },

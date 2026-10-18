@@ -28,7 +28,7 @@ export async function reviewDispatch({ page, record }) {
     }, entry)
 
   await record(
-    'dispatch uses unrelated records, computed columns and nullable custom input',
+    'dispatch uses unrelated records, computed columns and a generated nullable number',
     async () => {
       await expect(page.locator('tbody tr')).toHaveCount(2)
       await expect(page.locator('table')).toContainText('PKG-100 / post')
@@ -39,6 +39,33 @@ export async function reviewDispatch({ page, record }) {
       await page.getByLabel('Declared value', { exact: true }).fill('25')
       assert.equal((await snapshot()).values.declaredValue, 25)
       await page.getByLabel('Declared value', { exact: true }).fill('')
+      assert.equal((await snapshot()).values.declaredValue, null)
+    },
+  )
+  await record(
+    'dispatch incomplete numeric drafts block UI submission before requests and retain accepted amounts',
+    async () => {
+      const amount = page.getByRole('textbox', {
+        name: 'Declared value',
+        exact: true,
+      })
+      await amount.fill('12.50')
+      await expect(amount).toHaveValue('12.50')
+      const before = (await snapshot()).provider.requests.length
+      await amount.fill('1.')
+      await code().press('Enter')
+      await expect(amount).toBeFocused()
+      assert.equal((await snapshot()).provider.requests.length, before)
+      assert.equal((await snapshot()).values.declaredValue, 12.5)
+      await amount.press('Escape')
+      await expect(amount).toHaveValue('12.5')
+      await page.evaluate(() => window.generatorFixture.rejectEdits(true))
+      await amount.fill('9')
+      await code().focus()
+      await expect(amount).toHaveValue('12.5')
+      assert.equal((await snapshot()).values.declaredValue, 12.5)
+      await page.evaluate(() => window.generatorFixture.rejectEdits(false))
+      await amount.fill('')
       assert.equal((await snapshot()).values.declaredValue, null)
     },
   )
@@ -136,7 +163,6 @@ export async function reviewDispatch({ page, record }) {
         .getByRole('button', { name: 'Inspect package', exact: true })
         .click()
       assert.deepEqual((await snapshot()).calls, ['first', 'updated'])
-      assert.equal((await snapshot()).lifecycle.customMounts, 1)
       assert.equal(
         await page.evaluate(() =>
           window.dispatchNodes.every((node) => node.isConnected),
@@ -205,7 +231,6 @@ export async function reviewDispatch({ page, record }) {
       await page.evaluate(() => window.generatorFixture.remove())
       await expect(page.locator('form')).toHaveCount(0)
       await complete(removed)
-      assert.equal((await snapshot()).lifecycle.customDisposals, 1)
       assert.equal((await snapshot()).provider.publications, 1)
       const disposed = await begin('save')
       await page.evaluate(() => window.generatorFixture.stop())

@@ -4,6 +4,7 @@ export type {
   ViewStatus,
   FormFieldDescription,
   FormDescription,
+  NumberControlDescription,
   FormChoice,
   CustomFieldProps,
   FormViewBindings,

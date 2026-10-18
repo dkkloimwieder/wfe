@@ -1,4 +1,8 @@
 import {
+  NumberControls,
+  numberLifecycle,
+} from '../shared/controls/NumberControls'
+import {
   CollapsibleControls,
   collapsibleLifecycle,
 } from '../shared/controls/CollapsibleControls'
@@ -32,6 +36,7 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  number: numberLifecycle,
   collapsible: collapsibleLifecycle,
   reads: 0,
   cleanups: 0,
@@ -267,6 +272,7 @@ export default function App() {
           {JSON.stringify([textMatch(), statusMatch(), numberMatch()])}
         </output>
       </section>
+      <NumberControls />
       <CollapsibleControls />
       <Button
         id="rename"

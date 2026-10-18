@@ -153,6 +153,7 @@ export function DatePickerControl(
             id={id()}
             type="text"
             data-date-invalid={invalid() ? '' : undefined}
+            data-ui-invalid-input={invalid() ? '' : undefined}
             value={draft()}
             placeholder={pattern().replace(/yyyy|dd/g, (token) =>
               token.toUpperCase(),

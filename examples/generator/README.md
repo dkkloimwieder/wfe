@@ -7,7 +7,10 @@ The dispatch application uses `/?app=dispatch`.
 Each application owns a separate provider, form contract, table, and descriptions.
 Both applications use unchanged generic packages.
 
-The optional numeric field starts without a value and uses an application component.
+The optional numeric field starts without a value and uses an application wrapper around the shared NumberInput.
+The dispatch nullable amount uses the built-in generated number control.
+Both preserve incomplete drafts and prevent UI submission of an older accepted number.
+Applications retain domain validation and saving.
 The custom table cell retains a local draft while the application replaces its row.
 
 From the repository root, build the packages before you start the preview:

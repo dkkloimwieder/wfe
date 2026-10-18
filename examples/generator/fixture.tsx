@@ -158,6 +158,10 @@ export function createFixture(name: ApplicationName = 'records') {
       records().setColumns(count)
       flush()
     },
+    recordOrder(reversed: boolean) {
+      records().setReversed(reversed)
+      flush()
+    },
     revise() {
       app!.revise()
       flush()

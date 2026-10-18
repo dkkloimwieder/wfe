@@ -11,6 +11,7 @@ const shared = {
     './src/components/Display.tsx',
     './src/components/DropdownMenu.tsx',
     './src/components/NativeFields.tsx',
+    './src/components/NumberInput.tsx',
     './src/components/Popover.tsx',
     './src/components/RadioGroup.tsx',
     './src/components/Select.tsx',

@@ -54,18 +54,35 @@ export type DateTimeControlDescription = Omit<
   timeZone?: string
   disambiguation?: DateTimeDisambiguation
 }
-type BuiltInControl<V> = [V] extends [string]
-  ? | { control: 'select' }
-    | (string extends V
-        ? | { control: 'text' | 'textarea' }
-          | DateControlDescription
-          | DateTimeControlDescription
-        : never)
-  : [V] extends [boolean]
-    ? boolean extends V
-      ? { control: 'checkbox' | 'switch' }
-      : never
+export type NumberControlDescription = {
+  control: 'number'
+  min?: number
+  max?: number
+}
+type NumericControl<V> = [Exclude<V, null | undefined>] extends [number]
+  ? number extends Exclude<V, null | undefined>
+    ? NumberControlDescription &
+        ([V] extends [number]
+          ? { empty?: 'reject' }
+          : | (undefined extends V ? { empty: 'undefined' } : never)
+            | (null extends V ? { empty: 'null' } : never))
     : never
+  : never
+
+type BuiltInControl<V> =
+  | NumericControl<V>
+  | ([V] extends [string]
+      ? | { control: 'select' }
+        | (string extends V
+            ? | { control: 'text' | 'textarea' }
+              | DateControlDescription
+              | DateTimeControlDescription
+            : never)
+      : [V] extends [boolean]
+        ? boolean extends V
+          ? { control: 'checkbox' | 'switch' }
+          : never
+        : never)
 
 export type FormFieldDescription<
   T extends object & { [K in keyof T]: FormScalar },

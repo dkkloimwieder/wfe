@@ -6,6 +6,88 @@ import {
 } from '../shared/controls/select-review.mjs'
 
 export async function reviewRecords({ page, report, record }) {
+  await record(
+    'custom numeric fields retain optional empty semantics and block incomplete drafts',
+    async () => {
+      const quantity = page
+        .locator('form')
+        .getByRole('textbox', { name: 'Quantity', exact: true })
+      await expect(quantity).toHaveValue('')
+      await quantity.fill('3.50')
+      await expect(quantity).toHaveValue('3.50')
+      await quantity.fill('-')
+      await quantity.press('Enter')
+      await expect(quantity).toBeFocused()
+      const snapshot = await page.evaluate(() =>
+        window.generatorFixture.snapshot(),
+      )
+      assert.equal(snapshot.values.quantity, 3.5)
+      assert.equal(snapshot.submitted, 0)
+      await quantity.press('Escape')
+      await expect(quantity).toHaveValue('3.5')
+      await quantity.fill('')
+      assert.equal(
+        (await page.evaluate(() => window.generatorFixture.snapshot())).values
+          .quantity,
+        undefined,
+      )
+    },
+  )
+  await record(
+    'numeric drafts retain focus and selection when fields and panels move',
+    async () => {
+      const quantity = page
+        .locator('form')
+        .getByRole('textbox', { name: 'Quantity', exact: true })
+      for (const text of ['4.50', '4.']) {
+        await quantity.fill('4.5')
+        await quantity.fill(text)
+        await quantity.evaluate((node) => {
+          node.focus()
+          node.setSelectionRange(1, 2, 'backward')
+          window.numericReorderNode = node
+        })
+        for (const reversed of [true, false]) {
+          await page.evaluate((value) => {
+            window.generatorFixture.recordOrder(value)
+          }, reversed)
+          await expect(quantity).toBeFocused()
+          await expect(quantity).toHaveValue(text)
+          assert.deepEqual(
+            await quantity.evaluate((node) => ({
+              same: node === window.numericReorderNode,
+              start: node.selectionStart,
+              end: node.selectionEnd,
+              direction: node.selectionDirection,
+            })),
+            { same: true, start: 1, end: 2, direction: 'backward' },
+          )
+          assert.equal(
+            (await page.evaluate(() => window.generatorFixture.snapshot()))
+              .values.quantity,
+            4.5,
+          )
+        }
+        if (text === '4.') {
+          await quantity.press('Enter')
+          await expect(quantity).toBeFocused()
+          assert.equal(
+            (await page.evaluate(() => window.generatorFixture.snapshot()))
+              .submitted,
+            0,
+          )
+          await quantity.press('Escape')
+          await expect(quantity).toHaveValue('4.5')
+        }
+      }
+      await quantity.fill('')
+      assert.equal(
+        (await page.evaluate(() => window.generatorFixture.snapshot())).values
+          .quantity,
+        undefined,
+      )
+    },
+  )
   await record('two-column layout stacks on narrow screens', async () => {
     await page.setViewportSize({ width: 390, height: 844 })
     const panels = await page

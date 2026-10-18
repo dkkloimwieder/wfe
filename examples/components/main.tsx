@@ -1,4 +1,8 @@
 import {
+  NumberControls,
+  numberLifecycle,
+} from '../shared/controls/NumberControls'
+import {
   CollapsibleControls,
   collapsibleLifecycle,
 } from '../shared/controls/CollapsibleControls'
@@ -25,7 +29,21 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('collapsible')) {
+if (new URLSearchParams(location.search).has('number')) {
+  const dispose = render(
+    () => <NumberControls />,
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose synchronously through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  numberLifecycle.stop = () => {
+    cleanup()
+    flush()
+  }
+  window.numberFixture = numberLifecycle
+} else if (new URLSearchParams(location.search).has('collapsible')) {
   const dispose = render(
     () => <CollapsibleControls />,
     document.getElementById('root')!,

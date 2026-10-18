@@ -1,5 +1,4 @@
 import { createSignal, onCleanup } from 'solid-js'
-import { Input } from '@wfe/components'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
 import type {
@@ -22,7 +21,7 @@ export function createDispatchApplication() {
     () => () => setCalls((old) => [...old, 'first']),
   )
   const [aliases, setAliases] = createSignal<{ 'route-label'?: string }>({})
-  const lifecycle = { customMounts: 0, customDisposals: 0, cleanups: 0 }
+  const lifecycle = { cleanups: 0 }
   onCleanup(() => {
     lifecycle.cleanups++
   })
@@ -62,31 +61,6 @@ export function createDispatchApplication() {
       { id: 'scheduled', accessorKey: 'scheduledAt' },
     ],
   })
-  const MoneyField = (props: {
-    id: string
-    value: number | null
-    onValueChange: (value: number | null) => void
-    disabled: boolean
-    readOnly: boolean
-  }) => {
-    lifecycle.customMounts++
-    onCleanup(() => {
-      lifecycle.customDisposals++
-    })
-    return (
-      <Input
-        id={props.id}
-        value={props.value ?? ''}
-        disabled={props.disabled}
-        readonly={props.readOnly}
-        onValueChange={(value) => {
-          if (value === '') props.onValueChange(null)
-          else if (Number.isFinite(Number(value)))
-            props.onValueChange(Number(value))
-        }}
-      />
-    )
-  }
   const MoneyCell = (props: { value: unknown }) => (
     <>
       {typeof props.value === 'number'
@@ -108,7 +82,8 @@ export function createDispatchApplication() {
       {
         field: 'declaredValue',
         label: 'Declared value',
-        control: 'custom',
+        control: 'number',
+        empty: 'null',
         help: 'Blank means no declared value',
       },
       {
@@ -170,7 +145,6 @@ export function createDispatchApplication() {
     setControlsCollapsed,
     calls,
     lifecycle,
-    MoneyField,
     MoneyCell,
     formDescription,
     tableDescription,
