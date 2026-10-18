@@ -7,7 +7,7 @@ export async function reviewDefaultAppearance(page) {
     .evaluate((scope) => {
       const pane = scope.querySelector('.ui-card')
       const action = scope.querySelector(
-        '.ui-tabs-trigger, .ui-breadcrumbs-link, [data-accordion-review] .ui-button, [data-resizable-review] .ui-button',
+        '.ui-tabs-trigger, .ui-breadcrumbs-link, [data-accordion-review] .ui-button, [data-resizable-review] .ui-button, [data-file-review] .ui-button',
       )
       const canvasStyle = getComputedStyle(scope)
       const paneStyle = getComputedStyle(pane)

@@ -59,3 +59,18 @@ body:has(.component-preview) {
 .resize-review-workspace {
   height: 20rem;
 }
+
+[data-file-review] {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+[data-file-review] > h2,
+[data-file-review] > p {
+  margin: 0;
+}
+[data-file-review] .file-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}

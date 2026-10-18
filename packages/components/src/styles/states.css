@@ -32,6 +32,7 @@
 :where([data-ui]) select[aria-invalid='true'],
 :where([data-ui]) .popup-trigger[aria-invalid='true'],
 :where([data-ui]) [data-invalid],
+:where([data-ui])[data-invalid],
 :where([data-ui]) .ui-check-control[data-invalid],
 :where([data-ui]) .ui-radio-control[data-invalid],
 :where([data-ui]) .ui-switch-control[data-invalid] {

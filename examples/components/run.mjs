@@ -1,3 +1,4 @@
+import { fileCases } from './file-cases.mjs'
 import { resizableCases } from './resizable-cases.mjs'
 import { accordionCases } from './accordion-cases.mjs'
 import { breadcrumbCases } from './breadcrumb-cases.mjs'
@@ -232,6 +233,7 @@ async function record(name, work) {
   }
 }
 try {
+  await fileCases({ page, url, record, settle })
   await resizableCases({ page, url, record, settle })
   await accordionCases({ page, url, record, settle })
   await breadcrumbCases({ page, url, record, settle })

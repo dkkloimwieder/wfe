@@ -1,3 +1,4 @@
+import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
 import {
   ResizableControls,
   resizableLifecycle,
@@ -49,6 +50,7 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  files: fileLifecycle,
   resizable: resizableLifecycle,
   accordion: accordionLifecycle,
   breadcrumb: breadcrumbLifecycle,
@@ -144,6 +146,7 @@ export default function App() {
         />
       )}
     >
+      <FileControls />
       <ResizableControls />
       <AccordionControls />
       <section hidden>

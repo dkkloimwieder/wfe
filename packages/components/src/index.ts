@@ -87,3 +87,6 @@ export * from './components/Breadcrumbs'
 export * from './components/Accordion'
 
 export * from './components/Resizable'
+
+export { FileInput } from './components/FileInput'
+export type { FileInputProps, FileRejection } from './components/FileInput'

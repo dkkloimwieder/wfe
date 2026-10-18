@@ -3,6 +3,7 @@ import solid from '@solidjs/vite-plugin'
 
 const shared = {
   entry: [
+    './src/components/FileInput.tsx',
     './src/components/Resizable.tsx',
     './src/components/Accordion.tsx',
     './src/components/AlertDialog.tsx',

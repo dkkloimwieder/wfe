@@ -190,6 +190,13 @@
       "solid": "./dist/source/components/Resizable.jsx",
       "node": "./dist/server/components/Resizable.js",
       "import": "./dist/client/components/Resizable.js"
+    },
+    "./file-input": {
+      "types": "./dist/client/components/FileInput.d.ts",
+      "wfe-source": "./src/components/FileInput.tsx",
+      "solid": "./dist/source/components/FileInput.jsx",
+      "node": "./dist/server/components/FileInput.js",
+      "import": "./dist/client/components/FileInput.js"
     }
   },
   "sideEffects": [

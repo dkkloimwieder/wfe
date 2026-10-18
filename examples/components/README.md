@@ -252,3 +252,5 @@ See [Accordion](../../docs/accordion.md) for its public contract.
 Open `?resizable=1` for retained panes and table controls that support dragging and keyboard resizing.
 The preview uses the shared default appearance and supports RTL, vertical layouts, and left/top/right table controls.
 See [Resizable panes](../../docs/resizable.md) for the public API and application size ownership.
+
+Open `?files=1` for the styled record attachments form. It demonstrates controlled file selection, picker/drop constraints, removal, native required validity, and reset. Files stay in browser memory.

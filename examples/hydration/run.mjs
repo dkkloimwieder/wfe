@@ -1,3 +1,4 @@
+import { reviewFiles } from '../shared/controls/file-review.mjs'
 import { reviewResizable } from '../shared/controls/resizable-review.mjs'
 import { reviewAccordion } from '../shared/controls/accordion-review.mjs'
 import { reviewBreadcrumbs } from '../shared/controls/breadcrumb-review.mjs'
@@ -113,7 +114,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -216,6 +217,24 @@ try {
         ),
     ),
     true,
+  )
+  assert.equal(
+    await page.evaluate(
+      () =>
+        window.serverFileNodes.length > 0 &&
+        window.serverFileNodes.every(
+          (node, index) =>
+            node ===
+            document.querySelectorAll(
+              '[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input',
+            )[index],
+        ),
+    ),
+    true,
+  )
+  await reviewFiles(page, 'hydration')
+  report.assertions.push(
+    'File selection retains server fields and attaches native picker, drop, validity and reset behavior',
   )
   await reviewResizable(page, 'hydration')
   report.assertions.push(
@@ -499,10 +518,12 @@ try {
     true,
   )
   report.assertions.push('Hydrated event updates existing native cells')
-  const nameInput = page.getByRole('textbox', {
-    name: 'Record name',
-    exact: true,
-  })
+  const nameInput = page.locator('#adopt-name').and(
+    page.getByRole('textbox', {
+      name: 'Record name',
+      exact: true,
+    }),
+  )
   const checkbox = page.getByRole('checkbox', {
     name: 'Include record',
     exact: true,
@@ -572,11 +593,16 @@ try {
 
   const cleanup = await page.evaluate(async () => {
     const fixture = window.hydrationFixture
+    const filesBefore = fixture.lifecycle.files.read()
     const resizableBefore = fixture.lifecycle.resizable.read()
     const accordionBefore = fixture.lifecycle.accordion.read()
     const numberBefore = fixture.lifecycle.number.read()
     const disclosureBefore = fixture.lifecycle.collapsible.read()
     fixture.dispose()
+    for (const node of window.serverFileNodes) {
+      if (node.tagName === 'BUTTON' && node.type === 'button') node.click()
+      node.dispatchEvent(new Event('change', { bubbles: true }))
+    }
     for (const node of window.serverResizableNodes) {
       node.dispatchEvent(
         new KeyboardEvent('keydown', { key: 'End', bubbles: true }),
@@ -636,6 +662,8 @@ try {
       requestAnimationFrame(() => requestAnimationFrame(done)),
     )
     return {
+      filesBefore,
+      filesAfter: fixture.lifecycle.files.read(),
       resizableBefore,
       resizableAfter: fixture.lifecycle.resizable.read(),
       accordionBefore,
@@ -664,6 +692,7 @@ try {
       diagnostics: fixture.diagnostics(),
     }
   })
+  assert.deepEqual(cleanup.filesAfter, cleanup.filesBefore)
   assert.deepEqual(cleanup.resizableAfter, cleanup.resizableBefore)
   assert.deepEqual(
     cleanup.accordionAfter.requests,

@@ -1,3 +1,4 @@
+import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
 import {
   ResizableControls,
   resizableLifecycle,
@@ -44,7 +45,27 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('resizable')) {
+if (new URLSearchParams(location.search).has('files')) {
+  const dispose = render(
+    () => (
+      <DefaultAppearance class="component-preview">
+        <Card>
+          <FileControls />
+        </Card>
+      </DefaultAppearance>
+    ),
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  fileLifecycle.stop = () => {
+    cleanup()
+    flush()
+  }
+  window.fileFixture = fileLifecycle
+} else if (new URLSearchParams(location.search).has('resizable')) {
   const dispose = render(
     () => (
       <DefaultAppearance class="component-preview">

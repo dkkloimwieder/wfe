@@ -1,3 +1,4 @@
+import { FileInput } from '@wfe/components/file-input'
 import assert from 'node:assert/strict'
 import { renderToString } from '@solidjs/web'
 import { Toast } from '@wfe/components'
@@ -289,4 +290,21 @@ assert.match(closedPane, /Results/)
 assert.equal(resizeCallbacks, 0)
 console.log(
   'Initially closed resizable panes retain server content without callback requests.',
+)
+
+let fileCallbacks = 0
+const fileOutput = await renderToString(() =>
+  FileInput({
+    label: 'Attachments',
+    files: [],
+    required: true,
+    onFilesChange: () => fileCallbacks++,
+  }),
+)
+assert.match(fileOutput, /type="file"/)
+assert.match(fileOutput, /No files selected/)
+assert.match(fileOutput, /Choose file/)
+assert.equal(fileCallbacks, 0)
+console.log(
+  'File selection server rendering stays empty and does not request changes.',
 )

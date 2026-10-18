@@ -295,3 +295,5 @@ export function OverlayExample() {
   )
 }
 ```
+
+File selection uses [FileInput](../file-input.md). Applications own selected objects and upload behavior; files stay outside scalar form values.
