@@ -127,33 +127,13 @@
   border: 0;
   border-top: 1px solid var(--ui-border, #ccc);
 }
-:where([data-ui]) .table-control-section {
-  box-shadow: none;
-  flex: none;
-  border: 0;
-  border-bottom: 1px solid var(--ui-border, #ccc);
-  background: var(--ui-surface, white);
-}
-:where([data-ui]) .table-control-section > summary {
-  display: list-item;
-  padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
-  line-height: var(--ui-header-height, 22px);
-  list-style-position: inside;
-  background: transparent;
-  font-weight: 600;
-}
 :where([data-ui]) .table-control-summary {
   margin-inline-start: var(--ui-gap, 6px);
   font-weight: 400;
   font-size: var(--ui-small-font-size, 11px);
   color: var(--ui-muted-text, #666);
 }
-:where([data-ui]) .table-control-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-gap, 6px);
-  padding: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
-}
+
 :where([data-ui]) .table-workspace .column-filters {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

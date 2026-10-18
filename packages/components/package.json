@@ -148,6 +148,13 @@
       "solid": "./dist/source/layout/index.js",
       "node": "./dist/server/layout/index.js",
       "import": "./dist/client/layout/index.js"
+    },
+    "./collapsible": {
+      "types": "./dist/client/components/Collapsible.d.ts",
+      "wfe-source": "./src/components/Collapsible.tsx",
+      "solid": "./dist/source/components/Collapsible.jsx",
+      "node": "./dist/server/components/Collapsible.js",
+      "import": "./dist/client/components/Collapsible.js"
     }
   },
   "sideEffects": [

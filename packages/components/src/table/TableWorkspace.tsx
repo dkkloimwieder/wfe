@@ -1,3 +1,4 @@
+import { Collapsible } from '../components/Collapsible'
 import { Icon } from '../components/Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import {
@@ -285,14 +286,19 @@ export function TableControlSection(props: {
   defaultOpen?: boolean
   children: JSX.Element
 }) {
-  const initiallyOpen = untrack(() => props.defaultOpen)
   return (
-    <details class="table-control-section" open={initiallyOpen}>
-      <summary>
-        <span>{props.title}</span>
-        <span class="table-control-summary">{props.summary}</span>
-      </summary>
-      <div class="table-control-content">{props.children}</div>
-    </details>
+    <Collapsible
+      class="table-control-section"
+      contentClass="table-control-content"
+      defaultOpen={props.defaultOpen}
+      summary={
+        <>
+          <span>{props.title}</span>
+          <span class="table-control-summary">{props.summary}</span>
+        </>
+      }
+    >
+      {props.children}
+    </Collapsible>
   )
 }

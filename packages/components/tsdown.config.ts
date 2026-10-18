@@ -6,6 +6,7 @@ const shared = {
     './src/components/AlertDialog.tsx',
     './src/components/Checkbox.tsx',
     './src/components/Combobox.tsx',
+    './src/components/Collapsible.tsx',
     './src/components/Dialog.tsx',
     './src/components/Display.tsx',
     './src/components/DropdownMenu.tsx',

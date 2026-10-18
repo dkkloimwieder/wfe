@@ -1,3 +1,4 @@
+import { reviewCollapsible } from '../shared/controls/collapsible-review.mjs'
 import {
   reviewStructuredClasses,
   reviewDynamicIds,
@@ -107,7 +108,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")];</script></body>',
+      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -133,6 +134,22 @@ try {
   report.cssProvenance = await reviewCssProvenance(
     page,
     `http://127.0.0.1:${server.address().port}`,
+  )
+  assert.equal(
+    await page.evaluate(() =>
+      window.serverDisclosureNodes.every(
+        (node, index) =>
+          node ===
+          document.querySelectorAll(
+            '[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input',
+          )[index],
+      ),
+    ),
+    true,
+  )
+  await reviewCollapsible(page, 'hydration')
+  report.assertions.push(
+    'Collapsible preserves server nodes, keyboard control, focus and retained drafts without callback echoes',
   )
   await reviewStructuredClasses(
     page,
@@ -464,7 +481,12 @@ try {
 
   const cleanup = await page.evaluate(async () => {
     const fixture = window.hydrationFixture
+    const disclosureBefore = fixture.lifecycle.collapsible.read()
     fixture.dispose()
+    for (const node of window.serverDisclosureNodes) {
+      node.click()
+      node.dispatchEvent(new Event('toggle'))
+    }
     const reads = fixture.lifecycle.reads
     const changes = fixture.lifecycle.changes
     const filterChanges = fixture.lifecycle.filterChanges
@@ -491,6 +513,8 @@ try {
       requestAnimationFrame(() => requestAnimationFrame(done)),
     )
     return {
+      disclosureBefore,
+      disclosureAfter: fixture.lifecycle.collapsible.read(),
       cleanups: fixture.lifecycle.cleanups,
       reads,
       afterReads: fixture.lifecycle.reads,
@@ -511,6 +535,7 @@ try {
       diagnostics: fixture.diagnostics(),
     }
   })
+  assert.deepEqual(cleanup.disclosureAfter, cleanup.disclosureBefore)
   assert.equal(cleanup.cleanups, 1)
   assert.equal(cleanup.remainingNodes, 0)
   assert.equal(cleanup.afterReads, cleanup.reads)

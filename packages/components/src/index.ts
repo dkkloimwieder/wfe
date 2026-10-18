@@ -65,3 +65,6 @@ export type { DateInputFormat } from './utils/dateFormat'
 export { DateTimePicker } from './components/DateTimePicker'
 export type { DateTimePickerProps } from './components/DateTimePicker'
 export type { TimeInputFormat, DateTimeDisambiguation } from './utils/dateTime'
+
+export { Collapsible } from './components/Collapsible'
+export type { CollapsibleProps } from './components/Collapsible'

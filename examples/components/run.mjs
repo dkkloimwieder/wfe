@@ -1,3 +1,4 @@
+import { collapsibleCases } from './collapsible-cases.mjs'
 import { iconCases } from './icon-cases.mjs'
 import { classCases } from './class-cases.mjs'
 import { consistencyCases } from './consistency-cases.mjs'
@@ -226,6 +227,7 @@ async function record(name, work) {
   }
 }
 try {
+  await collapsibleCases({ page, url, record, settle })
   await iconCases({ page, url, record, settle })
   await classCases({ page, url, record, settle })
   await consistencyCases({ page, url, record, settle })

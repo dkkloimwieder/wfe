@@ -1,3 +1,7 @@
+import {
+  CollapsibleControls,
+  collapsibleLifecycle,
+} from '../shared/controls/CollapsibleControls'
 import { IconControls } from './IconControls'
 import {
   StructuredClasses,
@@ -21,7 +25,21 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('icons')) {
+if (new URLSearchParams(location.search).has('collapsible')) {
+  const dispose = render(
+    () => <CollapsibleControls />,
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose synchronously through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  collapsibleLifecycle.stop = () => {
+    cleanup()
+    flush()
+  }
+  window.collapsibleFixture = collapsibleLifecycle
+} else if (new URLSearchParams(location.search).has('icons')) {
   render(() => <IconControls />, document.getElementById('root')!)
 } else if (new URLSearchParams(location.search).has('classes')) {
   const dispose = render(

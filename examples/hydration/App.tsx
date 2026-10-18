@@ -1,3 +1,7 @@
+import {
+  CollapsibleControls,
+  collapsibleLifecycle,
+} from '../shared/controls/CollapsibleControls'
 import { StructuredClasses } from '../shared/controls/StructuredClasses'
 import '@wfe/components/styles.css'
 import { createSignal, onCleanup } from 'solid-js'
@@ -28,6 +32,7 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  collapsible: collapsibleLifecycle,
   reads: 0,
   cleanups: 0,
   changes: 0,
@@ -262,6 +267,7 @@ export default function App() {
           {JSON.stringify([textMatch(), statusMatch(), numberMatch()])}
         </output>
       </section>
+      <CollapsibleControls />
       <Button
         id="rename"
         variant={name() === 'Ada' ? 'filled' : 'inverted'}
