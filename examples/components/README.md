@@ -235,7 +235,14 @@ It also runs the usage guard and negative CSS build tests through `pnpm check`.
 
 ## Default appearance previews
 
-The `?tabs=1` and `?breadcrumbs=1` routes share the records example appearance.
+The `?tabs=1`, `?breadcrumbs=1`, and `?accordion=1` routes share the records example appearance.
 They use a blue accent, outline buttons, Surface 1 components, a Surface 2 backdrop, and shadow depth 2.
 The shared `DefaultAppearance` wrapper supplies those values and the stylesheet dependencies.
 The generic components continue to inherit their appearance from the application scope.
+
+## Accordion
+
+Open `?accordion=1` for a profile form with one open section and a second group with independent sections.
+The preview demonstrates retained drafts, shared fields, and nested groups.
+The browser and hydration suites cover keyboard navigation, controlled requests, focus, and disposal.
+See [Accordion](../../docs/accordion.md) for its public contract.

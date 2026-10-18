@@ -83,3 +83,5 @@ export type {
 export * from './components/Tabs'
 
 export * from './components/Breadcrumbs'
+
+export * from './components/Accordion'

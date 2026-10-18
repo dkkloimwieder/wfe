@@ -1,3 +1,7 @@
+import {
+  AccordionControls,
+  accordionLifecycle,
+} from '../shared/controls/AccordionControls'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import { Card } from '@wfe/components'
 import {
@@ -36,7 +40,27 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('breadcrumbs')) {
+if (new URLSearchParams(location.search).has('accordion')) {
+  const dispose = render(
+    () => (
+      <DefaultAppearance class="component-preview">
+        <Card>
+          <AccordionControls />
+        </Card>
+      </DefaultAppearance>
+    ),
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  accordionLifecycle.stop = () => {
+    cleanup()
+    flush()
+  }
+  window.accordionFixture = accordionLifecycle
+} else if (new URLSearchParams(location.search).has('breadcrumbs')) {
   const dispose = render(
     () => (
       <DefaultAppearance class="component-preview">

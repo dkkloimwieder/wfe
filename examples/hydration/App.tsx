@@ -1,4 +1,8 @@
 import {
+  AccordionControls,
+  accordionLifecycle,
+} from '../shared/controls/AccordionControls'
+import {
   BreadcrumbControls,
   breadcrumbLifecycle,
 } from '../shared/controls/BreadcrumbControls'
@@ -41,6 +45,7 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  accordion: accordionLifecycle,
   breadcrumb: breadcrumbLifecycle,
   tabs: tabsLifecycle,
   number: numberLifecycle,
@@ -134,6 +139,7 @@ export default function App() {
         />
       )}
     >
+      <AccordionControls />
       <section hidden>
         <StructuredClasses />
       </section>

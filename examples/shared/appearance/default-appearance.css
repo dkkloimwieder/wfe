@@ -25,3 +25,12 @@ body:has(.component-preview) {
 .component-preview [data-tabs-review] > .ui-button {
   align-self: flex-start;
 }
+
+.component-preview [data-accordion-review] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+}
+.component-preview [data-accordion-review] > .ui-button {
+  align-self: flex-start;
+}

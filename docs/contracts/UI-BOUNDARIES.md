@@ -193,7 +193,8 @@ Display components contain Badge, Card, Separator, InlineAlert, EmptyState, Spin
 Icon supplies shared decorative glyphs.
 Table contains shared headers, cells, column controls, groups, summaries, optional editors, and optional virtual rows.
 
-Tabs, Collapsible, and Accordion remain later candidates.
+Tabs switches related panels. Collapsible supplies individual disclosures, and Accordion groups them.
+Breadcrumbs supplies native links and current-page text for application navigation.
 Calendar and DatePicker supply date selection. Time and file controls remain outside the current catalog.
 DashboardShell, DashboardPanel, and DashboardGrid supply generic page layout.
 Programmatic generation follows epic `wfe-w2y.4`. Production WAMN integration remains application-owned.

@@ -176,6 +176,13 @@
       "solid": "./dist/source/components/Breadcrumbs.jsx",
       "node": "./dist/server/components/Breadcrumbs.js",
       "import": "./dist/client/components/Breadcrumbs.js"
+    },
+    "./accordion": {
+      "types": "./dist/client/components/Accordion.d.ts",
+      "wfe-source": "./src/components/Accordion.tsx",
+      "solid": "./dist/source/components/Accordion.jsx",
+      "node": "./dist/server/components/Accordion.js",
+      "import": "./dist/client/components/Accordion.js"
     }
   },
   "sideEffects": [
