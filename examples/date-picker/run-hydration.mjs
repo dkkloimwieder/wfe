@@ -90,6 +90,15 @@ try {
     await expect(
       initial.getByLabel('Browser time', { exact: true }),
     ).toHaveValue('')
+    await expect(initial.locator('[data-date-display="date"]')).toHaveText(
+      '29/02/2024',
+    )
+    await expect(initial.locator('[data-date-display="system"]')).toHaveText(
+      '28/02/2024 21:15',
+    )
+    await expect(initial.locator('[data-date-display="browser"]')).toHaveText(
+      '',
+    )
     report.cases.push(
       'Explicit timezone renders on the server and browser timezone stays pending',
     )
@@ -117,12 +126,25 @@ try {
   await expect(page.getByLabel('Browser time', { exact: true })).toHaveValue(
     '08:00',
   )
+  await expect(page.locator('[data-date-display="date"]')).toHaveText(
+    '29/02/2024',
+  )
+  await expect(page.locator('[data-date-display="system"]')).toHaveText(
+    '28/02/2024 21:15',
+  )
+  await expect(page.locator('[data-date-display="browser"]')).toHaveText(
+    '29/02/2024 08:00',
+  )
   assert.equal(
     await page.evaluate(() =>
       window.dateServerNodes.every(
         (node) =>
           node.isConnected &&
-          [...document.querySelectorAll('#root input')].includes(node),
+          [
+            ...document.querySelectorAll(
+              '#root input, #root [data-date-display]',
+            ),
+          ].includes(node),
       ),
     ),
     true,
@@ -141,6 +163,12 @@ try {
   )
   await expect(page.getByLabel('System time', { exact: true })).toHaveValue(
     '22:15',
+  )
+  await expect(page.locator('[data-date-display="system"]')).toHaveText(
+    '28/02/2024 22:15',
+  )
+  await expect(page.locator('[data-date-display="browser"]')).toHaveText(
+    '29/02/2024 09:00',
   )
   report.cases.push(
     'Hydrated controls request one instant and update both timezone displays',

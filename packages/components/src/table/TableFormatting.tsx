@@ -3,15 +3,20 @@ import { SelectField } from '../components/Select'
 import type { ValueFormat } from '../utils/valueFormat'
 
 const choices: Record<
-  'boolean' | 'date' | 'number',
+  'boolean' | 'date' | 'datetime' | 'number',
   ReadonlyArray<{ value: ValueFormat; label: string }>
 > = {
   boolean: [
     { value: 'boolean-symbol', label: 'Check / cross' },
     { value: 'boolean-text', label: 'Yes / No' },
   ],
+  datetime: [
+    { value: 'datetime', label: 'Date and time' },
+    { value: 'datetime-iso', label: 'UTC ISO timestamp' },
+  ],
   date: [
     { value: 'date-iso', label: 'YYYY-MM-DD' },
+    { value: 'date', label: 'Configured date' },
     { value: 'date-short', label: 'Short date' },
     { value: 'date-long', label: 'Long date' },
   ],
@@ -25,7 +30,7 @@ export type TableFormattingProps = {
   columns: ReadonlyArray<{
     id: string
     label: string
-    kind: 'boolean' | 'date' | 'number'
+    kind: 'boolean' | 'date' | 'datetime' | 'number'
   }>
   value: Readonly<Record<string, ValueFormat | undefined>>
   onValueChange: (columnId: string, format: ValueFormat) => void

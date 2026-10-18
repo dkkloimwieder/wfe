@@ -1,6 +1,19 @@
-import { createSignal, untrack } from 'solid-js'
-import { Button, Field, Label, SelectField } from '@wfe/components'
+import { createMemo, createSignal, untrack } from 'solid-js'
+import {
+  Button,
+  Field,
+  Label,
+  SelectField,
+  ValueDisplay,
+} from '@wfe/components'
 import { FormView, LayoutView } from '@wfe/generator'
+import {
+  createTable,
+  Table,
+  TableFormatting,
+  nativeAggregations,
+} from '@wfe/components/table'
+import type { ValueFormat } from '@wfe/components'
 import { createForm } from '@wfe/form'
 import type { DateTimePickerProps } from '@wfe/components'
 import type { FormDescription, LayoutDescription } from '@wfe/generator'
@@ -21,6 +34,47 @@ export function createDateApplication() {
     locale: 'en-GB',
     timeZone: 'UTC',
   })
+  const [formats, setFormats] = createSignal<Record<string, ValueFormat>>({
+    reviewDate: 'date',
+    instant: 'datetime',
+  })
+  const rows = createMemo(() => [
+    {
+      id: 'appointment',
+      reviewDate: values().reviewDate,
+      instant: values().systemTime,
+    },
+    {
+      id: 'other',
+      reviewDate: '2024-03-10',
+      instant: '2024-03-10T07:30:00.000Z',
+    },
+  ])
+  const table = createTable({
+    source: {
+      ids: () => rows().map((row) => row.id),
+      get: (id) => rows().find((row) => row.id === id),
+    },
+    columns: [
+      {
+        id: 'reviewDate',
+        accessorKey: 'reviewDate',
+        header: 'Date',
+        sortFn: (a, b) => String(a).localeCompare(String(b)),
+      },
+      {
+        id: 'instant',
+        accessorKey: 'instant',
+        header: 'Timestamp',
+        sortFn: (a, b) => Date.parse(String(a)) - Date.parse(String(b)),
+        filterFn: (value, minimum) =>
+          Date.parse(String(value)) >= Date.parse(String(minimum)),
+        aggregationFn: nativeAggregations.first,
+      },
+    ],
+  })
+  const exportRows = () =>
+    table.getRowIds().map((id) => ({ ...table.getRow(id).original }))
   let validations = 0,
     submissions = 0,
     requests = 0
@@ -87,6 +141,11 @@ export function createDateApplication() {
     configure((old) => ({ ...old, ...next }))
   return {
     kind: 'dates' as const,
+    table,
+    formats,
+    setFormat: (id: string, format: ValueFormat) =>
+      setFormats((old) => ({ ...old, [id]: format })),
+    exportRows,
     form,
     description,
     configuration,
@@ -106,6 +165,10 @@ export function createDateApplication() {
     snapshot: () =>
       untrack(() => ({
         values: values(),
+        formats: formats(),
+        rawRows: rows(),
+        exportRows: exportRows(),
+        rowIds: table.getRowIds(),
         configuration: configuration(),
         validations,
         submissions,
@@ -129,6 +192,53 @@ export function DateApp(props: {
         actions: { reset: { run: app.form.reset } },
       }}
     />
+  )
+  const display = (value: unknown, column: { id: string }) => (
+    <ValueDisplay
+      value={value}
+      format={app.formats()[column.id] ?? 'date'}
+      dateFormat={app.configuration().dateFormat}
+      timeFormat={app.configuration().timeFormat}
+      locale={app.configuration().locale}
+      timeZone={app.configuration().timeZone}
+    />
+  )
+  const Records = () => (
+    <div class="date-display-review">
+      <dl>
+        <dt data-ui-text="system">Date detail</dt>
+        <dd data-date-display="detail-date">
+          {display(app.form.values.reviewDate, { id: 'reviewDate' })}
+        </dd>
+        <dt data-ui-text="system">Timestamp detail</dt>
+        <dd data-date-display="detail-time">
+          {display(app.form.values.systemTime, { id: 'instant' })}
+        </dd>
+        <dt data-ui-text="system">Browser timestamp</dt>
+        <dd data-date-display="browser-time">
+          <ValueDisplay
+            value={app.form.values.browserTime}
+            format="datetime"
+            timeZone="browser"
+            dateFormat={app.configuration().dateFormat}
+            timeFormat={app.configuration().timeFormat}
+            locale={app.configuration().locale}
+          />
+        </dd>
+        <dt data-ui-text="system">First timestamp summary</dt>
+        <dd data-date-display="summary">
+          {display(app.table.getTotalValue('instant'), { id: 'instant' })}
+        </dd>
+      </dl>
+      <div class="table-scroll">
+        <Table
+          table={app.table}
+          accessibleLabel="Date records"
+          formatValue={display}
+          formatSummary={display}
+        />
+      </div>
+    </div>
   )
   const Configuration = () => (
     <div class="date-demo-configuration">
@@ -178,6 +288,14 @@ export function DateApp(props: {
           onValueChange={(timeZone) => app.configure({ timeZone })}
         />
       </Field>
+      <TableFormatting
+        columns={[
+          { id: 'reviewDate', label: 'Date column', kind: 'date' },
+          { id: 'instant', label: 'Timestamp column', kind: 'datetime' },
+        ]}
+        value={app.formats()}
+        onValueChange={app.setFormat}
+      />
       <Button
         variant="outline"
         onClick={() =>
@@ -193,16 +311,26 @@ export function DateApp(props: {
   )
   const layout = {
     id: 'date-demo',
+    columns: 1,
     title: 'Date input review',
-    panels: [{ id: 'date-editor', view: 'editor' }],
+    panels: [
+      { id: 'date-editor', view: 'editor' },
+      { id: 'date-records', view: 'records', title: 'Read-only dates' },
+    ],
     navigation: [
       { id: 'date-configuration', view: 'configuration', title: 'Display' },
     ],
-  } as const satisfies LayoutDescription<'editor' | 'configuration'>
+  } as const satisfies LayoutDescription<'editor' | 'records' | 'configuration'>
   return (
     <LayoutView
       description={layout}
-      bindings={{ views: { editor: Editor, configuration: Configuration } }}
+      bindings={{
+        views: {
+          editor: Editor,
+          records: Records,
+          configuration: Configuration,
+        },
+      }}
     />
   )
 }

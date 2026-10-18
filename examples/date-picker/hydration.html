@@ -7,7 +7,9 @@
   <body>
     <div id="root"><!--ssr--></div>
     <script>
-      window.dateServerNodes = [...document.querySelectorAll('#root input')]
+      window.dateServerNodes = [
+        ...document.querySelectorAll('#root input, #root [data-date-display]'),
+      ]
     </script>
     <script type="module" src="/hydration.tsx"></script>
   </body>

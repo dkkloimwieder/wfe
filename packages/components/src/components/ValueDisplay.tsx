@@ -1,22 +1,36 @@
 import { Icon } from './Icon'
-import { Show } from 'solid-js'
+import { Show, createMemo } from 'solid-js'
 import { formatDisplayValue } from '../utils/valueFormat'
-import type { ValueFormat } from '../utils/valueFormat'
+import { createTimeZone } from '../internal/timeZone'
+import type { ValueFormat, ValueFormatOptions } from '../utils/valueFormat'
 
-export type ValueDisplayProps = {
+export type ValueDisplayProps = ValueFormatOptions & {
   value: unknown
   format: ValueFormat
-  locale?: string
 }
 
 /** Shared read-only values for tables, forms and summaries. */
 export function ValueDisplay(props: ValueDisplayProps) {
+  const zone = createTimeZone(
+    () => (props.format === 'datetime' ? props.timeZone : 'UTC'),
+    'UTC',
+  )
+  const text = createMemo(() => {
+    const timeZone = zone()
+    if (props.format === 'datetime' && !timeZone) return ''
+    return formatDisplayValue(props.value, props.format, {
+      locale: props.locale,
+      dateFormat: props.dateFormat,
+      timeFormat: props.timeFormat,
+      timeZone,
+    })
+  })
   return (
     <Show
       when={
         props.format === 'boolean-symbol' && typeof props.value === 'boolean'
       }
-      fallback={formatDisplayValue(props.value, props.format, props.locale)}
+      fallback={text()}
     >
       <span
         class="ui-value-symbol"

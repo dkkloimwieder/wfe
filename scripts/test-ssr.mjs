@@ -238,3 +238,33 @@ assert.equal(dateRequests, 0)
 console.log(
   'Date and datetime server rendering stay deterministic and do not request changes.',
 )
+
+const { ValueDisplay, formatDisplayValue } = await import('@wfe/components')
+const displayDate = await renderToString(() =>
+  ValueDisplay({
+    value: '2024-02-29',
+    format: 'date',
+    dateFormat: 'dd/MM/yyyy',
+    timeZone: 'America/New_York',
+  }),
+)
+assert.match(displayDate, /29\/02\/2024/)
+const displayUtc = await renderToString(() =>
+  ValueDisplay({ value: '2024-02-29T02:15Z', format: 'datetime' }),
+)
+assert.match(displayUtc, /2024-02-29 02:15/)
+const displayBrowser = await renderToString(() =>
+  ValueDisplay({
+    value: '2024-02-29T02:15Z',
+    format: 'datetime',
+    timeZone: 'browser',
+  }),
+)
+assert.doesNotMatch(displayBrowser, /02:15|2024/)
+assert.equal(
+  formatDisplayValue('2024-02-29T09:15-05:30', 'datetime-iso'),
+  '2024-02-29T14:45:00.000Z',
+)
+console.log(
+  'Read-only date and datetime presentation stay deterministic during server rendering.',
+)

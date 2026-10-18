@@ -3,13 +3,13 @@ import {
   createMemo,
   createSignal,
   createUniqueId,
-  onSettled,
   untrack,
   useContext,
   Show,
 } from 'solid-js'
 import { DatePickerControl as DatePicker } from './DatePicker'
 import { Input } from './NativeFields'
+import { createTimeZone } from '../internal/timeZone'
 import { FieldContext } from '../internal/fieldContext'
 import { nativeEvents } from '../utils/nativeEvents'
 import {
@@ -53,18 +53,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
   const disabled = () => props.disabled ?? field?.disabled()
   const readonly = () => props.readonly ?? field?.readonly()
   const required = () => props.required ?? field?.required()
-  const [browserZone, setBrowserZone] = createSignal<string>()
-  onSettled(() => {
-    setBrowserZone(Intl.DateTimeFormat().resolvedOptions().timeZone)
-  })
-  const zone = createMemo(() => {
-    const value =
-      !props.timeZone || props.timeZone === 'browser'
-        ? browserZone()
-        : props.timeZone
-    if (value) new Intl.DateTimeFormat('en-US', { timeZone: value }).format(0)
-    return value
-  })
+  const zone = createTimeZone(() => props.timeZone, 'browser')
   const accepted = createMemo(() =>
     props.value ? normalizeInstant(props.value) : undefined,
   )

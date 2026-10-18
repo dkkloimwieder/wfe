@@ -1,3 +1,4 @@
+import { dateFormatter } from './intlFormat'
 import { dateValue, parseDate } from './date'
 
 /** Numeric Gregorian patterns use yyyy, MM and dd once, or locale order. */
@@ -9,7 +10,7 @@ export function dateInputPattern(
 ): string {
   const pattern =
     format === 'locale'
-      ? new Intl.DateTimeFormat(locale ?? 'en-US', {
+      ? dateFormatter(locale ?? 'en-US', {
           calendar: 'gregory',
           numberingSystem: 'latn',
           timeZone: 'UTC',

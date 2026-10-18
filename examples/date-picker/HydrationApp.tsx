@@ -1,5 +1,11 @@
 import { createSignal, untrack } from 'solid-js'
-import { DateTimePicker, Field, Label, uiScope } from '@wfe/components'
+import {
+  DateTimePicker,
+  Field,
+  Label,
+  ValueDisplay,
+  uiScope,
+} from '@wfe/components'
 export function HydrationApp(props: {
   ready?: (snapshot: () => unknown) => void
 }) {
@@ -34,6 +40,30 @@ export function HydrationApp(props: {
           onValueChange={change}
         />
       </Field>
+      <p data-date-display="date">
+        <ValueDisplay
+          value="2024-02-29"
+          format="date"
+          dateFormat="dd/MM/yyyy"
+          timeZone="America/New_York"
+        />
+      </p>
+      <p data-date-display="system">
+        <ValueDisplay
+          value={value()}
+          format="datetime"
+          dateFormat="dd/MM/yyyy"
+          timeZone="America/New_York"
+        />
+      </p>
+      <p data-date-display="browser">
+        <ValueDisplay
+          value={value()}
+          format="datetime"
+          dateFormat="dd/MM/yyyy"
+          timeZone="browser"
+        />
+      </p>
     </main>
   )
 }

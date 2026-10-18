@@ -1,4 +1,5 @@
 import { parseAbsolute, parseDateTime, toZoned } from '@internationalized/date'
+import { dateFormatter } from './intlFormat'
 import { parseDate } from './date'
 
 export type TimeInputFormat = 'HH:mm' | 'HH:mm:ss' | 'hh:mm a' | 'hh:mm:ss a'
@@ -63,7 +64,7 @@ export function timeInputPattern(
   return format
 }
 function periods(locale = 'en-US') {
-  const formatter = new Intl.DateTimeFormat(locale, {
+  const formatter = dateFormatter(locale, {
     timeZone: 'UTC',
     hour: 'numeric',
     hour12: true,

@@ -98,3 +98,12 @@ A direct application call to `form.submit()` still submits accepted values.
 It does not inspect drafts in a rendered view.
 
 The [date example](../examples/generator/DateApp.tsx) shows these controls with application-owned values and callbacks.
+
+## Read-only output
+
+Use `ValueDisplay` or `formatDisplayValue` for table cells, details, and summaries.
+They share the numeric date/time grammar used by these inputs.
+Read-only datetime output defaults to UTC.
+Pass the same explicit application zone when input and output must match.
+The component also supports the browser timezone after hydration.
+Read [shared value formatting](table-formatting.md) for formats, examples, and raw-value ownership.

@@ -1,8 +1,29 @@
 import { parseDate } from './date'
+import { dateInputPattern, formatDateInput } from './dateFormat'
+import {
+  dateTimeParts,
+  formatTimeInput,
+  normalizeInstant,
+  timeInputPattern,
+} from './dateTime'
+import { dateFormatter, numberFormatter } from './intlFormat'
+import type { DateInputFormat } from './dateFormat'
+import type { TimeInputFormat } from './dateTime'
+
+export type ValueFormatOptions = {
+  locale?: string
+  dateFormat?: DateInputFormat
+  timeFormat?: TimeInputFormat
+  /** An explicit display zone. ValueDisplay also resolves the browser token. Defaults to UTC. */
+  timeZone?: string
+}
 
 export type ValueFormat =
   | 'boolean-symbol'
   | 'boolean-text'
+  | 'date'
+  | 'datetime'
+  | 'datetime-iso'
   | 'date-iso'
   | 'date-short'
   | 'date-long'
@@ -14,8 +35,46 @@ export type ValueFormat =
 export function formatDisplayValue(
   value: unknown,
   format: ValueFormat,
-  locale = 'en-US',
+  options: string | ValueFormatOptions = 'en-US',
 ): string {
+  const configuration =
+    typeof options === 'string' ? { locale: options } : options
+  const locale = configuration.locale ?? 'en-US'
+  if (format === 'date' || format === 'datetime') {
+    const pattern = dateInputPattern(configuration.dateFormat, locale)
+    const timeFormat =
+      format === 'datetime'
+        ? timeInputPattern(configuration.timeFormat)
+        : undefined
+    const zone = configuration.timeZone ?? 'UTC'
+    if (format === 'datetime') {
+      if (zone === 'browser')
+        throw new RangeError(
+          'Resolve the browser timezone before calling formatDisplayValue',
+        )
+      dateFormatter('en-US', { timeZone: zone })
+    }
+    if (value == null || value === '') return ''
+    if (typeof value !== 'string') return String(value)
+    if (format === 'date')
+      return parseDate(value) ? formatDateInput(value, pattern, locale) : value
+    let parts: ReturnType<typeof dateTimeParts>
+    try {
+      parts = dateTimeParts(value, zone)
+    } catch {
+      return value
+    }
+    return `${formatDateInput(parts.date, pattern, locale)} ${formatTimeInput(parts, timeFormat, locale)}`
+  }
+  if (format === 'datetime-iso') {
+    if (value == null || value === '') return ''
+    if (typeof value !== 'string') return String(value)
+    try {
+      return normalizeInstant(value)
+    } catch {
+      return value
+    }
+  }
   if (value == null) return ''
   if (typeof value === 'boolean' && format.startsWith('boolean-'))
     return value ? 'Yes' : 'No'
@@ -25,7 +84,7 @@ export function formatDisplayValue(
   ) {
     const date = parseDate(value)
     if (date)
-      return new Intl.DateTimeFormat(locale, {
+      return dateFormatter(locale, {
         year: 'numeric',
         month: format === 'date-long' ? 'long' : '2-digit',
         day: format === 'date-long' ? 'numeric' : '2-digit',
@@ -34,11 +93,11 @@ export function formatDisplayValue(
   }
   if (typeof value === 'number' && Number.isFinite(value)) {
     if (format === 'number-grouped')
-      return new Intl.NumberFormat(locale, {
+      return numberFormatter(locale, {
         maximumSignificantDigits: 21,
       }).format(value)
     if (format === 'number-decimal')
-      return new Intl.NumberFormat(locale, {
+      return numberFormatter(locale, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }).format(value)

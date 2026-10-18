@@ -14,7 +14,9 @@ const document =
   '\n' +
   readFileSync(resolve(packageRoot, 'docs/table-workspace.md'), 'utf8') +
   '\n' +
-  readFileSync(resolve(packageRoot, 'docs/form-contract.md'), 'utf8')
+  readFileSync(resolve(packageRoot, 'docs/form-contract.md'), 'utf8') +
+  '\n' +
+  readFileSync(resolve(packageRoot, 'docs/table-formatting.md'), 'utf8')
 const configPath = resolve(packageRoot, 'packages/components/tsconfig.json')
 const config = ts.readConfigFile(configPath, ts.sys.readFile)
 if (config.error)

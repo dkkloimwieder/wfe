@@ -58,3 +58,8 @@ The display controls change numeric date formats, 12-hour or 24-hour time, and t
 The accepted values remain canonical strings.
 The application owns validation and submission.
 Invalid local date text prevents the generated view from submitting an older accepted value.
+
+The date application also shows shared read-only output in a table, detail values, and a summary.
+Date and timestamp column controls select configured output, legacy date formats, or UTC ISO timestamps.
+All consumers use the same display choices.
+Formatting leaves raw records, sorting, filtering, and export data unchanged.

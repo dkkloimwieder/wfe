@@ -73,6 +73,15 @@ export function createFixture(name: ApplicationName = 'records') {
       app.configure(next)
       flush()
     },
+    dateTable(sorting: 'asc' | 'desc', minimum?: string) {
+      if (app?.kind !== 'dates')
+        throw new Error('This operation needs the date example')
+      app.table.setSorting([{ id: 'instant', desc: sorting === 'desc' }])
+      app.table.setColumnFilters(
+        minimum ? [{ id: 'instant', value: minimum }] : [],
+      )
+      flush()
+    },
     dateValues(next: {
       reviewDate: string
       systemTime: string

@@ -37,3 +37,27 @@ h2 {
   overflow-wrap: anywhere;
   font-size: 12px;
 }
+
+.date-display-review {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+.date-display-review dl {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--ui-gap, 6px);
+  margin: 0;
+}
+.date-display-review :is(dt, dd) {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.date-display-review .table-scroll {
+  min-width: 0;
+  max-height: 16rem;
+}
+
+.date-display-review .table-scroll > table {
+  width: 100%;
+}
