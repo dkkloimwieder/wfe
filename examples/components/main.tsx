@@ -1,3 +1,4 @@
+import { TabsControls, tabsLifecycle } from '../shared/controls/TabsControls'
 import {
   NumberControls,
   numberLifecycle,
@@ -29,7 +30,21 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('number')) {
+if (new URLSearchParams(location.search).has('tabs')) {
+  const dispose = render(
+    () => <TabsControls />,
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  tabsLifecycle.stop = () => {
+    cleanup()
+    flush()
+  }
+  window.tabsFixture = tabsLifecycle
+} else if (new URLSearchParams(location.search).has('number')) {
   const dispose = render(
     () => <NumberControls />,
     document.getElementById('root')!,

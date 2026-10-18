@@ -418,8 +418,10 @@ export function createSelectableCollection<
           scrollEl.scrollLeft = scrollPos.left
 
           // Refocus and scroll the focused item into view if it exists within the scrollable region.
-          const element = scrollEl.querySelector(
-            `[data-key="${manager.focusedKey()}"]`,
+          const element = Array.from(
+            scrollEl.querySelectorAll('[data-key]'),
+          ).find(
+            (node) => node.getAttribute('data-key') === manager.focusedKey(),
           )
 
           if (element) {
@@ -544,7 +546,9 @@ export function createSelectableCollection<
         focusedKey && mergedProps.scrollToKey?.(focusedKey)
       } else {
         if (focusedKey && scrollEl) {
-          const element = scrollEl.querySelector(`[data-key="${focusedKey}"]`)
+          const element = Array.from(
+            scrollEl.querySelectorAll('[data-key]'),
+          ).find((node) => node.getAttribute('data-key') === focusedKey)
 
           if (element) {
             scrollOptionIntoView(scrollEl, element)

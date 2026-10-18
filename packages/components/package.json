@@ -162,6 +162,13 @@
       "solid": "./dist/source/components/NumberInput.jsx",
       "node": "./dist/server/components/NumberInput.js",
       "import": "./dist/client/components/NumberInput.js"
+    },
+    "./tabs": {
+      "types": "./dist/client/components/Tabs.d.ts",
+      "wfe-source": "./src/components/Tabs.tsx",
+      "solid": "./dist/source/components/Tabs.jsx",
+      "node": "./dist/server/components/Tabs.js",
+      "import": "./dist/client/components/Tabs.js"
     }
   },
   "sideEffects": [

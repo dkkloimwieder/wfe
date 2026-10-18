@@ -12,7 +12,8 @@
     "core/src/alert-dialog/index.tsx",
     "core/src/popover/index.tsx",
     "core/src/dropdown-menu/index.tsx",
-    "core/src/tooltip/index.tsx"
+    "core/src/tooltip/index.tsx",
+    "tabs"
   ],
   "sources": {
     "core/src/button/button-root.tsx": {
@@ -401,7 +402,7 @@
     },
     "core/src/selection/create-selectable-collection.ts": {
       "upstreamSha256": "aa2a70b459b11bf1323e94d5dc6f7ab83f3129a463b3a09bfa5ee4022fb1e8ee",
-      "localSha256": "92397ee71e75272abd623629384008efe24bea7bfda46054b2d6ee1a7b4496aa"
+      "localSha256": "4fc5bca1b1af05dfbb7f2e76599eaf4aadd5098689395ad02cf3f92705003265"
     },
     "core/src/selection/create-selectable-item.ts": {
       "upstreamSha256": "215d08ae38515cabce5bf461509a1b78c82d5dbcaec57d776951f6549a85664a",
@@ -842,6 +843,34 @@
     "core/src/tooltip/index.tsx": {
       "upstreamSha256": "fc3a71b5da5d96e1e2aeee1bab0023dfc7e55e11541747fefffab01d4129daab",
       "localSha256": "75a21aee62db41fd436e9e518b57dfd8496b0900a22dbb115bb083f016c31c96"
+    },
+    "core/src/tabs/tabs-root.tsx": {
+      "upstreamSha256": "7787128ad8c08ddbbf49dbd4df0bdacd8508008191bd72a74f072a0f8a8e2973",
+      "localSha256": "687835f58191ec99f83a325e3732dc3da879b5ec2703212b226edc045c35d509"
+    },
+    "core/src/tabs/tabs-context.tsx": {
+      "upstreamSha256": "8d2ce88704fc2042f397e874eb5320c08f02009b47e6364fb1971531dfeced4f",
+      "localSha256": "e9c962454f7919fa9b7095cebb454ea5ff9ed89b777abc3f0df51a59b17cbd42"
+    },
+    "core/src/tabs/tabs-list.tsx": {
+      "upstreamSha256": "a23d5dd9018426bcfe19fdf748e063a52b25c83c479a4fac1909fd8f5cc5301d",
+      "localSha256": "11bd3aa7531dc5844749939f68428118dbc403a0840895b68cf82836715615a9"
+    },
+    "core/src/tabs/tabs-trigger.tsx": {
+      "upstreamSha256": "4f87e61158f8b4fdd84eefe215d851c7e238ccbf5e5dcb3ecce304c4ea6c94cb",
+      "localSha256": "76a458cc3edd28e808da9227213babb998c34b6fe361d8a57ddc0e6e971c04a3"
+    },
+    "core/src/tabs/tabs-content.tsx": {
+      "upstreamSha256": "885c5610e29044462c2f0e3896f20d13c4a7d688d5491a8565407ef3e07359f3",
+      "localSha256": "2be3bab6dd698f15d44c0c612e33b5efe3a1c8d71507bb21d698096497781847"
+    },
+    "core/src/tabs/tabs-keyboard-delegate.ts": {
+      "upstreamSha256": "b151f708efd6c3d2cba799da7195d9e12a191584e8ca940aeedd36752f7d32ec",
+      "localSha256": "f674dcecd359217128326b26f35d9185825cb2171de0b380ebbdb5ecb4eed47d"
+    },
+    "core/src/tabs/types.ts": {
+      "upstreamSha256": "e50ec2e215d7ef436a8d1c79d5e7525f3e13bc8748629763012b28950970a6aa",
+      "localSha256": "c98f98643266822ca3a6596f745c8208e38c15c6109b15813a838dd57424a58b"
     }
   }
 }

@@ -19,6 +19,7 @@ const shared = {
     './src/components/Switch.tsx',
     './src/components/Toast.tsx',
     './src/components/Tooltip.tsx',
+    './src/components/Tabs.tsx',
     './src/index.ts',
     './src/layout/index.ts',
     './src/styles/density.ts',

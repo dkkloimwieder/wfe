@@ -1,3 +1,4 @@
+import { tabsCases } from './tabs-cases.mjs'
 import { numberCases } from './number-cases.mjs'
 import { collapsibleCases } from './collapsible-cases.mjs'
 import { iconCases } from './icon-cases.mjs'
@@ -228,6 +229,7 @@ async function record(name, work) {
   }
 }
 try {
+  await tabsCases({ page, url, record, settle })
   await numberCases({ page, url, record, settle })
   await collapsibleCases({ page, url, record, settle })
   await iconCases({ page, url, record, settle })

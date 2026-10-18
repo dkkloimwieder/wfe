@@ -1,6 +1,6 @@
 # Owned Kobalte subset
 
-This directory contains 204 source modules for the owned controls and their shared Kobalte Core and Utils dependencies.
+This directory contains 211 source modules for the owned controls and their shared Kobalte Core and Utils dependencies.
 The origin is revision `e9d426d438b7c9ea0cc81bd1133831a20cd5fcae` from the Kobalte `solid2` branch.
 `provenance.json` records the original and local SHA-256 for each source and license.
 The copied originals match archive SHA-256 `c07f47331a9aee20f69e2e55d81454f0b48976e2e6e98551da2b27a9169c6f70`.
@@ -143,7 +143,7 @@ The existing integrity commands require unchanged license bytes and declared ext
 
 | Source                                      | Origin                           | License                   | Inventory                                                              |
 | ------------------------------------------- | -------------------------------- | ------------------------- | ---------------------------------------------------------------------- |
-| Kobalte Core and Utils                      | Revision recorded above          | Three unchanged MIT files | 204 source files in `provenance.json`                                  |
+| Kobalte Core and Utils                      | Revision recorded above          | Three unchanged MIT files | 211 source files in `provenance.json`                                  |
 | Virtual engine                              | `@tanstack/virtual-core` 3.17.11 | Unchanged MIT file        | Three sources in [virtual provenance](../virtual-core/provenance.json) |
 | Generic Core helpers                        | Repository-owned source          | Repository MIT license    | `components/src/internal`, outside the vendor directory                |
 | Styled controls, Table, and virtual binding | Repository-owned source          | Repository MIT license    | `components/src`, outside the virtual vendor directory                 |
@@ -163,7 +163,7 @@ Applications create the native engine and pass it to Table presentation.
 ## Repair locations
 
 The generated comparison patch records every local file difference, including formatting and import changes.
-All 204 Kobalte sources differ from their originals, but that count does not represent 204 behavior repairs.
+All 211 Kobalte sources differ from their originals, but that count does not represent 211 behavior repairs.
 The source families below locate the behavior changes described earlier.
 
 | Repair                                                                             | Source locations                                                                                                                                   |
@@ -295,3 +295,21 @@ Qualification includes strict types, lint, source and distribution interactions,
 Run a development popup build and browser suite with the fixture's documented commands.
 Keep first failures and candidate audit reports for review.
 Scope primitive or Solid version changes separately when they require their own migration.
+
+## Tabs extraction
+
+Tabs adds seven sources from the same pinned origin. The optional animated indicator stays outside this subset.
+The root uses the repaired DOM collection accessor and the newer Solid 2 branch selection repair.
+The keyboard delegate bounds its search when every item is disabled.
+Generated IDs encode values and associate server triggers and panels before client effects run.
+Unused upstream ID maps and animated-indicator tracking stay outside this subset.
+Root direction controls keyboard navigation independently from translated text.
+Trigger activation respects prevented caller events and avoids duplicate native keyboard clicks.
+Public wrappers exclude per-part ID overrides and require explicit initial selection.
+The list respects native trigger focus while Solid batches focus updates.
+Collection lookups compare keys without interpolating them into CSS selectors.
+Panel visibility uses immediate selection instead of animation presence.
+Retained inactive panels stay hidden and inert. Active-only content disposes immediately.
+Panel focus moves to the new trigger when selection closes focused content.
+Observers run only for selected panels and disconnect on deactivation or disposal.
+The [Tabs contract](../../../../../docs/tabs.md) records the reviewed Kobalte and Zaidan Solid 2 revisions.

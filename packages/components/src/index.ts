@@ -79,3 +79,5 @@ export type {
   FormGridProps,
   FieldGroupProps,
 } from './components/FormLayout'
+
+export * from './components/Tabs'

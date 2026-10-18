@@ -1,0 +1,181 @@
+/*
+ * Portions of this file are based on code from react-spectrum.
+ * Apache License Version 2.0, Copyright 2020 Adobe.
+ *
+ * Credits to the React Spectrum team:
+ * https://github.com/adobe/react-spectrum/blob/6b51339cca0b8344507d3c8e81e7ad05d6e75f9b/packages/@react-stately/tabs/src/useTabListState.ts
+ * https://github.com/adobe/react-spectrum/blob/6b51339cca0b8344507d3c8e81e7ad05d6e75f9b/packages/@react-aria/tabs/src/useTabList.ts
+ */
+
+import type { Orientation } from '../../../utils/src/index.ts'
+import type { ValidComponent } from '@solidjs/web'
+import { createEffect, createUniqueId, merge, omit, untrack } from 'solid-js'
+
+import { createSingleSelectListState } from '../list/index.ts'
+import {
+  type ElementOf,
+  Polymorphic,
+  type PolymorphicProps,
+} from '../polymorphic/index.tsx'
+import { createDomCollection } from '../primitives/create-dom-collection/index.ts'
+import type { CollectionItemWithRef } from '../primitives/index.ts'
+import { TabsContext, type TabsContextValue } from './tabs-context.tsx'
+import type { TabsActivationMode } from './types.ts'
+
+export interface TabsRootOptions {
+  /** The controlled value of the tab to activate. */
+  value?: string
+
+  /**
+   * The value of the tab that should be active when initially rendered.
+   * Useful when you do not need to control the state.
+   */
+  defaultValue?: string
+
+  /** Event handler called when the value changes. */
+  onChange?: (value: string) => void
+
+  /** The orientation of the tabs. */
+  orientation?: Orientation
+
+  /** Whether tabs are activated automatically on focus or manually. */
+  activationMode?: TabsActivationMode
+
+  /** Whether the tabs are disabled. */
+  disabled?: boolean
+}
+
+export interface TabsRootCommonProps<_T extends HTMLElement = HTMLElement> {
+  dir?: 'ltr' | 'rtl'
+  id?: string
+}
+
+export interface TabsRootRenderProps extends TabsRootCommonProps {
+  'data-orientation': Orientation
+}
+
+export type TabsRootProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = TabsRootOptions & Partial<TabsRootCommonProps<ElementOf<T>>>
+
+/**
+ * A set of layered sections of content, known as tab panels, that display one panel of content at a time.
+ * `Tabs` contains all the parts of a tabs component and provide context for its children.
+ */
+export function TabsRoot<T extends ValidComponent = 'div'>(
+  props: PolymorphicProps<T, TabsRootProps<T>>,
+) {
+  const defaultId = `tabs-${createUniqueId()}`
+
+  const mergedProps = merge(
+    {
+      id: defaultId,
+      orientation: 'horizontal',
+      activationMode: 'automatic',
+    } as const,
+    props as TabsRootProps,
+  )
+
+  const others = omit(
+    mergedProps,
+    'value',
+    'defaultValue',
+    'onChange',
+    'orientation',
+    'activationMode',
+    'disabled',
+  )
+
+  const { DomCollectionProvider, items } =
+    createDomCollection<CollectionItemWithRef>()
+
+  const listState = createSingleSelectListState({
+    selectedKey: () => mergedProps.value,
+    defaultSelectedKey: () => mergedProps.defaultValue,
+    onSelectionChange: (key) => mergedProps.onChange?.(String(key)),
+    dataSource: items,
+  })
+
+  let lastSelectedKey = untrack(() => listState.selectedKey())
+
+  createEffect(
+    () => ({
+      selectionManager: listState.selectionManager(),
+      collection: listState.collection(),
+      currentSelectedKey: listState.selectedKey(),
+    }),
+    ({ selectionManager, collection, currentSelectedKey }) => {
+      let selectedKey = currentSelectedKey
+
+      // Ensure a tab is always selected (in case no selected key was specified or if selected item was deleted from collection)
+      if (
+        untrack(() => selectionManager.isEmpty()) ||
+        selectedKey == null ||
+        !collection.getItem(selectedKey)
+      ) {
+        selectedKey = collection.getFirstKey()
+
+        let selectedItem =
+          selectedKey != null ? collection.getItem(selectedKey) : undefined
+
+        // loop over tabs until we find one that isn't disabled and select that
+        while (
+          selectedItem?.disabled &&
+          selectedItem.key !== collection.getLastKey()
+        ) {
+          selectedKey = collection.getKeyAfter(selectedItem.key)
+          selectedItem =
+            selectedKey != null ? collection.getItem(selectedKey) : undefined
+        }
+
+        // if this check is true, then every item is disabled, it makes more sense to default to the first key than the last
+        if (selectedItem?.disabled && selectedKey === collection.getLastKey()) {
+          selectedKey = collection.getFirstKey()
+        }
+
+        // directly set selection because replace/toggle selection won't consider disabled keys
+        if (selectedKey != null) {
+          untrack(() =>
+            selectionManager.setSelectedKeys([selectedKey as string]),
+          )
+        }
+      }
+
+      // If there isn't a focused key yet or the tabs doesn't have focus and the selected key changes,
+      // change focused key to the selected key if it exists.
+      if (
+        untrack(() => selectionManager.focusedKey()) == null ||
+        (!untrack(() => selectionManager.isFocused()) &&
+          selectedKey !== lastSelectedKey)
+      ) {
+        untrack(() => selectionManager.setFocusedKey(selectedKey))
+      }
+
+      lastSelectedKey = selectedKey
+    },
+  )
+
+  const context: TabsContextValue = {
+    isDisabled: () => mergedProps.disabled ?? false,
+    direction: () => (props.dir === 'rtl' ? 'rtl' : 'ltr'),
+    orientation: () => mergedProps.orientation!,
+    activationMode: () => mergedProps.activationMode!,
+    listState: () => listState,
+    generateTriggerId: (value) =>
+      `${others.id!}-trigger-${encodeURIComponent(value)}`,
+    generateContentId: (value) =>
+      `${others.id!}-content-${encodeURIComponent(value)}`,
+  }
+
+  return (
+    <DomCollectionProvider>
+      <TabsContext value={context}>
+        <Polymorphic<TabsRootRenderProps>
+          as="div"
+          data-orientation={context.orientation()}
+          {...others}
+        />
+      </TabsContext>
+    </DomCollectionProvider>
+  )
+}
