@@ -65,6 +65,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
       'date-picker',
       'form-contract',
       'generator',
+      'platform',
       'virtualization',
     ]) {
       if (mode === 'development' && fixture === 'virtualization') continue
@@ -106,6 +107,16 @@ export function qualificationStages(output, { wamn = false } = {}) {
         {
           ...env,
           BENCH_OUTPUT: resolve(output, `generator-hydration-${mode}.json`),
+        },
+      ),
+    )
+    stages.push(
+      stage(
+        `platform-hydration-${mode}`,
+        ['exec', 'node', 'examples/platform/run.mjs', '--hydration'],
+        {
+          ...env,
+          BENCH_OUTPUT: resolve(output, `platform-hydration-${mode}.json`),
         },
       ),
     )

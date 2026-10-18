@@ -1,0 +1,107 @@
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+}
+.platform-example,
+.platform-root {
+  height: 100dvh;
+  min-width: 0;
+}
+.platform-example .ui-dashboard-header {
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.platform-example .ui-dashboard-main {
+  background: var(--ui-canvas-surface);
+}
+.platform-example
+  :is(.ui-dashboard-header, .ui-dashboard-navigation, .ui-dashboard-panel) {
+  background: var(--ui-pane-surface);
+}
+.platform-example .ui-dashboard-panel {
+  box-shadow: var(--ui-panel-shadow);
+}
+.platform-navigation {
+  display: grid;
+  gap: var(--ui-gap);
+}
+.platform-navigation p {
+  margin: 0;
+  padding: var(--ui-gap);
+}
+.platform-navigation a {
+  display: block;
+  color: var(--ui-text);
+  padding: var(--ui-gap);
+  border: 1px solid transparent;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.platform-navigation a:hover,
+.platform-navigation a[aria-current='page'] {
+  border-color: var(--ui-accent);
+}
+.platform-navigation a:focus-visible,
+[data-platform-heading]:focus-visible {
+  outline: 2px solid var(--ui-focus-ring);
+  outline-offset: -2px;
+}
+.platform-appearance {
+  flex: none;
+  max-height: 40dvh;
+  overflow: auto;
+  padding: 4px;
+}
+.platform-table-screen:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+.platform-table-screen table {
+  min-width: 100%;
+}
+.platform-table-screen[hidden] {
+  display: none;
+}
+.platform-details {
+  min-width: 0;
+}
+.platform-details :is(h2, h3, h4, p) {
+  margin: 0;
+  font-size: inherit;
+  overflow-wrap: anywhere;
+}
+.platform-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: calc(2 * var(--ui-gap));
+  margin: 0;
+}
+.platform-values dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.platform-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.platform-details a {
+  color: var(--ui-accent);
+  align-self: flex-start;
+}
+.platform-table-screen :is(th, td) {
+  white-space: nowrap;
+}

@@ -38,14 +38,65 @@ Review changed operation metadata and generated clients together before acceptin
 ## Known gaps
 
 Beads epic `wfe-f81` owns this application and its follow-up work.
-Issue `wfe-f81.2` adds the project and environment screens.
+Issue `wfe-f81.2` implements the project and environment screens.
 Issue `wfe-f81.3` adds membership and role assignment.
 Issue `wfe-f81.4` tracks the adapter from host metadata to generic view descriptions.
 Issue `wfe-f81.5` tracks validation metadata that omits server constraints.
 Issue `wfe-f81.6` tracks structural result validators in generated clients.
+Issue `wfe-f81.7` tracks a shared native link with button appearance.
+Issue `wfe-f81.8` fixes duplicate construction of shared table action and configuration slots.
 
 Project names use the recorded server rule: trim, then accept 1 to 40 UTF-8 bytes.
 The generated input metadata only declares text. It does not carry this length rule.
 The application applies the rule and maps declared server refusals to its form.
 The rule does not require a lowercase slug.
 Project and environment lists contain names only. Deployment status does not describe activation state.
+
+## Review the application
+
+From the WFE repository root, start the preview:
+
+```sh
+pnpm exec vite --config examples/platform/vite.config.ts --host 127.0.0.1 --port 7791 --strictPort
+```
+
+Open `http://127.0.0.1:7791/`. Reuse that server if it already runs.
+The example represents one organization, `acme`.
+The Projects table fills the main panel. View opens the selected project's environments.
+An environment's View action opens its digest, rollout counts, workloads, and live releases.
+These fields come from deployment status. They do not imply registry activation.
+Create a project opens a separate generated form.
+A completed command adds the accepted project to the application collection before its Open link appears.
+Creation does not provision an environment. A new project has no environments.
+The example does not invent rename, project editing, or environment creation operations.
+
+Browser Back and Forward retain the table owners, sorting, widths, and controls.
+Search changes stay pending until the refresh action applies them.
+Refresh also reads the current screen through its generated operation.
+Column dividers support pointer dragging and keyboard resizing.
+On a phone, the navigation uses the shared drawer, and wide tables scroll within their panel.
+Appearance uses the shared controls. Defaults are Light, Blue, Surface 1 components, Surface 2 background, outline buttons, and depth 2.
+
+Use `?screen=project&project=billing` for a direct project link.
+Use `?screen=environment&project=billing&env=dev` for a direct environment link.
+Use `?screen=create` for the project form.
+Add `scenario=project-admin`, `scenario=no-access`, or `scenario=empty` to review those mock states.
+Each full reload starts a fresh mock. No request reaches a WAMN server.
+
+The server renders initial loading markup without private mock data.
+Hydration retains that markup and starts the same application reads after attachment.
+Fragments return to native links after attachment because HTTP requests do not include them.
+
+After a source fixture build, run the browser cases from the WFE root:
+
+```sh
+pnpm exec vite build --config examples/platform/vite.config.ts
+node examples/platform/run.mjs
+node examples/platform/run.mjs --hydration
+```
+
+The hydration command builds its server and client artifacts before it runs.
+Set `BENCH_DISTRIBUTION=1` for package imports.
+Set `BENCH_DEVELOPMENT=1` and `NODE_ENV=development` for development imports.
+Use the same environment for each fixture build and its browser cases.
+The regular qualification command includes all three modes and their hydration cases.
