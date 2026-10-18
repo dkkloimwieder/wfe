@@ -6,6 +6,8 @@ The default records application uses `/?app=records`.
 The dispatch application uses `/?app=dispatch`.
 Each application owns a separate provider, form contract, table, and descriptions.
 Both applications use unchanged generic packages.
+All generator routes use the shared light appearance: Surface 1 components, a Surface 2 backdrop, shadow depth 2, and blue outline buttons.
+Client rendering and server hydration share one appearance scope.
 
 The optional numeric field starts without a value and uses an application wrapper around the shared NumberInput.
 The dispatch nullable amount uses the built-in generated number control.

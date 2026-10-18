@@ -1,4 +1,5 @@
 @import '@wfe/components/styles.css';
+@import '../shared/appearance/review-shadows.css';
 html,
 body,
 #root {
@@ -60,4 +61,17 @@ h2 {
 
 .date-display-review .table-scroll > table {
   width: 100%;
+}
+
+.generator-example {
+  height: 100%;
+  min-width: 0;
+  background: var(--ui-canvas-surface);
+}
+.generator-example :is(.ui-dashboard-main, .ui-dashboard-navigation) {
+  background: var(--ui-canvas-surface);
+}
+.generator-example :is(.ui-dashboard-panel, .ui-field-group) {
+  background: var(--ui-pane-surface);
+  box-shadow: var(--ui-panel-shadow);
 }

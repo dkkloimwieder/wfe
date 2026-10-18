@@ -1,6 +1,7 @@
 import { OBSERVE, action, flush } from 'solid-js'
 import { hydrate, render } from '@solidjs/web'
 import { applications } from './applications'
+import { ExampleAppearance } from './ExampleAppearance'
 import type { Application, ApplicationName } from './applications'
 import type {
   DispatchStage,
@@ -43,11 +44,13 @@ export function createFixture(name: ApplicationName = 'records') {
       begin()
       release = render(
         () => (
-          <App
-            ready={(value: Application) => {
-              app = value
-            }}
-          />
+          <ExampleAppearance>
+            <App
+              ready={(value: Application) => {
+                app = value
+              }}
+            />
+          </ExampleAppearance>
         ),
         document.getElementById('root')!,
       )
@@ -57,11 +60,13 @@ export function createFixture(name: ApplicationName = 'records') {
       begin()
       release = await hydrate(
         () => (
-          <App
-            ready={(value: Application) => {
-              app = value
-            }}
-          />
+          <ExampleAppearance>
+            <App
+              ready={(value: Application) => {
+                app = value
+              }}
+            />
+          </ExampleAppearance>
         ),
         document.getElementById('root')!,
       )
