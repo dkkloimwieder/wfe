@@ -169,6 +169,13 @@
       "solid": "./dist/source/components/Tabs.jsx",
       "node": "./dist/server/components/Tabs.js",
       "import": "./dist/client/components/Tabs.js"
+    },
+    "./breadcrumbs": {
+      "types": "./dist/client/components/Breadcrumbs.d.ts",
+      "wfe-source": "./src/components/Breadcrumbs.tsx",
+      "solid": "./dist/source/components/Breadcrumbs.jsx",
+      "node": "./dist/server/components/Breadcrumbs.js",
+      "import": "./dist/client/components/Breadcrumbs.js"
     }
   },
   "sideEffects": [

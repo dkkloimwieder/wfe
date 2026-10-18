@@ -8,6 +8,7 @@ import type { RecordRoute } from './record-route'
 export function App(props: {
   reviewCells?: boolean
   initialRoute?: RecordRoute
+  initialUrl?: string
   ready?: (
     api:
       | ReturnType<typeof createRecordsApplication>
@@ -17,6 +18,10 @@ export function App(props: {
   return untrack(() => props.reviewCells ?? false) ? (
     <RecordsReview reviewCells ready={props.ready} />
   ) : (
-    <RecordsWorkflow initialRoute={props.initialRoute} ready={props.ready} />
+    <RecordsWorkflow
+      initialRoute={props.initialRoute}
+      initialUrl={props.initialUrl}
+      ready={props.ready}
+    />
   )
 }

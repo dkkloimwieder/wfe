@@ -20,6 +20,7 @@ const shared = {
     './src/components/Toast.tsx',
     './src/components/Tooltip.tsx',
     './src/components/Tabs.tsx',
+    './src/components/Breadcrumbs.tsx',
     './src/index.ts',
     './src/layout/index.ts',
     './src/styles/density.ts',

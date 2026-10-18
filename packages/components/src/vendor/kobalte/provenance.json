@@ -13,7 +13,8 @@
     "core/src/popover/index.tsx",
     "core/src/dropdown-menu/index.tsx",
     "core/src/tooltip/index.tsx",
-    "tabs"
+    "tabs",
+    "breadcrumbs"
   ],
   "sources": {
     "core/src/button/button-root.tsx": {
@@ -871,6 +872,22 @@
     "core/src/tabs/types.ts": {
       "upstreamSha256": "e50ec2e215d7ef436a8d1c79d5e7525f3e13bc8748629763012b28950970a6aa",
       "localSha256": "c98f98643266822ca3a6596f745c8208e38c15c6109b15813a838dd57424a58b"
+    },
+    "core/src/breadcrumbs/breadcrumbs-root.tsx": {
+      "upstreamSha256": "a0008fab053fda83144a4c2591ec669929a3dfcaa75d5fa290180037bc292d6e",
+      "localSha256": "58cbe651d5aeaf4ac2d3bec6e38234bbb89b1db06adc55780eea59be6db13c49"
+    },
+    "core/src/breadcrumbs/breadcrumbs-context.tsx": {
+      "upstreamSha256": "62a0a4aa01b151a1d5ce5567a214da1bee9ce498ec76bb5ae755277597ac1735",
+      "localSha256": "9477628108eb6d132d501cbb2a3be6cef35634e438aba7f28aa6874b78dc2e33"
+    },
+    "core/src/breadcrumbs/breadcrumbs-separator.tsx": {
+      "upstreamSha256": "cc15a4785c468a726b88193b7dea3676c213a680516eb084a2ed16e8bd2448dc",
+      "localSha256": "39f715953e1b9030819a4926827adcc74dcae220f40acf540b438c49026f5abe"
+    },
+    "core/src/breadcrumbs/breadcrumbs.intl.ts": {
+      "upstreamSha256": "5bb1b0b27c1aead52f85605c67c453d523eb6e43fbb218e9615402b01b55a67f",
+      "localSha256": "3e7350e1b6e31909a1d6e61e2f03a3616d079f4fc287c34ac01985f02ca2eae3"
     }
   }
 }

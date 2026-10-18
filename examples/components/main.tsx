@@ -1,3 +1,7 @@
+import {
+  BreadcrumbControls,
+  breadcrumbLifecycle,
+} from '../shared/controls/BreadcrumbControls'
 import { TabsControls, tabsLifecycle } from '../shared/controls/TabsControls'
 import {
   NumberControls,
@@ -30,7 +34,21 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('tabs')) {
+if (new URLSearchParams(location.search).has('breadcrumbs')) {
+  const dispose = render(
+    () => <BreadcrumbControls />,
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  breadcrumbLifecycle.stop = () => {
+    cleanup()
+    flush()
+  }
+  window.breadcrumbFixture = breadcrumbLifecycle
+} else if (new URLSearchParams(location.search).has('tabs')) {
   const dispose = render(
     () => <TabsControls />,
     document.getElementById('root')!,

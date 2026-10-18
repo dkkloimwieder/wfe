@@ -24,7 +24,9 @@ const document =
   '\n' +
   readFileSync(resolve(packageRoot, 'docs/form-layout.md'), 'utf8') +
   '\n' +
-  readFileSync(resolve(packageRoot, 'docs/tabs.md'), 'utf8')
+  readFileSync(resolve(packageRoot, 'docs/tabs.md'), 'utf8') +
+  '\n' +
+  readFileSync(resolve(packageRoot, 'docs/breadcrumbs.md'), 'utf8')
 const configPath = resolve(packageRoot, 'packages/components/tsconfig.json')
 const config = ts.readConfigFile(configPath, ts.sys.readFile)
 if (config.error)

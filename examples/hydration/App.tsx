@@ -1,3 +1,7 @@
+import {
+  BreadcrumbControls,
+  breadcrumbLifecycle,
+} from '../shared/controls/BreadcrumbControls'
 import { TabsControls, tabsLifecycle } from '../shared/controls/TabsControls'
 import {
   NumberControls,
@@ -37,6 +41,7 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  breadcrumb: breadcrumbLifecycle,
   tabs: tabsLifecycle,
   number: numberLifecycle,
   collapsible: collapsibleLifecycle,
@@ -274,6 +279,7 @@ export default function App() {
           {JSON.stringify([textMatch(), statusMatch(), numberMatch()])}
         </output>
       </section>
+      <BreadcrumbControls />
       <TabsControls />
       <NumberControls />
       <CollapsibleControls />

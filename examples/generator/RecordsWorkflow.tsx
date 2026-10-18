@@ -1,7 +1,15 @@
-import { For, onCleanup, onSettled, Show, untrack } from 'solid-js'
-import { Button, ValueDisplay } from '@wfe/components'
+import {
+  For,
+  createSignal,
+  onCleanup,
+  onSettled,
+  Show,
+  untrack,
+} from 'solid-js'
+import { Breadcrumbs, Button, ValueDisplay } from '@wfe/components'
 import { FormView, LayoutView, TableView } from '@wfe/generator'
 import type { CustomCellProps, LayoutDescription } from '@wfe/generator'
+import type { JSX } from '@solidjs/web'
 import type { RecordValues } from './records-provider'
 import { recordRoute, recordUrl } from './record-route'
 import type { RecordRoute } from './record-route'
@@ -11,12 +19,24 @@ import type { NativeColumn } from '@wfe/components/table'
 
 export function RecordsWorkflow(props: {
   initialRoute?: RecordRoute
+  initialUrl?: string
   ready?: (api: ReturnType<typeof createRecordsWorkflow>) => void
 }) {
   const app = createRecordsWorkflow(
     untrack(() => props.initialRoute ?? { screen: 'records' }),
   )
   props.ready?.(app)
+  const [navigationBase, setNavigationBase] = createSignal(
+    untrack(() => {
+      const url = new URL(
+        props.initialUrl ?? '?app=records',
+        'http://records.example',
+      )
+      // Fragments do not reach HTTP servers. Restore the browser fragment after attachment.
+      url.hash = ''
+      return url.pathname + url.search
+    }),
+  )
   let root: HTMLDivElement | undefined
   let returnFocus: HTMLButtonElement | undefined
   let alive = true
@@ -51,10 +71,42 @@ export function RecordsWorkflow(props: {
     const url = recordUrl(window.location.href, route)
     if (url.href !== window.location.href)
       window.history.pushState(null, '', url)
+    setNavigationBase(url.href)
     apply(route, trigger)
   }
+  const viewRoute = (): RecordRoute => {
+    const route = app.route()
+    return route.screen === 'view' || route.screen === 'edit'
+      ? { screen: 'view', id: route.id }
+      : { screen: 'records' }
+  }
+  const routeHref = (route: RecordRoute) => {
+    const url = recordUrl(navigationBase(), route)
+    return url.pathname + url.search + url.hash
+  }
+  const follow =
+    (route: RecordRoute): JSX.EventHandler<HTMLAnchorElement, MouseEvent> =>
+    (event) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey ||
+        event.currentTarget.hasAttribute('download') ||
+        (event.currentTarget.target && event.currentTarget.target !== '_self')
+      )
+        return
+      event.preventDefault()
+      navigate(route)
+    }
   onSettled(() => {
-    const pop = () => apply(recordRoute(window.location.href))
+    setNavigationBase(window.location.href)
+    const pop = () => {
+      setNavigationBase(window.location.href)
+      apply(recordRoute(window.location.href))
+    }
     window.addEventListener('popstate', pop)
     return () => window.removeEventListener('popstate', pop)
   })
@@ -125,11 +177,45 @@ export function RecordsWorkflow(props: {
       </section>
       <Show when={app.route().screen !== 'records'}>
         <section class="record-screen" aria-label="Record screen">
-          <div class="record-screen-actions">
-            <Button onClick={() => navigate({ screen: 'records' })}>
-              Records
-            </Button>
-          </div>
+          <Breadcrumbs aria-label="Record navigation">
+            <Breadcrumbs.List>
+              <Breadcrumbs.Item>
+                <Breadcrumbs.Link
+                  href={routeHref({ screen: 'records' })}
+                  onClick={follow({ screen: 'records' })}
+                  data-ui-text="system"
+                >
+                  Records
+                </Breadcrumbs.Link>
+              </Breadcrumbs.Item>
+              <Breadcrumbs.Item>
+                <Breadcrumbs.Separator />
+                <Show
+                  when={app.selected() && app.route().screen === 'edit'}
+                  fallback={
+                    <Breadcrumbs.Current>
+                      {app.selected()?.name ?? 'Record not found'}
+                    </Breadcrumbs.Current>
+                  }
+                >
+                  <Breadcrumbs.Link
+                    href={routeHref(viewRoute())}
+                    onClick={follow(viewRoute())}
+                  >
+                    {app.selected()!.name}
+                  </Breadcrumbs.Link>
+                </Show>
+              </Breadcrumbs.Item>
+              <Show when={app.selected() && app.route().screen === 'edit'}>
+                <Breadcrumbs.Item>
+                  <Breadcrumbs.Separator />
+                  <Breadcrumbs.Current data-ui-text="system">
+                    Edit
+                  </Breadcrumbs.Current>
+                </Breadcrumbs.Item>
+              </Show>
+            </Breadcrumbs.List>
+          </Breadcrumbs>
           <Show
             when={app.selected()}
             fallback={

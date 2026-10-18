@@ -53,6 +53,7 @@ export function createFixture(
             <App
               reviewCells={reviewCells}
               initialRoute={recordRoute(initialUrl)}
+              initialUrl={initialUrl}
               ready={(value: Application) => {
                 app = value
               }}
@@ -71,6 +72,7 @@ export function createFixture(
             <App
               reviewCells={reviewCells}
               initialRoute={recordRoute(initialUrl)}
+              initialUrl={initialUrl}
               ready={(value: Application) => {
                 app = value
               }}

@@ -1,3 +1,4 @@
+import { breadcrumbCases } from './breadcrumb-cases.mjs'
 import { tabsCases } from './tabs-cases.mjs'
 import { numberCases } from './number-cases.mjs'
 import { collapsibleCases } from './collapsible-cases.mjs'
@@ -229,6 +230,7 @@ async function record(name, work) {
   }
 }
 try {
+  await breadcrumbCases({ page, url, record, settle })
   await tabsCases({ page, url, record, settle })
   await numberCases({ page, url, record, settle })
   await collapsibleCases({ page, url, record, settle })

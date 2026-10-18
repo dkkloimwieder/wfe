@@ -81,3 +81,5 @@ export type {
 } from './components/FormLayout'
 
 export * from './components/Tabs'
+
+export * from './components/Breadcrumbs'

@@ -16,6 +16,7 @@ export async function render(
           <App
             reviewCells={reviewCells}
             initialRoute={recordRoute(initialUrl)}
+            initialUrl={initialUrl}
           />
         </ExampleAppearance>
       ))),

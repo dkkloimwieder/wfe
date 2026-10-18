@@ -1,6 +1,6 @@
 # Owned Kobalte subset
 
-This directory contains 211 source modules for the owned controls and their shared Kobalte Core and Utils dependencies.
+This directory contains 215 source modules for the owned controls and their shared Kobalte Core and Utils dependencies.
 The origin is revision `e9d426d438b7c9ea0cc81bd1133831a20cd5fcae` from the Kobalte `solid2` branch.
 `provenance.json` records the original and local SHA-256 for each source and license.
 The copied originals match archive SHA-256 `c07f47331a9aee20f69e2e55d81454f0b48976e2e6e98551da2b27a9169c6f70`.
@@ -143,7 +143,7 @@ The existing integrity commands require unchanged license bytes and declared ext
 
 | Source                                      | Origin                           | License                   | Inventory                                                              |
 | ------------------------------------------- | -------------------------------- | ------------------------- | ---------------------------------------------------------------------- |
-| Kobalte Core and Utils                      | Revision recorded above          | Three unchanged MIT files | 211 source files in `provenance.json`                                  |
+| Kobalte Core and Utils                      | Revision recorded above          | Three unchanged MIT files | 215 source files in `provenance.json`                                  |
 | Virtual engine                              | `@tanstack/virtual-core` 3.17.11 | Unchanged MIT file        | Three sources in [virtual provenance](../virtual-core/provenance.json) |
 | Generic Core helpers                        | Repository-owned source          | Repository MIT license    | `components/src/internal`, outside the vendor directory                |
 | Styled controls, Table, and virtual binding | Repository-owned source          | Repository MIT license    | `components/src`, outside the virtual vendor directory                 |
@@ -163,7 +163,7 @@ Applications create the native engine and pass it to Table presentation.
 ## Repair locations
 
 The generated comparison patch records every local file difference, including formatting and import changes.
-All 211 Kobalte sources differ from their originals, but that count does not represent 211 behavior repairs.
+All 215 Kobalte sources differ from their originals, but that count does not represent 215 behavior repairs.
 The source families below locate the behavior changes described earlier.
 
 | Repair                                                                             | Source locations                                                                                                                                   |
@@ -313,3 +313,13 @@ Retained inactive panels stay hidden and inert. Active-only content disposes imm
 Panel focus moves to the new trigger when selection closes focused content.
 Observers run only for selected panels and disconnect on deactivation or disposal.
 The [Tabs contract](../../../../../docs/tabs.md) records the reviewed Kobalte and Zaidan Solid 2 revisions.
+
+## Breadcrumbs extraction
+
+Breadcrumbs adds its root, separator, context, and translation source from the same pinned origin.
+The reviewed Solid 2 branch contains identical originals for these four files.
+The public list and item wrappers use native ordered-list semantics through the repaired owned element renderer.
+Native anchors retain their destinations, keyboard behavior, and application-supplied handlers.
+Current-page text stays noninteractive and exposes `aria-current`.
+No router, history handler, or application request enters the component.
+The [Breadcrumbs contract](../../../../../docs/breadcrumbs.md) records the reviewed upstream sources.
