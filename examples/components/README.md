@@ -246,3 +246,9 @@ Open `?accordion=1` for a profile form with one open section and a second group 
 The preview demonstrates retained drafts, shared fields, and nested groups.
 The browser and hydration suites cover keyboard navigation, controlled requests, focus, and disposal.
 See [Accordion](../../docs/accordion.md) for its public contract.
+
+## Resizable panes
+
+Open `?resizable=1` for retained panes and table controls that support dragging and keyboard resizing.
+The preview uses the shared default appearance and supports RTL, vertical layouts, and left/top/right table controls.
+See [Resizable panes](../../docs/resizable.md) for the public API and application size ownership.

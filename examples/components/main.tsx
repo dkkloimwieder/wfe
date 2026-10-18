@@ -1,4 +1,8 @@
 import {
+  ResizableControls,
+  resizableLifecycle,
+} from '../shared/controls/ResizableControls'
+import {
   AccordionControls,
   accordionLifecycle,
 } from '../shared/controls/AccordionControls'
@@ -40,7 +44,27 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('accordion')) {
+if (new URLSearchParams(location.search).has('resizable')) {
+  const dispose = render(
+    () => (
+      <DefaultAppearance class="component-preview">
+        <Card>
+          <ResizableControls />
+        </Card>
+      </DefaultAppearance>
+    ),
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  resizableLifecycle.stop = () => {
+    cleanup()
+    flush()
+  }
+  window.resizableFixture = resizableLifecycle
+} else if (new URLSearchParams(location.search).has('accordion')) {
   const dispose = render(
     () => (
       <DefaultAppearance class="component-preview">

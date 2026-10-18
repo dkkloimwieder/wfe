@@ -12,3 +12,5 @@
 @import './table-workspace.css';
 @import './calendar.css';
 @import './system-text.css';
+
+@import './resizable.css';

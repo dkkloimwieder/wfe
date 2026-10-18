@@ -226,6 +226,9 @@ export type TableViewBindings<
     | 'groupable'
     | 'columnAlignment'
     | 'onColumnAlignmentChange'
+    | 'controlsResizable'
+    | 'controlsSize'
+    | 'onControlsSizeChange'
     | 'controlsCollapsed'
     | 'onControlsCollapsedChange'
   > &

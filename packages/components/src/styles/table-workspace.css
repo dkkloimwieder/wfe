@@ -2,7 +2,12 @@
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: var(--ui-table-controls-width, 18rem) minmax(0, 1fr);
+  grid-template-columns:
+    var(
+      --ui-table-controls-resized-width,
+      var(--ui-table-controls-width, 18rem)
+    )
+    minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas: 'header header' 'controls results';
   gap: 0;
@@ -186,7 +191,10 @@
   border-bottom: 1px solid var(--ui-border, #ccc);
 }
 :where([data-ui]) .table-workspace[data-controls-placement='right'] {
-  grid-template-columns: minmax(0, 1fr) var(--ui-table-controls-width, 18rem);
+  grid-template-columns: minmax(0, 1fr) var(
+      --ui-table-controls-resized-width,
+      var(--ui-table-controls-width, 18rem)
+    );
   grid-template-areas: 'header header' 'results controls';
 }
 :where([data-ui])
@@ -342,5 +350,75 @@
   :where([data-ui]) .table-workspace-header-actions,
   :where([data-ui]) .table-workspace-header-actions .table-filter-actions {
     gap: var(--ui-control-padding-y, 4px);
+  }
+}
+
+:where([data-ui]) .table-workspace-resize {
+  display: none;
+}
+@media (width >= 48rem) {
+  :where([data-ui])
+    .table-workspace[data-controls-resizable]:not([data-controls-collapsed]) {
+    grid-template-columns:
+      var(
+        --ui-table-controls-resized-width,
+        var(--ui-table-controls-width, 18rem)
+      )
+      var(--ui-resize-handle-size, 6px)
+      minmax(0, 1fr);
+    grid-template-areas: 'header header header' 'controls resize results';
+  }
+  :where([data-ui])
+    .table-workspace[data-controls-resizable]:not([data-controls-collapsed])
+    > .table-workspace-resize {
+    display: block;
+    grid-area: resize;
+  }
+  :where([data-ui])
+    .table-workspace[data-controls-resizable]:not([data-controls-collapsed])
+    > .table-workspace-controls {
+    border: 0;
+  }
+  :where([data-ui])
+    .table-workspace[data-controls-resizable][data-controls-placement='right']:not(
+      [data-controls-collapsed]
+    ) {
+    grid-template-columns: minmax(0, 1fr) var(--ui-resize-handle-size, 6px) var(
+        --ui-table-controls-resized-width,
+        var(--ui-table-controls-width, 18rem)
+      );
+    grid-template-areas: 'header header header' 'results resize controls';
+  }
+  :where([data-ui])
+    .table-workspace[data-controls-resizable][data-controls-placement='top']:not(
+      [data-controls-collapsed]
+    ) {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows:
+      auto fit-content(min(var(--ui-table-controls-height, 18rem), 40%))
+      var(--ui-resize-handle-size, 6px) minmax(0, 1fr);
+    grid-template-areas: 'header' 'controls' 'resize' 'results';
+  }
+  :where([data-ui])
+    .table-workspace[data-controls-resizable][data-controls-placement='top'][data-controls-sized]:not(
+      [data-controls-collapsed]
+    ) {
+    grid-template-rows:
+      auto minmax(0, var(--ui-table-controls-resized-height)) var(
+        --ui-resize-handle-size,
+        6px
+      )
+      minmax(0, 1fr);
+  }
+}
+
+@media (width >= 48rem) {
+  :where([data-ui])
+    .table-workspace[data-controls-sized][data-controls-placement='top']:not(
+      [data-controls-resizable]
+    ):not([data-controls-collapsed]) {
+    grid-template-rows:
+      auto minmax(0, var(--ui-table-controls-resized-height))
+      minmax(0, 1fr);
   }
 }

@@ -1590,7 +1590,11 @@ try {
     const rightResults = await page
       .locator('.table-workspace-results')
       .boundingBox()
-    assert.equal(rightResults.x + rightResults.width, rightPane.x)
+    const rightSeparator = await workspace
+      .locator('.table-workspace-resize')
+      .boundingBox()
+    assert.equal(rightResults.x + rightResults.width, rightSeparator.x)
+    assert.equal(rightSeparator.x + rightSeparator.width, rightPane.x)
     assert.equal((await surface.boundingBox()).width, original.width)
     await expectValue(draft, 'Record 1')
     await toggle.click()

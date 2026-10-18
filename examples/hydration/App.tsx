@@ -1,4 +1,8 @@
 import {
+  ResizableControls,
+  resizableLifecycle,
+} from '../shared/controls/ResizableControls'
+import {
   AccordionControls,
   accordionLifecycle,
 } from '../shared/controls/AccordionControls'
@@ -45,6 +49,7 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  resizable: resizableLifecycle,
   accordion: accordionLifecycle,
   breadcrumb: breadcrumbLifecycle,
   tabs: tabsLifecycle,
@@ -139,6 +144,7 @@ export default function App() {
         />
       )}
     >
+      <ResizableControls />
       <AccordionControls />
       <section hidden>
         <StructuredClasses />

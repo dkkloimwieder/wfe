@@ -197,6 +197,7 @@ Tabs switches related panels. Collapsible supplies individual disclosures, and A
 Breadcrumbs supplies native links and current-page text for application navigation.
 Calendar and DatePicker supply date selection. Time and file controls remain outside the current catalog.
 DashboardShell, DashboardPanel, and DashboardGrid supply generic page layout.
+Resizable supplies two retained panes. ResizeHandle also sizes the existing table controls grid.
 Programmatic generation follows epic `wfe-w2y.4`. Production WAMN integration remains application-owned.
 
 ## Current maintenance

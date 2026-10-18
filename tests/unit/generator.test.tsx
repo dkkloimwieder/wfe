@@ -778,3 +778,39 @@ test('generated row context preserves identity and live records across sorting, 
   expect(chosen).toEqual(['b', 'a', 'a'])
   expect(mounted.getByRole('button', { name: 'Bob', exact: true })).toBe(bob)
 })
+
+test('generated tables forward application-controlled pane size without replacing record nodes', () => {
+  const [size, setSize] = createSignal(30)
+  const requests = vi.fn((next: number) => setSize(next))
+  const mounted = render(() => {
+    const table = createTable({
+      source: { ids: () => ['a'], get: () => ({ name: 'Ada' }) },
+      columns: [{ id: 'name', accessorKey: 'name' }],
+    })
+    return (
+      <TableView
+        description={{
+          id: 'resizable-records',
+          columns: { name: { label: 'Name' } },
+        }}
+        bindings={{
+          table,
+          controlsSize: size(),
+          onControlsSizeChange: requests,
+        }}
+      />
+    )
+  })
+  const cell = mounted.getByText('Ada')
+  const handle = mounted.getByRole('separator', { name: 'Table controls' })
+  expect(requests).not.toHaveBeenCalled()
+  fireEvent.keyDown(handle, { key: 'ArrowRight' })
+  flush()
+  expect(requests.mock.calls).toEqual([[31]])
+  expect(handle.getAttribute('aria-valuenow')).toBe('31')
+  setSize(45)
+  flush()
+  expect(handle.getAttribute('aria-valuenow')).toBe('45')
+  expect(mounted.getByText('Ada')).toBe(cell)
+  expect(requests).toHaveBeenCalledTimes(1)
+})

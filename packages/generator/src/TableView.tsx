@@ -128,6 +128,9 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
         title={description().title}
         controls={description().controls}
         controlsPlacement={description().controlsPlacement}
+        controlsResizable={props.bindings.controlsResizable}
+        controlsSize={props.bindings.controlsSize}
+        onControlsSizeChange={props.bindings.onControlsSizeChange}
         controlsCollapsed={props.bindings.controlsCollapsed}
         onControlsCollapsedChange={props.bindings.onControlsCollapsedChange}
         onApplyFilters={props.bindings.onApplyFilters}

@@ -4,6 +4,7 @@
 :where([data-ui]) textarea:focus-visible,
 :where([data-ui]) select:focus-visible,
 :where([data-ui]) summary:focus-visible,
+:where([data-ui]).ui-resize-handle:focus-visible,
 :where([data-ui]) .ui-breadcrumbs-link:focus-visible,
 :where([data-ui])
   .ui-toggle:has(.ui-toggle-input:focus-visible)

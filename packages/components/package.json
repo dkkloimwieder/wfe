@@ -183,6 +183,13 @@
       "solid": "./dist/source/components/Accordion.jsx",
       "node": "./dist/server/components/Accordion.js",
       "import": "./dist/client/components/Accordion.js"
+    },
+    "./resizable": {
+      "types": "./dist/client/components/Resizable.d.ts",
+      "wfe-source": "./src/components/Resizable.tsx",
+      "solid": "./dist/source/components/Resizable.jsx",
+      "node": "./dist/server/components/Resizable.js",
+      "import": "./dist/client/components/Resizable.js"
     }
   },
   "sideEffects": [

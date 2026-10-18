@@ -35,6 +35,10 @@ export function ReadOnlyTable<T, M>(
       id: string,
       alignment: TableColumnAlignment,
     ) => void
+    controlsResizable?: boolean
+    controlsSize?: number
+    defaultControlsSize?: number
+    onControlsSizeChange?: (size: number) => void
     controlsPlacement?: TableWorkspaceProps['controlsPlacement']
     controlsCollapsed?: boolean
     defaultControlsCollapsed?: boolean
@@ -104,6 +108,10 @@ export function ReadOnlyTable<T, M>(
       controlsRef={(handle) => {
         workspaceControls = handle
       }}
+      controlsResizable={props.controlsResizable}
+      controlsSize={props.controlsSize}
+      defaultControlsSize={props.defaultControlsSize}
+      onControlsSizeChange={props.onControlsSizeChange}
       controlsPlacement={props.controlsPlacement}
       controlsCollapsed={props.controlsCollapsed}
       defaultControlsCollapsed={props.defaultControlsCollapsed}
