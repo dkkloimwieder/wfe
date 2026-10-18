@@ -142,10 +142,12 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
         }
         renderCell={(cell) => <Cell cell={cell} />}
         actions={
-          <ActionsView
-            descriptions={description().actions ?? []}
-            bindings={actions()}
-          />
+          description().actions?.length ? (
+            <ActionsView
+              descriptions={description().actions ?? []}
+              bindings={actions()}
+            />
+          ) : undefined
         }
       />
     </section>

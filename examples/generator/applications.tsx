@@ -5,6 +5,7 @@ import type { createFocusApplication } from './FocusApp'
 import { App } from './App'
 import { DispatchApp } from './DispatchApp'
 import type { createRecordsApplication } from './records-application'
+import type { createRecordsWorkflow } from './records-workflow'
 import type { createDispatchApplication } from './dispatch-application'
 export const applications = {
   records: App,
@@ -17,6 +18,7 @@ export type Application =
   | ReturnType<typeof createDateApplication>
   | ReturnType<typeof createFocusApplication>
   | ReturnType<typeof createRecordsApplication>
+  | ReturnType<typeof createRecordsWorkflow>
   | ReturnType<typeof createDispatchApplication>
 export function applicationName(value: string | null): ApplicationName {
   if (value === null || value === 'records') return 'records'

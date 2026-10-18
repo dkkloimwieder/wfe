@@ -11,6 +11,7 @@ import { reviewFocus } from './review-focus.mjs'
 import { reviewServer } from './review-server.mjs'
 import { reviewRecords } from './review-records.mjs'
 import { reviewDispatch } from './review-dispatch.mjs'
+import { reviewRecordsWorkflow } from './review-records-workflow.mjs'
 
 const defaultApplications = {
   dates: {
@@ -64,6 +65,7 @@ export async function run({
   let browser
   let page
   const html = {}
+  let renderRoute
   const server = createServer(async (request, response) => {
     try {
       const requestUrl = new URL(request.url, 'http://localhost')
@@ -83,7 +85,23 @@ export async function run({
               ? 'application/json'
               : 'text/html',
       )
-      response.end(path === '/' && html[key] ? html[key] : await readFile(file))
+      if (
+        path === '/' &&
+        renderRoute &&
+        (requestUrl.searchParams.has('screen') ||
+          requestUrl.searchParams.has('record'))
+      ) {
+        response.end(
+          await renderRoute(
+            name,
+            requestUrl.searchParams.get('reviewCells') === '1',
+            requestUrl.href,
+          ),
+        )
+      } else
+        response.end(
+          path === '/' && html[key] ? html[key] : await readFile(file),
+        )
     } catch {
       response.writeHead(404).end()
     }
@@ -114,29 +132,28 @@ export async function run({
       const { render } = await import(
         new URL(`.dist-hydration-server${suffix}/server.js`, root)
       )
-      const warnings = []
-      const warn = console.warn
-      for (const name of Object.keys(applications)) {
-        for (const reviewCells of [false, true]) {
-          let result
-          try {
-            console.warn = (...args) =>
-              warnings.push(args.map(String).join(' '))
-            result = await render(name, reviewCells)
-          } finally {
-            console.warn = warn
-          }
-          assert.deepEqual(warnings, [])
-          html[`${name}:${reviewCells}`] = (
-            await readFile(assets + 'hydration.html', 'utf8')
-          )
-            .replace('<!--ssr-->', result.html)
-            .replace(
-              '<script type="module"',
-              '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root table")];</script><script type="module"',
-            )
+      const template = await readFile(assets + 'hydration.html', 'utf8')
+      renderRoute = async (name, reviewCells, initialUrl) => {
+        const warnings = []
+        const warn = console.warn
+        let result
+        try {
+          console.warn = (...args) => warnings.push(args.map(String).join(' '))
+          result = await render(name, reviewCells, initialUrl)
+        } finally {
+          console.warn = warn
         }
+        assert.deepEqual(warnings, [])
+        return template
+          .replace('<!--ssr-->', result.html)
+          .replace(
+            '<script type="module"',
+            '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root table")];</script><script type="module"',
+          )
       }
+      for (const name of Object.keys(applications))
+        for (const reviewCells of [false, true])
+          html[`${name}:${reviewCells}`] = await renderRoute(name, reviewCells)
     }
     for (const directory of hydration
       ? [folder, `.dist-hydration-server${suffix}`]
@@ -166,54 +183,8 @@ export async function run({
       report.application = name
       const firstCase = report.cases.length
       const applicationUrl = `${url}/?app=${name}&reviewCells=1`
-      if (name === 'records') {
-        await record(
-          'ordinary records preview excludes cell draft probes',
-          async () => {
-            const preview = await browser.newPage()
-            try {
-              preview.on('pageerror', (error) =>
-                report.errors.push(error.message),
-              )
-              preview.on('console', (message) => {
-                if (message.type() === 'warning' || message.type() === 'error')
-                  report.warnings.push(message.text())
-              })
-              await preview.goto(`${url}/?app=records`)
-              await expect(
-                preview.locator('[data-generator-amount]'),
-              ).toHaveText('2')
-              await expect(
-                preview.getByLabel('Cell note', { exact: true }),
-              ).toHaveCount(0)
-              if (hydration) {
-                await expect(preview.locator('html')).toHaveAttribute(
-                  'data-hydrated',
-                  'true',
-                )
-                assert.equal(
-                  await preview.evaluate(() =>
-                    window.generatorServerNodes.every(
-                      (node) => node.isConnected,
-                    ),
-                  ),
-                  true,
-                )
-              }
-              assert.deepEqual(
-                (
-                  await preview.evaluate(() =>
-                    window.generatorFixture.diagnostics(),
-                  )
-                ).filter((event) => event.code !== 'HOT_SCOPE_TIME'),
-                [],
-              )
-            } finally {
-              await preview.close()
-            }
-          },
-        )
-      }
+      if (name === 'records')
+        await reviewRecordsWorkflow({ browser, url, hydration, report, record })
       if (hydration) {
         const context = await browser.newContext({ javaScriptEnabled: false })
         try {

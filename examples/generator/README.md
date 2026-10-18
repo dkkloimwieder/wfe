@@ -3,19 +3,30 @@
 This example composes `FormView`, `TableView`, and `LayoutView` through public package imports.
 The application owns accepted values, validation, actions, rows, and table state.
 The default records application uses `/?app=records`.
+Its table fills the main panel. Application-provided View and Edit actions open separate record screens.
+The readonly screen uses display components. The editor uses the generated form, including grouped fields and numeric input.
+Records stay in this example's memory and reset on a full reload.
+A save updates only the selected stable record ID. Reset uses the latest saved values.
+Leaving a record cancels pending work and discards unsaved edits.
+Browser Back and Forward use pushed URLs. They preserve the mounted table, its scroll position, and its configured sorting and columns.
+Direct `screen=view` and `screen=edit` URLs with a `record` ID render the same screen on the server and client.
+Unknown IDs show a readonly error with a Records action.
+
+`/?app=records&reviewCells=1` enables the separate regression screen.
+Only this explicit mode shows description/reorder/removal controls and a custom cell draft input.
+Its existing ownership and disposal tests remain intact.
+
 The dispatch application uses `/?app=dispatch`.
 Each application owns a separate provider, form contract, table, and descriptions.
 Both applications use unchanged generic packages.
 All generator routes use the shared light appearance: Surface 1 components, a Surface 2 backdrop, shadow depth 2, and blue outline buttons.
 Client rendering and server hydration share one appearance scope.
 
-The optional numeric field starts without a value and uses an application wrapper around the shared NumberInput.
+The regression editor's optional numeric field starts without a value and uses an application wrapper around the shared NumberInput.
 The dispatch nullable amount uses the built-in generated number control.
 Both preserve incomplete drafts and prevent UI submission of an older accepted number.
 Applications retain domain validation and saving.
-The ordinary records table displays the quantity without a draft input.
-Use `/?app=records&reviewCells=1` to enable the custom-cell editor used by the ownership regression tests.
-This mode retains a local draft while the application replaces its row.
+The regression mode retains a local cell draft while the application replaces its row.
 The browser suites explicitly enable it, and server rendering uses the same mode as hydration.
 
 From the repository root, build the packages before you start the preview:
@@ -25,9 +36,9 @@ pnpm build
 pnpm exec vite --config examples/generator/vite.config.ts --host 127.0.0.1 --port 7788 --strictPort
 ```
 
-The records editor uses named Record details and Preferences groups through the shared form layout.
+The regression editor uses named Record details and Preferences groups through the shared form layout.
 Groups and fields stack according to their panel width. Name spans the available columns, and Notes spans two columns on wide groups.
-The description action changes labels, group order, field order, panel order, aliases, callbacks, and column order.
+In review mode, the description action changes labels, group order, field order, panel order, aliases, callbacks, and column order.
 The removal action disposes the editor's controls.
 The application keeps the existing form coordinator and table engine.
 
@@ -44,8 +55,8 @@ Set `BENCH_DEVELOPMENT=1` with `NODE_ENV=development` for development source imp
 Use the same environment for the fixture build and browser command.
 The regular qualification command includes all three modes and hydration.
 
-This example reserves a minimum height for its records panel on narrow screens.
-Its custom record cell contains a text control, so it needs more room than a plain text row.
+The regression screen reserves a minimum height for its records panel on narrow screens.
+Its custom cell contains a text control, so it needs more room than a plain text row.
 The application stylesheet owns this minimum.
 The shared renderer keeps the table height stable when the result count changes.
 

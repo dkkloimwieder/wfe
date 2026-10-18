@@ -75,3 +75,42 @@ h2 {
   background: var(--ui-pane-surface);
   box-shadow: var(--ui-panel-shadow);
 }
+
+.record-workflow,
+.record-screen:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+.record-workflow,
+.record-table-screen:not([hidden]) {
+  flex: 1;
+  min-height: 0;
+}
+.record-row-actions,
+.record-screen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}
+.record-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--ui-gap, 6px);
+  margin: 0;
+}
+.record-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.record-screen h1 {
+  font-size: inherit;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.record-table-screen table {
+  min-width: 100%;
+}

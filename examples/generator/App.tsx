@@ -1,52 +1,22 @@
 import { untrack } from 'solid-js'
-import { FormView, TableView, LayoutView } from '@wfe/generator'
-import { createRecordsApplication } from './records-application'
+import { RecordsReview } from './RecordsReview'
+import { RecordsWorkflow } from './RecordsWorkflow'
+import type { createRecordsApplication } from './records-application'
+import type { createRecordsWorkflow } from './records-workflow'
+import type { RecordRoute } from './record-route'
 
 export function App(props: {
   reviewCells?: boolean
-  ready?: (api: ReturnType<typeof createRecordsApplication>) => void
+  initialRoute?: RecordRoute
+  ready?: (
+    api:
+      | ReturnType<typeof createRecordsApplication>
+      | ReturnType<typeof createRecordsWorkflow>,
+  ) => void
 }) {
-  const app = createRecordsApplication(
-    untrack(() => props.reviewCells ?? false),
-  )
-  props.ready?.(app)
-  const Editor = () => (
-    <FormView
-      description={app.formDescription()}
-      bindings={{
-        form: app.form,
-        choices: {
-          category: () =>
-            [
-              { value: 'a', label: 'Alpha' },
-              { value: 'b', label: 'Beta' },
-            ] as const,
-        },
-        fields: { quantity: app.Quantity },
-        actions: {
-          reset: { run: () => app.form.reset() },
-          extra: { run: app.action() },
-        },
-      }}
-    />
-  )
-  const Records = () => (
-    <TableView
-      description={app.tableDescription()}
-      bindings={{
-        table: app.table,
-        cells: { quantity: app.Amount },
-        headerAliases: app.aliases,
-      }}
-    />
-  )
-  return (
-    <LayoutView
-      description={app.layoutDescription()}
-      bindings={{
-        views: { editor: Editor, records: Records },
-        actions: { revise: { run: app.revise }, remove: { run: app.remove } },
-      }}
-    />
+  return untrack(() => props.reviewCells ?? false) ? (
+    <RecordsReview reviewCells ready={props.ready} />
+  ) : (
+    <RecordsWorkflow initialRoute={props.initialRoute} ready={props.ready} />
   )
 }

@@ -2,6 +2,7 @@ import { OBSERVE, action, flush } from 'solid-js'
 import { hydrate, render } from '@solidjs/web'
 import { applications } from './applications'
 import { ExampleAppearance } from './ExampleAppearance'
+import { recordRoute } from './record-route'
 import type { Application, ApplicationName } from './applications'
 import type {
   DispatchStage,
@@ -14,6 +15,7 @@ import './style.css'
 export function createFixture(
   name: ApplicationName = 'records',
   reviewCells = false,
+  initialUrl = '?app=records',
 ) {
   const App = applications[name]
   let capture:
@@ -50,6 +52,7 @@ export function createFixture(
           <ExampleAppearance>
             <App
               reviewCells={reviewCells}
+              initialRoute={recordRoute(initialUrl)}
               ready={(value: Application) => {
                 app = value
               }}
@@ -67,6 +70,7 @@ export function createFixture(
           <ExampleAppearance>
             <App
               reviewCells={reviewCells}
+              initialRoute={recordRoute(initialUrl)}
               ready={(value: Application) => {
                 app = value
               }}
@@ -116,6 +120,18 @@ export function createFixture(
       if (then === 'disable') app.disable(true)
       if (then === 'remove') app.remove()
       if (then === 'dispose') dispose()
+      flush()
+    },
+    workflowColumns() {
+      if (app?.kind !== 'records-workflow')
+        throw new Error('This operation needs the normal records example')
+      app.table.setColumnOrder(['quantity', 'name', 'active', 'actions'])
+      app.table.setColumnSizing({
+        name: 1400,
+        quantity: 200,
+        active: 100,
+        actions: 250,
+      })
       flush()
     },
     submit() {
@@ -181,10 +197,14 @@ export function createFixture(
       flush()
     },
     revise() {
+      if (app?.kind === 'records-workflow')
+        throw new Error('Review actions need review mode')
       app!.revise()
       flush()
     },
     remove() {
+      if (app?.kind === 'records-workflow')
+        throw new Error('Review actions need review mode')
       app!.remove()
       flush()
     },
