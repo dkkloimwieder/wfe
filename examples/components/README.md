@@ -1,4 +1,11 @@
-# Shared popup editing
+# Component previews
+
+Open `?gallery=fields` on the components preview server for the unified gallery.
+The gallery includes sidebar navigation, direct links, browser history, appearance controls, example states, and real viewport widths.
+See [the gallery guide](../../docs/component-gallery.md) for the supported routes and review behavior.
+Existing standalone query routes remain available for focused regression tests.
+
+## Shared popup editing
 
 This fixture uses shared Select with Table and Solid 2 rc.14.
 The private components package supplies the owned Kobalte behavior.

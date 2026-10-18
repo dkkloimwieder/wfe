@@ -45,7 +45,23 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('files')) {
+if (new URLSearchParams(location.search).has('galleryPreview')) {
+  const { GalleryPreview } = await import('./gallery/Preview')
+  render(() => <GalleryPreview />, document.getElementById('root')!)
+} else if (new URLSearchParams(location.search).has('gallery')) {
+  const { Gallery } = await import('./gallery/Gallery')
+  const dispose = render(() => <Gallery />, document.getElementById('root')!)
+  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  window.galleryFixture = {
+    stop: () => {
+      cleanup()
+      flush()
+    },
+  }
+} else if (new URLSearchParams(location.search).has('files')) {
   const dispose = render(
     () => (
       <DefaultAppearance class="component-preview">
@@ -323,6 +339,7 @@ else mountEditingFixture(PopupPriorityEditor, popupFields)
 
 declare global {
   interface Window {
+    galleryFixture: { stop: () => void }
     classFixture: typeof classLifecycle & { stop: () => void }
   }
 }

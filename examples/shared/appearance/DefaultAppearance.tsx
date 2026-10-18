@@ -7,6 +7,7 @@ import { accents, appearanceStyle, schemes } from './appearance'
 export function DefaultAppearance(props: {
   children: JSX.Element
   class?: string
+  style?: JSX.CSSProperties
 }) {
   const scope = uiScope()
   return (
@@ -23,6 +24,7 @@ export function DefaultAppearance(props: {
         }),
         '--ui-button-color': 'var(--ui-accent)',
         '--ui-button-on-color': 'var(--ui-on-accent)',
+        ...props.style,
       }}
     >
       {props.children}

@@ -1,0 +1,151 @@
+body:has(.gallery-shell),
+body:has(.gallery-preview) {
+  margin: 0;
+}
+.gallery-shell {
+  height: 100dvh;
+  min-width: 0;
+}
+.gallery-dashboard {
+  --ui-navigation-width: 14rem;
+}
+.gallery-dashboard .ui-dashboard-header,
+.gallery-dashboard .ui-dashboard-navigation {
+  background: var(--ui-pane-surface);
+}
+.gallery-dashboard .ui-dashboard-header {
+  justify-content: space-between;
+}
+.gallery-dashboard .ui-dashboard-header h1 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--ui-font-size);
+}
+.gallery-dashboard .ui-dashboard-main {
+  background: var(--ui-canvas-surface);
+}
+.gallery-navigation-group {
+  display: grid;
+  gap: var(--ui-gap);
+}
+.gallery-navigation-group + .gallery-navigation-group {
+  margin-top: calc(2 * var(--ui-gap));
+}
+.gallery-navigation-group h2 {
+  font-size: var(--ui-small-font-size);
+  margin: 0;
+  padding: var(--ui-gap);
+}
+.gallery-navigation-group a {
+  display: block;
+  padding: var(--ui-gap);
+  color: var(--ui-text);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.gallery-navigation-group a:hover,
+.gallery-navigation-group a[aria-current='page'] {
+  border-color: var(--ui-accent);
+}
+.gallery-dashboard .ui-dashboard-header h1:focus-visible,
+.gallery-navigation-group a:focus-visible,
+.gallery-toolbar > a:focus-visible {
+  outline: 2px solid var(--ui-focus-ring);
+  outline-offset: -2px;
+}
+.gallery-appearance {
+  flex: none;
+  min-height: 0;
+  max-height: 40dvh;
+  overflow: auto;
+  padding: 4px;
+}
+.gallery-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap);
+  flex: none;
+  padding: var(--ui-gap);
+  background: var(--ui-pane-surface);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-panel-shadow);
+}
+.gallery-toolbar > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap);
+}
+.gallery-toolbar > a {
+  color: var(--ui-accent);
+  padding: var(--ui-gap);
+}
+.gallery-toolbar button[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.gallery-stage {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  border: 1px solid var(--ui-border);
+  background: var(--ui-canvas-surface);
+  box-shadow: var(--ui-panel-shadow);
+}
+.gallery-frame {
+  display: block;
+  border: 0;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+  background: var(--ui-pane-surface);
+}
+.gallery-frame[data-viewport='phone'] {
+  width: 320px;
+  min-width: 320px;
+}
+.gallery-frame[data-viewport='tablet'] {
+  width: 768px;
+  min-width: 768px;
+}
+.gallery-preview {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding: var(--ui-gap);
+  background: var(--ui-pane-surface);
+}
+.gallery-preview > main {
+  padding: 0;
+}
+.gallery-preview h1 {
+  margin-top: 0;
+  font-size: 1.25em;
+}
+.gallery-recipe {
+  display: grid;
+  gap: calc(2 * var(--ui-gap));
+  min-width: 0;
+}
+.gallery-example-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap);
+}
+.gallery-table {
+  height: calc(100dvh - 12px);
+  min-height: 0;
+}
+@media (width < 48rem) {
+  .gallery-dashboard .ui-dashboard-header {
+    flex-wrap: wrap;
+  }
+}
+/* Legacy standalone fixture page rules do not size the gallery layout. */
+.gallery-dashboard > .ui-dashboard-main,
+.gallery-preview > main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}

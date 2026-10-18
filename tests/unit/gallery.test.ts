@@ -1,0 +1,79 @@
+import { expect, test } from 'vitest'
+import {
+  defaults,
+  entries,
+  galleryUrl,
+  readConfig,
+  readRoute,
+} from '../../examples/components/gallery/catalog'
+
+test('direct gallery links preserve example, state, width and presentation in a fresh URL', () => {
+  const route = {
+    ...defaults,
+    id: 'fields' as const,
+    state: 'readonly' as const,
+    viewport: 'phone' as const,
+    scheme: 2,
+    accent: 4,
+    depth: 3 as const,
+    layers: { canvas: 2 as const, pane: 1 as const, content: 2 as const },
+  }
+  const url = galleryUrl(
+    new URL('https://example.test/components/?legacy=1#old'),
+    route,
+  )
+  expect(readRoute(url)).toEqual(route)
+  expect(url.origin).toBe('https://example.test')
+  expect(url.hash).toBe('')
+  expect(url.searchParams.has('legacy')).toBe(false)
+  const preview = galleryUrl(url, route, true)
+  expect(preview.searchParams.has('gallery')).toBe(false)
+  expect(preview.searchParams.get('galleryPreview')).toBe('fields')
+  expect(readRoute(preview)).toEqual(route)
+})
+test('invalid URL input falls back to finite presentation defaults and capability-aware states', () => {
+  const route = readRoute(
+    new URL(
+      'https://example.test/?gallery=buttons&state=readonly&scheme=Infinity&accent=-1&depth=9&canvas=1.5&pane=&content=invalid&viewport=giant',
+    ),
+  )
+  expect(route).toEqual({ ...defaults, id: 'buttons', viewport: 'full' })
+  expect(
+    readRoute(new URL('https://example.test/?gallery=https://foreign.test')).id,
+  ).toBe('fields')
+})
+test('message configuration rejects invalid enums and copies presentation data without retaining caller objects', () => {
+  for (const value of [
+    null,
+    {},
+    'invalid',
+    { ...defaults, scheme: NaN },
+    { ...defaults, accent: 9 },
+    { ...defaults, depth: -1 },
+    { ...defaults, state: 'submit' },
+    { ...defaults, layers: { canvas: 0, pane: 0, content: 9 } },
+  ])
+    expect(readConfig(value)).toBeUndefined()
+  const config = {
+    ...defaults,
+    layers: { ...defaults.layers },
+    unrelated: { record: 'not presentation' },
+  }
+  const parsed = readConfig(config)!
+  expect(parsed).toEqual(defaults)
+  expect(parsed).not.toBe(config)
+  expect(parsed.layers).not.toBe(config.layers)
+  expect(parsed).not.toHaveProperty('unrelated')
+})
+test('every catalog entry has a unique direct URL and supports the normal state', () => {
+  expect(new Set(entries.map((entry) => entry.id)).size).toBe(entries.length)
+  for (const entry of entries) {
+    expect(entry.states).toContain('normal')
+    const url = galleryUrl(new URL('https://example.test/'), {
+      ...defaults,
+      id: entry.id,
+      viewport: 'full',
+    })
+    expect(readRoute(url).id).toBe(entry.id)
+  }
+})
