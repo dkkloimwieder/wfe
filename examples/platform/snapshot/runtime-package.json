@@ -1,0 +1,22 @@
+{
+  "name": "@wamn/web-runtime",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "tsc --project tsconfig.json && tsc --project tsconfig.test.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vitest": "^5.0.3",
+    "@typescript/native": "npm:typescript@^7.0.2"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}

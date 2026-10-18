@@ -1,0 +1,191 @@
+{
+  "revision": "19ade87cec6f1fb3978374d9214957a6f4b70f4c",
+  "captured": "2026-10-18T21:35:47.320Z",
+  "changes": "Client imports point to the copied wire module. All other captured source bytes stay unchanged.",
+  "files": [
+    {
+      "source": "apps/target/wamn/wamn_control/control/client-ts/control.ts",
+      "local": "client/control.ts",
+      "sourceSha256": "fce09f964d0b3ac430ec071c93fec802c2efa436503608788cf64596de981cbd",
+      "sha256": "f20f71e1ab5f3aadc046129bdf5b78bee9b04461788122f3ad471808bac99833"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/control/client-ts/project.ts",
+      "local": "client/project.ts",
+      "sourceSha256": "d4ef86867f0c80e2243a9ee5adb1891555cdbe5569a796c17da4798dae64e758",
+      "sha256": "c2494453a509fa33c0b454ae6b5ca814381248ecda12b57de1c8acc9099d0833"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/control/client-ts/environment.ts",
+      "local": "client/environment.ts",
+      "sourceSha256": "743385e061ee99ad22f9906380a5165a6b31dd9b66514e9a33200bf4b63576cf",
+      "sha256": "a7ef73e0eec63a0fc5652bdd0ccedc7a08223b2fb78e9a49164f366eaae4a73f"
+    },
+    {
+      "source": "web/runtime/src/wire.ts",
+      "local": "runtime/wire.ts",
+      "sourceSha256": "2dddd4bb69f743fff6b1fe611d8bee4314f67d8d577c39a0f84609ecf6f9d4ce",
+      "sha256": "2dddd4bb69f743fff6b1fe611d8bee4314f67d8d577c39a0f84609ecf6f9d4ce"
+    },
+    {
+      "source": "web/runtime/src/transport.ts",
+      "local": "runtime/transport.ts",
+      "sourceSha256": "5ab1e2e3deecabf6c3e673686f09cba904a717a5c55f7fb38dbf675af64d6c0e",
+      "sha256": "5ab1e2e3deecabf6c3e673686f09cba904a717a5c55f7fb38dbf675af64d6c0e"
+    },
+    {
+      "source": "web/runtime/src/readQuery.ts",
+      "local": "runtime/readQuery.ts",
+      "sourceSha256": "5afdd648f1b9e0566177b6ab1ca0ea4a6a0d9fe8771577cd5fd00a8f32133d10",
+      "sha256": "5afdd648f1b9e0566177b6ab1ca0ea4a6a0d9fe8771577cd5fd00a8f32133d10"
+    },
+    {
+      "source": "web/runtime/src/readCache.ts",
+      "local": "runtime/readCache.ts",
+      "sourceSha256": "aa00eb792da6ac40171d28467b046f55ea16ee3d4ed31e239df1daa5062b6bd8",
+      "sha256": "aa00eb792da6ac40171d28467b046f55ea16ee3d4ed31e239df1daa5062b6bd8"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/control/mine.input.json",
+      "local": "metadata/control/mine.input.json",
+      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
+      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/control/mine.result.json",
+      "local": "metadata/control/mine.result.json",
+      "sourceSha256": "0800d9d30a6deae335ca5b36867882430b63836eb21dc42aec8a1d26fedcea22",
+      "sha256": "0800d9d30a6deae335ca5b36867882430b63836eb21dc42aec8a1d26fedcea22"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/control/mine.operation.json",
+      "local": "metadata/control/mine.operation.json",
+      "sourceSha256": "0ae62d1abed5622e5c053f75a26646fb4d6d887afe1f8a1f1c5e70e6fe169388",
+      "sha256": "0ae62d1abed5622e5c053f75a26646fb4d6d887afe1f8a1f1c5e70e6fe169388"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/control/mine.errors.json",
+      "local": "metadata/control/mine.errors.json",
+      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
+      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project/list.input.json",
+      "local": "metadata/project/list.input.json",
+      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
+      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project/list.result.json",
+      "local": "metadata/project/list.result.json",
+      "sourceSha256": "d1a2382e6fe6861a5be482dc1dc26e1e427bdbcbf425dfe267307ac187f5dc4f",
+      "sha256": "d1a2382e6fe6861a5be482dc1dc26e1e427bdbcbf425dfe267307ac187f5dc4f"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project/list.operation.json",
+      "local": "metadata/project/list.operation.json",
+      "sourceSha256": "0121b35006545e9c4a9e2b351e19b53b8c5bcbdd1ff49345a2f713acd0714ef3",
+      "sha256": "0121b35006545e9c4a9e2b351e19b53b8c5bcbdd1ff49345a2f713acd0714ef3"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project/list.errors.json",
+      "local": "metadata/project/list.errors.json",
+      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
+      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project/create.input.json",
+      "local": "metadata/project/create.input.json",
+      "sourceSha256": "28bc959d767ad51ac2fe86d6c3770304c4f49ee0f9209443cd6eb00f85cf3c17",
+      "sha256": "28bc959d767ad51ac2fe86d6c3770304c4f49ee0f9209443cd6eb00f85cf3c17"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project/create.result.json",
+      "local": "metadata/project/create.result.json",
+      "sourceSha256": "2c9da6578077b2927d3a5d30ff7cee8a54798e6c9a5915fdbaed974a2977e23b",
+      "sha256": "2c9da6578077b2927d3a5d30ff7cee8a54798e6c9a5915fdbaed974a2977e23b"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project/create.operation.json",
+      "local": "metadata/project/create.operation.json",
+      "sourceSha256": "4ade19b43a2bff89d706c21a94beb3ef9c199b17e5bf02a0f1911d010a3033c5",
+      "sha256": "4ade19b43a2bff89d706c21a94beb3ef9c199b17e5bf02a0f1911d010a3033c5"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project/create.errors.json",
+      "local": "metadata/project/create.errors.json",
+      "sourceSha256": "09c125e6864420d36d808e404535b9a77c6a8f7dba92e92d223157e94a7cc324",
+      "sha256": "09c125e6864420d36d808e404535b9a77c6a8f7dba92e92d223157e94a7cc324"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.input.json",
+      "local": "metadata/environment/list.input.json",
+      "sourceSha256": "93c6b3bbfc1b2f030d9959ea028062497e5bc5555ace29e8c1c3cec9452df59e",
+      "sha256": "93c6b3bbfc1b2f030d9959ea028062497e5bc5555ace29e8c1c3cec9452df59e"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.result.json",
+      "local": "metadata/environment/list.result.json",
+      "sourceSha256": "cbb919bd52e105ac47a8913cefd4374003be1670defeddb4a1778e98dffaa468",
+      "sha256": "cbb919bd52e105ac47a8913cefd4374003be1670defeddb4a1778e98dffaa468"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.operation.json",
+      "local": "metadata/environment/list.operation.json",
+      "sourceSha256": "92e223ff96edbfae452d60ab6702cac8d15de74e36255e7d58ac2976592e0685",
+      "sha256": "92e223ff96edbfae452d60ab6702cac8d15de74e36255e7d58ac2976592e0685"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.errors.json",
+      "local": "metadata/environment/list.errors.json",
+      "sourceSha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56",
+      "sha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/environment/status.input.json",
+      "local": "metadata/environment/status.input.json",
+      "sourceSha256": "7a49ad7e226d35bafb45aabe43aba50c47d27e16537a9cae52305b2d4b6a3877",
+      "sha256": "7a49ad7e226d35bafb45aabe43aba50c47d27e16537a9cae52305b2d4b6a3877"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/environment/status.result.json",
+      "local": "metadata/environment/status.result.json",
+      "sourceSha256": "b3593b7c04f4ff3960fe468a86aa810ec8533acf2a9e344941c469aa1b6795fb",
+      "sha256": "b3593b7c04f4ff3960fe468a86aa810ec8533acf2a9e344941c469aa1b6795fb"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/environment/status.operation.json",
+      "local": "metadata/environment/status.operation.json",
+      "sourceSha256": "70c9f62bd55122d52e4203b46abe38089048b21d589be083b03fb8365630e53a",
+      "sha256": "70c9f62bd55122d52e4203b46abe38089048b21d589be083b03fb8365630e53a"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/environment/status.errors.json",
+      "local": "metadata/environment/status.errors.json",
+      "sourceSha256": "4d31d67c7e8bb6bfe0783d75b74c9f864bdb2590673eddf9dbfa26d03614b56f",
+      "sha256": "4d31d67c7e8bb6bfe0783d75b74c9f864bdb2590673eddf9dbfa26d03614b56f"
+    },
+    {
+      "source": "Cargo.toml",
+      "local": "upstream-Cargo.toml",
+      "sourceSha256": "48fbe527cadaa57412e65962f006f85810d987447a243f2cde423a2f5dd411c8",
+      "sha256": "48fbe527cadaa57412e65962f006f85810d987447a243f2cde423a2f5dd411c8"
+    },
+    {
+      "source": "web/runtime/package.json",
+      "local": "runtime-package.json",
+      "sourceSha256": "03e76e866feb03049b681a319d9b0935c005fe8bab8b8c19db23895edb359e36",
+      "sha256": "03e76e866feb03049b681a319d9b0935c005fe8bab8b8c19db23895edb359e36"
+    }
+  ],
+  "support": [
+    {
+      "local": "scope-rule.json",
+      "sha256": "5bc87da394ba821f925f3419394152d19609957eaf41be74a1547376c214d093"
+    },
+    {
+      "local": "LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    }
+  ]
+}

@@ -7,3 +7,5 @@ node_modules
 .git
 test-results
 coverage
+
+examples/platform/snapshot

@@ -1,0 +1,5 @@
+{
+  "source": "crates/identity/platform/src/lib.rs",
+  "sourceSha256": "a2f40e74dca39ad4f8caa6cf536df9a6e6961b7c2a89f1150a8d3fddb48511da",
+  "rule": "fn checked_scope_segment(name: &'static str, value: &str) -> Result<String, IdentityError> {\n    let value = value.trim();\n    if value.is_empty() || value.len() > 40 {\n        return Err(IdentityError::refused(\n            IdentityErrorType::InvalidInput,\n            IdentityRefusal::Invalid(name),\n            format!(\"{name} must contain 1 to 40 bytes\"),\n        ));\n    }\n    Ok(value.to_owned())\n}"
+}

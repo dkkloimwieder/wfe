@@ -15,6 +15,7 @@ export default [
       'test-results/**',
       'coverage/**',
       'packages/components/src/vendor/**',
+      'examples/platform/snapshot/**',
     ],
   },
   {
