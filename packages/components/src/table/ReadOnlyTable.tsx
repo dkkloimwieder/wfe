@@ -341,15 +341,19 @@ export function ReadOnlyTable<T, M>(
               </TableControlSection>
             )}
           </Show>
-          <Show when={props.actions}>
-            <TableControlSection title="Actions" defaultOpen>
-              {props.actions}
-            </TableControlSection>
+          <Show when={props.actions} keyed>
+            {(actions) => (
+              <TableControlSection title="Actions" defaultOpen>
+                {actions}
+              </TableControlSection>
+            )}
           </Show>
-          <Show when={props.configuration}>
-            <TableControlSection title="Configuration">
-              {props.configuration}
-            </TableControlSection>
+          <Show when={props.configuration} keyed>
+            {(configuration) => (
+              <TableControlSection title="Configuration">
+                {configuration}
+              </TableControlSection>
+            )}
           </Show>
         </>
       }
