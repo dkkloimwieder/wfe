@@ -11,7 +11,10 @@ import type {
 import type { DateDemoConfiguration } from './DateApp'
 import type { FormErrors, FormReply, FormOutcome } from '@wfe/form'
 import './style.css'
-export function createFixture(name: ApplicationName = 'records') {
+export function createFixture(
+  name: ApplicationName = 'records',
+  reviewCells = false,
+) {
   const App = applications[name]
   let capture:
     | ReturnType<NonNullable<typeof OBSERVE>['diagnostics']['capture']>
@@ -46,6 +49,7 @@ export function createFixture(name: ApplicationName = 'records') {
         () => (
           <ExampleAppearance>
             <App
+              reviewCells={reviewCells}
               ready={(value: Application) => {
                 app = value
               }}
@@ -62,6 +66,7 @@ export function createFixture(name: ApplicationName = 'records') {
         () => (
           <ExampleAppearance>
             <App
+              reviewCells={reviewCells}
               ready={(value: Application) => {
                 app = value
               }}

@@ -1,10 +1,14 @@
+import { untrack } from 'solid-js'
 import { FormView, TableView, LayoutView } from '@wfe/generator'
 import { createRecordsApplication } from './records-application'
 
 export function App(props: {
+  reviewCells?: boolean
   ready?: (api: ReturnType<typeof createRecordsApplication>) => void
 }) {
-  const app = createRecordsApplication()
+  const app = createRecordsApplication(
+    untrack(() => props.reviewCells ?? false),
+  )
   props.ready?.(app)
   const Editor = () => (
     <FormView

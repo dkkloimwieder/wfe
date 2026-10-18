@@ -1,4 +1,4 @@
-import { createSignal, onCleanup } from 'solid-js'
+import { createSignal, onCleanup, Show } from 'solid-js'
 import { Input, NumberInput } from '@wfe/components'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
@@ -13,7 +13,7 @@ import type { RecordValues } from './records-provider'
 type Values = RecordValues
 const initial = initialRecord
 
-export function createRecordsApplication() {
+export function createRecordsApplication(reviewCells = false) {
   const [values, setValues] = createSignal<Values>(initial)
   const provider = createRecordsProvider()
   const [fill, setFill] = createSignal(true)
@@ -90,11 +90,13 @@ export function createRecordsApplication() {
         >
           {String(props.value)}
         </span>
-        <Input
-          aria-label="Cell note"
-          value={draft()}
-          onValueChange={setDraft}
-        />
+        <Show when={reviewCells}>
+          <Input
+            aria-label="Cell note"
+            value={draft()}
+            onValueChange={setDraft}
+          />
+        </Show>
       </>
     )
   }

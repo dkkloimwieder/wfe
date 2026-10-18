@@ -13,7 +13,10 @@ The optional numeric field starts without a value and uses an application wrappe
 The dispatch nullable amount uses the built-in generated number control.
 Both preserve incomplete drafts and prevent UI submission of an older accepted number.
 Applications retain domain validation and saving.
-The custom table cell retains a local draft while the application replaces its row.
+The ordinary records table displays the quantity without a draft input.
+Use `/?app=records&reviewCells=1` to enable the custom-cell editor used by the ownership regression tests.
+This mode retains a local draft while the application replaces its row.
+The browser suites explicitly enable it, and server rendering uses the same mode as hydration.
 
 From the repository root, build the packages before you start the preview:
 

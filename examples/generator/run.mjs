@@ -69,6 +69,7 @@ export async function run({
       const requestUrl = new URL(request.url, 'http://localhost')
       const path = requestUrl.pathname
       const name = requestUrl.searchParams.get('app') ?? 'records'
+      const key = `${name}:${requestUrl.searchParams.get('reviewCells') === '1'}`
       if (path === '/favicon.ico') return void response.writeHead(204).end()
       const file = resolve(assets, '.' + (path === '/' ? '/index.html' : path))
       assert.ok(file.startsWith(assets.replace(/\/$/, '') + sep))
@@ -82,9 +83,7 @@ export async function run({
               ? 'application/json'
               : 'text/html',
       )
-      response.end(
-        path === '/' && html[name] ? html[name] : await readFile(file),
-      )
+      response.end(path === '/' && html[key] ? html[key] : await readFile(file))
     } catch {
       response.writeHead(404).end()
     }
@@ -118,20 +117,25 @@ export async function run({
       const warnings = []
       const warn = console.warn
       for (const name of Object.keys(applications)) {
-        let result
-        try {
-          console.warn = (...args) => warnings.push(args.map(String).join(' '))
-          result = await render(name)
-        } finally {
-          console.warn = warn
-        }
-        assert.deepEqual(warnings, [])
-        html[name] = (await readFile(assets + 'hydration.html', 'utf8'))
-          .replace('<!--ssr-->', result.html)
-          .replace(
-            '<script type="module"',
-            '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root table")];</script><script type="module"',
+        for (const reviewCells of [false, true]) {
+          let result
+          try {
+            console.warn = (...args) =>
+              warnings.push(args.map(String).join(' '))
+            result = await render(name, reviewCells)
+          } finally {
+            console.warn = warn
+          }
+          assert.deepEqual(warnings, [])
+          html[`${name}:${reviewCells}`] = (
+            await readFile(assets + 'hydration.html', 'utf8')
           )
+            .replace('<!--ssr-->', result.html)
+            .replace(
+              '<script type="module"',
+              '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root table")];</script><script type="module"',
+            )
+        }
       }
     }
     for (const directory of hydration
@@ -161,7 +165,55 @@ export async function run({
     for (const [name, checks] of Object.entries(applications)) {
       report.application = name
       const firstCase = report.cases.length
-      const applicationUrl = `${url}/?app=${name}`
+      const applicationUrl = `${url}/?app=${name}&reviewCells=1`
+      if (name === 'records') {
+        await record(
+          'ordinary records preview excludes cell draft probes',
+          async () => {
+            const preview = await browser.newPage()
+            try {
+              preview.on('pageerror', (error) =>
+                report.errors.push(error.message),
+              )
+              preview.on('console', (message) => {
+                if (message.type() === 'warning' || message.type() === 'error')
+                  report.warnings.push(message.text())
+              })
+              await preview.goto(`${url}/?app=records`)
+              await expect(
+                preview.locator('[data-generator-amount]'),
+              ).toHaveText('2')
+              await expect(
+                preview.getByLabel('Cell note', { exact: true }),
+              ).toHaveCount(0)
+              if (hydration) {
+                await expect(preview.locator('html')).toHaveAttribute(
+                  'data-hydrated',
+                  'true',
+                )
+                assert.equal(
+                  await preview.evaluate(() =>
+                    window.generatorServerNodes.every(
+                      (node) => node.isConnected,
+                    ),
+                  ),
+                  true,
+                )
+              }
+              assert.deepEqual(
+                (
+                  await preview.evaluate(() =>
+                    window.generatorFixture.diagnostics(),
+                  )
+                ).filter((event) => event.code !== 'HOT_SCOPE_TIME'),
+                [],
+              )
+            } finally {
+              await preview.close()
+            }
+          },
+        )
+      }
       if (hydration) {
         const context = await browser.newContext({ javaScriptEnabled: false })
         try {
