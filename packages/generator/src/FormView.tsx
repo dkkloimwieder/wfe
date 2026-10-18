@@ -7,6 +7,8 @@ import {
   Checkbox,
   Field,
   FieldError,
+  FormGrid,
+  FieldGroup,
   HelpText,
   Input,
   NumberInput,
@@ -59,6 +61,7 @@ export function FormView<
   const form = untrack(() => bindings().form)
   const identity = untrack(() => props.description.id)
   const domId = `generated-form-${createUniqueId()}`
+  let regions = new Map<string, string | undefined>()
   const description = createMemo(() => {
     const value = props.description
     requireValue(
@@ -70,6 +73,66 @@ export function FormView<
       value.fields.map((field) => field.field),
       'field',
     )
+    const columns = value.layout?.columns ?? 1
+    const validColumns = (count: unknown) =>
+      count === 1 || count === 2 || count === 3
+    const validSpan = (span: unknown, count: number) =>
+      span === undefined ||
+      span === 'full' ||
+      (typeof span === 'number' &&
+        Number.isInteger(span) &&
+        span >= 1 &&
+        span <= count)
+    requireValue(validColumns(columns), 'unsupported form column count')
+    const groups = value.layout?.groups
+    const nextRegions = new Map<string, string | undefined>()
+    if (groups !== undefined) {
+      uniqueIds(
+        groups.map((group) => group.id),
+        'form group',
+      )
+      const references = groups.flatMap((group) => group.fields)
+      uniqueIds(references, 'grouped field')
+      requireValue(
+        references.length === value.fields.length &&
+          references.every((key) =>
+            value.fields.some((field) => field.field === key),
+          ),
+        'form groups must reference every described field exactly once',
+      )
+      for (const group of groups) {
+        requireValue(
+          typeof group.title === 'string' && Boolean(group.title.trim()),
+          'form groups require a title',
+        )
+        requireValue(
+          validColumns(group.columns ?? 1),
+          'unsupported group column count',
+        )
+        requireValue(
+          validSpan(group.span, columns),
+          'unsupported form group span',
+        )
+        for (const key of group.fields) nextRegions.set(key, group.id)
+      }
+    } else
+      for (const field of value.fields) nextRegions.set(field.field, undefined)
+    for (const field of value.fields) {
+      const groupId = nextRegions.get(field.field)
+      const groupColumns =
+        groups === undefined
+          ? columns
+          : (groups.find((group) => group.id === groupId)?.columns ?? 1)
+      requireValue(
+        validSpan(field.span, groupColumns),
+        `unsupported span for field "${field.field}"`,
+      )
+      requireValue(
+        !regions.has(field.field) || regions.get(field.field) === groupId,
+        `remount the form view to move field "${field.field}" between groups`,
+      )
+    }
+    regions = nextRegions
     validateActions(value.actions ?? [], bindings().actions, value.submit)
     for (const field of value.fields) {
       const control = field.control
@@ -183,6 +246,8 @@ export function FormView<
     return (
       <Field
         controlId={id}
+        data-form-span={checkedField().span ?? 1}
+        data-generator-field={key}
         required={checkedField().required}
         disabled={disabled()}
         readonly={readOnly()}
@@ -316,9 +381,21 @@ export function FormView<
       </Field>
     )
   }
-  preserveReorderFocus(domId, () =>
-    description().fields.map((field) => field.field as string),
+  const groupedFields = createMemo(
+    () =>
+      new Map(
+        description().fields.map((field) => [field.field as string, field]),
+      ),
   )
+  preserveReorderFocus(domId, () => {
+    const current = description()
+    return (
+      current.layout?.groups?.flatMap((group) => [
+        `group:${group.id}`,
+        ...group.fields.map((key) => `field:${key}`),
+      ]) ?? current.fields.map((field) => `field:${field.field}`)
+    )
+  })
   return (
     <form
       id={domId}
@@ -353,9 +430,37 @@ export function FormView<
       <Show when={description().title}>
         <h2 data-ui-text="system">{description().title}</h2>
       </Show>
-      <For each={description().fields} keyed={(field) => field.field}>
-        {(field) => <FieldView field={field()} />}
-      </For>
+      <Show
+        when={description().layout?.groups !== undefined}
+        fallback={
+          <FormGrid columns={description().layout?.columns}>
+            <For each={description().fields} keyed={(field) => field.field}>
+              {(field) => <FieldView field={field()} />}
+            </For>
+          </FormGrid>
+        }
+      >
+        <FormGrid columns={description().layout?.columns}>
+          <For
+            each={description().layout?.groups ?? []}
+            keyed={(group) => group.id}
+          >
+            {(group) => (
+              <FieldGroup
+                data-generator-group={group().id}
+                title={group().title}
+                help={group().help}
+                columns={group().columns}
+                span={group().span}
+              >
+                <For each={group().fields}>
+                  {(key) => <FieldView field={groupedFields().get(key)!} />}
+                </For>
+              </FieldGroup>
+            )}
+          </For>
+        </FormGrid>
+      </Show>
       <Show when={form.errors.form}>
         <p role="alert">{form.errors.form}</p>
       </Show>

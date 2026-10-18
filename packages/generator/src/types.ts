@@ -5,6 +5,8 @@ import type {
   TimeInputFormat,
   DateTimeDisambiguation,
   ButtonTone,
+  FormColumns,
+  FormSpan,
   ButtonVariant,
 } from '@wfe/components'
 import type { DashboardShellProps } from '@wfe/components/layout'
@@ -93,15 +95,30 @@ export type FormFieldDescription<
       label: string
       help?: string
       required?: boolean
+      span?: FormSpan
     } & (BuiltInControl<T[K]> | { control: 'custom' })
   >
 }[FieldKey<T>]
+
+export type FormGroupDescription<Key extends string = string> = Readonly<{
+  id: string
+  title: string
+  help?: string
+  columns?: FormColumns
+  span?: FormSpan
+  fields: readonly Key[]
+}>
+export type FormLayoutDescription<Key extends string = string> = Readonly<{
+  columns?: FormColumns
+  groups?: readonly FormGroupDescription<Key>[]
+}>
 
 export type FormDescription<T extends object & { [K in keyof T]: FormScalar }> =
   Readonly<{
     id: string
     title?: string
     fields: readonly FormFieldDescription<T>[]
+    layout?: FormLayoutDescription<FieldKey<T>>
     submit?: ActionDescription
     actions?: readonly ActionDescription[]
   }>

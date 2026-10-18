@@ -7,6 +7,85 @@ import {
 
 export async function reviewRecords({ page, report, record }) {
   await record(
+    'named form groups respond to panel width and clamp field spans',
+    async () => {
+      const form = page.locator('form')
+      const details = form.getByRole('group', {
+        name: 'Record details',
+        exact: true,
+      })
+      const preferences = form.getByRole('group', {
+        name: 'Preferences',
+        exact: true,
+      })
+      await expect(preferences).toBeVisible()
+      await expect(details).toHaveAccessibleDescription('Identity and quantity')
+      await expect(details.getByLabel('Name', { exact: true })).toHaveCount(1)
+      const geometry = () =>
+        form.evaluate((node) => {
+          const box = (selector) => {
+            const rect = node.querySelector(selector).getBoundingClientRect()
+            return {
+              x: rect.x,
+              y: rect.y,
+              width: rect.width,
+              right: rect.right,
+            }
+          }
+          return {
+            record: box('[data-generator-group="record"]'),
+            preferences: box('[data-generator-group="preferences"]'),
+            active: box('[data-generator-field="active"]'),
+            alerts: box('[data-generator-field="alerts"]'),
+            notes: box('[data-generator-field="notes"]'),
+            name: box('[data-generator-field="name"]'),
+            category: box('[data-generator-field="category"]'),
+            quantity: box('[data-generator-field="quantity"]'),
+            overflow: node.scrollWidth > node.clientWidth,
+          }
+        })
+      // Widen the example panel while keeping the desktop viewport unchanged.
+      await page.evaluate(() => window.generatorFixture.columns(1))
+      await page.evaluate(() => window.generatorFixture.formColumns(1))
+      let boxes = await geometry()
+      assert.equal(boxes.record.x, boxes.preferences.x)
+      assert.ok(boxes.preferences.y > boxes.record.y)
+      assert.equal(boxes.active.y, boxes.alerts.y)
+      assert.ok(boxes.alerts.x > boxes.active.x)
+      assert.ok(boxes.notes.width > boxes.active.width * 1.8)
+      assert.ok(boxes.name.width > boxes.category.width * 1.8)
+      assert.equal(boxes.overflow, false)
+      await page.evaluate(() => window.generatorFixture.fieldColumns(3))
+      boxes = await geometry()
+      assert.equal(boxes.category.y, boxes.quantity.y)
+      assert.ok(boxes.name.width > boxes.category.width * 2.8)
+      assert.ok(boxes.notes.width > boxes.active.width * 1.8)
+      assert.ok(boxes.notes.width < boxes.active.width * 2.2)
+      await page.evaluate(() => window.generatorFixture.fieldColumns(2))
+      await page.evaluate(() => window.generatorFixture.formColumns(2))
+      boxes = await geometry()
+      assert.equal(boxes.record.y, boxes.preferences.y)
+      assert.ok(boxes.preferences.x > boxes.record.x)
+      // A narrow panel on a wide viewport must stack its own fields.
+      await page.evaluate(() => window.generatorFixture.columns(2))
+      boxes = await geometry()
+      assert.equal(boxes.active.x, boxes.alerts.x)
+      assert.ok(boxes.alerts.y > boxes.active.y)
+      for (const width of [390, 320]) {
+        await page.setViewportSize({ width, height: 844 })
+        boxes = await geometry()
+        assert.equal(boxes.record.x, boxes.preferences.x)
+        assert.equal(boxes.active.x, boxes.alerts.x)
+        assert.equal(boxes.notes.width, boxes.active.width)
+        assert.equal(boxes.overflow, false)
+        assert.ok(boxes.record.right <= width)
+        assert.ok(boxes.preferences.right <= width)
+      }
+      await page.setViewportSize({ width: 1280, height: 900 })
+    },
+  )
+
+  await record(
     'custom numeric fields retain optional empty semantics and block incomplete drafts',
     async () => {
       const quantity = page

@@ -30,7 +30,8 @@ The tests also reject incompatible field controls, choice values, aliases, and l
 
 A field's record key is its identity.
 Labels and help text do not define identity.
-The field list defines display order.
+The field list defines display order unless named groups provide that order.
+Optional [form layout](form-layout.md) metadata supplies named groups, columns, and field spans.
 An application supplies one existing `FormContract<T>` from `@wfe/form`.
 That contract supplies accepted values, errors, pending state, reset, cancellation, and submission.
 Its original application bindings still own value acceptance, defaults, validation, and submission callbacks.

@@ -158,6 +158,14 @@ export function createFixture(name: ApplicationName = 'records') {
       records().setColumns(count)
       flush()
     },
+    fieldColumns(count: 2 | 3) {
+      records().setFieldColumns(count)
+      flush()
+    },
+    formColumns(count: 1 | 2 | 3) {
+      records().setFormColumns(count)
+      flush()
+    },
     recordOrder(reversed: boolean) {
       records().setReversed(reversed)
       flush()

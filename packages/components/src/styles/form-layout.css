@@ -1,0 +1,43 @@
+:where(.ui-form-layout[data-ui]) {
+  min-inline-size: 0;
+  container: ui-form / inline-size;
+}
+:where([data-ui]) .ui-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: var(--ui-gap, 6px);
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-form-grid > * {
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-form-grid > [data-form-span='full'] {
+  grid-column: 1 / -1;
+}
+:where([data-ui]) .ui-field-group > legend {
+  padding-inline: var(--ui-gap, 6px);
+  font-weight: 650;
+}
+:where([data-ui]) .ui-field-group > .ui-help {
+  margin-block-end: var(--ui-gap, 6px);
+}
+@container ui-form (min-width: 30rem) {
+  :where([data-ui]) .ui-form-grid[data-columns='2'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  :where([data-ui]) .ui-form-grid[data-columns='2'] > [data-form-span='2'] {
+    grid-column: span 2;
+  }
+}
+@container ui-form (min-width: 45rem) {
+  :where([data-ui]) .ui-form-grid[data-columns='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  :where([data-ui]) .ui-form-grid[data-columns='3'] > [data-form-span='2'] {
+    grid-column: span 2;
+  }
+  :where([data-ui]) .ui-form-grid[data-columns='3'] > [data-form-span='3'] {
+    grid-column: span 3;
+  }
+}

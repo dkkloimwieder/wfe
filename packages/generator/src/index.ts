@@ -4,6 +4,8 @@ export type {
   ViewStatus,
   FormFieldDescription,
   FormDescription,
+  FormGroupDescription,
+  FormLayoutDescription,
   NumberControlDescription,
   FormChoice,
   CustomFieldProps,

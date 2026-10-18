@@ -355,3 +355,54 @@ void [
   literalNumber,
   nullNumber,
 ]
+
+const groupedEditor = {
+  ...memberEditor,
+  layout: {
+    columns: 2,
+    groups: [
+      {
+        id: 'identity',
+        title: 'Identity',
+        columns: 2,
+        fields: ['name', 'nickname'],
+      },
+      {
+        id: 'access',
+        title: 'Access',
+        fields: ['enabled', 'role'],
+        span: 'full',
+      },
+    ],
+  },
+} as const satisfies FormDescription<MemberInput>
+const groupedBindings = memberBindings satisfies FormViewBindings<
+  MemberInput,
+  typeof groupedEditor
+>
+const unknownGroupedField: FormDescription<MemberInput> = {
+  ...memberEditor,
+  layout: {
+    groups: [
+      {
+        id: 'bad',
+        title: 'Bad',
+        fields: [
+          // @ts-expect-error Group references use this form's field keys.
+          'missing',
+        ],
+      },
+    ],
+  },
+}
+const badColumns: FormDescription<MemberInput> = {
+  ...memberEditor,
+  // @ts-expect-error Form layouts support one, two or three columns.
+  layout: { columns: 4 },
+}
+const badSpan: FormDescription<MemberInput> = {
+  ...memberEditor,
+  // @ts-expect-error Field spans use supported column counts or full width.
+  fields: [{ field: 'name', label: 'Name', control: 'text', span: 0 }],
+}
+void [groupedEditor, groupedBindings, unknownGroupedField, badColumns, badSpan]

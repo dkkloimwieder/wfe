@@ -131,3 +131,6 @@ It tests Escape, focus return, application acceptance, composition, and disposal
 Native popover hosts need visible overflow for child portals.
 Keep scrolling inside a separate content element.
 TableHeaderFilter provides this structure through its internal content wrapper.
+
+`form-layout.css` owns responsive form grids, field groups, and column spans.
+The generator and direct component consumers share these rules.

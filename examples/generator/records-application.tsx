@@ -20,6 +20,8 @@ export function createRecordsApplication() {
   const [columns, setColumns] = createSignal<1 | 2>(2)
   const [revision, setRevision] = createSignal(0)
   const [reversed, setReversed] = createSignal(false)
+  const [formColumns, setFormColumns] = createSignal<1 | 2 | 3>(2)
+  const [fieldColumns, setFieldColumns] = createSignal<2 | 3>(2)
   const [removed, setRemoved] = createSignal(false)
   const [aliases, setAliases] = createSignal<{ quantity?: string }>({})
   const [calls, setCalls] = createSignal<number[]>([])
@@ -102,6 +104,7 @@ export function createRecordsApplication() {
         field: 'name',
         label: revision() ? 'Record name' : 'Name',
         control: 'text',
+        span: 'full',
         help: 'An application-owned value',
       },
       {
@@ -117,13 +120,32 @@ export function createRecordsApplication() {
         help: 'Controls notifications',
       },
       { field: 'category', label: 'Category', control: 'select' },
-      { field: 'notes', label: 'Notes', control: 'textarea' },
+      { field: 'notes', label: 'Notes', control: 'textarea', span: 2 },
       { field: 'quantity', label: 'Quantity', control: 'custom' },
     ] as const
     return {
       id: 'editor',
       title: 'Editor',
       fields: reversed() ? [...fields].reverse() : fields,
+      layout: {
+        columns: formColumns(),
+        groups: (reversed()
+          ? ['preferences', 'record']
+          : ['record', 'preferences']
+        ).map((id) => ({
+          id,
+          title: id === 'record' ? 'Record details' : 'Preferences',
+          help: id === 'record' ? 'Identity and quantity' : undefined,
+          columns: fieldColumns(),
+          fields: (reversed() ? [...fields].reverse() : fields)
+            .filter((field) =>
+              id === 'record'
+                ? ['name', 'category', 'quantity'].includes(field.field)
+                : ['active', 'alerts', 'notes'].includes(field.field),
+            )
+            .map((field) => field.field),
+        })),
+      },
       submit: { id: 'save', label: 'Save' },
       actions: [
         { id: 'reset', label: 'Reset' },
@@ -185,6 +207,8 @@ export function createRecordsApplication() {
     setColumns,
     setFill,
     setReversed,
+    setFormColumns,
+    setFieldColumns,
     formDescription,
     tableDescription,
     layoutDescription,

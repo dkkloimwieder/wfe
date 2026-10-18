@@ -6,6 +6,16 @@ export async function reviewServer(initial, name) {
     for (const label of ['Title', 'Notes', 'Extra'])
       await expect(initial.getByLabel(label, { exact: true })).toHaveCount(1)
   } else if (name === 'records') {
+    const group = initial.getByRole('group', {
+      name: 'Record details',
+      exact: true,
+    })
+    await expect(group).toHaveAccessibleDescription('Identity and quantity')
+    await expect(group.getByLabel('Name', { exact: true })).toHaveCount(1)
+    await expect(
+      initial.getByRole('group', { name: 'Preferences', exact: true }),
+    ).toHaveCount(1)
+
     await expect(initial.locator('[data-generator-amount]')).toHaveAttribute(
       'data-row-id',
       'record-0',

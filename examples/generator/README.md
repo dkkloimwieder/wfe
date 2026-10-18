@@ -20,7 +20,9 @@ pnpm build
 pnpm exec vite --config examples/generator/vite.config.ts --host 127.0.0.1 --port 7788 --strictPort
 ```
 
-The description action changes labels, field order, panel order, aliases, callbacks, and column order.
+The records editor uses named Record details and Preferences groups through the shared form layout.
+Groups and fields stack according to their panel width. Name spans the available columns, and Notes spans two columns on wide groups.
+The description action changes labels, group order, field order, panel order, aliases, callbacks, and column order.
 The removal action disposes the editor's controls.
 The application keeps the existing form coordinator and table engine.
 
