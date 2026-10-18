@@ -232,3 +232,10 @@ Server builds retain their normal CSS handling and do not emit client evidence.
 
 The regular qualification command runs the matrix in source, distribution, development, and live modes.
 It also runs the usage guard and negative CSS build tests through `pnpm check`.
+
+## Default appearance previews
+
+The `?tabs=1` and `?breadcrumbs=1` routes share the records example appearance.
+They use a blue accent, outline buttons, Surface 1 components, a Surface 2 backdrop, and shadow depth 2.
+The shared `DefaultAppearance` wrapper supplies those values and the stylesheet dependencies.
+The generic components continue to inherit their appearance from the application scope.

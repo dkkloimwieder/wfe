@@ -1,3 +1,4 @@
+import { reviewDefaultAppearance } from '../shared/appearance/default-review.mjs'
 import assert from 'node:assert/strict'
 import { reviewBreadcrumbs } from '../shared/controls/breadcrumb-review.mjs'
 export async function breadcrumbCases({ page, url, record, settle }) {
@@ -6,6 +7,7 @@ export async function breadcrumbCases({ page, url, record, settle }) {
     async () => {
       await page.goto(`${url}?breadcrumbs=1`)
       await page.waitForFunction(() => Boolean(window.breadcrumbFixture))
+      await reviewDefaultAppearance(page)
       await reviewBreadcrumbs(page, 'client')
       const result = await page.evaluate(() => {
         const fixture = window.breadcrumbFixture

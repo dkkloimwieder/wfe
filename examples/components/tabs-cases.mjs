@@ -1,3 +1,4 @@
+import { reviewDefaultAppearance } from '../shared/appearance/default-review.mjs'
 import assert from 'node:assert/strict'
 import { reviewTabs } from '../shared/controls/tabs-review.mjs'
 export async function tabsCases({ page, url, record, settle }) {
@@ -6,6 +7,7 @@ export async function tabsCases({ page, url, record, settle }) {
     async () => {
       await page.goto(`${url}?tabs=1`)
       await page.waitForFunction(() => Boolean(window.tabsFixture))
+      await reviewDefaultAppearance(page)
       await reviewTabs(page, 'client')
       const disposed = await page.evaluate(() => {
         const tab = document.querySelector('#retained-tabs [role="tab"]')

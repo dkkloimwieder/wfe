@@ -1,0 +1,27 @@
+@import '@wfe/components/styles.css';
+@import './review-shadows.css';
+
+.default-appearance {
+  min-width: 0;
+  background: var(--ui-canvas-surface);
+}
+.component-preview {
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: var(--ui-gap, 6px);
+}
+body:has(.component-preview) {
+  margin: 0;
+}
+.component-preview > .ui-card {
+  background: var(--ui-pane-surface);
+  box-shadow: var(--ui-panel-shadow);
+}
+.component-preview [data-tabs-review] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+}
+.component-preview [data-tabs-review] > .ui-button {
+  align-self: flex-start;
+}

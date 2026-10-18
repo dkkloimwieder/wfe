@@ -1,3 +1,5 @@
+import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
+import { Card } from '@wfe/components'
 import {
   BreadcrumbControls,
   breadcrumbLifecycle,
@@ -36,7 +38,13 @@ import { GenericConsumer } from './GenericConsumer'
 
 if (new URLSearchParams(location.search).has('breadcrumbs')) {
   const dispose = render(
-    () => <BreadcrumbControls />,
+    () => (
+      <DefaultAppearance class="component-preview">
+        <Card>
+          <BreadcrumbControls />
+        </Card>
+      </DefaultAppearance>
+    ),
     document.getElementById('root')!,
   )
   // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
@@ -50,7 +58,13 @@ if (new URLSearchParams(location.search).has('breadcrumbs')) {
   window.breadcrumbFixture = breadcrumbLifecycle
 } else if (new URLSearchParams(location.search).has('tabs')) {
   const dispose = render(
-    () => <TabsControls />,
+    () => (
+      <DefaultAppearance class="component-preview">
+        <Card>
+          <TabsControls />
+        </Card>
+      </DefaultAppearance>
+    ),
     document.getElementById('root')!,
   )
   // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
