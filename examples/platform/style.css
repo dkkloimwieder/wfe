@@ -105,3 +105,9 @@ body,
 .platform-table-screen :is(th, td) {
   white-space: nowrap;
 }
+
+.platform-inline-actions {
+  display: flex;
+  gap: var(--ui-gap);
+  flex-wrap: wrap;
+}

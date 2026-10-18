@@ -21,7 +21,15 @@ async function capture(path, local, transform = (text) => text) {
     sha256: hash(output),
   })
 }
-for (const name of ['control', 'project', 'environment'])
+for (const name of [
+  'control',
+  'project',
+  'environment',
+  'user',
+  'member',
+  'org_admin',
+  'project_admin',
+])
   await capture(
     `apps/target/wamn/wamn_control/control/client-ts/${name}.ts`,
     `client/${name}.ts`,
@@ -35,12 +43,22 @@ for (const operation of [
   'project/create',
   'environment/list',
   'environment/status',
+  'user/list',
+  'member/list',
+  'member/grant',
+  'member/revoke',
+  'org_admin/grant',
+  'org_admin/revoke',
+  'project_admin/grant',
+  'project_admin/revoke',
 ])
   for (const kind of ['input', 'result', 'operation', 'errors'])
     await capture(
       `crates/catalog/model/src/host_route/control/contracts/${operation}.${kind}.json`,
       `metadata/${operation}.${kind}.json`,
     )
+await capture('crates/catalog/model/src/host_route.rs', 'policy/host_route.rs')
+await capture('crates/identity/platform/src/org.rs', 'policy/org.rs')
 await capture('Cargo.toml', 'upstream-Cargo.toml')
 await capture('web/runtime/package.json', 'runtime-package.json')
 const validationPath = 'crates/identity/platform/src/lib.rs'

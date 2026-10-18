@@ -412,6 +412,367 @@ try {
     },
   )
   await record(
+    'platform: user directory, scoped access commands and hierarchy refusals',
+    async () => {
+      await initialize('?screen=users')
+      const users = page.getByRole('table', { name: 'Users', exact: true })
+      await expect(users).toBeVisible()
+      await expect(
+        users.getByText('Ann Example', { exact: true }),
+      ).toBeVisible()
+      await users
+        .getByRole('button', { name: 'Sort by Name', exact: true })
+        .click()
+      await expect(
+        users.getByRole('columnheader').filter({
+          has: page.getByRole('button', {
+            name: 'Sort by Name',
+            exact: true,
+          }),
+        }),
+      ).toHaveAttribute('aria-sort', 'ascending')
+      await expect(
+        page
+          .getByRole('navigation', { name: 'Platform location' })
+          .getByRole('link', { name: 'Projects', exact: true }),
+      ).toHaveCount(0)
+      const original = await users.elementHandle()
+      const choose = async (label, value) => {
+        await page
+          .getByRole('button', { name: new RegExp('^' + label + '(?: |$)') })
+          .click()
+        await page.getByRole('option', { name: value, exact: true }).click()
+        await expect(page.getByRole('listbox')).toBeHidden()
+      }
+      await page
+        .getByRole('button', {
+          name: 'Manage access for Ann Example',
+          exact: true,
+        })
+        .click()
+      await expect(
+        page.getByRole('heading', {
+          name: 'Manage access',
+          exact: true,
+          level: 2,
+        }),
+      ).toBeVisible()
+      await page
+        .getByRole('button', { name: 'Apply access command', exact: true })
+        .click()
+      await expect(
+        page.getByText('Select an available project.', { exact: true }),
+      ).toBeVisible()
+      await expect(
+        page
+          .getByRole('navigation', { name: 'Platform location' })
+          .getByRole('link', { name: 'Users', exact: true }),
+      ).toBeVisible()
+      assert.ok(
+        await page
+          .getByRole('button', { name: 'Refresh access', exact: true })
+          .evaluate((node) => node.getBoundingClientRect().width < 400),
+      )
+      await choose('Project', 'billing')
+      await expect(
+        page.getByRole('button', { name: /^Environment(?: |$)/ }),
+      ).toBeEnabled()
+      await choose('Environment', 'dev')
+      await choose('Access scope', 'Project administrator')
+      await page
+        .getByRole('button', { name: 'Apply access command', exact: true })
+        .click()
+      await expect(
+        page.getByText('The command completed.', { exact: true }),
+      ).toBeVisible()
+      await choose('Access scope', 'Environment member')
+      await expect(
+        page.getByRole('button', { name: /^Environment(?: |$)/ }),
+      ).toBeEnabled()
+      await choose('Command', 'Revoke')
+      await page
+        .getByRole('button', { name: 'Apply access command', exact: true })
+        .click()
+      await expect(
+        page.getByText(/The user holds org-admin or project-admin/),
+      ).toBeVisible()
+      await expect(page.getByText(/Details:.*principal_id/)).toBeVisible()
+      await choose('Access scope', 'Project administrator')
+      await page
+        .getByRole('button', { name: 'Apply access command', exact: true })
+        .click()
+      await expect(
+        page.getByText('The command completed.', { exact: true }),
+      ).toBeVisible()
+      await page
+        .getByRole('button', { name: 'Back to users', exact: true })
+        .click()
+      assert.equal(
+        await users.evaluate((node, previous) => node === previous, original),
+        true,
+      )
+      await expect(
+        users.getByRole('columnheader').filter({
+          has: page.getByRole('button', {
+            name: 'Sort by Name',
+            exact: true,
+          }),
+        }),
+      ).toHaveAttribute('aria-sort', 'ascending')
+      await page
+        .getByRole('navigation', { name: 'Platform navigation' })
+        .getByRole('link', { name: 'Projects', exact: true })
+        .click()
+      await page
+        .getByRole('button', { name: 'View members of billing', exact: true })
+        .click()
+      const members = page.getByRole('table', {
+        name: 'Members · billing',
+        exact: true,
+      })
+      await expect(
+        members.getByRole('row').filter({ hasText: 'Ann Example' }),
+      ).toContainText('dev, prod')
+      await page.goBack()
+      await expect(projects()).toBeVisible()
+      await page.goForward()
+      await expect(members).toBeVisible()
+    },
+  )
+  await record(
+    'platform: access scope restrictions, partial-write recovery, self-revocation and phone layout',
+    async () => {
+      const principal = '00000000-0000-4000-8000-000000000002'
+      await initialize(
+        `?screen=access&principal=${principal}&scenario=project-admin`,
+      )
+      await expect(
+        page.getByRole('button', { name: /^Access scope(?: |$)/ }),
+      ).toBeVisible()
+      await page.getByRole('button', { name: /^Access scope(?: |$)/ }).click()
+      await expect(
+        page.getByRole('option', {
+          name: 'Organization administrator',
+          exact: true,
+        }),
+      ).toHaveAttribute('aria-disabled', 'true')
+      await page.keyboard.press('Escape')
+      await initialize('?screen=users&scenario=no-access')
+      await expect(
+        page
+          .getByRole('alert')
+          .filter({ hasText: 'Access was refused for this operation.' }),
+      ).toBeVisible()
+      assert.equal(
+        await page.evaluate(() =>
+          window.platformFixture
+            .app()
+            .mock.sent()
+            .some((row) => row.operation.includes(':user/list')),
+        ),
+        false,
+      )
+      await initialize(`?screen=access&principal=${principal}`)
+      await page.evaluate(() => {
+        const mock = window.platformFixture.app().mock
+        const original = mock.transport.invoke.bind(mock.transport)
+        mock.transport.invoke = async (request) => {
+          if (request.method === 'POST')
+            mock.replyNext({
+              status: 200,
+              body: JSON.stringify([
+                {
+                  request_id: request.items[0].request_id,
+                  error: {
+                    code: 'application_write_incomplete',
+                    detail: {
+                      environment: 'billing/prod',
+                      completed: ['billing/dev'],
+                    },
+                  },
+                },
+              ]),
+            })
+          return original(request)
+        }
+      })
+      await page.getByRole('button', { name: /^Access scope(?: |$)/ }).click()
+      await page
+        .getByRole('option', {
+          name: 'Organization administrator',
+          exact: true,
+        })
+        .click()
+      await page
+        .getByRole('button', { name: 'Apply access command', exact: true })
+        .click()
+      await expect(
+        page.getByText(/Details:.*billing\/prod.*billing\/dev/),
+      ).toBeVisible()
+      assert.equal(
+        await page.evaluate(
+          () =>
+            window.platformFixture
+              .app()
+              .mock.sent()
+              .filter((row) => row.method === 'POST').length,
+        ),
+        1,
+      )
+      await page.setViewportSize({ width: 320, height: 740 })
+      await settle()
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+        true,
+      )
+      await page.screenshot({ path: '/tmp/wfe-access-phone.png' })
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await initialize(
+        '?screen=access&principal=00000000-0000-4000-8000-000000000001',
+      )
+      await page.getByRole('button', { name: /^Access scope(?: |$)/ }).click()
+      await page
+        .getByRole('option', {
+          name: 'Organization administrator',
+          exact: true,
+        })
+        .click()
+      await page.getByRole('button', { name: /^Command(?: |$)/ }).click()
+      await page.getByRole('option', { name: 'Revoke', exact: true }).click()
+      await page
+        .getByRole('button', { name: 'Apply access command', exact: true })
+        .click()
+      await expect(
+        page.getByText('No access has been granted.', { exact: true }),
+      ).toBeVisible()
+      assert.equal(
+        await page.evaluate(
+          () => window.platformFixture.app().authority().orgAdmin,
+        ),
+        false,
+      )
+      await expect(
+        page.getByRole('button', { name: /^Access scope(?: |$)/ }),
+      ).toBeHidden()
+      await expect(
+        page.getByText('The command completed.', { exact: true }),
+      ).toBeVisible()
+    },
+  )
+  await record(
+    'platform: stale choices, Stop waiting and failed authority recovery',
+    async () => {
+      const principal = '00000000-0000-4000-8000-000000000002'
+      const choose = async (label, value) => {
+        await page
+          .getByRole('button', { name: new RegExp('^' + label + '(?: |$)') })
+          .click()
+        await page.getByRole('option', { name: value, exact: true }).click()
+        await expect(page.getByRole('listbox')).toBeHidden()
+      }
+      await initialize(`?screen=access&principal=${principal}`)
+      await page.evaluate(() => {
+        window.accessRelease = window.platformFixture.app().mock.holdNext()
+      })
+      await choose('Project', 'billing')
+      await expect(
+        page.getByText('Loading environments', { exact: true }),
+      ).toBeVisible()
+      await choose('Project', 'shop')
+      await expect(
+        page.getByText('Loading environments', { exact: true }),
+      ).toBeHidden()
+      await page.evaluate(() => window.accessRelease())
+      await page.getByRole('button', { name: /^Environment(?: |$)/ }).click()
+      await expect(
+        page.getByRole('option', { name: 'dev', exact: true }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('option', { name: 'prod', exact: true }),
+      ).toHaveCount(0)
+      await page.keyboard.press('Escape')
+      await choose('Access scope', 'Organization administrator')
+      await page.evaluate(() => {
+        window.accessRelease = window.platformFixture.app().mock.holdNext()
+      })
+      await page
+        .getByRole('button', { name: 'Apply access command', exact: true })
+        .click()
+      await expect(
+        page.getByRole('button', { name: 'Stop waiting', exact: true }),
+      ).toBeVisible()
+      await page
+        .getByRole('button', { name: 'Stop waiting', exact: true })
+        .click()
+      await expect(
+        page.getByText(
+          'The application stopped waiting. The command can still complete. Refresh to read the current result.',
+          { exact: true },
+        ),
+      ).toBeVisible()
+      await page.evaluate(() => window.accessRelease())
+      await expect(
+        page.getByText('The command completed.', { exact: true }),
+      ).toHaveCount(0)
+      await page
+        .getByRole('button', { name: 'Refresh results', exact: true })
+        .click()
+      await page.waitForFunction(
+        () =>
+          window.platformFixture
+            .app()
+            .access.users()
+            .find((user) => user.email === 'ann@example.test')?.orgAdmin ===
+          true,
+      )
+      await initialize(
+        '?screen=access&principal=00000000-0000-4000-8000-000000000001',
+      )
+      await page.evaluate(() => {
+        const mock = window.platformFixture.app().mock
+        window.accessInvoke = mock.transport.invoke.bind(mock.transport)
+        let wrote = false
+        mock.transport.invoke = async (request) => {
+          if (wrote && request.operation.includes(':control/mine'))
+            return {
+              status: 'uncertain',
+              reason: 'Scope read failed.',
+              retryRefusal: null,
+            }
+          const outcome = await window.accessInvoke(request)
+          if (request.method === 'POST') wrote = true
+          return outcome
+        }
+      })
+      await choose('Access scope', 'Organization administrator')
+      await choose('Command', 'Revoke')
+      await page
+        .getByRole('button', { name: 'Apply access command', exact: true })
+        .click()
+      await expect(
+        page.getByText('The command completed.', { exact: true }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('alert').filter({ hasText: 'Scope read failed.' }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('link', { name: 'Create a project', exact: true }),
+      ).toBeHidden()
+      await expect(
+        page.getByRole('button', { name: /^Access scope(?: |$)/ }),
+      ).toBeHidden()
+      await page.evaluate(() => {
+        window.platformFixture.app().mock.transport.invoke = window.accessInvoke
+      })
+      await page.getByRole('button', { name: 'Retry', exact: true }).click()
+      await expect(
+        page.getByText('No access has been granted.', { exact: true }),
+      ).toBeVisible()
+    },
+  )
+  await record(
     'platform: phone navigation, contained scrolling, appearance drafts and disposal',
     async () => {
       await page.addInitScript(() => {

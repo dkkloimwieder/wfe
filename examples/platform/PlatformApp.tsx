@@ -1,3 +1,4 @@
+import { AccessViews } from './AccessViews'
 import {
   For,
   Show,
@@ -71,17 +72,25 @@ export function PlatformApp(props: {
   let root: HTMLDivElement | undefined,
     alive = true,
     focusSequence = 0
+  const peopleRoute = () =>
+    app.route().screen === 'users' || app.route().screen === 'access'
   const title = () => {
     const route = app.route()
     return route.screen === 'projects'
       ? 'Projects'
-      : route.screen === 'create'
-        ? projectMetadata.label
-        : route.screen === 'project'
-          ? route.project
-          : route.screen === 'environment'
-            ? `${route.project} / ${route.env}`
-            : 'Page not found'
+      : route.screen === 'users'
+        ? 'Users'
+        : route.screen === 'members'
+          ? `Members · ${route.project}`
+          : route.screen === 'access'
+            ? 'Manage access'
+            : route.screen === 'create'
+              ? projectMetadata.label
+              : route.screen === 'project'
+                ? route.project
+                : route.screen === 'environment'
+                  ? `${route.project} / ${route.env}`
+                  : 'Page not found'
   }
   const href = (route: PlatformRoute) => {
     const url = platformUrl(base(), route)
@@ -189,12 +198,20 @@ export function PlatformApp(props: {
       project: props.row.id,
     })
     return (
-      <Button
-        aria-label={`Open project ${props.row.id}`}
-        onClick={() => navigate(target())}
-      >
-        View
-      </Button>
+      <div class="platform-inline-actions">
+        <Button
+          aria-label={`Open project ${props.row.id}`}
+          onClick={() => navigate(target())}
+        >
+          View
+        </Button>
+        <Button
+          aria-label={`View members of ${props.row.id}`}
+          onClick={() => navigate({ screen: 'members', project: props.row.id })}
+        >
+          Members
+        </Button>
+      </div>
     )
   }
   const EnvironmentAction = (props: CustomCellProps<NameRow, unknown>) => {
@@ -237,6 +254,7 @@ export function PlatformApp(props: {
         actions: { label: 'Actions', renderer: 'openEnvironment' },
       },
       controls,
+      actions: [{ id: 'members', label: 'Members' }],
     }) as const satisfies TableDescription
   const formDescription = {
     id: 'platform-create-project',
@@ -260,7 +278,9 @@ export function PlatformApp(props: {
     void app.refresh()
   }
   const accessible = () =>
-    app.authority()?.orgAdmin || Boolean(app.authority()?.projects.length)
+    !app.session().loading &&
+    !app.session().error &&
+    (app.authority()?.orgAdmin || Boolean(app.authority()?.projects.length))
   return (
     <DefaultAppearance
       class="platform-example"
@@ -275,7 +295,9 @@ export function PlatformApp(props: {
         <DashboardShell
           scroll={
             app.route().screen === 'projects' ||
-            app.route().screen === 'project'
+            app.route().screen === 'project' ||
+            app.route().screen === 'users' ||
+            app.route().screen === 'members'
               ? 'content'
               : 'main'
           }
@@ -297,19 +319,31 @@ export function PlatformApp(props: {
                   <Breadcrumbs.Item>
                     <Breadcrumbs.Separator />
                     <Show
-                      when={app.route().screen !== 'projects'}
+                      when={
+                        peopleRoute()
+                          ? app.route().screen === 'access'
+                          : app.route().screen !== 'projects'
+                      }
                       fallback={
                         <Breadcrumbs.Current data-ui-text="system">
-                          Projects
+                          {peopleRoute() ? 'Users' : 'Projects'}
                         </Breadcrumbs.Current>
                       }
                     >
                       <Breadcrumbs.Link
-                        href={href({ screen: 'projects' })}
-                        onClick={follow({ screen: 'projects' })}
+                        href={href(
+                          peopleRoute()
+                            ? { screen: 'users' }
+                            : { screen: 'projects' },
+                        )}
+                        onClick={follow(
+                          peopleRoute()
+                            ? { screen: 'users' }
+                            : { screen: 'projects' },
+                        )}
                         data-ui-text="system"
                       >
-                        Projects
+                        {peopleRoute() ? 'Users' : 'Projects'}
                       </Breadcrumbs.Link>
                     </Show>
                   </Breadcrumbs.Item>
@@ -317,7 +351,10 @@ export function PlatformApp(props: {
                     <Breadcrumbs.Item>
                       <Breadcrumbs.Separator />
                       <Show
-                        when={app.route().screen === 'environment'}
+                        when={
+                          app.route().screen === 'environment' ||
+                          app.route().screen === 'members'
+                        }
                         fallback={
                           <Breadcrumbs.Current>
                             {routeProject()}
@@ -336,17 +373,29 @@ export function PlatformApp(props: {
                   <Show
                     when={
                       app.route().screen === 'environment' ||
-                      app.route().screen === 'create'
+                      app.route().screen === 'create' ||
+                      app.route().screen === 'members' ||
+                      app.route().screen === 'access'
                     }
                   >
                     <Breadcrumbs.Item>
                       <Breadcrumbs.Separator />
-                      <Breadcrumbs.Current>
-                        {app.route().screen === 'create'
-                          ? 'Create a project'
-                          : app.route().screen === 'environment'
-                            ? routeEnvironment()
-                            : ''}
+                      <Breadcrumbs.Current
+                        data-ui-text={
+                          app.route().screen === 'environment'
+                            ? undefined
+                            : 'system'
+                        }
+                      >
+                        {app.route().screen === 'members'
+                          ? 'Members'
+                          : app.route().screen === 'access'
+                            ? 'Manage access'
+                            : app.route().screen === 'create'
+                              ? 'Create a project'
+                              : app.route().screen === 'environment'
+                                ? routeEnvironment()
+                                : ''}
                       </Breadcrumbs.Current>
                     </Breadcrumbs.Item>
                   </Show>
@@ -377,6 +426,20 @@ export function PlatformApp(props: {
               >
                 Projects
               </a>
+              <Show when={accessible()}>
+                <a
+                  href={href({ screen: 'users' })}
+                  aria-current={
+                    app.route().screen === 'users' ? 'page' : undefined
+                  }
+                  ref={nativeEvents<HTMLAnchorElement>({
+                    click: follow({ screen: 'users' }, navigation.close),
+                  })}
+                  data-ui-text="system"
+                >
+                  Users
+                </a>
+              </Show>
               <Show when={app.authority()?.orgAdmin}>
                 <a
                   href={href({ screen: 'create' })}
@@ -495,6 +558,12 @@ export function PlatformApp(props: {
                   .getVisibleColumns()
                   .reduce((sum, column) => sum + column.getSize(), 0),
                 cells: { openEnvironment: EnvironmentAction },
+                actions: {
+                  members: {
+                    run: () =>
+                      navigate({ screen: 'members', project: routeProject() }),
+                  },
+                },
                 status: app.detail,
                 controlsCollapsed: environmentsCollapsed(),
                 onControlsCollapsedChange: setEnvironmentsCollapsed,
@@ -513,6 +582,7 @@ export function PlatformApp(props: {
               <p role="status">No environments exist in this project.</p>
             </Show>
           </div>
+          <AccessViews app={app} navigate={navigate} />
           <Show
             when={
               !app.session().loading && !app.session().error && accessible()

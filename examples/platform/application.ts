@@ -1,3 +1,4 @@
+import { createAccessApplication } from './access-application'
 import { createSignal, onCleanup, untrack } from 'solid-js'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
@@ -104,6 +105,15 @@ export function createPlatformApplication(
       return error ? { fields: { project: error } } : {}
     },
     async onSubmit(snapshot, context) {
+      if (
+        untrack(session).loading ||
+        untrack(session).error ||
+        !untrack(authority)?.orgAdmin
+      )
+        return {
+          ok: false,
+          errors: { form: 'Access was refused for this operation.' },
+        }
       const sequence = ++createSequence
       const outcome = await client.create(
         snapshot,
@@ -154,6 +164,13 @@ export function createPlatformApplication(
       return { ok: true }
     },
   })
+  const access = createAccessApplication(
+    client,
+    route,
+    () => (!session().loading && !session().error ? authority() : undefined),
+    projects,
+    initialize,
+  )
   async function loadProjects(access = untrack(authority)) {
     if (!alive || !access) return
     const sequence = ++listSequence
@@ -179,11 +196,18 @@ export function createPlatformApplication(
       setListing({ loading: false, error: String(error) })
     }
   }
-  async function loadTarget(target: PlatformRoute) {
+  async function loadTarget(
+    target: PlatformRoute,
+    acceptedAuthority = untrack(authority),
+  ) {
     const sequence = ++detailSequence
     detailAbort?.abort()
     setStatus(undefined)
     setDetail({ loading: false })
+    if (['users', 'members', 'access'].includes(target.screen)) {
+      await access.load(target, acceptedAuthority)
+      return
+    }
     if (!('project' in target)) return
     if (!untrack(projects).some((row) => row.name === target.project)) {
       setEnvironments([])
@@ -238,6 +262,11 @@ export function createPlatformApplication(
     }
   }
   async function initialize() {
+    listSequence++
+    detailSequence++
+    listAbort?.abort()
+    detailAbort?.abort()
+    setAuthority(undefined)
     const sequence = ++sessionSequence
     sessionAbort?.abort()
     sessionAbort = new AbortController()
@@ -257,11 +286,20 @@ export function createPlatformApplication(
       return
     }
     setSession({ loading: false })
-    await loadTarget(untrack(route))
+    await loadTarget(untrack(route), outcome.value)
   }
   function enter(next: PlatformRoute) {
     if (!alive) return
     const previous = untrack(route)
+    if (
+      previous.screen === 'access' &&
+      access.form.pending &&
+      (next.screen !== 'access' || next.principal !== previous.principal)
+    )
+      setNotice(
+        'The application stopped waiting. The command can still complete. Refresh to read the current result.',
+      )
+    access.enter(previous, next)
     if (previous.screen === 'create' && next.screen !== 'create') {
       if (form.pending)
         setNotice(
@@ -282,7 +320,9 @@ export function createPlatformApplication(
     if (!alive) return
     setNotice('')
     const target = untrack(route)
-    if (target.screen === 'projects') await loadProjects()
+    if (['users', 'members', 'access'].includes(target.screen))
+      await initialize()
+    else if (target.screen === 'projects') await loadProjects()
     else await loadTarget(target)
   }
   onCleanup(() => {
@@ -298,6 +338,7 @@ export function createPlatformApplication(
   })
   return {
     route,
+    access,
     authority,
     projects,
     environments,

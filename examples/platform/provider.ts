@@ -1,4 +1,8 @@
 import * as z from 'zod/mini'
+import * as user from './snapshot/client/user'
+import * as member from './snapshot/client/member'
+import * as orgAdminClient from './snapshot/client/org_admin'
+import * as projectAdminClient from './snapshot/client/project_admin'
 import * as control from './snapshot/client/control'
 import * as project from './snapshot/client/project'
 import * as environment from './snapshot/client/environment'
@@ -11,6 +15,16 @@ import type {
   WireRequest,
 } from './snapshot/runtime/wire'
 
+export type PlatformUser = user.UserListResultUsers
+export type PlatformMember = member.MemberListResultMembers
+export type AccessValues = {
+  kind: string
+  action: string
+  project: string
+  env: string
+}
+export type AccessTarget = { principalId: string; project: string; env: string }
+export const MOCK_ACTOR = '00000000-0000-4000-8000-000000000001'
 export type EnvironmentStatus = environment.EnvironmentStatusResult
 export type Authority = control.ControlMineResult
 export type ProjectValues = { project: string }
@@ -24,6 +38,34 @@ export function projectError(value: string): string | undefined {
     ? undefined
     : 'Use 1 to 40 UTF-8 bytes for the project name.'
 }
+const principal = z
+  .string()
+  .check(
+    z.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i),
+  )
+const userSchema = z.object({
+  users: z.array(
+    z.object({
+      principalId: principal,
+      email: z.string(),
+      displayName: z.string(),
+      status: z.string(),
+      orgAdmin: z.boolean(),
+    }),
+  ),
+})
+const memberSchema = z.object({
+  members: z.array(
+    z.object({
+      principalId: principal,
+      email: z.string(),
+      displayName: z.string(),
+      orgAdmin: z.boolean(),
+      projectAdmin: z.boolean(),
+      environments: z.array(z.string()),
+    }),
+  ),
+})
 const count = z.int32()
 const statusSchema = z.object({
   digest: z.nullable(z.string()),
@@ -95,6 +137,59 @@ export function createPlatformClient(transport: Transport) {
     }
   }
   return {
+    users: (signal?: AbortSignal) =>
+      call((t) => user.list(t, [{}]), userSchema, signal),
+    members: (name: string, signal?: AbortSignal) =>
+      call((t) => member.list(t, [{ project: name }]), memberSchema, signal),
+    access: (
+      kind: string,
+      action: string,
+      target: AccessTarget,
+      requestId: string,
+      signal?: AbortSignal,
+    ) => {
+      const grant = action === 'grant'
+      const item = { requestId, value: target }
+      const identity = z.literal(target.principalId)
+      if (kind === 'organization')
+        return call(
+          (t) =>
+            orgAdminClient[grant ? 'grant' : 'revoke'](t, [
+              { requestId, value: { principalId: target.principalId } },
+            ]),
+          z.object({ principalId: identity, orgAdmin: z.boolean() }),
+          signal,
+        )
+      if (kind === 'project')
+        return call(
+          (t) =>
+            projectAdminClient[grant ? 'grant' : 'revoke'](t, [
+              {
+                requestId,
+                value: {
+                  principalId: target.principalId,
+                  project: target.project,
+                },
+              },
+            ]),
+          z.object({
+            principalId: identity,
+            project: z.literal(target.project),
+            projectAdmin: z.boolean(),
+          }),
+          signal,
+        )
+      return call(
+        (t) => member[grant ? 'grant' : 'revoke'](t, [item]),
+        z.object({
+          principalId: identity,
+          project: z.literal(target.project),
+          env: z.literal(target.env),
+          member: z.boolean(),
+        }),
+        signal,
+      )
+    },
     mine: (signal?: AbortSignal) =>
       call((t) => control.mine(t, [{}]), mineSchema, signal),
     projects: (signal?: AbortSignal) =>
@@ -136,13 +231,71 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
           ['archive', []],
         ],
   )
-  const orgAdmin = scenario === 'normal' || scenario === 'empty'
+  let orgAdmin = scenario === 'normal' || scenario === 'empty'
+  const users = new Map<string, PlatformUser>([
+    [
+      MOCK_ACTOR,
+      {
+        principalId: MOCK_ACTOR,
+        email: 'admin@example.test',
+        displayName: 'Alex Admin',
+        status: 'active',
+        orgAdmin,
+      },
+    ],
+    [
+      '00000000-0000-4000-8000-000000000002',
+      {
+        principalId: '00000000-0000-4000-8000-000000000002',
+        email: 'ann@example.test',
+        displayName: 'Ann Example',
+        status: 'active',
+        orgAdmin: false,
+      },
+    ],
+    [
+      '00000000-0000-4000-8000-000000000003',
+      {
+        principalId: '00000000-0000-4000-8000-000000000003',
+        email: 'inactive@example.test',
+        displayName: 'Inactive Example',
+        status: 'inactive',
+        orgAdmin: false,
+      },
+    ],
+  ])
+  const projectAdmins = new Map<string, Set<string>>(
+    [...projects.keys()].map((name) => [
+      name,
+      new Set(
+        orgAdmin || (scenario === 'project-admin' && name === 'billing')
+          ? [MOCK_ACTOR]
+          : [],
+      ),
+    ]),
+  )
+  const memberships = new Map<string, Set<string>>([
+    ['billing/dev', new Set(['00000000-0000-4000-8000-000000000002'])],
+  ])
+  function materialize(principalId: string, name: string) {
+    const admins = projectAdmins.get(name) ?? new Set<string>()
+    admins.add(principalId)
+    projectAdmins.set(name, admins)
+    for (const env of projects.get(name) ?? []) {
+      const key = `${name}/${env}`,
+        grants = memberships.get(key) ?? new Set<string>()
+      grants.add(principalId)
+      memberships.set(key, grants)
+    }
+  }
+  for (const name of projects.keys())
+    if (projectAdmins.get(name)?.has(MOCK_ACTOR)) materialize(MOCK_ACTOR, name)
   const accessible = () =>
     orgAdmin
       ? [...projects.keys()]
-      : scenario === 'project-admin'
-        ? ['billing']
-        : []
+      : [...projects.keys()].filter((name) =>
+          projectAdmins.get(name)?.has(MOCK_ACTOR),
+        )
   const sent: WireRequest[] = []
   let override: HttpReply | undefined
   let held: Promise<void> | undefined
@@ -168,13 +321,129 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
     })
     if (!item || request.items.length !== 1)
       return { status: 400, body: 'Invalid mock request.' }
+    if (request.operation === user.USER_LIST_ROUTE.operation) {
+      if (!orgAdmin && !accessible().length) return denied()
+      return complete({
+        users: [...users.values()].map((row) => ({
+          principal_id: row.principalId,
+          email: row.email,
+          display_name: row.displayName,
+          status: row.status,
+          org_admin: row.orgAdmin,
+        })),
+      })
+    }
+    if (request.operation === member.MEMBER_LIST_ROUTE.operation) {
+      const name = String(item.project)
+      if (!orgAdmin && !projectAdmins.get(name)?.has(MOCK_ACTOR))
+        return denied()
+      return complete({
+        members: [...users.values()]
+          .filter(
+            (row) =>
+              projectAdmins.get(name)?.has(row.principalId) ||
+              (projects.get(name) ?? []).some((env) =>
+                memberships.get(`${name}/${env}`)?.has(row.principalId),
+              ),
+          )
+          .map((row) => ({
+            principal_id: row.principalId,
+            email: row.email,
+            display_name: row.displayName,
+            org_admin: row.orgAdmin,
+            project_admin: Boolean(
+              projectAdmins.get(name)?.has(row.principalId),
+            ),
+            environments: (projects.get(name) ?? []).filter((env) =>
+              memberships.get(`${name}/${env}`)?.has(row.principalId),
+            ),
+          })),
+      })
+    }
+    const accessRoutes = [
+      orgAdminClient.ORG_ADMIN_GRANT_ROUTE,
+      orgAdminClient.ORG_ADMIN_REVOKE_ROUTE,
+      projectAdminClient.PROJECT_ADMIN_GRANT_ROUTE,
+      projectAdminClient.PROJECT_ADMIN_REVOKE_ROUTE,
+      member.MEMBER_GRANT_ROUTE,
+      member.MEMBER_REVOKE_ROUTE,
+    ]
+    if (accessRoutes.some((route) => route.operation === request.operation)) {
+      const value = item.value as Record<string, JsonValue> | undefined
+      const name = String(value?.project ?? ''),
+        env = String(value?.env ?? ''),
+        principalId = String(value?.principal_id ?? '')
+      const organization = request.operation.includes(':org-admin/'),
+        projectAdmin = request.operation.includes(':project-admin/'),
+        grant = request.operation.includes('/grant@')
+      if (
+        organization
+          ? !orgAdmin
+          : !orgAdmin && !projectAdmins.get(name)?.has(MOCK_ACTOR)
+      )
+        return denied()
+      if (!id) return refuse('invalid_input', 'request_id')
+      const row = users.get(principalId)
+      if (grant && !row) return refuse('user_not_found', 'principal_id')
+      if (grant && row?.status !== 'active')
+        return refuse('user_not_active', 'principal_id')
+      if (organization) {
+        if (row) users.set(principalId, { ...row, orgAdmin: grant })
+        for (const name of projects.keys()) {
+          if (grant) materialize(principalId, name)
+          else projectAdmins.get(name)?.delete(principalId)
+        }
+        if (principalId === MOCK_ACTOR) orgAdmin = grant
+        return complete({ principal_id: principalId, org_admin: grant })
+      }
+      if (grant && projectAdmin && !projects.has(name))
+        return refuse('project_not_found', 'project')
+      if (
+        !grant &&
+        (row?.orgAdmin ||
+          (!projectAdmin && projectAdmins.get(name)?.has(principalId)))
+      )
+        return refuse('admin_covered', 'principal_id')
+      if (projectAdmin) {
+        const admins = projectAdmins.get(name) ?? new Set<string>()
+        if (grant) admins.add(principalId)
+        else admins.delete(principalId)
+        projectAdmins.set(name, admins)
+        if (grant)
+          for (const environment of projects.get(name) ?? []) {
+            const key = `${name}/${environment}`,
+              grants = memberships.get(key) ?? new Set<string>()
+            grants.add(principalId)
+            memberships.set(key, grants)
+          }
+        return complete({
+          principal_id: principalId,
+          project: name,
+          project_admin: grant,
+        })
+      }
+      if (grant && !projects.get(name)?.includes(env))
+        return refuse('environment_not_found', 'env')
+      const key = `${name}/${env}`,
+        grants = memberships.get(key) ?? new Set<string>()
+      if (grant) grants.add(principalId)
+      else grants.delete(principalId)
+      memberships.set(key, grants)
+      return complete({
+        principal_id: principalId,
+        project: name,
+        env,
+        member: grant,
+      })
+    }
     switch (request.operation) {
       case control.CONTROL_MINE_ROUTE.operation:
         return complete({
           org_admin: orgAdmin,
           projects: accessible().map((name) => ({
             project: name,
-            project_admin: true,
+            project_admin:
+              orgAdmin || Boolean(projectAdmins.get(name)?.has(MOCK_ACTOR)),
           })),
         })
       case project.PROJECT_LIST_ROUTE.operation:
@@ -189,6 +458,8 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
         const canonical = canonicalProject(name)
         if (projects.has(canonical)) return refuse('project_exists', 'project')
         projects.set(canonical, [])
+        for (const user of users.values())
+          if (user.orgAdmin) materialize(user.principalId, canonical)
         return complete({ project: canonical })
       }
       case environment.ENVIRONMENT_LIST_ROUTE.operation:
@@ -199,7 +470,8 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
       case environment.ENVIRONMENT_STATUS_ROUTE.operation: {
         const name = String(item.project),
           env = String(item.env)
-        if (!accessible().includes(name)) return denied()
+        if (!orgAdmin && !projectAdmins.get(name)?.has(MOCK_ACTOR))
+          return denied()
         if (!projects.get(name)?.includes(env))
           return refuse('environment_not_found', 'env')
         const digest = `sha256:${(name === 'billing' ? 'a' : 'b').repeat(64)}`

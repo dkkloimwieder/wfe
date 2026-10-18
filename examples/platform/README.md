@@ -17,7 +17,9 @@ Cancellation stops the application from waiting. It does not undo a command that
 `snapshot/provenance.json` records the WAMN revision, source paths, and hashes.
 Captured client imports point to the copied wire module. Other source bytes stay unchanged.
 The original workspace declares Apache-2.0. The snapshot includes that license text and the original Cargo metadata.
-The snapshot includes unused operations from the three client modules. The mock supports only the five operations named above.
+The snapshot includes unused operations from seven client modules.
+The mock supports the five initial operations plus user listing, project membership listing, and six access commands.
+Captured host authority declarations and identity rules explain the application policy mapping.
 
 From the WFE repository root, make sure that the snapshot retains its captured bytes:
 
@@ -39,12 +41,16 @@ Review changed operation metadata and generated clients together before acceptin
 
 Beads epic `wfe-f81` owns this application and its follow-up work.
 Issue `wfe-f81.2` implements the project and environment screens.
-Issue `wfe-f81.3` adds membership and role assignment.
+Issue `wfe-f81.3.1` adds the user directory and scoped access editor.
+Issue `wfe-f81.3.2` tracks invitations and user activation.
+Issue `wfe-f81.3.3` tracks application roles, which use separate application-host operations.
 Issue `wfe-f81.4` tracks the adapter from host metadata to generic view descriptions.
 Issue `wfe-f81.5` tracks validation metadata that omits server constraints.
 Issue `wfe-f81.6` tracks structural result validators in generated clients.
 Issue `wfe-f81.7` tracks a shared native link with button appearance.
 Issue `wfe-f81.8` fixes duplicate construction of shared table action and configuration slots.
+Issue `wfe-f81.9` tracks authority declarations missing from operation metadata.
+Issue `wfe-f81.10` tracks generated collection fields needed by invitations.
 
 Project names use the recorded server rule: trim, then accept 1 to 40 UTF-8 bytes.
 The generated input metadata only declares text. It does not carry this length rule.
@@ -70,6 +76,26 @@ A completed command adds the accepted project to the application collection befo
 Creation does not provision an environment. A new project has no environments.
 The example does not invent rename, project editing, or environment creation operations.
 
+Users opens the organization directory. Members beside each project opens its member table.
+Manage access opens a separate generated form for one user.
+Choose organization administrator, project administrator, or environment membership, then Grant or Revoke.
+The form offers actual project and environment choices. It sends one explicit command per submission.
+Organization scope requires organization administration. Project scope also accepts that project's administrator.
+The application reads these rules from the captured host authority declarations, not from permission token names.
+
+The mock follows recorded grant materialization rules.
+Granting organization administration adds project administration and environment memberships throughout the organization.
+Revoking organization administration removes project administration but preserves ordinary environment memberships.
+Granting project administration adds memberships in that project's environments. Revocation preserves those memberships.
+Higher-level grants can refuse a lower-level revoke with `admin_covered`.
+These rules belong to the application fixture. Shared controls contain no authorization rules.
+
+After a completed command, the application reloads caller authority and the current screen.
+If the reload fails, the completion notice remains separate from the read error.
+Uncertain commands and partial-write refusals retain recovery details. The application does not retry or claim rollback.
+Stop waiting leaves a notice that the command can still complete. Explicit refresh reads authority again.
+The generated user status remains text. The example does not invent an enum or offer activation commands.
+
 Browser Back and Forward retain the table owners, sorting, widths, and controls.
 Search changes stay pending until the refresh action applies them.
 Refresh also reads the current screen through its generated operation.
@@ -80,6 +106,8 @@ Appearance uses the shared controls. Defaults are Light, Blue, Surface 1 compone
 Use `?screen=project&project=billing` for a direct project link.
 Use `?screen=environment&project=billing&env=dev` for a direct environment link.
 Use `?screen=create` for the project form.
+Use `?screen=users` for users and `?screen=members&project=billing` for project members.
+Use `?screen=access&principal=00000000-0000-4000-8000-000000000002` for the access editor.
 Add `scenario=project-admin`, `scenario=no-access`, or `scenario=empty` to review those mock states.
 Each full reload starts a fresh mock. No request reaches a WAMN server.
 

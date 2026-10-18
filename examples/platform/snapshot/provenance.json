@@ -1,6 +1,6 @@
 {
-  "revision": "19ade87cec6f1fb3978374d9214957a6f4b70f4c",
-  "captured": "2026-10-18T21:35:47.320Z",
+  "revision": "93f85681ed5338fec29008a59aa08dddc61953a6",
+  "captured": "2026-10-18T22:44:11.973Z",
   "changes": "Client imports point to the copied wire module. All other captured source bytes stay unchanged.",
   "files": [
     {
@@ -20,6 +20,30 @@
       "local": "client/environment.ts",
       "sourceSha256": "743385e061ee99ad22f9906380a5165a6b31dd9b66514e9a33200bf4b63576cf",
       "sha256": "a7ef73e0eec63a0fc5652bdd0ccedc7a08223b2fb78e9a49164f366eaae4a73f"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/control/client-ts/user.ts",
+      "local": "client/user.ts",
+      "sourceSha256": "a0da37da985c2725b2a9489fdd935412e3b0f02e34a2209f0374382f433b9ee4",
+      "sha256": "075a89416395cdb3e6f1231e679b65da762a7c66efb40ec60c64d12982203fbb"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/control/client-ts/member.ts",
+      "local": "client/member.ts",
+      "sourceSha256": "eb6e077b07b699c18e222c87a3cd3ee4e2eab83ebf0f3fb1b4d843ba65f88dbb",
+      "sha256": "203fb405c9e816e05405e110956aaface4916c0106f26f66c675695fad42c579"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/control/client-ts/org_admin.ts",
+      "local": "client/org_admin.ts",
+      "sourceSha256": "84db5ba7e6356dd9f016e4b2fa883f403ab490cd306d8ee70d287043791a02c8",
+      "sha256": "6c0fa8867a2bdcad62b55db8ff6693d54dcbab29d35060c3f2b0343e1c0348de"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/control/client-ts/project_admin.ts",
+      "local": "client/project_admin.ts",
+      "sourceSha256": "0ee3a95da61b1e6251007fa846121ec0cfcc363743cdceb5e50b8073092cc652",
+      "sha256": "7f70b20c1918464d9ac6e448d25f9c729cf68b764fe7025b139b15ed491eb9d5"
     },
     {
       "source": "web/runtime/src/wire.ts",
@@ -164,6 +188,210 @@
       "local": "metadata/environment/status.errors.json",
       "sourceSha256": "4d31d67c7e8bb6bfe0783d75b74c9f864bdb2590673eddf9dbfa26d03614b56f",
       "sha256": "4d31d67c7e8bb6bfe0783d75b74c9f864bdb2590673eddf9dbfa26d03614b56f"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/list.input.json",
+      "local": "metadata/user/list.input.json",
+      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
+      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/list.result.json",
+      "local": "metadata/user/list.result.json",
+      "sourceSha256": "a4584de923565116b3aa0c08dface442998a74c66345714baf16872916ff5597",
+      "sha256": "a4584de923565116b3aa0c08dface442998a74c66345714baf16872916ff5597"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/list.operation.json",
+      "local": "metadata/user/list.operation.json",
+      "sourceSha256": "2a274f1a0c379f823260175b28d54cf13450a72185b1c471dc14666f7069546d",
+      "sha256": "2a274f1a0c379f823260175b28d54cf13450a72185b1c471dc14666f7069546d"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/list.errors.json",
+      "local": "metadata/user/list.errors.json",
+      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
+      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/list.input.json",
+      "local": "metadata/member/list.input.json",
+      "sourceSha256": "93c6b3bbfc1b2f030d9959ea028062497e5bc5555ace29e8c1c3cec9452df59e",
+      "sha256": "93c6b3bbfc1b2f030d9959ea028062497e5bc5555ace29e8c1c3cec9452df59e"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/list.result.json",
+      "local": "metadata/member/list.result.json",
+      "sourceSha256": "f57c1f9fef054b800192f1fe91f7a99bcf67e548e14967d8bc3c45cf78343c8b",
+      "sha256": "f57c1f9fef054b800192f1fe91f7a99bcf67e548e14967d8bc3c45cf78343c8b"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/list.operation.json",
+      "local": "metadata/member/list.operation.json",
+      "sourceSha256": "391d4327eaa8b233ecfef17847016f1ac85cc41e9fd138ac4b1d5ca142c653f7",
+      "sha256": "391d4327eaa8b233ecfef17847016f1ac85cc41e9fd138ac4b1d5ca142c653f7"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/list.errors.json",
+      "local": "metadata/member/list.errors.json",
+      "sourceSha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56",
+      "sha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/grant.input.json",
+      "local": "metadata/member/grant.input.json",
+      "sourceSha256": "bac8af8038900d169f030e531c9d8f5e526d2fd26cae0d45daf3a4e8626f51da",
+      "sha256": "bac8af8038900d169f030e531c9d8f5e526d2fd26cae0d45daf3a4e8626f51da"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/grant.result.json",
+      "local": "metadata/member/grant.result.json",
+      "sourceSha256": "cc67d75a7ec33da6c7826dbdaeb12bec858af3342baa744e3952d2ab87782191",
+      "sha256": "cc67d75a7ec33da6c7826dbdaeb12bec858af3342baa744e3952d2ab87782191"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/grant.operation.json",
+      "local": "metadata/member/grant.operation.json",
+      "sourceSha256": "bec692f7cc7a133ae254c0919d30cb84a523705b4f97cdec72aa655c6838a797",
+      "sha256": "bec692f7cc7a133ae254c0919d30cb84a523705b4f97cdec72aa655c6838a797"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/grant.errors.json",
+      "local": "metadata/member/grant.errors.json",
+      "sourceSha256": "059bc9c1cb28237e2611aaf42040f4a437577b7407ea411163b70587f3ca9945",
+      "sha256": "059bc9c1cb28237e2611aaf42040f4a437577b7407ea411163b70587f3ca9945"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/revoke.input.json",
+      "local": "metadata/member/revoke.input.json",
+      "sourceSha256": "bac8af8038900d169f030e531c9d8f5e526d2fd26cae0d45daf3a4e8626f51da",
+      "sha256": "bac8af8038900d169f030e531c9d8f5e526d2fd26cae0d45daf3a4e8626f51da"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/revoke.result.json",
+      "local": "metadata/member/revoke.result.json",
+      "sourceSha256": "cc67d75a7ec33da6c7826dbdaeb12bec858af3342baa744e3952d2ab87782191",
+      "sha256": "cc67d75a7ec33da6c7826dbdaeb12bec858af3342baa744e3952d2ab87782191"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/revoke.operation.json",
+      "local": "metadata/member/revoke.operation.json",
+      "sourceSha256": "473fb1d0ff55f871a638747eaec85e716f84c93bea13bc55daa158892099bdb9",
+      "sha256": "473fb1d0ff55f871a638747eaec85e716f84c93bea13bc55daa158892099bdb9"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/member/revoke.errors.json",
+      "local": "metadata/member/revoke.errors.json",
+      "sourceSha256": "ea93397ae3b94f07a0fd10a612357d57de7109819c4e1815d671602691e49230",
+      "sha256": "ea93397ae3b94f07a0fd10a612357d57de7109819c4e1815d671602691e49230"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/org_admin/grant.input.json",
+      "local": "metadata/org_admin/grant.input.json",
+      "sourceSha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616",
+      "sha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/org_admin/grant.result.json",
+      "local": "metadata/org_admin/grant.result.json",
+      "sourceSha256": "ed2b3210c8f90c81c1a3a55d3891d0f6a547c961c9980e1d1e00c8d296191a51",
+      "sha256": "ed2b3210c8f90c81c1a3a55d3891d0f6a547c961c9980e1d1e00c8d296191a51"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/org_admin/grant.operation.json",
+      "local": "metadata/org_admin/grant.operation.json",
+      "sourceSha256": "8122fe614a65865125b77280633cfc7a38e83219d067d3984021a33cc4c5c1bb",
+      "sha256": "8122fe614a65865125b77280633cfc7a38e83219d067d3984021a33cc4c5c1bb"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/org_admin/grant.errors.json",
+      "local": "metadata/org_admin/grant.errors.json",
+      "sourceSha256": "31f63392a11f27c3e94d69af692ac7b1d03e4f4e1ad062081fa4d69f89900166",
+      "sha256": "31f63392a11f27c3e94d69af692ac7b1d03e4f4e1ad062081fa4d69f89900166"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/org_admin/revoke.input.json",
+      "local": "metadata/org_admin/revoke.input.json",
+      "sourceSha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616",
+      "sha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/org_admin/revoke.result.json",
+      "local": "metadata/org_admin/revoke.result.json",
+      "sourceSha256": "ed2b3210c8f90c81c1a3a55d3891d0f6a547c961c9980e1d1e00c8d296191a51",
+      "sha256": "ed2b3210c8f90c81c1a3a55d3891d0f6a547c961c9980e1d1e00c8d296191a51"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/org_admin/revoke.operation.json",
+      "local": "metadata/org_admin/revoke.operation.json",
+      "sourceSha256": "16dbd1d839da3ffb62286b1663d3b1cb70cdb9ec42fd863d9ea6bc6a45c434c2",
+      "sha256": "16dbd1d839da3ffb62286b1663d3b1cb70cdb9ec42fd863d9ea6bc6a45c434c2"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/org_admin/revoke.errors.json",
+      "local": "metadata/org_admin/revoke.errors.json",
+      "sourceSha256": "4310ae1b3b81670875eb022c9621d9422126621d2bad321f2b315ab4b7b15854",
+      "sha256": "4310ae1b3b81670875eb022c9621d9422126621d2bad321f2b315ab4b7b15854"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project_admin/grant.input.json",
+      "local": "metadata/project_admin/grant.input.json",
+      "sourceSha256": "91d219750d41875c1809b1393734539064bd3041d1a0bc9874ff9829b6417d1e",
+      "sha256": "91d219750d41875c1809b1393734539064bd3041d1a0bc9874ff9829b6417d1e"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project_admin/grant.result.json",
+      "local": "metadata/project_admin/grant.result.json",
+      "sourceSha256": "7965bf38626aa1e84750761735ce8fd00925521e0171341bef8eb2e5023b4b00",
+      "sha256": "7965bf38626aa1e84750761735ce8fd00925521e0171341bef8eb2e5023b4b00"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project_admin/grant.operation.json",
+      "local": "metadata/project_admin/grant.operation.json",
+      "sourceSha256": "7d093e55bbe32ecb9bb6161c67134c13dfc658a8abcc0d4c074fcb63b436eadf",
+      "sha256": "7d093e55bbe32ecb9bb6161c67134c13dfc658a8abcc0d4c074fcb63b436eadf"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project_admin/grant.errors.json",
+      "local": "metadata/project_admin/grant.errors.json",
+      "sourceSha256": "e0366cc5258b6a2918830451f7face008186ecdf5c7378c2c9d32981606f5bd7",
+      "sha256": "e0366cc5258b6a2918830451f7face008186ecdf5c7378c2c9d32981606f5bd7"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project_admin/revoke.input.json",
+      "local": "metadata/project_admin/revoke.input.json",
+      "sourceSha256": "91d219750d41875c1809b1393734539064bd3041d1a0bc9874ff9829b6417d1e",
+      "sha256": "91d219750d41875c1809b1393734539064bd3041d1a0bc9874ff9829b6417d1e"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project_admin/revoke.result.json",
+      "local": "metadata/project_admin/revoke.result.json",
+      "sourceSha256": "7965bf38626aa1e84750761735ce8fd00925521e0171341bef8eb2e5023b4b00",
+      "sha256": "7965bf38626aa1e84750761735ce8fd00925521e0171341bef8eb2e5023b4b00"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project_admin/revoke.operation.json",
+      "local": "metadata/project_admin/revoke.operation.json",
+      "sourceSha256": "309fdfd5837d877739d8939c4d1ceb938f6482dab4e5b843de95fd0f9eaad0f3",
+      "sha256": "309fdfd5837d877739d8939c4d1ceb938f6482dab4e5b843de95fd0f9eaad0f3"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/project_admin/revoke.errors.json",
+      "local": "metadata/project_admin/revoke.errors.json",
+      "sourceSha256": "ea93397ae3b94f07a0fd10a612357d57de7109819c4e1815d671602691e49230",
+      "sha256": "ea93397ae3b94f07a0fd10a612357d57de7109819c4e1815d671602691e49230"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route.rs",
+      "local": "policy/host_route.rs",
+      "sourceSha256": "ab2c7b0048c034cfff38cc1271b26bba8d9698262fa5b24c5793f596b4ef0f3c",
+      "sha256": "ab2c7b0048c034cfff38cc1271b26bba8d9698262fa5b24c5793f596b4ef0f3c"
+    },
+    {
+      "source": "crates/identity/platform/src/org.rs",
+      "local": "policy/org.rs",
+      "sourceSha256": "87d9896e74fc8f764d3cdfe0bc180209ae279b5f9f70053043c0ea5d572dd5ed",
+      "sha256": "87d9896e74fc8f764d3cdfe0bc180209ae279b5f9f70053043c0ea5d572dd5ed"
     },
     {
       "source": "Cargo.toml",
