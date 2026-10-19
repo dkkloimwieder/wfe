@@ -64,12 +64,21 @@ The gallery and reused standalone examples share `examples/shared/appearance/siz
 The examples use Fira Code Variable with its unchanged SIL Open Font License in the shared font directory.
 Controls and labels use 12-pixel text. Controls use a 32-pixel height and 10-pixel horizontal padding.
 The root size is 16 pixels. Form fields have a configurable maximum width of 30rem.
-Light surfaces use white with dark text. Dark panels use #171717 over a #0a0a0a canvas.
+Light surfaces use white with dark text. Dark panels use #171717 over a #1b1b1b canvas.
 Dark inputs use a faint white fill and border. Focus uses a one-pixel neutral ring.
 Blue accents and outline buttons retain the selected presentation.
 Table dividers retain their separate contrast scale, so matching canvas and panel surfaces do not hide gridlines.
 Fields use an 8-pixel label gap. Example sections use a 20-pixel gap, and action rows use an 8-pixel gap.
 The same measurements apply in Light and Dark.
+
+The gallery canvas uses tiny neutral dots at 0.3em spacing and 35% opacity.
+Solid panels protect labels, descriptions, values, and status messages from the texture.
+Form examples use a centered 30rem panel. Tables and resizable layouts retain their full width.
+Hover and selection reveal a dotted backing six pixels beyond each action, with a 20% gray outline and no tint.
+Each pointer entry chooses a new rotation of 0.5–2 degrees in either direction and a taper between −2 and +2 degrees.
+Selected controls retain the latest shape after the pointer leaves.
+The backing does not change the click area, intercept input, or replace the keyboard focus ring.
+Forced-color mode hides the decoration.
 
 Embedded examples inherit the preview scope instead of resetting its density.
 Use `example-stack` for example sections and `example-actions` for action rows.

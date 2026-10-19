@@ -94,7 +94,7 @@ export async function consistencyCases({ page, url, record, settle }) {
               await ring.evaluate(
                 (node) => getComputedStyle(node).outlineWidth,
               ),
-              '2px',
+              '1px',
             )
             if (control === texts[0])
               assert.equal(
@@ -359,7 +359,7 @@ export async function consistencyCases({ page, url, record, settle }) {
             await choice(name).evaluate(
               (node) => getComputedStyle(node).outlineWidth,
             ),
-            '2px',
+            '1px',
           )
         }
         await configure({ mounted: false })

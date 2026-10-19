@@ -55,6 +55,7 @@
 :where([data-ui]).ui-file-input:has(.ui-file-picker:focus-visible)
   .ui-file-actions
   > button {
-  outline: 2px solid var(--ui-focus-ring, var(--ui-focus, #1657a8));
+  outline: var(--ui-focus-width, 1px) solid
+    var(--ui-focus-ring, var(--ui-focus, #1657a8));
   outline-offset: 2px;
 }

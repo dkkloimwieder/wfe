@@ -12,6 +12,7 @@
   list-style-position: inside;
   background: transparent;
   font-weight: 600;
+  color: var(--ui-muted-text, #666);
 }
 
 :where(.ui-collapsible[data-ui]) > .ui-collapsible-content {
@@ -19,4 +20,8 @@
   flex-direction: column;
   gap: var(--ui-gap, 6px);
   padding: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
+}
+
+:where(.ui-collapsible[data-ui])[open] > summary {
+  color: var(--ui-text, #191919);
 }

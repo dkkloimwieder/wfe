@@ -9,6 +9,27 @@ export async function choiceCases({ page, url, record, press, settle }) {
     page.evaluate((next) => window.choiceFixture.configure(next), next)
 
   await record(
+    'choices: icon and text triggers fit their labels within a bounded compound field',
+    async () => {
+      await open()
+      const trigger = page.locator('.choice-toggle').first()
+      const geometry = await trigger.evaluate((node) => {
+        node.append(document.createTextNode('Open choices'))
+        node.parentElement.style.width = '300px'
+        const label = document.createRange()
+        label.selectNodeContents(node)
+        const text = label.getBoundingClientRect()
+        const button = node.getBoundingClientRect()
+        const control = node.parentElement.getBoundingClientRect()
+        return {
+          textFits: text.left >= button.left && text.right <= button.right,
+          fitsControl: button.right <= control.right,
+        }
+      })
+      assert.deepEqual(geometry, { textFits: true, fitsControl: true })
+    },
+  )
+  await record(
     'choices: opening focus does not overwrite immediate keyboard navigation',
     async () => {
       await open()

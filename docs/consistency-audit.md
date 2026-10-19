@@ -221,3 +221,57 @@ Choice metadata now shares field presentation in `wfe-w2y.25`.
 Live stylesheet saves now have regression coverage in `wfe-w2y.24`.
 Optional WAMN row presentation remains separate work in `wfe-w2y.18`.
 Cross-browser appearance remains an additional qualification task.
+
+## Live gallery review, October 19, 2026
+
+Issue: `wfe-jbf`.
+
+The review used HTML, served CSS and TSX, computed styles, and element sizes from the running gallery.
+The capture covered all 17 gallery entries in dark mode and the combined form in both modes.
+Local evidence remains in `/tmp/wfe-live-inspection` and `/tmp/wfe-live-inspection-after`.
+The source index records 928 responses, including styles imported by multiple example entries.
+This evidence covers Chromium and the rendered states, not every possible component composition.
+
+`components.css` applied flexible sizing to every direct `data-ui` child of a filter input.
+That selector also matched the calendar button and reduced its width to 21px.
+The selector now excludes buttons.
+`fields.css` gives owned icon accessories the control height as their width.
+Combobox triggers retain their content width, including labels with an icon.
+The field and its accessories share border, fill, hover, invalid, and readonly roles.
+
+`states.css` gives readonly outputs and readonly inputs the same surface.
+Compound fields use one outer focus outline, with an inner outline for accessory buttons reached by keyboard.
+Focus outlines use `--ui-focus-width`, with a one-pixel default.
+Selection buttons retain one solid border without a second inset stroke or a filled background.
+
+`FormLayout.tsx` retains the accessible native legend and places the visible section title inside the border.
+`form-layout.css` uses shared heading and spacing roles.
+Standalone date labels use the shared label class.
+The combined form uses a centered 30rem column that shrinks with its viewport.
+Its sections use the content surface, while the main canvas has a slight neutral contrast.
+
+Links use the accent without underlines.
+Closed collapsible headings use muted text, while open headings use normal text.
+The shared appearance uses a darker blue in both modes.
+The approved appearance replaces action shadows with larger tilted trapezoids behind the controls.
+The rectangles share the canvas dot pattern and gray tone.
+Selected buttons, tabs, and sidebar links retain the backing rectangle after the pointer leaves.
+Each pointer entry chooses a rotation of 0.5–2 degrees in either direction and a taper between −2 and +2 degrees.
+Hovered and selected outline/ghost actions use transparent faces without a gray overlay.
+The dotted backing extends six pixels beyond the control and uses a 20% gray outline.
+The hover effect does not change layout or border width.
+
+The final gallery audit covers all 17 catalog entries in light and dark modes, at desktop and phone widths.
+The 68 captures contain served markup, loaded styles, computed geometry, and screenshots in `/tmp/wfe-final-screen-audit`.
+No page overflow or browser exception appeared in that pass.
+Independent visual review found invisible loading placeholders and different table filter label spacing.
+Skeletons now use `--ui-skeleton-surface`, with the existing muted surface as the fallback.
+Table control labels use the shared label style without passing label weight into their controls.
+The gallery now places examples on solid panels above the shared dotted canvas.
+The separate table-width issue remains tracked as `wfe-dw4`.
+
+The generated examples reveal a separate sizing gap, tracked as `wfe-8ur`.
+Their nested layout reapplies compact defaults instead of the surrounding example sizing.
+Accent colors inherit correctly.
+Generator panel shadows remain explicit example rules, while gallery panels use plain borders.
+The audit does not treat these different example profiles as complete visual consistency.

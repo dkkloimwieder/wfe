@@ -54,3 +54,34 @@
   ) {
   max-inline-size: var(--ui-field-max-width, 30rem);
 }
+
+:where([data-ui])
+  .filter-input
+  > button.ui-button:is(.clear-input, .ui-date-trigger),
+:where([data-ui]) .choice-control > button.choice-toggle {
+  flex: none;
+  min-inline-size: var(--ui-control-height, 26px);
+  padding-inline: var(--ui-input-padding-x, 6px);
+  border: 1px solid var(--ui-control-border, #999);
+  border-inline-start: 0;
+  background: var(--ui-control-surface, var(--ui-surface, white));
+  color: var(--ui-text, #191919);
+}
+:where([data-ui]) :is(.filter-input, .choice-control) > button > .ui-icon {
+  inline-size: 16px;
+  block-size: 16px;
+}
+:where([data-ui]) .filter-input > :is(input, select) {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+:where([data-ui])
+  .filter-input
+  > button.ui-button:is(.clear-input, .ui-date-trigger) {
+  inline-size: var(--ui-control-height, 26px);
+  padding: 0;
+}
+:where([data-ui]) .choice-control > button.choice-toggle {
+  padding-inline: max(0px, calc((var(--ui-control-height, 26px) - 17px) / 2));
+}

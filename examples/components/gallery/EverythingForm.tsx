@@ -133,7 +133,7 @@ export function EverythingForm() {
         events,
       ]}
     >
-      <header class="example-stack">
+      <header class="ui-card example-stack">
         <h1>Everything form</h1>
         <p>
           Review the controls together. This example keeps all changes in your
@@ -266,7 +266,6 @@ export function EverythingForm() {
             timeZone="UTC"
             dateFormat="yyyy-MM-dd"
           />
-          <HelpText>Displayed in UTC.</HelpText>
         </Field>
       </FieldGroup>
       <FieldGroup title="Amounts">
@@ -373,18 +372,20 @@ export function EverythingForm() {
           <HelpText>This field is unavailable in the example.</HelpText>
         </Field>
       </FieldGroup>
-      <div class="example-actions">
-        <Button type="submit">Save example</Button>
-        <Button onClick={reset}>Reset example</Button>
-      </div>
-      <Show when={invalid()}>
-        <p role="alert">Review the highlighted fields.</p>
-      </Show>
-      <Show when={saved()}>
-        <output aria-label="Saved example" role="status">
-          {saved()}
-        </output>
-      </Show>
+      <footer class="ui-card example-stack">
+        <div class="example-actions">
+          <Button type="submit">Save example</Button>
+          <Button onClick={reset}>Reset example</Button>
+        </div>
+        <Show when={invalid()}>
+          <p role="alert">Review the highlighted fields.</p>
+        </Show>
+        <Show when={saved()}>
+          <output aria-label="Saved example" role="status">
+            {saved()}
+          </output>
+        </Show>
+      </footer>
     </form>
   )
 }

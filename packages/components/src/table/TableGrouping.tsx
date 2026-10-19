@@ -68,7 +68,7 @@ export function TableGrouping<T, M>(props: {
       <legend>Group records</legend>
       <div class="grouping-toolbar">
         <label>
-          Add grouping
+          <span class="ui-label">Add grouping</span>
           <SelectField
             data-ui-text="system"
             label="Add grouping"
@@ -160,7 +160,7 @@ export function TableGrouping<T, M>(props: {
                     </Button>
                   </div>
                   <label>
-                    Order {label(id)} groups
+                    <span class="ui-label">Order {label(id)} groups</span>
                     <SelectField
                       data-ui-text="system"
                       label={`Order ${label(id)} groups`}
@@ -243,7 +243,9 @@ export function TableGrouping<T, M>(props: {
             <For each={table.getColumns()}>
               {(column) => (
                 <label>
-                  {String(column.columnDef?.header)} summary
+                  <span class="ui-label">
+                    {String(column.columnDef?.header)} summary
+                  </span>
                   <SelectField
                     data-ui-text="system"
                     label={`${String(column.columnDef?.header)} summary`}

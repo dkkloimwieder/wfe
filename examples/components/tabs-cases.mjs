@@ -8,6 +8,12 @@ export async function tabsCases({ page, url, record, settle }) {
       await page.goto(`${url}?tabs=1`)
       await page.waitForFunction(() => Boolean(window.tabsFixture))
       await reviewDefaultAppearance(page)
+      await page.mouse.move(0, 0)
+      const selectedBacking = await page
+        .locator('[role="tab"][aria-selected="true"]')
+        .first()
+        .evaluate((node) => getComputedStyle(node, '::before').opacity)
+      assert.equal(selectedBacking, '1')
       await reviewTabs(page, 'client')
       const disposed = await page.evaluate(() => {
         const tab = document.querySelector('#retained-tabs [role="tab"]')

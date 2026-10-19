@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon'
 import { restoreTextValue } from '../internal/controlledText'
 import { Show, createUniqueId, untrack } from 'solid-js'
 import { Button, Input } from '../components/NativeFields'
@@ -42,7 +43,7 @@ export function TableFilter(props: TableFilterProps) {
   }
   return (
     <div class="table-filter">
-      <label for={id} class={props.hideLabel ? 'sr-only' : undefined}>
+      <label for={id} class={props.hideLabel ? 'sr-only' : 'ui-label'}>
         {props.label}
       </label>
       <div class="filter-input">
@@ -155,7 +156,7 @@ export function TableFilter(props: TableFilterProps) {
             disabled={props.disabled || !props.value}
             ref={nativeEvents({ click: clear })}
           >
-            ×
+            <Icon name="cross" />
           </Button>
         </Show>
       </div>

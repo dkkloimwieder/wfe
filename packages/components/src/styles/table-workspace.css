@@ -312,7 +312,7 @@
 :where([data-ui]) .table-number-bounds > label {
   min-width: 0;
   display: grid;
-  gap: 4px;
+  gap: var(--ui-gap, 6px);
 }
 :where([data-ui]) .table-number-bounds > .ui-field-error {
   grid-column: 1 / -1;

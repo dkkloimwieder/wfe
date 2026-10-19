@@ -347,7 +347,9 @@ function NumberBounds(props: {
       <For each={['min', 'max'] as const}>
         {(boundary) => (
           <label>
-            {boundary === 'min' ? 'Minimum' : 'Maximum'}
+            <span class="ui-label">
+              {boundary === 'min' ? 'Minimum' : 'Maximum'}
+            </span>
             <Input
               type="number"
               step="any"

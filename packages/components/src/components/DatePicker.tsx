@@ -133,7 +133,9 @@ export function DatePickerControl(
   return (
     <div class="ui-date-picker" data-ui="">
       <Show when={!field}>
-        <label for={id()}>{props.label}</label>
+        <label for={id()} class="ui-label">
+          {props.label}
+        </label>
       </Show>
       <Popover
         open={open()}
@@ -203,7 +205,7 @@ export function DatePickerControl(
               change('')
             }}
           >
-            ×
+            <Icon name="cross" />
           </Button>
         </div>
         <Popover.Portal>

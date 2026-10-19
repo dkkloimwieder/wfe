@@ -46,7 +46,9 @@ export function TableFormatting(props: TableFormattingProps) {
           const id = createUniqueId()
           return (
             <div class="table-filter">
-              <label for={id}>{column.label}</label>
+              <label for={id} class="ui-label">
+                {column.label}
+              </label>
               <SelectField
                 id={id}
                 label={column.label}

@@ -15,7 +15,7 @@
 }
 .ui-date-picker {
   display: grid;
-  gap: 4px;
+  gap: var(--ui-gap, 6px);
   min-width: 0;
 }
 :where([data-ui]) .ui-calendar {

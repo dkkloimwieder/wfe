@@ -15,11 +15,13 @@
 :where([data-ui])
   .ui-radio-item:has(.ui-toggle-input:focus-visible)
   .ui-radio-control,
-:where([data-ui]) .filter-input:has(:focus-visible) {
-  outline: var(--ui-focus-width, 2px) solid
+:where([data-ui]) .filter-input:has(:focus-visible),
+:where([data-ui]) .choice-control:has(:focus-visible) {
+  outline: var(--ui-focus-width, 1px) solid
     var(--ui-focus-ring, var(--ui-focus, #1657a8));
   outline-offset: var(--ui-focus-offset, 2px);
 }
+:where([data-ui]) .choice-control input:focus-visible,
 :where([data-ui]) .filter-input input:focus-visible,
 :where([data-ui]) .filter-input select:focus-visible,
 :where([data-ui]) .filter-input .popup-trigger:focus-visible {
@@ -52,6 +54,7 @@
   opacity: var(--ui-disabled-opacity, 0.55);
 }
 
+:where([data-ui]) .ui-field-value,
 :where([data-ui]) input:is([readonly], :disabled),
 :where([data-ui]) textarea:is([readonly], :disabled),
 :where([data-ui]) select:disabled,
@@ -135,4 +138,25 @@
     .popup-trigger
   ):focus-visible:not([aria-invalid='true'], [data-invalid]) {
   border-color: var(--ui-field-focus-border, var(--ui-control-border, #999));
+}
+
+:where([data-ui])
+  :is(.filter-input, .choice-control):has(input:focus-visible):not(
+    :has([aria-invalid='true'], [data-invalid])
+  )
+  > :is(input, button.ui-button, button.choice-toggle) {
+  border-color: var(--ui-field-focus-border, var(--ui-control-border, #999));
+}
+:where([data-ui])
+  :is(.filter-input, .choice-control):has([aria-invalid='true'], [data-invalid])
+  > :is(input, button.ui-button, button.choice-toggle) {
+  border-color: var(--ui-error, #9d251e);
+}
+:where([data-ui])
+  :is(.filter-input, .choice-control):has(input:is([readonly], :disabled))
+  > button:is(.ui-button, .choice-toggle) {
+  background: var(--ui-muted-surface, #f0f0f0);
+}
+:where([data-ui]) :is(.filter-input, .choice-control) > button:focus-visible {
+  outline-offset: -3px;
 }

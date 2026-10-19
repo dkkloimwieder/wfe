@@ -219,7 +219,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
       />
       <FieldContext value={null}>
         <div class="ui-date-picker">
-          <label for={`${id()}-time`} class={field ? 'sr-only' : undefined}>
+          <label for={`${id()}-time`} class={field ? 'sr-only' : 'ui-label'}>
             {props.timeLabel ?? 'Time'}
           </label>
           <Input

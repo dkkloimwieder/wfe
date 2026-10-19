@@ -4,7 +4,7 @@
 // Source SHA-256: 9197aaccf67264fa1f4acc6c19504f3b79fa7c4c1d684af7e29368dcca4cf39f
 // Accent and table-divider samples retain the Open Props provenance above.
 // Local adaptation: neutral roles match the measured reference presentation.
-// Dark Surface 1 is the panel; Surface 2 is the darker canvas.
+// Surface 1 is the section; Surface 2 provides slight canvas contrast.
 import type { JSX } from '@solidjs/web'
 
 export type SurfaceScheme = {
@@ -36,13 +36,13 @@ export const schemes: readonly SurfaceScheme[] = [
   {
     name: 'Light',
     mode: 'light',
-    surfaces: ['#ffffff', '#ffffff', '#f5f5f5', '#e5e5e5'],
+    surfaces: ['#ffffff', '#fcfcfd', '#f5f5f5', '#e5e5e5'],
     text: ['#0a0a0a', '#737373'],
   },
   {
     name: 'Dark',
     mode: 'dark',
-    surfaces: ['#171717', '#0a0a0a', '#262626', '#404040'],
+    surfaces: ['#171717', '#1b1b1b', '#262626', '#404040'],
     text: ['#fafafa', '#a1a1a1'],
   },
 ]
@@ -53,7 +53,7 @@ export const neutralAccent: Accent = {
 }
 export const accents: readonly Accent[] = [
   neutralAccent,
-  { name: 'Blue', light: '#1c7ed6', dark: '#d0ebff' },
+  { name: 'Blue', light: '#1971c2', dark: '#4dabf7' },
   { name: 'Teal', light: '#087f5b', dark: '#63e6be' },
   { name: 'Green', light: '#2b8a3e', dark: '#8ce99a' },
   { name: 'Violet', light: '#7048e8', dark: '#e5dbff' },
@@ -100,7 +100,9 @@ export function appearanceStyle(
   const border =
     scheme === monochrome ? text : dark ? 'rgb(255 255 255 / 0.1)' : edge
   const controlBorder = dark ? 'rgb(255 255 255 / 0.15)' : border
-  const controlSurface = dark ? 'rgb(255 255 255 / 0.045)' : 'transparent'
+  const controlSurface = dark
+    ? `color-mix(in srgb, ${surface} 95.5%, white)`
+    : surface
   const ring = dark ? '#737373' : '#a3a3a3'
   const focus = accentColor(accent, scheme)
   const onAccent = accentText(focus)
@@ -115,6 +117,7 @@ export function appearanceStyle(
     '--ui-pane-surface': pane,
     '--ui-surface': surface,
     '--ui-muted-surface': surface,
+    '--ui-skeleton-surface': hover,
     '--ui-popup-surface': surface,
     '--ui-highlight': hover,
     '--ui-hover': hover,
@@ -132,6 +135,9 @@ export function appearanceStyle(
     '--ui-focus-offset': '0px',
     '--ui-field-focus-border': ring,
     '--ui-button-border': border,
+    '--ui-canvas-pattern':
+      'radial-gradient(circle, color-mix(in srgb, var(--ui-muted-text) 35%, transparent) 0.5px, transparent 0.75px)',
+    '--ui-canvas-pattern-size': '0.3em 0.3em',
     '--ui-handle-border': border,
     '--ui-focus': focus,
     '--ui-focus-ring': `color-mix(in srgb, ${ring} 50%, transparent)`,

@@ -58,6 +58,33 @@ export async function galleryCases({ page, url, record, settle }) {
             )
           for (const height of heights)
             assert.equal(height, 32, `${id}: button height in scheme ${scheme}`)
+          if (id === 'display') {
+            const skeletons = await preview()
+              .locator('.ui-skeleton')
+              .evaluateAll((nodes) =>
+                nodes.map((node) => ({
+                  fill: getComputedStyle(node).backgroundColor,
+                  panel: getComputedStyle(
+                    node.closest('.gallery-example-panel'),
+                  ).backgroundColor,
+                  height: node.getBoundingClientRect().height,
+                })),
+              )
+            assert.equal(skeletons.length, 3)
+            for (const skeleton of skeletons) {
+              assert.notEqual(skeleton.fill, skeleton.panel)
+              assert.ok(skeleton.height >= 32)
+            }
+          }
+          if (id === 'table') {
+            for (const label of await preview()
+              .locator('.table-filter > label')
+              .all()) {
+              await expect(label).toHaveCSS('line-height', '12px')
+              await expect(label).toHaveCSS('font-weight', '400')
+              await expect(label.locator('..')).toHaveCSS('row-gap', '8px')
+            }
+          }
           if (id === 'choices') {
             const fields = preview().locator('form > .ui-field')
             await expect(fields).toHaveCount(2)
@@ -303,7 +330,7 @@ export async function galleryCases({ page, url, record, settle }) {
       ).toHaveValue('Sample record')
       await expect(page.locator('.gallery-preview')).toHaveCSS(
         'background-color',
-        'rgb(255, 255, 255)',
+        'rgb(252, 252, 253)',
       )
       assert.equal(await page.locator('.gallery-shell').count(), 0)
       await page.goto(`${url}?galleryPreview=booleans&state=disabled`)
@@ -436,19 +463,19 @@ export async function galleryCases({ page, url, record, settle }) {
         await page
           .locator('.gallery-shell')
           .evaluate((node) => getComputedStyle(node).backgroundColor),
-        'rgb(255, 255, 255)',
+        'rgb(252, 252, 253)',
       )
       assert.equal(
         await preview()
           .locator('.gallery-preview')
           .evaluate((node) => getComputedStyle(node).backgroundColor),
-        'rgb(255, 255, 255)',
+        'rgb(252, 252, 253)',
       )
       assert.equal(
         await page
           .getByRole('button', { name: 'Appearance', exact: true })
           .evaluate((node) => getComputedStyle(node).color),
-        'rgb(28, 126, 214)',
+        'rgb(25, 113, 194)',
       )
       for (const state of ['disabled', 'readonly', 'invalid', 'normal']) {
         await page
@@ -470,7 +497,7 @@ export async function galleryCases({ page, url, record, settle }) {
         .click()
       await expect(preview().locator('.gallery-preview')).toHaveCSS(
         'background-color',
-        'rgb(23, 23, 23)',
+        'rgb(27, 27, 27)',
       )
       await page
         .getByRole('button', { name: 'Violet accent', exact: true })
@@ -633,7 +660,7 @@ export async function galleryCases({ page, url, record, settle }) {
       await expect(name()).toBeEditable()
       await expect(preview().locator('.gallery-preview')).toHaveCSS(
         'background-color',
-        'rgb(255, 255, 255)',
+        'rgb(252, 252, 253)',
       )
       await page.locator('.gallery-frame').evaluate((node) => {
         window.retiredGalleryFrame = node.contentWindow

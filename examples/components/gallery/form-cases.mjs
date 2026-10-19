@@ -31,6 +31,113 @@ export async function galleryFormCases({ page, url, record }) {
           }
         })
         assert.equal(metrics.width, 480)
+        const layout = await form.evaluate((node) => {
+          const rect = node.getBoundingClientRect()
+          return {
+            left: rect.left,
+            right: innerWidth - rect.right,
+            headingsInside: [...node.querySelectorAll('.ui-field-group')].every(
+              (group) =>
+                group
+                  .querySelector('.ui-field-group-title')
+                  .getBoundingClientRect().top >
+                group.getBoundingClientRect().top,
+            ),
+          }
+        })
+        assert.ok(Math.abs(layout.left - layout.right) < 1)
+        assert.equal(layout.headingsInside, true)
+        const compounds = await form
+          .locator('.filter-input, .choice-control')
+          .evaluateAll((nodes) =>
+            nodes
+              .filter((node) => node.querySelector('input'))
+              .map((node) => {
+                const input = node.querySelector('input')
+                const style = getComputedStyle(input)
+                return [...node.querySelectorAll(':scope > button')].map(
+                  (button) => {
+                    const buttonStyle = getComputedStyle(button)
+                    return {
+                      inputHeight: input.getBoundingClientRect().height,
+                      buttonHeight: button.getBoundingClientRect().height,
+                      buttonWidth: button.getBoundingClientRect().width,
+                      sameFill:
+                        style.backgroundColor === buttonStyle.backgroundColor,
+                      sameBorder:
+                        style.borderTopColor === buttonStyle.borderTopColor,
+                    }
+                  },
+                )
+              })
+              .flat(),
+          )
+        assert.ok(compounds.length >= 4)
+        for (const compound of compounds) {
+          assert.deepEqual(compound, {
+            inputHeight: 32,
+            buttonHeight: 32,
+            buttonWidth: 32,
+            sameFill: true,
+            sameBorder: true,
+          })
+        }
+        const hoverAction = page.getByRole('button', {
+          name: 'Appearance',
+          exact: true,
+        })
+        const actionBox = await hoverAction.boundingBox()
+        await hoverAction.hover()
+        const backing = (node) => getComputedStyle(node, '::before').opacity
+        assert.equal(await hoverAction.evaluate(backing), '1')
+        await expect(hoverAction).toHaveCSS('box-shadow', 'none')
+        assert.equal((await hoverAction.boundingBox()).width, actionBox.width)
+        const sidebarLink = page.getByRole('link', {
+          name: 'Everything form',
+          exact: true,
+        })
+        await sidebarLink.hover()
+        assert.equal(await sidebarLink.evaluate(backing), '1')
+        await expect(sidebarLink).toHaveCSS('text-decoration-line', 'none')
+        await page.mouse.move(0, 0)
+        assert.equal(await sidebarLink.evaluate(backing), '1')
+        await expect(hoverAction).toHaveCSS('box-shadow', 'none')
+        assert.equal(await hoverAction.evaluate(backing), '0')
+        const navigationGroup = page
+          .locator('.gallery-navigation-group')
+          .first()
+        const summary = navigationGroup.locator('summary')
+        for (const open of [false, true]) {
+          if ((await navigationGroup.evaluate((node) => node.open)) !== open)
+            await summary.click()
+          const colors = await summary.evaluate((node) => {
+            const style = getComputedStyle(node)
+            const probe = document.createElement('span')
+            probe.style.color = style.getPropertyValue(
+              node.parentElement.open ? '--ui-text' : '--ui-muted-text',
+            )
+            node.append(probe)
+            const expected = getComputedStyle(probe).color
+            probe.remove()
+            return { actual: style.color, expected }
+          })
+          assert.equal(colors.actual, colors.expected)
+        }
+        for (const button of await page
+          .locator('.gallery-toolbar button[aria-pressed=true]')
+          .all()) {
+          await expect(button).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+          assert.match(
+            await button.evaluate(
+              (node) => getComputedStyle(node, '::before').backgroundImage,
+            ),
+            /^radial-gradient/,
+          )
+          await expect(button).toHaveCSS('border-top-width', '1px')
+          await expect(button).toHaveCSS('border-top-style', 'solid')
+          assert.equal(await button.evaluate(backing), '1')
+        }
+
         const formatted = form.getByLabel('Recorded date', { exact: true })
         await expect(formatted).toHaveCSS('line-height', '16px')
         assert.equal(
@@ -51,13 +158,15 @@ export async function galleryFormCases({ page, url, record }) {
           metrics.border,
           scheme === 2 ? 'rgba(255, 255, 255, 0.15)' : 'rgb(229, 229, 229)',
         )
-        if (scheme === 2) {
-          const rgba = metrics.background.match(
-            /^rgba\(255, 255, 255, ([\d.]+)\)$/,
-          )
-          assert.ok(rgba)
-          assert.ok(Math.abs(Number(rgba[1]) - 0.045) <= 1 / 255)
-        } else assert.equal(metrics.background, 'rgba(0, 0, 0, 0)')
+        const expectedBackground = await form.evaluate((node) => {
+          const probe = document.createElement('span')
+          probe.style.background = 'var(--ui-control-surface)'
+          node.append(probe)
+          const color = getComputedStyle(probe).backgroundColor
+          probe.remove()
+          return color
+        })
+        assert.equal(metrics.background, expectedBackground)
         await form
           .getByRole('button', { name: 'Save example', exact: true })
           .click()

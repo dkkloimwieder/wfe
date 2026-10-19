@@ -70,7 +70,14 @@ export function FieldGroup(props: FieldGroupProps) {
       class={styledClasses('ui-field-set ui-field-group', props.class)}
       ref={[props.ref, events]}
     >
-      <legend data-ui-text="system">{props.title}</legend>
+      <legend class="sr-only">{props.title}</legend>
+      <div
+        class="ui-field-group-title"
+        data-ui-text="system"
+        aria-hidden="true"
+      >
+        {props.title}
+      </div>
       <Show when={props.help}>
         <div id={helpId} class="ui-help">
           {props.help}

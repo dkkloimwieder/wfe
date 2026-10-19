@@ -345,17 +345,17 @@ try {
     await button('Base Surface 2').click()
     await button('Panes Surface 3').click()
     await button('Content Surface 2').click()
-    assert.equal(await background('.form-page'), 'rgb(255, 255, 255)')
+    assert.equal(await background('.form-page'), 'rgb(252, 252, 253)')
     assert.equal(await background('.form-example'), 'rgb(245, 245, 245)')
-    assert.equal(await background('form'), 'rgb(255, 255, 255)')
+    assert.equal(await background('form'), 'rgb(252, 252, 253)')
     await button('Dark surfaces').click()
-    assert.equal(await background('.form-page'), 'rgb(10, 10, 10)')
+    assert.equal(await background('.form-page'), 'rgb(27, 27, 27)')
     await button('Blue accent').click()
     assert.equal(
       await page
         .locator('main')
         .evaluate((node) => node.style.getPropertyValue('--ui-focus')),
-      '#d0ebff',
+      '#4dabf7',
     )
     await button('No shadows').click()
     assert.equal(

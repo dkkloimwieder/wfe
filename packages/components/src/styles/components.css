@@ -346,7 +346,7 @@
 }
 :where([data-ui]) .table-filter {
   display: grid;
-  gap: 4px;
+  gap: var(--ui-gap, 6px);
   min-width: 0;
 }
 :where([data-ui]) .filter-input {
@@ -496,7 +496,7 @@
 }
 :where([data-ui]) .grouping-controls label {
   display: grid;
-  gap: 4px;
+  gap: var(--ui-gap, 6px);
 }
 :where([data-ui]) .grouping-levels {
   list-style: none;
@@ -654,7 +654,8 @@
   width: 3px;
 }
 :where([data-ui]) .column-resize:focus-visible {
-  outline: 2px solid var(--ui-focus-ring, var(--ui-focus, #1657a8));
+  outline: var(--ui-focus-width, 1px) solid
+    var(--ui-focus-ring, var(--ui-focus, #1657a8));
   outline-offset: -2px;
 }
 :where([data-ui]) fieldset.display-fields {
@@ -843,7 +844,8 @@
     var(--ui-accent, var(--ui-highlight, #edf3fb))
   );
   color: var(--ui-on-selection, var(--ui-on-accent, var(--ui-text, #191919)));
-  outline: 2px solid var(--ui-focus-ring, var(--ui-focus, #1657a8));
+  outline: var(--ui-focus-width, 1px) solid
+    var(--ui-focus-ring, var(--ui-focus, #1657a8));
   outline-offset: -2px;
 }
 :where([data-ui]) .popup-option[data-disabled] {
@@ -860,7 +862,7 @@
 :where([data-ui]) .choice-control {
   display: flex;
   align-items: stretch;
-  gap: var(--ui-gap, 6px);
+  gap: 0;
 }
 :where([data-ui]) .choice-control .choice-input {
   flex: 1;
@@ -1188,7 +1190,7 @@
 :where([data-ui]) .ui-skeleton {
   min-height: var(--ui-row-height, 32px);
   border-radius: 0;
-  background: var(--ui-muted-surface, #eee);
+  background: var(--ui-skeleton-surface, var(--ui-muted-surface, #eee));
 }
 :where([data-ui]) .ui-progress {
   width: 100%;
@@ -1357,7 +1359,7 @@
   inset-inline-end: auto;
 }
 
-:where([data-ui]) .filter-input > [data-ui] {
+:where([data-ui]) .filter-input > [data-ui]:not(button) {
   flex: 1;
   min-width: 0;
 }
@@ -1384,7 +1386,8 @@
 }
 
 :where([data-ui]) table[data-table-selection]:focus-visible {
-  outline: 2px solid var(--ui-focus-ring, var(--ui-accent));
+  outline: var(--ui-focus-width, 1px) solid
+    var(--ui-focus-ring, var(--ui-accent));
   outline-offset: -2px;
 }
 :where([data-ui]) td[data-cell-selection] {

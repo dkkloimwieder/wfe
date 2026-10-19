@@ -21,9 +21,6 @@
   color: var(--ui-accent, currentColor);
   text-decoration: none;
 }
-:where(.ui-breadcrumbs-link):hover {
-  text-decoration: underline;
-}
 :where(.ui-breadcrumbs-current) {
   color: var(--ui-text, currentColor);
 }

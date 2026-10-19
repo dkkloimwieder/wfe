@@ -37,9 +37,9 @@ export async function reviewDefaultAppearance(page) {
           : null,
       }
     })
-  assert.equal(appearance.canvas, 'rgb(255, 255, 255)')
+  assert.equal(appearance.canvas, 'rgb(252, 252, 253)')
   assert.equal(appearance.pane, 'rgb(255, 255, 255)')
-  assert.equal(appearance.action, 'rgb(28, 126, 214)')
+  assert.equal(appearance.action, 'rgb(25, 113, 194)')
   if (appearance.border !== undefined) {
     assert.equal(appearance.border, appearance.action)
     assert.equal(appearance.variant, 'outline')

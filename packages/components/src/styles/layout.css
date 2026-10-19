@@ -161,7 +161,7 @@
   min-block-size: var(--ui-control-height, 26px);
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
   border: 1px solid transparent;
-  color: inherit;
+  color: var(--ui-accent, currentColor);
   text-decoration: none;
   overflow-wrap: anywhere;
 }
@@ -169,7 +169,8 @@
   border-color: var(--ui-accent, currentColor);
 }
 :where([data-ui]) .ui-dashboard-menu > a:focus-visible {
-  outline: 2px solid var(--ui-focus-ring, var(--ui-focus));
+  outline: var(--ui-focus-width, 1px) solid
+    var(--ui-focus-ring, var(--ui-focus));
   outline-offset: -2px;
 }
 @media (width < 64rem) {

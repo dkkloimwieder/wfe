@@ -78,7 +78,7 @@ export async function sharedStyleCases({ page, url, record, settle }) {
               (await paint(field)).outlineColor,
               roles['--ui-focus-ring'],
             )
-            assert.equal((await paint(field)).outlineWidth, '2px')
+            assert.equal((await paint(field)).outlineWidth, '1px')
           }
           await page.evaluate(() =>
             window.nativeFieldFixture.configure({
@@ -169,7 +169,7 @@ export async function sharedStyleCases({ page, url, record, settle }) {
       await page.keyboard.press('Tab')
       for (let index = 0; index < inputs.length; index++) {
         await inputs[index].focus()
-        assert.equal((await paint(controls[index])).outlineWidth, '2px')
+        assert.equal((await paint(controls[index])).outlineWidth, '1px')
         assert.equal(
           (await paint(controls[index])).outlineColor,
           roles['--ui-focus-ring'],
@@ -309,7 +309,7 @@ export async function sharedStyleCases({ page, url, record, settle }) {
         const input = page.getByLabel('Account name', { exact: true })
         await input.focus()
         const before = await paint(input)
-        assert.equal(before.outlineWidth, '2px')
+        assert.equal(before.outlineWidth, '1px')
         assert.equal(before.outlineStyle, 'solid')
         await page.evaluate(() =>
           window.nativeFieldFixture.configure({ invalid: true }),

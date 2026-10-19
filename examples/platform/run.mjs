@@ -135,11 +135,11 @@ try {
       await reviewCssProvenance(page, url)
       await expect(page.locator('.platform-example')).toHaveCSS(
         'background-color',
-        'rgb(255, 255, 255)',
+        'rgb(252, 252, 253)',
       )
       await expect(
         page.getByRole('button', { name: 'Appearance', exact: true }),
-      ).toHaveCSS('color', 'rgb(28, 126, 214)')
+      ).toHaveCSS('color', 'rgb(25, 113, 194)')
       const beforeModified = page.url()
       await page.evaluate(() => {
         window.platformObserveModified = (event) => {

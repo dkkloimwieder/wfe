@@ -7,7 +7,7 @@ export async function reviewAppearance({ page, record }) {
     async () => {
       await expect(page.locator('.wamn-page')).toHaveCSS(
         'background-color',
-        'rgb(255, 255, 255)',
+        'rgb(252, 252, 253)',
       )
       const panels = page.locator('.ui-dashboard-panel:visible')
       for (const panel of await panels.all()) {
@@ -33,8 +33,8 @@ export async function reviewAppearance({ page, record }) {
       )
       for (const action of await actions.all()) {
         await expect(action).toHaveAttribute('data-variant', 'outline')
-        await expect(action).toHaveCSS('color', 'rgb(28, 126, 214)')
-        await expect(action).toHaveCSS('border-top-color', 'rgb(28, 126, 214)')
+        await expect(action).toHaveCSS('color', 'rgb(25, 113, 194)')
+        await expect(action).toHaveCSS('border-top-color', 'rgb(25, 113, 194)')
       }
     },
   )

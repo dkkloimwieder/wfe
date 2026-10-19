@@ -63,3 +63,8 @@
   font: inherit;
   line-height: var(--ui-control-line-height, var(--ui-line-height, 1.45));
 }
+
+:where([data-ui]) a[href]:not(.ui-button) {
+  color: var(--ui-accent, var(--ui-focus, #1657a8));
+  text-decoration: none;
+}

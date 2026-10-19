@@ -147,7 +147,16 @@ export function GalleryPreview() {
         ),
       }}
     >
-      <Dynamic component={views[entry.id]} state={config().state} embedded />
+      <div
+        class={
+          entry.id === 'everything' || entry.id === 'table'
+            ? 'gallery-example-unframed'
+            : 'gallery-example-panel'
+        }
+        data-gallery-group={entry.group}
+      >
+        <Dynamic component={views[entry.id]} state={config().state} embedded />
+      </div>
     </DefaultAppearance>
   )
 }

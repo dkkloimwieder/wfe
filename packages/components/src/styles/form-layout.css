@@ -27,12 +27,20 @@
 :where([data-ui]) .ui-form-grid > [data-form-span='full'] {
   grid-column: 1 / -1;
 }
-:where([data-ui]) .ui-field-group > legend {
-  padding-inline: var(--ui-gap, 6px);
-  font-weight: 650;
+:where([data-ui]) .ui-field-group {
+  background: var(--ui-surface, white);
+}
+:where([data-ui]) .ui-field-group-title {
+  font-size: var(--ui-heading-font-size, var(--ui-font-size, 12px));
+  line-height: var(--ui-heading-line-height, var(--ui-line-height, 1.45));
+  font-weight: var(--ui-heading-weight, 500);
+  margin-block-end: var(--ui-field-gap, var(--ui-gap, 6px));
+}
+:where([data-ui]) .ui-field-group:has(> .ui-help) > .ui-field-group-title {
+  margin-block-end: var(--ui-gap, 6px);
 }
 :where([data-ui]) .ui-field-group > .ui-help {
-  margin-block-end: var(--ui-gap, 6px);
+  margin-block-end: var(--ui-field-gap, var(--ui-gap, 6px));
 }
 @container ui-form (min-width: 30rem) {
   :where([data-ui]) .ui-form-grid[data-columns='2'] {
