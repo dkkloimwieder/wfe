@@ -44,3 +44,14 @@ export type {
 } from './gridTypes'
 
 export { GridView } from './GridView'
+
+export { DetailView } from './DetailView'
+export { DeleteView } from './DeleteView'
+export type {
+  DetailDescription,
+  DetailFieldDescription,
+  DetailViewBindings,
+  DeleteDescription,
+  DeleteViewBindings,
+  RecordKey,
+} from './types'

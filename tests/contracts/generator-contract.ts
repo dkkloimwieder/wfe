@@ -711,3 +711,61 @@ void [
   choiceRowsBindings,
   missingNestedChoices,
 ]
+
+// Detail views read records without a form contract.
+const detailDescription = {
+  id: 'record-detail',
+  fields: [
+    { field: 'key', format: 'short-hash' },
+    { field: 'active', format: 'boolean-symbol' },
+  ],
+  actions: [{ id: 'open' }],
+} as const satisfies import('@wfe/generator').DetailDescription<{
+  key: string
+  active: boolean
+}>
+const detailBindings: import('@wfe/generator').DetailViewBindings<
+  { key: string; active: boolean },
+  typeof detailDescription
+> = {
+  record: () => ({ key: 'record', active: true }),
+  actions: { open: { run() {} } },
+}
+// @ts-expect-error The described action requires its application callback.
+const missingDetailAction: typeof detailBindings = {
+  record: detailBindings.record,
+}
+const badDetail: import('@wfe/generator').DetailDescription<{ key: string }> = {
+  id: 'bad',
+  // @ts-expect-error Detail fields must belong to the record.
+  fields: [{ field: 'missing' }],
+}
+const deleteDescription: import('@wfe/generator').DeleteDescription = {
+  id: 'delete-record',
+  title: 'Delete record?',
+  confirmation: 'Delete this record?',
+}
+const deleteBindings: import('@wfe/generator').DeleteViewBindings<number> = {
+  recordKey: () => 0,
+  onConfirm: (key) => {
+    const accepted: number = key
+    void accepted
+  },
+}
+// @ts-expect-error One confirmation callback is required.
+const missingDeleteCallback: typeof deleteBindings = { recordKey: () => 1 }
+// @ts-expect-error Delete keys are strings or numbers, not records.
+type InvalidDeleteKey = import('@wfe/generator').DeleteViewBindings<{
+  id: string
+}>
+void [
+  detailBindings,
+  missingDetailAction,
+  badDetail,
+  deleteDescription,
+  deleteBindings,
+  missingDeleteCallback,
+]
+export type { InvalidDeleteKey }
+
+void detailDescription

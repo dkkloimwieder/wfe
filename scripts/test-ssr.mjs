@@ -656,3 +656,86 @@ assert.equal(repeatedViewRequests, 0)
 console.log(
   'Generated repeated groups render shared controls without factories or change callbacks.',
 )
+
+let recordViewCallbacks = 0
+const { DetailView, DeleteView } = await import('@wfe/generator')
+const detailOutput = await renderToString(() =>
+  createComponent(DetailView, {
+    description: {
+      id: 'detail-ssr',
+      fields: [
+        { field: 'key', format: 'short-hash' },
+        { field: 'active', format: 'boolean-symbol' },
+      ],
+      actions: [{ id: 'open' }],
+    },
+    bindings: {
+      record: () => ({ key: '0123456789abcdef', active: true }),
+      actions: {
+        open: {
+          run() {
+            recordViewCallbacks++
+          },
+        },
+      },
+    },
+  }),
+)
+assert.match(detailOutput, /01234567/)
+assert.match(detailOutput, /aria-label="0123456789abcdef"/)
+assert.match(detailOutput, /aria-label="Yes"/)
+assert.doesNotMatch(detailOutput, /<form|<input/)
+const deleteOutput = await renderToString(() =>
+  createComponent(DeleteView, {
+    description: {
+      id: 'delete-ssr',
+      title: 'Delete record?',
+      confirmation: 'Delete this record?',
+    },
+    bindings: {
+      recordKey: () => 'first',
+      onConfirm() {
+        recordViewCallbacks++
+      },
+    },
+  }),
+)
+assert.match(deleteOutput, /Delete/)
+assert.doesNotMatch(deleteOutput, /role="alertdialog"/)
+assert.equal(recordViewCallbacks, 0)
+console.log(
+  'Generated detail and delete views render without invoking application actions.',
+)
+
+await assert.rejects(
+  async () =>
+    await renderToString(() =>
+      createComponent(DetailView, {
+        description: { id: 'missing-record-ssr', fields: [] },
+        bindings: { record: () => undefined },
+      }),
+    ),
+  /detail view requires one record/,
+)
+for (const invalidKey of ['', Infinity]) {
+  await assert.rejects(
+    async () =>
+      await renderToString(() =>
+        createComponent(DeleteView, {
+          description: {
+            id: 'invalid-key-ssr',
+            title: 'Delete?',
+            confirmation: 'Delete this record?',
+          },
+          bindings: {
+            recordKey: () => invalidKey,
+            onConfirm() {
+              recordViewCallbacks++
+            },
+          },
+        }),
+      ),
+    /nonempty string or finite number key/,
+  )
+}
+assert.equal(recordViewCallbacks, 0)

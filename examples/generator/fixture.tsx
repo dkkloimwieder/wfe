@@ -30,6 +30,10 @@ export function createFixture(
   let release: (() => void) | undefined
   let app: Application | undefined
   let outcome: FormOutcome | undefined
+  function form() {
+    if (!app || !('form' in app)) throw new Error('This example has no form')
+    return app.form
+  }
   function dispatch() {
     if (app?.kind !== 'dispatch')
       throw new Error('This operation needs the dispatch example')
@@ -145,9 +149,11 @@ export function createFixture(
     },
     submit() {
       outcome = undefined
-      void app!.form.submit().then((result) => {
-        outcome = result
-      })
+      void form()
+        .submit()
+        .then((result) => {
+          outcome = result
+        })
       flush()
     },
     outcome: () => outcome,
@@ -168,7 +174,7 @@ export function createFixture(
       flush()
     },
     cancel() {
-      app!.form.cancel()
+      form().cancel()
       flush()
     },
     completeValidation(id: number, errors?: FormErrors<DispatchValues>) {

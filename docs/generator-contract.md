@@ -1,7 +1,7 @@
 # Generator contract
 
-`@wfe/generator` defines typed descriptions and application bindings for forms, tables, boolean grids, dashboard layouts, and charts.
-This private package exports `FormView`, `TableView`, `GridView`, and `LayoutView` through its public entry.
+`@wfe/generator` defines typed descriptions and application bindings for forms, tables, boolean grids, dashboard layouts, charts, record details, and delete confirmations.
+This private package exports `FormView`, `TableView`, `GridView`, `LayoutView`, `DetailView`, and `DeleteView` through its public entry.
 The chart subpath exports ChartView.
 These functions compose existing components from typed descriptions and bindings.
 They do not create another form coordinator or table engine.
@@ -301,3 +301,35 @@ Save the initial form to show an application error for the second row.
 Change that row's name and save again.
 Add row and Remove row request complete lists through the same form contract.
 The example also tests rejected requests, locked groups, retained numeric drafts, narrow screens, hydration, and disposal.
+
+## Record details
+
+`DetailDescription<T>` describes one read-only record through field keys, optional labels, shared formats, help text, columns, spans, and actions.
+`DetailViewBindings<T, D>` supplies the present record through `record()` and application callbacks for described actions.
+An omitted field label defaults to its key. An omitted action label defaults to its ID.
+DetailView composes Field, Label, FieldValue, FormGrid, and the existing action and status presentation.
+It creates no form contract, editable draft, validation rules, or data request.
+Fields retain their outputs through immutable record changes and metadata reorders.
+Applications conditionally mount the view when a record exists.
+Applications own empty states, loading policy, permissions, navigation, and asynchronous action results.
+The shared format behavior and full-value accessibility match generated read-only forms.
+
+## Delete confirmation
+
+`DeleteDescription` supplies one identity, a title, confirmation text, and optional trigger, confirm, and cancel labels.
+The default labels are Delete, Delete, and Cancel.
+`DeleteViewBindings<Key>` supplies `recordKey()`, one `onConfirm(key)` callback, and optional disabled and status accessors.
+A key is a nonempty string or a finite number, including zero.
+DeleteView composes the existing AlertDialog and its shared buttons, focus behavior, and portal cleanup.
+Opening captures the current key. Cancellation and Escape invoke no callback.
+A changed key or a new disabled state invalidates the open confirmation.
+Confirmation re-reads the key and disabled state, consumes the captured target, and closes before the callback.
+Repeated clicks during that confirmation cannot invoke the callback twice.
+Disposal invalidates stale confirmation handlers and releases the existing dialog.
+The callback can immediately unmount the view or start application-owned asynchronous work.
+The view does not await results, delete records, infer errors, retry, or change routes.
+Applications supply any pending or failure presentation and prevent new operations through the disabled binding.
+
+The [detail and delete example](../examples/generator/DetailsApp.tsx) uses public imports and records stored in application memory.
+Open `/?app=details` in the generator preview.
+Its tests cover formats, actions, cancellation, target changes, exactly one confirmation callback, narrow screens, focus, hydration, and disposal.

@@ -148,7 +148,7 @@ The [analytics example](../examples/analytics/README.md) shows that composition.
 The private `@wfe/form` package coordinates errors, submission, reset, and cancellation.
 Applications own accepted values, validation rules, and requests.
 Read [the form contract](form-contract.md) for public imports and lifecycle rules.
-Generators remain a separate planned package.
+The private `@wfe/generator` package composes these components from typed descriptions and application bindings.
 
 ## Cleanup and hydration
 
@@ -298,3 +298,8 @@ Row additions, removals, and edits never create a second submission callback.
 
 The [repeated form example](../examples/generator/RepeatedApp.tsx) uses one full-height main panel.
 Its rows stack on narrow screens and retain their controls through row and child-field reorders.
+
+DetailDescription/DetailView compose one present read-only record with the shared formats, field layout, and application actions.
+DeleteDescription/DeleteView compose the shared confirmation dialog for one key and one application callback.
+Applications retain record ownership, deletion, asynchronous outcomes, and navigation.
+See the [generator contract](generator-contract.md#record-details) and [example](../examples/generator/DetailsApp.tsx).

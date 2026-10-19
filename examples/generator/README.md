@@ -106,3 +106,12 @@ Change its name from Second and save again.
 Add row and Remove row use application-owned values, stable keys, and a row factory.
 The form fills its main panel and scrolls within that panel on smaller screens.
 The browser suites cover row errors, accepted and rejected requests, locked groups, retained drafts, focus, raw snapshots, hydration, and disposal.
+
+## Detail and delete
+
+Open `/?app=details` to inspect one read-only record through DetailView.
+The description supplies field formats and an application action.
+DeleteView opens the shared confirmation dialog for that record key.
+Cancel and Escape leave the record unchanged. Confirmation invokes one application callback that removes the example record from memory.
+Restore example creates the initial record again.
+The browser suites cover actions, formats, focus restoration, target changes, narrow screens, hydration, and disposal.

@@ -1,3 +1,4 @@
+import { reviewDetails, reviewDetailsServer } from './review-details.mjs'
 import { reviewRepeated, reviewRepeatedServer } from './review-repeated.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
@@ -16,6 +17,11 @@ import { reviewDispatch } from './review-dispatch.mjs'
 import { reviewRecordsWorkflow } from './review-records-workflow.mjs'
 
 const defaultApplications = {
+  details: {
+    initial: reviewDetailsServer,
+    server: reviewDetailsServer,
+    review: reviewDetails,
+  },
   repeated: {
     label: 'title',
     value: 'Repeated records',
@@ -221,11 +227,13 @@ export async function run({
           report.warnings.push(message.text())
       })
       await page.goto(applicationUrl)
-      await expect(
-        page.locator('form').getByLabel(checks.label, {
-          exact: true,
-        }),
-      ).toHaveValue(checks.value)
+      if (checks.initial) await checks.initial(page)
+      else
+        await expect(
+          page.locator('form').getByLabel(checks.label, {
+            exact: true,
+          }),
+        ).toHaveValue(checks.value)
       if (hydration) {
         await expect(page.locator('html')).toHaveAttribute(
           'data-hydrated',

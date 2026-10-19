@@ -154,6 +154,8 @@ Read-only fields use the shared FieldValue output. Editable controls retain thei
 The [format example](../examples/generator/FormatsApp.tsx) covers all requested formats in generated forms and tables.
 Repeated form groups reuse the scalar controls, with application-supplied keys and row factories.
 The [repeated form example](../examples/generator/RepeatedApp.tsx) covers submitted row errors, raw snapshots, row changes, retained drafts, and hydration.
-Generated detail/delete views remain planned.
+DetailView composes formatted read-only fields and application actions without a form contract.
+DeleteView confirms one record key and invokes one application callback.
+The [detail and delete example](../examples/generator/DetailsApp.tsx) covers both views and their focus, hydration, and cleanup behavior.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.

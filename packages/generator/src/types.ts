@@ -316,3 +316,42 @@ export type LayoutViewBindings<D extends LayoutDescription> = Readonly<{
   views: Readonly<{ [Id in ViewIds<D>]: () => JSX.Element }>
 }> &
   ActionBindings<D>
+
+export type DetailFieldDescription<T extends object> = Readonly<{
+  field: Extract<keyof T, string>
+  label?: string
+  help?: string
+  format?: ValueFormat
+  formatOptions?: Readonly<ValueFormatOptions>
+  span?: FormSpan
+}>
+export type DetailDescription<T extends object> = Readonly<{
+  id: string
+  title?: string
+  columns?: FormColumns
+  fields: readonly DetailFieldDescription<T>[]
+  actions?: readonly ActionDescription[]
+}>
+export type DetailViewBindings<
+  T extends object,
+  D extends DetailDescription<T>,
+> = Readonly<{
+  record: Accessor<Readonly<T>>
+  status?: Accessor<ViewStatus>
+}> &
+  ActionBindings<D>
+export type RecordKey = string | number
+export type DeleteDescription = Readonly<{
+  id: string
+  title: string
+  confirmation: string
+  triggerLabel?: string
+  confirmLabel?: string
+  cancelLabel?: string
+}>
+export type DeleteViewBindings<Key extends RecordKey> = Readonly<{
+  recordKey: Accessor<Key>
+  onConfirm: (key: Key) => void
+  disabled?: Accessor<boolean>
+  status?: Accessor<ViewStatus>
+}>

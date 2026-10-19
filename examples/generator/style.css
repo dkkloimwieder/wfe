@@ -127,3 +127,13 @@ h2 {
   min-height: 0;
   overflow: auto;
 }
+
+.generated-details {
+  height: 100%;
+  min-width: 0;
+}
+.generated-details .ui-form {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}

@@ -1,3 +1,5 @@
+import { DetailsApp } from './DetailsApp'
+import type { createDetailsApplication } from './DetailsApp'
 import { RepeatedApp } from './RepeatedApp'
 import type { createRepeatedApplication } from './RepeatedApp'
 import { FormatsApp } from './FormatsApp'
@@ -12,6 +14,7 @@ import type { createRecordsApplication } from './records-application'
 import type { createRecordsWorkflow } from './records-workflow'
 import type { createDispatchApplication } from './dispatch-application'
 export const applications = {
+  details: DetailsApp,
   repeated: RepeatedApp,
   records: App,
   dispatch: DispatchApp,
@@ -21,6 +24,7 @@ export const applications = {
 }
 export type ApplicationName = keyof typeof applications
 export type Application =
+  | ReturnType<typeof createDetailsApplication>
   | ReturnType<typeof createRepeatedApplication>
   | ReturnType<typeof createFormatsApplication>
   | ReturnType<typeof createDateApplication>
@@ -30,6 +34,7 @@ export type Application =
   | ReturnType<typeof createDispatchApplication>
 export function applicationName(value: string | null): ApplicationName {
   if (value === 'repeated') return 'repeated'
+  if (value === 'details') return 'details'
   if (value === null || value === 'records') return 'records'
   if (value === 'formats') return 'formats'
   if (value === 'dates') return 'dates'
