@@ -13,6 +13,7 @@ Beads records task status and dependencies.
 - [Form contract](form-contract.md)
 - [Generator contract](generator-contract.md)
 - [Dashboard layout](layout.md)
+- [Described application shell](../packages/shell/README.md)
 - [Charts](charts.md)
 
 ## Component guides

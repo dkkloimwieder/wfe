@@ -104,8 +104,9 @@ test('private generator exposes declarations and a valid package entry', async (
 })
 
 test('private shell exposes metadata guards and all package delivery targets', async () => {
-  const { defineShell } = await import('@wfe/shell')
-  assert.equal(typeof defineShell, 'function')
+  const shell = await import('@wfe/shell')
+  for (const name of ['defineShell', 'ShellView'])
+    assert.equal(typeof shell[name], 'function')
   const manifest = JSON.parse(
     await readFile(
       new URL('../packages/shell/package.json', import.meta.url),

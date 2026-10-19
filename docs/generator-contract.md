@@ -169,3 +169,11 @@ Applications own menu links and permissions. The generator owns region compositi
 Table selection is a runtime binding through `TableViewBindings.selection`.
 Descriptions stay serializable and contain no controllers or clipboard callbacks.
 See [table selection](table-selection.md) for application-owned IDs and copy text.
+
+## Described shell composition
+
+ShellView lives in the separate `@wfe/shell` package and composes the existing dashboard frame.
+Application page bindings can render FormView and TableView through their existing contracts.
+Shell metadata does not create a form coordinator, table engine, router, or data client.
+Use LayoutView for a described dashboard composition when a separate shell frame is not required.
+Read the [shell guide](../packages/shell/README.md) for navigation bindings and page lifetime.

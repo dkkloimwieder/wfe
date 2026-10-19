@@ -197,3 +197,10 @@ Conditional descriptions and invalid messages update after client attachment wit
 Caller description IDs remain intact.
 The example uses automatic checkbox associations and requires no explicit label workaround.
 The hydration cases also cover textarea, native choices, switches, Select, and Combobox associations.
+
+## Shell integration
+
+A shell page can render FormView or a manually composed form.
+The application decides where its form contract lives and whether values survive a route change.
+Shell navigation does not submit, reset, cancel, save, or validate a form.
+Applications handle unsaved-work decisions through their navigation bindings.

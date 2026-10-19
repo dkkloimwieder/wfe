@@ -1,4 +1,4 @@
-import { defineShell } from '@wfe/shell'
+import { defineShell, ShellView } from '@wfe/shell'
 import type { ShellBindings, ShellViewProps } from '@wfe/shell'
 const description = defineShell({
   id: 'workspace',
@@ -47,4 +47,4 @@ const unknownView: Bindings['views'] = {
   // @ts-expect-error Page bindings do not accept unreferenced component IDs.
   other: () => null,
 }
-void [props, unknownAudience, unknownRoute, missingView, unknownView]
+void [ShellView, props, unknownAudience, unknownRoute, missingView, unknownView]

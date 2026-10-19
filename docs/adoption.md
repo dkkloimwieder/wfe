@@ -199,3 +199,38 @@ The component runtime does not import Zod or the legacy table-core engine.
 Inspect the [component manifest](../packages/components/package.json) for exact versions.
 Use [the vendor procedure](../packages/components/src/vendor/kobalte/README.md) to compare originals and replay repairs.
 Run `pnpm test:qualification` after a runtime or vendor change.
+
+## Described application shell
+
+ShellView composes the shared layout and controls from navigation metadata.
+Applications supply accepted IDs, hrefs, page components, and callbacks. They own history and address parsing.
+The shell requests navigation only for ordinary primary clicks. Modified clicks retain native behavior.
+Accepted route changes focus the page heading. Initial rendering and hydration retain the current focus.
+
+```tsx
+import { defineShell, ShellView } from '@wfe/shell'
+import type { ShellBindings } from '@wfe/shell'
+
+const description = defineShell({
+  id: 'workspace',
+  title: 'Workspace',
+  audiences: [{ id: 'work', label: 'Work' }],
+  routes: [{ id: 'records', label: 'Records', view: 'records' }],
+})
+
+export function Workspace(props: {
+  bindings: ShellBindings<typeof description>
+}) {
+  return (
+    <ShellView
+      description={description}
+      bindings={props.bindings}
+      style={{ height: '100dvh' }}
+    />
+  )
+}
+```
+
+A page component receives the accepted audience and route metadata.
+The shell supplies the page heading and main landmark. Pages supply their content through existing public components.
+The [shell guide](../packages/shell/README.md) describes guards, page identity, and optional layout slots.

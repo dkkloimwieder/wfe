@@ -1,6 +1,9 @@
 import type { ShellDescription } from './types'
 
-function requireValue(condition: unknown, message: string): asserts condition {
+export function requireValue(
+  condition: unknown,
+  message: string,
+): asserts condition {
   if (!condition) throw new Error(`Shell: ${message}`)
 }
 function object(
@@ -87,7 +90,7 @@ export function createShellModel<D extends ShellDescription>(description: D) {
     }
     for (const id of chain) completed.add(id)
   }
-  return { audiences, routes }
+  return { id: description.id, audiences, routes }
 }
 
 /** Validate serializable navigation metadata without creating application state. */

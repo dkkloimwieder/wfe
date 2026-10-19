@@ -139,3 +139,13 @@ Each menu and the main area scroll independently between the organization bands.
 For `scroll="content"`, the main region has no outer padding.
 A full-height table joins the workspace edges. Cards keep their own internal padding.
 Table toolbar actions stay on the left for every controls placement.
+
+## Described application shell
+
+ShellView from `@wfe/shell` composes DashboardShell, SelectField, Breadcrumbs, and a page heading.
+The application supplies accepted audience and route IDs, native hrefs, page components, and change callbacks.
+The shell does not parse an address or own browser history.
+Its default uses `scroll="content"`. Page components fill the main region and own any inner scrolling.
+Optional context and footer props reuse this layout contract.
+Use one shell frame around page content rather than nesting another DashboardShell inside it.
+Read the [shell guide](../packages/shell/README.md) for controlled navigation and focus.

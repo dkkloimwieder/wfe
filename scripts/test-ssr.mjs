@@ -1,6 +1,7 @@
 import { FileInput } from '@wfe/components/file-input'
 import assert from 'node:assert/strict'
-import { renderToString } from '@solidjs/web'
+import { createComponent, renderToString } from '@solidjs/web'
+import { defineShell, ShellView } from '@wfe/shell'
 import { Toast } from '@wfe/components'
 import { Resizable } from '@wfe/components/resizable'
 import {
@@ -391,4 +392,37 @@ assert.equal((selectionOutput.match(/aria-live="polite"/g) ?? []).length, 1)
 assert.equal(selectionOutput.includes('data-native-cell-selection'), false)
 console.log(
   'SSR table selection renders one status without DOM effects or copy reads',
+)
+
+let shellRequests = 0
+const shellDescription = defineShell({
+  id: 'server-shell',
+  title: 'Workspace',
+  audiences: [{ id: 'work', label: 'Work' }],
+  routes: [{ id: 'records', label: 'Records & reports', view: 'records' }],
+})
+const shellOutput = await renderToString(() =>
+  createComponent(ShellView, {
+    description: shellDescription,
+    bindings: {
+      audience: () => 'work',
+      route: () => 'records',
+      href: () => '#records',
+      views: { records: () => 'Page content' },
+      onNavigate: () => {
+        shellRequests++
+      },
+      onAudienceChange: () => {
+        shellRequests++
+      },
+    },
+  }),
+)
+assert.match(shellOutput, /Records &amp; reports/)
+assert.match(shellOutput, /Page content/)
+assert.match(shellOutput, /href="#records"/)
+assert.match(shellOutput, /aria-current="page"/)
+assert.equal(shellRequests, 0)
+console.log(
+  'Described shell renders public metadata and page content without navigation requests.',
 )

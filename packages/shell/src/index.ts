@@ -1,3 +1,4 @@
+export { ShellView } from './ShellView'
 export { defineShell } from './model'
 export type {
   ShellAudience,

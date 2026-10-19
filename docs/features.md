@@ -7,12 +7,12 @@ The package export maps and linked guides define the supported contracts.
 
 ## Packages and ownership
 
-| Package           | Current responsibility                                                                                            | Public source                                                                                             |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `@wfe/components` | Controls, display, layout, Table, virtualization, charts, and shared styles                                       | [Root exports](../packages/components/src/index.ts) and [export map](../packages/components/package.json) |
-| `@wfe/shell`      | Navigation metadata, application binding types, and `defineShell` guards. Rendering remains in progress under W1. | [Shell contracts](../packages/shell/README.md)                                                            |
-| `@wfe/form`       | Controlled scalar form coordination                                                                               | [Exports](../packages/form/src/index.ts)                                                                  |
-| `@wfe/generator`  | Typed descriptions and bindings for form, table, layout, and chart views                                          | [Exports](../packages/generator/src/index.ts) and [chart entry](../packages/generator/src/chart/index.ts) |
+| Package           | Current responsibility                                                                           | Public source                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `@wfe/components` | Controls, display, layout, Table, virtualization, charts, and shared styles                      | [Root exports](../packages/components/src/index.ts) and [export map](../packages/components/package.json) |
+| `@wfe/shell`      | Described audience/navigation frame, breadcrumbs, accepted-navigation focus, and metadata guards | [Shell contracts](../packages/shell/README.md)                                                            |
+| `@wfe/form`       | Controlled scalar form coordination                                                              | [Exports](../packages/form/src/index.ts)                                                                  |
+| `@wfe/generator`  | Typed descriptions and bindings for form, table, layout, and chart views                         | [Exports](../packages/generator/src/index.ts) and [chart entry](../packages/generator/src/chart/index.ts) |
 
 All packages use Solid. They remain private at version `0.0.0`.
 Applications own records, routing, permissions, requests, caching, persistence, and validation rules.
@@ -103,7 +103,7 @@ The [chart guide](charts.md) defines the supported scope and excludes private ca
 `DashboardPanel` and `DashboardGrid` provide the shared panel frame and responsive panel placement.
 `Resizable` preserves pane content while resizing and supports collapse/reopen through its separator.
 Applications currently construct route menus, audience selection, breadcrumbs, page titles, and navigation focus behavior.
-`@wfe/shell` supplies metadata contracts for a planned composition of these components from a route description.
+`@wfe/shell` composes these components from a route description and application-owned bindings.
 
 Shared styles own density, typography, spacing, surfaces, borders, button variants, focus, and control states.
 Compact and comfortable densities use the same geometry contract as virtual rows.
@@ -143,7 +143,7 @@ The [qualification guide](qualification.md) documents serial checks, browser del
 ## Planned additions
 
 The [shell, grid, tiles, and labels draft](plan/wfe-shell-grid-tiles.md) is a plan, not an implemented API.
-`@wfe/shell` now supplies metadata contracts and guards. Its renderer remains in progress under W1.
+`@wfe/shell` supplies the described renderer and metadata guards. The full six-route qualification example remains in progress under W1.
 `GridDescription`, `StatusTile`, and `TileRow` are not implemented.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.
