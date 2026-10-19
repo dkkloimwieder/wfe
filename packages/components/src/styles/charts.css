@@ -47,6 +47,9 @@
     --ui-divider: GrayText;
     --ui-surface: Canvas;
     --ui-accent: Highlight;
+    --ui-focus: Highlight;
+    --ui-focus-ring: Highlight;
+    --ui-border: GrayText;
   }
 }
 :where(.ui-chart-legend[data-ui]) {

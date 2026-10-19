@@ -437,6 +437,58 @@ try {
       ).toHaveCount(0)
     },
   )
+  await run(
+    'forced colors retain chart focus, series and pinned tooltip',
+    async () => {
+      await page.emulateMedia({ forcedColors: 'active' })
+      await svg.focus()
+      await svg.press('ArrowRight')
+      await svg.press('Enter')
+      await settle()
+      const tip = page.locator('.chart-primary-tooltip')
+      await expect(tip).toBeVisible()
+      const appearance = await svg.evaluate((element) => {
+        const probe = document.createElement('span')
+        probe.style.cssText =
+          'color:CanvasText;background:Canvas;border:1px solid GrayText;outline:2px solid Highlight'
+        document.body.append(probe)
+        const system = getComputedStyle(probe)
+        const line = getComputedStyle(
+          element.querySelector('.ts-chart__line path'),
+        )
+        const panel = getComputedStyle(
+          document.querySelector('.chart-primary-tooltip'),
+        )
+        const result = {
+          stroke: line.stroke,
+          focus: getComputedStyle(element).outlineStyle,
+          focusWidth: getComputedStyle(element).outlineWidth,
+          focusColor: getComputedStyle(element).outlineColor,
+          text: panel.color,
+          background: panel.backgroundColor,
+          border: panel.borderTopWidth,
+          borderColor: panel.borderTopColor,
+          systemBorder: system.borderTopColor,
+          systemText: system.color,
+          systemBackground: system.backgroundColor,
+          systemAccent: system.outlineColor,
+        }
+        probe.remove()
+        return result
+      })
+      assert.equal(appearance.stroke, appearance.systemAccent)
+      assert.equal(appearance.focus, 'solid')
+      assert.equal(appearance.focusWidth, '2px')
+      assert.equal(appearance.focusColor, appearance.systemAccent)
+      assert.equal(appearance.text, appearance.systemText)
+      assert.equal(appearance.background, appearance.systemBackground)
+      assert.equal(appearance.border, '1px')
+      assert.equal(appearance.borderColor, appearance.systemBorder)
+      await svg.press('Escape')
+      await expect(tip).not.toBeVisible()
+      await page.emulateMedia({ forcedColors: 'none' })
+    },
+  )
   await run('remount and complete disposal', async () => {
     await page
       .getByRole('button', { name: 'Toggle chart', exact: true })
