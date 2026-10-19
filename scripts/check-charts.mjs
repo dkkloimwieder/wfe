@@ -36,7 +36,9 @@ export async function checkCharts(root) {
     const bytes = await readFile(new URL(name, root))
     assert.equal(hash(bytes), item.localSha256, `Chart source differs: ${name}`)
     if (item.localSha256 !== item.upstreamSha256) {
-      assert.equal(item.repair, 'strict-types')
+      assert.ok(
+        ['strict-types', 'runtime-theme', 'portal-mount'].includes(item.repair),
+      )
       assert.ok(
         manifest.repairs[name]?.length > 40,
         `Undocumented chart repair: ${name}`,

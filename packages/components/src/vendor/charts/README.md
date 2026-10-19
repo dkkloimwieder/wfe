@@ -19,3 +19,8 @@ Bounded array indices retain their existing invariants. Unused generic names use
 a leading underscore. Unused imports and unreachable duplicate tooltip helpers
 are removed. The active tooltip path remains unchanged. Each changed file is
 listed in provenance.json.
+
+The runtime-theme repair passes optional runtime defaults through the existing
+theme merge path. Authored definitions retain precedence. The portal-mount repair
+adds an optional fallback parent so owned UI scopes retain their tokens and
+control styles outside the chart container. Native popovers stay unchanged.

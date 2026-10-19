@@ -152,7 +152,7 @@ function createPortal(
     element.removeAttribute('popover')
     element.dataset.tsChartTooltipPortal = 'fallback'
     element.style.zIndex = '2147483647'
-    const parent = document.body ?? document.documentElement
+    const parent = options.mount ?? document.body ?? document.documentElement
     if (element.parentNode !== parent) parent.append(element)
   }
 

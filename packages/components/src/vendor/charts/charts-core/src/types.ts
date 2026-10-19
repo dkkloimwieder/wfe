@@ -1705,7 +1705,10 @@ export type ChartTooltipInput<
   ChartTooltipOptions<TDatum, TXValue, TYValue>
 >
 
-export type ChartTooltipPortalOptions = Record<never, never>
+export interface ChartTooltipPortalOptions {
+  /** Optional owned fallback mount that preserves the surrounding UI scope. */
+  mount?: HTMLElement
+}
 
 export interface ChartTooltipPortalExtensionToken {
   readonly id: string

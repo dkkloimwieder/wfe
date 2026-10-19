@@ -8,6 +8,7 @@ import {
   untrack,
 } from 'solid-js'
 import { For, Portal, Show, type JSX } from '@solidjs/web'
+import { chartTheme } from './theme'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { createChartRendererAdapter } from '../vendor/charts/charts-core/src/adapter-renderer'
 import { createSvgChartRenderer } from '../vendor/charts/charts-core/src/svg-surface'
@@ -86,7 +87,9 @@ export function Chart<
       onTooltipBodyChange: props.renderTooltipBody ? notifyTooltip : undefined,
     }
   }
-  const adapter = untrack(() => createChartRendererAdapter(options()))
+  const adapter = untrack(() =>
+    createChartRendererAdapter(options(), { defaultTheme: chartTheme }),
+  )
   const markup = untrack(() => adapter.prerender())
   createEffect(
     () => ({ container: container(), options: options() }),
@@ -107,6 +110,7 @@ export function Chart<
   return (
     <>
       <div
+        data-ui=""
         class={styledClasses('ui-chart', props.class)}
         style={{
           position: 'relative',

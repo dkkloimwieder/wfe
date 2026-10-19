@@ -6,7 +6,7 @@ import {
 } from './adapter-shared'
 import type { ChartAdapter } from './adapter-shared'
 import type { ChartRendererHost, ChartRendererHostOptions } from './dom-types'
-import type { ChartRuntime, ChartValue } from './types'
+import type { ChartRuntime, ChartRuntimeOptions, ChartValue } from './types'
 
 export function createChartRendererAdapter<
   TDatum,
@@ -14,6 +14,7 @@ export function createChartRendererAdapter<
   TYValue extends ChartValue = ChartValue,
 >(
   initialOptions: ChartRendererHostOptions<TDatum, TXValue, TYValue>,
+  runtimeOptions: ChartRuntimeOptions = {},
 ): ChartAdapter<
   ChartRendererHostOptions<TDatum, TXValue, TYValue>,
   TDatum,
@@ -21,11 +22,11 @@ export function createChartRendererAdapter<
   TYValue
 > {
   let runtime: ChartRuntime<TDatum, TXValue, TYValue> | undefined =
-    createChartRuntime<TDatum, TXValue, TYValue>()
+    createChartRuntime<TDatum, TXValue, TYValue>(runtimeOptions)
   let options = initialOptions
   let host: ChartRendererHost<TDatum, TXValue, TYValue> | undefined
   const getRuntime = () =>
-    (runtime ??= createChartRuntime<TDatum, TXValue, TYValue>())
+    (runtime ??= createChartRuntime<TDatum, TXValue, TYValue>(runtimeOptions))
 
   return {
     prerender() {

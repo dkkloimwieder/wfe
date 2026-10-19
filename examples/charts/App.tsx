@@ -1,14 +1,34 @@
 import { createMemo, createSignal, Show, untrack } from 'solid-js'
-import { Button, Input } from '@wfe/components'
+import {
+  Button,
+  Input,
+  Card,
+  EmptyState,
+  InlineAlert,
+  uiScope,
+} from '@wfe/components'
 import {
   Chart,
   defineChart,
   lineY,
   scaleLinear,
   tooltip,
+  tooltipPortal,
+  barY,
+  areaY,
+  dot,
+  scaleBand,
 } from '@wfe/components/chart'
 import type { ChartProps, ChartTooltipContext } from '@wfe/components/chart'
-import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
+import { AppearanceReview } from '../shared/appearance/AppearanceReview'
+import {
+  appearanceStyle,
+  schemes,
+  accents,
+} from '../shared/appearance/appearance'
+import type { Depth, SurfaceLayers } from '../shared/appearance/appearance'
+import '../shared/appearance/default-appearance.css'
+import '../shared/appearance/style.css'
 import './style.css'
 
 type Row = { id: string; x: number; y: number }
@@ -16,7 +36,32 @@ type Context = Parameters<
   NonNullable<ChartProps<Row, number, number>['onRender']>
 >[0]
 export type ChartFixture = { context: () => Context | undefined }
-export function App(props: { ready?: (api: ChartFixture) => void }) {
+export function App(props: {
+  ready?: (api: ChartFixture) => void
+  standalone?: boolean
+}) {
+  if (untrack(() => props.standalone))
+    return (
+      <Chart
+        definition={defineChart({
+          marks: [lineY([1, 3, 2])],
+          scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
+        })}
+        ariaLabel="Standalone chart"
+        height={280}
+      />
+    )
+  const scope = uiScope()
+  const [scheme, setScheme] = createSignal(schemes[1]!)
+  const [accent, setAccent] = createSignal(accents[1]!)
+  const [depth, setDepth] = createSignal<Depth>(2)
+  const [layers, setLayers] = createSignal<SurfaceLayers>({
+    canvas: 1,
+    pane: 0,
+    content: 0,
+  })
+  const [empty, setEmpty] = createSignal(false)
+  const [loading, setLoading] = createSignal(false)
   const [revision, setRevision] = createSignal(0)
   const [visible, setVisible] = createSignal(true)
   const [label, setLabel] = createSignal('Requests')
@@ -26,29 +71,41 @@ export function App(props: { ready?: (api: ChartFixture) => void }) {
     defineChart({
       marks: [
         lineY(
-          [
-            { id: 'a', x: 0, y: 2 + revision() },
-            { id: 'b', x: 1, y: 4 },
-            { id: 'c', x: 2, y: 1 + revision() },
-          ],
+          empty()
+            ? []
+            : [
+                { id: 'a', x: 0, y: 2 + revision() },
+                { id: 'b', x: 1, y: 4 },
+                { id: 'c', x: 2, y: 1 + revision() },
+              ],
           { id: 'requests', x: 'x', y: 'y', key: 'id', points: true },
         ),
       ],
       scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
-      tooltip,
+      tooltip: { use: tooltip, portal: tooltipPortal },
       maxFocusDistance: 1000,
     }),
   )
   const renderBody = (tip: ChartTooltipContext<Row, number, number>) => (
-    <div data-custom-tooltip>
+    <Card data-custom-tooltip>
       {tip.defaultBody}
       <Input aria-label="Tooltip note" />
       <Button onClick={() => tip.dismiss()}>Close</Button>
-    </div>
+    </Card>
   )
   untrack(() => props.ready?.({ context: () => context }))
   return (
-    <DefaultAppearance class="chart-preview">
+    <div
+      {...scope}
+      data-ui-portal-root=""
+      class="chart-preview appearance-scope"
+      style={{
+        ...scope.style,
+        ...appearanceStyle(scheme(), accent(), depth(), layers()),
+        '--ui-button-color': 'var(--ui-accent)',
+        '--ui-button-on-color': 'var(--ui-on-accent)',
+      }}
+    >
       <header>
         <h1>CHARTS</h1>
         <div class="chart-review-actions">
@@ -61,25 +118,105 @@ export function App(props: { ready?: (api: ChartFixture) => void }) {
           <Button onClick={() => setVisible((value) => !value)}>
             Toggle chart
           </Button>
+          <Button onClick={() => setEmpty((value) => !value)}>
+            Toggle empty results
+          </Button>
+          <Button onClick={() => setLoading((value) => !value)}>
+            Toggle loading
+          </Button>
           <Button onClick={() => setRich((value) => !value)}>
             Toggle custom tooltip
           </Button>
         </div>
       </header>
-      <main>
-        <Show when={visible()}>
-          <Chart
-            definition={spec()}
-            ariaLabel={label()}
-            height={280}
-            initialWidth={640}
-            renderTooltipBody={rich() ? renderBody : undefined}
-            onRender={(value) => {
-              context = value
-            }}
-          />
-        </Show>
+      <AppearanceReview
+        scheme={scheme()}
+        accent={accent()}
+        depth={depth()}
+        layers={layers()}
+        onSchemeChange={setScheme}
+        onAccentChange={setAccent}
+        onDepthChange={setDepth}
+        onLayersChange={setLayers}
+      />
+      <main class="chart-review-grid">
+        <section
+          class="chart-review-panel"
+          aria-label="Line chart panel"
+          aria-busy={loading() ? 'true' : 'false'}
+        >
+          <h2>LINE</h2>
+          <Show when={loading()}>
+            <InlineAlert announce="polite">Loading chart data</InlineAlert>
+          </Show>
+          <Show when={empty()}>
+            <EmptyState>No chart data</EmptyState>
+          </Show>
+          <Show when={visible()}>
+            <Chart
+              definition={spec()}
+              ariaLabel={label()}
+              height={280}
+              initialWidth={640}
+              renderTooltipBody={rich() ? renderBody : undefined}
+              onRender={(value) => {
+                context = value
+              }}
+            />
+          </Show>
+        </section>
+        <ForCharts revision={revision()} />
       </main>
-    </DefaultAppearance>
+    </div>
+  )
+}
+
+function ForCharts(props: { revision: number }) {
+  const rows = () => [
+    { label: 'Mon', value: 2 + props.revision },
+    { label: 'Tue', value: 4 },
+    { label: 'Wed', value: 0 },
+    { label: 'Thu', value: -1 },
+  ]
+  const bars = createMemo(() =>
+    defineChart({
+      marks: [barY(rows(), { x: 'label', y: 'value' })],
+      scales: { x: { scale: scaleBand }, y: { scale: scaleLinear } },
+      tooltip: { use: tooltip, portal: tooltipPortal },
+    }),
+  )
+  const area = createMemo(() =>
+    defineChart({
+      marks: [areaY(rows(), { x: (_, context) => context.index, y: 'value' })],
+      scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
+      tooltip: { use: tooltip, portal: tooltipPortal },
+    }),
+  )
+  const scatter = createMemo(() =>
+    defineChart({
+      marks: [dot(rows(), { x: (_, context) => context.index, y: 'value' })],
+      scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
+      tooltip: { use: tooltip, portal: tooltipPortal },
+    }),
+  )
+  return (
+    <>
+      <section class="chart-review-panel" aria-label="Bar chart panel">
+        <h2>BAR</h2>
+        <Chart definition={bars()} ariaLabel="Daily requests" height={260} />
+      </section>
+      <section class="chart-review-panel" aria-label="Area chart panel">
+        <h2>AREA</h2>
+        <Chart definition={area()} ariaLabel="Request volume" height={260} />
+      </section>
+      <section class="chart-review-panel" aria-label="Scatter chart panel">
+        <h2>SCATTER</h2>
+        <Chart
+          definition={scatter()}
+          ariaLabel="Request observations"
+          height={260}
+        />
+      </section>
+    </>
   )
 }

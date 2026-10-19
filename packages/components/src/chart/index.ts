@@ -1,3 +1,4 @@
+export { tooltipPortal } from './tooltipPortal'
 export { Chart } from './Chart'
 export type { ChartProps, ChartTooltipContext } from './Chart'
 export { defineChart } from '../vendor/charts/charts-core/src/scene'

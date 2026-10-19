@@ -28,7 +28,8 @@
     "charts-core/src/adapter-renderer.ts": {
       "source": "packages/charts-core/src/adapter-renderer.ts",
       "upstreamSha256": "413383ab291694abaca06f34e904708e654522b4ae8d8d750f0da1436455074c",
-      "localSha256": "413383ab291694abaca06f34e904708e654522b4ae8d8d750f0da1436455074c"
+      "localSha256": "e30a98b37bc960e6caa8571a0d43ed55060827b31ecae4689b1b2c42bf40a2e6",
+      "repair": "runtime-theme"
     },
     "charts-core/src/adapter-shared.ts": {
       "source": "packages/charts-core/src/adapter-shared.ts",
@@ -351,7 +352,8 @@
     "charts-core/src/tooltip-portal.ts": {
       "source": "packages/charts-core/src/tooltip-portal.ts",
       "upstreamSha256": "3b83c4d23e06cd0ca73f5b33ec176305699a99d7184c113cf2e5895708d36c70",
-      "localSha256": "3b83c4d23e06cd0ca73f5b33ec176305699a99d7184c113cf2e5895708d36c70"
+      "localSha256": "bfd6abd63c766122df7d3404f73602a35492e5e19a57068bf7b7c5521d654af0",
+      "repair": "portal-mount"
     },
     "charts-core/src/tooltip-position.ts": {
       "source": "packages/charts-core/src/tooltip-position.ts",
@@ -367,8 +369,8 @@
     "charts-core/src/types.ts": {
       "source": "packages/charts-core/src/types.ts",
       "upstreamSha256": "e07a239a631adce94ab2f23fde12c6b5f249b2dedd209dcdec8a5218d2162b4d",
-      "localSha256": "d36f832a5dc65e67c3e84b80d009814e946e45d70027889b91628463d96718e4",
-      "repair": "strict-types"
+      "localSha256": "2e49d48662dcd70b067f8686b201c53a5126afde5e5efd023fc2fc07ab22bc31",
+      "repair": "portal-mount"
     },
     "charts-scales/src/band-kernel.ts": {
       "source": "packages/charts-scales/src/band-kernel.ts",
@@ -417,6 +419,8 @@
     "charts-core/src/nearest.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
     "charts-core/src/reconcile.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
     "charts-core/src/tooltip.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
-    "charts-core/src/types.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged."
+    "charts-core/src/types.ts": "Strict unused generic parameter names are retained. Add a typed optional fallback portal mount so owned UI tokens and controls retain their scope.",
+    "charts-core/src/adapter-renderer.ts": "Pass optional ChartRuntimeOptions through initial and recreated runtime creation. Existing definition theme precedence remains unchanged.",
+    "charts-core/src/tooltip-portal.ts": "Allow an optional scoped fallback mount. Native popover positioning and lifecycle remain unchanged."
   }
 }

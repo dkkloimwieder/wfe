@@ -7,6 +7,7 @@ const target = document.getElementById('root')!
 const dispose = (target.dataset.ssr === 'true' ? hydrate : render)(
   () => (
     <App
+      standalone={new URLSearchParams(location.search).has('standalone')}
       ready={(value) => {
         app = value
       }}

@@ -1,4 +1,4 @@
-:where([data-ui]) .ui-chart {
+:where(.ui-chart[data-ui]) {
   min-inline-size: 0;
 }
 :where([data-ui]) .ui-chart-tooltip-body {
@@ -22,4 +22,30 @@
   display: block;
   inline-size: 8px;
   block-size: 8px;
+}
+:where([data-ui]).ui-chart,
+:where([data-ui])[data-ui-chart-tooltip] {
+  --ts-chart-tooltip-background: var(--ui-surface);
+  --ts-chart-tooltip-color: var(--ui-text);
+  --ts-chart-tooltip-border: 1px solid var(--ui-border);
+  --ts-chart-tooltip-border-radius: 0;
+  --ts-chart-tooltip-shadow: var(--ui-panel-shadow, none);
+  --ts-chart-tooltip-padding: var(--ui-control-padding-y, 4px)
+    var(--ui-cell-padding-x, 8px);
+  --ts-chart-tooltip-font: inherit;
+  --ts-chart-tooltip-active-row-border-radius: 0;
+}
+:where(.ui-chart[data-ui]) svg:focus-visible {
+  outline: 2px solid var(--ui-focus-ring, var(--ui-focus, Highlight));
+  outline-offset: -2px;
+}
+@media (forced-colors: active) {
+  :where([data-ui]).ui-chart,
+  :where([data-ui])[data-ui-chart-tooltip] {
+    --ui-text: CanvasText;
+    --ui-muted-text: CanvasText;
+    --ui-divider: GrayText;
+    --ui-surface: Canvas;
+    --ui-accent: Highlight;
+  }
 }
