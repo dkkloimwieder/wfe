@@ -2,8 +2,9 @@
 // License: ./OPEN-PROPS-LICENSE
 // Source: https://raw.githubusercontent.com/argyleink/open-props/f39ab7c377a0e047f930982e3611bbc95254a260/src/props.colors.js
 // Source SHA-256: 9197aaccf67264fa1f4acc6c19504f3b79fa7c4c1d684af7e29368dcca4cf39f
-// Neutral roles follow extra/theme.light.css and extra/theme.dark.css at this commit.
-// Local adaptation: Light Surface 1 uses #fcfcfd, between gray-0 and white.
+// Accent and table-divider samples retain the Open Props provenance above.
+// Local adaptation: neutral roles match the measured reference presentation.
+// Dark Surface 1 is the panel; Surface 2 is the darker canvas.
 import type { JSX } from '@solidjs/web'
 
 export type SurfaceScheme = {
@@ -35,14 +36,14 @@ export const schemes: readonly SurfaceScheme[] = [
   {
     name: 'Light',
     mode: 'light',
-    surfaces: ['#fcfcfd', '#e9ecef', '#dee2e6', '#ced4da'],
-    text: ['#030507', '#495057'],
+    surfaces: ['#ffffff', '#ffffff', '#f5f5f5', '#e5e5e5'],
+    text: ['#0a0a0a', '#737373'],
   },
   {
     name: 'Dark',
     mode: 'dark',
-    surfaces: ['#212529', '#343a40', '#495057', '#868e96'],
-    text: ['#f8f9fa', '#ced4da'],
+    surfaces: ['#171717', '#0a0a0a', '#262626', '#404040'],
+    text: ['#fafafa', '#a1a1a1'],
   },
 ]
 export const neutralAccent: Accent = {
@@ -77,7 +78,11 @@ function accentText(color: string) {
   return luminance > 0.179 ? monochrome.text[0] : monochrome.surfaces[0]
 }
 export function dividerSurfaces(scheme: SurfaceScheme) {
-  return (scheme === monochrome ? schemes[1]! : scheme).surfaces
+  // Table separators retain their independent contrast scale. Canvas and panel
+  // surfaces can match without making the default gridlines disappear.
+  return scheme.mode === 'dark'
+    ? (['#212529', '#343a40', '#495057', '#868e96'] as const)
+    : (['#fcfcfd', '#e9ecef', '#dee2e6', '#ced4da'] as const)
 }
 export function appearanceStyle(
   scheme: SurfaceScheme,
@@ -91,7 +96,12 @@ export function appearanceStyle(
   const pane = scheme.surfaces[layers.pane]
   const surface = scheme.surfaces[layers.content]
   const [text, secondary] = scheme.text
-  const border = scheme === monochrome ? text : edge
+  const dark = scheme.mode === 'dark'
+  const border =
+    scheme === monochrome ? text : dark ? 'rgb(255 255 255 / 0.1)' : edge
+  const controlBorder = dark ? 'rgb(255 255 255 / 0.15)' : border
+  const controlSurface = dark ? 'rgb(255 255 255 / 0.045)' : 'transparent'
+  const ring = dark ? '#737373' : '#a3a3a3'
   const focus = accentColor(accent, scheme)
   const onAccent = accentText(focus)
   const opposite =
@@ -115,11 +125,16 @@ export function appearanceStyle(
     '--ui-divider': border,
     '--ui-table-row-divider': dividerSurfaces(scheme)[dividers.rows],
     '--ui-table-column-divider': dividerSurfaces(scheme)[dividers.columns],
-    '--ui-control-border': border,
+    '--ui-control-border': controlBorder,
+    '--ui-control-surface': controlSurface,
+    '--ui-control-hover': controlSurface,
+    '--ui-focus-width': '1px',
+    '--ui-focus-offset': '0px',
+    '--ui-field-focus-border': ring,
     '--ui-button-border': border,
     '--ui-handle-border': border,
     '--ui-focus': focus,
-    '--ui-focus-ring': `color-mix(in srgb, ${focus} 85%, transparent)`,
+    '--ui-focus-ring': `color-mix(in srgb, ${ring} 50%, transparent)`,
     '--ui-selection': focus,
     '--ui-on-selection': onAccent,
     '--ui-accent': focus,

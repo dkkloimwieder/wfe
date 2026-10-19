@@ -93,7 +93,7 @@ try {
     report.cases.push({ name, status: 'passed' })
     console.log('PASS ' + name)
   }
-  await test('Form focus follows accents and appearance rings stay complete', async () => {
+  await test('Form focus follows the shared neutral role and appearance rings stay complete', async () => {
     for (const mode of ['Light', 'Dark']) {
       await page
         .getByRole('button', { name: `${mode} surfaces`, exact: true })
@@ -105,7 +105,7 @@ try {
         })
         await swatch.click()
         const expected = await appearanceColor(page, '--ui-focus-ring')
-        assert.ok(expected.includes('0.85'))
+        assert.ok(expected.includes('0.5'))
         await page.keyboard.press('Tab')
         for (const field of [name, category]) {
           await field.focus()
@@ -341,15 +341,15 @@ try {
     await phase('submitting')
     const before = await snapshot()
     await button('Light surfaces').click()
-    assert.equal(await background('.form-page'), 'rgb(252, 252, 253)')
+    assert.equal(await background('.form-page'), 'rgb(255, 255, 255)')
     await button('Base Surface 2').click()
     await button('Panes Surface 3').click()
     await button('Content Surface 2').click()
-    assert.equal(await background('.form-page'), 'rgb(233, 236, 239)')
-    assert.equal(await background('.form-example'), 'rgb(222, 226, 230)')
-    assert.equal(await background('form'), 'rgb(233, 236, 239)')
+    assert.equal(await background('.form-page'), 'rgb(255, 255, 255)')
+    assert.equal(await background('.form-example'), 'rgb(245, 245, 245)')
+    assert.equal(await background('form'), 'rgb(255, 255, 255)')
     await button('Dark surfaces').click()
-    assert.equal(await background('.form-page'), 'rgb(52, 58, 64)')
+    assert.equal(await background('.form-page'), 'rgb(10, 10, 10)')
     await button('Blue accent').click()
     assert.equal(
       await page

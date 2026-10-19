@@ -16,8 +16,9 @@
   .ui-radio-item:has(.ui-toggle-input:focus-visible)
   .ui-radio-control,
 :where([data-ui]) .filter-input:has(:focus-visible) {
-  outline: 2px solid var(--ui-focus-ring, var(--ui-focus, #1657a8));
-  outline-offset: 2px;
+  outline: var(--ui-focus-width, 2px) solid
+    var(--ui-focus-ring, var(--ui-focus, #1657a8));
+  outline-offset: var(--ui-focus-offset, 2px);
 }
 :where([data-ui]) .filter-input input:focus-visible,
 :where([data-ui]) .filter-input select:focus-visible,
@@ -123,4 +124,15 @@
 
 :where([data-ui]) .filter-input:has(.table-boolean-filter) {
   outline: none;
+}
+
+:where([data-ui])
+  :is(
+    .ui-input,
+    .ui-textarea,
+    .ui-native-select,
+    .choice-input,
+    .popup-trigger
+  ):focus-visible:not([aria-invalid='true'], [data-invalid]) {
+  border-color: var(--ui-field-focus-border, var(--ui-control-border, #999));
 }

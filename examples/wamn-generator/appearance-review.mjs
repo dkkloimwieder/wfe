@@ -7,11 +7,11 @@ export async function reviewAppearance({ page, record }) {
     async () => {
       await expect(page.locator('.wamn-page')).toHaveCSS(
         'background-color',
-        'rgb(233, 236, 239)',
+        'rgb(255, 255, 255)',
       )
       const panels = page.locator('.ui-dashboard-panel:visible')
       for (const panel of await panels.all()) {
-        await expect(panel).toHaveCSS('background-color', 'rgb(252, 252, 253)')
+        await expect(panel).toHaveCSS('background-color', 'rgb(255, 255, 255)')
         assert.notEqual(
           await panel.evaluate((node) => getComputedStyle(node).boxShadow),
           'none',

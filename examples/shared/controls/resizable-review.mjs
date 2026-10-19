@@ -382,7 +382,12 @@ export async function reviewResizable(page, api) {
     .getByRole('button', { name: 'Table controls', exact: true })
     .click()
   await expect(panel).toBeVisible()
-  assert.ok(Math.abs((await panel.boundingBox()).width - widthBefore) < 3)
+  const mobileWidth = await workspace.evaluate((node) => node.clientWidth)
+  assert.ok(
+    Math.abs(
+      (await panel.boundingBox()).width - Math.min(widthBefore, mobileWidth),
+    ) < 3,
+  )
   await page.keyboard.press('Escape')
   await page.setViewportSize({ width: 1280, height: 720 })
   await settle()

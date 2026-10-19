@@ -14,7 +14,7 @@
 :where([data-ui]) .ui-radio-control,
 :where([data-ui]) .ui-switch-control {
   border: 1px solid var(--ui-control-border, #999);
-  background-color: var(--ui-surface, white);
+  background-color: var(--ui-control-surface, var(--ui-surface, white));
 }
 :where([data-ui]) input,
 :where([data-ui]) textarea,
@@ -28,6 +28,17 @@
   min-width: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
   border: 1px solid var(--ui-control-border, #999);
-  background-color: var(--ui-surface, white);
+  background-color: var(--ui-control-surface, var(--ui-surface, white));
   overflow-wrap: anywhere;
+}
+
+:where([data-ui])
+  :is(
+    .ui-input,
+    .ui-native-select,
+    .choice-input,
+    .popup-trigger,
+    .ui-field-value
+  ) {
+  min-block-size: var(--ui-control-height, 26px);
 }

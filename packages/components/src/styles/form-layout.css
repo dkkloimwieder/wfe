@@ -1,7 +1,7 @@
 :where(.ui-form[data-ui]) {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-field-gap, var(--ui-gap, 6px));
   min-inline-size: 0;
 }
 :where(.ui-form[data-ui]) > :is(h2, p) {
@@ -18,7 +18,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-field-gap, var(--ui-gap, 6px));
   min-inline-size: 0;
 }
 :where([data-ui]) .ui-form-grid > * {

@@ -36,6 +36,8 @@ export async function reviewBreadcrumbs(page, api) {
   assert.equal((await read()).refs, 1)
   await nav.evaluate((node) => {
     node.style.setProperty('--ui-focus-ring', 'rgb(25, 113, 194)')
+    node.style.setProperty('--ui-focus-width', '2px')
+    node.style.setProperty('--ui-focus-offset', '2px')
   })
   await link.focus()
   const ring = await link.evaluate((node) => {

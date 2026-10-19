@@ -34,6 +34,7 @@
 
 :where([data-ui]) .ui-button {
   text-decoration: none;
+  font-weight: var(--ui-button-font-weight, inherit);
   --_button-color: var(--ui-text, #000);
   --_button-contrast: var(--ui-surface, #fff);
   --_button-hover: var(
@@ -121,4 +122,8 @@
     background: ButtonFace;
     color: ButtonText;
   }
+}
+
+:where([data-ui]) .ui-button:not(.column-sort, .column-move, .header-rename) {
+  min-block-size: var(--ui-control-height, 26px);
 }

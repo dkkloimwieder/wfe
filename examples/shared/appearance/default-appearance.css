@@ -1,5 +1,10 @@
 @import '@wfe/components/styles.css';
 @import './review-shadows.css';
+@import './fonts/font.css';
+
+html:root {
+  font-size: 16px;
+}
 
 .default-appearance {
   min-width: 0;
@@ -67,4 +72,8 @@ body:has(.component-preview) {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--ui-gap, 8px);
+}
+
+.default-appearance p {
+  line-height: var(--ui-line-height);
 }

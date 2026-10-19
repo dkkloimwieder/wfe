@@ -58,7 +58,8 @@
 :where([data-ui]) :where(.ui-button),
 :where([data-ui]) input,
 :where([data-ui]) textarea,
-:where([data-ui]) select {
+:where([data-ui]) select,
+:where([data-ui]) .ui-field-value {
   font: inherit;
-  line-height: var(--ui-line-height, 1.45);
+  line-height: var(--ui-control-line-height, var(--ui-line-height, 1.45));
 }

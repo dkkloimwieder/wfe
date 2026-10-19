@@ -79,7 +79,7 @@ The remaining files own layout, table workspace, calendar, and text presentation
 The library default is black text on white surfaces.
 Its optional dark theme uses surface `#171d27` and focus `#88baff`.
 The review examples supply their own approved palette through the shared appearance switcher.
-For example, the review dark Surface 1 uses `#212529`.
+For example, the review dark Surface 1 uses `#171717`.
 Those application overrides do not change the library defaults.
 
 Buttons without an explicit tone inherit `--ui-button-color` and `--ui-button-on-color`.
@@ -141,3 +141,11 @@ The generator and direct component consumers share these rules.
 Card owns its border, padding, surface, and square corners. Badge owns state tones.
 The tile reads the existing `--ui-panel-shadow` role and introduces no palette.
 TileRow aliases DashboardGrid and uses its existing responsive columns and gap.
+
+## Form presentation roles
+
+`--ui-control-surface` supplies the editable field fill.
+`--ui-control-line-height`, `--ui-label-line-height`, and `--ui-label-weight` control shared typography.
+`--ui-focus-width` and `--ui-focus-offset` control the focus outline.
+`--ui-field-focus-border` supplies an optional border color for focused editable fields.
+`--ui-field-gap` supplies form section spacing. Action rows retain `--ui-gap`.

@@ -135,7 +135,7 @@ try {
       await reviewCssProvenance(page, url)
       await expect(page.locator('.platform-example')).toHaveCSS(
         'background-color',
-        'rgb(233, 236, 239)',
+        'rgb(255, 255, 255)',
       )
       await expect(
         page.getByRole('button', { name: 'Appearance', exact: true }),
@@ -1062,7 +1062,10 @@ try {
         'All projects',
         'Create a project',
       ])
-      await expect(page.getByRole('main')).toHaveCSS('color', 'rgb(73, 80, 87)')
+      await expect(page.getByRole('main')).toHaveCSS(
+        'color',
+        'rgb(115, 115, 115)',
+      )
       const bands = await page.locator('.ui-dashboard').evaluate((shell) => {
         const box = (selector) => {
           const rect = shell.querySelector(selector).getBoundingClientRect()

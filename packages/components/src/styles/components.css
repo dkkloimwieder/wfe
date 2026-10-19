@@ -882,6 +882,7 @@
 }
 :where([data-ui]) .ui-label {
   font-weight: var(--ui-label-weight, 500);
+  line-height: var(--ui-label-line-height, inherit);
 }
 :where([data-ui]) .ui-help {
   color: var(--ui-muted-text, #555);
@@ -896,7 +897,7 @@
 :where([data-ui]) .ui-field-set {
   margin: 0;
   min-width: 0;
-  padding: var(--ui-cell-padding-x, 8px);
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
   border: 1px solid var(--ui-border, #ccc);
 }
 :where([data-ui]) .ui-input-group {

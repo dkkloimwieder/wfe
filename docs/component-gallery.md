@@ -59,7 +59,13 @@ Unknown example IDs fall back to Fields. Invalid presentation values fall back t
 ## Shared presentation
 
 The gallery and reused standalone examples share `examples/shared/appearance/sizing.ts`.
-Their standard controls use a 32-pixel height and 10-pixel horizontal padding.
+The examples use Fira Code Variable with its unchanged SIL Open Font License in the shared font directory.
+Controls and labels use 12-pixel text. Controls use a 32-pixel height and 10-pixel horizontal padding.
+The root size is 16 pixels.
+Light surfaces use white with dark text. Dark panels use #171717 over a #0a0a0a canvas.
+Dark inputs use a faint white fill and border. Focus uses a one-pixel neutral ring.
+Blue accents and outline buttons retain the selected presentation.
+Table dividers retain their separate contrast scale, so matching canvas and panel surfaces do not hide gridlines.
 Fields use an 8-pixel label gap. Example sections use a 20-pixel gap, and action rows use an 8-pixel gap.
 The same measurements apply in Light and Dark.
 

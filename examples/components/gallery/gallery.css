@@ -7,7 +7,7 @@ body:has(.gallery-preview) {
   min-width: 0;
 }
 .gallery-dashboard {
-  --ui-navigation-width: 18rem;
+  --ui-navigation-width: 13.5rem;
 }
 .gallery-dashboard .ui-dashboard-header,
 .gallery-dashboard .ui-dashboard-navigation {
