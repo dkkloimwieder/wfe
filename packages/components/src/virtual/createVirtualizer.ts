@@ -121,6 +121,11 @@ export function createTableVirtualizer<Key extends string | number>(
   let previous = untrack(configuration)
   let pendingAnchor: { key: Key; within: number; offset: number } | undefined
   let anchorFrame: number | undefined
+  function cancelAnchor() {
+    if (anchorFrame !== undefined) cancelAnimationFrame(anchorFrame)
+    anchorFrame = undefined
+    pendingAnchor = undefined
+  }
   function restoreAnchor() {
     anchorFrame = undefined
     const anchor = pendingAnchor
@@ -190,8 +195,7 @@ export function createTableVirtualizer<Key extends string | number>(
       disposed = true
       mounted = false
       cleanup()
-      if (anchorFrame !== undefined) cancelAnimationFrame(anchorFrame)
-      pendingAnchor = undefined
+      cancelAnchor()
       instance.elementsCache.clear()
       instance.itemSizeCache.clear()
     }
@@ -243,11 +247,16 @@ export function createTableVirtualizer<Key extends string | number>(
         options.mode === 'measured'
           ? options.keys.indexOf(key)
           : (options.getIndexForKey?.(key) ?? lookup().get(key)?.index ?? -1)
-      if (index >= 0) instance.scrollToIndex(index, { align: 'auto' })
+      if (index >= 0) {
+        cancelAnchor()
+        instance.scrollToIndex(index, { align: 'auto' })
+      }
       return index >= 0
     },
-    scrollToIndex: (index: number) =>
-      instance.scrollToIndex(index, { align: 'start' }),
+    scrollToIndex: (index: number) => {
+      cancelAnchor()
+      instance.scrollToIndex(index, { align: 'start' })
+    },
     /** Exposed for geometry diagnostics, never used to store Table records. */
     instance,
   } satisfies VirtualWindow<Key> & {

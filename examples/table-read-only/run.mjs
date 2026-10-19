@@ -110,6 +110,7 @@ const server = createServer(async (request, response) => {
   }
 })
 let browser
+let page
 try {
   await new Promise((done, reject) => {
     server.once('error', reject)
@@ -119,7 +120,7 @@ try {
     executablePath: process.env.BENCH_EXECUTABLE_PATH,
   })
   report.browser = browser.version()
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   page.on('pageerror', (error) => report.errors.push(error.stack))
   page.on('console', (message) => {
     if (['warning', 'error'].includes(message.type()))
@@ -404,6 +405,23 @@ try {
   assert.deepEqual(report.warnings, [])
 } catch (error) {
   report.failure = error.stack
+  // Capture only after failure so diagnostics do not change scroll timing.
+  report.failureGeometry = await page
+    ?.evaluate(() => {
+      const viewport = document.querySelector('.table-scroll')
+      return {
+        scrollTop: viewport?.scrollTop,
+        scrollHeight: viewport?.scrollHeight,
+        clientHeight: viewport?.clientHeight,
+        headerHeight: viewport?.querySelector('thead')?.getBoundingClientRect()
+          .height,
+        rows: [...document.querySelectorAll('tr[data-row]')].map(
+          (row) => row.dataset.row,
+        ),
+        activeElement: document.activeElement?.outerHTML,
+      }
+    })
+    .catch(() => undefined)
   process.exitCode = 1
 } finally {
   await browser?.close()

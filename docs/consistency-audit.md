@@ -279,4 +279,7 @@ The audit does not treat these different example profiles as complete visual con
 
 The packaged virtual-selection test also failed intermittently during this audit.
 Source, instrumented package, and the final unmodified package runs pass.
-The cause remains unconfirmed and is tracked as `wfe-47e`; the original failure reports remain available.
+A deterministic test reproduced a stale anchor restoration after explicit navigation.
+The adapter now cancels that restoration when navigation occurs.
+The original browser failure remains unconfirmed and tracked as `wfe-47e`.
+Failure-only geometry capture now preserves the scroll position and mounted row IDs without changing normal test timing.

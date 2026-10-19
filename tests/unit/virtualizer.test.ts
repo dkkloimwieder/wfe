@@ -171,3 +171,79 @@ test('fixed geometry supports distant ranges, header offsets, overscan, and coun
     'one lane',
   )
 })
+
+for (const mode of ['fixed', 'measured'] as const) {
+  for (const action of [
+    'key',
+    'index',
+    'invalid',
+    'none',
+    'dispose',
+  ] as const) {
+    test(`${mode} queued anchor restoration respects ${action} navigation`, () => {
+      const frames = new Map<number, FrameRequestCallback>()
+      let sequence = 0
+      vi.stubGlobal(
+        'requestAnimationFrame',
+        (callback: FrameRequestCallback) => {
+          frames.set(++sequence, callback)
+          return sequence
+        },
+      )
+      vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id))
+      const h = createRoot((dispose) => {
+        const [margin, setMargin] = createSignal(0)
+        const virtualizer = createTableVirtualizer({
+          ...(mode === 'fixed'
+            ? {
+                mode,
+                count: 1000,
+                rowHeight: 32,
+                getItemKey: (index: number) => `r${index}`,
+                getIndexForKey: (key: string) =>
+                  key === 'r500' ? 500 : undefined,
+              }
+            : {
+                mode,
+                keys: Array.from({ length: 1000 }, (_, index) => `r${index}`),
+                estimateSize: () => 32,
+              }),
+          getScrollElement: () => null,
+          initialRect: { width: 200, height: 100 },
+          get scrollMargin() {
+            return margin()
+          },
+        })
+        return { virtualizer, setMargin, dispose }
+      })
+      try {
+        flush()
+        const restore = vi.spyOn(h.virtualizer.instance, 'scrollToOffset')
+        const navigate = vi.spyOn(h.virtualizer.instance, 'scrollToIndex')
+        h.setMargin(24)
+        flush()
+        expect(frames.size).toBe(1)
+        if (action === 'key')
+          expect(h.virtualizer.scrollToKey('r500')).toBe(true)
+        if (action === 'index') h.virtualizer.scrollToIndex(500)
+        if (action === 'invalid')
+          expect(h.virtualizer.scrollToKey('missing')).toBe(false)
+        if (action === 'dispose') h.dispose()
+        for (const callback of frames.values()) callback(0)
+        if (action === 'key' || action === 'index') {
+          expect(navigate).toHaveBeenCalledWith(500, {
+            align: action === 'key' ? 'auto' : 'start',
+          })
+          expect(restore).not.toHaveBeenCalled()
+        } else if (action === 'dispose') {
+          expect(restore).not.toHaveBeenCalled()
+        } else {
+          expect(restore).toHaveBeenCalledOnce()
+        }
+      } finally {
+        h.dispose()
+        vi.unstubAllGlobals()
+      }
+    })
+  }
+}
