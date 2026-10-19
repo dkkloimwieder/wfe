@@ -40,5 +40,4 @@ Analytics and measured native rows use the same package exports.
 The native virtualizer tests consume the public factory export.
 They test shared engine identity, one million fixed rows, bounded key reads, measurements, and disposal.
 Browser cases test paging, density, wrapping, row expansion, pinning, resizing, anchors, and keyboard navigation.
-The WAMN fixture also consumes the same binding.
 From the repository root, use `node scripts/check-virtual.mjs` to test source and license hashes.

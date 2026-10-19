@@ -1,5 +1,16 @@
 # Adopt the components
 
+## v0.0.1 additions
+
+The integrated baseline uses Git tag `v0.1.0` and includes six additions:
+
+- W1: Described shells with application-owned audiences, routes, and navigation.
+- W2: Controlled boolean grids through GridDescription and GridView.
+- W3: StatusTile and TileRow for formatted values and explicit states.
+- W4: Optional field labels that default to keys, plus shared display formats.
+- W5: Repeated scalar form groups with add/remove controls and per-row errors.
+- W6: DetailDescription/DetailView and DeleteDescription/DeleteView for record display and confirmation.
+
 Use `@wfe/components` from the application workspace.
 The package currently remains private.
 Add the workspace dependency to the application package:
