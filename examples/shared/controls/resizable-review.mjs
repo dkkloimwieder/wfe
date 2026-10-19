@@ -297,6 +297,17 @@ export async function reviewResizable(page, api) {
     ]
     node.querySelector('.table-scroll').scrollTop = 50
   })
+  const assertTableFill = async () => {
+    const sizes = await workspace.locator('.table-scroll').evaluate((node) => ({
+      viewport: node.clientWidth,
+      table: node.querySelector('table').getBoundingClientRect().width,
+    }))
+    assert.ok(
+      Math.abs(sizes.table - sizes.viewport) <= 1,
+      JSON.stringify(sizes),
+    )
+  }
+  await assertTableFill()
   const originalHeight = (await workspace.boundingBox()).height
   const widthBefore = (await panel.boundingBox()).width
   await drag(tableHandle, 40, 0)
@@ -341,10 +352,12 @@ export async function reviewResizable(page, api) {
         Number(await tableHandle.getAttribute('aria-valuenow')) - ratio,
       ) < 0.1,
     )
+    await assertTableFill()
     const expandedSize = await tableHandle.getAttribute('aria-valuenow')
     const retainedRequests = (await read()).tableRequests.length
     await tableHandle.dblclick()
     await expect(panel).not.toBeVisible()
+    await assertTableFill()
     await expect(tableHandle).toBeFocused()
     await expect(tableHandle).toHaveAttribute('aria-valuenow', '0')
     await tableHandle.press('Home')

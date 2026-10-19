@@ -268,10 +268,15 @@ Independent visual review found invisible loading placeholders and different tab
 Skeletons now use `--ui-skeleton-surface`, with the existing muted surface as the fallback.
 Table control labels use the shared label style without passing label weight into their controls.
 The gallery now places examples on solid panels above the shared dotted canvas.
-The separate table-width issue remains tracked as `wfe-dw4`.
+The shared table now fills its container when no pixel width is supplied (`wfe-dw4`).
+Explicit pixel widths retain their column sizing and scrolling behavior.
 
 The generated examples reveal a separate sizing gap, tracked as `wfe-8ur`.
 Their nested layout reapplies compact defaults instead of the surrounding example sizing.
 Accent colors inherit correctly.
 Generator panel shadows remain explicit example rules, while gallery panels use plain borders.
 The audit does not treat these different example profiles as complete visual consistency.
+
+The packaged virtual-selection test also failed intermittently during this audit.
+Source, instrumented package, and the final unmodified package runs pass.
+The cause remains unconfirmed and is tracked as `wfe-47e`; the original failure reports remain available.

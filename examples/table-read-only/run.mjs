@@ -145,6 +145,45 @@ try {
     report.cases.push({ name, status: 'passed' })
     console.log(`PASS ${name}`)
   }
+  await test('Default tables fill their scroll area and explicit widths remain exact', async () => {
+    for (const width of [1280, 390]) {
+      await page.setViewportSize({ width, height: 900 })
+      await page.evaluate(() => window.readOnlyFixture.start())
+      const assertFill = async () => {
+        const sizes = await page.locator('.table-scroll').evaluate((node) => ({
+          viewport: node.clientWidth,
+          table: node.querySelector('table').getBoundingClientRect().width,
+        }))
+        assert.ok(
+          Math.abs(sizes.table - sizes.viewport) <= 1,
+          JSON.stringify(sizes),
+        )
+      }
+      await assertFill()
+      await page.evaluate(() => window.readOnlyFixture.replace([]))
+      await assertFill()
+      for (const exact of [600, 1800]) {
+        await page.evaluate(
+          (exact) => window.readOnlyFixture.start(false, exact),
+          exact,
+        )
+        const size = await page
+          .locator('table')
+          .evaluate((node) => node.getBoundingClientRect().width)
+        assert.ok(
+          Math.abs(size - exact) <= 1,
+          `Expected ${exact}px, received ${size}px`,
+        )
+      }
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+        true,
+      )
+    }
+    await page.setViewportSize({ width: 1280, height: 900 })
+  })
   await test('Read-only sorting uses numeric values and exposes no editing controls', async () => {
     assert.equal(await page.getByRole('button', { name: /^Save/ }).count(), 0)
     assert.equal(

@@ -49,6 +49,7 @@ export function Table<T, M>(props: {
   canToggleGroup?: () => boolean
   leading?: TableEdge
   trailing?: TableEdge
+  /** Exact pixel width when supplied. Otherwise the table fills its container. */
   width?: number
   elementRef?: (element: HTMLTableElement) => void
   onGroupMount?: () => void
@@ -101,9 +102,9 @@ export function Table<T, M>(props: {
             ? 'Drag cells or use Shift with arrow keys. Shift Space selects rows. Control or Command Space selects columns. Copy uses the normal shortcut.'
             : undefined
         }
-        style={
-          props.width === undefined ? undefined : { width: `${props.width}px` }
-        }
+        style={{
+          width: props.width === undefined ? '100%' : `${props.width}px`,
+        }}
       >
         <Show when={props.caption}>
           <caption>{props.caption}</caption>

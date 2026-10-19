@@ -63,7 +63,7 @@ function stop() {
   readStats = undefined
   flush()
 }
-function start(virtual = false) {
+function start(virtual = false, width?: number) {
   stop()
   events.push(...(capture?.stop() ?? []))
   capture = OBSERVE?.diagnostics.capture()
@@ -185,7 +185,7 @@ function start(virtual = false) {
             />
           </div>
         ) : (
-          <ReadOnlyTable table={table} selection={selection} />
+          <ReadOnlyTable table={table} selection={selection} width={width} />
         )}
       </main>
     )

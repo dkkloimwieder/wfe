@@ -77,6 +77,17 @@ export async function galleryCases({ page, url, record, settle }) {
             }
           }
           if (id === 'table') {
+            const sizes = await preview()
+              .locator('.table-scroll')
+              .evaluate((node) => ({
+                viewport: node.clientWidth,
+                table: node.querySelector('table').getBoundingClientRect()
+                  .width,
+              }))
+            assert.ok(
+              Math.abs(sizes.table - sizes.viewport) <= 1,
+              JSON.stringify(sizes),
+            )
             for (const label of await preview()
               .locator('.table-filter > label')
               .all()) {
