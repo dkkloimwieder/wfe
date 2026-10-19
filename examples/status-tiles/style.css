@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+}
+.tiles-example {
+  height: 100dvh;
+  padding: var(--ui-gap, 6px);
+  box-sizing: border-box;
+}
+.tiles-example-title {
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+}

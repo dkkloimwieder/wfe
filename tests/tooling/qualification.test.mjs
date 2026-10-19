@@ -32,6 +32,7 @@ test('qualification selects shared toolchain and package changes', () => {
 test('qualification covers both browser inputs and keeps heap work separate', () => {
   const stages = qualificationStages('/tmp/solid-gates')
   for (const fixture of [
+    'status-tiles',
     'grid',
     'shell',
     'charts',
@@ -91,6 +92,20 @@ test('qualification covers both browser inputs and keeps heap work separate', ()
   const fallback = stages.find(({ name }) => name === 'charts-fallback-browser')
   assert.equal(fallback.env.BENCH_CHART_FALLBACK, '1')
   for (const mode of ['source', 'distribution', 'development']) {
+    const tiles = stages.find(
+      ({ name }) => name === `status-tiles-hydration-${mode}`,
+    )
+    assert.equal(tiles.args.at(-2), 'examples/status-tiles/run.mjs')
+    assert.equal(tiles.args.at(-1), '--hydration')
+    assert.equal(
+      tiles.env.BENCH_DISTRIBUTION,
+      mode === 'distribution' ? '1' : '',
+    )
+    assert.equal(tiles.env.BENCH_DEVELOPMENT, mode === 'development' ? '1' : '')
+    assert.equal(
+      tiles.env.BENCH_OUTPUT,
+      `/tmp/solid-gates/status-tiles-hydration-${mode}.json`,
+    )
     const grid = stages.find(({ name }) => name === `grid-hydration-${mode}`)
     assert.equal(grid.args.at(-2), 'examples/grid/run.mjs')
     assert.equal(grid.args.at(-1), '--hydration')

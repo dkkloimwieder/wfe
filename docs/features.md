@@ -21,18 +21,18 @@ The [ownership contract](contracts/UI-BOUNDARIES.md) separates these responsibil
 
 ## Controls and feedback
 
-| Area                    | Implemented functionality                                                                                 | Guide or source                                                                                                                     |
-| ----------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Text and fields         | `Input`, `Textarea`, `Field`, `Label`, `HelpText`, `FieldError`, `FieldSet`, and `InputGroup`             | [Native field exports](../packages/components/src/components/NativeFields.tsx)                                                      |
-| Actions                 | `Button` and `IconButton`, outline/filled/inverted/ghost variants, neutral/accent tones                   | [Buttons](button-variants.md)                                                                                                       |
-| Choices                 | `Select`, `SelectField`, `Combobox`, `Checkbox`, `Switch`, and `RadioGroup`                               | [Adoption](adoption.md) and [gallery](component-gallery.md)                                                                         |
-| Numbers                 | Numeric drafts, bounds, empty-value policy, controlled acceptance, and keyboard interaction               | [NumberInput](number-inputs.md)                                                                                                     |
-| Dates                   | `Calendar` and `DatePicker`, month/year selection, bounds, clearing, and date-only values                 | [Calendar and picker](date-picker.md)                                                                                               |
-| Datetimes               | `DateTimePicker`, display patterns, UTC/IANA/browser zones, and explicit DST disambiguation               | [Date and datetime inputs](date-inputs.md)                                                                                          |
-| Files                   | Controlled file selection, multiple files, acceptance rules, rejection details, and reset                 | [FileInput](file-input.md)                                                                                                          |
-| Floating UI             | `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `DropdownMenu`, and `Tooltip`                                | [Root exports](../packages/components/src/index.ts) and [gallery](component-gallery.md)                                             |
-| Feedback                | `Badge`, `Card`, `Separator`, `InlineAlert`, `EmptyState`, `Spinner`, `Skeleton`, `Progress`, and `Toast` | [Display source](../packages/components/src/components/Display.tsx) and [Toast](../packages/components/src/components/Toast.tsx)    |
-| Navigation and sections | Tabs, breadcrumbs, collapsible content, accordion, and resizable panes                                    | [Tabs](tabs.md), [breadcrumbs](breadcrumbs.md), [collapsible](collapsible.md), [accordion](accordion.md), [resizable](resizable.md) |
+| Area                    | Implemented functionality                                                                                                          | Guide or source                                                                                                                     |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Text and fields         | `Input`, `Textarea`, `Field`, `Label`, `HelpText`, `FieldError`, `FieldSet`, and `InputGroup`                                      | [Native field exports](../packages/components/src/components/NativeFields.tsx)                                                      |
+| Actions                 | `Button` and `IconButton`, outline/filled/inverted/ghost variants, neutral/accent tones                                            | [Buttons](button-variants.md)                                                                                                       |
+| Choices                 | `Select`, `SelectField`, `Combobox`, `Checkbox`, `Switch`, and `RadioGroup`                                                        | [Adoption](adoption.md) and [gallery](component-gallery.md)                                                                         |
+| Numbers                 | Numeric drafts, bounds, empty-value policy, controlled acceptance, and keyboard interaction                                        | [NumberInput](number-inputs.md)                                                                                                     |
+| Dates                   | `Calendar` and `DatePicker`, month/year selection, bounds, clearing, and date-only values                                          | [Calendar and picker](date-picker.md)                                                                                               |
+| Datetimes               | `DateTimePicker`, display patterns, UTC/IANA/browser zones, and explicit DST disambiguation                                        | [Date and datetime inputs](date-inputs.md)                                                                                          |
+| Files                   | Controlled file selection, multiple files, acceptance rules, rejection details, and reset                                          | [FileInput](file-input.md)                                                                                                          |
+| Floating UI             | `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `DropdownMenu`, and `Tooltip`                                                         | [Root exports](../packages/components/src/index.ts) and [gallery](component-gallery.md)                                             |
+| Feedback                | `Badge`, `Card`, `Separator`, `InlineAlert`, `EmptyState`, `Spinner`, `Skeleton`, `Progress`, `Toast`, `StatusTile`, and `TileRow` | [Display source](../packages/components/src/components/Display.tsx) and [Toast](../packages/components/src/components/Toast.tsx)    |
+| Navigation and sections | Tabs, breadcrumbs, collapsible content, accordion, and resizable panes                                                             | [Tabs](tabs.md), [breadcrumbs](breadcrumbs.md), [collapsible](collapsible.md), [accordion](accordion.md), [resizable](resizable.md) |
 
 `SelectField` composes the shared Select for ordinary string choices.
 `NativeSelect` remains a compatibility export for native interoperability cases.
@@ -140,7 +140,7 @@ Their source directories retain exact licenses, upstream references, hashes, and
 The [adoption guide](adoption.md) and [vendor procedure](../packages/components/src/vendor/kobalte/README.md) describe these boundaries.
 The [qualification guide](qualification.md) documents serial checks, browser delivery modes, hydration, cleanup, and vendor audits.
 
-## Planned additions
+## Plan status
 
 The [shell, grid, tiles, and labels plan](plan/wfe-shell-grid-tiles.md) records delivered and proposed APIs.
 `@wfe/shell` supplies the described renderer and metadata guards. The [six-route example](../examples/shell/README.md) covers browser history, narrow drawers, and hydration.
@@ -148,7 +148,7 @@ The [shell, grid, tiles, and labels plan](plan/wfe-shell-grid-tiles.md) records 
 `GridView` renders the shared checkbox matrix with read-only columns, disabled rows, stable cells, and accessible row/column names.
 The [30 by 5 example](../examples/grid/README.md) covers keyboard input, controlled requests, reordering, narrow scrolling, and hydration.
 `StatusTile` composes Card, Badge, and ValueDisplay for explicit ok/warning/unknown states.
-`TileRow` uses the existing responsive grid. Their full example and browser qualification remain in progress under W3.
+`TileRow` uses the existing responsive grid. The [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) cover formats, long text, shared appearance, and hydration.
 Repeated form groups and generated detail/delete views also remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.

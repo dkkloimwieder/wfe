@@ -160,3 +160,7 @@ Read the [generator contract](generator-contract.md) for keyed metadata and cont
 
 `GridView` renders that metadata through shared Checkbox controls without creating another form or table coordinator.
 The [grid example](../examples/grid/README.md) demonstrates 150 cells, independent scrolling, and retained input owners.
+
+StatusTile presents application-supplied values and explicit states through the existing display components.
+TileRow reuses the responsive DashboardGrid. It adds no form coordinator or application controller.
+Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) for read-only composition and formats.

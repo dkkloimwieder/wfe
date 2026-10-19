@@ -25,6 +25,8 @@ Shell hydration preserves server nodes and initial focus, including direct links
 Narrow drawer cases cover heading focus, Escape, rejected navigation, and disposal of history listeners.
 Grid cases cover 150 controlled checkboxes, read-only columns, disabled rows, retained focus, and narrow scrolling.
 Grid hydration retains all 150 server inputs and the initial focus.
+Status tile cases cover controlled values and states, raw formats, full text, shared themes, shadows, narrow wrapping, and forced colors.
+Tile hydration retains server nodes and initial heading focus.
 The bundle guard rejects modules outside the wfe checkout.
 
 The runner executes stages serially and stops at the first failure.

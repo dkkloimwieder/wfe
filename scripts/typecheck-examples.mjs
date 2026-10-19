@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 for (const example of [
+  'status-tiles',
   'grid',
   'shell',
   'charts',

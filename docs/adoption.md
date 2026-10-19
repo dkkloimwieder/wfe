@@ -271,3 +271,7 @@ export function CapabilityGrid() {
 
 The [grid example](../examples/grid/README.md) supplies 30 rows and five columns.
 Its callbacks own accepted values. The generator owns no save or authorization policy.
+
+StatusTile presents application-supplied values and explicit states through the existing display components.
+TileRow reuses the responsive DashboardGrid. It adds no form coordinator or application controller.
+Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) for read-only composition and formats.

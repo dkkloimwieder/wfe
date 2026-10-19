@@ -89,3 +89,9 @@ Use `examples/shell/vite.config.ts` on an unused port to inspect it.
 The [grid example](grid/README.md) renders 30 rows and five columns from GridDescription.
 It uses shared Checkbox controls and reports one application request for each change.
 Use `examples/grid/vite.config.ts` on an unused port to inspect it.
+
+## Status tiles
+
+The [status tile example](status-tiles/README.md) shows all states, formats, long text, and missing detail.
+It uses the same appearance roles and responsive grid as other components.
+Use `examples/status-tiles/vite.config.ts` on an unused port to inspect it.

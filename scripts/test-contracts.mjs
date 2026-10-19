@@ -34,7 +34,9 @@ const document =
   '\n' +
   readFileSync(resolve(packageRoot, 'docs/file-input.md'), 'utf8') +
   '\n' +
-  readFileSync(resolve(packageRoot, 'docs/charts.md'), 'utf8')
+  readFileSync(resolve(packageRoot, 'docs/charts.md'), 'utf8') +
+  '\n' +
+  readFileSync(resolve(packageRoot, 'docs/status-tiles.md'), 'utf8')
 const configPath = resolve(packageRoot, 'packages/components/tsconfig.json')
 const config = ts.readConfigFile(configPath, ts.sys.readFile)
 if (config.error)

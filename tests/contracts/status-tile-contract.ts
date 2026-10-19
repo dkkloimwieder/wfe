@@ -15,7 +15,11 @@ const props: StatusTileProps = {
   tabindex: 0,
   onClick: () => {},
 }
-const row: TileRowProps = { 'aria-label': 'Summary', class: 'summary' }
+const row: TileRowProps = {
+  role: 'group',
+  'aria-label': 'Summary',
+  class: 'summary',
+}
 StatusTile(props)
 TileRow(row)
 // @ts-expect-error Application state names do not extend the display states.

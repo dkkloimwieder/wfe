@@ -210,3 +210,7 @@ Set a definite parent height when the grid must fill a page.
 Applications use normal Tab navigation. The grid does not add spreadsheet keyboard commands.
 The [30 by 5 example](../examples/grid/README.md) demonstrates keyboard and pointer changes, controlled rejection, reordering, and hydration.
 The [type contract](../tests/contracts/grid-contract.ts) rejects unknown row/column IDs and nonboolean values.
+
+StatusTile presents application-supplied values and explicit states through the existing display components.
+TileRow reuses the responsive DashboardGrid. It adds no form coordinator or application controller.
+Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) for read-only composition and formats.
