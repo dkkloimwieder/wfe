@@ -152,3 +152,8 @@ Read the [shell guide](../packages/shell/README.md) for controlled navigation an
 
 The [shell example](../examples/shell/README.md) combines two audiences, six routes, generated tables, and generated forms.
 Its application owns browser history and retains form values across page changes.
+
+`GridDescription` supplies independent row/column metadata for boolean cells.
+Its application bindings own accepted cell values and one change callback.
+The grid does not create a form contract or a table engine.
+Read the [generator contract](generator-contract.md) for keyed metadata and controlled values.

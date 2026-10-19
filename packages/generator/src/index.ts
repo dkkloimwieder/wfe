@@ -28,3 +28,14 @@ export type {
   ChartDescription,
   ChartViewBindings,
 } from './chart/types'
+
+export type {
+  GridRowDescription,
+  GridColumnDescription,
+  GridDescription,
+  GridRowId,
+  GridColumnId,
+  GridCellChange,
+  GridBindings,
+  GridViewProps,
+} from './gridTypes'

@@ -180,3 +180,20 @@ Read the [shell guide](../packages/shell/README.md) for navigation bindings and 
 
 The [shell example](../examples/shell/README.md) combines two audiences, six routes, generated tables, and generated forms.
 Its application owns browser history and retains form values across page changes.
+
+## Boolean grid metadata
+
+`GridDescription` describes stable row and column IDs with labels.
+Rows accept an optional `disabled` flag. Columns accept an optional `readOnly` flag.
+Both axes retain their declared order and can be empty.
+The grid ID identifies a mounted view. Labels never define identity.
+
+`GridBindings<D>` supplies `value(row, column)` and one `onValueChange` callback.
+The getter returns the accepted boolean for that cell.
+A change request contains `{ row, column, value }` with literal row and column IDs.
+The application accepts or rejects each request and owns saves, validation, and permissions.
+A read-only column supplies presentation metadata, not an authorization rule.
+Descriptions contain no records, callbacks, transport, or permission decisions.
+
+The renderer and 30 by 5 example follow these contracts in the next W2 issues.
+The [type contract](../tests/contracts/grid-contract.ts) rejects unknown row/column IDs and nonboolean values.

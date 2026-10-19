@@ -62,8 +62,9 @@ host.fileExists = (path) => files.has(path) || fileExists(path)
 const generator = resolve(packageRoot, 'tests/contracts/generator-contract.ts')
 const chart = resolve(packageRoot, 'tests/contracts/chart-contract.ts')
 const shell = resolve(packageRoot, 'tests/contracts/shell-contract.ts')
+const grid = resolve(packageRoot, 'tests/contracts/grid-contract.ts')
 const program = ts.createProgram(
-  [...files.keys(), generator, chart, shell],
+  [...files.keys(), generator, chart, shell, grid],
   parsed.options,
   host,
 )
