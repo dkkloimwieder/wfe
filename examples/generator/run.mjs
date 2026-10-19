@@ -1,3 +1,4 @@
+import { reviewRepeated, reviewRepeatedServer } from './review-repeated.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
@@ -15,6 +16,12 @@ import { reviewDispatch } from './review-dispatch.mjs'
 import { reviewRecordsWorkflow } from './review-records-workflow.mjs'
 
 const defaultApplications = {
+  repeated: {
+    label: 'title',
+    value: 'Repeated records',
+    server: reviewRepeatedServer,
+    review: reviewRepeated,
+  },
   formats: {
     label: 'note',
     value: 'Raw note',

@@ -97,3 +97,12 @@ The browser cases change labels, aliases, date patterns, and timezones without r
 The same cases cover server output, hydration, native prefix selection, narrow layouts, and disposal.
 The full hash remains available through its title and accessible label.
 Native text selection copies the displayed prefix. Raw table values and submission snapshots retain the complete identifier.
+
+## Repeated form
+
+Open `/?app=repeated` to use a generated form with one repeated group.
+Save the initial form to show an application-provided error for the second row.
+Change its name from Second and save again.
+Add row and Remove row use application-owned values, stable keys, and a row factory.
+The form fills its main panel and scrolls within that panel on smaller screens.
+The browser suites cover row errors, accepted and rejected requests, locked groups, retained drafts, focus, raw snapshots, hydration, and disposal.

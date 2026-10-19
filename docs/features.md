@@ -153,6 +153,7 @@ Generated fields and columns accept shared formats, with custom components takin
 Read-only fields use the shared FieldValue output. Editable controls retain their input behavior.
 The [format example](../examples/generator/FormatsApp.tsx) covers all requested formats in generated forms and tables.
 Repeated form groups reuse the scalar controls, with application-supplied keys and row factories.
-Their example and browser qualification are the next W5 task. Generated detail/delete views remain planned.
+The [repeated form example](../examples/generator/RepeatedApp.tsx) covers submitted row errors, raw snapshots, row changes, retained drafts, and hydration.
+Generated detail/delete views remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.

@@ -176,3 +176,6 @@ The shared layout controls the pane sizes and narrow-screen arrangement.
 Repeated form groups compose the existing FieldGroup and FormGrid components.
 Their `columns` value controls each row's scalar fields. Existing container widths determine when those fields stack.
 The group span follows the surrounding form grid, and row actions use the shared form action style.
+
+The [repeated form example](../examples/generator/RepeatedApp.tsx) uses one full-height main panel.
+Its rows stack on narrow screens and retain their controls through row and child-field reorders.

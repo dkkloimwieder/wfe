@@ -19,7 +19,7 @@ Repeated lists require an array, including an empty array when there are no rows
 Rows use own enumerable scalar fields.
 Nested records, nested lists, hidden row properties, and class instances are outside this value contract.
 Field names and corresponding value types come from `T`.
-Nested records, repeating fields, field arrays, and schema inference remain outside this first contract.
+Nested repeated groups and schema inference remain outside this contract.
 
 The application supplies accepted values through the `values()` accessor.
 It replaces immutable objects when values change.
@@ -374,3 +374,5 @@ export function RepeatedEditor() {
   )
 }
 ```
+
+The [repeated form example](../examples/generator/RepeatedApp.tsx) submits row errors and retries through the same coordinator.

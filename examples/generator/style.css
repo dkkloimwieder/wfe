@@ -117,3 +117,13 @@ h2 {
 .generated-formats table {
   min-width: 100%;
 }
+
+.generated-repeated {
+  height: 100%;
+  min-width: 0;
+}
+.generated-repeated .ui-form {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}

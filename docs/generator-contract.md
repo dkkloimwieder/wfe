@@ -292,3 +292,12 @@ Nested numeric and date drafts use the existing form-level guard before the sing
 Accepted additions focus the new row when focus remains on Add row.
 Accepted removal returns focus to Add row when focus remains on the removed action.
 Rejected changes retain the accepted controls and focus.
+
+## Repeated form example
+
+Open `/?app=repeated` in the generator preview.
+The [example](../examples/generator/RepeatedApp.tsx) supplies accepted rows, stable keys, a row factory, validation, and submission callbacks.
+Save the initial form to show an application error for the second row.
+Change that row's name and save again.
+Add row and Remove row request complete lists through the same form contract.
+The example also tests rejected requests, locked groups, retained numeric drafts, narrow screens, hydration, and disposal.

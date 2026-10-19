@@ -295,3 +295,6 @@ Use `control: 'repeat'` with scalar child descriptions and `bindings.repeated[fi
 The application accepts each requested list through its value callback and supplies errors by stable row key.
 Nested choices and custom fields use the repeated binding.
 Row additions, removals, and edits never create a second submission callback.
+
+The [repeated form example](../examples/generator/RepeatedApp.tsx) uses one full-height main panel.
+Its rows stack on narrow screens and retain their controls through row and child-field reorders.

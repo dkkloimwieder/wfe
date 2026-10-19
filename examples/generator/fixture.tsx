@@ -9,6 +9,7 @@ import type {
   DispatchResponse,
   DispatchValues,
 } from './dispatch-provider'
+import type { RepeatedConfiguration } from './RepeatedApp'
 import type { DateDemoConfiguration } from './DateApp'
 import type { FormErrors, FormReply, FormOutcome } from '@wfe/form'
 import './style.css'
@@ -81,6 +82,12 @@ export function createFixture(
         ),
         document.getElementById('root')!,
       )
+      flush()
+    },
+    repeatedConfiguration(next: Partial<RepeatedConfiguration>) {
+      if (app?.kind !== 'repeated')
+        throw new Error('This operation needs the repeated example')
+      app.configure(next)
       flush()
     },
     dateConfiguration(next: Partial<DateDemoConfiguration>) {

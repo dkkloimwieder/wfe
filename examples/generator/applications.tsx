@@ -1,3 +1,5 @@
+import { RepeatedApp } from './RepeatedApp'
+import type { createRepeatedApplication } from './RepeatedApp'
 import { FormatsApp } from './FormatsApp'
 import type { createFormatsApplication } from './FormatsApp'
 import { DateApp } from './DateApp'
@@ -10,6 +12,7 @@ import type { createRecordsApplication } from './records-application'
 import type { createRecordsWorkflow } from './records-workflow'
 import type { createDispatchApplication } from './dispatch-application'
 export const applications = {
+  repeated: RepeatedApp,
   records: App,
   dispatch: DispatchApp,
   focus: FocusApp,
@@ -18,6 +21,7 @@ export const applications = {
 }
 export type ApplicationName = keyof typeof applications
 export type Application =
+  | ReturnType<typeof createRepeatedApplication>
   | ReturnType<typeof createFormatsApplication>
   | ReturnType<typeof createDateApplication>
   | ReturnType<typeof createFocusApplication>
@@ -25,6 +29,7 @@ export type Application =
   | ReturnType<typeof createRecordsWorkflow>
   | ReturnType<typeof createDispatchApplication>
 export function applicationName(value: string | null): ApplicationName {
+  if (value === 'repeated') return 'repeated'
   if (value === null || value === 'records') return 'records'
   if (value === 'formats') return 'formats'
   if (value === 'dates') return 'dates'
