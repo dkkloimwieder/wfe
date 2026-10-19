@@ -1,3 +1,4 @@
+import { choiceControl } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -482,6 +483,143 @@ try {
     )
     await page.setViewportSize({ width: 390, height: 800 })
     assert.equal(await page.locator('#root').textContent(), '')
+  })
+  await test('Organization bands and optional context use one shared grid and inset', async () => {
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.evaluate(() => {
+      window.layoutFixture.start()
+      window.layoutFixture.configure({ context: true, footer: true })
+    })
+    const geometry = await page.locator('#shell').evaluate((shell) => {
+      const box = (selector) => {
+        const node = shell.querySelector(selector),
+          rect = node.getBoundingClientRect()
+        return {
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          bottom: rect.bottom,
+          padding: getComputedStyle(node).paddingLeft,
+        }
+      }
+      return {
+        header: box('header'),
+        footer: box('footer'),
+        menu: box('.ui-dashboard-navigation'),
+        context: box('.ui-dashboard-context'),
+        main: box('main'),
+      }
+    })
+    assert.equal(geometry.header.left, 0)
+    assert.equal(geometry.header.right, 1280)
+    assert.equal(geometry.footer.left, 0)
+    assert.equal(geometry.footer.right, 1280)
+    assert.equal(geometry.menu.right, geometry.context.left)
+    assert.equal(geometry.context.right, geometry.main.left)
+    assert.equal(geometry.header.bottom, geometry.main.top)
+    assert.equal(geometry.footer.top, geometry.main.bottom)
+    assert.deepEqual(
+      new Set(Object.values(geometry).map((item) => item.padding)),
+      new Set(['8px']),
+    )
+    assert.equal(await page.locator('footer').textContent(), '')
+  })
+  await test('Context drafts survive responsive drawers and only one menu opens at a time', async () => {
+    const context = page.getByRole('navigation', {
+      name: 'Context navigation',
+      exact: true,
+    })
+    const primary = page.getByRole('navigation', {
+      name: 'Primary navigation',
+      exact: true,
+    })
+    const contextToggle = page.getByRole('button', {
+      name: 'Context',
+      exact: true,
+    })
+    const menuToggle = page.getByRole('button', {
+      name: 'Navigation',
+      exact: true,
+    })
+    const draft = context.getByRole('textbox', {
+      name: 'Context draft',
+      exact: true,
+    })
+    await draft.fill('Retained context')
+    const original = await draft.elementHandle()
+    await page.setViewportSize({ width: 900, height: 844 })
+    await expect(context).toBeHidden()
+    await expect(contextToggle).toBeFocused()
+    await expect(primary).toBeVisible()
+    await contextToggle.click()
+    await expect(draft).toHaveValue('Retained context')
+    assert.equal(
+      await draft.evaluate((node, before) => node === before, original),
+      true,
+    )
+    await page.setViewportSize({ width: 320, height: 844 })
+    await menuToggle.click()
+    await expect(primary).toBeVisible()
+    await expect(context).toBeHidden()
+    await expect(contextToggle).toHaveAttribute('aria-expanded', 'false')
+    await contextToggle.click()
+    await expect(primary).toBeHidden()
+    await expect(context).toBeVisible()
+    await expect(menuToggle).toHaveAttribute('aria-expanded', 'false')
+    await draft.focus()
+    await page.keyboard.press('Escape')
+    await expect(context).toBeHidden()
+    await expect(contextToggle).toBeFocused()
+    await contextToggle.click()
+    await choiceControl(page, { name: 'Context choice', exact: true }).click()
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('listbox')).toBeHidden()
+    await expect(context).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(context).toBeHidden()
+    await expect(contextToggle).toBeFocused()
+    assert.equal(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+      true,
+    )
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await expect(draft).toHaveValue('Retained context')
+    assert.equal(
+      (await page.evaluate(() => window.layoutFixture.read())).contextMounts,
+      1,
+    )
+  })
+  await test('Portaled context focus returns safely on breakpoint changes and context removal', async () => {
+    const context = page.getByRole('navigation', {
+      name: 'Context navigation',
+      exact: true,
+    })
+    const toggle = page.getByRole('button', { name: 'Context', exact: true })
+    await choiceControl(page, { name: 'Context choice', exact: true }).click()
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await page.setViewportSize({ width: 900, height: 844 })
+    await expect(toggle).toBeFocused()
+    await expect(context).toBeHidden()
+    await page.keyboard.press('Escape')
+    await toggle.click()
+    await choiceControl(page, { name: 'Context choice', exact: true }).click()
+    await expect(page.getByRole('listbox')).toBeVisible()
+    await page.evaluate(() =>
+      window.layoutFixture.configure({ context: false }),
+    )
+    await expect(context).toHaveCount(0)
+    await expect(page.getByRole('listbox')).toHaveCount(0)
+    await expect(page.getByRole('main')).toBeFocused()
+    await expect(
+      page.getByRole('contentinfo', { name: 'Workspace footer', exact: true }),
+    ).toBeVisible()
+    await page.evaluate(() => window.layoutFixture.stop())
+    const counts = await page.evaluate(() => window.layoutFixture.read())
+    assert.equal(counts.contextMounts, counts.contextCleanups)
+    assert.equal(counts.navigationMounts, counts.navigationCleanups)
   })
   const diagnostics = await page.evaluate(() =>
     window.layoutFixture.diagnostics(),

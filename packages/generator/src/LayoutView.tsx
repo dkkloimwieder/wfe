@@ -13,6 +13,17 @@ import type {
 import { ActionsView, requireValue, uniqueIds, validateActions } from './shared'
 import type { Actions } from './shared'
 
+function panelEntries(value: LayoutDescription) {
+  return (
+    [
+      ['main', value.panels],
+      ['navigation', value.navigation ?? []],
+      ['context', value.context ?? []],
+      ['footer', value.footer ?? []],
+    ] as const
+  ).flatMap(([region, panels]) => panels.map((panel) => ({ region, panel })))
+}
+
 export function LayoutView<D extends LayoutDescription>(props: {
   description: D
   bindings: LayoutViewBindings<D>
@@ -28,7 +39,7 @@ export function LayoutView<D extends LayoutDescription>(props: {
     )
     uniqueIds([value.id], 'layout')
     uniqueIds(
-      [...value.panels, ...(value.navigation ?? [])].map((panel) => panel.id),
+      panelEntries(value).map(({ panel }) => panel.id),
       'panel',
     )
     requireValue(
@@ -45,7 +56,7 @@ export function LayoutView<D extends LayoutDescription>(props: {
       value.actions ?? [],
       (props.bindings as { actions?: Actions }).actions,
     )
-    for (const panel of [...value.panels, ...(value.navigation ?? [])])
+    for (const { panel } of panelEntries(value))
       requireValue(
         Object.hasOwn(props.bindings.views, panel.view) &&
           typeof props.bindings.views[
@@ -53,12 +64,9 @@ export function LayoutView<D extends LayoutDescription>(props: {
           ] === 'function',
         `missing view binding "${panel.view}"`,
       )
-    const nextRegions = new Map([
-      ...value.panels.map((panel) => [panel.id, 'main'] as const),
-      ...(value.navigation ?? []).map(
-        (panel) => [panel.id, 'navigation'] as const,
-      ),
-    ])
+    const nextRegions = new Map(
+      panelEntries(value).map(({ region, panel }) => [panel.id, region]),
+    )
     for (const [id, region] of nextRegions)
       requireValue(
         !regions.has(id) || regions.get(id) === region,
@@ -68,9 +76,7 @@ export function LayoutView<D extends LayoutDescription>(props: {
     return value
   })
   preserveReorderFocus(domId, () =>
-    [...description().panels, ...(description().navigation ?? [])].map(
-      (panel) => panel.id,
-    ),
+    panelEntries(description()).map(({ panel }) => panel.id),
   )
   function PanelView(panelProps: { panel: PanelDescription; main?: boolean }) {
     const view = untrack(() => panelProps.panel.view)
@@ -86,21 +92,37 @@ export function LayoutView<D extends LayoutDescription>(props: {
       )
       return panelProps.panel
     })
-    return (
-      <DashboardPanel
-        data-generator-panel={checked().id}
-        fill={checked().fill}
-        style={{
-          contain: panelProps.main && checked().fill ? 'size' : undefined,
-        }}
-      >
+    const content = () => (
+      <>
         <Show when={checked().title}>
           <h2 data-ui-text="system">{checked().title}</h2>
         </Show>
         <View />
-      </DashboardPanel>
+      </>
+    )
+    return (
+      <Show
+        when={panelProps.main}
+        fallback={
+          <div
+            class="ui-dashboard-region-panel"
+            data-generator-panel={checked().id}
+          >
+            {content()}
+          </div>
+        }
+      >
+        <DashboardPanel
+          data-generator-panel={checked().id}
+          fill={checked().fill}
+          style={{ contain: checked().fill ? 'size' : undefined }}
+        >
+          {content()}
+        </DashboardPanel>
+      </Show>
     )
   }
+
   const fillsMain = createMemo(() =>
     description().panels.some((panel) => panel.fill),
   )
@@ -112,18 +134,38 @@ export function LayoutView<D extends LayoutDescription>(props: {
       {(panel) => <PanelView panel={panel()} />}
     </For>
   )
+  const hasContext = createMemo(() => Boolean(description().context?.length))
+  const hasFooter = createMemo(() => description().footer !== undefined)
+  const context = () => (
+    <For each={description().context} keyed={(panel) => panel.id}>
+      {(panel) => <PanelView panel={panel()} />}
+    </For>
+  )
+  function Footer() {
+    return (
+      <For each={description().footer} keyed={(panel) => panel.id}>
+        {(panel) => <PanelView panel={panel()} />}
+      </For>
+    )
+  }
   return (
     <DashboardShell
       id={domId}
       navigationLabel={description().navigationLabel}
+      contextLabel={description().contextLabel}
+      footerLabel={description().footerLabel}
+      context={hasContext() ? context : undefined}
+      footer={hasFooter() ? <Footer /> : undefined}
       scroll={description().scroll}
       header={
         <>
           <span data-ui-text="system">{description().title}</span>
-          <ActionsView
-            descriptions={description().actions ?? []}
-            bindings={(props.bindings as { actions?: Actions }).actions}
-          />
+          <div class="ui-dashboard-header-actions">
+            <ActionsView
+              descriptions={description().actions ?? []}
+              bindings={(props.bindings as { actions?: Actions }).actions}
+            />
+          </div>
         </>
       }
       navigation={hasNavigation() ? navigation : undefined}

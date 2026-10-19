@@ -148,7 +148,7 @@ export async function run({
           .replace('<!--ssr-->', result.html)
           .replace(
             '<script type="module"',
-            '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root table")];</script><script type="module"',
+            '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root table, #root [data-generator-panel]")];</script><script type="module"',
           )
       }
       for (const name of Object.keys(applications))
@@ -224,7 +224,7 @@ export async function run({
                 node.isConnected &&
                 [
                   ...document.querySelectorAll(
-                    '#root input, #root textarea, #root table',
+                    '#root input, #root textarea, #root table, #root [data-generator-panel]',
                   ),
                 ].includes(node),
             ),

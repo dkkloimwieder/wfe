@@ -21,7 +21,13 @@ export function createDispatchApplication() {
     () => () => setCalls((old) => [...old, 'first']),
   )
   const [aliases, setAliases] = createSignal<{ 'route-label'?: string }>({})
-  const lifecycle = { cleanups: 0 }
+  const lifecycle = {
+    cleanups: 0,
+    contextMounts: 0,
+    contextCleanups: 0,
+    footerMounts: 0,
+    footerCleanups: 0,
+  }
   onCleanup(() => {
     lifecycle.cleanups++
   })
@@ -123,6 +129,11 @@ export function createDispatchApplication() {
       title: revision() ? 'Updated dispatch' : 'Dispatch workspace',
       columns: 1,
       scroll: 'content',
+      contextLabel: 'Dispatch context',
+      context: [
+        { id: 'dispatch-context-panel', view: 'context', title: 'Queue' },
+      ],
+      footer: [{ id: 'dispatch-footer-panel', view: 'footer' }],
       navigationLabel: 'Dispatch editor navigation',
       navigation: removed()
         ? []
@@ -132,7 +143,9 @@ export function createDispatchApplication() {
         { id: 'revise', label: 'Revise dispatch' },
         { id: 'remove', label: 'Remove dispatch editor' },
       ],
-    }) as const satisfies LayoutDescription<'editor' | 'records'>
+    }) as const satisfies LayoutDescription<
+      'editor' | 'records' | 'context' | 'footer'
+    >
   return {
     kind: 'dispatch' as const,
     provider,

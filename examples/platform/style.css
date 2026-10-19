@@ -9,41 +9,6 @@ body,
   height: 100dvh;
   min-width: 0;
 }
-.platform-example .ui-dashboard-header {
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-.platform-example .ui-dashboard-main {
-  background: var(--ui-canvas-surface);
-}
-.platform-example
-  :is(.ui-dashboard-header, .ui-dashboard-navigation, .ui-dashboard-panel) {
-  background: var(--ui-pane-surface);
-}
-.platform-example .ui-dashboard-panel {
-  box-shadow: var(--ui-panel-shadow);
-}
-.platform-navigation {
-  display: grid;
-  gap: var(--ui-gap);
-}
-.platform-navigation p {
-  margin: 0;
-  padding: var(--ui-gap);
-}
-.platform-navigation a {
-  display: block;
-  color: var(--ui-text);
-  padding: var(--ui-gap);
-  border: 1px solid transparent;
-  text-decoration: none;
-  overflow-wrap: anywhere;
-}
-.platform-navigation a:hover,
-.platform-navigation a[aria-current='page'] {
-  border-color: var(--ui-accent);
-}
-.platform-navigation a:focus-visible,
 [data-platform-heading]:focus-visible {
   outline: 2px solid var(--ui-focus-ring);
   outline-offset: -2px;

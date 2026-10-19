@@ -208,12 +208,7 @@ export function AccessViews(props: {
                 <dt data-ui-text="system">Organization administrator</dt>
                 <dd>{currentUser()?.orgAdmin ? 'Yes' : 'No'}</dd>
               </dl>
-              <p>
-                These are platform grants reported by the server for projects
-                you can administer. Application roles are separate and are not
-                shown here. The server does not identify direct and inherited
-                grants.
-              </p>
+              <p>Only projects you can administer appear here.</p>
               <Show when={access.grantsState().error}>
                 <InlineAlert announce="polite">
                   {access.grantsState().error}
@@ -250,10 +245,7 @@ export function AccessViews(props: {
               </For>
             </section>
             <h3 data-ui-text="system">Change platform access</h3>
-            <p>
-              Grant or revoke one scope at a time. Higher-level grants can cover
-              lower-level access. The server decides each command.
-            </p>
+            <p>Choose the access type and scope, then apply the command.</p>
             <Show when={access.choicesState().loading}>
               <p role="status">Loading environments</p>
             </Show>

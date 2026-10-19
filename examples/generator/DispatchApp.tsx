@@ -1,3 +1,4 @@
+import { onCleanup } from 'solid-js'
 import { Field, Label, SelectField, Button } from '@wfe/components'
 import { FormView, TableView, LayoutView } from '@wfe/generator'
 import { createDispatchApplication } from './dispatch-application'
@@ -79,11 +80,30 @@ export function DispatchApp(props: {
       />
     </>
   )
+  const Context = () => {
+    app.lifecycle.contextMounts++
+    onCleanup(() => {
+      app.lifecycle.contextCleanups++
+    })
+    return <p>{app.table.getSourceIds().length} records</p>
+  }
+  const Footer = () => {
+    app.lifecycle.footerMounts++
+    onCleanup(() => {
+      app.lifecycle.footerCleanups++
+    })
+    return <span data-ui-text="system">{app.form.phase}</span>
+  }
   return (
     <LayoutView
       description={app.layoutDescription()}
       bindings={{
-        views: { editor: Editor, records: Records },
+        views: {
+          editor: Editor,
+          records: Records,
+          context: Context,
+          footer: Footer,
+        },
         actions: { revise: { run: app.revise }, remove: { run: app.remove } },
       }}
     />

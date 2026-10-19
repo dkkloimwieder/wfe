@@ -13,19 +13,23 @@
   grid-template-columns: var(--ui-navigation-width, 15rem) minmax(0, 1fr);
 }
 :where([data-ui]) .ui-dashboard-header {
+  grid-row: 1;
   grid-column: 1 / -1;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--ui-gap, 6px);
   min-width: 0;
-  padding: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
   border-bottom: 1px solid var(--ui-border, #bbb);
 }
 :where([data-ui]) .ui-dashboard-navigation {
+  grid-column: 1;
+  grid-row: 2;
   min-width: 0;
   min-height: 0;
   overflow: auto;
-  padding: var(--ui-gap, 6px);
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
   border-inline-end: 1px solid var(--ui-border, #bbb);
   background: var(--ui-surface, white);
 }
@@ -33,13 +37,15 @@
   display: none;
 }
 :where([data-ui]) .ui-dashboard-main {
+  grid-column: -2 / -1;
+  grid-row: 2;
   display: flex;
   flex-direction: column;
   gap: var(--ui-gap, 6px);
   min-width: 0;
   min-height: 0;
   overflow: auto;
-  padding: var(--ui-gap, 6px);
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
 }
 :where(.ui-dashboard[data-ui][data-scroll='content']) > .ui-dashboard-main {
   overflow: hidden;
@@ -92,4 +98,130 @@
   :where([data-ui]) :is(.ui-dashboard-toggle, .ui-dashboard-close) {
     display: inline-block;
   }
+}
+
+:where(.ui-dashboard[data-ui][data-has-footer]) {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+:where(.ui-dashboard[data-ui][data-has-context]) {
+  grid-template-columns: var(--ui-context-width, 14rem) minmax(0, 1fr);
+}
+:where(.ui-dashboard[data-ui][data-has-navigation][data-has-context]) {
+  grid-template-columns:
+    var(--ui-navigation-width, 15rem) var(--ui-context-width, 14rem)
+    minmax(0, 1fr);
+}
+:where([data-ui]) .ui-dashboard-header {
+  max-block-size: 35dvh;
+  overflow: auto;
+}
+:where([data-ui]) .ui-dashboard-context {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
+  border-inline-end: 1px solid var(--ui-border, #bbb);
+  background: var(--ui-surface, white);
+}
+:where(.ui-dashboard[data-ui][data-has-navigation]) > .ui-dashboard-context {
+  grid-column: 2;
+}
+:where([data-ui])
+  :is(.ui-dashboard-context-toggle, .ui-dashboard-context-close) {
+  display: none;
+}
+:where([data-ui]) .ui-dashboard-footer {
+  grid-row: 3;
+  grid-column: 1 / -1;
+  min-width: 0;
+  min-block-size: var(--ui-control-height, 26px);
+  max-block-size: 20dvh;
+  overflow: auto;
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
+  border-top: 1px solid var(--ui-border, #bbb);
+  background: var(--ui-surface, white);
+}
+:where([data-ui]) .ui-dashboard-menu {
+  display: grid;
+  align-content: start;
+  gap: var(--ui-gap, 6px);
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-dashboard-menu > :is(p, h2, h3) {
+  margin: 0;
+  padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
+  font-size: inherit;
+}
+:where([data-ui]) .ui-dashboard-menu > a {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--ui-control-height, 26px);
+  padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
+  border: 1px solid transparent;
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+:where([data-ui]) .ui-dashboard-menu > a:is(:hover, [aria-current='page']) {
+  border-color: var(--ui-accent, currentColor);
+}
+:where([data-ui]) .ui-dashboard-menu > a:focus-visible {
+  outline: 2px solid var(--ui-focus-ring, var(--ui-focus));
+  outline-offset: -2px;
+}
+@media (width < 64rem) {
+  :where(.ui-dashboard[data-ui][data-has-context]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :where(.ui-dashboard[data-ui][data-has-navigation][data-has-context]) {
+    grid-template-columns: var(--ui-navigation-width, 15rem) minmax(0, 1fr);
+  }
+  :where([data-ui]) .ui-dashboard-context {
+    position: absolute;
+    grid-column: 1 / -1;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: min(var(--ui-context-width, 14rem), 100%);
+    display: none;
+    z-index: 10;
+  }
+  :where(.ui-dashboard[data-ui][data-has-navigation]) > .ui-dashboard-context {
+    grid-column: 1 / -1;
+    inset-inline-start: var(--ui-navigation-width, 15rem);
+  }
+  :where(.ui-dashboard[data-ui][data-context-open]) > .ui-dashboard-context {
+    display: block;
+  }
+  :where([data-ui])
+    :is(.ui-dashboard-context-toggle, .ui-dashboard-context-close) {
+    display: inline-flex;
+  }
+}
+@media (width < 48rem) {
+  :where(.ui-dashboard[data-ui][data-has-context]),
+  :where(.ui-dashboard[data-ui][data-has-navigation][data-has-context]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :where(.ui-dashboard[data-ui][data-has-navigation]) > .ui-dashboard-context {
+    inset-inline-start: 0;
+  }
+}
+
+:where([data-ui]) .ui-dashboard-region-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-dashboard-region-panel > :is(h1, h2, h3, p) {
+  margin: 0;
+}
+
+:where([data-ui]) .ui-dashboard-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  margin-inline-start: auto;
 }

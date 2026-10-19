@@ -1,6 +1,13 @@
 import { render } from '@solidjs/web'
 import { OBSERVE, action, createSignal, flush, onCleanup } from 'solid-js'
-import { Button, Dialog, Input, Popover, uiDensity } from '@wfe/components'
+import {
+  Button,
+  Dialog,
+  Input,
+  Popover,
+  SelectField,
+  uiDensity,
+} from '@wfe/components'
 import {
   DashboardGrid,
   DashboardPanel,
@@ -21,11 +28,15 @@ let configure:
       theme?: 'dark'
       scroll?: 'main' | 'content'
       navigation?: boolean
+      context?: boolean
+      footer?: boolean
     }) => void)
   | undefined
 let closeNavigation: (() => void) | undefined
 let navigationMounts = 0
 let navigationCleanups = 0
+let contextMounts = 0
+let contextCleanups = 0
 let visits = 0
 let capture:
   ReturnType<NonNullable<typeof OBSERVE>['diagnostics']['capture']> | undefined
@@ -168,6 +179,31 @@ function Navigation(props: { close: () => void }) {
     </div>
   )
 }
+function Context(props: { close: () => void }) {
+  const [draft, setDraft] = createSignal('Context draft')
+  const [choice, setChoice] = createSignal('a')
+  contextMounts++
+  onCleanup(() => contextCleanups++)
+  return (
+    <div class="ui-dashboard-menu">
+      <Input
+        aria-label="Context draft"
+        value={draft()}
+        onValueChange={setDraft}
+      />
+      <SelectField
+        label="Context choice"
+        choices={[
+          { value: 'a', label: 'Alpha' },
+          { value: 'b', label: 'Beta' },
+        ]}
+        value={choice()}
+        onValueChange={setChoice}
+      />
+      <Button onClick={props.close}>Open context report</Button>
+    </div>
+  )
+}
 function start(withNavigation = true) {
   stop()
   events.push(...(capture?.stop() ?? []))
@@ -175,6 +211,8 @@ function start(withNavigation = true) {
   release = render(() => {
     const [count, setCount] = createSignal(2)
     const [hasNavigation, setHasNavigation] = createSignal(withNavigation)
+    const [hasContext, setHasContext] = createSignal(false)
+    const [hasFooter, setHasFooter] = createSignal(false)
     const [density, setDensity] = createSignal<UIDensity>('compact')
     const [theme, setTheme] = createSignal<'dark' | undefined>()
     const [scroll, setScroll] = createSignal<'main' | 'content'>('content')
@@ -184,10 +222,19 @@ function start(withNavigation = true) {
       setTheme(value.theme)
       if (value.scroll) setScroll(value.scroll)
       if (value.navigation !== undefined) setHasNavigation(value.navigation)
+      if (value.context !== undefined) setHasContext(value.context)
+      if (value.footer !== undefined) setHasFooter(value.footer)
     }
     return (
       <DashboardShell
         id="shell"
+        context={
+          hasContext()
+            ? (controls) => <Context close={controls.close} />
+            : undefined
+        }
+        footer={hasFooter() ? null : undefined}
+        footerLabel="Workspace footer"
         header={
           <>
             <h1>Workspace</h1>
@@ -235,7 +282,13 @@ const api = {
     closeNavigation?.()
     flush()
   },
-  read: () => ({ navigationMounts, navigationCleanups, visits }),
+  read: () => ({
+    navigationMounts,
+    navigationCleanups,
+    contextMounts,
+    contextCleanups,
+    visits,
+  }),
   diagnostics: () => {
     events.push(...(capture?.stop() ?? []))
     return events.splice(0)

@@ -116,3 +116,22 @@ Its left controls panel scrolls independently from the results.
 The [Table workspace guide](table-workspace.md) describes sections, application slots, and the narrow drawer.
 Its empty message stays inside its scroll area.
 See [the example instructions](../examples/README.md) for the preview command.
+
+## Organization workspace
+
+`DashboardShell` accepts a primary `navigation` callback and an optional `context` callback.
+Both callbacks receive `close`. Applications own their links, labels, active routes, and permissions.
+The header spans every column. The optional footer also spans every column.
+Pass `footer={null}` to reserve an empty footer. Omit `footer` to remove the band.
+
+Both menus keep their DOM owners while CSS changes their placement.
+Below 64rem, the context menu uses its header toggle.
+Below 48rem, the primary menu also uses a toggle.
+Only one drawer opens at a time. Escape closes the active drawer and returns focus to its toggle.
+Nested controls handle Escape before the shell.
+
+The shell owns region padding through `--ui-layout-inset`, which defaults to `--ui-cell-padding-x`.
+Related controls use `--ui-gap`.
+Use `ui-dashboard-menu` for a shared group of native navigation links.
+Use `--ui-navigation-width` and `--ui-context-width` to set desktop menu widths.
+Each menu and the main area scroll independently between the organization bands.

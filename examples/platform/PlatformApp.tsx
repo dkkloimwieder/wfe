@@ -72,6 +72,10 @@ export function PlatformApp(props: {
   let root: HTMLDivElement | undefined,
     alive = true,
     focusSequence = 0
+  const projectsRoute = () =>
+    ['projects', 'project', 'environment', 'members', 'create'].includes(
+      app.route().screen,
+    )
   const peopleRoute = () =>
     app.route().screen === 'users' || app.route().screen === 'access'
   const title = () => {
@@ -284,7 +288,10 @@ export function PlatformApp(props: {
   return (
     <DefaultAppearance
       class="platform-example"
-      style={appearanceStyle(scheme(), accent(), depth(), layers())}
+      style={{
+        ...appearanceStyle(scheme(), accent(), depth(), layers()),
+        '--ui-text': 'var(--ui-muted-text)',
+      }}
     >
       <div
         class="platform-root"
@@ -302,6 +309,107 @@ export function PlatformApp(props: {
             app.route().screen === 'access'
               ? 'content'
               : 'main'
+          }
+          style={{
+            '--ui-navigation-width': '11rem',
+            '--ui-context-width': '13rem',
+          }}
+          footer={null}
+          footerLabel="Organization footer"
+          contextLabel={
+            routeProject() ? 'Project navigation' : 'Projects navigation'
+          }
+          contextToggleLabel="Context menu"
+          context={
+            projectsRoute() && accessible()
+              ? (context) => (
+                  <div class="ui-dashboard-menu">
+                    <h2 data-ui-text="system">
+                      {routeProject() || 'Projects'}
+                    </h2>
+                    <Show
+                      when={routeProject()}
+                      fallback={
+                        <>
+                          <a
+                            href={href({ screen: 'projects' })}
+                            data-ui-text="system"
+                            aria-current={
+                              app.route().screen === 'projects'
+                                ? 'page'
+                                : undefined
+                            }
+                            ref={nativeEvents<HTMLAnchorElement>({
+                              click: follow(
+                                { screen: 'projects' },
+                                context.close,
+                              ),
+                            })}
+                          >
+                            All projects
+                          </a>
+                          <Show when={app.authority()?.orgAdmin}>
+                            <a
+                              href={href({ screen: 'create' })}
+                              data-ui-text="system"
+                              aria-current={
+                                app.route().screen === 'create'
+                                  ? 'page'
+                                  : undefined
+                              }
+                              ref={nativeEvents<HTMLAnchorElement>({
+                                click: follow(
+                                  { screen: 'create' },
+                                  context.close,
+                                ),
+                              })}
+                            >
+                              Create a project
+                            </a>
+                          </Show>
+                        </>
+                      }
+                    >
+                      <a
+                        href={href(projectRoute())}
+                        data-ui-text="system"
+                        aria-current={
+                          app.route().screen === 'project' ? 'page' : undefined
+                        }
+                        ref={nativeEvents<HTMLAnchorElement>({
+                          click: follow(projectRoute(), context.close),
+                        })}
+                      >
+                        Environments
+                      </a>
+                      <Show
+                        when={app.access.allowed('project', routeProject())}
+                      >
+                        <a
+                          href={href({
+                            screen: 'members',
+                            project: routeProject(),
+                          })}
+                          data-ui-text="system"
+                          aria-current={
+                            app.route().screen === 'members'
+                              ? 'page'
+                              : undefined
+                          }
+                          ref={nativeEvents<HTMLAnchorElement>({
+                            click: follow(
+                              { screen: 'members', project: routeProject() },
+                              context.close,
+                            ),
+                          })}
+                        >
+                          Members
+                        </a>
+                      </Show>
+                    </Show>
+                  </div>
+                )
+              : undefined
           }
           mainLabel="Platform workspace"
           navigationLabel="Platform navigation"
@@ -404,24 +512,22 @@ export function PlatformApp(props: {
                   </Show>
                 </Breadcrumbs.List>
               </Breadcrumbs>
-              <Button
-                aria-expanded={appearance() ? 'true' : 'false'}
-                aria-controls="platform-appearance"
-                onClick={() => setAppearance(!appearance())}
-              >
-                Appearance
-              </Button>
+              <div class="ui-dashboard-header-actions">
+                <Button
+                  aria-expanded={appearance() ? 'true' : 'false'}
+                  aria-controls="platform-appearance"
+                  onClick={() => setAppearance(!appearance())}
+                >
+                  Appearance
+                </Button>
+              </div>
             </>
           }
           navigation={(navigation) => (
-            <div class="platform-navigation">
-              <p data-ui-text="system">WAMN platform example</p>
-              <p data-ui-text="system">acme</p>
+            <div class="ui-dashboard-menu">
               <a
                 href={href({ screen: 'projects' })}
-                aria-current={
-                  app.route().screen === 'projects' ? 'page' : undefined
-                }
+                aria-current={projectsRoute() ? 'page' : undefined}
                 ref={nativeEvents<HTMLAnchorElement>({
                   click: follow({ screen: 'projects' }, navigation.close),
                 })}
@@ -432,9 +538,7 @@ export function PlatformApp(props: {
               <Show when={accessible()}>
                 <a
                   href={href({ screen: 'users' })}
-                  aria-current={
-                    app.route().screen === 'users' ? 'page' : undefined
-                  }
+                  aria-current={peopleRoute() ? 'page' : undefined}
                   ref={nativeEvents<HTMLAnchorElement>({
                     click: follow({ screen: 'users' }, navigation.close),
                   })}
@@ -443,36 +547,6 @@ export function PlatformApp(props: {
                   Users
                 </a>
               </Show>
-              <Show when={app.authority()?.orgAdmin}>
-                <a
-                  href={href({ screen: 'create' })}
-                  aria-current={
-                    app.route().screen === 'create' ? 'page' : undefined
-                  }
-                  ref={nativeEvents<HTMLAnchorElement>({
-                    click: follow({ screen: 'create' }, navigation.close),
-                  })}
-                  data-ui-text="system"
-                >
-                  Create a project
-                </a>
-              </Show>
-              <For each={app.projects()}>
-                {(row) => (
-                  <a
-                    data-ui-text="system"
-                    href={href({ screen: 'project', project: row.name })}
-                    ref={nativeEvents<HTMLAnchorElement>({
-                      click: follow(
-                        { screen: 'project', project: row.name },
-                        navigation.close,
-                      ),
-                    })}
-                  >
-                    {row.name}
-                  </a>
-                )}
-              </For>
             </div>
           )}
         >

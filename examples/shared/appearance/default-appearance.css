@@ -74,3 +74,20 @@ body:has(.component-preview) {
   flex-wrap: wrap;
   gap: var(--ui-gap, 6px);
 }
+
+.default-appearance .ui-dashboard-main {
+  background: var(--ui-canvas-surface);
+}
+.default-appearance
+  :is(
+    .ui-dashboard-header,
+    .ui-dashboard-navigation,
+    .ui-dashboard-context,
+    .ui-dashboard-footer,
+    .ui-dashboard-panel
+  ) {
+  background: var(--ui-pane-surface);
+}
+.default-appearance .ui-dashboard-panel {
+  box-shadow: var(--ui-panel-shadow);
+}

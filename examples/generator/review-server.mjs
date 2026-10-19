@@ -64,5 +64,11 @@ export async function reviewServer(initial, name) {
       }),
     ).toHaveCount(1)
     await expect(initial.locator('tbody tr')).toHaveCount(2)
+    await expect(
+      initial.locator('[data-generator-panel="dispatch-context-panel"]'),
+    ).toHaveCount(1)
+    await expect(
+      initial.locator('[data-generator-panel="dispatch-footer-panel"]'),
+    ).toHaveCount(1)
   }
 }

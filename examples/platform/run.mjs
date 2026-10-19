@@ -157,7 +157,7 @@ try {
       try {
         await page
           .getByRole('navigation', { name: 'Platform navigation' })
-          .getByRole('link', { name: 'billing', exact: true })
+          .getByRole('link', { name: 'Users', exact: true })
           .click({ modifiers: ['Control'] })
       } finally {
         await page.evaluate(() =>
@@ -170,10 +170,7 @@ try {
       assert.equal(modified.control, true)
       assert.equal(modified.prevented, false)
       assert.equal(new URL(modified.href).searchParams.get('other'), 'keep')
-      assert.equal(
-        new URL(modified.href).searchParams.get('project'),
-        'billing',
-      )
+      assert.equal(new URL(modified.href).searchParams.get('screen'), 'users')
       assert.equal(new URL(modified.href).hash, '#review')
       const table = await projects().elementHandle()
       assert.ok(
@@ -811,7 +808,7 @@ try {
       const nav = page.getByRole('navigation', { name: 'Platform navigation' })
       assert.equal(
         await nav
-          .getByRole('link', { name: 'billing', exact: true })
+          .getByRole('link', { name: 'Users', exact: true })
           .evaluate((node) => getComputedStyle(node).textTransform),
         'uppercase',
       )
@@ -999,6 +996,100 @@ try {
       await expect(orgSort).toHaveCSS('outline-style', 'solid')
       await expect(orgSort).toHaveCSS('overflow', 'visible')
       await page.screenshot({ path: '/tmp/wfe-header-sort-resized.png' })
+    },
+  )
+  await record(
+    'platform: organization workspace groups menus and reserves a full-width empty footer',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await initialize('?screen=projects')
+      const menu = page.getByRole('navigation', {
+        name: 'Platform navigation',
+        exact: true,
+      })
+      const context = page.getByRole('navigation', {
+        name: 'Projects navigation',
+        exact: true,
+      })
+      await expect(menu.getByRole('link')).toHaveText(['Projects', 'Users'])
+      await expect(context.getByRole('link')).toHaveText([
+        'All projects',
+        'Create a project',
+      ])
+      await expect(page.getByRole('main')).toHaveCSS('color', 'rgb(73, 80, 87)')
+      const bands = await page.locator('.ui-dashboard').evaluate((shell) => {
+        const box = (selector) => {
+          const rect = shell.querySelector(selector).getBoundingClientRect()
+          return {
+            left: rect.left,
+            right: rect.right,
+            top: rect.top,
+            bottom: rect.bottom,
+          }
+        }
+        return {
+          header: box('.ui-dashboard-header'),
+          footer: box('.ui-dashboard-footer'),
+          menu: box('.ui-dashboard-navigation'),
+          context: box('.ui-dashboard-context'),
+          main: box('main'),
+        }
+      })
+      assert.equal(bands.header.left, 0)
+      assert.equal(bands.header.right, 1280)
+      assert.equal(bands.footer.left, 0)
+      assert.equal(bands.footer.right, 1280)
+      assert.equal(bands.footer.top, bands.main.bottom)
+      assert.equal(bands.menu.right, bands.context.left)
+      assert.equal(bands.context.right, bands.main.left)
+      await expect(
+        page.getByRole('contentinfo', {
+          name: 'Organization footer',
+          exact: true,
+        }),
+      ).toHaveText('')
+      await menu.getByRole('link', { name: 'Users', exact: true }).click()
+      await expect(page.locator('.ui-dashboard-context')).toHaveCount(0)
+      await expect(
+        page.getByRole('table', { name: 'Users', exact: true }),
+      ).toBeVisible()
+      await menu.getByRole('link', { name: 'Projects', exact: true }).click()
+      await openProject('billing').click()
+      const projectMenu = page.getByRole('navigation', {
+        name: 'Project navigation',
+        exact: true,
+      })
+      await expect(projectMenu.getByRole('link')).toHaveText([
+        'Environments',
+        'Members',
+      ])
+      await projectMenu
+        .getByRole('link', { name: 'Members', exact: true })
+        .click()
+      await expect(
+        page.getByRole('table', { name: 'Members · billing', exact: true }),
+      ).toBeVisible()
+      await page.setViewportSize({ width: 320, height: 844 })
+      const toggle = page.getByRole('button', {
+        name: 'Context menu',
+        exact: true,
+      })
+      await toggle.click()
+      await expect(projectMenu).toBeVisible()
+      await page
+        .getByRole('button', { name: 'Navigation', exact: true })
+        .click()
+      await expect(menu).toBeVisible()
+      await expect(projectMenu).toBeHidden()
+      await page.keyboard.press('Escape')
+      await expect(menu).toBeHidden()
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+        true,
+      )
+      await page.setViewportSize({ width: 1280, height: 844 })
     },
   )
   await record(

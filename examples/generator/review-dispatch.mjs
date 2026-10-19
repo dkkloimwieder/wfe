@@ -28,6 +28,22 @@ export async function reviewDispatch({ page, record }) {
     }, entry)
 
   await record(
+    'Generated context and footer mount once and retain their server nodes',
+    async () => {
+      await expect(
+        page.locator('[data-generator-panel="dispatch-context-panel"]'),
+      ).toContainText('2 records')
+      await expect(
+        page.locator('[data-generator-panel="dispatch-footer-panel"]'),
+      ).toContainText('idle')
+      const lifecycle = (await snapshot()).lifecycle
+      assert.equal(lifecycle.contextMounts, 1)
+      assert.equal(lifecycle.footerMounts, 1)
+      assert.equal(lifecycle.contextCleanups, 0)
+      assert.equal(lifecycle.footerCleanups, 0)
+    },
+  )
+  await record(
     'dispatch uses unrelated records, computed columns and a generated nullable number',
     async () => {
       await expect(page.locator('tbody tr')).toHaveCount(2)
@@ -242,6 +258,10 @@ export async function reviewDispatch({ page, record }) {
         .toBe('disposed')
       assert.equal((await snapshot()).provider.publications, 1)
       assert.equal((await snapshot()).lifecycle.cleanups, 1)
+      assert.equal((await snapshot()).lifecycle.contextMounts, 1)
+      assert.equal((await snapshot()).lifecycle.contextCleanups, 1)
+      assert.equal((await snapshot()).lifecycle.footerMounts, 1)
+      assert.equal((await snapshot()).lifecycle.footerCleanups, 1)
       await expect(page.locator('#root input, #root table')).toHaveCount(0)
     },
   )

@@ -308,3 +308,49 @@ assert.equal(fileCallbacks, 0)
 console.log(
   'File selection server rendering stays empty and does not request changes.',
 )
+
+let contextViews = 0,
+  footerViews = 0
+const workspaceOutput = await renderToString(() =>
+  LayoutView({
+    description: {
+      id: 'organization',
+      title: 'ACME',
+      panels: [],
+      context: [{ id: 'context', view: 'context' }],
+      footer: [{ id: 'footer', view: 'footer' }],
+    },
+    bindings: {
+      views: {
+        context: () => {
+          contextViews++
+          return 'Project menu'
+        },
+        footer: () => {
+          footerViews++
+          return 'Ready'
+        },
+      },
+    },
+  }),
+)
+assert.match(workspaceOutput, /Project menu/)
+assert.match(workspaceOutput, /<footer\b/)
+assert.equal(contextViews, 1)
+assert.equal(footerViews, 1)
+for (const present of [true, false]) {
+  const output = await renderToString(() =>
+    LayoutView({
+      description: {
+        id: 'empty-footer',
+        panels: [],
+        ...(present ? { footer: [] } : {}),
+      },
+      bindings: { views: {} },
+    }),
+  )
+  assert.equal(/<footer\b/.test(output), present)
+}
+console.log(
+  'Workspace regions render once and keep empty footers distinct from absent footers.',
+)

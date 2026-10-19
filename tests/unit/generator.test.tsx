@@ -815,3 +815,148 @@ test('generated tables forward application-controlled pane size without replacin
   expect(mounted.getByText('Ada')).toBe(cell)
   expect(requests).toHaveBeenCalledTimes(1)
 })
+
+test('generated context and footer panels retain drafts across relabel and reorder', () => {
+  const [revision, setRevision] = createSignal(0)
+  let mounts = 0,
+    disposals = 0
+  const Editor = () => {
+    mounts++
+    onCleanup(() => {
+      disposals++
+    })
+    return <Input aria-label="Context draft" defaultValue="Draft" />
+  }
+  let footerMounts = 0,
+    footerDisposals = 0
+  const Footer = () => {
+    footerMounts++
+    onCleanup(() => {
+      footerDisposals++
+    })
+    const [draft, setDraft] = createSignal('Footer draft')
+    return (
+      <Input
+        aria-label="Footer draft"
+        value={draft()}
+        onValueChange={setDraft}
+      />
+    )
+  }
+  const Other = () => 'Other'
+  const mounted = render(() => (
+    <LayoutView
+      description={{
+        id: 'regions',
+        title: revision() ? 'Revised' : 'Original',
+        panels: [],
+        contextLabel: revision() ? 'Revised context' : 'Context',
+        context: (revision()
+          ? [
+              { id: 'other', view: 'other' },
+              { id: 'editor', view: 'editor' },
+            ]
+          : [
+              { id: 'editor', view: 'editor' },
+              { id: 'other', view: 'other' },
+            ]
+        ).map((panel) => ({
+          ...panel,
+          title: revision() ? 'Revised' : 'Original',
+        })),
+        footer: [
+          {
+            id: 'footer',
+            view: 'footer',
+            title: revision() ? 'Revised footer' : 'Footer',
+          },
+        ],
+      }}
+      bindings={{ views: { editor: Editor, other: Other, footer: Footer } }}
+    />
+  ))
+  const context = mounted.getByLabelText('Context draft') as HTMLInputElement
+  const footer = mounted.getByLabelText('Footer draft') as HTMLInputElement
+  fireEvent.input(context, { target: { value: 'Keep context draft' } })
+  fireEvent.input(footer, { target: { value: 'Keep footer draft' } })
+  flush()
+  setRevision(1)
+  flush()
+  expect(mounted.getByLabelText('Context draft')).toBe(context)
+  expect(mounted.getByLabelText('Footer draft')).toBe(footer)
+  expect(footerMounts).toBe(1)
+  expect(footerDisposals).toBe(0)
+  expect(context.value).toBe('Keep context draft')
+  expect(footer.value).toBe('Keep footer draft')
+  expect(mounts).toBe(1)
+  expect(disposals).toBe(0)
+  mounted.unmount()
+  expect(disposals).toBe(1)
+  expect(footerDisposals).toBe(1)
+})
+test('generated empty footer remains distinct from an omitted footer', () => {
+  const [footer, setFooter] = createSignal<readonly [] | undefined>([])
+  const mounted = render(() => (
+    <LayoutView
+      description={{ id: 'empty-footer', panels: [], footer: footer() }}
+      bindings={{ views: {} }}
+    />
+  ))
+  expect(mounted.container.querySelector('footer')).not.toBeNull()
+  setFooter(undefined)
+  flush()
+  expect(mounted.container.querySelector('footer')).toBeNull()
+})
+for (const region of ['context', 'footer'] as const) {
+  test(`generated ${region} shares identity, binding and region safeguards`, () => {
+    const [changed, setChanged] = createSignal(false)
+    const View = () => <p>Panel</p>
+    const mounted = render(() => (
+      <Errored fallback={(error) => <p role="alert">{String(error())}</p>}>
+        <LayoutView
+          description={{
+            id: 'moving',
+            panels: changed() ? [] : [{ id: 'panel', view: 'view' }],
+            [region]: changed() ? [{ id: 'panel', view: 'view' }] : [],
+          }}
+          bindings={{ views: { view: View } }}
+        />
+      </Errored>
+    ))
+    setChanged(true)
+    flush()
+    expect(mounted.getByRole('alert').textContent).toContain(
+      'use a new identity',
+    )
+    mounted.unmount()
+    const invalid = render(() => (
+      <Errored fallback={(error) => <p role="alert">{String(error())}</p>}>
+        <LayoutView
+          description={{
+            id: 'duplicate',
+            panels: [{ id: 'panel', view: 'view' }],
+            [region]: [{ id: 'panel', view: 'view' }],
+          }}
+          bindings={{ views: { view: View } }}
+        />
+      </Errored>
+    ))
+    expect(invalid.getByRole('alert').textContent).toContain('duplicate')
+    invalid.unmount()
+    const missing = render(() => (
+      <Errored fallback={(error) => <p role="alert">{String(error())}</p>}>
+        <LayoutView
+          description={{
+            id: 'missing',
+            panels: [],
+            [region]: [{ id: 'missing', view: 'view' }],
+          }}
+          bindings={{ views: {} }}
+        />
+      </Errored>
+    ))
+    expect(missing.getByRole('alert').textContent).toContain(
+      'missing view binding',
+    )
+  })
+}

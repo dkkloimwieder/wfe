@@ -406,3 +406,25 @@ const badSpan: FormDescription<MemberInput> = {
   fields: [{ field: 'name', label: 'Name', control: 'text', span: 0 }],
 }
 void [groupedEditor, groupedBindings, unknownGroupedField, badColumns, badSpan]
+
+const workspaceRegions = {
+  id: 'organization',
+  title: 'ACME',
+  panels: [{ id: 'main', view: 'records' }],
+  navigation: [{ id: 'menu', view: 'menu' }],
+  context: [{ id: 'context', view: 'project' }],
+  footer: [{ id: 'footer', view: 'status' }],
+} as const satisfies LayoutDescription
+const workspaceRegionBindings: LayoutViewBindings<typeof workspaceRegions> = {
+  views: {
+    records: () => null,
+    menu: () => null,
+    project: () => null,
+    status: () => null,
+  },
+}
+const missingWorkspaceRegion: LayoutViewBindings<typeof workspaceRegions> = {
+  // @ts-expect-error Context and footer descriptions require their own view bindings.
+  views: { records: () => null, menu: () => null },
+}
+void [workspaceRegions, workspaceRegionBindings, missingWorkspaceRegion]

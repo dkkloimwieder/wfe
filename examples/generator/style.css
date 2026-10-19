@@ -61,10 +61,7 @@ h2 {
   min-width: 0;
   background: var(--ui-canvas-surface);
 }
-.generator-example :is(.ui-dashboard-main, .ui-dashboard-navigation) {
-  background: var(--ui-canvas-surface);
-}
-.generator-example :is(.ui-dashboard-panel, .ui-field-group) {
+.generator-example .ui-field-group {
   background: var(--ui-pane-surface);
   box-shadow: var(--ui-panel-shadow);
 }

@@ -245,15 +245,21 @@ export type LayoutDescription<ViewId extends string = string> = Readonly<{
   id: string
   title?: string
   navigationLabel?: string
+  contextLabel?: string
+  footerLabel?: string
   scroll?: DashboardShellProps['scroll']
   columns?: 1 | 2
   panels: readonly PanelDescription<ViewId>[]
   navigation?: readonly PanelDescription<ViewId>[]
+  context?: readonly PanelDescription<ViewId>[]
+  footer?: readonly PanelDescription<ViewId>[]
   actions?: readonly ActionDescription[]
 }>
 type PanelsOf<D> =
   | (D extends { panels: readonly (infer P)[] } ? P : never)
   | (D extends { navigation: readonly (infer P)[] } ? P : never)
+  | (D extends { context: readonly (infer P)[] } ? P : never)
+  | (D extends { footer: readonly (infer P)[] } ? P : never)
 type ViewIds<D> =
   PanelsOf<D> extends { view: infer Id extends string } ? Id : never
 export type LayoutViewBindings<D extends LayoutDescription> = Readonly<{
