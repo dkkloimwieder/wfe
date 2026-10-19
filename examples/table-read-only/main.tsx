@@ -1,8 +1,21 @@
 import { uiScope } from '@wfe/components'
 import { render } from '@solidjs/web'
-import { OBSERVE, action, createSignal, flush } from 'solid-js'
-import { ReadOnlyTable } from '@wfe/components/table'
-import { createTable, nativeAggregations } from '@wfe/components/table'
+import {
+  OBSERVE,
+  action,
+  createSignal,
+  flush,
+  onCleanup,
+  untrack,
+} from 'solid-js'
+import { Table, TableRow, ReadOnlyTable } from '@wfe/components/table'
+import {
+  createTable,
+  createTableSelection,
+  nativeAggregations,
+} from '@wfe/components/table'
+import { VirtualRows, createTableVirtualizer } from '@wfe/components/virtual'
+import type { TableSelection, TableSelectionCell } from '@wfe/components/table'
 import '@wfe/components/styles.css'
 import '../fixture-page.css'
 
@@ -20,6 +33,18 @@ const initial = [
   { id: 'b', values: { category: 'East', name: 'Lamp', amount: 7 } },
   { id: 'c', values: { category: 'West', name: 'Chair', amount: 12 } },
 ]
+let failCopy = false
+let currentSelection: TableSelection | undefined
+let currentVirtualizer:
+  ReturnType<typeof createTableVirtualizer<string>> | undefined
+let readStats:
+  | (() => {
+      mounts: number
+      unmounts: number
+      cells: number
+      copyReads: number
+    })
+  | undefined
 let dispose: (() => void) | undefined
 let replace: ((rows: typeof initial) => void) | undefined
 let capture:
@@ -33,14 +58,31 @@ function stop() {
   disposeRoot()
   dispose = undefined
   replace = undefined
+  currentSelection = undefined
+  currentVirtualizer = undefined
+  readStats = undefined
   flush()
 }
-function start() {
+function start(virtual = false) {
   stop()
   events.push(...(capture?.stop() ?? []))
   capture = OBSERVE?.diagnostics.capture()
+  failCopy = false
   dispose = render(() => {
-    const [rows, setRows] = createSignal(initial)
+    const counts = { mounts: 0, unmounts: 0, cells: 0, copyReads: 0 }
+    readStats = () => ({ ...counts })
+    const [rows, setRows] = createSignal(
+      virtual
+        ? Array.from({ length: 1000 }, (_, index) => ({
+            id: `r${index}`,
+            values: {
+              category: `Category ${index}`,
+              name: `Name ${index}`,
+              amount: index,
+            },
+          }))
+        : initial,
+    )
     replace = (value) => {
       setRows(value)
       flush()
@@ -69,10 +111,82 @@ function start() {
         },
       ],
     })
+    let viewport: HTMLDivElement | undefined
+    const virtualizer = virtual
+      ? createTableVirtualizer<string>({
+          mode: 'fixed',
+          get count() {
+            return table.getRowIds().length
+          },
+          rowHeight: 32,
+          getItemKey: (index) => untrack(() => table.getRowIds()[index]!),
+          getIndexForKey: (key) =>
+            untrack(() => table.getRowIds().indexOf(key)),
+          getScrollElement: () => viewport ?? null,
+          get scrollMargin() {
+            return viewport?.querySelector('thead')?.offsetHeight ?? 0
+          },
+          observeElements: () =>
+            Array.from(viewport?.querySelectorAll('thead') ?? []),
+        })
+      : undefined
+    currentVirtualizer = virtualizer
+    const selection = createTableSelection({
+      rows: () =>
+        table.getDisplayKeys().flatMap((key) => {
+          const item = table.getDisplayItem(key)
+          return item.kind === 'row' ? [item.id] : []
+        }),
+      columns: () => table.getVisibleColumns().map((column) => column.id),
+      getText: ({ row, column }) => {
+        if (failCopy) throw new Error('Copy text is unavailable')
+        counts.copyReads++
+        return String(table.getValue(row, column) ?? '')
+      },
+      onReveal: (cell) => {
+        virtualizer?.scrollToKey(cell.row)
+      },
+    })
+    currentSelection = selection
     return (
       <main data-ui-portal-root="" {...uiScope()}>
         <h1>Read-only table</h1>
-        <ReadOnlyTable table={table} />
+        {virtualizer ? (
+          <div
+            class="table-scroll"
+            ref={(node) => {
+              viewport = node
+            }}
+            style={{ height: '360px' }}
+          >
+            <Table
+              table={table}
+              selection={selection}
+              accessibleLabel="Virtual selection"
+              width={900}
+              renderBody={() => (
+                <VirtualRows
+                  window={virtualizer}
+                  layout="table"
+                  columns={() => 3}
+                  renderRow={(id) => {
+                    counts.mounts++
+                    onCleanup(() => counts.unmounts++)
+                    return (
+                      <TableRow
+                        table={table}
+                        id={id}
+                        onCell={() => counts.cells++}
+                      />
+                    )
+                  }}
+                />
+              )}
+            />
+          </div>
+        ) : (
+          <ReadOnlyTable table={table} selection={selection} />
+        )}
       </main>
     )
   }, document.getElementById('root')!)
@@ -81,6 +195,16 @@ function start() {
 const api = {
   start,
   stop,
+  setCopyFailure: (value: boolean) => {
+    failCopy = value
+  },
+  select: (anchor: TableSelectionCell, focus = anchor) => {
+    currentSelection?.select(anchor)
+    currentSelection?.select(focus, true)
+    flush()
+  },
+  scrollTo: (id: string) => currentVirtualizer?.scrollToKey(id),
+  stats: () => readStats?.(),
   replace: (rows: typeof initial) => replace?.(rows),
   diagnostics: () => {
     events.push(...(capture?.stop() ?? []))

@@ -1377,3 +1377,47 @@
   vertical-align: top;
   flex: none;
 }
+
+:where([data-ui]) table[data-table-selection]:focus-visible {
+  outline: 2px solid var(--ui-focus-ring, var(--ui-accent));
+  outline-offset: -2px;
+}
+:where([data-ui]) td[data-cell-selection] {
+  background: var(
+    --ui-cell-selection-surface,
+    var(--ui-canvas-surface, #e9ecef)
+  );
+  --_selection-top: 0;
+  --_selection-bottom: 0;
+  --_selection-left: 0;
+  --_selection-right: 0;
+  box-shadow:
+    inset 0 var(--_selection-top) var(--ui-accent, #1c7ed6),
+    inset 0 var(--_selection-bottom) var(--ui-accent, #1c7ed6),
+    inset var(--_selection-left) 0 var(--ui-accent, #1c7ed6),
+    inset var(--_selection-right) 0 var(--ui-accent, #1c7ed6);
+}
+:where([data-ui]) td[data-selection-active] {
+  background: var(--ui-surface, white);
+}
+:where([data-ui]) td[data-selection-edges~='top'] {
+  --_selection-top: 2px;
+}
+:where([data-ui]) td[data-selection-edges~='bottom'] {
+  --_selection-bottom: -2px;
+}
+:where([data-ui]) td[data-selection-edges~='left'] {
+  --_selection-left: 2px;
+}
+:where([data-ui]) td[data-selection-edges~='right'] {
+  --_selection-right: -2px;
+}
+:where([data-ui]) table[data-native-cell-selection] ::selection {
+  background: transparent;
+  color: inherit;
+}
+:where([data-ui]) .table-selection-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}

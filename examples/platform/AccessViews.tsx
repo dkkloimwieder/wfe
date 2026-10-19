@@ -1,3 +1,4 @@
+import { createPlatformTableSelection } from './table-selection'
 import { For, Show, createSignal } from 'solid-js'
 import {
   Button,
@@ -21,6 +22,8 @@ export function AccessViews(props: {
   navigate: (route: PlatformRoute) => void
 }) {
   const access = props.app.access
+  const usersSelection = createPlatformTableSelection(access.usersTable)
+  const membersSelection = createPlatformTableSelection(access.membersTable)
   const [usersCollapsed, setUsersCollapsed] = createSignal(true)
   const [membersCollapsed, setMembersCollapsed] = createSignal(true)
   const routeProject = () => {
@@ -146,6 +149,7 @@ export function AccessViews(props: {
           description={usersDescription}
           bindings={{
             table: access.usersTable,
+            selection: usersSelection,
             width: access.usersTable
               .getVisibleColumns()
               .reduce((sum, col) => sum + col.getSize(), 0),
@@ -170,6 +174,7 @@ export function AccessViews(props: {
           description={memberDescription()}
           bindings={{
             table: access.membersTable,
+            selection: membersSelection,
             width: access.membersTable
               .getVisibleColumns()
               .reduce((sum, col) => sum + col.getSize(), 0),

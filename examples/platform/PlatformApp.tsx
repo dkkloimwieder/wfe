@@ -1,3 +1,4 @@
+import { createPlatformTableSelection } from './table-selection'
 import { AccessViews } from './AccessViews'
 import {
   For,
@@ -56,6 +57,10 @@ export function PlatformApp(props: {
   const app = createPlatformApplication(
     platformRoute(initialUrl),
     platformScenario(initialUrl),
+  )
+  const projectsSelection = createPlatformTableSelection(app.projectsTable)
+  const environmentsSelection = createPlatformTableSelection(
+    app.environmentsTable,
   )
   props.ready?.(app)
   const [base, setBase] = createSignal(
@@ -606,6 +611,7 @@ export function PlatformApp(props: {
               description={projectDescription}
               bindings={{
                 table: app.projectsTable,
+                selection: projectsSelection,
                 width: app.projectsTable
                   .getVisibleColumns()
                   .reduce((sum, column) => sum + column.getSize(), 0),
@@ -642,6 +648,7 @@ export function PlatformApp(props: {
               description={environmentDescription()}
               bindings={{
                 table: app.environmentsTable,
+                selection: environmentsSelection,
                 width: app.environmentsTable
                   .getVisibleColumns()
                   .reduce((sum, column) => sum + column.getSize(), 0),

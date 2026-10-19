@@ -38,3 +38,11 @@ export type { TableFormattingProps } from './TableFormatting'
 export { createTableFilterDraft } from './createTableFilterDraft'
 
 export type { TableFilterCriteria } from './createTableFilterDraft'
+
+export { createTableSelection } from './createTableSelection'
+export type {
+  TableSelection,
+  TableSelectionCell,
+  TableSelectionRange,
+  TableSelectionOptions,
+} from './createTableSelection'

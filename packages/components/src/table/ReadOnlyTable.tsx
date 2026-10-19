@@ -7,6 +7,7 @@ import { createTableFilterDraft } from './createTableFilterDraft'
 import type { TableFilterCriteria } from './createTableFilterDraft'
 import { TableSort } from './TableSort'
 import { Table } from './Table'
+import type { TableSelection } from './createTableSelection'
 import type { TableColumnAlignment, TableColumnAlignments } from './Table'
 import { TableControlSection, TableWorkspace } from './TableWorkspace'
 import type { TableWorkspaceProps, TableControlsHandle } from './TableWorkspace'
@@ -30,6 +31,7 @@ export type TableFilterConfig =
 export function ReadOnlyTable<T, M>(
   props: {
     table: NativeTable<T, M>
+    selection?: TableSelection
     columnAlignment?: TableColumnAlignments
     onColumnAlignmentChange?: (
       id: string,
@@ -85,6 +87,11 @@ export function ReadOnlyTable<T, M>(
       return props.onApplyFilters
     },
   })
+  let tableElement: HTMLTableElement | undefined
+  const selectAndFocus = (operation: () => void) => {
+    operation()
+    tableElement?.focus({ preventScroll: true })
+  }
   let filterControls: HTMLDivElement | undefined
   let workspaceControls: TableControlsHandle | undefined
   const label = (column: NativeColumn<T, M>) =>
@@ -121,6 +128,11 @@ export function ReadOnlyTable<T, M>(
         <>
           {table.getFilteredRowIds().length}/{table.getSourceIds().length}{' '}
           records
+          <Show when={props.selection?.range}>
+            {' '}
+            · {props.selection!.rowCount} × {props.selection!.columnCount}{' '}
+            selected
+          </Show>
         </>
       }
       resultsHeader={
@@ -334,6 +346,32 @@ export function ReadOnlyTable<T, M>(
               </For>
             </fieldset>
           </TableControlSection>
+          <Show when={props.selection} keyed>
+            {(selection) => (
+              <TableControlSection title="Selection">
+                <p>
+                  Drag cells or use Shift and arrow keys to extend the
+                  selection.
+                </p>
+                <div class="table-selection-actions">
+                  <Button onClick={() => selectAndFocus(selection.selectRow)}>
+                    Select rows
+                  </Button>
+                  <Button
+                    onClick={() => selectAndFocus(selection.selectColumn)}
+                  >
+                    Select columns
+                  </Button>
+                  <Button onClick={() => selectAndFocus(selection.selectAll)}>
+                    Select all
+                  </Button>
+                  <Button onClick={() => selectAndFocus(selection.clear)}>
+                    Clear selection
+                  </Button>
+                </div>
+              </TableControlSection>
+            )}
+          </Show>
           <Show when={props.formatting} keyed>
             {(formatting) => (
               <TableControlSection title="Formatting" defaultOpen>
@@ -360,12 +398,16 @@ export function ReadOnlyTable<T, M>(
     >
       <div
         class="table-scroll"
-        tabindex={0}
+        tabindex={props.selection ? -1 : 0}
         role="region"
         aria-label={`${props.title ?? 'Read-only records'} results`}
       >
         <Table
           table={table}
+          selection={props.selection}
+          elementRef={(node) => {
+            tableElement = node
+          }}
           width={props.width}
           headerEnd={props.headerEnd}
           columnAlignment={alignment()}

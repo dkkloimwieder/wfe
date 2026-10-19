@@ -7,7 +7,7 @@ import type {
   LayoutViewBindings,
 } from '@wfe/generator'
 import type { FormContract } from '@wfe/form'
-import type { NativeTable } from '@wfe/components/table'
+import type { NativeTable, TableSelection } from '@wfe/components/table'
 
 type MemberInput = {
   name: string
@@ -17,6 +17,7 @@ type MemberInput = {
 }
 type MemberRow = { key: string; first: string; last: string; points: number }
 declare const memberForm: FormContract<MemberInput>
+declare const selection: TableSelection
 declare const memberTable: NativeTable<MemberRow, never>
 const memberEditor = {
   id: 'member-editor',
@@ -50,6 +51,7 @@ const memberRecords = {
 } as const satisfies TableDescription
 const memberRows = {
   table: memberTable,
+  selection,
   headerAliases: () => ({ displayLabel: 'Full name' }),
   cells: {
     points: (props) =>

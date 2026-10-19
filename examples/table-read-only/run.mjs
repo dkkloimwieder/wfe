@@ -1,3 +1,4 @@
+import { reviewSelection } from './review-selection.mjs'
 import { collapsedGroupLabel } from '../shared/controls/icon-review.mjs'
 import {
   choiceControl,
@@ -48,7 +49,7 @@ assert.ok(
 )
 assert.ok(
   !modules.some((path) =>
-    /table-core|@tanstack\/store|virtual-core|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
+    /table-core|@tanstack\/store|node_modules\/[^ ]*virtual-core|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
       path,
     ),
   ),
@@ -348,6 +349,7 @@ try {
     await page.evaluate(() => window.readOnlyFixture.stop())
     assert.equal(await page.locator('#root').textContent(), '')
   })
+  await reviewSelection(page, test)
   report.diagnostics = await page.evaluate(() =>
     window.readOnlyFixture.diagnostics(),
   )

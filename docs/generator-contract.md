@@ -165,3 +165,7 @@ Context and footer views retain their local state during relabels and reorders.
 An omitted footer removes its band. An empty `footer: []` reserves an empty band.
 Main panels use the shared panel frame. Auxiliary regions use unframed groups so the shell owns their outer padding.
 Applications own menu links and permissions. The generator owns region composition and stable view identities.
+
+Table selection is a runtime binding through `TableViewBindings.selection`.
+Descriptions stay serializable and contain no controllers or clipboard callbacks.
+See [table selection](table-selection.md) for application-owned IDs and copy text.

@@ -123,6 +123,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
       <StatusView status={props.bindings.status} />
       <ReadOnlyTable
         table={table}
+        selection={props.bindings.selection}
         width={props.bindings.width}
         headerEnd={props.bindings.headerEnd}
         title={description().title}

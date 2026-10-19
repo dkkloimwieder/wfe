@@ -1,8 +1,18 @@
 import { Icon } from '../components/Icon'
-import { For, Show, createMemo, onCleanup, untrack } from 'solid-js'
+import {
+  For,
+  Show,
+  createMemo,
+  createEffect,
+  createSignal,
+  onCleanup,
+  untrack,
+} from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 import { TableSort } from './TableSort'
+import { tableSelectionEvents } from './tableSelectionEvents'
+import type { TableSelection } from './createTableSelection'
 import type { JSX } from '@solidjs/web'
 import type { NativeCell, NativeColumn, NativeTable } from './engine'
 
@@ -20,6 +30,7 @@ export type TableEdge = {
 /** Shared presentation. Applications own data, processing and editing policy. */
 export function Table<T, M>(props: {
   table: NativeTable<T, M>
+  selection?: TableSelection
   columnAlignment?: TableColumnAlignments
   caption?: string
   accessibleLabel?: string
@@ -45,168 +56,207 @@ export function Table<T, M>(props: {
   onGroupCell?: () => void
 }) {
   const table = props.table
+  const selection = createMemo(() => props.selection)
+  const elementRef = untrack(() => props.elementRef)
+  const [element, setElement] = createSignal<HTMLTableElement>()
+  let binding: ReturnType<typeof tableSelectionEvents> | undefined
+  createEffect(
+    () => ({ element: element(), selection: selection() }),
+    ({ element, selection }) => {
+      if (!element || !selection) return
+      binding = untrack(() => tableSelectionEvents(element, selection))
+      return () => {
+        binding?.dispose()
+        binding = undefined
+      }
+    },
+  )
+  createEffect(
+    () => selection()?.range,
+    () => untrack(() => binding?.paint()),
+  )
   const headerEnd = createMemo(() => props.headerEnd)
   const grouped = () => props.grouped ?? table.state.grouping.length > 0
   const label = (column: NativeColumn<T, M>) =>
     props.label?.(column) ?? String(column.columnDef?.header ?? column.id)
   return (
-    <table
-      ref={props.elementRef}
-      tabindex="-1"
-      aria-label={props.accessibleLabel}
-      style={
-        props.width === undefined ? undefined : { width: `${props.width}px` }
-      }
-    >
-      <Show when={props.caption}>
-        <caption>{props.caption}</caption>
+    <>
+      <Show when={selection()} keyed>
+        {(controller) => (
+          <output class="sr-only" aria-live="polite" data-ui-text="system">
+            {controller.rowCount} rows by {controller.columnCount} columns
+            selected
+          </output>
+        )}
       </Show>
-      <Show when={props.width !== undefined}>
-        <colgroup>
-          <Show when={props.leading}>
-            <col style={{ width: `${props.leading!.width}px` }} />
-          </Show>
-          <For each={table.getVisibleColumns()}>
-            {(column) => (
-              <col
-                data-column-width={column.id}
-                style={{ width: `${column.getSize()}px` }}
-              />
-            )}
-          </For>
-          <Show when={props.trailing}>
-            <col style={{ width: `${props.trailing!.width}px` }} />
-          </Show>
-        </colgroup>
-      </Show>
-      <thead>
-        <tr>
-          {props.leading?.header()}
-          <For each={table.getVisibleColumns()}>
-            {(column) => (
-              <th
-                scope="col"
-                data-column={column.id}
-                data-column-header={column.id}
-                data-column-alignment={props.columnAlignment?.[column.id]}
-                class="column-header"
-                aria-sort={
-                  props.ariaSort
-                    ? props.ariaSort(column)
-                    : column.getIsSorted() === 'asc'
-                      ? 'ascending'
-                      : column.getIsSorted() === 'desc'
-                        ? 'descending'
-                        : 'none'
-                }
-              >
-                <div class="column-heading">
-                  {props.header ? (
-                    props.header(column)
-                  ) : (
-                    <TableSort
-                      label={label(column)}
-                      sorted={column.getIsSorted()}
-                      disabled={
-                        table.options.manualProcessing ||
-                        table.options.manualSorting ||
-                        !column.columnDef?.sortFn
-                      }
-                      onSort={(multi) => column.toggleSorting(undefined, multi)}
-                    />
-                  )}
-                </div>
-                {headerEnd()?.(column)}
-              </th>
-            )}
-          </For>
-          {props.trailing?.header()}
-        </tr>
-        <Show when={grouped() && props.summaryHeader}>
-          <tr class="group-summary-headers">
+      <table
+        ref={(node) => {
+          setElement(node)
+          elementRef?.(node)
+        }}
+        tabindex={props.selection ? 0 : -1}
+        aria-label={props.accessibleLabel}
+        aria-description={
+          props.selection
+            ? 'Drag cells or use Shift with arrow keys. Shift Space selects rows. Control or Command Space selects columns. Copy uses the normal shortcut.'
+            : undefined
+        }
+        style={
+          props.width === undefined ? undefined : { width: `${props.width}px` }
+        }
+      >
+        <Show when={props.caption}>
+          <caption>{props.caption}</caption>
+        </Show>
+        <Show when={props.width !== undefined}>
+          <colgroup>
             <Show when={props.leading}>
-              <th class="sub-table-control" />
+              <col style={{ width: `${props.leading!.width}px` }} />
             </Show>
+            <For each={table.getVisibleColumns()}>
+              {(column) => (
+                <col
+                  data-column-width={column.id}
+                  style={{ width: `${column.getSize()}px` }}
+                />
+              )}
+            </For>
+            <Show when={props.trailing}>
+              <col style={{ width: `${props.trailing!.width}px` }} />
+            </Show>
+          </colgroup>
+        </Show>
+        <thead>
+          <tr>
+            {props.leading?.header()}
             <For each={table.getVisibleColumns()}>
               {(column) => (
                 <th
                   scope="col"
-                  data-summary-header={column.id}
+                  data-column={column.id}
+                  data-column-header={column.id}
                   data-column-alignment={props.columnAlignment?.[column.id]}
+                  class="column-header"
+                  aria-sort={
+                    props.ariaSort
+                      ? props.ariaSort(column)
+                      : column.getIsSorted() === 'asc'
+                        ? 'ascending'
+                        : column.getIsSorted() === 'desc'
+                          ? 'descending'
+                          : 'none'
+                  }
                 >
-                  {props.summaryHeader!(column)}
+                  <div class="column-heading">
+                    {props.header ? (
+                      props.header(column)
+                    ) : (
+                      <TableSort
+                        label={label(column)}
+                        sorted={column.getIsSorted()}
+                        disabled={
+                          table.options.manualProcessing ||
+                          table.options.manualSorting ||
+                          !column.columnDef?.sortFn
+                        }
+                        onSort={(multi) =>
+                          column.toggleSorting(undefined, multi)
+                        }
+                      />
+                    )}
+                  </div>
+                  {headerEnd()?.(column)}
                 </th>
               )}
             </For>
-            <Show when={props.trailing}>
-              <th scope="col">-</th>
-            </Show>
+            {props.trailing?.header()}
           </tr>
-        </Show>
-      </thead>
-      <Show
-        when={props.renderBody}
-        keyed
-        fallback={
-          <Show
-            when={grouped()}
-            fallback={
-              <For each={table.getRowIds()}>
-                {(id) =>
-                  props.renderRow ? (
-                    props.renderRow(id, false)
-                  ) : (
-                    <TableRow
-                      table={table}
-                      columnAlignment={props.columnAlignment}
-                      id={id}
-                      renderCell={props.renderCell}
-                      formatValue={props.formatValue}
-                    />
-                  )
-                }
+          <Show when={grouped() && props.summaryHeader}>
+            <tr class="group-summary-headers">
+              <Show when={props.leading}>
+                <th class="sub-table-control" />
+              </Show>
+              <For each={table.getVisibleColumns()}>
+                {(column) => (
+                  <th
+                    scope="col"
+                    data-summary-header={column.id}
+                    data-column-alignment={props.columnAlignment?.[column.id]}
+                  >
+                    {props.summaryHeader!(column)}
+                  </th>
+                )}
               </For>
-            }
-          >
-            <For each={table.getDisplayKeys()}>
-              {(key) => {
-                const item = table.getDisplayItem(key)
-                return item.kind === 'row' ? (
-                  props.renderRow ? (
-                    props.renderRow(item.id, true)
+              <Show when={props.trailing}>
+                <th scope="col">-</th>
+              </Show>
+            </tr>
+          </Show>
+        </thead>
+        <Show
+          when={props.renderBody}
+          keyed
+          fallback={
+            <Show
+              when={grouped()}
+              fallback={
+                <For each={table.getRowIds()}>
+                  {(id) =>
+                    props.renderRow ? (
+                      props.renderRow(id, false)
+                    ) : (
+                      <TableRow
+                        table={table}
+                        columnAlignment={props.columnAlignment}
+                        id={id}
+                        renderCell={props.renderCell}
+                        formatValue={props.formatValue}
+                      />
+                    )
+                  }
+                </For>
+              }
+            >
+              <For each={table.getDisplayKeys()}>
+                {(key) => {
+                  const item = table.getDisplayItem(key)
+                  return item.kind === 'row' ? (
+                    props.renderRow ? (
+                      props.renderRow(item.id, true)
+                    ) : (
+                      <TableRow
+                        table={table}
+                        columnAlignment={props.columnAlignment}
+                        id={item.id}
+                        renderCell={props.renderCell}
+                        formatValue={props.formatValue}
+                      />
+                    )
                   ) : (
-                    <TableRow
+                    <TableGroup
                       table={table}
+                      groupKey={item.key}
                       columnAlignment={props.columnAlignment}
-                      id={item.id}
-                      renderCell={props.renderCell}
+                      label={props.groupLabel}
                       formatValue={props.formatValue}
+                      formatSummary={props.formatSummary}
+                      canToggle={props.canToggleGroup}
+                      leading={props.leading?.group}
+                      trailing={props.trailing?.group}
+                      onMount={props.onGroupMount}
+                      onCleanup={props.onGroupCleanup}
+                      onCell={props.onGroupCell}
                     />
                   )
-                ) : (
-                  <TableGroup
-                    table={table}
-                    groupKey={item.key}
-                    columnAlignment={props.columnAlignment}
-                    label={props.groupLabel}
-                    formatValue={props.formatValue}
-                    formatSummary={props.formatSummary}
-                    canToggle={props.canToggleGroup}
-                    leading={props.leading?.group}
-                    trailing={props.trailing?.group}
-                    onMount={props.onGroupMount}
-                    onCleanup={props.onGroupCleanup}
-                    onCell={props.onGroupCell}
-                  />
-                )
-              }}
-            </For>
-          </Show>
-        }
-      >
-        {(renderBody) => renderBody()}
-      </Show>
-    </table>
+                }}
+              </For>
+            </Show>
+          }
+        >
+          {(renderBody) => renderBody()}
+        </Show>
+      </table>
+    </>
   )
 }
 

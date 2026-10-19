@@ -219,6 +219,7 @@ export type TableViewBindings<
 }> &
   Pick<
     Parameters<typeof ReadOnlyTable<Row, Meta>>[0],
+    | 'selection'
     | 'width'
     | 'headerEnd'
     | 'onApplyFilters'

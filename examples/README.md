@@ -69,3 +69,7 @@ The application owns data and callbacks, while descriptions control presentation
 The [WAMN generator adapter](wamn-generator/README.md) maps prepared Widget metadata to the same public views.
 It tests two metadata variants with the existing mock HTTP transport and generated query, get, and update bindings.
 Its optional qualification reuses the prepared inputs and keeps production WAMN unchanged.
+
+The read-only and platform examples support rectangular cell selection.
+See [table selection](../docs/table-selection.md) for keyboard commands and copy behavior.
+The read-only browser fixture also tests the shared virtual renderer with 1,000 available rows.

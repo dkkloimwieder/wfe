@@ -354,3 +354,41 @@ for (const present of [true, false]) {
 console.log(
   'Workspace regions render once and keep empty footers distinct from absent footers.',
 )
+
+const { Table: SelectionTable, createTableSelection } =
+  await import('@wfe/components/table')
+let selectionCopyReads = 0
+const selectionOutput = await renderToString(() => {
+  const table = createNativeTable({
+    source: { ids: () => ['a', 'b'], get: (id) => ({ name: id }) },
+    columns: [{ id: 'name', accessorKey: 'name' }],
+  })
+  const selection = createTableSelection({
+    rows: () => table.getRowIds(),
+    columns: () => ['name'],
+    getText: ({ row }) => {
+      selectionCopyReads++
+      return row
+    },
+    defaultValue: {
+      anchor: { row: 'a', column: 'name' },
+      focus: { row: 'b', column: 'name' },
+    },
+  })
+  return SelectionTable({
+    table,
+    selection,
+    accessibleLabel: 'Selected server records',
+  })
+})
+assert.equal(selectionCopyReads, 0)
+assert.match(selectionOutput, /Selected server records/)
+assert.match(
+  selectionOutput.replace(/<!--[\s\S]*?-->/g, ''),
+  /2 rows by 1 columns selected/,
+)
+assert.equal((selectionOutput.match(/aria-live="polite"/g) ?? []).length, 1)
+assert.equal(selectionOutput.includes('data-native-cell-selection'), false)
+console.log(
+  'SSR table selection renders one status without DOM effects or copy reads',
+)

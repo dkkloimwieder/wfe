@@ -999,6 +999,52 @@ try {
     },
   )
   await record(
+    'platform: generated tables select data cells and copy application formatting without actions',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await initialize('?screen=users')
+      await page
+        .context()
+        .grantPermissions(['clipboard-read', 'clipboard-write'])
+      const table = page.getByRole('table', { name: 'Users', exact: true })
+      const ids = await table
+        .locator('tr[data-row]')
+        .evaluateAll((nodes) =>
+          nodes.slice(0, 2).map((node) => node.dataset.row),
+        )
+      const users = await page.evaluate(() =>
+        window.platformFixture.app().access.users(),
+      )
+      const expected = ids
+        .map((id) => users.find((user) => user.principalId === id))
+        .map(
+          (user) =>
+            `${user.displayName}\t${user.email}\t${user.orgAdmin ? 'Yes' : 'No'}`,
+        )
+        .join('\n')
+      await table
+        .locator(`tr[data-row="${ids[0]}"] td[data-column="displayName"]`)
+        .click()
+      await table
+        .locator(`tr[data-row="${ids[1]}"] td[data-column="orgAdmin"]`)
+        .click({ modifiers: ['Shift'] })
+      await expect(table.locator('td[data-cell-selection]')).toHaveCount(6)
+      await expect(
+        table.locator('td[data-column="actions"][data-cell-selection]'),
+      ).toHaveCount(0)
+      await page.keyboard.press('Control+c')
+      assert.equal(
+        await page.evaluate(() => navigator.clipboard.readText()),
+        expected,
+      )
+      await page.screenshot({ path: '/tmp/wfe-platform-cell-selection.png' })
+      await table.locator('tr[data-row]').first().getByRole('button').click()
+      await expect
+        .poll(() => new URL(page.url()).searchParams.get('screen'))
+        .toBe('access')
+    },
+  )
+  await record(
     'platform: organization workspace groups menus and reserves a full-width empty footer',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
