@@ -24,7 +24,7 @@ import {
   useContext,
 } from 'solid-js'
 import { isServer } from '@solidjs/web'
-import type { JSX } from '@solidjs/web'
+import type { ComponentProps, JSX } from '@solidjs/web'
 
 export type FieldProps = JSX.HTMLAttributes<HTMLDivElement> & {
   controlId?: string
@@ -271,6 +271,13 @@ export function Button(props: ButtonProps) {
       ref={[props.ref, events]}
     />
   )
+}
+export type ButtonLinkProps = Omit<ComponentProps<'a'>, 'href'> &
+  ButtonAppearanceProps & { href: string }
+export function ButtonLink(props: ButtonLinkProps) {
+  const attributes = buttonAttributes(omit(props, 'ref', ...nativeEventProps))
+  const events = ownedElementEvents(props)
+  return <a {...attributes} ref={[props.ref, events]} />
 }
 export type IconButtonProps = ButtonProps & { 'aria-label': string }
 export function IconButton(props: IconButtonProps) {

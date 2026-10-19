@@ -1,6 +1,7 @@
 import { For, createSignal } from 'solid-js'
 import {
   Button,
+  ButtonLink,
   Icon,
   IconButton,
   Field,
@@ -94,6 +95,20 @@ export function Buttons(props: RecipeProps) {
           </div>
         )}
       </For>
+      <div class="example-actions" role="group" aria-label="Navigation links">
+        <For each={['outline', 'filled', 'inverted', 'ghost'] as const}>
+          {(variant) => (
+            <ButtonLink
+              href="#button-link-example"
+              variant={variant}
+              tone="accent"
+            >
+              {variant} link
+            </ButtonLink>
+          )}
+        </For>
+      </div>
+      <p id="button-link-example">Links retain native browser navigation.</p>
     </section>
   )
 }

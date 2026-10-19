@@ -1,3 +1,4 @@
+import { ButtonLinkControls } from '../shared/controls/ButtonLinkControls'
 import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
 import {
   ResizableControls,
@@ -146,6 +147,7 @@ export default function App() {
         />
       )}
     >
+      <ButtonLinkControls />
       <FileControls />
       <ResizableControls />
       <AccordionControls />

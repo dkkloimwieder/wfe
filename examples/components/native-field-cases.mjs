@@ -1,3 +1,4 @@
+import { reviewButtonLinks } from '../shared/controls/button-link-review.mjs'
 import {
   choiceControl,
   selectValue,
@@ -19,6 +20,13 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     )
     await settle()
   }
+  await record(
+    'fields: button links preserve shared appearance and native navigation',
+    async () => {
+      await open()
+      await reviewButtonLinks(page)
+    },
+  )
   await record(
     'fields: default icon actions inherit button colors and retain visible focus',
     async () => {

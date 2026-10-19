@@ -1,3 +1,4 @@
+import { reviewButtonLinks } from '../shared/controls/button-link-review.mjs'
 import { reviewFiles } from '../shared/controls/file-review.mjs'
 import { reviewResizable } from '../shared/controls/resizable-review.mjs'
 import { reviewAccordion } from '../shared/controls/accordion-review.mjs'
@@ -91,6 +92,8 @@ try {
     template.includes('<!--ssr-->'),
     'Built HTML must retain the server markup placeholder',
   )
+  assert.match(markup, /<a[^>]*id="button-link-outline"[^>]*>/)
+  assert.match(markup, /href="#button-link-destination"/)
   assert.match(markup, /data-variant="filled"/)
   assert.match(markup, /data-tone="accent"/)
   const triggerMarkup = markup.match(
@@ -114,7 +117,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
+      '<script>window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -231,6 +234,18 @@ try {
         ),
     ),
     true,
+  )
+  assert.equal(
+    await page.evaluate(
+      () =>
+        window.serverButtonLink ===
+        document.getElementById('button-link-outline'),
+    ),
+    true,
+  )
+  await reviewButtonLinks(page)
+  report.assertions.push(
+    'Button links retain server nodes, shared appearance and native navigation',
   )
   await reviewFiles(page, 'hydration')
   report.assertions.push(

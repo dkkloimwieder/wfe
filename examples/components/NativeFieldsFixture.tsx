@@ -1,3 +1,4 @@
+import { ButtonLinkControls } from '../shared/controls/ButtonLinkControls'
 import {
   Button,
   Field,
@@ -81,6 +82,7 @@ export function NativeFieldsFixture() {
       )}
     >
       <h1>Native fields</h1>
+      <ButtonLinkControls />
       <form
         ref={nativeEvents<HTMLFormElement>({
           submit: (event) => {

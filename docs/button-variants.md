@@ -30,3 +30,16 @@ The previews do not change existing application actions or save appearance choic
 The variant and color split follows [Radix Themes](https://www.radix-ui.com/themes/docs/components/button).
 The inverted meaning follows [Bulma](https://bulma.io/documentation/elements/button/#inverted).
 Separate hover color roles follow [Mantine](https://mantine.dev/styles/css-variables/#variant-colors).
+
+## Navigation links
+
+`ButtonLink` renders a native anchor with the same appearance as `Button`.
+Import it from `@wfe/components` or `@wfe/components/fields`.
+Supply `href` and use the same `variant`, `tone`, and structured `class` properties.
+Native anchor attributes, events, and refs remain available, including `target`, `rel`, and `download`.
+The browser handles navigation, modified clicks, keyboard activation, and history.
+Applications own routing and access decisions.
+`ButtonLink` has no `disabled` property. An anchor does not support native disabled behavior.
+If navigation is unavailable, render text or omit the action.
+`aria-disabled` alone does not prevent navigation.
+Use `Button` for submission and local actions.
