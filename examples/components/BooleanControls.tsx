@@ -1,8 +1,9 @@
+import { exampleSizing } from '../shared/appearance/sizing'
 import { Button, Checkbox, RadioGroup, Switch, uiScope } from '@wfe/components'
 import { Show, createSignal, flush, onCleanup } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
 
-export function BooleanControls() {
+export function BooleanControls(props: { embedded?: boolean } = {}) {
   const [checked, setChecked] = createSignal(false)
   const [switched, setSwitched] = createSignal(false)
   const [selected, setSelected] = createSignal('a')
@@ -53,14 +54,19 @@ export function BooleanControls() {
   }
   return (
     <main
-      {...uiScope(
-        new URLSearchParams(location.search).has('comfortable')
-          ? 'comfortable'
-          : 'compact',
-      )}
+      data-ui=""
+      class="example-stack"
+      style={
+        props.embedded
+          ? undefined
+          : new URLSearchParams(location.search).has('comfortable')
+            ? uiScope('comfortable').style
+            : { ...uiScope().style, ...exampleSizing }
+      }
     >
       <h1>Boolean and radio controls</h1>
       <form
+        class="example-stack"
         ref={nativeEvents<HTMLFormElement>({
           reset(event) {
             if (preventReset()) event.preventDefault()
@@ -182,8 +188,10 @@ export function BooleanControls() {
           </Checkbox.Control>
           <Checkbox.Label>Default choice</Checkbox.Label>
         </Checkbox>
-        <Button type="reset">Reset form</Button>
-        <Button type="submit">Submit form</Button>
+        <div class="example-actions">
+          <Button type="reset">Reset form</Button>
+          <Button type="submit">Submit form</Button>
+        </div>
       </form>
     </main>
   )

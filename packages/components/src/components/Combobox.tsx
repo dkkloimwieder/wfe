@@ -33,6 +33,7 @@ export function ComboboxRoot<
       <Core.Root<Option, OptGroup, T>
         {...props}
         data-ui=""
+        class={styledClasses('ui-field', props.class)}
         open={scope.open()}
         onOpenChange={scope.changeOpen}
         allowsEmptyCollection={props.allowsEmptyCollection ?? true}

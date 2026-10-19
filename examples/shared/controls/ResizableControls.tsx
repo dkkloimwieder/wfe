@@ -73,13 +73,13 @@ export function ResizableControls() {
     ],
   })
   return (
-    <section data-resizable-review dir={dir()}>
+    <section class="example-stack" data-resizable-review dir={dir()}>
       <p class="ui-help">
         Drag a divider or focus it and use the arrow keys. Home and End select
         its size limits. Double-click the divider or press Enter to close and
         reopen the pane.
       </p>
-      <div class="resize-review-actions">
+      <div class="example-actions">
         <Button onClick={() => setDir(dir() === 'ltr' ? 'rtl' : 'ltr')}>
           {dir() === 'ltr' ? 'RTL' : 'LTR'}
         </Button>
@@ -135,7 +135,7 @@ export function ResizableControls() {
           <Input id="resize-content" defaultValue="Retained content" />
         </Field>
       </Resizable>
-      <div class="resize-review-actions">
+      <div class="example-actions">
         <Button onClick={() => setPlacement('left')}>Left controls</Button>
         <Button onClick={() => setPlacement('top')}>Top controls</Button>
         <Button onClick={() => setPlacement('right')}>Right controls</Button>

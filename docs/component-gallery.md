@@ -56,6 +56,18 @@ Existing fixture routes such as `?files=1`, `?tabs=1`, and `?consumer=1` remain 
 Gallery previews use `?galleryPreview=<example>` and also work without the gallery shell.
 Unknown example IDs fall back to Fields. Invalid presentation values fall back to the approved defaults.
 
+## Shared presentation
+
+The gallery and reused standalone examples share `examples/shared/appearance/sizing.ts`.
+Their standard controls use a 32-pixel height and 10-pixel horizontal padding.
+Fields use an 8-pixel label gap. Example sections use a 20-pixel gap, and action rows use an 8-pixel gap.
+The same measurements apply in Light and Dark.
+
+Embedded examples inherit the preview scope instead of resetting its density.
+Use `example-stack` for example sections and `example-actions` for action rows.
+Select and Combobox own their field layout in the shared component stylesheet.
+Explicit density diagnostics and virtual table rows retain their configured geometry.
+
 ## Preview ownership
 
 Each example runs in a same-origin iframe with a meaningful title.

@@ -20,7 +20,7 @@ import {
 import { entries, entryFor, galleryUrl, readRoute } from './catalog'
 import type { GalleryRoute } from './catalog'
 import '../../shared/appearance/style.css'
-import { gallerySizing } from './appearance'
+import { exampleSizing } from '../../shared/appearance/sizing'
 import './gallery.css'
 
 export function Gallery() {
@@ -149,7 +149,7 @@ export function Gallery() {
     <DefaultAppearance
       class="gallery-shell"
       style={{
-        ...gallerySizing,
+        ...exampleSizing,
         ...appearanceStyle(
           schemes[route().scheme]!,
           accents[route().accent]!,
@@ -160,7 +160,7 @@ export function Gallery() {
     >
       <DashboardShell
         class="gallery-dashboard"
-        style={gallerySizing}
+        style={exampleSizing}
         scroll="content"
         mainLabel="Component review"
         toggleLabel="Components"

@@ -56,7 +56,7 @@ export function TabsControls() {
   }
   tabsLifecycle.read = () => ({ requests: [...requests], mounts, cleanups })
   return (
-    <section data-tabs-review>
+    <section class="example-stack" data-tabs-review>
       <Tabs
         id="retained-tabs"
         dir={dir()}

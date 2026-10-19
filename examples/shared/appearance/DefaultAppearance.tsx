@@ -1,4 +1,5 @@
 import './default-appearance.css'
+import { exampleSizing } from './sizing'
 import type { JSX } from '@solidjs/web'
 import { uiScope } from '@wfe/components'
 import { accents, appearanceStyle, schemes } from './appearance'
@@ -17,6 +18,7 @@ export function DefaultAppearance(props: {
       data-ui-portal-root=""
       style={{
         ...scope.style,
+        ...exampleSizing,
         ...appearanceStyle(schemes[1]!, accents[1]!, 2, {
           canvas: 1,
           pane: 0,

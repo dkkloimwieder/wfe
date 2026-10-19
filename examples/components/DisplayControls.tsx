@@ -1,3 +1,4 @@
+import { exampleSizing } from '../shared/appearance/sizing'
 import {
   Badge,
   Button,
@@ -13,7 +14,7 @@ import {
 } from '@wfe/components'
 import { Show, createSignal, flush, onCleanup } from 'solid-js'
 
-export function DisplayControls() {
+export function DisplayControls(props: { embedded?: boolean } = {}) {
   const uncontrolled = new URLSearchParams(location.search).has('defaultToast')
   const [open, setOpen] = createSignal(uncontrolled)
   const [mounted, setMounted] = createSignal(true)
@@ -54,16 +55,22 @@ export function DisplayControls() {
   }
   return (
     <main
-      {...uiScope()}
+      data-ui=""
+      class="example-stack"
+      style={
+        props.embedded ? undefined : { ...uiScope().style, ...exampleSizing }
+      }
       data-ui-theme={
         new URLSearchParams(location.search).has('dark') ? 'dark' : undefined
       }
     >
       <h1>Display and status</h1>
-      <Button id="toast-opener" onClick={() => setOpen(true)}>
-        Show notification
-      </Button>
-      <Button id="outside">Outside action</Button>
+      <div class="example-actions">
+        <Button id="toast-opener" onClick={() => setOpen(true)}>
+          Show notification
+        </Button>
+        <Button id="outside">Outside action</Button>
+      </div>
       <Card
         id="display-card"
         ref={() => {
@@ -90,7 +97,7 @@ export function DisplayControls() {
           height: '320px',
           overflow: 'auto',
           position: 'relative',
-          border: '1px solid',
+          border: '1px solid var(--ui-border)',
         }}
       >
         <Show when={loading()} fallback={<EmptyState>No results</EmptyState>}>

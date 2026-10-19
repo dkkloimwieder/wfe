@@ -35,6 +35,61 @@ export async function galleryCases({ page, url, record, settle }) {
   const name = () =>
     preview().getByRole('textbox', { name: 'Name', exact: true })
   await record(
+    'gallery: all examples share control sizing across light and dark modes',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      for (const scheme of [1, 2]) {
+        for (const [id] of catalog) {
+          await page.goto(`${url}?gallery=${id}&scheme=${scheme}`)
+          await expect(preview().locator('.gallery-preview')).toBeVisible()
+          const heights = await preview()
+            .locator(
+              '.ui-button:not(.column-sort, .column-move, .header-rename)',
+            )
+            .evaluateAll((nodes) =>
+              nodes
+                .map((node) => node.getBoundingClientRect().height)
+                .filter(Boolean),
+            )
+          for (const height of heights)
+            assert.equal(height, 32, `${id}: button height in scheme ${scheme}`)
+          if (id === 'choices') {
+            const fields = preview().locator('form > .ui-field')
+            await expect(fields).toHaveCount(2)
+            const geometry = await fields.evaluateAll((nodes) =>
+              nodes.map((node) => {
+                const label = node
+                  .querySelector('.ui-label')
+                  .getBoundingClientRect()
+                const control = node
+                  .querySelector('.popup-trigger, .choice-control')
+                  .getBoundingClientRect()
+                return {
+                  height: control.height,
+                  labelGap: control.top - label.bottom,
+                }
+              }),
+            )
+            assert.deepEqual(geometry, [
+              { height: 32, labelGap: 8 },
+              { height: 32, labelGap: 8 },
+            ])
+            const actionGap = await preview()
+              .locator('.example-actions')
+              .evaluate((node) => {
+                const buttons = node.querySelectorAll('button')
+                return (
+                  buttons[1].getBoundingClientRect().left -
+                  buttons[0].getBoundingClientRect().right
+                )
+              })
+            assert.equal(actionGap, 8)
+          }
+        }
+      }
+    },
+  )
+  await record(
     'gallery: platform shell has breadcrumbs, an empty footer and collapsible catalog sections',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })

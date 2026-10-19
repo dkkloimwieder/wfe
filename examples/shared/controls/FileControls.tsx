@@ -77,7 +77,12 @@ export function FileControls() {
     },
   })
   return (
-    <form id="file-review-form" data-file-review ref={events}>
+    <form
+      id="file-review-form"
+      class="example-stack"
+      data-file-review
+      ref={events}
+    >
       <h2>Record attachments</h2>
       <Field controlId="file-record-name">
         <Label>Record name</Label>
@@ -112,7 +117,7 @@ export function FileControls() {
           browser preview.
         </HelpText>
       </Field>
-      <div class="file-review-actions">
+      <div class="example-actions">
         <Button type="submit">Review record</Button>
         <Button type="reset">Reset attachments</Button>
       </div>

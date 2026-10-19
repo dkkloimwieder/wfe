@@ -55,6 +55,7 @@ export function NumberControls() {
   return (
     <form
       id="number-review"
+      class="example-stack"
       data-ui=""
       ref={nativeEvents<HTMLFormElement>({
         submit: (event) => {
@@ -87,8 +88,10 @@ export function NumberControls() {
         />
         <HelpText>Enter a numeric value.</HelpText>
       </Field>
-      <Button type="submit">Submit numeric value</Button>
-      <Button id="number-outside">Outside numeric field</Button>
+      <div class="example-actions">
+        <Button type="submit">Submit numeric value</Button>
+        <Button id="number-outside">Outside numeric field</Button>
+      </div>
     </form>
   )
 }

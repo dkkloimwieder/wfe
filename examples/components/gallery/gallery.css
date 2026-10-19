@@ -123,21 +123,6 @@ body:has(.gallery-preview) {
 .gallery-preview > main {
   padding: 0;
 }
-.gallery-preview h1 {
-  margin-top: 0;
-  font-size: 1.25em;
-}
-.gallery-recipe {
-  display: grid;
-  gap: var(--gallery-field-gap);
-  min-width: 0;
-}
-.gallery-example-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ui-gap);
-}
 .gallery-table {
   height: calc(100dvh - 2 * var(--ui-layout-inset));
   min-height: 0;
@@ -153,8 +138,4 @@ body:has(.gallery-preview) {
   width: 100%;
   max-width: none;
   margin: 0;
-}
-
-.gallery-preview .ui-label {
-  font-weight: 500;
 }

@@ -356,7 +356,7 @@ export async function sharedStyleCases({ page, url, record, settle }) {
               expected.textTransform,
               partName === 'Label' ? 'uppercase' : 'none',
             )
-            if (partName === 'Label') assert.equal(expected.fontWeight, '650')
+            if (partName === 'Label') assert.equal(expected.fontWeight, '500')
             for (const family of ['Checkbox', 'Select', 'Combobox'])
               assert.deepEqual(
                 await typography(part(family + '.' + partName)),

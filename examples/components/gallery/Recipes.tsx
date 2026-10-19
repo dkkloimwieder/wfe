@@ -23,7 +23,7 @@ export function Fields(props: RecipeProps) {
   const [notes, setNotes] = createSignal('A record note')
   const [choice, setChoice] = createSignal('open')
   return (
-    <section class="gallery-recipe">
+    <section class="example-stack">
       <Field
         disabled={props.state === 'disabled'}
         readonly={props.state === 'readonly'}
@@ -65,11 +65,11 @@ export function Fields(props: RecipeProps) {
 }
 export function Buttons(props: RecipeProps) {
   return (
-    <section class="gallery-recipe">
+    <section class="example-stack">
       <For each={['accent', 'neutral'] as const}>
         {(tone) => (
           <div
-            class="gallery-example-row"
+            class="example-actions"
             role="group"
             aria-label={`${tone} buttons`}
           >
@@ -103,7 +103,7 @@ export function Dates(props: RecipeProps) {
     '2026-10-18T14:30:00.000Z',
   )
   return (
-    <section class="gallery-recipe">
+    <section class="example-stack">
       <Field
         disabled={props.state === 'disabled'}
         readonly={props.state === 'readonly'}
@@ -142,7 +142,7 @@ export function Dates(props: RecipeProps) {
 export function Dialogs() {
   const [confirm, setConfirm] = createSignal(false)
   return (
-    <section class="gallery-example-row">
+    <section class="example-actions">
       <Dialog>
         <Dialog.Trigger as={Button}>Open dialog</Dialog.Trigger>
         <Dialog.Portal>

@@ -1,3 +1,4 @@
+import { exampleSizing } from '../shared/appearance/sizing'
 import { Button } from '@wfe/components/fields'
 import { Combobox, Icon, Select, uiScope } from '@wfe/components'
 import { createSignal, flush, onCleanup } from 'solid-js'
@@ -15,7 +16,7 @@ function CustomItem(
 ) {
   return <div {...props} data-custom-item={props.marker} />
 }
-export function ChoiceControls() {
+export function ChoiceControls(props: { embedded?: boolean } = {}) {
   const [options, setOptions] = createSignal(initial)
   const [value, setValue] = createSignal<Option | null>(initial[0]!)
   const [query, setQuery] = createSignal('Alpha')
@@ -67,9 +68,16 @@ export function ChoiceControls() {
     }),
   }
   return (
-    <main {...uiScope()} data-ui-portal-root="">
+    <main
+      data-ui=""
+      class="example-stack"
+      style={
+        props.embedded ? undefined : { ...uiScope().style, ...exampleSizing }
+      }
+      data-ui-portal-root=""
+    >
       <h1>Generic choices</h1>
-      <form>
+      <form class="example-stack">
         <Select
           options={options()}
           value={value()}
@@ -143,7 +151,7 @@ export function ChoiceControls() {
           <Combobox.Control>
             <Combobox.Input />
             <Combobox.Trigger aria-label="Show categories">
-              Open
+              <Combobox.Icon />
             </Combobox.Trigger>
           </Combobox.Control>
           <Combobox.Description>
@@ -169,10 +177,15 @@ export function ChoiceControls() {
             </Combobox.Content>
           </Combobox.Portal>
         </Combobox>
-        <Button type="button" ref={nativeEvents({ click: () => change(null) })}>
-          Clear selection
-        </Button>
-        <Button type="submit">Submit choices</Button>
+        <div class="example-actions">
+          <Button
+            type="button"
+            ref={nativeEvents({ click: () => change(null) })}
+          >
+            Clear selection
+          </Button>
+          <Button type="submit">Submit choices</Button>
+        </div>
       </form>
       <output aria-label="Choice value">{value()?.id ?? '(empty)'}</output>
     </main>

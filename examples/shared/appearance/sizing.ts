@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web'
 
-/** Shared measurements for the gallery shell, previews, and their portals. */
-export const gallerySizing: JSX.CSSProperties = {
+/** Shared measurements for example shells, controls, and their portals. */
+export const exampleSizing: JSX.CSSProperties = {
   '--ui-font-size': '12px',
   '--ui-line-height': '1.3333333333',
   '--ui-control-height': '32px',
@@ -10,5 +10,5 @@ export const gallerySizing: JSX.CSSProperties = {
   '--ui-input-padding-x': '10px',
   '--ui-gap': '8px',
   '--ui-layout-inset': '16px',
-  '--gallery-field-gap': '20px',
+  '--ui-field-gap': '20px',
 }

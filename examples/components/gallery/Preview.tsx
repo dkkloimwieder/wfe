@@ -26,7 +26,7 @@ import { DisplayControls } from '../DisplayControls'
 import { Fields, Buttons, Dates, Dialogs, TableExample } from './Recipes'
 import { entryFor, readConfig, readRoute } from './catalog'
 import type { GalleryState } from './catalog'
-import { gallerySizing } from './appearance'
+import { exampleSizing } from '../../shared/appearance/sizing'
 import './gallery.css'
 
 const views = {
@@ -122,7 +122,7 @@ export function GalleryPreview() {
     <DefaultAppearance
       class="gallery-preview"
       style={{
-        ...gallerySizing,
+        ...exampleSizing,
         ...appearanceStyle(
           schemes[config().scheme]!,
           accents[config().accent]!,
@@ -131,7 +131,7 @@ export function GalleryPreview() {
         ),
       }}
     >
-      <Dynamic component={views[entry.id]} state={config().state} />
+      <Dynamic component={views[entry.id]} state={config().state} embedded />
     </DefaultAppearance>
   )
 }

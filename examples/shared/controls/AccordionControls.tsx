@@ -63,7 +63,7 @@ export function AccordionControls() {
     cleanups,
   })
   return (
-    <section data-accordion-review>
+    <section class="example-stack" data-accordion-review>
       <form
         aria-label="Profile sections"
         onSubmit={(event) => event.preventDefault()}

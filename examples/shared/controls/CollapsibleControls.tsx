@@ -38,7 +38,7 @@ export function CollapsibleControls() {
     clicks,
   })
   return (
-    <section data-collapsible-review>
+    <section class="example-stack" data-collapsible-review>
       <Collapsible
         id="controlled-disclosure"
         class={['fixture-disclosure', { 'caller-open': open() }]}

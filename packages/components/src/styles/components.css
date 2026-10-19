@@ -874,12 +874,14 @@
   padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
 }
 
+:where(.ui-field[data-ui]),
 :where([data-ui]) .ui-field {
+  min-inline-size: 0;
   display: grid;
   gap: var(--ui-gap, 6px);
 }
 :where([data-ui]) .ui-label {
-  font-weight: 650;
+  font-weight: var(--ui-label-weight, 500);
 }
 :where([data-ui]) .ui-help {
   color: var(--ui-muted-text, #555);

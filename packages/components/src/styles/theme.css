@@ -60,4 +60,5 @@
 :where([data-ui]) textarea,
 :where([data-ui]) select {
   font: inherit;
+  line-height: var(--ui-line-height, 1.45);
 }
