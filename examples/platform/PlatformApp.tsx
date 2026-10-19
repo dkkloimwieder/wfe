@@ -314,6 +314,7 @@ export function PlatformApp(props: {
                     <Breadcrumbs.Link
                       href={href({ screen: 'projects' })}
                       onClick={follow({ screen: 'projects' })}
+                      data-ui-text="system"
                     >
                       acme
                     </Breadcrumbs.Link>
