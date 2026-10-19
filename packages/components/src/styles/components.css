@@ -209,6 +209,15 @@
   background: transparent;
   font-weight: inherit;
 }
+:where([data-ui]) .column-sort-label {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where([data-ui]) :is(.column-sort, .header-sort) > [aria-hidden='true'] {
+  flex: none;
+}
 :where([data-ui]) .column-header {
   position: relative;
   padding-right: 14px;

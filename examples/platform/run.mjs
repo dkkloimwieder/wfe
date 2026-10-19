@@ -4,6 +4,10 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { chromium, expect } from '@playwright/test'
+import {
+  choiceControl,
+  selectValue,
+} from '../shared/controls/select-review.mjs'
 import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
 
 const hydration = process.argv.includes('--hydration')
@@ -883,6 +887,118 @@ try {
         .getByRole('button', { name: 'Black / white surfaces', exact: true })
         .click()
       assert.equal((await read()).row, 'rgb(233, 236, 239)')
+    },
+  )
+  await record(
+    'platform: adjacent long headers keep their own sort indicators after resizing and alignment changes',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 844 })
+      await initialize('?screen=members&project=billing')
+      const table = page.getByRole('table', {
+        name: 'Members · billing',
+        exact: true,
+      })
+      const org = table.locator('[data-column-header="orgAdmin"]')
+      const project = table.locator('[data-column-header="projectAdmin"]')
+      const orgSort = org.getByRole('button', {
+        name: 'Sort by Organization administrator',
+        exact: true,
+      })
+      await expect(orgSort).toBeVisible()
+      const contained = async () => {
+        const geometry = await table
+          .locator('th[data-column-header]')
+          .evaluateAll((heads) =>
+            heads
+              .map((head) => {
+                const button = head.querySelector('.column-sort')
+                const mark = button?.querySelector('[aria-hidden="true"]')
+                const label = button?.querySelector('.column-sort-label')
+                if (!mark || !label) return undefined
+                const cell = head.getBoundingClientRect(),
+                  target = button.getBoundingClientRect(),
+                  icon = mark.getBoundingClientRect()
+                const style = getComputedStyle(label)
+                return {
+                  id: head.dataset.columnHeader,
+                  cellLeft: cell.left,
+                  cellRight: cell.right,
+                  targetLeft: target.left,
+                  targetRight: target.right,
+                  iconLeft: icon.left,
+                  iconRight: icon.right,
+                  iconWidth: icon.width,
+                  clipped:
+                    style.overflow === 'hidden' &&
+                    style.textOverflow === 'ellipsis',
+                }
+              })
+              .filter(Boolean),
+          )
+        for (const item of geometry) {
+          assert.ok(item.iconWidth > 0, JSON.stringify(item))
+          assert.ok(
+            item.iconLeft >= item.cellLeft && item.iconRight <= item.cellRight,
+            JSON.stringify(item),
+          )
+          assert.ok(
+            item.iconLeft >= item.targetLeft &&
+              item.iconRight <= item.targetRight,
+            JSON.stringify(item),
+          )
+          assert.equal(item.clipped, true)
+        }
+      }
+      await contained()
+      await page
+        .getByRole('button', { name: 'Table controls', exact: true })
+        .click()
+      await page
+        .getByRole('complementary', { name: 'Table controls', exact: true })
+        .getByText('Display columns', { exact: true })
+        .click()
+      for (const alignment of ['left', 'center', 'right']) {
+        for (const name of [
+          'Organization administrator',
+          'Project administrator',
+        ])
+          await selectValue(
+            choiceControl(page, { name: `${name} alignment`, exact: true }),
+            alignment,
+          )
+        for (const width of [190, 80, 40]) {
+          await page.evaluate((size) => {
+            const table = window.platformFixture.app().access.membersTable
+            table.getColumn('orgAdmin').setSize(size)
+            table.getColumn('projectAdmin').setSize(size)
+          }, width)
+          await expect(org).toHaveAttribute('aria-sort', 'none')
+          for (const sorted of ['none', 'ascending', 'descending']) {
+            await expect(org).toHaveAttribute('aria-sort', sorted)
+            await contained()
+            await orgSort.locator('[aria-hidden="true"]').click()
+            await expect(project).toHaveAttribute('aria-sort', 'none')
+          }
+        }
+      }
+      await page
+        .getByRole('button', { name: 'Table controls', exact: true })
+        .click()
+      const handle = page.getByRole('separator', {
+        name: 'Resize Organization administrator column',
+        exact: true,
+      })
+      await handle.focus()
+      await handle.press('ArrowRight')
+      await expect(handle).toHaveAttribute('aria-valuenow', '50')
+      await contained()
+      await orgSort.focus()
+      await orgSort.press('Enter')
+      await expect(org).toHaveAttribute('aria-sort', 'ascending')
+      await expect(orgSort).toBeFocused()
+      await expect(orgSort).toHaveCSS('outline-style', 'solid')
+      await expect(orgSort).toHaveCSS('overflow', 'visible')
+      await page.screenshot({ path: '/tmp/wfe-header-sort-resized.png' })
     },
   )
   await record(
