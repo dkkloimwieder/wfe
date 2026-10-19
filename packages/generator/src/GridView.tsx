@@ -66,6 +66,10 @@ export function GridView<const D extends GridDescription>(
     return (
       <td data-column-alignment="center">
         <Checkbox
+          style={{
+            'grid-template-columns': 'max-content',
+            'justify-content': 'center',
+          }}
           checked={checked()}
           disabled={row()?.disabled}
           readOnly={column()?.readOnly}

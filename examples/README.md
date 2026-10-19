@@ -83,3 +83,9 @@ The [shell example](shell/README.md) uses two invented audiences and six routes.
 Its generated tables and forms use public packages and shared appearance defaults.
 Its application owns addresses, Back and Forward navigation, validation, and draft retention.
 Use `examples/shell/vite.config.ts` on an unused port to inspect it.
+
+## Boolean grid
+
+The [grid example](grid/README.md) renders 30 rows and five columns from GridDescription.
+It uses shared Checkbox controls and reports one application request for each change.
+Use `examples/grid/vite.config.ts` on an unused port to inspect it.

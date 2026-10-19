@@ -12,7 +12,7 @@ The package export maps and linked guides define the supported contracts.
 | `@wfe/components` | Controls, display, layout, Table, virtualization, charts, and shared styles                      | [Root exports](../packages/components/src/index.ts) and [export map](../packages/components/package.json) |
 | `@wfe/shell`      | Described audience/navigation frame, breadcrumbs, accepted-navigation focus, and metadata guards | [Shell contracts](../packages/shell/README.md)                                                            |
 | `@wfe/form`       | Controlled scalar form coordination                                                              | [Exports](../packages/form/src/index.ts)                                                                  |
-| `@wfe/generator`  | Typed descriptions and bindings for form, table, layout, and chart views                         | [Exports](../packages/generator/src/index.ts) and [chart entry](../packages/generator/src/chart/index.ts) |
+| `@wfe/generator`  | Typed descriptions and bindings for form, table, layout, chart, and boolean grid views           | [Exports](../packages/generator/src/index.ts) and [chart entry](../packages/generator/src/chart/index.ts) |
 
 All packages use Solid. They remain private at version `0.0.0`.
 Applications own records, routing, permissions, requests, caching, persistence, and validation rules.
@@ -145,7 +145,8 @@ The [qualification guide](qualification.md) documents serial checks, browser del
 The [shell, grid, tiles, and labels plan](plan/wfe-shell-grid-tiles.md) records delivered and proposed APIs.
 `@wfe/shell` supplies the described renderer and metadata guards. The [six-route example](../examples/shell/README.md) covers browser history, narrow drawers, and hydration.
 `GridDescription` supplies keyed boolean metadata and controlled binding types.
-`GridView` renders the shared checkbox matrix. Its full example and browser qualification remain in progress under W2.
+`GridView` renders the shared checkbox matrix with read-only columns, disabled rows, stable cells, and accessible row/column names.
+The [30 by 5 example](../examples/grid/README.md) covers keyboard input, controlled requests, reordering, narrow scrolling, and hydration.
 `StatusTile` and `TileRow` are not implemented.
 Repeated form groups and generated detail/delete views also remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.

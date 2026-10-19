@@ -56,6 +56,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
       BENCH_DEVELOPMENT: mode === 'development' ? '1' : '',
     }
     for (const fixture of [
+      'grid',
       'shell',
       'charts',
       'components',
@@ -110,6 +111,16 @@ export function qualificationStages(output, { wamn = false } = {}) {
         {
           ...env,
           BENCH_OUTPUT: resolve(output, `shell-hydration-${mode}.json`),
+        },
+      ),
+    )
+    stages.push(
+      stage(
+        `grid-hydration-${mode}`,
+        ['exec', 'node', 'examples/grid/run.mjs', '--hydration'],
+        {
+          ...env,
+          BENCH_OUTPUT: resolve(output, `grid-hydration-${mode}.json`),
         },
       ),
     )

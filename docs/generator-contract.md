@@ -1,7 +1,8 @@
 # Generator contract
 
-`@wfe/generator` defines typed descriptions and application bindings for forms, tables, and dashboard layouts.
-This private package exports `FormView`, `TableView`, and `LayoutView` through its public entry.
+`@wfe/generator` defines typed descriptions and application bindings for forms, tables, boolean grids, dashboard layouts, and charts.
+This private package exports `FormView`, `TableView`, `GridView`, and `LayoutView` through its public entry.
+The chart subpath exports ChartView.
 These functions compose existing components from typed descriptions and bindings.
 They do not create another form coordinator or table engine.
 
@@ -207,5 +208,5 @@ Remount the grid to replace its description ID.
 The table fills its assigned width and scrolls inside its region on narrow screens.
 Set a definite parent height when the grid must fill a page.
 Applications use normal Tab navigation. The grid does not add spreadsheet keyboard commands.
-The 30 by 5 example and browser hydration qualification follow in the last W2 issue.
+The [30 by 5 example](../examples/grid/README.md) demonstrates keyboard and pointer changes, controlled rejection, reordering, and hydration.
 The [type contract](../tests/contracts/grid-contract.ts) rejects unknown row/column IDs and nonboolean values.

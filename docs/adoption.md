@@ -242,3 +242,32 @@ Its application owns browser history and retains form values across page changes
 Its application bindings own accepted cell values and one change callback.
 The grid does not create a form contract or a table engine.
 Read the [generator contract](generator-contract.md) for keyed metadata and controlled values.
+
+## Controlled boolean grids
+
+GridView uses the existing Checkbox and shared table styles.
+Applications supply accepted values and decide whether to accept each request.
+This one-cell example uses the same contract as a larger matrix:
+
+```tsx
+import { createSignal } from 'solid-js'
+import { GridView } from '@wfe/generator'
+import type { GridBindings, GridDescription } from '@wfe/generator'
+
+export function CapabilityGrid() {
+  const description = {
+    id: 'capabilities',
+    rows: [{ id: 'first', label: 'First record' }],
+    columns: [{ id: 'read', label: 'Read' }],
+  } as const satisfies GridDescription
+  const [value, setValue] = createSignal(false)
+  const bindings: GridBindings<typeof description> = {
+    value: () => value(),
+    onValueChange: (requested) => setValue(requested.value),
+  }
+  return <GridView description={description} bindings={bindings} />
+}
+```
+
+The [grid example](../examples/grid/README.md) supplies 30 rows and five columns.
+Its callbacks own accepted values. The generator owns no save or authorization policy.

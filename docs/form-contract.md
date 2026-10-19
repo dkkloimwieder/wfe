@@ -212,3 +212,6 @@ Its application owns browser history and retains form values across page changes
 Its application bindings own accepted cell values and one change callback.
 The grid does not create a form contract or a table engine.
 Read the [generator contract](generator-contract.md) for keyed metadata and controlled values.
+
+`GridView` renders that metadata through shared Checkbox controls without creating another form or table coordinator.
+The [grid example](../examples/grid/README.md) demonstrates 150 cells, independent scrolling, and retained input owners.

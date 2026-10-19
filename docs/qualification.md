@@ -23,6 +23,8 @@ The chart import probe rejects chart code in normal form and layout imports.
 Shell cases cover two audiences, six routes, accepted and rejected requests, native links, and browser history.
 Shell hydration preserves server nodes and initial focus, including direct links with query data and fragments.
 Narrow drawer cases cover heading focus, Escape, rejected navigation, and disposal of history listeners.
+Grid cases cover 150 controlled checkboxes, read-only columns, disabled rows, retained focus, and narrow scrolling.
+Grid hydration retains all 150 server inputs and the initial focus.
 The bundle guard rejects modules outside the wfe checkout.
 
 The runner executes stages serially and stops at the first failure.
