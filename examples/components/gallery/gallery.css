@@ -7,8 +7,7 @@ body:has(.gallery-preview) {
   min-width: 0;
 }
 .gallery-dashboard {
-  --ui-navigation-width: 14rem;
-  --ui-layout-inset: var(--ui-cell-padding-x, 8px);
+  --ui-navigation-width: 18rem;
 }
 .gallery-dashboard .ui-dashboard-header,
 .gallery-dashboard .ui-dashboard-navigation {
@@ -33,8 +32,12 @@ body:has(.gallery-preview) {
   flex: 1;
   min-width: 0;
 }
+.gallery-navigation-group > summary {
+  padding-inline: var(--ui-layout-inset);
+}
 .gallery-navigation-group .ui-collapsible-content {
   gap: 0;
+  padding: 0 var(--ui-gap) var(--ui-gap);
 }
 .gallery-navigation-group a {
   display: block;
@@ -114,7 +117,7 @@ body:has(.gallery-preview) {
 .gallery-preview {
   box-sizing: border-box;
   min-height: 100dvh;
-  padding: var(--ui-cell-padding-x, 8px);
+  padding: var(--ui-layout-inset);
   background: var(--ui-pane-surface);
 }
 .gallery-preview > main {
@@ -126,7 +129,7 @@ body:has(.gallery-preview) {
 }
 .gallery-recipe {
   display: grid;
-  gap: calc(2 * var(--ui-gap));
+  gap: var(--gallery-field-gap);
   min-width: 0;
 }
 .gallery-example-row {
@@ -136,7 +139,7 @@ body:has(.gallery-preview) {
   gap: var(--ui-gap);
 }
 .gallery-table {
-  height: calc(100dvh - 2 * var(--ui-cell-padding-x, 8px));
+  height: calc(100dvh - 2 * var(--ui-layout-inset));
   min-height: 0;
 }
 @media (width < 48rem) {
@@ -150,4 +153,8 @@ body:has(.gallery-preview) {
   width: 100%;
   max-width: none;
   margin: 0;
+}
+
+.gallery-preview .ui-label {
+  font-weight: 500;
 }
