@@ -1,3 +1,4 @@
+import { galleryLoadingCases } from './loading-cases.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 const catalog = [
@@ -19,6 +20,7 @@ const catalog = [
   ['table', 'Table'],
 ]
 export async function galleryCases({ page, url, record, settle }) {
+  await galleryLoadingCases({ page, url, record })
   const preview = () => page.frameLocator('.gallery-frame')
   const ready = async () => {
     await expect(preview().locator('.gallery-preview')).toBeVisible()

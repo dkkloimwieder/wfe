@@ -76,6 +76,8 @@ This is presentation and lifecycle isolation. It is not a security sandbox.
 
 The preview announces readiness after its owners and message listener exist.
 The parent sends its latest presentation state in response.
+The frame stays hidden over the pane surface until it applies that state and loads its fonts.
+The parent reveals the frame only after an acknowledgment with the current configuration version.
 Both sides accept messages only from the expected window and origin.
 The message parser accepts finite presentation values from the catalog.
 Files, record values, callbacks, and application actions never cross the message boundary.

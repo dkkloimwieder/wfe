@@ -34,6 +34,8 @@ export function Gallery() {
   function reveal(id: GalleryRoute['id']) {
     setOpenGroups((groups) => ({ ...groups, [entryFor(id).group]: true }))
   }
+  const [previewReady, setPreviewReady] = createSignal(false)
+  let configurationVersion = 0
   let frame: HTMLIFrameElement | undefined
   let heading: HTMLHeadingElement | undefined
   let alive = true
@@ -62,6 +64,7 @@ export function Gallery() {
     frame?.contentWindow?.postMessage(
       {
         type: 'wfe-gallery-config',
+        version: ++configurationVersion,
         config: { scheme, accent, depth, layers, state },
       },
       window.location.origin,
@@ -100,12 +103,14 @@ export function Gallery() {
     return (
       <iframe
         class="gallery-frame"
+        data-ready={previewReady() ? '' : undefined}
         data-viewport={route().viewport}
         title={`${entryFor(props.id).label} preview`}
         src={initialUrl}
         ref={(element) => {
           node = element
           frame = element
+          setPreviewReady(false)
         }}
       />
     )
@@ -116,11 +121,16 @@ export function Gallery() {
   onSettled(() => {
     const receive = (event: MessageEvent) => {
       if (
-        event.source === frame?.contentWindow &&
-        event.origin === window.location.origin &&
-        event.data?.type === 'wfe-gallery-ready'
+        event.source !== frame?.contentWindow ||
+        event.origin !== window.location.origin
       )
-        send()
+        return
+      if (event.data?.type === 'wfe-gallery-ready') send()
+      if (
+        event.data?.type === 'wfe-gallery-painted' &&
+        event.data.version === configurationVersion
+      )
+        setPreviewReady(true)
     }
     const pop = () => {
       const previous = untrack(route).id
@@ -303,6 +313,7 @@ export function Gallery() {
         </div>
         <section
           class="gallery-stage"
+          aria-busy={previewReady() ? 'false' : 'true'}
           aria-label="Preview viewport"
           tabindex={0}
         >

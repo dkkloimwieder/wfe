@@ -96,15 +96,19 @@ body:has(.gallery-preview) {
   min-height: 0;
   min-width: 0;
   overflow: auto;
-  background: var(--ui-canvas-surface);
+  background: var(--ui-pane-surface);
 }
 .gallery-frame {
+  visibility: hidden;
   display: block;
   border: 0;
   height: 100%;
   width: 100%;
   min-width: 0;
   background: var(--ui-pane-surface);
+}
+.gallery-frame[data-ready] {
+  visibility: visible;
 }
 .gallery-frame[data-viewport='phone'] {
   width: 320px;

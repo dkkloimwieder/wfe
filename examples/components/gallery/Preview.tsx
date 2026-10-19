@@ -86,6 +86,7 @@ export function GalleryPreview() {
   }
   onSettled(() => {
     let active = true
+    let paint: number | undefined
     queueMicrotask(() => {
       if (!active) return
       applyState(untrack(config).state)
@@ -106,10 +107,23 @@ export function GalleryPreview() {
         return
       setConfig({ ...initial, ...next })
       applyState(next.state)
+      cancelAnimationFrame(paint ?? 0)
+      const version = event.data.version
+      void document.fonts.ready.then(() => {
+        if (!active) return
+        paint = requestAnimationFrame(() => {
+          if (active)
+            window.parent.postMessage(
+              { type: 'wfe-gallery-painted', version },
+              window.location.origin,
+            )
+        })
+      })
     }
     window.addEventListener('message', receive)
     return () => {
       active = false
+      cancelAnimationFrame(paint ?? 0)
       window.removeEventListener('message', receive)
     }
   })
