@@ -2,7 +2,7 @@
 
 ## v0.0.1 additions
 
-The integrated baseline uses Git tag `v0.1.0` and includes six additions:
+The integrated baseline uses Git tag `v0.0.1` and includes six additions:
 
 - W1: Described shells with application-owned audiences, routes, and navigation.
 - W2: Controlled boolean grids through GridDescription and GridView.
