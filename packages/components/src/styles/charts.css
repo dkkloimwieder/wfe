@@ -1,0 +1,25 @@
+:where([data-ui]) .ui-chart {
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-chart-tooltip-body {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-chart-tooltip-title {
+  font-weight: 600;
+}
+:where([data-ui]) .ui-chart-tooltip-row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-chart-tooltip-row > :last-child {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+:where([data-ui]) .ui-chart-tooltip-swatch {
+  display: block;
+  inline-size: 8px;
+  block-size: 8px;
+}

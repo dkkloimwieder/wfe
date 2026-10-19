@@ -1,3 +1,5 @@
+export { Chart } from './Chart'
+export type { ChartProps, ChartTooltipContext } from './Chart'
 export { defineChart } from '../vendor/charts/charts-core/src/scene'
 export { lineX, lineY } from '../vendor/charts/charts-core/src/line'
 export { areaY } from '../vendor/charts/charts-core/src/area'

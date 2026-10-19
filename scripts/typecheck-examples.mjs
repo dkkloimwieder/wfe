@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 for (const example of [
+  'charts',
   'components',
   'table-editing',
   'table-read-only',

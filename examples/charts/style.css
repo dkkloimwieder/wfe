@@ -1,0 +1,27 @@
+body {
+  margin: 0;
+}
+.chart-preview {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  padding: var(--ui-gap, 6px);
+}
+.chart-preview header,
+.chart-preview main {
+  padding: var(--ui-cell-padding-x, 8px);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-panel-shadow);
+  min-width: 0;
+}
+.chart-preview h1 {
+  font-size: inherit;
+  margin: 0 0 var(--ui-gap, 6px);
+}
+.chart-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}
