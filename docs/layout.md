@@ -168,3 +168,7 @@ Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/RE
 Generated field labels default to their field keys when omitted.
 Generated action and submit labels default to their operation IDs.
 These presentation fallbacks preserve accepted values, callbacks, control identities, and existing table header aliases.
+
+The generator's `/?app=formats` example places an editable note and formatted read-only fields in navigation.
+Its table fills the main panel, and its footer reports the application submission state.
+The shared layout controls the pane sizes and narrow-screen arrangement.

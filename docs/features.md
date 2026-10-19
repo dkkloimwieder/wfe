@@ -152,6 +152,7 @@ The [30 by 5 example](../examples/grid/README.md) covers keyboard input, control
 `TileRow` uses the existing responsive grid. The [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) cover formats, long text, shared appearance, and hydration.
 Generated fields and columns accept shared formats, with custom components taking precedence.
 Read-only fields use the shared FieldValue output. Editable controls retain their input behavior.
+The [format example](../examples/generator/FormatsApp.tsx) covers all requested formats in generated forms and tables.
 Repeated form groups and generated detail/delete views remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.

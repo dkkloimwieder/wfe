@@ -109,3 +109,11 @@ h2 {
   min-height: 0;
   overflow: auto;
 }
+
+.generated-formats {
+  height: 100%;
+  min-width: 0;
+}
+.generated-formats table {
+  min-width: 100%;
+}

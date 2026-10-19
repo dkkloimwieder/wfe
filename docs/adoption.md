@@ -285,3 +285,7 @@ FormView applies formats to read-only built-in fields. Editable controls retain 
 Custom fields and cell renderers retain their presentation.
 FieldValue supplies a shared read-only output with field associations.
 The short-hash format shows eight Unicode codepoints and exposes the full string through its title and accessible label.
+
+Open `/?app=formats` on the generator preview for shared formats in generated forms and tables.
+The example keeps the editable note intact while the application supplies formats and read-only flags.
+Its server and browser cases use the same description and accepted values.

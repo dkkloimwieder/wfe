@@ -1,3 +1,5 @@
+import { FormatsApp } from './FormatsApp'
+import type { createFormatsApplication } from './FormatsApp'
 import { DateApp } from './DateApp'
 import type { createDateApplication } from './DateApp'
 import { FocusApp } from './FocusApp'
@@ -12,9 +14,11 @@ export const applications = {
   dispatch: DispatchApp,
   focus: FocusApp,
   dates: DateApp,
+  formats: FormatsApp,
 }
 export type ApplicationName = keyof typeof applications
 export type Application =
+  | ReturnType<typeof createFormatsApplication>
   | ReturnType<typeof createDateApplication>
   | ReturnType<typeof createFocusApplication>
   | ReturnType<typeof createRecordsApplication>
@@ -22,6 +26,7 @@ export type Application =
   | ReturnType<typeof createDispatchApplication>
 export function applicationName(value: string | null): ApplicationName {
   if (value === null || value === 'records') return 'records'
+  if (value === 'formats') return 'formats'
   if (value === 'dates') return 'dates'
   if (value === 'focus') return 'focus'
   if (value === 'dispatch') return 'dispatch'

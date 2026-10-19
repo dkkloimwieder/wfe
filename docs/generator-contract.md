@@ -247,3 +247,8 @@ Sorting, filtering, grouping, and application exports continue to use their conf
 Native text selection copies the displayed text, including a shortened prefix.
 An application can supply raw copy text through the existing table selection binding.
 There is no separate clipboard mechanism for formatted values.
+
+The [generated formats example](../examples/generator/FormatsApp.tsx) shows optional labels and formats in both generated views.
+Open `/?app=formats` on the generator preview.
+Its application supplies read-only flags and submits the original values through one callback.
+Browser tests cover label and format updates, retained controls, native prefix selection, server output, hydration, narrow screens, and disposal.

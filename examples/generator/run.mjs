@@ -5,6 +5,7 @@ import { createServer } from 'node:http'
 import { dirname, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium, expect } from '@playwright/test'
+import { reviewFormats, reviewFormatsServer } from './review-formats.mjs'
 import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
 import { reviewDates, reviewDateServer } from './review-dates.mjs'
 import { reviewFocus } from './review-focus.mjs'
@@ -14,6 +15,12 @@ import { reviewDispatch } from './review-dispatch.mjs'
 import { reviewRecordsWorkflow } from './review-records-workflow.mjs'
 
 const defaultApplications = {
+  formats: {
+    label: 'note',
+    value: 'Raw note',
+    server: reviewFormatsServer,
+    review: reviewFormats,
+  },
   dates: {
     label: 'Review date',
     value: '29/02/2024',
@@ -148,7 +155,7 @@ export async function run({
           .replace('<!--ssr-->', result.html)
           .replace(
             '<script type="module"',
-            '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root table, #root [data-generator-panel]")];</script><script type="module"',
+            '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root output, #root table, #root [data-generator-panel]")];</script><script type="module"',
           )
       }
       for (const name of Object.keys(applications))
@@ -224,7 +231,7 @@ export async function run({
                 node.isConnected &&
                 [
                   ...document.querySelectorAll(
-                    '#root input, #root textarea, #root table, #root [data-generator-panel]',
+                    '#root input, #root textarea, #root output, #root table, #root [data-generator-panel]',
                   ),
                 ].includes(node),
             ),

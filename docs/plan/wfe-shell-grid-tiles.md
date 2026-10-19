@@ -5,7 +5,7 @@
 
 ## 1. Goal
 
-Six additions to the public packages so an application can build an administrative UI from descriptions alone: a shell layout, a boolean grid, status tiles, and labels with formats. Each is generic. Each ships with an example under `examples/` and its own tests under wfe's existing rules.
+Six additions to the public packages so an application can build an administrative UI from descriptions alone: a shell layout, a boolean grid, status tiles, labels with formats, repeated form groups, and detail/delete views. Each is generic. Each ships with an example under `examples/` and its own tests under wfe's existing rules.
 
 ## 2. Rules
 

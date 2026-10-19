@@ -84,3 +84,16 @@ The date application also shows shared read-only output in a table, detail value
 Date and timestamp column controls select configured output, legacy date formats, or UTC ISO timestamps.
 All consumers use the same display choices.
 Formatting leaves raw records, sorting, filtering, and export data unchanged.
+
+## Generated formats
+
+Open `/?app=formats` for optional labels and shared date, datetime, boolean, and short-hash formats.
+The table fills the main panel. The left panel contains one generated form.
+The application marks all fields except `note` read-only.
+The editable note retains its full value, even with display-format metadata.
+Save submits the original values through one application callback. Reset uses the existing form contract.
+
+The browser cases change labels, aliases, date patterns, and timezones without replacing retained inputs or output nodes.
+The same cases cover server output, hydration, native prefix selection, narrow layouts, and disposal.
+The full hash remains available through its title and accessible label.
+Native text selection copies the displayed prefix. Raw table values and submission snapshots retain the complete identifier.
