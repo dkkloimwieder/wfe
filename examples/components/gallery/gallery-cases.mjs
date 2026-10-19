@@ -90,6 +90,23 @@ export async function galleryCases({ page, url, record, settle }) {
       await expect(
         page.getByRole('heading', { name: 'Fields', exact: true }),
       ).toBeFocused()
+      const boundaries = await page.evaluate(() => {
+        const box = (selector) =>
+          document.querySelector(selector).getBoundingClientRect()
+        const header = box('.ui-dashboard-header'),
+          navigation = box('.ui-dashboard-navigation'),
+          toolbar = box('.gallery-toolbar'),
+          stage = box('.gallery-stage'),
+          footer = box('.ui-dashboard-footer')
+        return [
+          toolbar.top - header.bottom,
+          stage.top - toolbar.bottom,
+          stage.left - navigation.right,
+          footer.top - stage.bottom,
+        ]
+      })
+      for (const gap of boundaries)
+        assert.ok(Math.abs(gap) <= 1, `Unexpected gallery pane gap: ${gap}`)
       const footer = await page.locator('.ui-dashboard-footer').boundingBox()
       assert.ok(Math.abs(footer.y + footer.height - 900) <= 1)
       await expect(preview().locator('.gallery-preview')).toBeVisible()
@@ -466,7 +483,9 @@ export async function galleryCases({ page, url, record, settle }) {
       assert.equal(
         await page
           .locator('.gallery-stage')
-          .evaluate((node) => node.scrollWidth > node.clientWidth),
+          .evaluate(
+            (node) => node.scrollWidth === Math.max(node.clientWidth, 320),
+          ),
         true,
       )
       await page
