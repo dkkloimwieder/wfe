@@ -142,8 +142,9 @@ The [qualification guide](qualification.md) documents serial checks, browser del
 
 ## Planned additions
 
-The [shell, grid, tiles, and labels draft](plan/wfe-shell-grid-tiles.md) is a plan, not an implemented API.
-`@wfe/shell` supplies the described renderer and metadata guards. The full six-route qualification example remains in progress under W1.
+The [shell, grid, tiles, and labels plan](plan/wfe-shell-grid-tiles.md) records delivered and proposed APIs.
+`@wfe/shell` supplies the described renderer and metadata guards. The [six-route example](../examples/shell/README.md) covers browser history, narrow drawers, and hydration.
 `GridDescription`, `StatusTile`, and `TileRow` are not implemented.
+Repeated form groups and generated detail/delete views also remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.

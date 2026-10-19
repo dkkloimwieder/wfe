@@ -76,3 +76,10 @@ The read-only browser fixture also tests the shared virtual renderer with 1,000 
 
 The [chart example](charts/README.md) demonstrates the owned chart API and generated views.
 It includes shared appearance controls and source, package, development, and hydration tests.
+
+## Described application shell
+
+The [shell example](shell/README.md) uses two invented audiences and six routes.
+Its generated tables and forms use public packages and shared appearance defaults.
+Its application owns addresses, Back and Forward navigation, validation, and draft retention.
+Use `examples/shell/vite.config.ts` on an unused port to inspect it.

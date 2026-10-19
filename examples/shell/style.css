@@ -1,0 +1,19 @@
+body {
+  margin: 0;
+}
+.shell-example {
+  height: 100dvh;
+  padding: var(--ui-gap, 6px);
+  box-sizing: border-box;
+}
+.shell-summary {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.shell-example .ui-form {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}

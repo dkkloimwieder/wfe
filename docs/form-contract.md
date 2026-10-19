@@ -204,3 +204,6 @@ A shell page can render FormView or a manually composed form.
 The application decides where its form contract lives and whether values survive a route change.
 Shell navigation does not submit, reset, cancel, save, or validate a form.
 Applications handle unsaved-work decisions through their navigation bindings.
+
+The [shell example](../examples/shell/README.md) combines two audiences, six routes, generated tables, and generated forms.
+Its application owns browser history and retains form values across page changes.

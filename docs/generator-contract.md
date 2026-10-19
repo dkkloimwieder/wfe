@@ -177,3 +177,6 @@ Application page bindings can render FormView and TableView through their existi
 Shell metadata does not create a form coordinator, table engine, router, or data client.
 Use LayoutView for a described dashboard composition when a separate shell frame is not required.
 Read the [shell guide](../packages/shell/README.md) for navigation bindings and page lifetime.
+
+The [shell example](../examples/shell/README.md) combines two audiences, six routes, generated tables, and generated forms.
+Its application owns browser history and retains form values across page changes.

@@ -30,4 +30,5 @@ The shell supplies one page h1. Page components supply their content without ano
 
 Use the public component stylesheet once in the application.
 Read the [layout guide](../../docs/layout.md) and [adoption guide](../../docs/adoption.md) for composition.
-The six-route example and full hydration matrix are the final part of W1.
+The [six-route example](../../examples/shell/README.md) demonstrates application-owned history and generated pages.
+Its browser cases cover source, built exports, development rendering, and hydration.

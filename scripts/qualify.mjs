@@ -56,6 +56,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
       BENCH_DEVELOPMENT: mode === 'development' ? '1' : '',
     }
     for (const fixture of [
+      'shell',
       'charts',
       'components',
       'table-editing',
@@ -99,6 +100,16 @@ export function qualificationStages(output, { wamn = false } = {}) {
         {
           ...env,
           BENCH_OUTPUT: resolve(output, `charts-hydration-${mode}.json`),
+        },
+      ),
+    )
+    stages.push(
+      stage(
+        `shell-hydration-${mode}`,
+        ['exec', 'node', 'examples/shell/run.mjs', '--hydration'],
+        {
+          ...env,
+          BENCH_OUTPUT: resolve(output, `shell-hydration-${mode}.json`),
         },
       ),
     )

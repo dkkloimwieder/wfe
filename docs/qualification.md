@@ -20,6 +20,9 @@ Charts run against source, built packages, and development code, with server ren
 Chart cases cover retained SVG nodes, tooltip cleanup, controlled legends, responsive sizing, hidden hosts, and forced colors.
 The source chart run also tests the fallback tooltip portal.
 The chart import probe rejects chart code in normal form and layout imports.
+Shell cases cover two audiences, six routes, accepted and rejected requests, native links, and browser history.
+Shell hydration preserves server nodes and initial focus, including direct links with query data and fragments.
+Narrow drawer cases cover heading focus, Escape, rejected navigation, and disposal of history listeners.
 The bundle guard rejects modules outside the wfe checkout.
 
 The runner executes stages serially and stops at the first failure.

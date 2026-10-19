@@ -5,7 +5,7 @@
 
 ## 1. Goal
 
-Four additions to the public packages so an application can build an administrative UI from descriptions alone: a shell layout, a boolean grid, status tiles, and labels with formats. Each is generic. Each ships with an example under `examples/` and its own tests under wfe's existing rules.
+Six additions to the public packages so an application can build an administrative UI from descriptions alone: a shell layout, a boolean grid, status tiles, and labels with formats. Each is generic. Each ships with an example under `examples/` and its own tests under wfe's existing rules.
 
 ## 2. Rules
 
@@ -22,9 +22,28 @@ Four additions to the public packages so an application can build an administrat
 | W2  | `@wfe/generator`: `GridDescription`. Rows and columns by key; each cell a boolean; one callback per cell change; read-only columns; disabled rows; row and column labels.                                                                                                                      | The example renders a 30 × 5 grid from a description and reports each change through the callback. |
 | W3  | `@wfe/components`: `StatusTile` (label, value, one-line detail, state: ok / warning / unknown) and `TileRow`.                                                                                                                                                                                  | Example and visual case.                                                                           |
 | W4  | Descriptions accept optional `label` on each field and operation, and `format` on each field: `date`, `boolean-symbol`, `short-hash`. `TableView` and `FormView` honor both.                                                                                                                   | Generator contract doc updated; example shows each format.                                         |
-| W5  | Tag a release with W1–W4. `docs/adoption.md` names the tag and the four additions.                                                                                                                                                                                                             | Tag exists.                                                                                        |
+| W5  | FormDescription repeated groups with scalar rows, add/remove controls, row errors, and optional field labels that default to keys.                                                                                                                                                             | An example submits one repeated group and shows a per-row error.                                   |
+| W6  | DetailDescription/DetailView for one read-only record with formats and actions. DeleteDescription/DeleteView for one key, confirmation, and one callback.                                                                                                                                      | Each view has an example and tests.                                                                |
+| W7  | Tag a release with W1–W6. `docs/adoption.md` names the tag and the six additions.                                                                                                                                                                                                              | Tag exists.                                                                                        |
 
-W1–W4 are independent. W5 follows all four.
+W1–W4 are independent. W7 follows W1–W6.
+
+### Owner additions
+
+W5 adds a repeated group field to FormDescription.
+Each group contains a list of records with scalar fields, add/remove controls, and errors for each row.
+Field labels become optional and default to the field key.
+An example form must submit one repeated group and show an error for a row.
+
+W6 adds DetailDescription and DeleteDescription with DetailView and DeleteView.
+DetailDescription describes one record, read-only fields with formats, and actions.
+DeleteDescription describes one record key, confirmation, and one callback.
+Each view requires an example and tests.
+
+Update `docs/generator-contract.md` in the same change as each addition.
+Keep APIs generic and omit application names.
+Report no more than 10 lines per epic.
+The release tag moves to W7 after W1–W6.
 
 ## 4. Out of scope
 

@@ -149,3 +149,6 @@ Its default uses `scroll="content"`. Page components fill the main region and ow
 Optional context and footer props reuse this layout contract.
 Use one shell frame around page content rather than nesting another DashboardShell inside it.
 Read the [shell guide](../packages/shell/README.md) for controlled navigation and focus.
+
+The [shell example](../examples/shell/README.md) combines two audiences, six routes, generated tables, and generated forms.
+Its application owns browser history and retains form values across page changes.

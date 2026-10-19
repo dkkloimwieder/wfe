@@ -7,13 +7,14 @@ Beads remains the source of task status and dependencies.
 ## Delivery order
 
 The chart port and tooltip repair are merged into `main` at `45faa4a`.
-Documentation cleanup uses `chore/repo-cleanup` and merges into `main` before implementation.
-A fresh `feat/shell-grid-tiles` branch then starts from the updated `main`.
+Documentation cleanup merged into `main` at `19bafcb` from `chore/repo-cleanup`.
+The `feat/shell-grid-tiles` branch starts from that updated `main`.
 The draft's `e4ff5bb` reference remains its historical baseline rather than the execution branch point.
 
-Execute W1, W2, W3, W4, then W5.
+Execute W1, W2, W3, W4, W5, W6, then W7.
 W1 through W4 remain independent public additions.
 Open one epic at a time, with no more than three issues per epic.
+Report no more than 10 lines per epic.
 Commit and push each qualified issue. Use a separate review agent for architecture and code quality.
 Update the affected guides and this catalog's current API descriptions with each addition.
 
@@ -112,17 +113,47 @@ Use up to three issues for optional-label fallbacks, shared formatting and gener
 Update form, generator, layout, and adoption guides as the affected contracts change.
 Test type compatibility, fallback names, full/raw values, custom renderers, both generated views, and hydration.
 
-## W5: release record
+## W5: repeated form groups
 
-Create one release issue only after W1 through W4 pass their acceptance criteria.
-Update the adoption guide with the approved tag and the four additions.
+Extend FormDescription with a repeated group field whose rows contain scalar fields.
+Keep ordinary scalar forms compatible and reuse the existing field controls and validation presentation.
+Applications supply accepted row values, stable row keys, errors for each row, and add/remove change decisions.
+Keep record persistence and validation rules in application callbacks.
+Preserve row identity and drafts when another row changes or moves.
+Associate row errors with their fields and prevent duplicate submission callbacks.
+Optional field labels default to the field key, consistent with W4.
+
+Use at most three issues for contracts, repeated-row rendering and interaction, then the example and qualification.
+The example submits one repeated group and presents an error for a row.
+Update the generator contract in the same change.
+Test controlled rejection, additions/removals, stable keys, error associations, submission snapshots, and hydration.
+
+## W6: detail and delete descriptions
+
+Add DetailDescription for one record with read-only formatted fields and actions.
+Compose the existing formatter, field layout, and action controls in DetailView.
+Keep record data and action callbacks in application bindings.
+
+Add DeleteDescription for one record key, confirmation, and one application callback.
+Compose existing confirmation components in DeleteView.
+The application performs deletion and owns its result.
+The view never infers a transport request, permission, route change, or persistence rule.
+
+Use at most three issues for detail contracts/view, delete contracts/view, then examples and qualification.
+Each view requires an example and tests, including focus, cancellation, callback count, and hydration.
+Update the generator contract in the same change.
+
+## W7: release record
+
+Create one release issue only after W1 through W6 pass their acceptance criteria.
+Update the adoption guide with the approved tag and the six additions.
 Tag the integrated commit after the reviewed work reaches `main`.
 Do not publish packages or invent a version/tag convention.
 
 ## Remaining owner decisions
 
 - For FormView, do formats apply only to read-only values, while editable fields retain their current controls and raw values?
-- What release tag must W5 use? The current packages are private at version `0.0.0`.
+- What release tag must W7 use? The current packages are private at version `0.0.0`.
 
 The branch baseline decision is resolved: merge charts first, merge cleanup second, then branch for implementation.
 These remaining decisions do not block W1 through W3.

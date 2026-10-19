@@ -234,3 +234,6 @@ export function Workspace(props: {
 A page component receives the accepted audience and route metadata.
 The shell supplies the page heading and main landmark. Pages supply their content through existing public components.
 The [shell guide](../packages/shell/README.md) describes guards, page identity, and optional layout slots.
+
+The [shell example](../examples/shell/README.md) combines two audiences, six routes, generated tables, and generated forms.
+Its application owns browser history and retains form values across page changes.
