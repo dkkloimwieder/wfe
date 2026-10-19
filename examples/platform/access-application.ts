@@ -48,6 +48,14 @@ function peopleTable<T extends PlatformUser | PlatformMember>(
     },
     columns: [
       {
+        id: 'actions',
+        accessorKey: 'principalId',
+        header: 'Actions',
+        size: 80,
+        enableGlobalFilter: false,
+        enableHiding: false,
+      },
+      {
         id: 'displayName',
         accessorKey: 'displayName',
         header: 'Name',
@@ -96,14 +104,6 @@ function peopleTable<T extends PlatformUser | PlatformMember>(
                 String(a).localeCompare(String(b)),
             },
           ]),
-      {
-        id: 'actions',
-        accessorKey: 'principalId',
-        header: 'Actions',
-        size: 150,
-        enableGlobalFilter: false,
-        enableHiding: false,
-      },
     ],
   })
 }

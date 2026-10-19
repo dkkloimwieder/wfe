@@ -50,6 +50,14 @@ function nameTable(rows: () => NameRow[]) {
     },
     columns: [
       {
+        id: 'actions',
+        enableGlobalFilter: false,
+        accessorKey: 'name',
+        header: 'Actions',
+        size: 80,
+        enableHiding: false,
+      },
+      {
         id: 'name',
         accessorKey: 'name',
         header: 'Name',
@@ -57,14 +65,6 @@ function nameTable(rows: () => NameRow[]) {
         sortFn: (a, b) => String(a).localeCompare(String(b)),
         filterFn: (value, filter) =>
           String(value).toLowerCase().includes(String(filter).toLowerCase()),
-      },
-      {
-        id: 'actions',
-        enableGlobalFilter: false,
-        accessorKey: 'name',
-        header: 'Actions',
-        size: 150,
-        enableHiding: false,
       },
     ],
   })

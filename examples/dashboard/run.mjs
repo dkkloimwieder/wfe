@@ -1783,7 +1783,7 @@ try {
       true,
     )
   })
-  await test('The merged header centers its title and places actions at the configured edge', async () => {
+  await test('The merged header centers its title and keeps actions on the left', async () => {
     const header = page.locator('.table-workspace-header')
     const title = page.locator('.table-workspace-title')
     const actions = page.locator('.table-workspace-header-actions')
@@ -1819,25 +1819,12 @@ try {
               titleBox.x + titleBox.width / 2 - bounds.x - bounds.width / 2,
             ) < 1,
           )
-          if (placement === 'right') {
-            assert.ok(actionsBox.x >= titleBox.x + titleBox.width)
-            const lastButton = await actions
-              .locator(':scope > *')
-              .last()
-              .boundingBox()
-            assert.ok(
-              Math.abs(
-                lastButton.x + lastButton.width - bounds.x - bounds.width + 8,
-              ) < 1,
-            )
-          } else {
-            assert.ok(actionsBox.x + actionsBox.width <= titleBox.x)
-            const firstButton = await actions
-              .getByRole('button')
-              .first()
-              .boundingBox()
-            assert.ok(Math.abs(firstButton.x - bounds.x - 8) < 1)
-          }
+          assert.ok(actionsBox.x + actionsBox.width <= titleBox.x)
+          const firstButton = await actions
+            .getByRole('button')
+            .first()
+            .boundingBox()
+          assert.ok(Math.abs(firstButton.x - bounds.x - 8) < 1)
           assert.equal(await page.locator('.table-workspace-header').count(), 1)
           assert.equal(
             await page

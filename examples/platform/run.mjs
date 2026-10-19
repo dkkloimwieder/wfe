@@ -1042,6 +1042,20 @@ try {
       assert.equal(bands.footer.top, bands.main.bottom)
       assert.equal(bands.menu.right, bands.context.left)
       assert.equal(bands.context.right, bands.main.left)
+      const workspaceBox = await page
+        .locator('.platform-table-screen:not([hidden]) .table-workspace')
+        .boundingBox()
+      assert.equal(workspaceBox.x, bands.main.left)
+      assert.equal(workspaceBox.y, bands.main.top)
+      assert.equal(workspaceBox.x + workspaceBox.width, bands.main.right)
+      assert.equal(workspaceBox.y + workspaceBox.height, bands.main.bottom)
+      await expect(
+        projects().locator('thead tr').first().locator('th').first(),
+      ).toHaveAttribute('data-column', 'actions')
+      const rowAction = openProject('billing')
+      await expect(rowAction).toHaveText('')
+      await expect(rowAction.locator('svg')).toHaveCount(1)
+
       await expect(
         page.getByRole('contentinfo', {
           name: 'Organization footer',

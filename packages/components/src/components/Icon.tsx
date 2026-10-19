@@ -2,6 +2,10 @@ import { styledClasses, type ClassValue } from '../internal/classes'
 
 const paths = {
   check: 'm2 8 4 4 8-9',
+  view: 'M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Zm5 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0',
+  people:
+    'M6 1a2.5 2.5 0 1 0 0 5 2.5 2.5 0 1 0 0-5ZM1 14v-2a5 5 0 0 1 10 0v2M11 2a2.5 2.5 0 0 1 0 5m2 2a4 4 0 0 1 2 3v2',
+  key: 'M5 2a3 3 0 1 0 0 6 3 3 0 1 0 0-6Zm2 5 7 7m-3-3 2-2m-4 0 2-2',
   minus: 'M3 8h10',
   cross: 'M3 3l10 10M13 3 3 13',
   'chevron-down': 'm4 6 4 4 4-4',

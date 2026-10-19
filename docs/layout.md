@@ -135,3 +135,7 @@ Related controls use `--ui-gap`.
 Use `ui-dashboard-menu` for a shared group of native navigation links.
 Use `--ui-navigation-width` and `--ui-context-width` to set desktop menu widths.
 Each menu and the main area scroll independently between the organization bands.
+
+For `scroll="content"`, the main region has no outer padding.
+A full-height table joins the workspace edges. Cards keep their own internal padding.
+Table toolbar actions stay on the left for every controls placement.

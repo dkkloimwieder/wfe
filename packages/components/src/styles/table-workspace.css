@@ -87,12 +87,6 @@
   gap: var(--ui-gap, 6px);
   min-width: 0;
 }
-:where([data-ui])
-  .table-workspace[data-controls-placement='right']
-  .table-workspace-header-actions {
-  grid-column: 3;
-  justify-content: flex-end;
-}
 :where([data-ui]) .table-workspace-header-actions button {
   height: var(--ui-control-height, 26px);
   padding-block: 0;

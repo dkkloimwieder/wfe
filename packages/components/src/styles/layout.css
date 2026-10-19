@@ -49,6 +49,7 @@
 }
 :where(.ui-dashboard[data-ui][data-scroll='content']) > .ui-dashboard-main {
   overflow: hidden;
+  padding: 0;
 }
 :where([data-ui]) .ui-dashboard-panel {
   display: flex;

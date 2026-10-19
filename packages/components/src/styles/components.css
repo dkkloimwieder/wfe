@@ -633,6 +633,13 @@
   user-select: none;
   z-index: 2;
 }
+:where([data-ui]) .column-header:last-child > .column-resize {
+  right: 0;
+}
+:where([data-ui]) .column-header:last-child > .column-resize .resize-grip {
+  left: auto;
+  right: 0;
+}
 :where([data-ui]) .resize-grip {
   position: absolute;
   left: 5px;

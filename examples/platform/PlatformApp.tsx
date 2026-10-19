@@ -8,7 +8,14 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
-import { Breadcrumbs, Button, InlineAlert, ValueDisplay } from '@wfe/components'
+import {
+  Breadcrumbs,
+  Button,
+  IconButton,
+  Icon,
+  InlineAlert,
+  ValueDisplay,
+} from '@wfe/components'
 import { DashboardShell, DashboardPanel } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { TableColumnResize } from '@wfe/components/table'
@@ -203,18 +210,20 @@ export function PlatformApp(props: {
     })
     return (
       <div class="platform-inline-actions">
-        <Button
+        <IconButton
           aria-label={`Open project ${props.row.id}`}
+          title={`Open project ${props.row.id}`}
           onClick={() => navigate(target())}
         >
-          View
-        </Button>
-        <Button
+          <Icon name="view" />
+        </IconButton>
+        <IconButton
           aria-label={`View members of ${props.row.id}`}
+          title={`View members of ${props.row.id}`}
           onClick={() => navigate({ screen: 'members', project: props.row.id })}
         >
-          Members
-        </Button>
+          <Icon name="people" />
+        </IconButton>
       </div>
     )
   }
@@ -226,12 +235,13 @@ export function PlatformApp(props: {
         : { screen: 'projects' }
     }
     return (
-      <Button
+      <IconButton
         aria-label={`View environment ${props.row.id}`}
+        title={`View environment ${props.row.id}`}
         onClick={() => navigate(target())}
       >
-        View
-      </Button>
+        <Icon name="view" />
+      </IconButton>
     )
   }
   const controls = {

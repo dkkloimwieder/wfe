@@ -1,5 +1,11 @@
 import { For, Show, createSignal } from 'solid-js'
-import { Button, InlineAlert, ValueDisplay } from '@wfe/components'
+import {
+  Button,
+  IconButton,
+  Icon,
+  InlineAlert,
+  ValueDisplay,
+} from '@wfe/components'
 import { DashboardPanel } from '@wfe/components/layout'
 import { TableColumnResize } from '@wfe/components/table'
 import type { NativeColumn } from '@wfe/components/table'
@@ -28,14 +34,15 @@ export function AccessViews(props: {
       : undefined
   }
   const Manage = <T extends Person>(cell: CustomCellProps<T, unknown>) => (
-    <Button
+    <IconButton
+      title={`Manage access for ${cell.row.original?.displayName ?? cell.row.id}`}
       aria-label={`Manage access for ${cell.row.original?.displayName ?? cell.row.id}`}
       onClick={() =>
         props.navigate({ screen: 'access', principal: cell.row.id })
       }
     >
-      Manage access
-    </Button>
+      <Icon name="key" />
+    </IconButton>
   )
   const BooleanCell = <T extends Person>(cell: CustomCellProps<T, unknown>) => (
     <ValueDisplay value={cell.value} format="boolean-symbol" />

@@ -484,7 +484,7 @@ try {
     await page.setViewportSize({ width: 390, height: 800 })
     assert.equal(await page.locator('#root').textContent(), '')
   })
-  await test('Organization bands and optional context use one shared grid and inset', async () => {
+  await test('Organization bands share menu insets and content fills the main region', async () => {
     await page.setViewportSize({ width: 1280, height: 900 })
     await page.evaluate(() => {
       window.layoutFixture.start()
@@ -519,8 +519,20 @@ try {
     assert.equal(geometry.header.bottom, geometry.main.top)
     assert.equal(geometry.footer.top, geometry.main.bottom)
     assert.deepEqual(
-      new Set(Object.values(geometry).map((item) => item.padding)),
+      new Set(
+        Object.entries(geometry)
+          .filter(([name]) => name !== 'main')
+          .map(([, item]) => item.padding),
+      ),
       new Set(['8px']),
+    )
+    assert.equal(geometry.main.padding, '0px')
+    await page.evaluate(() =>
+      window.layoutFixture.configure({ scroll: 'main' }),
+    )
+    await expect(page.getByRole('main')).toHaveCSS('padding-left', '8px')
+    await page.evaluate(() =>
+      window.layoutFixture.configure({ scroll: 'content' }),
     )
     assert.equal(await page.locator('footer').textContent(), '')
   })
