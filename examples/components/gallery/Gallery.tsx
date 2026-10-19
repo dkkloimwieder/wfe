@@ -7,7 +7,7 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
-import { Button } from '@wfe/components'
+import { Breadcrumbs, Button, Collapsible } from '@wfe/components'
 import { DashboardShell } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
@@ -27,6 +27,12 @@ export function Gallery() {
     untrack(() => readRoute(new URL(window.location.href))),
   )
   const [appearanceOpen, setAppearanceOpen] = createSignal(false)
+  const [openGroups, setOpenGroups] = createSignal<Record<string, boolean>>({
+    [entryFor(untrack(route).id).group]: true,
+  })
+  function reveal(id: GalleryRoute['id']) {
+    setOpenGroups((groups) => ({ ...groups, [entryFor(id).group]: true }))
+  }
   let frame: HTMLIFrameElement | undefined
   let heading: HTMLHeadingElement | undefined
   let alive = true
@@ -71,7 +77,10 @@ export function Gallery() {
       window.history.pushState(null, '', url)
     const changed = parsed.id !== untrack(route).id
     setRoute(parsed)
-    if (changed) focusTitle()
+    if (changed) {
+      reveal(parsed.id)
+      focusTitle()
+    }
   }
   function PreviewFrame(props: { id: string }) {
     const initialUrl = untrack(
@@ -116,7 +125,10 @@ export function Gallery() {
       const previous = untrack(route).id
       const next = readRoute(new URL(window.location.href))
       setRoute(next)
-      if (next.id !== previous) focusTitle()
+      if (next.id !== previous) {
+        reveal(next.id)
+        focusTitle()
+      }
     }
     window.addEventListener('message', receive)
     window.addEventListener('popstate', pop)
@@ -151,14 +163,30 @@ export function Gallery() {
         navigationLabel="Component catalog"
         header={
           <>
-            <h1
-              ref={(node) => {
-                heading = node
-              }}
-              tabindex={-1}
-            >
-              {entry().label}
-            </h1>
+            <Breadcrumbs aria-label="Gallery location">
+              <Breadcrumbs.List>
+                <Breadcrumbs.Item>
+                  <span data-ui-text="system">Gallery</span>
+                </Breadcrumbs.Item>
+                <Breadcrumbs.Item>
+                  <Breadcrumbs.Separator />
+                  <span data-ui-text="system">{entry().group}</span>
+                </Breadcrumbs.Item>
+                <Breadcrumbs.Item>
+                  <Breadcrumbs.Separator />
+                  <h1
+                    ref={(node) => {
+                      heading = node
+                    }}
+                    tabindex={-1}
+                  >
+                    <Breadcrumbs.Current data-ui-text="system">
+                      {entry().label}
+                    </Breadcrumbs.Current>
+                  </h1>
+                </Breadcrumbs.Item>
+              </Breadcrumbs.List>
+            </Breadcrumbs>
             <Button
               aria-expanded={appearanceOpen() ? 'true' : 'false'}
               aria-controls="gallery-appearance"
@@ -168,11 +196,18 @@ export function Gallery() {
             </Button>
           </>
         }
+        footer={null}
         navigation={(controls) => (
           <For each={['Forms', 'Components', 'Navigation', 'Layout']}>
             {(group) => (
-              <section class="gallery-navigation-group">
-                <h2>{group}</h2>
+              <Collapsible
+                class="gallery-navigation-group"
+                summary={group}
+                open={Boolean(openGroups()[group])}
+                onOpenChange={(open) =>
+                  setOpenGroups((groups) => ({ ...groups, [group]: open }))
+                }
+              >
                 <For each={entries.filter((entry) => entry.group === group)}>
                   {(item) => (
                     <a
@@ -201,7 +236,7 @@ export function Gallery() {
                     </a>
                   )}
                 </For>
-              </section>
+              </Collapsible>
             )}
           </For>
         )}

@@ -16,7 +16,11 @@ pnpm exec vite --config examples/components/vite.config.ts --host 127.0.0.1 --po
 Open `http://127.0.0.1:7790/?gallery=fields`.
 If that server already runs, use its existing URL.
 
-Choose an example from the sidebar. On a narrow screen, use Components to open the navigation pane.
+The top header shows Gallery, the current category, and the current example as breadcrumbs.
+An empty footer stays at the bottom.
+The left pane contains only the Forms, Components, Navigation, and Layout disclosure sections.
+The current category starts open. Route and history changes reveal the selected category.
+Expand a category and choose an example from the sidebar. On a narrow screen, use Components to open the navigation pane.
 The selected link identifies the current example. Choosing a link closes narrow navigation and focuses the example title.
 Escape closes navigation and returns focus to its toggle.
 Modified link clicks retain normal browser behavior.

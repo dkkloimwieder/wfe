@@ -17,7 +17,6 @@ body:has(.gallery-preview) {
   justify-content: space-between;
 }
 .gallery-dashboard .ui-dashboard-header h1 {
-  flex: 1;
   min-width: 0;
   margin: 0;
   font-size: var(--ui-font-size);
@@ -25,17 +24,12 @@ body:has(.gallery-preview) {
 .gallery-dashboard .ui-dashboard-main {
   background: var(--ui-canvas-surface);
 }
-.gallery-navigation-group {
-  display: grid;
-  gap: var(--ui-gap);
+.gallery-dashboard .ui-dashboard-header > .ui-breadcrumbs {
+  flex: 1;
+  min-width: 0;
 }
-.gallery-navigation-group + .gallery-navigation-group {
-  margin-top: calc(2 * var(--ui-gap));
-}
-.gallery-navigation-group h2 {
-  font-size: var(--ui-small-font-size);
-  margin: 0;
-  padding: var(--ui-gap);
+.gallery-navigation-group .ui-collapsible-content {
+  gap: 0;
 }
 .gallery-navigation-group a {
   display: block;

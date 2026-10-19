@@ -20,10 +20,98 @@ const catalog = [
 ]
 export async function galleryCases({ page, url, record, settle }) {
   const preview = () => page.frameLocator('.gallery-frame')
-  const ready = async () =>
-    expect(preview().locator('.gallery-preview')).toBeVisible()
+  const ready = async () => {
+    await expect(preview().locator('.gallery-preview')).toBeVisible()
+    const navigation = page.getByRole('navigation', {
+      name: 'Component catalog',
+    })
+    if (await navigation.isVisible()) {
+      for (const section of await navigation.locator('details').all()) {
+        if (!(await section.evaluate((node) => node.open)))
+          await section.locator('summary').click()
+      }
+    }
+  }
   const name = () =>
     preview().getByRole('textbox', { name: 'Name', exact: true })
+  await record(
+    'gallery: platform shell has breadcrumbs, an empty footer and collapsible catalog sections',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(`${url}?gallery=fields`)
+      await expect(preview().locator('.gallery-preview')).toBeVisible()
+      const navigation = page.getByRole('navigation', {
+        name: 'Component catalog',
+      })
+      const forms = navigation
+        .locator('details')
+        .filter({ has: page.locator('summary', { hasText: /^Forms$/ }) })
+      const components = navigation
+        .locator('details')
+        .filter({ has: page.locator('summary', { hasText: /^Components$/ }) })
+      await expect(navigation.locator('details')).toHaveCount(4)
+      await expect(navigation.locator('details[open]')).toHaveCount(1)
+      await expect(forms).toHaveAttribute('open', '')
+      await expect(
+        page.getByRole('navigation', { name: 'Gallery location' }),
+      ).toContainText('Gallery/Forms/Fields')
+      await expect(page.locator('.ui-dashboard-footer')).toBeEmpty()
+      await expect(page.locator('.ui-dashboard-footer')).toBeVisible()
+      assert.equal(
+        await navigation
+          .getByRole('button', { name: 'Appearance', exact: true })
+          .count(),
+        0,
+      )
+      await name().fill('Retained section draft')
+      const frame = await page.locator('.gallery-frame').elementHandle()
+      await forms.locator('summary').focus()
+      await page.keyboard.press('Enter')
+      await expect(forms).not.toHaveAttribute('open')
+      await expect(
+        navigation.getByRole('link', { name: 'Fields', exact: true }),
+      ).toBeHidden()
+      await expect(name()).toHaveValue('Retained section draft')
+      assert.equal(
+        await frame.evaluate(
+          (node) => node === document.querySelector('.gallery-frame'),
+        ),
+        true,
+      )
+      await components.locator('summary').click()
+      await navigation
+        .getByRole('link', { name: 'Buttons', exact: true })
+        .click()
+      await expect(
+        page.getByRole('navigation', { name: 'Gallery location' }),
+      ).toContainText('Gallery/Components/Buttons')
+      await page.goBack()
+      await expect(forms).toHaveAttribute('open', '')
+      await expect(
+        page.getByRole('heading', { name: 'Fields', exact: true }),
+      ).toBeFocused()
+      const footer = await page.locator('.ui-dashboard-footer').boundingBox()
+      assert.ok(Math.abs(footer.y + footer.height - 900) <= 1)
+      await expect(preview().locator('.gallery-preview')).toBeVisible()
+      await page.screenshot({ path: '/tmp/wfe-gallery-layout-wide.png' })
+      await page.setViewportSize({ width: 390, height: 844 })
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth + 1,
+        ),
+        true,
+      )
+      await page
+        .getByRole('button', { name: 'Components', exact: true })
+        .click()
+      await expect(navigation.locator('details')).toHaveCount(4)
+      await page.screenshot({ path: '/tmp/wfe-gallery-layout-phone.png' })
+      await page.keyboard.press('Escape')
+      await expect(
+        page.getByRole('button', { name: 'Components', exact: true }),
+      ).toBeFocused()
+    },
+  )
   await record(
     'gallery: every example is reachable through native links and browser history',
     async () => {
