@@ -1,3 +1,4 @@
+import { exampleSizing } from '../shared/appearance/sizing'
 import { untrack } from 'solid-js'
 import { FormView, TableView, LayoutView } from '@wfe/generator'
 import { createRecordsApplication } from './records-application'
@@ -42,6 +43,7 @@ export function RecordsReview(props: {
   )
   return (
     <LayoutView
+      style={exampleSizing}
       description={app.layoutDescription()}
       bindings={{
         views: { editor: Editor, records: Records },

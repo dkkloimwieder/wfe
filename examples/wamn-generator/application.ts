@@ -112,11 +112,11 @@ export function createApplication(name: string) {
           accessorFn: (row) => row[column.id as keyof WidgetQueryRow],
           size:
             column.type === 'uuid'
-              ? 278
+              ? 270
               : column.type === 'timestamptz'
-                ? 192
+                ? 186
                 : column.type === 'int64'
-                  ? 136
+                  ? 130
                   : column.id === 'note'
                     ? 240
                     : 128,

@@ -1,0 +1,16 @@
+.appearance-scope .ui-form {
+  inline-size: 100%;
+  margin-inline: auto;
+}
+
+.appearance-scope
+  .ui-form:not(
+    :has(.ui-form-grid[data-columns='2'], .ui-form-grid[data-columns='3'])
+  ) {
+  max-inline-size: var(--ui-form-max-width, 30rem);
+}
+
+/* Table cell controls retain the compact row profile. */
+.appearance-scope .table-scroll > table > tbody > tr > td {
+  --ui-control-height: var(--ui-table-control-height, 26px);
+}

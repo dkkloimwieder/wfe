@@ -99,6 +99,9 @@ An application can use Solid `Errored` to present a rejected description.
 
 ## Layout and identity
 
+`LayoutView.style` forwards CSS properties to its dashboard shell.
+Use it to apply a shared sizing profile or override shell dimensions without changing the description.
+
 Layout panels have stable IDs and reference view bindings by name.
 The same view mechanism accepts ordinary components and generator compositions.
 Main panels and optional navigation use the existing dashboard shell, grid, and panels.

@@ -249,6 +249,7 @@ test('layout descriptions preserve panels and child owners across relabel and re
       { id: 'two', view: 'second', title: 'Two' },
     ],
   })
+  const [height, setHeight] = createSignal('32px')
   let disposed = 0
   const First = () => {
     onCleanup(() => {
@@ -258,9 +259,19 @@ test('layout descriptions preserve panels and child owners across relabel and re
   }
   const bindings = { views: { first: First, second: () => 'Second' } }
   const mounted = render(() => (
-    <LayoutView description={description()} bindings={bindings} />
+    <LayoutView
+      description={description()}
+      bindings={bindings}
+      style={{ '--ui-control-height': height() }}
+    />
   ))
   const input = mounted.container.querySelector('input')!
+  const shell = mounted.container.querySelector<HTMLElement>('.ui-dashboard')!
+  expect(shell.style.getPropertyValue('--ui-control-height')).toBe('32px')
+  setHeight('40px')
+  flush()
+  expect(shell.style.getPropertyValue('--ui-control-height')).toBe('40px')
+  expect(mounted.container.querySelector('input')).toBe(input)
   const first = mounted.container.querySelector('[data-generator-panel="one"]')!
   setDescription((old) => ({
     ...old,

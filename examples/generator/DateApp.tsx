@@ -1,3 +1,4 @@
+import { exampleSizing } from '../shared/appearance/sizing'
 import { createMemo, createSignal, untrack } from 'solid-js'
 import {
   Button,
@@ -323,6 +324,7 @@ export function DateApp(props: {
   } as const satisfies LayoutDescription<'editor' | 'records' | 'configuration'>
   return (
     <LayoutView
+      style={exampleSizing}
       description={layout}
       bindings={{
         views: {

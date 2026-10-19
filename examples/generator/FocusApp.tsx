@@ -1,3 +1,4 @@
+import { exampleSizing } from '../shared/appearance/sizing'
 import { createSignal } from 'solid-js'
 import { Input, Button } from '@wfe/components'
 import { createForm } from '@wfe/form'
@@ -92,6 +93,7 @@ export function FocusApp(props: {
   props.ready?.(app)
   return (
     <LayoutView
+      style={exampleSizing}
       description={app.layoutDescription()}
       bindings={{ views: { editor: app.Editor, other: app.Other } }}
     />

@@ -5,6 +5,7 @@ import {
   DashboardGrid,
   DashboardPanel,
 } from '@wfe/components/layout'
+import type { DashboardShellProps } from '@wfe/components/layout'
 import type {
   LayoutDescription,
   LayoutViewBindings,
@@ -27,6 +28,7 @@ function panelEntries(value: LayoutDescription) {
 export function LayoutView<D extends LayoutDescription>(props: {
   description: D
   bindings: LayoutViewBindings<D>
+  style?: DashboardShellProps['style']
 }) {
   const identity = untrack(() => props.description.id)
   const domId = `generated-layout-${createUniqueId()}`
@@ -151,6 +153,7 @@ export function LayoutView<D extends LayoutDescription>(props: {
   return (
     <DashboardShell
       id={domId}
+      style={props.style}
       navigationLabel={description().navigationLabel}
       contextLabel={description().contextLabel}
       footerLabel={description().footerLabel}

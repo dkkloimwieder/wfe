@@ -1,6 +1,7 @@
 @import '@wfe/components/styles.css';
 @import './review-shadows.css';
 @import './fonts/font.css';
+@import './sizing.css';
 
 html:root {
   font-size: 16px;

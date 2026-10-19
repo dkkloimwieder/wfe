@@ -20,4 +20,7 @@ export const exampleSizing: JSX.CSSProperties = {
   '--ui-gap': '8px',
   '--ui-layout-inset': '16px',
   '--ui-field-gap': '20px',
+  '--ui-field-max-width': '30rem',
+  '--ui-form-max-width': '30rem',
+  '--ui-table-control-height': '26px',
 }

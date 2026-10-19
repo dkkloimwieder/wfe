@@ -103,3 +103,10 @@ Changing examples replaces the frame. Late messages from replaced frames do not 
 Disposal removes gallery history and message listeners.
 The browser suites cover direct links, modified clicks, history, retained drafts, native viewport dimensions, mobile focus, message guards, and disposal.
 They run against source, packaged, and development components.
+
+Generated examples pass the shared sizing profile through `LayoutView.style`.
+Form controls use 32px height, 12px text, 8px control gaps, and 20px field gaps.
+Single-column forms center within a 30rem limit.
+Declared multi-column grids retain their responsive layout.
+Individual fields retain the 30rem maximum.
+Table-cell controls use an explicit 26px compact profile to preserve 32px rows.

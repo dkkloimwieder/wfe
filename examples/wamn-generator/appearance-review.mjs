@@ -1,3 +1,4 @@
+import { reviewExampleSizing } from '../shared/appearance/sizing-review.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
@@ -38,9 +39,17 @@ export async function reviewAppearance({ page, record }) {
       }
     },
   )
+  await record('WAMN editor shares the standard form sizing', async () => {
+    await page.locator('[data-row-action=edit]').first().click()
+    await reviewExampleSizing(page)
+    await page
+      .getByRole('button', { name: 'Back to records', exact: true })
+      .click()
+  })
   await record(
     'WAMN column resizing uses the native widths and keeps identifiers on one line',
     async () => {
+      await page.evaluate(() => document.fonts.ready)
       const ids = page.locator(
         'tbody td[data-column="id"], tbody td[data-column="makerId"]',
       )
@@ -62,13 +71,18 @@ export async function reviewAppearance({ page, record }) {
               return {
                 left: value.left - box.left,
                 right: box.right - value.right,
+                font: getComputedStyle(cell).font,
+                width: value.width,
               }
             }),
           )
         assert.ok(spaces.length)
         for (const space of spaces) {
           assert.ok(space.left >= 7 && space.left <= 9)
-          assert.ok(space.right >= 7 && space.right <= 14)
+          assert.ok(
+            space.right >= 7 && space.right <= 14,
+            `${id}: ${JSON.stringify(space)}`,
+          )
         }
       }
       const handle = page.getByRole('separator', {

@@ -1,3 +1,4 @@
+import { exampleSizing } from '../shared/appearance/sizing'
 import {
   createSignal,
   onCleanup,
@@ -399,6 +400,7 @@ export function App(props: {
       class="wamn-page appearance-scope"
       style={{
         ...scope.style,
+        ...exampleSizing,
         ...appearance,
         '--ui-button-color': 'var(--ui-accent)',
         '--ui-button-on-color': 'var(--ui-on-accent)',
@@ -414,6 +416,7 @@ export function App(props: {
         }}
       >
         <LayoutView
+          style={exampleSizing}
           description={app.description().layout}
           bindings={{ views: { records: Records }, actions: reads }}
         />
@@ -428,6 +431,7 @@ export function App(props: {
         }}
       >
         <LayoutView
+          style={exampleSizing}
           description={app.description().editorLayout}
           bindings={{
             views: { editor: Editor },
@@ -448,6 +452,7 @@ export function App(props: {
         }}
       >
         <LayoutView
+          style={exampleSizing}
           description={app.description().detailsLayout}
           bindings={{
             views: { details: Details },

@@ -1,3 +1,4 @@
+import { reviewExampleSizing } from '../shared/appearance/sizing-review.mjs'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { readFile, writeFile } from 'node:fs/promises'
@@ -777,6 +778,7 @@ try {
     'platform: compact rows, Surface 2 dividers and fixed structured controls',
     async () => {
       await initialize('?screen=users')
+      await reviewExampleSizing(page)
       const table = page.getByRole('table', { name: 'Users', exact: true })
       const read = () =>
         table.evaluate((node) => {

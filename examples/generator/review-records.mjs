@@ -24,12 +24,14 @@ export async function reviewRecords({ page, report, record }) {
       const geometry = () =>
         form.evaluate((node) => {
           const box = (selector) => {
-            const rect = node.querySelector(selector).getBoundingClientRect()
+            const element = node.querySelector(selector)
+            const rect = element.getBoundingClientRect()
             return {
               x: rect.x,
               y: rect.y,
               width: rect.width,
               right: rect.right,
+              span: getComputedStyle(element).gridColumn,
             }
           }
           return {
@@ -52,15 +54,20 @@ export async function reviewRecords({ page, report, record }) {
       assert.ok(boxes.preferences.y > boxes.record.y)
       assert.equal(boxes.active.y, boxes.alerts.y)
       assert.ok(boxes.alerts.x > boxes.active.x)
-      assert.ok(boxes.notes.width > boxes.active.width * 1.8)
-      assert.ok(boxes.name.width > boxes.category.width * 1.8)
+      assert.equal(boxes.notes.span, 'span 2')
+      assert.ok(boxes.notes.width <= 480)
+      assert.equal(boxes.name.span, '1 / -1')
+      assert.ok(boxes.name.width <= 480)
       assert.equal(boxes.overflow, false)
       await page.evaluate(() => window.generatorFixture.fieldColumns(3))
       boxes = await geometry()
       assert.equal(boxes.category.y, boxes.quantity.y)
-      assert.ok(boxes.name.width > boxes.category.width * 2.8)
-      assert.ok(boxes.notes.width > boxes.active.width * 1.8)
-      assert.ok(boxes.notes.width < boxes.active.width * 2.2)
+      assert.equal(boxes.name.span, '1 / -1')
+      assert.ok(boxes.name.width <= 480)
+      assert.equal(boxes.notes.span, 'span 2')
+      assert.ok(boxes.notes.width <= 480)
+      assert.equal(boxes.notes.x, boxes.active.x)
+      assert.ok(boxes.notes.y > boxes.active.y)
       await page.evaluate(() => window.generatorFixture.fieldColumns(2))
       await page.evaluate(() => window.generatorFixture.formColumns(2))
       boxes = await geometry()

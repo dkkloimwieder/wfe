@@ -1,5 +1,7 @@
 @import '@wfe/components/styles.css';
 @import '../shared/appearance/review-shadows.css';
+@import '../shared/appearance/fonts/font.css';
+@import '../shared/appearance/sizing.css';
 html,
 body,
 #root {
@@ -43,7 +45,7 @@ body,
 .wamn-page form {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-field-gap, 20px);
 }
 .wamn-page h2 {
   font-size: inherit;

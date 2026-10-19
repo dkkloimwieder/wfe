@@ -271,9 +271,9 @@ The gallery now places examples on solid panels above the shared dotted canvas.
 The shared table now fills its container when no pixel width is supplied (`wfe-dw4`).
 Explicit pixel widths retain their column sizing and scrolling behavior.
 
-The generated examples reveal a separate sizing gap, tracked as `wfe-8ur`.
-Their nested layout reapplies compact defaults instead of the surrounding example sizing.
-Accent colors inherit correctly.
+The generated examples now preserve the shared sizing profile through `LayoutView.style` (`wfe-8ur`).
+Single-column forms use a centered 30rem limit, while multi-column forms retain their responsive grids.
+Form controls use 32px height, and table cell controls retain 26px height within compact rows.
 Generator panel shadows remain explicit example rules, while gallery panels use plain borders.
 The audit does not treat these different example profiles as complete visual consistency.
 

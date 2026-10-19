@@ -1,3 +1,4 @@
+import { exampleSizing } from '../shared/appearance/sizing'
 import {
   For,
   createSignal,
@@ -329,6 +330,7 @@ export function RecordsWorkflow(props: {
     }) as const satisfies LayoutDescription<'workspace'>
   return (
     <LayoutView
+      style={exampleSizing}
       description={layout()}
       bindings={{ views: { workspace: Workspace } }}
     />
