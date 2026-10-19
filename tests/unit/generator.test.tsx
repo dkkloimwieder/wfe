@@ -795,6 +795,7 @@ test('generated tables forward application-controlled pane size without replacin
         }}
         bindings={{
           table,
+          controlsResizable: true,
           controlsSize: size(),
           onControlsSizeChange: requests,
         }}

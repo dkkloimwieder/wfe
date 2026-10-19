@@ -413,7 +413,7 @@ export function PlatformApp(props: {
           navigation={(navigation) => (
             <div class="platform-navigation">
               <p data-ui-text="system">WAMN platform example</p>
-              <p>acme</p>
+              <p data-ui-text="system">acme</p>
               <a
                 href={href({ screen: 'projects' })}
                 aria-current={
@@ -457,6 +457,7 @@ export function PlatformApp(props: {
               <For each={app.projects()}>
                 {(row) => (
                   <a
+                    data-ui-text="system"
                     href={href({ screen: 'project', project: row.name })}
                     ref={nativeEvents<HTMLAnchorElement>({
                       click: follow(

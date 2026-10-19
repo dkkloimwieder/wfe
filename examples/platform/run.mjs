@@ -773,6 +773,119 @@ try {
     },
   )
   await record(
+    'platform: compact rows, Surface 2 dividers and fixed structured controls',
+    async () => {
+      await initialize('?screen=users')
+      const table = page.getByRole('table', { name: 'Users', exact: true })
+      const read = () =>
+        table.evaluate((node) => {
+          const cell = node.querySelector('tbody td'),
+            row = cell.parentElement,
+            head = node.querySelector('th')
+          return {
+            height: row.getBoundingClientRect().height,
+            padding: getComputedStyle(cell).paddingTop,
+            row: getComputedStyle(cell).borderTopColor,
+            column: getComputedStyle(cell).borderRightColor,
+            head: getComputedStyle(head).borderRightColor,
+            action: row.querySelector('button').getBoundingClientRect().height,
+          }
+        })
+      const initial = await read()
+      assert.ok(initial.action >= 26 && initial.action < initial.height)
+      assert.deepEqual(
+        { ...initial, action: undefined },
+        {
+          height: 32,
+          padding: '1px',
+          row: 'rgb(233, 236, 239)',
+          column: 'rgb(233, 236, 239)',
+          head: 'rgb(233, 236, 239)',
+          action: undefined,
+        },
+      )
+      const nav = page.getByRole('navigation', { name: 'Platform navigation' })
+      assert.equal(
+        await nav
+          .getByRole('link', { name: 'billing', exact: true })
+          .evaluate((node) => getComputedStyle(node).textTransform),
+        'uppercase',
+      )
+      assert.equal(
+        await table
+          .getByText('Ann Example', { exact: true })
+          .evaluate((node) => getComputedStyle(node).textTransform),
+        'none',
+      )
+      const workspace = page.locator(
+        '.platform-table-screen:not([hidden]) .table-workspace',
+      )
+      const original = await table.elementHandle(),
+        frame = await workspace.boundingBox()
+      await expect(workspace.locator('.table-workspace-resize')).toBeHidden()
+      await expect(
+        workspace.locator('.table-workspace-resize'),
+      ).toHaveAttribute('aria-disabled', 'true')
+      await expect(
+        workspace.locator('.table-workspace-resize'),
+      ).toHaveAttribute('tabindex', '-1')
+      assert.equal(
+        await workspace
+          .locator('.table-scroll')
+          .evaluate((node) => node.getBoundingClientRect().width),
+        frame.width - 2,
+      )
+      await workspace
+        .getByRole('button', { name: 'Table controls', exact: true })
+        .click()
+      const pane = workspace.locator('.table-workspace-controls')
+      await expect(pane).toBeVisible()
+      const width = (await pane.boundingBox()).width
+      await pane
+        .getByRole('searchbox', { name: 'Search all columns', exact: true })
+        .fill('Ann')
+      await workspace
+        .getByRole('button', { name: 'Table controls', exact: true })
+        .click()
+      await workspace
+        .getByRole('button', { name: 'Table controls', exact: true })
+        .click()
+      assert.equal((await pane.boundingBox()).width, width)
+      await expect(
+        pane.getByRole('searchbox', {
+          name: 'Search all columns',
+          exact: true,
+        }),
+      ).toHaveValue('Ann')
+      await workspace
+        .getByRole('button', { name: 'Refresh results', exact: true })
+        .click()
+      await expect(
+        table.getByText('Ann Example', { exact: true }),
+      ).toBeVisible()
+      await expect(table.getByText('Alex Admin', { exact: true })).toHaveCount(
+        0,
+      )
+      assert.equal(
+        await table.evaluate((node, previous) => node === previous, original),
+        true,
+      )
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click()
+      await page
+        .getByRole('button', { name: 'Dark surfaces', exact: true })
+        .click()
+      const dark = await read()
+      assert.equal(dark.row, 'rgb(52, 58, 64)')
+      assert.equal(dark.column, dark.row)
+      await page
+        .getByRole('button', { name: 'Black / white surfaces', exact: true })
+        .click()
+      assert.equal((await read()).row, 'rgb(233, 236, 239)')
+    },
+  )
+  await record(
     'platform: phone navigation, contained scrolling, appearance drafts and disposal',
     async () => {
       await page.addInitScript(() => {

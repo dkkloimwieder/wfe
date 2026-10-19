@@ -441,3 +441,27 @@
     grid-template-areas: 'header' 'resize' 'results';
   }
 }
+
+/* Table controls use the same fixed section rhythm in every placement. */
+:where([data-ui]) .table-control-section > summary {
+  padding-block: var(--ui-control-padding-y, 4px);
+}
+:where([data-ui]) .table-control-content {
+  min-width: 0;
+}
+:where([data-ui]) .table-control-content > :is(.toolbar, .display-fields) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  width: 100%;
+  gap: var(--ui-gap, 6px);
+}
+
+@media (width >= 48rem) {
+  :where([data-ui])
+    .table-workspace[data-controls-placement='top']
+    .table-control-content
+    > .display-fields {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+}

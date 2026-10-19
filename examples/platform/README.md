@@ -128,3 +128,7 @@ Set `BENCH_DISTRIBUTION=1` for package imports.
 Set `BENCH_DEVELOPMENT=1` and `NODE_ENV=development` for development imports.
 Use the same environment for each fixture build and its browser cases.
 The regular qualification command includes all three modes and their hydration cases.
+
+Tables use compact 32px rows and Surface 2 row and column dividers by default.
+The controls pane has a fixed width and shared sections. Its toolbar button opens and closes it.
+Sidebar names use uppercase presentation as navigation labels. Table values retain their original case.

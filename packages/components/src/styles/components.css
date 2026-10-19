@@ -141,7 +141,7 @@
 }
 :where([data-ui]) th,
 :where([data-ui]) td {
-  padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
+  padding: var(--ui-table-cell-padding-y, 1px) var(--ui-cell-padding-x, 8px);
   border-top: 1px solid var(--ui-table-row-divider, var(--ui-divider, #ddd));
   text-align: left;
   vertical-align: middle;
@@ -190,6 +190,9 @@
   z-index: 1;
   background: var(--ui-surface, white);
   box-shadow: 0 1px var(--ui-table-row-divider, var(--ui-divider, #ddd));
+}
+:where([data-ui]) tbody tr[data-row] {
+  height: var(--ui-row-height, 32px);
 }
 :where([data-ui]) tbody tr[data-row]:hover {
   background: var(--ui-hover, #f6f6f6);
@@ -244,7 +247,6 @@
   border: 0;
 }
 :where([data-ui]) .read-only-value {
-  padding-top: 6px;
   overflow-wrap: anywhere;
 }
 
@@ -284,7 +286,6 @@
 }
 :where([data-ui]) tbody th {
   font-weight: 500;
-  padding-top: 6px;
 }
 :where([data-ui]) .cell-value {
   text-align: left;

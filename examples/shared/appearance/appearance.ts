@@ -16,7 +16,7 @@ export type Depth = 0 | 1 | 2 | 3
 export type SurfaceLevel = 0 | 1 | 2
 export type DividerLevel = 0 | 1 | 2 | 3
 export type TableDividers = { rows: DividerLevel; columns: DividerLevel }
-export const defaultDividers: TableDividers = { rows: 0, columns: 0 }
+export const defaultDividers: TableDividers = { rows: 1, columns: 1 }
 export type SurfaceLayers = {
   canvas: SurfaceLevel
   pane: SurfaceLevel

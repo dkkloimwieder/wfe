@@ -121,6 +121,7 @@ test('table sizing requests are controlled and initial construction does not req
   const [size, setSize] = createSignal(25)
   const h = render(() => (
     <TableWorkspace
+      controlsResizable
       controls="Filters"
       controlsSize={size()}
       onControlsSizeChange={change}
@@ -296,6 +297,7 @@ test('table collapse and size requests remain independent and reopening retains 
   const sizeChange = vi.fn()
   const h = render(() => (
     <TableWorkspace
+      controlsResizable
       controls="Filters"
       controlsCollapsed={closed()}
       onControlsCollapsedChange={collapseChange}
@@ -373,3 +375,42 @@ test('external collapse moves focus from a second linked popup to the retained d
     popup.remove()
   }
 })
+
+test.each([undefined, false])(
+  'fixed table controls keep the divider inert and retain drafts (%s)',
+  (resizable) => {
+    const change = vi.fn(),
+      collapse = vi.fn()
+    const h = render(() => (
+      <TableWorkspace
+        controlsResizable={resizable}
+        controls={<input aria-label="Retained draft" />}
+        onControlsSizeChange={change}
+        onControlsCollapsedChange={collapse}
+      >
+        Results
+      </TableWorkspace>
+    ))
+    const input = h.getByRole('textbox') as HTMLInputElement
+    fireEvent.input(input, { target: { value: 'Keep this draft' } })
+    const handle = h.getByRole('separator')
+    expect(handle.getAttribute('aria-disabled')).toBe('true')
+    expect(handle.getAttribute('tabindex')).toBe('-1')
+    fireEvent.keyDown(handle, { key: 'ArrowRight' })
+    fireEvent.doubleClick(handle)
+    flush()
+    expect(change).not.toHaveBeenCalled()
+    expect(collapse).not.toHaveBeenCalled()
+    const toggle = h.getByRole('button', { name: 'Table controls' })
+    fireEvent.click(toggle)
+    flush()
+    expect(toggle.getAttribute('aria-expanded')).toBe('false')
+    fireEvent.click(toggle)
+    flush()
+    expect(toggle.getAttribute('aria-expanded')).toBe('true')
+    expect(h.getByRole('textbox')).toBe(input)
+    expect(input.value).toBe('Keep this draft')
+    expect(collapse.mock.calls).toEqual([[true], [false]])
+    expect(change).not.toHaveBeenCalled()
+  },
+)

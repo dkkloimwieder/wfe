@@ -89,3 +89,8 @@ Keep the function identity fixed while its row remains mounted.
 Column reordering preserves the cell owner.
 Hiding a column or removing a row disposes that owner's custom content.
 Group labels and aggregate formatting keep their existing callbacks.
+
+Table controls use a fixed pane by default. The toolbar button opens and closes it.
+Set `controlsResizable={true}` only for custom controls that need adjustable space.
+Table cell padding fits the configured row and control heights.
+Use `--ui-table-cell-padding-y` to override vertical table padding.

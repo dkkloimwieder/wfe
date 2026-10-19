@@ -1580,10 +1580,8 @@ try {
     assert.ok(full.width > original.width + 250)
     assert.equal(full.height, original.height)
     const frame = await workspace.boundingBox()
-    const closedDivider = await workspace
-      .locator('.table-workspace-resize')
-      .boundingBox()
-    assert.equal(full.width, frame.width - 2 - closedDivider.width)
+    await expect(workspace.locator('.table-workspace-resize')).toBeHidden()
+    assert.equal(full.width, frame.width - 2)
     await page
       .getByRole('button', { name: 'right controls pane', exact: true })
       .click()
@@ -1596,11 +1594,7 @@ try {
     const rightResults = await page
       .locator('.table-workspace-results')
       .boundingBox()
-    const rightSeparator = await workspace
-      .locator('.table-workspace-resize')
-      .boundingBox()
-    assert.equal(rightResults.x + rightResults.width, rightSeparator.x)
-    assert.equal(rightSeparator.x + rightSeparator.width, rightPane.x)
+    assert.equal(rightResults.x + rightResults.width, rightPane.x)
     assert.equal((await surface.boundingBox()).width, original.width)
     await expectValue(draft, 'Record 1')
     await toggle.click()
@@ -1608,11 +1602,8 @@ try {
       .getByRole('button', { name: 'top controls pane', exact: true })
       .click()
     const closedTop = await surface.boundingBox()
-    const topDivider = await workspace
-      .locator('.table-workspace-resize')
-      .boundingBox()
     assert.equal(closedTop.width, frame.width - 2)
-    assert.equal(closedTop.height, full.height - topDivider.height)
+    assert.equal(closedTop.height, full.height)
     await toggle.click()
     await expect(pane).toBeVisible()
     const top = await surface.boundingBox()
@@ -1639,6 +1630,22 @@ try {
       if (index)
         assert.equal(sectionBoxes[index].y, sectionBoxes[index - 1].bottom)
     }
+    const display = pane
+      .locator('.table-control-section')
+      .filter({ has: page.locator('.display-fields') })
+    await display.locator('summary').click()
+    const displayBoxes = await display
+      .locator('.column-display-option')
+      .evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const box = node.getBoundingClientRect()
+          return { x: box.x, y: box.y, width: box.width }
+        }),
+      )
+    assert.ok(displayBoxes.length > 2)
+    assert.equal(displayBoxes[0].y, displayBoxes[1].y)
+    assert.ok(displayBoxes[1].x > displayBoxes[0].x)
+    await display.locator('summary').click()
     const filterBoxes = await page
       .locator('.column-filters > .table-filter')
       .evaluateAll((nodes) =>
@@ -2330,7 +2337,7 @@ try {
         .evaluate((node, key) => getComputedStyle(node)[key], property)
     const head = 'thead th:not(:last-child)'
     const body = 'tr[data-row] td:not(:last-child)'
-    const first = 'rgb(252, 252, 253)'
+    const first = 'rgb(233, 236, 239)'
     assert.equal(await color(head, 'borderInlineEndColor'), first)
     assert.equal(await color(body, 'borderInlineEndColor'), first)
     assert.equal(await color(body, 'borderTopColor'), first)

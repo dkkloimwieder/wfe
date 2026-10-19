@@ -22,6 +22,7 @@ export type TableControlsHandle = {
 }
 
 export type TableWorkspaceProps = {
+  /** Fixed controls are the default. Enable resizing explicitly for custom content. */
   controlsResizable?: boolean
   controlsSize?: number
   defaultControlsSize?: number
@@ -191,6 +192,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         setHeaderHeight(header?.getBoundingClientRect().height ?? 0)
         const available = availableSize()
         if (
+          props.controlsResizable === true &&
           panel &&
           available > 0 &&
           !collapsed() &&
@@ -259,7 +261,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
   createRenderEffect(
     () => props.controlsResizable,
     (enabled) => {
-      if (enabled === false && separator?.contains(document.activeElement))
+      if (enabled !== true && separator?.contains(document.activeElement))
         toggle?.focus({ preventScroll: true })
     },
   )
@@ -292,14 +294,14 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         '--ui-table-controls-resized-width':
           size() === undefined
             ? undefined
-            : `calc((100% - ${props.controlsResizable === false ? '0px' : 'var(--ui-resize-handle-size, 6px)'}) * ${size()! / 100})`,
+            : `calc((100% - ${props.controlsResizable !== true ? '0px' : 'var(--ui-resize-handle-size, 6px)'}) * ${size()! / 100})`,
         '--ui-table-controls-resized-height':
           size() === undefined
             ? undefined
-            : `calc((100% - var(--ui-table-header-height) - ${props.controlsResizable === false ? '0px' : 'var(--ui-resize-handle-size, 6px)'}) * ${size()! / 100})`,
+            : `calc((100% - var(--ui-table-header-height) - ${props.controlsResizable !== true ? '0px' : 'var(--ui-resize-handle-size, 6px)'}) * ${size()! / 100})`,
       }}
       data-controls-resizable={
-        props.controlsResizable !== false ? '' : undefined
+        props.controlsResizable === true ? '' : undefined
       }
       data-controls-sized={size() !== undefined ? '' : undefined}
       aria-label={props.label ?? 'Table workspace'}
@@ -384,7 +386,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         collapsed={collapsed()}
         onToggle={() => changeCollapsed(!collapsed())}
         onValueChange={changeSize}
-        disabled={props.controlsResizable === false || narrow()}
+        disabled={props.controlsResizable !== true || narrow()}
         orientation={
           props.controlsPlacement === 'top' ? 'horizontal' : 'vertical'
         }
