@@ -47,7 +47,9 @@ The gallery does not scale the example or silently shrink a requested viewport.
 
 ## Examples
 
-The sidebar groups fields, choices, boolean controls, numbers, dates, and files under Forms.
+The Forms section includes Everything form, fields, choices, boolean controls, numbers, dates, and files.
+Everything form combines seven sections with local submission, reset, and field errors.
+Its 30rem width becomes 480 pixels with the example root size and shrinks on narrow screens.
 Components includes buttons, contextual controls, dialogs, display states, and a readonly table.
 Navigation contains tabs and breadcrumbs. Layout contains Collapsible, Accordion, and resizable panes.
 The table fills its main panel, including when only two records exist.
@@ -61,7 +63,7 @@ Unknown example IDs fall back to Fields. Invalid presentation values fall back t
 The gallery and reused standalone examples share `examples/shared/appearance/sizing.ts`.
 The examples use Fira Code Variable with its unchanged SIL Open Font License in the shared font directory.
 Controls and labels use 12-pixel text. Controls use a 32-pixel height and 10-pixel horizontal padding.
-The root size is 16 pixels.
+The root size is 16 pixels. Form fields have a configurable maximum width of 30rem.
 Light surfaces use white with dark text. Dark panels use #171717 over a #0a0a0a canvas.
 Dark inputs use a faint white fill and border. Focus uses a one-pixel neutral ring.
 Blue accents and outline buttons retain the selected presentation.

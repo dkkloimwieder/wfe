@@ -42,3 +42,15 @@
   ) {
   min-block-size: var(--ui-control-height, 26px);
 }
+
+:where([data-ui])
+  :is(
+    .ui-input,
+    .ui-textarea,
+    .ui-field-value,
+    .ui-native-select,
+    .choice-input,
+    .popup-trigger
+  ) {
+  max-inline-size: var(--ui-field-max-width, 30rem);
+}

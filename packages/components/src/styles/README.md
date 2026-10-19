@@ -144,6 +144,9 @@ TileRow aliases DashboardGrid and uses its existing responsive columns and gap.
 
 ## Form presentation roles
 
+Fields use `--ui-field-max-width`, with a default of `30rem`.
+Set this role to `none` when a field must fill a wider container.
+Fields shrink to the available width on narrow screens.
 `--ui-control-surface` supplies the editable field fill.
 `--ui-control-line-height`, `--ui-label-line-height`, and `--ui-label-weight` control shared typography.
 `--ui-focus-width` and `--ui-focus-offset` control the focus outline.

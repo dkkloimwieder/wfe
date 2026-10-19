@@ -1,3 +1,4 @@
+import { EverythingForm } from './EverythingForm'
 import { createSignal, onCleanup, onSettled, untrack } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
@@ -30,6 +31,7 @@ import { exampleSizing } from '../../shared/appearance/sizing'
 import './gallery.css'
 
 const views = {
+  everything: EverythingForm,
   fields: Fields,
   buttons: Buttons,
   dates: Dates,

@@ -1,6 +1,12 @@
 export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
+  {
+    id: 'everything',
+    label: 'Everything form',
+    group: 'Forms',
+    states: ['normal'],
+  },
   { id: 'fields', label: 'Fields', group: 'Forms', states },
   {
     id: 'buttons',
@@ -93,7 +99,8 @@ export const defaults: GalleryConfig = {
   state: 'normal',
 }
 export const entryFor = (id: string | null) =>
-  entries.find((entry) => entry.id === id) ?? entries[0]
+  entries.find((entry) => entry.id === id) ??
+  entries.find((entry) => entry.id === 'fields')!
 const integer = (value: unknown, max: number) =>
   typeof value === 'number' &&
   Number.isInteger(value) &&

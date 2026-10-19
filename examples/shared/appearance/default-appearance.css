@@ -74,6 +74,10 @@ body:has(.component-preview) {
   gap: var(--ui-gap, 8px);
 }
 
+.everything-form {
+  max-inline-size: 30rem;
+}
+
 .default-appearance p {
   line-height: var(--ui-line-height);
 }

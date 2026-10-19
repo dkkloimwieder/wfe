@@ -877,6 +877,8 @@
 :where(.ui-field[data-ui]),
 :where([data-ui]) .ui-field {
   min-inline-size: 0;
+  inline-size: 100%;
+  max-inline-size: var(--ui-field-max-width, 30rem);
   display: grid;
   gap: var(--ui-gap, 6px);
 }
