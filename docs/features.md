@@ -11,7 +11,7 @@ The package export maps and linked guides define the supported contracts.
 | ----------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
 | `@wfe/components` | Controls, display, layout, Table, virtualization, charts, and shared styles                      | [Root exports](../packages/components/src/index.ts) and [export map](../packages/components/package.json) |
 | `@wfe/shell`      | Described audience/navigation frame, breadcrumbs, accepted-navigation focus, and metadata guards | [Shell contracts](../packages/shell/README.md)                                                            |
-| `@wfe/form`       | Controlled scalar form coordination                                                              | [Exports](../packages/form/src/index.ts)                                                                  |
+| `@wfe/form`       | Controlled forms with scalar fields and repeated records                                         | [Exports](../packages/form/src/index.ts)                                                                  |
 | `@wfe/generator`  | Typed descriptions and bindings for form, table, layout, chart, and boolean grid views           | [Exports](../packages/generator/src/index.ts) and [chart entry](../packages/generator/src/chart/index.ts) |
 
 All packages use Solid. They remain private at version `0.0.0`.
@@ -43,7 +43,8 @@ FileInput selects files. Applications own uploads and their results.
 
 `createForm` accepts application-owned values, defaults, validation, and submission callbacks.
 It exposes field updates, errors, dirty and pending state, reset, cancellation, and submission outcomes.
-Its values are flat scalar records. Nested objects and collection editing are outside its current contract.
+Its values include scalars and one-level lists of scalar records.
+The coordinator copies and freezes repeated snapshots and publishes typed errors for each row.
 Read the [form contract](form-contract.md) for attempt identity, cancellation, and late-response behavior.
 
 `FormView` renders described fields through the same shared controls and supplied form contract.
@@ -57,11 +58,9 @@ Custom field bindings cover other scalar presentations.
 Descriptions remain serializable. Runtime bindings supply records, components, choices, and callbacks.
 The [generator guide](generator-contract.md) documents type constraints and runtime guards.
 
-Form field labels and action labels are currently required.
 Table column labels are already optional, with existing column-header fallbacks.
 Generated fields and actions accept omitted labels with field-key and operation-ID fallbacks.
 Generated built-in read-only fields and ordinary table cells use the shared display formats.
-Those generator changes are not implemented yet.
 
 ## Tables and virtualization
 
@@ -153,6 +152,7 @@ The [30 by 5 example](../examples/grid/README.md) covers keyboard input, control
 Generated fields and columns accept shared formats, with custom components taking precedence.
 Read-only fields use the shared FieldValue output. Editable controls retain their input behavior.
 The [format example](../examples/generator/FormatsApp.tsx) covers all requested formats in generated forms and tables.
-Repeated form groups and generated detail/delete views remain planned.
+Repeated form groups reuse the scalar controls, with application-supplied keys and row factories.
+Their example and browser qualification are the next W5 task. Generated detail/delete views remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.

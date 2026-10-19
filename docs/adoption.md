@@ -289,3 +289,9 @@ The short-hash format shows eight Unicode codepoints and exposes the full string
 Open `/?app=formats` on the generator preview for shared formats in generated forms and tables.
 The example keeps the editable note intact while the application supplies formats and read-only flags.
 Its server and browser cases use the same description and accepted values.
+
+Generated forms support one-level repeated groups through the existing form contract.
+Use `control: 'repeat'` with scalar child descriptions and `bindings.repeated[field]` for the application key function and row factory.
+The application accepts each requested list through its value callback and supplies errors by stable row key.
+Nested choices and custom fields use the repeated binding.
+Row additions, removals, and edits never create a second submission callback.

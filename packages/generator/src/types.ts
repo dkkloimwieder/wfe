@@ -19,7 +19,7 @@ import type {
   ReadOnlyTable,
   TableWorkspaceProps,
 } from '@wfe/components/table'
-import type { FormContract, FormScalar } from '@wfe/form'
+import type { FormContract, FormScalar, FormShape } from '@wfe/form'
 
 export type ActionDescription = Readonly<{
   id: string
@@ -88,20 +88,39 @@ type BuiltInControl<V> =
           : never
         : never)
 
-export type FormFieldDescription<
-  T extends object & { [K in keyof T]: FormScalar },
-> = {
-  [K in FieldKey<T>]: Readonly<
-    {
-      field: K
-      label?: string
-      format?: ValueFormat
-      formatOptions?: Readonly<ValueFormatOptions>
-      help?: string
-      required?: boolean
-      span?: FormSpan
-    } & (BuiltInControl<T[K]> | { control: 'custom' })
-  >
+export type FieldPresentation = Readonly<{
+  label?: string
+  format?: ValueFormat
+  formatOptions?: Readonly<ValueFormatOptions>
+  help?: string
+  required?: boolean
+  span?: FormSpan
+}>
+
+export type ScalarFieldDescription<T extends object> = {
+  [K in FieldKey<T>]: T[K] extends FormScalar
+    ? Readonly<
+        { field: K } & FieldPresentation &
+          (BuiltInControl<T[K]> | { control: 'custom' })
+      >
+    : never
+}[FieldKey<T>]
+
+export type RepeatedFieldDescription<Row extends object> = Readonly<{
+  field: string
+  control: 'repeat'
+  label?: string
+  help?: string
+  columns?: FormColumns
+  span?: FormSpan
+  fields: readonly ScalarFieldDescription<Row>[]
+}>
+export type FormFieldDescription<T extends object & FormShape<T>> = {
+  [K in FieldKey<T>]: T[K] extends readonly (infer Row)[]
+    ? Row extends object
+      ? Omit<RepeatedFieldDescription<Row>, 'field'> & { readonly field: K }
+      : never
+    : Extract<ScalarFieldDescription<T>, { field: K }>
 }[FieldKey<T>]
 
 export type FormGroupDescription<Key extends string = string> = Readonly<{
@@ -117,15 +136,14 @@ export type FormLayoutDescription<Key extends string = string> = Readonly<{
   groups?: readonly FormGroupDescription<Key>[]
 }>
 
-export type FormDescription<T extends object & { [K in keyof T]: FormScalar }> =
-  Readonly<{
-    id: string
-    title?: string
-    fields: readonly FormFieldDescription<T>[]
-    layout?: FormLayoutDescription<FieldKey<T>>
-    submit?: ActionDescription
-    actions?: readonly ActionDescription[]
-  }>
+export type FormDescription<T extends object & FormShape<T>> = Readonly<{
+  id: string
+  title?: string
+  fields: readonly FormFieldDescription<T>[]
+  layout?: FormLayoutDescription<FieldKey<T>>
+  submit?: ActionDescription
+  actions?: readonly ActionDescription[]
+}>
 
 export type FormChoice<V> = Readonly<{
   value: V
@@ -166,8 +184,29 @@ type CustomFieldBindings<T, D> = [FieldsUsing<T, D, 'custom'>] extends [never]
       }>
     }
 
+type RepeatedRow<
+  T,
+  K extends keyof T,
+> = T[K] extends readonly (infer Row extends object)[] ? Row : never
+export type RepeatedFieldBinding<Row extends object, D> = Readonly<{
+  rowKey: (row: Readonly<Row>) => string
+  createRow: () => Row
+}> &
+  ChoiceBindings<Row, D> &
+  CustomFieldBindings<Row, D>
+type RepeatedBindings<T, D> = [FieldsUsing<T, D, 'repeat'>] extends [never]
+  ? { repeated?: never }
+  : {
+      repeated: Readonly<{
+        [K in FieldsUsing<T, D, 'repeat'>]: RepeatedFieldBinding<
+          RepeatedRow<T, K>,
+          Extract<FieldsOf<D>, { field: K }>
+        >
+      }>
+    }
+
 export type FormViewBindings<
-  T extends object & { [K in keyof T]: FormScalar },
+  T extends object & FormShape<T>,
   D extends FormDescription<T>,
 > = Readonly<{
   form: FormContract<T>
@@ -177,7 +216,8 @@ export type FormViewBindings<
 }> &
   ActionBindings<D> &
   ChoiceBindings<T, D> &
-  CustomFieldBindings<T, D>
+  CustomFieldBindings<T, D> &
+  RepeatedBindings<T, D>
 
 export type ColumnPresentation = Readonly<{
   label?: string

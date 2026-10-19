@@ -304,3 +304,73 @@ export function createEntryForm() {
   })
 }
 ```
+
+Generated forms render a repeated list with `control: 'repeat'` and scalar child descriptions.
+The application supplies the key function and row factory through `bindings.repeated`.
+Add, remove, and edit requests still use the same form contract.
+See the [repeated group contract](generator-contract.md#repeated-groups) for keys, choices, errors, and focus behavior.
+
+```tsx
+import { createSignal } from 'solid-js'
+import { createForm } from '@wfe/form'
+import { FormView } from '@wfe/generator'
+import type { FormDescription } from '@wfe/generator'
+
+interface Entry {
+  key: string
+  name: string
+  quantity: number
+}
+interface Values {
+  entries: readonly Entry[]
+}
+export function RepeatedEditor() {
+  const initial: Values = { entries: [{ key: 'first', name: '', quantity: 0 }] }
+  const [values, setValues] = createSignal<Readonly<Values>>(initial)
+  let sequence = 0
+  const form = createForm<Values>({
+    values,
+    defaults: () => initial,
+    onValuesChange: setValues,
+    validate(snapshot) {
+      const errors: Record<string, { fields: { name: string } }> = {}
+      for (const row of snapshot.entries)
+        if (!row.name) errors[row.key] = { fields: { name: 'Enter a name' } }
+      return { rows: { entries: errors } }
+    },
+    onSubmit: () => ({ ok: true }),
+  })
+  const description = {
+    id: 'entries',
+    fields: [
+      {
+        field: 'entries',
+        control: 'repeat',
+        fields: [
+          { field: 'name', control: 'text' },
+          { field: 'quantity', control: 'number' },
+        ],
+      },
+    ],
+    submit: { id: 'save' },
+  } as const satisfies FormDescription<Values>
+  return (
+    <FormView
+      description={description}
+      bindings={{
+        form,
+        repeated: {
+          entries: {
+            rowKey: (row) => row.key,
+            createRow: () => ({
+              key: `new-${++sequence}`,
+              name: '',
+              quantity: 0,
+            }),
+          },
+        },
+      }}
+    />
+  )
+}
+```

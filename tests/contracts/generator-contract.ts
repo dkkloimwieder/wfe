@@ -598,3 +598,116 @@ const initiallyEmptyBindings: FormBindings<{ entries: never[] }> = {
   onSubmit: () => ({ ok: true }),
 }
 void initiallyEmptyBindings
+
+const repeatedDescription = {
+  id: 'repeated-form',
+  fields: [
+    { field: 'title', control: 'text' },
+    {
+      field: 'entries',
+      control: 'repeat',
+      columns: 2,
+      fields: [
+        { field: 'name', control: 'text' },
+        { field: 'quantity', control: 'number', empty: 'null' },
+        { field: 'active', control: 'checkbox' },
+      ],
+    },
+  ],
+} as const satisfies FormDescription<RepeatedValues>
+const repeatedViewBindings: FormViewBindings<
+  RepeatedValues,
+  typeof repeatedDescription
+> = {
+  form: repeatedContract,
+  repeated: {
+    entries: {
+      rowKey: (row) => row.key,
+      createRow: () => ({
+        key: 'next',
+        name: '',
+        quantity: null,
+        active: false,
+      }),
+    },
+  },
+}
+// @ts-expect-error A repeated group needs its application key and factory binding.
+const missingRepeated: FormViewBindings<
+  RepeatedValues,
+  typeof repeatedDescription
+> = { form: repeatedContract }
+const invalidRepeatedControl: FormDescription<RepeatedValues> = {
+  id: 'bad-repeat',
+  fields: [
+    // @ts-expect-error Array fields use repeat controls rather than scalar text controls.
+    { field: 'entries', control: 'text' },
+  ],
+}
+interface ChoiceRow {
+  key: string
+  mode: 'alpha' | 'beta'
+  amount: number | undefined
+}
+interface ChoiceRows {
+  rows: readonly ChoiceRow[]
+}
+declare const choiceRowsForm: FormContract<ChoiceRows>
+const choiceRowsDescription = {
+  id: 'choice-rows',
+  fields: [
+    {
+      field: 'rows',
+      control: 'repeat',
+      fields: [
+        { field: 'mode', control: 'select' },
+        { field: 'amount', control: 'custom' },
+      ],
+    },
+  ],
+} as const satisfies FormDescription<ChoiceRows>
+const choiceRowsBindings: FormViewBindings<
+  ChoiceRows,
+  typeof choiceRowsDescription
+> = {
+  form: choiceRowsForm,
+  repeated: {
+    rows: {
+      rowKey: (row) => row.key,
+      createRow: () => ({ key: 'next', mode: 'alpha', amount: undefined }),
+      choices: { mode: () => [{ value: 'alpha', label: 'Alpha' }] },
+      fields: {
+        amount: (props) => {
+          const value: number | undefined = props.value
+          props.onValueChange(value)
+          // @ts-expect-error Nested custom fields preserve the scalar field value type.
+          props.onValueChange('wrong')
+          return null
+        },
+      },
+    },
+  },
+}
+const missingNestedChoices: FormViewBindings<
+  ChoiceRows,
+  typeof choiceRowsDescription
+> = {
+  form: choiceRowsForm,
+  repeated: {
+    // @ts-expect-error Nested selects require their own typed choices.
+    rows: {
+      rowKey: (row) => row.key,
+      createRow: () => ({ key: 'next', mode: 'alpha', amount: undefined }),
+      fields: { amount: () => null },
+    },
+  },
+}
+void [
+  repeatedDescription,
+  repeatedViewBindings,
+  missingRepeated,
+  invalidRepeatedControl,
+  choiceRowsDescription,
+  choiceRowsBindings,
+  missingNestedChoices,
+]

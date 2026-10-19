@@ -2,7 +2,7 @@ import { createMemo, createUniqueId, For, onCleanup, untrack } from 'solid-js'
 import { Checkbox } from '@wfe/components'
 import { createGridModel } from './gridModel'
 import { preserveReorderFocus } from './reorderFocus'
-import { requireValue } from './shared'
+import { keyPart, requireValue } from './shared'
 import type {
   GridColumnId,
   GridDescription,
@@ -35,9 +35,6 @@ export function GridView<const D extends GridDescription>(
   const rowIds = createMemo(() => [...model().rows.keys()])
   const columnIds = createMemo(() => [...model().columns.keys()])
   const label = () => props.description.title ?? model().id
-  // Hexadecimal code points also preserve isolated UTF-16 surrogates in record keys.
-  const keyPart = (id: string) =>
-    Array.from(id, (part) => part.codePointAt(0)!.toString(16)).join('-')
   const rowHeaderId = (id: string) => `${domId}-row-${keyPart(id)}`
   const columnHeaderId = (id: string) => `${domId}-column-${keyPart(id)}`
   preserveReorderFocus(domId, () => [

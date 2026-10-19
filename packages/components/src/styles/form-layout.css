@@ -53,3 +53,9 @@
     grid-column: span 3;
   }
 }
+
+:where([data-ui]) .ui-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}

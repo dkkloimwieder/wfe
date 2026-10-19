@@ -140,3 +140,16 @@ export function StatusView(props: { status?: Accessor<ViewStatus> }) {
     </>
   )
 }
+
+/** Hex codepoints preserve arbitrary keys, including isolated UTF-16 surrogates. */
+export function keyPart(id: string): string {
+  return Array.from(id, (part) => part.codePointAt(0)!.toString(16)).join('-')
+}
+
+/** Bindings and errors use declared own keys rather than object prototypes. */
+export function ownProperty<Value extends object, Key extends keyof Value>(
+  record: Value | undefined,
+  key: Key,
+): Value[Key] | undefined {
+  return record && Object.hasOwn(record, key) ? record[key] : undefined
+}

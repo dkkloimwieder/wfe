@@ -1,31 +1,24 @@
+import { RepeatedField } from './repeatedField'
+import type {
+  RuntimeRow,
+  RuntimeRepeatedField,
+  RuntimeRepeatedBinding,
+} from './repeatedField'
+import { ScalarField } from './scalarField'
+import type { RuntimeCustomField, RuntimeScalarField } from './scalarField'
 import { preserveReorderFocus } from './reorderFocus'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
-import {
-  FieldValue,
-  Button,
-  DatePicker,
-  DateTimePicker,
-  Checkbox,
-  Field,
-  FieldError,
-  FormGrid,
-  FieldGroup,
-  HelpText,
-  Input,
-  NumberInput,
-  Label,
-  SelectField,
-  Switch,
-  Textarea,
-} from '@wfe/components'
+import { Button, FormGrid, FieldGroup } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
 import type { Accessor, Component } from 'solid-js'
-import type { FormContract, FormScalar } from '@wfe/form'
+import type {
+  FormContract,
+  FormScalar,
+  FormShape,
+  FormRowErrors,
+} from '@wfe/form'
 import type {
   CustomFieldProps,
-  DateControlDescription,
-  DateTimeControlDescription,
-  NumberControlDescription,
   FormChoice,
   FormDescription,
   FormFieldDescription,
@@ -39,16 +32,18 @@ import {
   requireValue,
   uniqueIds,
   validateActions,
-  validatePresentation,
+  keyPart,
+  ownProperty,
 } from './shared'
 import type { Actions } from './shared'
 
-type RuntimeBindings<T extends object & { [K in keyof T]: FormScalar }> = {
+type RuntimeBindings<T extends object & FormShape<T>> = {
   form: FormContract<T>
   choices?: Partial<
     Record<keyof T, Accessor<readonly FormChoice<FormScalar>[]>>
   >
   fields?: Partial<Record<keyof T, Component<CustomFieldProps<T, keyof T>>>>
+  repeated?: Partial<Record<keyof T, RuntimeRepeatedBinding>>
   actions?: Actions
   disabled?: (field: Extract<keyof T, string>) => boolean
   readOnly?: (field: Extract<keyof T, string>) => boolean
@@ -56,7 +51,7 @@ type RuntimeBindings<T extends object & { [K in keyof T]: FormScalar }> = {
 }
 
 export function FormView<
-  T extends object & { [K in keyof T]: FormScalar },
+  T extends object & FormShape<T>,
   D extends FormDescription<T>,
 >(props: { description: D; bindings: FormViewBindings<T, D> }) {
   // Runtime dispatch erases each field's value type. Descriptions and guards select its control.
@@ -137,276 +132,70 @@ export function FormView<
     }
     regions = nextRegions
     validateActions(value.actions ?? [], bindings().actions, value.submit)
-    for (const field of value.fields) {
-      descriptionLabel(field.label, field.field)
-      validatePresentation(field, `field "${field.field}"`)
-      const control = field.control
-      requireValue(
-        [
-          'text',
-          'textarea',
-          'date',
-          'datetime',
-          'number',
-          'select',
-          'checkbox',
-          'switch',
-          'custom',
-        ].includes(control),
-        `unsupported control "${control}"`,
-      )
-      if (control === 'custom')
-        requireValue(
-          Object.hasOwn(bindings().fields ?? {}, field.field) &&
-            typeof bindings().fields?.[field.field] === 'function',
-          `missing custom field "${field.field}"`,
-        )
-      else if (control === 'number') {
-        const current = form.values[field.field]
-        const numeric = field as FormFieldDescription<T> &
-          NumberControlDescription & { empty?: 'reject' | 'null' | 'undefined' }
-        const empty = numeric.empty === undefined ? 'reject' : numeric.empty
-        requireValue(
-          ['reject', 'null', 'undefined'].includes(empty) &&
-            ((typeof current === 'number' && Number.isFinite(current)) ||
-              (empty === 'null' && current === null) ||
-              (empty === 'undefined' && current === undefined)),
-          `incompatible numeric field "${field.field}"`,
-        )
-      } else if (control === 'select')
-        requireValue(
-          Object.hasOwn(bindings().choices ?? {}, field.field) &&
-            typeof bindings().choices?.[field.field] === 'function' &&
-            typeof form.values[field.field] === 'string',
-          `missing choices or incompatible select field "${field.field}"`,
-        )
-      else
-        requireValue(
-          typeof form.values[field.field] ===
-            (['text', 'textarea', 'date', 'datetime'].includes(control)
-              ? 'string'
-              : 'boolean'),
-          `incompatible control for field "${field.field}"`,
-        )
-    }
     return value
   })
+  const fieldError = (key: keyof T) =>
+    form.errors.fields && Object.hasOwn(form.errors.fields, key)
+      ? form.errors.fields[key]
+      : undefined
   function FieldView(fieldProps: { field: FormFieldDescription<T> }) {
-    const field = () => fieldProps.field
-    const key: Extract<keyof T, string> = untrack(() => field().field)
+    const field = () =>
+      fieldProps.field as unknown as RuntimeScalarField | RuntimeRepeatedField
+    const key = untrack(() => field().field) as Extract<keyof T, string>
     const control = untrack(() => field().control)
-    const Custom = untrack(() => bindings().fields?.[key])
-    const checkedField = createMemo(() => {
+    const checked = createMemo(() => {
       requireValue(
-        field().control === control && bindings().fields?.[key] === Custom,
-        `remount field "${key}" to replace its control or custom component`,
+        field().control === control,
+        `remount field "${key}" to replace its control`,
       )
       return field()
     })
-    const dateDescription = () => {
-      const value = checkedField()
-      requireValue(
-        value.control === 'date' || value.control === 'datetime',
-        'Date controls require a date description',
-      )
-      return value as FormFieldDescription<T> &
-        (DateControlDescription | DateTimeControlDescription)
-    }
-    const datetimeDescription = () => {
-      const value = dateDescription()
-      requireValue(
-        value.control === 'datetime',
-        'Datetime controls require a datetime description',
-      )
-      return value as FormFieldDescription<T> & DateTimeControlDescription
-    }
-    const numberDescription = () => {
-      const value = checkedField()
-      requireValue(
-        value.control === 'number',
-        'Numeric controls require a number description',
-      )
-      return value as FormFieldDescription<T> &
-        NumberControlDescription & { empty?: 'reject' | 'null' | 'undefined' }
-    }
-    const label = () => descriptionLabel(checkedField().label, key)
-    const booleanControl = control === 'checkbox' || control === 'switch'
-    const id = `${domId}-${encodeURIComponent(key)}`
+    const id = `${domId}-field-${keyPart(key)}`
     const disabled = () => Boolean(bindings().disabled?.(key))
     const readOnly = () => Boolean(bindings().readOnly?.(key))
-    const formatted = () =>
-      readOnly() && control !== 'custom' && checkedField().format !== undefined
-    const separateLabel = () => !booleanControl || formatted()
-    const set = (value: FormScalar) => {
-      if (!disabled() && !readOnly()) form.setValue(key, value as T[typeof key])
-    }
-    const choices = () => {
-      const current = bindings().choices?.[key]?.() ?? []
-      requireValue(
-        new Set(current.map((choice) => choice.value)).size === current.length,
-        `duplicate choice for field "${key}"`,
-      )
-      requireValue(
-        current.every((choice) => typeof choice.value === 'string'),
-        `non-string choice for field "${key}"`,
-      )
-      return current as readonly FormChoice<string>[]
-    }
-    return (
-      <Field
-        controlId={id}
-        data-form-span={checkedField().span ?? 1}
-        data-generator-field={key}
-        required={checkedField().required}
-        disabled={disabled()}
-        readonly={readOnly()}
-        invalid={Boolean(form.errors.fields?.[key])}
-      >
-        <Show when={separateLabel()}>
-          <Label data-ui-text="system">{label()}</Label>
-        </Show>
-        <Show
-          when={formatted()}
-          fallback={
-            control === 'text' ? (
-              <Input value={String(form.values[key])} onValueChange={set} />
-            ) : control === 'textarea' ? (
-              <Textarea value={String(form.values[key])} onValueChange={set} />
-            ) : control === 'number' ? (
-              <NumberInput
-                value={
-                  (form.values[key] as number | null | undefined) ?? undefined
-                }
-                min={numberDescription().min}
-                max={numberDescription().max}
-                allowEmpty={
-                  numberDescription().empty === 'null' ||
-                  numberDescription().empty === 'undefined'
-                }
-                onValueChange={(value) => {
-                  if (value !== undefined) set(value)
-                  else if (numberDescription().empty === 'null') set(null)
-                  else if (numberDescription().empty === 'undefined')
-                    set(undefined)
-                }}
-              />
-            ) : control === 'date' ? (
-              <DatePicker
-                label={label()}
-                value={String(form.values[key]) || undefined}
-                dateFormat={dateDescription().dateFormat}
-                locale={dateDescription().locale}
-                min={dateDescription().min}
-                max={dateDescription().max}
-                startOfWeek={dateDescription().startOfWeek}
-                onValueChange={(value) => set(value ?? '')}
-              />
-            ) : control === 'datetime' ? (
-              <DateTimePicker
-                label={label()}
-                value={String(form.values[key]) || undefined}
-                dateFormat={datetimeDescription().dateFormat}
-                timeFormat={datetimeDescription().timeFormat}
-                locale={datetimeDescription().locale}
-                timeZone={datetimeDescription().timeZone}
-                disambiguation={datetimeDescription().disambiguation}
-                min={datetimeDescription().min}
-                max={datetimeDescription().max}
-                startOfWeek={datetimeDescription().startOfWeek}
-                onValueChange={(value) => set(value ?? '')}
-              />
-            ) : control === 'select' ? (
-              <SelectField
-                label={label()}
-                choices={choices()}
-                value={String(form.values[key])}
-                onValueChange={(value) => {
-                  if (
-                    choices().some(
-                      (choice) => choice.value === value && !choice.disabled,
-                    )
-                  )
-                    set(value)
-                }}
-              />
-            ) : control === 'checkbox' ? (
-              <Checkbox
-                id={`${id}-toggle`}
-                checked={form.values[key] === true}
-                disabled={disabled()}
-                readOnly={readOnly()}
-                required={checkedField().required}
-                validationState={
-                  form.errors.fields?.[key] ? 'invalid' : undefined
-                }
-                onChange={set}
-              >
-                <Checkbox.Input id={id} />
-                <Checkbox.Control>
-                  <Checkbox.Indicator />
-                </Checkbox.Control>
-                <Checkbox.Label data-ui-text="system">{label()}</Checkbox.Label>
-                <Show when={checkedField().help}>
-                  <Checkbox.Description>
-                    {checkedField().help}
-                  </Checkbox.Description>
-                </Show>
-                <Checkbox.ErrorMessage>
-                  {form.errors.fields?.[key]}
-                </Checkbox.ErrorMessage>
-              </Checkbox>
-            ) : control === 'switch' ? (
-              <Switch
-                id={`${id}-toggle`}
-                checked={form.values[key] === true}
-                disabled={disabled()}
-                readOnly={readOnly()}
-                required={checkedField().required}
-                validationState={
-                  form.errors.fields?.[key] ? 'invalid' : undefined
-                }
-                onChange={set}
-              >
-                <Switch.Input id={id} />
-                <Switch.Control>
-                  <Switch.Thumb />
-                </Switch.Control>
-                <Switch.Label data-ui-text="system">{label()}</Switch.Label>
-                <Show when={checkedField().help}>
-                  <Switch.Description>{checkedField().help}</Switch.Description>
-                </Show>
-                <Switch.ErrorMessage>
-                  {form.errors.fields?.[key]}
-                </Switch.ErrorMessage>
-              </Switch>
-            ) : Custom ? (
-              <Custom
-                id={id}
-                field={key}
-                value={form.values[key]}
-                onValueChange={set}
-                disabled={disabled()}
-                readOnly={readOnly()}
-              />
-            ) : null
-          }
-        >
-          <FieldValue
-            value={form.values[key]}
-            format={checkedField().format}
-            locale={checkedField().formatOptions?.locale}
-            dateFormat={checkedField().formatOptions?.dateFormat}
-            timeFormat={checkedField().formatOptions?.timeFormat}
-            timeZone={checkedField().formatOptions?.timeZone}
-          />
-        </Show>
-        <Show when={separateLabel() && checkedField().help}>
-          <HelpText>{checkedField().help}</HelpText>
-        </Show>
-        <Show when={separateLabel()}>
-          <FieldError>{form.errors.fields?.[key]}</FieldError>
-        </Show>
-      </Field>
+    return control === 'repeat' ? (
+      <RepeatedField
+        field={checked() as RuntimeRepeatedField}
+        id={id}
+        adapter={{
+          rows: () => form.values[key] as readonly RuntimeRow[],
+          error: () => fieldError(key),
+          errors: () => {
+            const rows = form.errors.rows as
+              | Readonly<
+                  Record<
+                    string,
+                    Readonly<Record<string, FormRowErrors<RuntimeRow>>>
+                  >
+                >
+              | undefined
+            return rows && Object.hasOwn(rows, key) ? rows[key] : undefined
+          },
+          binding: () => ownProperty(bindings().repeated, key),
+          request: (rows) => form.setValue(key, rows as T[typeof key]),
+          disabled,
+          readOnly,
+        }}
+      />
+    ) : (
+      <ScalarField
+        field={checked() as RuntimeScalarField}
+        id={id}
+        adapter={{
+          value: () => form.values[key] as FormScalar,
+          error: () => fieldError(key),
+          setValue: (value) => form.setValue(key, value as T[typeof key]),
+          custom: () =>
+            ownProperty(bindings().fields, key) as
+              RuntimeCustomField | undefined,
+          choices: () => {
+            const choices = ownProperty(bindings().choices, key)
+            return typeof choices === 'function' ? choices() : undefined
+          },
+          disabled,
+          readOnly,
+        }}
+      />
     )
   }
   const groupedFields = createMemo(
@@ -417,12 +206,28 @@ export function FormView<
   )
   preserveReorderFocus(domId, () => {
     const current = description()
-    return (
-      current.layout?.groups?.flatMap((group) => [
-        `group:${group.id}`,
-        ...group.fields.map((key) => `field:${key}`),
-      ]) ?? current.fields.map((field) => `field:${field.field}`)
-    )
+    const keys =
+      current.layout?.groups?.flatMap((group) => group.fields) ??
+      current.fields.map((field) => field.field)
+    return keys.flatMap((key) => {
+      const field = groupedFields().get(key)! as unknown as
+        RuntimeScalarField | RuntimeRepeatedField
+      const order = [JSON.stringify(['field', key])]
+      if (field.control !== 'repeat') return order
+      const rows = form.values[key as keyof T]
+      const binding = ownProperty(bindings().repeated, key as keyof T)
+      if (!Array.isArray(rows) || typeof binding?.rowKey !== 'function')
+        return order
+      const group = field as RuntimeRepeatedField
+      return [
+        ...order,
+        ...rows.flatMap((row) =>
+          group.fields.map((child) =>
+            JSON.stringify(['row', key, binding.rowKey(row), child.field]),
+          ),
+        ),
+      ]
+    })
   })
   return (
     <form

@@ -172,3 +172,7 @@ These presentation fallbacks preserve accepted values, callbacks, control identi
 The generator's `/?app=formats` example places an editable note and formatted read-only fields in navigation.
 Its table fills the main panel, and its footer reports the application submission state.
 The shared layout controls the pane sizes and narrow-screen arrangement.
+
+Repeated form groups compose the existing FieldGroup and FormGrid components.
+Their `columns` value controls each row's scalar fields. Existing container widths determine when those fields stack.
+The group span follows the surrounding form grid, and row actions use the shared form action style.

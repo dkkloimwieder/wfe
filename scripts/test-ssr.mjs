@@ -593,3 +593,66 @@ assert.equal(Object.isFrozen(repeatedServerRows[0]), false)
 console.log(
   'Repeated form records render without callbacks or freezing application rows.',
 )
+
+let repeatedViewRequests = 0
+const repeatedViewOutput = await renderToString(() => {
+  const values = {
+    entries: [
+      { key: 'first', name: 'First', quantity: 0 },
+      { key: 'second', name: 'Second', quantity: null },
+    ],
+  }
+  const form = createForm({
+    values: () => values,
+    defaults: () => values,
+    onValuesChange() {
+      repeatedViewRequests++
+    },
+    validate: () => ({}),
+    onSubmit() {
+      repeatedViewRequests++
+      return { ok: true }
+    },
+  })
+  return createComponent(FormView, {
+    description: {
+      id: 'repeated-view-ssr',
+      fields: [
+        {
+          field: 'entries',
+          control: 'repeat',
+          fields: [
+            { field: 'name', control: 'text' },
+            { field: 'quantity', control: 'number', empty: 'null' },
+          ],
+        },
+      ],
+      submit: { id: 'save' },
+    },
+    bindings: {
+      form,
+      repeated: {
+        entries: {
+          rowKey: (row) => row.key,
+          createRow() {
+            repeatedViewRequests++
+            return { key: 'new', name: '', quantity: null }
+          },
+        },
+      },
+    },
+  })
+})
+assert.equal((repeatedViewOutput.match(/<fieldset /g) ?? []).length, 3)
+assert.match(repeatedViewOutput, /value="First"/)
+assert.match(repeatedViewOutput, /value="Second"/)
+assert.match(repeatedViewOutput, /data-generator-row="first"/)
+assert.match(repeatedViewOutput, /Add row/)
+const repeatedViewIds = [...repeatedViewOutput.matchAll(/\bid="([^"]+)"/g)].map(
+  (match) => match[1],
+)
+assert.equal(new Set(repeatedViewIds).size, repeatedViewIds.length)
+assert.equal(repeatedViewRequests, 0)
+console.log(
+  'Generated repeated groups render shared controls without factories or change callbacks.',
+)

@@ -19,7 +19,7 @@ Use literal descriptions with `as const satisfies` to retain field, action, rend
 Avoid widening a description to a general interface before deriving its bindings.
 That widening loses the literal names needed to require specific bindings.
 
-Use `FormDescription<T>` and `FormViewBindings<T, D>` for one flat scalar form.
+Use `FormDescription<T>` and `FormViewBindings<T, D>` for one form with scalar fields and repeated groups.
 Use `TableDescription` and `TableViewBindings<Row, Meta, D>` for one table.
 Use `LayoutDescription<ViewId>` and `LayoutViewBindings<D>` for a dashboard composition.
 `D` is the type of the particular description.
@@ -259,5 +259,36 @@ The form coordinator accepts one-level arrays of scalar records and typed row er
 Snapshots copy and freeze the arrays and rows without freezing application records.
 Equal arrays with equal scalar row contents preserve pending work.
 Accepted edits, additions, removals, or row reordering cancel pending attempts.
-The generator's repeated-group renderer is the next W5 task.
+FormView renders repeated groups through the same scalar controls as ordinary fields.
 The [form contract](form-contract.md#repeated-record-snapshots) defines snapshot and row-error ownership.
+
+## Repeated groups
+
+Use `control: 'repeat'` for an array field, with a scalar `fields` list for each row.
+Repeated fields accept optional labels, help, spans, and one to three columns per row.
+Labels default to field keys, including the group field.
+Nested repeated groups are outside this contract.
+
+Supply `bindings.repeated[field]` with `rowKey` and `createRow`.
+The key function supplies a nonempty unique string for each accepted row.
+The factory runs only when the user requests Add row.
+Use stable application keys. Changing a row's key replaces its controls and drafts.
+Nested select choices and custom components belong to that repeated binding.
+Their types follow the scalar row fields.
+
+Add, remove, and scalar edits request a new list through the existing `form.setValue` path.
+The application accepts or rejects that request through its existing value callback.
+The renderer has no second coordinator or row submission operation.
+Disabled and read-only groups prevent row changes and factory calls.
+Row edits resolve the current accepted list by key rather than a captured position.
+Reordering or inserting rows retains controls, drafts, and focus for unchanged keys.
+Removing controls releases their handlers, and disposed callbacks cannot change another row.
+
+Use `errors.fields[field]` for a group message and `errors.rows[field][rowKey]` for row messages.
+A row's `fields` map supplies scalar errors. Its `row` property supplies the row message.
+Native fieldsets name groups and rows. Existing Field controls associate labels, help, and scalar errors.
+Row fieldsets also reference their row message.
+Nested numeric and date drafts use the existing form-level guard before the single submit operation.
+Accepted additions focus the new row when focus remains on Add row.
+Accepted removal returns focus to Add row when focus remains on the removed action.
+Rejected changes retain the accepted controls and focus.
