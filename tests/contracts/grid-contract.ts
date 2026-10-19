@@ -1,3 +1,4 @@
+import { GridView } from '@wfe/generator'
 import type {
   GridDescription,
   GridBindings,
@@ -47,3 +48,5 @@ void bad
 // @ts-expect-error A value getter alone cannot supply changes.
 const incomplete: GridBindings<typeof description> = { value: () => false }
 void incomplete
+
+GridView(props)

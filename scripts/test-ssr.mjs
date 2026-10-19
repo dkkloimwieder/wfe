@@ -1,3 +1,4 @@
+import { GridView } from '@wfe/generator'
 import { FileInput } from '@wfe/components/file-input'
 import assert from 'node:assert/strict'
 import { createComponent, renderToString } from '@solidjs/web'
@@ -426,3 +427,31 @@ assert.equal(shellRequests, 0)
 console.log(
   'Described shell renders public metadata and page content without navigation requests.',
 )
+
+let gridRequests = 0
+const gridOutput = await renderToString(() =>
+  createComponent(GridView, {
+    description: {
+      id: 'grid',
+      title: 'Access & review',
+      rows: [{ id: 'a /[]', label: 'Alpha & review' }],
+      columns: [{ id: 'view', label: 'View', readOnly: true }],
+    },
+    bindings: {
+      value: () => true,
+      onValueChange: () => {
+        gridRequests++
+      },
+    },
+  }),
+)
+assert.match(gridOutput, /<caption[^>]*>Access &amp; review<\/caption>/)
+assert.match(gridOutput, /scope="row"/)
+assert.match(gridOutput, /scope="col"/)
+assert.match(
+  gridOutput,
+  /aria-labelledby="[^"]+-row-61-20-2f-5b-5d [^"]+-column-76-69-65-77"/,
+)
+assert.match(gridOutput, /type="checkbox"/)
+assert.match(gridOutput, /checked/)
+assert.equal(gridRequests, 0)

@@ -144,7 +144,8 @@ The [qualification guide](qualification.md) documents serial checks, browser del
 
 The [shell, grid, tiles, and labels plan](plan/wfe-shell-grid-tiles.md) records delivered and proposed APIs.
 `@wfe/shell` supplies the described renderer and metadata guards. The [six-route example](../examples/shell/README.md) covers browser history, narrow drawers, and hydration.
-`GridDescription` supplies keyed boolean metadata and controlled binding types. Its renderer and example remain in progress under W2.
+`GridDescription` supplies keyed boolean metadata and controlled binding types.
+`GridView` renders the shared checkbox matrix. Its full example and browser qualification remain in progress under W2.
 `StatusTile` and `TileRow` are not implemented.
 Repeated form groups and generated detail/delete views also remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.

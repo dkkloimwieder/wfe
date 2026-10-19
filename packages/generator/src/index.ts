@@ -39,3 +39,5 @@ export type {
   GridBindings,
   GridViewProps,
 } from './gridTypes'
+
+export { GridView } from './GridView'

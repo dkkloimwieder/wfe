@@ -195,5 +195,17 @@ The application accepts or rejects each request and owns saves, validation, and 
 A read-only column supplies presentation metadata, not an authorization rule.
 Descriptions contain no records, callbacks, transport, or permission decisions.
 
-The renderer and 30 by 5 example follow these contracts in the next W2 issues.
+`GridView` renders a semantic table with shared Checkbox controls and shared table styles.
+Every checkbox takes its accessible name from its row and column headers.
+Read-only cells remain focusable. Disabled rows prevent interaction.
+The renderer reads accepted booleans and never copies them into another cell store.
+It reports malformed metadata, missing bindings, and nonboolean values with a `Generator:` error.
+
+Row and column reordering preserves retained cell owners and focus.
+Label changes update accessible names without replacing inputs.
+Remount the grid to replace its description ID.
+The table fills its assigned width and scrolls inside its region on narrow screens.
+Set a definite parent height when the grid must fill a page.
+Applications use normal Tab navigation. The grid does not add spreadsheet keyboard commands.
+The 30 by 5 example and browser hydration qualification follow in the last W2 issue.
 The [type contract](../tests/contracts/grid-contract.ts) rejects unknown row/column IDs and nonboolean values.
