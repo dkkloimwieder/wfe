@@ -231,7 +231,8 @@
     "@solid-primitives/scroll": "3.0.0-next.4",
     "@solid-primitives/utils": "7.0.0-next.4",
     "d3-scale": "4.0.2",
-    "d3-shape": "3.2.0"
+    "d3-shape": "3.2.0",
+    "@types/d3-scale": "4.0.9"
   },
   "peerDependencies": {
     "@solidjs/web": ">=2.0.0-rc.14 <3.0.0",

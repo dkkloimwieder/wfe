@@ -183,3 +183,42 @@ test('replacing a custom tooltip renderer destroys its owner without replacing t
   flush()
   expect(disposedB).toHaveBeenCalledTimes(1)
 })
+
+test('selection callbacks receive raw records and reactive callback replacements take effect', () => {
+  const rows = [
+    { x: 0, y: 2 },
+    { x: 1, y: 3 },
+  ]
+  const first = vi.fn()
+  const second = vi.fn()
+  const [select, setSelect] = createSignal(() => first)
+  const spec = defineChart({
+    marks: [lineY(rows, { x: 'x', y: 'y' })],
+    scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
+    tooltip,
+  })
+  const h = render(() => (
+    <Chart
+      definition={spec}
+      ariaLabel="Requests"
+      width={480}
+      height={260}
+      onSelect={select()}
+    />
+  ))
+  flush()
+  const svg = h.container.querySelector('svg')!
+  fireEvent.focusIn(svg)
+  fireEvent.keyDown(svg, { key: 'ArrowRight' })
+  fireEvent.keyDown(svg, { key: 'Enter' })
+  flush()
+  expect(rows).toContain(first.mock.calls[0]![0].datum)
+  const prior = first.mock.calls.length
+  setSelect(() => second)
+  flush()
+  fireEvent.keyDown(svg, { key: 'ArrowRight' })
+  fireEvent.keyDown(svg, { key: 'Enter' })
+  flush()
+  expect(rows).toContain(second.mock.calls[0]![0].datum)
+  expect(first).toHaveBeenCalledTimes(prior)
+})

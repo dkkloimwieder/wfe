@@ -1,3 +1,6 @@
+export { ChartLegend } from './ChartLegend'
+export type { ChartLegendItem, ChartLegendProps } from './ChartLegend'
+export { scaleTime, scaleUtc } from 'd3-scale'
 export { tooltipPortal } from './tooltipPortal'
 export { Chart } from './Chart'
 export type { ChartProps, ChartTooltipContext } from './Chart'
@@ -14,7 +17,6 @@ export { tooltip } from '../vendor/charts/charts-core/src/tooltip'
 export {
   colorLegend,
   colorLegendItems,
-  interactiveColorLegend,
 } from '../vendor/charts/charts-core/src/legend'
 export type {
   ChartDefinition,

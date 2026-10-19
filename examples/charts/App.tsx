@@ -9,6 +9,8 @@ import {
 } from '@wfe/components'
 import {
   Chart,
+  ChartLegend,
+  scaleUtc,
   defineChart,
   lineY,
   scaleLinear,
@@ -60,6 +62,28 @@ export function App(props: {
     pane: 0,
     content: 0,
   })
+  const [series, setSeries] = createSignal({ requests: true, capacity: true })
+  const [rejectSeries, setRejectSeries] = createSignal(false)
+  const [reverseLegend, setReverseLegend] = createSignal(false)
+  const legendItems = createMemo(() => {
+    const items = [
+      {
+        id: 'requests',
+        label: 'Requests',
+        lineStyle: 'solid' as const,
+        color: 'var(--ui-accent)',
+        visible: series().requests,
+      },
+      {
+        id: 'capacity',
+        label: 'Capacity',
+        lineStyle: 'dashed' as const,
+        color: 'var(--ui-accent)',
+        visible: series().capacity,
+      },
+    ]
+    return reverseLegend() ? items.reverse() : items
+  })
   const [empty, setEmpty] = createSignal(false)
   const [loading, setLoading] = createSignal(false)
   const [revision, setRevision] = createSignal(0)
@@ -71,7 +95,7 @@ export function App(props: {
     defineChart({
       marks: [
         lineY(
-          empty()
+          empty() || !series().requests
             ? []
             : [
                 { id: 'a', x: 0, y: 2 + revision() },
@@ -79,6 +103,23 @@ export function App(props: {
                 { id: 'c', x: 2, y: 1 + revision() },
               ],
           { id: 'requests', x: 'x', y: 'y', key: 'id', points: true },
+        ),
+        lineY(
+          empty() || !series().capacity
+            ? []
+            : [
+                { id: 'capacity-a', x: 0, y: 5 },
+                { id: 'capacity-b', x: 1, y: 5 },
+                { id: 'capacity-c', x: 2, y: 5 },
+              ],
+          {
+            id: 'capacity',
+            x: 'x',
+            y: 'y',
+            key: 'id',
+            strokeDasharray: '4 3',
+            strokeOpacity: 0.55,
+          },
         ),
       ],
       scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
@@ -146,6 +187,25 @@ export function App(props: {
           aria-busy={loading() ? 'true' : 'false'}
         >
           <h2>LINE</h2>
+          <div class="chart-review-actions">
+            <ChartLegend
+              label="Request series"
+              items={legendItems()}
+              onVisibilityChange={(id, value) => {
+                if (!rejectSeries())
+                  setSeries((previous) => ({ ...previous, [id]: value }))
+              }}
+            />
+            <Button
+              aria-pressed={rejectSeries() ? 'true' : 'false'}
+              onClick={() => setRejectSeries((value) => !value)}
+            >
+              Reject visibility changes
+            </Button>
+            <Button onClick={() => setReverseLegend((value) => !value)}>
+              Reverse legend
+            </Button>
+          </div>
           <Show when={loading()}>
             <InlineAlert announce="polite">Loading chart data</InlineAlert>
           </Show>
@@ -171,6 +231,12 @@ export function App(props: {
   )
 }
 
+const utcDate = new Intl.DateTimeFormat('en-GB', {
+  timeZone: 'UTC',
+  day: '2-digit',
+  month: 'short',
+})
+
 function ForCharts(props: { revision: number }) {
   const rows = () => [
     { label: 'Mon', value: 2 + props.revision },
@@ -181,14 +247,38 @@ function ForCharts(props: { revision: number }) {
   const bars = createMemo(() =>
     defineChart({
       marks: [barY(rows(), { x: 'label', y: 'value' })],
-      scales: { x: { scale: scaleBand }, y: { scale: scaleLinear } },
+      scales: {
+        x: { scale: () => scaleBand().padding(0.15) },
+        y: { scale: scaleLinear },
+      },
       tooltip: { use: tooltip, portal: tooltipPortal },
     }),
   )
   const area = createMemo(() =>
     defineChart({
-      marks: [areaY(rows(), { x: (_, context) => context.index, y: 'value' })],
-      scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
+      marks: [
+        areaY(
+          rows().map((row, index) => ({
+            ...row,
+            at: new Date(Date.UTC(2026, 0, index + 1)),
+          })),
+          { x: 'at', y: 'value' },
+        ),
+      ],
+      scales: {
+        x: {
+          scale: scaleUtc,
+          axis: {
+            ticks: {
+              values: [1, 2, 3, 4].map(
+                (day) => new Date(Date.UTC(2026, 0, day)),
+              ),
+              format: (value: Date) => utcDate.format(value),
+            },
+          },
+        },
+        y: { scale: scaleLinear },
+      },
       tooltip: { use: tooltip, portal: tooltipPortal },
     }),
   )
@@ -203,18 +293,18 @@ function ForCharts(props: { revision: number }) {
     <>
       <section class="chart-review-panel" aria-label="Bar chart panel">
         <h2>BAR</h2>
-        <Chart definition={bars()} ariaLabel="Daily requests" height={260} />
+        <Chart definition={bars()} ariaLabel="Daily requests" height={280} />
       </section>
       <section class="chart-review-panel" aria-label="Area chart panel">
         <h2>AREA</h2>
-        <Chart definition={area()} ariaLabel="Request volume" height={260} />
+        <Chart definition={area()} ariaLabel="Request volume" height={280} />
       </section>
       <section class="chart-review-panel" aria-label="Scatter chart panel">
         <h2>SCATTER</h2>
         <Chart
           definition={scatter()}
           ariaLabel="Request observations"
-          height={260}
+          height={280}
         />
       </section>
     </>

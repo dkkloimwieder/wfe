@@ -49,3 +49,26 @@
     --ui-accent: Highlight;
   }
 }
+:where(.ui-chart-legend[data-ui]) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-chart-legend-swatch {
+  inline-size: 8px;
+  block-size: 8px;
+  flex: none;
+}
+:where([data-ui]) .ui-chart-legend-label {
+  text-transform: none;
+}
+:where([data-ui])
+  .ui-chart-legend-button[aria-pressed='false']
+  .ui-chart-legend-label {
+  text-decoration: line-through;
+}
+:where([data-ui]) .ui-chart-legend-swatch[data-line-style] {
+  inline-size: 16px;
+  block-size: 0;
+  border-block-start: 2px solid var(--ui-chart-series-color);
+}

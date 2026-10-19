@@ -302,6 +302,9 @@ importers:
       '@solidjs/web':
         specifier: '>=2.0.0-rc.14 <3.0.0'
         version: 2.0.0-rc.14(solid-js@2.0.0-rc.14)
+      '@types/d3-scale':
+        specifier: 4.0.9
+        version: 4.0.9
       d3-scale:
         specifier: 4.0.2
         version: 4.0.2

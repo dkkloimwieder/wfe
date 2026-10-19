@@ -289,6 +289,57 @@ try {
     },
   )
   await run(
+    'shared legend sends controlled requests and preserves reordered controls',
+    async () => {
+      const legend = page.getByRole('group', {
+        name: 'Request series',
+        exact: true,
+      })
+      const actual = legend.getByRole('button', {
+        name: 'Requests',
+        exact: true,
+      })
+      await actual.focus()
+      await actual.press('Space')
+      await expect(actual).toHaveAttribute('aria-pressed', 'false')
+      assert.equal(
+        await page.evaluate(
+          () => window.chartFixture.context().scene.points.length,
+        ),
+        3,
+      )
+      await actual.press('Space')
+      await expect(actual).toHaveAttribute('aria-pressed', 'true')
+      await page
+        .getByRole('button', { name: 'Reject visibility changes', exact: true })
+        .click()
+      await actual.focus()
+      await actual.press('Enter')
+      await expect(actual).toHaveAttribute('aria-pressed', 'true')
+      await actual.evaluate((button) => {
+        window.chartLegendButton = button
+      })
+      await page
+        .getByRole('button', { name: 'Reverse legend', exact: true })
+        .evaluate((button) => button.click())
+      assert.ok(
+        await actual.evaluate(
+          (button) =>
+            button === window.chartLegendButton &&
+            document.activeElement === button,
+        ),
+      )
+      await page
+        .getByRole('button', { name: 'Reject visibility changes', exact: true })
+        .click()
+      const labels = await page
+        .getByRole('region', { name: 'Area chart panel' })
+        .locator('text')
+        .allTextContents()
+      assert.ok(labels.some((label) => label.includes('Jan')))
+    },
+  )
+  await run(
     'responsive narrow layout keeps chart inside the page',
     async () => {
       const wide = await svg.getAttribute('viewBox')
@@ -327,7 +378,7 @@ try {
         await page.evaluate(
           () => window.chartFixture.context().scene.points.length,
         ),
-        3,
+        6,
       )
       await page
         .getByRole('button', { name: 'Toggle loading', exact: true })

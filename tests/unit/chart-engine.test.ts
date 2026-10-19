@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import {
   defineChart,
   lineY,
@@ -87,4 +87,40 @@ describe('owned chart engine', () => {
     expect(empty.points).toHaveLength(0)
     expect(renderChartSvg(empty, { ariaLabel: 'Empty' })).toContain('<svg')
   })
+})
+
+test('UTC date axes use application formatting without changing datum identity', async () => {
+  const { scaleUtc } = await import('@wfe/components/chart')
+  const rows = [
+    { at: new Date('2026-01-01T00:00:00Z'), value: 2 },
+    { at: new Date('2026-01-02T00:00:00Z'), value: 3 },
+  ]
+  const format = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'UTC',
+    day: '2-digit',
+    month: 'short',
+  })
+  const scene = createChartScene(
+    defineChart({
+      marks: [lineY(rows, { x: 'at', y: 'value' })],
+      scales: {
+        x: {
+          scale: scaleUtc,
+          axis: {
+            ticks: {
+              values: rows.map((row) => row.at),
+              format: (value: Date) => format.format(value),
+            },
+          },
+        },
+        y: { scale: scaleLinear },
+      },
+    }),
+    { width: 800, height: 260 },
+  )
+  expect(scene.points[0]!.datum).toBe(rows[0])
+  expect(scene.points[0]!.xValue).toBe(rows[0]!.at)
+  const svg = renderChartSvg(scene, { ariaLabel: 'Daily requests' })
+  expect(svg).toContain('01 Jan')
+  expect(svg).toContain('02 Jan')
 })
