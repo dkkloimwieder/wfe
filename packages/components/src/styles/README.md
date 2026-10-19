@@ -134,3 +134,10 @@ TableHeaderFilter provides this structure through its internal content wrapper.
 
 `form-layout.css` owns responsive form grids, field groups, and column spans.
 The generator and direct component consumers share these rules.
+
+## Status tiles
+
+`status-tiles.css` owns the compact StatusTile layout, truncated labels/detail, and wrapping values.
+Card owns its border, padding, surface, and square corners. Badge owns state tones.
+The tile reads the existing `--ui-panel-shadow` role and introduces no palette.
+TileRow aliases DashboardGrid and uses its existing responsive columns and gap.

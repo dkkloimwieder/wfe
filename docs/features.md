@@ -147,7 +147,8 @@ The [shell, grid, tiles, and labels plan](plan/wfe-shell-grid-tiles.md) records 
 `GridDescription` supplies keyed boolean metadata and controlled binding types.
 `GridView` renders the shared checkbox matrix with read-only columns, disabled rows, stable cells, and accessible row/column names.
 The [30 by 5 example](../examples/grid/README.md) covers keyboard input, controlled requests, reordering, narrow scrolling, and hydration.
-`StatusTile` and `TileRow` are not implemented.
+`StatusTile` composes Card, Badge, and ValueDisplay for explicit ok/warning/unknown states.
+`TileRow` uses the existing responsive grid. Their full example and browser qualification remain in progress under W3.
 Repeated form groups and generated detail/delete views also remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.

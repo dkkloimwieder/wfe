@@ -90,3 +90,10 @@ export * from './components/Resizable'
 
 export { FileInput } from './components/FileInput'
 export type { FileInputProps, FileRejection } from './components/FileInput'
+
+export { StatusTile, TileRow } from './components/StatusTile'
+export type {
+  StatusTileProps,
+  StatusTileState,
+  TileRowProps,
+} from './components/StatusTile'

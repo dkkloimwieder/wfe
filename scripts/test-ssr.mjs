@@ -1,3 +1,4 @@
+import { StatusTile, TileRow } from '@wfe/components'
 import { GridView } from '@wfe/generator'
 import { FileInput } from '@wfe/components/file-input'
 import assert from 'node:assert/strict'
@@ -455,3 +456,22 @@ assert.match(
 assert.match(gridOutput, /type="checkbox"/)
 assert.match(gridOutput, /checked/)
 assert.equal(gridRequests, 0)
+
+const tileOutput = await renderToString(() =>
+  createComponent(TileRow, {
+    children: createComponent(StatusTile, {
+      label: 'Available & ready',
+      value: 1250,
+      format: 'number-grouped',
+      state: 'ok',
+      detail: 'Full detail & context',
+    }),
+  }),
+)
+assert.match(tileOutput, /ui-dashboard-grid/)
+assert.match(tileOutput, /ui-status-tile/)
+assert.match(tileOutput, /Available &amp; ready/)
+assert.match(tileOutput, /1,250/)
+assert.match(tileOutput, /data-state="ok"/)
+assert.match(tileOutput, /data-tone="success"/)
+assert.match(tileOutput, /Full detail &amp; context/)

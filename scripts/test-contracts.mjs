@@ -63,8 +63,9 @@ const generator = resolve(packageRoot, 'tests/contracts/generator-contract.ts')
 const chart = resolve(packageRoot, 'tests/contracts/chart-contract.ts')
 const shell = resolve(packageRoot, 'tests/contracts/shell-contract.ts')
 const grid = resolve(packageRoot, 'tests/contracts/grid-contract.ts')
+const tiles = resolve(packageRoot, 'tests/contracts/status-tile-contract.ts')
 const program = ts.createProgram(
-  [...files.keys(), generator, chart, shell, grid],
+  [...files.keys(), generator, chart, shell, grid, tiles],
   parsed.options,
   host,
 )
