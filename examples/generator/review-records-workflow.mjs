@@ -429,6 +429,23 @@ export async function reviewRecordsWorkflow({
         await expect(
           page.locator('form').getByLabel('Name', { exact: true }),
         ).toHaveValue('Second record')
+        const panelHeight = await page
+          .locator('[data-generator-panel="records-panel"]')
+          .evaluate((panel) => {
+            const main = panel.closest('main')
+            const style = getComputedStyle(main)
+            return {
+              actual: panel.getBoundingClientRect().height,
+              available:
+                main.clientHeight -
+                parseFloat(style.paddingTop) -
+                parseFloat(style.paddingBottom),
+            }
+          })
+        assert.ok(
+          Math.abs(panelHeight.actual - panelHeight.available) < 2,
+          JSON.stringify(panelHeight),
+        )
         assert.equal(
           await page.evaluate(
             () => document.documentElement.scrollWidth <= innerWidth,

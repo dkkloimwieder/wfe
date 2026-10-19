@@ -16,7 +16,7 @@ const target = (principalId = ANN, project = 'billing', env = 'dev') => ({
   env,
 })
 const settle = async () => {
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 80; i++) {
     await Promise.resolve()
     flush()
   }
@@ -450,4 +450,163 @@ test('captured access route metadata matches every used generated operation', as
       errors.cases.map((error: { literal: string }) => error.literal).sort(),
     ).toEqual(route.contract.errors.map((error) => error.literal).sort())
   }
+})
+
+test('selected user access reflects project reads and refreshes after commands', async () => {
+  const { app, stop } = mount(`?screen=access&principal=${ANN}`)
+  await app.initialize()
+  await settle()
+  expect(app.access.grantsState()).toEqual({ loading: false })
+  expect(app.access.grants().map((row) => row.project)).toEqual([
+    'archive',
+    'billing',
+    'shop',
+  ])
+  expect(
+    app.access.grants().find((row) => row.project === 'billing')?.member,
+  ).toMatchObject({
+    principalId: ANN,
+    projectAdmin: false,
+    environments: ['dev'],
+  })
+  expect(
+    app.access.grants().find((row) => row.project === 'shop')?.member,
+  ).toBeUndefined()
+  app.access.form.setValue('kind', 'project')
+  flush()
+  app.access.form.setValue('project', 'billing')
+  flush()
+  await app.access.form.submit()
+  await settle()
+  expect(
+    app.access.grants().find((row) => row.project === 'billing')?.member,
+  ).toMatchObject({
+    projectAdmin: true,
+    environments: ['dev', 'prod'],
+  })
+  stop()
+})
+test('selected user access reads only administrable projects and retains unknown failures', async () => {
+  const { app, stop } = mount(
+    `?screen=access&principal=${ANN}`,
+    'project-admin',
+  )
+  await app.initialize()
+  await settle()
+  expect(app.access.grants().map((row) => row.project)).toEqual(['billing'])
+  const original = app.mock.transport.invoke.bind(app.mock.transport)
+  app.mock.transport.invoke = async (request) =>
+    request.operation.includes(':member/list')
+      ? {
+          status: 'uncertain',
+          reason: 'Membership read unavailable.',
+          retryRefusal: null,
+        }
+      : original(request)
+  await app.refresh()
+  await settle()
+  expect(app.access.grants()).toEqual([
+    {
+      project: 'billing',
+      error: expect.stringContaining('Membership read unavailable.'),
+    },
+  ])
+  expect(app.access.state().error).toBeUndefined()
+  stop()
+})
+test('late selected user summaries cannot cross principals or disposal', async () => {
+  const { app, stop } = mount(`?screen=access&principal=${ANN}`)
+  await app.initialize()
+  await settle()
+  const original = app.mock.transport.invoke.bind(app.mock.transport)
+  let release!: () => void
+  let held = false
+  app.mock.transport.invoke = async (request) => {
+    if (!held && request.operation.includes(':member/list')) {
+      held = true
+      await new Promise<void>((resolve) => {
+        release = resolve
+      })
+    }
+    return original(request)
+  }
+  const old = app.refresh()
+  await settle()
+  expect(held).toBe(true)
+  app.enter({ screen: 'access', principal: MOCK_ACTOR })
+  flush()
+  await settle()
+  expect(
+    app.access.grants().find((row) => row.project === 'billing')?.member
+      ?.principalId,
+  ).toBe(MOCK_ACTOR)
+  release()
+  await old
+  await settle()
+  expect(
+    app.access
+      .grants()
+      .every((row) => !row.member || row.member.principalId === MOCK_ACTOR),
+  ).toBe(true)
+  held = false
+  const disposed = app.refresh()
+  await settle()
+  stop()
+  flush()
+  const before = app.access.grants()
+  release()
+  await disposed
+  await settle()
+  expect(app.access.grants()).toBe(before)
+})
+
+test('a refused command marks an interrupted summary stale until explicit refresh', async () => {
+  const { app, stop } = mount(`?screen=access&principal=${ANN}`)
+  await app.initialize()
+  await settle()
+  app.access.form.setValue('kind', 'organization')
+  flush()
+  const original = app.mock.transport.invoke.bind(app.mock.transport)
+  let release!: () => void
+  let held = false
+  app.mock.transport.invoke = async (request) => {
+    if (
+      !held &&
+      request.operation.includes(':member/list') &&
+      request.items[0]?.project === 'billing'
+    ) {
+      held = true
+      await new Promise<void>((resolve) => {
+        release = resolve
+      })
+    }
+    if (request.method === 'POST')
+      return {
+        status: 'uncertain',
+        reason: 'Command reply unavailable.',
+        retryRefusal: null,
+      }
+    return original(request)
+  }
+  const old = app.access.load({ screen: 'access', principal: ANN })
+  await settle()
+  expect(held).toBe(true)
+  expect(app.access.grants().map((row) => row.project)).toEqual(['archive'])
+  await app.access.form.submit()
+  await settle()
+  expect(app.access.grantsState()).toEqual({
+    loading: false,
+    error: 'Refresh to read current project access.',
+  })
+  expect(app.access.grants()).toEqual([])
+  release()
+  await old
+  await settle()
+  expect(app.access.grantsState().error).toContain('Refresh')
+  app.mock.transport.invoke = original
+  await app.refresh()
+  await settle()
+  expect(app.access.grantsState()).toEqual({ loading: false })
+  expect(app.access.grants()).toHaveLength(3)
+  stop()
 })

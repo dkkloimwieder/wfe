@@ -17,6 +17,11 @@ import type {
 } from './provider'
 import type { Outcome } from './snapshot/runtime/wire'
 
+export type UserProjectAccess = {
+  project: string
+  member?: PlatformMember
+  error?: string
+}
 type State = { loading: boolean; error?: string }
 export function accessFailure(
   outcome: Exclude<Outcome<unknown>, { status: 'completed' }>,
@@ -110,6 +115,8 @@ export function createAccessApplication(
   reload: () => Promise<void>,
 ) {
   const [users, setUsers] = createSignal<PlatformUser[]>([])
+  const [grants, setGrants] = createSignal<UserProjectAccess[]>([])
+  const [grantsState, setGrantsState] = createSignal<State>({ loading: false })
   const [members, setMembers] = createSignal<PlatformMember[]>([])
   const [state, setState] = createSignal<State>({ loading: false })
   const [environments, setEnvironments] = createSignal<string[]>([])
@@ -187,6 +194,13 @@ export function createAccessApplication(
           errors: { form: 'Access was refused for this operation.' },
         }
       const sequence = ++commandSequence
+      readSequence++
+      readAbort?.abort()
+      setGrants([])
+      setGrantsState({
+        loading: false,
+        error: 'Refresh to read current project access.',
+      })
       setCompleted('')
       const outcome = await client.access(
         snapshot.kind,
@@ -292,6 +306,8 @@ export function createAccessApplication(
   async function load(target: PlatformRoute, access = untrack(authority)) {
     const sequence = ++readSequence
     readAbort?.abort()
+    setGrants([])
+    setGrantsState({ loading: false })
     if (!['users', 'members', 'access'].includes(target.screen)) return
     setUsers([])
     setMembers([])
@@ -329,6 +345,30 @@ export function createAccessApplication(
       )
         throw new Error('This user is unavailable in the current scope.')
       setState({ loading: false })
+      if (target.screen === 'access') {
+        setGrantsState({ loading: true })
+        // Only read projects that the current administrator can inspect.
+        for (const project of untrack(projects).filter((row) =>
+          allowed('project', row.name, access),
+        )) {
+          const outcome = await client.members(project.name, abort.signal)
+          if (!alive || abort.signal.aborted || sequence !== readSequence)
+            return
+          let row: UserProjectAccess = { project: project.name }
+          if (outcome.status !== 'completed') row.error = accessFailure(outcome)
+          else {
+            try {
+              row.member = unique(outcome.value.members).find(
+                (member) => member.principalId === target.principal,
+              )
+            } catch (error) {
+              row.error = String(error)
+            }
+          }
+          setGrants((previous) => [...previous, row])
+        }
+        setGrantsState({ loading: false })
+      }
     } catch (error) {
       setState({ loading: false, error: String(error) })
     }
@@ -343,6 +383,8 @@ export function createAccessApplication(
   })
   return {
     users,
+    grants,
+    grantsState,
     members,
     state,
     environments,

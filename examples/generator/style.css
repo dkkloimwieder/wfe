@@ -4,11 +4,6 @@ body,
   height: 100%;
   margin: 0;
 }
-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-gap, 6px);
-}
 h2 {
   font-size: inherit;
   margin: 0;
@@ -111,4 +106,9 @@ h2 {
 
 .record-table-screen table {
   min-width: 100%;
+}
+
+.record-screen:not([hidden]) {
+  min-height: 0;
+  overflow: auto;
 }

@@ -297,7 +297,9 @@ export function PlatformApp(props: {
             app.route().screen === 'projects' ||
             app.route().screen === 'project' ||
             app.route().screen === 'users' ||
-            app.route().screen === 'members'
+            app.route().screen === 'members' ||
+            app.route().screen === 'create' ||
+            app.route().screen === 'access'
               ? 'content'
               : 'main'
           }
@@ -590,7 +592,7 @@ export function PlatformApp(props: {
             }
           >
             <Show when={app.route().screen === 'create'}>
-              <DashboardPanel class="platform-details">
+              <DashboardPanel fill class="platform-details platform-form-page">
                 <h2 data-ui-text="system">{projectMetadata.label}</h2>
                 <Show
                   when={app.authority()?.orgAdmin}

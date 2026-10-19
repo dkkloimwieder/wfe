@@ -37,6 +37,12 @@ WAMN_ROOT=/home/kaalin/dev/wamn node examples/platform/capture.mjs
 The capture command reads the checkout. It does not build Rust or modify WAMN.
 Review changed operation metadata and generated clients together before accepting a refreshed snapshot.
 
+The access editor lists the selected user's organization flag and project grants before the command form.
+The list covers only projects that the current viewer can administer.
+Each failed project read stays unknown. The screen does not treat a failed read as absent access.
+The captured contracts do not identify direct and inherited grants.
+Application roles use separate operations and remain outside this screen.
+
 ## Known gaps
 
 Beads epic `wfe-f81` owns this application and its follow-up work.

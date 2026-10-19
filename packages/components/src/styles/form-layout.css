@@ -1,3 +1,15 @@
+:where(.ui-form[data-ui]) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  min-inline-size: 0;
+}
+:where(.ui-form[data-ui]) > :is(h2, p) {
+  margin: 0;
+}
+:where(.ui-form[data-ui]) > button {
+  align-self: flex-start;
+}
 :where(.ui-form-layout[data-ui]) {
   min-inline-size: 0;
   container: ui-form / inline-size;

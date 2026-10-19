@@ -886,6 +886,82 @@ try {
     },
   )
   await record(
+    'platform: current access, full-height forms and shared submit spacing',
+    async () => {
+      const principal = '00000000-0000-4000-8000-000000000002'
+      const geometry = async () =>
+        page.locator('.platform-form-page').evaluate((panel) => {
+          const main = panel.parentElement
+          const rect = panel.getBoundingClientRect()
+          const area = main.getBoundingClientRect()
+          const style = getComputedStyle(main)
+          const form = panel.querySelector('form')
+          const grid = form.querySelector('.ui-form-layout')
+          const submit = form.querySelector('[type="submit"]')
+          return {
+            height: rect.height,
+            available:
+              area.height -
+              parseFloat(style.paddingTop) -
+              parseFloat(style.paddingBottom),
+            gap:
+              submit.getBoundingClientRect().top -
+              grid.getBoundingClientRect().bottom,
+            padding: parseFloat(getComputedStyle(panel).paddingLeft),
+            compactSubmit:
+              submit.getBoundingClientRect().width <
+              form.getBoundingClientRect().width,
+            bodyOverflow: document.documentElement.scrollWidth > innerWidth,
+          }
+        })
+      for (const width of [1280, 320]) {
+        await page.setViewportSize({ width, height: 844 })
+        for (const query of [
+          '?screen=create',
+          `?screen=access&principal=${principal}`,
+        ]) {
+          await initialize(query)
+          await expect(page.locator('.platform-form-page form')).toBeVisible()
+          await page.waitForFunction(
+            () => !window.platformFixture.app().access.grantsState().loading,
+          )
+          const dimensions = await geometry()
+          assert.ok(
+            Math.abs(dimensions.height - dimensions.available) < 2,
+            JSON.stringify(dimensions),
+          )
+          assert.ok(dimensions.gap >= 6, JSON.stringify(dimensions))
+          assert.ok(dimensions.padding >= 8)
+          assert.equal(dimensions.compactSubmit, true)
+          assert.equal(dimensions.bodyOverflow, false)
+          await page
+            .getByRole('button', {
+              name: query.includes('access')
+                ? 'Apply access command'
+                : 'Create a project',
+              exact: true,
+            })
+            .scrollIntoViewIfNeeded()
+        }
+      }
+      const summary = page.getByRole('region', {
+        name: 'Current platform access',
+        exact: true,
+      })
+      await expect(summary).toContainText('billing')
+      await expect(summary).toContainText('dev')
+      await expect(summary).toContainText('None reported')
+      await expect(page.locator('[data-platform-command]')).toContainText(
+        'Ann Example',
+      )
+      await page.screenshot({
+        path: '/tmp/wfe-access-summary-phone.png',
+        fullPage: true,
+      })
+      await page.setViewportSize({ width: 1280, height: 844 })
+    },
+  )
+  await record(
     'platform: phone navigation, contained scrolling, appearance drafts and disposal',
     async () => {
       await page.addInitScript(() => {

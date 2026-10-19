@@ -398,6 +398,8 @@ export function FormView<
   })
   return (
     <form
+      data-ui=""
+      class="ui-form"
       id={domId}
       data-generator-view={description().id}
       aria-label={description().title ?? description().id}

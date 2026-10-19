@@ -1,4 +1,4 @@
-import { Show, createSignal } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
 import { Button, InlineAlert, ValueDisplay } from '@wfe/components'
 import { DashboardPanel } from '@wfe/components/layout'
 import { TableColumnResize } from '@wfe/components/table'
@@ -184,7 +184,7 @@ export function AccessViews(props: {
         />
       </div>
       <Show when={props.app.route().screen === 'access' && visible()}>
-        <DashboardPanel class="platform-details">
+        <DashboardPanel fill class="platform-details platform-form-page">
           <h2 data-ui-text="system">Manage access</h2>
 
           <Show when={access.state().loading}>
@@ -199,6 +199,57 @@ export function AccessViews(props: {
             <p>
               {currentUser()?.displayName} · {currentUser()?.email}
             </p>
+            <section
+              class="platform-access-summary"
+              aria-label="Current platform access"
+            >
+              <h3 data-ui-text="system">Current platform access</h3>
+              <dl>
+                <dt data-ui-text="system">Organization administrator</dt>
+                <dd>{currentUser()?.orgAdmin ? 'Yes' : 'No'}</dd>
+              </dl>
+              <p>
+                These are platform grants reported by the server for projects
+                you can administer. Application roles are separate and are not
+                shown here. The server does not identify direct and inherited
+                grants.
+              </p>
+              <Show when={access.grantsState().error}>
+                <InlineAlert announce="polite">
+                  {access.grantsState().error}
+                </InlineAlert>
+              </Show>
+              <Show when={access.grantsState().loading}>
+                <p role="status">Loading current project access</p>
+              </Show>
+              <For each={access.grants()} keyed={(grant) => grant.project}>
+                {(grant) => (
+                  <dl>
+                    <dt data-ui-text="system">Project</dt>
+                    <dd>{grant().project}</dd>
+                    <Show
+                      when={grant().error}
+                      fallback={
+                        <>
+                          <dt data-ui-text="system">Project administrator</dt>
+                          <dd>{grant().member?.projectAdmin ? 'Yes' : 'No'}</dd>
+                          <dt data-ui-text="system">Environment memberships</dt>
+                          <dd>
+                            {grant().member?.environments.join(', ') ||
+                              'None reported'}
+                          </dd>
+                        </>
+                      }
+                    >
+                      <dd>
+                        <InlineAlert tone="error">{grant().error}</InlineAlert>
+                      </dd>
+                    </Show>
+                  </dl>
+                )}
+              </For>
+            </section>
+            <h3 data-ui-text="system">Change platform access</h3>
             <p>
               Grant or revoke one scope at a time. Higher-level grants can cover
               lower-level access. The server decides each command.
@@ -211,6 +262,22 @@ export function AccessViews(props: {
                 {access.choicesState().error}
               </InlineAlert>
             </Show>
+            <p data-platform-command>
+              {access.form.values.action === 'revoke' ? 'Revoke' : 'Grant'}{' '}
+              {access.form.values.kind === 'organization'
+                ? 'organization administrator'
+                : access.form.values.kind === 'project'
+                  ? 'project administrator'
+                  : 'environment membership'}{' '}
+              {access.form.values.action === 'revoke' ? 'from' : 'to'}{' '}
+              {currentUser()?.displayName}
+              {access.form.values.kind !== 'organization'
+                ? ` · ${access.form.values.project || 'Select a project'}`
+                : ''}
+              {access.form.values.kind === 'environment'
+                ? ` / ${access.form.values.env || 'Select an environment'}`
+                : ''}
+            </p>
             <FormView
               description={formDescription}
               bindings={{

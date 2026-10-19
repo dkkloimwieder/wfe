@@ -318,12 +318,12 @@ export function RecordsWorkflow(props: {
       id: 'records-workflow',
       title: 'Records',
       columns: 1,
-      scroll: app.route().screen === 'records' ? 'content' : 'main',
+      scroll: 'content',
       panels: [
         {
           id: 'records-panel',
           view: 'workspace',
-          fill: app.route().screen === 'records',
+          fill: true,
         },
       ],
     }) as const satisfies LayoutDescription<'workspace'>

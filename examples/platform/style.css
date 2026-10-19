@@ -111,3 +111,20 @@ body,
   gap: var(--ui-gap);
   flex-wrap: wrap;
 }
+
+.platform-form-page[data-fill] {
+  overflow: auto;
+}
+.platform-access-summary {
+  display: grid;
+  gap: var(--ui-gap);
+}
+.platform-access-summary dl {
+  margin: 0;
+  padding: var(--ui-gap);
+  border: 1px solid var(--ui-canvas-surface);
+}
+.platform-access-summary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
