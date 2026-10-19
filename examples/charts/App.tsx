@@ -97,7 +97,7 @@ export function App(props: {
   const [revision, setRevision] = createSignal(0)
   const [visible, setVisible] = createSignal(true)
   const [label, setLabel] = createSignal('Requests')
-  const [rich, setRich] = createSignal(true)
+  const [rich, setRich] = createSignal(false)
   let context: Context | undefined
   const spec = createMemo(() =>
     defineChart({
@@ -308,7 +308,7 @@ function ForCharts(props: { revision: number }) {
         <Chart definition={bars()} ariaLabel="Daily requests" height={280} />
       </section>
       <section class="chart-review-panel" aria-label="Area chart panel">
-        <h2>AREA</h2>
+        <h2>TIME SERIES (AREA)</h2>
         <Chart definition={area()} ariaLabel="Request volume" height={280} />
       </section>
       <section class="chart-review-panel" aria-label="Scatter chart panel">

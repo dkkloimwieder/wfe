@@ -57,6 +57,9 @@
   flex-wrap: wrap;
   gap: var(--ui-gap, 6px);
 }
+:where([data-ui]) .ui-chart-legend-button {
+  gap: var(--ui-gap, 6px);
+}
 :where([data-ui]) .ui-chart-legend-swatch {
   inline-size: 8px;
   block-size: 8px;

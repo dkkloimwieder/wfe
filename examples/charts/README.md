@@ -3,6 +3,8 @@
 This gallery uses the public chart and generator exports.
 It shows line, area, bar, scatter, and generated bar charts.
 The application owns records, series visibility, loading state, and all callbacks.
+The area plot demonstrates a UTC time series.
+The default tooltip contains data. Toggle the custom tooltip to test persistent controls and explicit dismissal.
 Appearance controls reuse the shared review components.
 The initial appearance uses Blue, Surface 1 components, Surface 2 background, outline buttons, and shadow depth 2.
 

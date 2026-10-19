@@ -159,7 +159,20 @@ try {
       ),
     )
   })
+  await run('default tooltip contains data without test controls', async () => {
+    await svg.focus()
+    await svg.press('ArrowRight')
+    await settle()
+    const panel = page.locator('.chart-primary-tooltip')
+    await expect(panel).toBeVisible()
+    await expect(panel.locator('input,button')).toHaveCount(0)
+    await expect(panel.locator('.ts-chart-tooltip__row')).toHaveCount(2)
+    await svg.press('Escape')
+  })
   await run('keyboard focus and stable custom tooltip content', async () => {
+    await page
+      .getByRole('button', { name: 'Toggle custom tooltip', exact: true })
+      .click()
     await svg.focus()
     await svg.press('ArrowRight')
     await settle()
@@ -339,6 +352,19 @@ try {
         name: 'Requests',
         exact: true,
       })
+      const legendSpacing = await actual.evaluate((button) => {
+        const cue = button
+          .querySelector('.ui-chart-legend-swatch')
+          .getBoundingClientRect()
+        const label = button
+          .querySelector('.ui-chart-legend-label')
+          .getBoundingClientRect()
+        return label.left - cue.right
+      })
+      assert.ok(
+        legendSpacing >= 6,
+        'Series cues need visible space before their labels',
+      )
       await actual.focus()
       await actual.press('Space')
       await expect(actual).toHaveAttribute('aria-pressed', 'false')
