@@ -1,6 +1,8 @@
 import type { Accessor, Component } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import type {
+  ValueFormat,
+  ValueFormatOptions,
   DateInputFormat,
   TimeInputFormat,
   DateTimeDisambiguation,
@@ -93,6 +95,8 @@ export type FormFieldDescription<
     {
       field: K
       label?: string
+      format?: ValueFormat
+      formatOptions?: Readonly<ValueFormatOptions>
       help?: string
       required?: boolean
       span?: FormSpan
@@ -175,7 +179,12 @@ export type FormViewBindings<
   ChoiceBindings<T, D> &
   CustomFieldBindings<T, D>
 
-export type ColumnPresentation = Readonly<{ label?: string; renderer?: string }>
+export type ColumnPresentation = Readonly<{
+  label?: string
+  renderer?: string
+  format?: ValueFormat
+  formatOptions?: Readonly<ValueFormatOptions>
+}>
 export type TableDescription = Readonly<{
   id: string
   title?: string

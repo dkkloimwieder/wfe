@@ -1,6 +1,7 @@
 import { preserveReorderFocus } from './reorderFocus'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
 import {
+  FieldValue,
   Button,
   DatePicker,
   DateTimePicker,
@@ -38,6 +39,7 @@ import {
   requireValue,
   uniqueIds,
   validateActions,
+  validatePresentation,
 } from './shared'
 import type { Actions } from './shared'
 
@@ -137,6 +139,7 @@ export function FormView<
     validateActions(value.actions ?? [], bindings().actions, value.submit)
     for (const field of value.fields) {
       descriptionLabel(field.label, field.field)
+      validatePresentation(field, `field "${field.field}"`)
       const control = field.control
       requireValue(
         [
@@ -231,6 +234,9 @@ export function FormView<
     const id = `${domId}-${encodeURIComponent(key)}`
     const disabled = () => Boolean(bindings().disabled?.(key))
     const readOnly = () => Boolean(bindings().readOnly?.(key))
+    const formatted = () =>
+      readOnly() && control !== 'custom' && checkedField().format !== undefined
+    const separateLabel = () => !booleanControl || formatted()
     const set = (value: FormScalar) => {
       if (!disabled() && !readOnly()) form.setValue(key, value as T[typeof key])
     }
@@ -256,125 +262,148 @@ export function FormView<
         readonly={readOnly()}
         invalid={Boolean(form.errors.fields?.[key])}
       >
-        <Show when={!booleanControl}>
+        <Show when={separateLabel()}>
           <Label data-ui-text="system">{label()}</Label>
         </Show>
-        {control === 'text' ? (
-          <Input value={String(form.values[key])} onValueChange={set} />
-        ) : control === 'textarea' ? (
-          <Textarea value={String(form.values[key])} onValueChange={set} />
-        ) : control === 'number' ? (
-          <NumberInput
-            value={(form.values[key] as number | null | undefined) ?? undefined}
-            min={numberDescription().min}
-            max={numberDescription().max}
-            allowEmpty={
-              numberDescription().empty === 'null' ||
-              numberDescription().empty === 'undefined'
-            }
-            onValueChange={(value) => {
-              if (value !== undefined) set(value)
-              else if (numberDescription().empty === 'null') set(null)
-              else if (numberDescription().empty === 'undefined') set(undefined)
-            }}
-          />
-        ) : control === 'date' ? (
-          <DatePicker
-            label={label()}
-            value={String(form.values[key]) || undefined}
-            dateFormat={dateDescription().dateFormat}
-            locale={dateDescription().locale}
-            min={dateDescription().min}
-            max={dateDescription().max}
-            startOfWeek={dateDescription().startOfWeek}
-            onValueChange={(value) => set(value ?? '')}
-          />
-        ) : control === 'datetime' ? (
-          <DateTimePicker
-            label={label()}
-            value={String(form.values[key]) || undefined}
-            dateFormat={datetimeDescription().dateFormat}
-            timeFormat={datetimeDescription().timeFormat}
-            locale={datetimeDescription().locale}
-            timeZone={datetimeDescription().timeZone}
-            disambiguation={datetimeDescription().disambiguation}
-            min={datetimeDescription().min}
-            max={datetimeDescription().max}
-            startOfWeek={datetimeDescription().startOfWeek}
-            onValueChange={(value) => set(value ?? '')}
-          />
-        ) : control === 'select' ? (
-          <SelectField
-            label={label()}
-            choices={choices()}
-            value={String(form.values[key])}
-            onValueChange={(value) => {
-              if (
-                choices().some(
-                  (choice) => choice.value === value && !choice.disabled,
-                )
-              )
-                set(value)
-            }}
-          />
-        ) : control === 'checkbox' ? (
-          <Checkbox
-            id={`${id}-toggle`}
-            checked={form.values[key] === true}
-            disabled={disabled()}
-            readOnly={readOnly()}
-            required={checkedField().required}
-            validationState={form.errors.fields?.[key] ? 'invalid' : undefined}
-            onChange={set}
-          >
-            <Checkbox.Input id={id} />
-            <Checkbox.Control>
-              <Checkbox.Indicator />
-            </Checkbox.Control>
-            <Checkbox.Label data-ui-text="system">{label()}</Checkbox.Label>
-            <Show when={checkedField().help}>
-              <Checkbox.Description>{checkedField().help}</Checkbox.Description>
-            </Show>
-            <Checkbox.ErrorMessage>
-              {form.errors.fields?.[key]}
-            </Checkbox.ErrorMessage>
-          </Checkbox>
-        ) : control === 'switch' ? (
-          <Switch
-            id={`${id}-toggle`}
-            checked={form.values[key] === true}
-            disabled={disabled()}
-            readOnly={readOnly()}
-            required={checkedField().required}
-            validationState={form.errors.fields?.[key] ? 'invalid' : undefined}
-            onChange={set}
-          >
-            <Switch.Input id={id} />
-            <Switch.Control>
-              <Switch.Thumb />
-            </Switch.Control>
-            <Switch.Label data-ui-text="system">{label()}</Switch.Label>
-            <Show when={checkedField().help}>
-              <Switch.Description>{checkedField().help}</Switch.Description>
-            </Show>
-            <Switch.ErrorMessage>
-              {form.errors.fields?.[key]}
-            </Switch.ErrorMessage>
-          </Switch>
-        ) : Custom ? (
-          <Custom
-            id={id}
-            field={key}
+        <Show
+          when={formatted()}
+          fallback={
+            control === 'text' ? (
+              <Input value={String(form.values[key])} onValueChange={set} />
+            ) : control === 'textarea' ? (
+              <Textarea value={String(form.values[key])} onValueChange={set} />
+            ) : control === 'number' ? (
+              <NumberInput
+                value={
+                  (form.values[key] as number | null | undefined) ?? undefined
+                }
+                min={numberDescription().min}
+                max={numberDescription().max}
+                allowEmpty={
+                  numberDescription().empty === 'null' ||
+                  numberDescription().empty === 'undefined'
+                }
+                onValueChange={(value) => {
+                  if (value !== undefined) set(value)
+                  else if (numberDescription().empty === 'null') set(null)
+                  else if (numberDescription().empty === 'undefined')
+                    set(undefined)
+                }}
+              />
+            ) : control === 'date' ? (
+              <DatePicker
+                label={label()}
+                value={String(form.values[key]) || undefined}
+                dateFormat={dateDescription().dateFormat}
+                locale={dateDescription().locale}
+                min={dateDescription().min}
+                max={dateDescription().max}
+                startOfWeek={dateDescription().startOfWeek}
+                onValueChange={(value) => set(value ?? '')}
+              />
+            ) : control === 'datetime' ? (
+              <DateTimePicker
+                label={label()}
+                value={String(form.values[key]) || undefined}
+                dateFormat={datetimeDescription().dateFormat}
+                timeFormat={datetimeDescription().timeFormat}
+                locale={datetimeDescription().locale}
+                timeZone={datetimeDescription().timeZone}
+                disambiguation={datetimeDescription().disambiguation}
+                min={datetimeDescription().min}
+                max={datetimeDescription().max}
+                startOfWeek={datetimeDescription().startOfWeek}
+                onValueChange={(value) => set(value ?? '')}
+              />
+            ) : control === 'select' ? (
+              <SelectField
+                label={label()}
+                choices={choices()}
+                value={String(form.values[key])}
+                onValueChange={(value) => {
+                  if (
+                    choices().some(
+                      (choice) => choice.value === value && !choice.disabled,
+                    )
+                  )
+                    set(value)
+                }}
+              />
+            ) : control === 'checkbox' ? (
+              <Checkbox
+                id={`${id}-toggle`}
+                checked={form.values[key] === true}
+                disabled={disabled()}
+                readOnly={readOnly()}
+                required={checkedField().required}
+                validationState={
+                  form.errors.fields?.[key] ? 'invalid' : undefined
+                }
+                onChange={set}
+              >
+                <Checkbox.Input id={id} />
+                <Checkbox.Control>
+                  <Checkbox.Indicator />
+                </Checkbox.Control>
+                <Checkbox.Label data-ui-text="system">{label()}</Checkbox.Label>
+                <Show when={checkedField().help}>
+                  <Checkbox.Description>
+                    {checkedField().help}
+                  </Checkbox.Description>
+                </Show>
+                <Checkbox.ErrorMessage>
+                  {form.errors.fields?.[key]}
+                </Checkbox.ErrorMessage>
+              </Checkbox>
+            ) : control === 'switch' ? (
+              <Switch
+                id={`${id}-toggle`}
+                checked={form.values[key] === true}
+                disabled={disabled()}
+                readOnly={readOnly()}
+                required={checkedField().required}
+                validationState={
+                  form.errors.fields?.[key] ? 'invalid' : undefined
+                }
+                onChange={set}
+              >
+                <Switch.Input id={id} />
+                <Switch.Control>
+                  <Switch.Thumb />
+                </Switch.Control>
+                <Switch.Label data-ui-text="system">{label()}</Switch.Label>
+                <Show when={checkedField().help}>
+                  <Switch.Description>{checkedField().help}</Switch.Description>
+                </Show>
+                <Switch.ErrorMessage>
+                  {form.errors.fields?.[key]}
+                </Switch.ErrorMessage>
+              </Switch>
+            ) : Custom ? (
+              <Custom
+                id={id}
+                field={key}
+                value={form.values[key]}
+                onValueChange={set}
+                disabled={disabled()}
+                readOnly={readOnly()}
+              />
+            ) : null
+          }
+        >
+          <FieldValue
             value={form.values[key]}
-            onValueChange={set}
-            disabled={disabled()}
-            readOnly={readOnly()}
+            format={checkedField().format}
+            locale={checkedField().formatOptions?.locale}
+            dateFormat={checkedField().formatOptions?.dateFormat}
+            timeFormat={checkedField().formatOptions?.timeFormat}
+            timeZone={checkedField().formatOptions?.timeZone}
           />
-        ) : null}
-        <Show when={!booleanControl && checkedField().help}>
+        </Show>
+        <Show when={separateLabel() && checkedField().help}>
           <HelpText>{checkedField().help}</HelpText>
         </Show>
-        <Show when={!booleanControl}>
+        <Show when={separateLabel()}>
           <FieldError>{form.errors.fields?.[key]}</FieldError>
         </Show>
       </Field>

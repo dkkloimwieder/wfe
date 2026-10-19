@@ -1,4 +1,6 @@
 import { createMemo, untrack } from 'solid-js'
+import { ValueDisplay } from '@wfe/components'
+import { Show } from 'solid-js'
 import { ReadOnlyTable } from '@wfe/components/table'
 import type { NativeCell } from '@wfe/components/table'
 import type { Component } from 'solid-js'
@@ -12,6 +14,7 @@ import {
   StatusView,
   requireValue,
   validateActions,
+  validatePresentation,
   uniqueIds,
 } from './shared'
 import type { Actions } from './shared'
@@ -68,6 +71,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
     }
     for (const [id, column] of Object.entries(value.columns)) {
       requireValue(table.getColumn(id), `unknown table column "${id}"`)
+      validatePresentation(column, `column "${id}"`)
       if (column.renderer !== undefined) {
         uniqueIds([column.renderer], 'cell renderer')
         requireValue(
@@ -106,7 +110,34 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
         column={cellProps.cell.column}
       />
     ) : (
-      <>{String(cellProps.cell.getValue() ?? '')}</>
+      <Show
+        when={description().columns[cellProps.cell.column.id]?.format}
+        keyed
+        fallback={String(cellProps.cell.getValue() ?? '')}
+      >
+        {(format) => (
+          <ValueDisplay
+            value={cellProps.cell.getValue()}
+            format={format}
+            locale={
+              description().columns[cellProps.cell.column.id]?.formatOptions
+                ?.locale
+            }
+            dateFormat={
+              description().columns[cellProps.cell.column.id]?.formatOptions
+                ?.dateFormat
+            }
+            timeFormat={
+              description().columns[cellProps.cell.column.id]?.formatOptions
+                ?.timeFormat
+            }
+            timeZone={
+              description().columns[cellProps.cell.column.id]?.formatOptions
+                ?.timeZone
+            }
+          />
+        )}
+      </Show>
     )
   }
   return (

@@ -1,7 +1,12 @@
 import { For, Show } from 'solid-js'
-import { Button, InlineAlert } from '@wfe/components'
+import { Button, InlineAlert, isValueFormat } from '@wfe/components'
 import type { Accessor } from 'solid-js'
-import type { ActionBinding, ActionDescription, ViewStatus } from './types'
+import type {
+  ActionBinding,
+  ActionDescription,
+  ColumnPresentation,
+  ViewStatus,
+} from './types'
 
 export function requireValue(
   condition: unknown,
@@ -32,6 +37,35 @@ export function descriptionLabel(
     `invalid label for "${key}"`,
   )
   return label ?? key
+}
+
+/** Reject runtime metadata that cannot belong to display configuration. */
+export function validatePresentation(
+  value: Pick<ColumnPresentation, 'format' | 'formatOptions'>,
+  subject: string,
+) {
+  requireValue(
+    value.format === undefined || isValueFormat(value.format),
+    `unsupported format for ${subject}`,
+  )
+  const options = value.formatOptions
+  if (options === undefined) return
+  requireValue(
+    typeof options === 'object' && options !== null && !Array.isArray(options),
+    `invalid format options for ${subject}`,
+  )
+  const allowed = ['locale', 'dateFormat', 'timeFormat', 'timeZone']
+  for (const key of Reflect.ownKeys(options)) {
+    requireValue(
+      typeof key === 'string' && allowed.includes(key),
+      `unknown format option for ${subject}`,
+    )
+    const option = Reflect.get(options, key)
+    requireValue(
+      option === undefined || typeof option === 'string',
+      `invalid format option "${key}" for ${subject}`,
+    )
+  }
 }
 
 export type Actions = Readonly<Record<string, ActionBinding>>

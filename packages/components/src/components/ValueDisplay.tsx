@@ -30,7 +30,25 @@ export function ValueDisplay(props: ValueDisplayProps) {
       when={
         props.format === 'boolean-symbol' && typeof props.value === 'boolean'
       }
-      fallback={text()}
+      fallback={
+        <Show
+          when={
+            props.format === 'short-hash' &&
+            typeof props.value === 'string' &&
+            props.value.length > 0
+          }
+          fallback={text()}
+        >
+          <span
+            role="img"
+            title={String(props.value)}
+            aria-label={String(props.value)}
+            data-ui-text="value"
+          >
+            {text()}
+          </span>
+        </Show>
+      }
     >
       <span
         class="ui-value-symbol"

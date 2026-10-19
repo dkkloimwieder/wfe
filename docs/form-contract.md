@@ -223,3 +223,26 @@ Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/RE
 Generated field labels default to their field keys when omitted.
 Generated action and submit labels default to their operation IDs.
 These presentation fallbacks preserve accepted values, callbacks, control identities, and existing table header aliases.
+
+## Read-only output
+
+Use FieldValue inside Field for a named read-only value with optional shared formatting.
+The output retains label, help, and error associations and disables implicit live announcements.
+Generated forms use this component for formatted built-in fields when the application marks them read-only.
+Editable fields retain their controls and raw values. Custom fields retain their presentation.
+
+```tsx
+import { Field, Label, HelpText, FieldValue } from '@wfe/components'
+
+export function Identifier() {
+  return (
+    <Field>
+      <Label>Identifier</Label>
+      <FieldValue value="0123456789abcdef" format="short-hash" />
+      <HelpText>
+        The full identifier remains available in the value title.
+      </HelpText>
+    </Field>
+  )
+}
+```

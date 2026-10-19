@@ -18,18 +18,24 @@ export type ValueFormatOptions = {
   timeZone?: string
 }
 
-export type ValueFormat =
-  | 'boolean-symbol'
-  | 'boolean-text'
-  | 'date'
-  | 'datetime'
-  | 'datetime-iso'
-  | 'date-iso'
-  | 'date-short'
-  | 'date-long'
-  | 'number-plain'
-  | 'number-grouped'
-  | 'number-decimal'
+const formats = [
+  'boolean-symbol',
+  'boolean-text',
+  'date',
+  'datetime',
+  'datetime-iso',
+  'date-iso',
+  'date-short',
+  'date-long',
+  'number-plain',
+  'number-grouped',
+  'number-decimal',
+  'short-hash',
+] as const
+export type ValueFormat = (typeof formats)[number]
+export function isValueFormat(value: unknown): value is ValueFormat {
+  return typeof value === 'string' && formats.some((format) => format === value)
+}
 
 /** Format display text without changing the original value. */
 export function formatDisplayValue(
@@ -76,6 +82,8 @@ export function formatDisplayValue(
     }
   }
   if (value == null) return ''
+  if (format === 'short-hash' && typeof value === 'string')
+    return Array.from(value).slice(0, 8).join('')
   if (typeof value === 'boolean' && format.startsWith('boolean-'))
     return value ? 'Yes' : 'No'
   if (

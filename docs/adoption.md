@@ -279,3 +279,9 @@ Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/RE
 Generated field labels default to their field keys when omitted.
 Generated action and submit labels default to their operation IDs.
 These presentation fallbacks preserve accepted values, callbacks, control identities, and existing table header aliases.
+
+Generated fields and columns accept shared formats with separate display configuration.
+FormView applies formats to read-only built-in fields. Editable controls retain their input configuration and raw values.
+Custom fields and cell renderers retain their presentation.
+FieldValue supplies a shared read-only output with field associations.
+The short-hash format shows eight Unicode codepoints and exposes the full string through its title and accessible label.

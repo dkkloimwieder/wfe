@@ -515,3 +515,52 @@ assert.match(unlabeledOutput, />save<\/button>/)
 assert.match(unlabeledOutput, />clear<\/button>/)
 assert.match(unlabeledOutput, /value="Raw value"/)
 assert.equal(labelRequests, 0)
+
+let formatRequests = 0
+const formattedOutput = await renderToString(() => {
+  const values = { code: '0123456789abcdef', active: false, day: '2024-02-29' }
+  const form = createForm({
+    values: () => values,
+    defaults: () => values,
+    onValuesChange() {
+      formatRequests++
+    },
+    validate: () => ({}),
+    onSubmit() {
+      formatRequests++
+      return { ok: true }
+    },
+  })
+  return createComponent(FormView, {
+    description: {
+      id: 'formatted-ssr',
+      fields: [
+        {
+          field: 'code',
+          control: 'text',
+          format: 'short-hash',
+          help: 'Full identifier',
+        },
+        { field: 'active', control: 'checkbox', format: 'boolean-symbol' },
+        {
+          field: 'day',
+          control: 'text',
+          format: 'date',
+          formatOptions: { dateFormat: 'dd/MM/yyyy' },
+        },
+      ],
+    },
+    bindings: { form, readOnly: () => true },
+  })
+})
+assert.equal((formattedOutput.match(/<output /g) ?? []).length, 3)
+assert.match(formattedOutput, /aria-live="off"/)
+assert.match(formattedOutput, /aria-describedby="[^"]+"/)
+assert.match(formattedOutput, /title="0123456789abcdef"/)
+assert.match(formattedOutput, /01234567</)
+assert.match(formattedOutput, /aria-label="No"/)
+assert.match(formattedOutput, /29\/02\/2024/)
+assert.equal(formatRequests, 0)
+console.log(
+  'Generated read-only formats render named outputs without change or submit requests.',
+)

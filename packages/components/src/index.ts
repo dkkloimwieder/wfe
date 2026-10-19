@@ -58,6 +58,7 @@ export type { DatePickerProps } from './components/DatePicker'
 export { ValueDisplay } from './components/ValueDisplay'
 export type { ValueDisplayProps } from './components/ValueDisplay'
 export { formatDisplayValue } from './utils/valueFormat'
+export { isValueFormat } from './utils/valueFormat'
 export type { ValueFormat, ValueFormatOptions } from './utils/valueFormat'
 
 export type { DateInputFormat } from './utils/dateFormat'

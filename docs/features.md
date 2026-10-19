@@ -60,7 +60,7 @@ The [generator guide](generator-contract.md) documents type constraints and runt
 Form field labels and action labels are currently required.
 Table column labels are already optional, with existing column-header fallbacks.
 Generated fields and actions accept omitted labels with field-key and operation-ID fallbacks.
-Built-in generated field display formats remain the next W4 addition.
+Generated built-in read-only fields and ordinary table cells use the shared display formats.
 Those generator changes are not implemented yet.
 
 ## Tables and virtualization
@@ -150,6 +150,8 @@ The [shell, grid, tiles, and labels plan](plan/wfe-shell-grid-tiles.md) records 
 The [30 by 5 example](../examples/grid/README.md) covers keyboard input, controlled requests, reordering, narrow scrolling, and hydration.
 `StatusTile` composes Card, Badge, and ValueDisplay for explicit ok/warning/unknown states.
 `TileRow` uses the existing responsive grid. The [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) cover formats, long text, shared appearance, and hydration.
-Repeated form groups and generated detail/delete views also remain planned.
+Generated fields and columns accept shared formats, with custom components taking precedence.
+Read-only fields use the shared FieldValue output. Editable controls retain their input behavior.
+Repeated form groups and generated detail/delete views remain planned.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.

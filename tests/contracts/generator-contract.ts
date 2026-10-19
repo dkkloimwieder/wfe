@@ -464,3 +464,39 @@ const nontextLabel: FormDescription<{ code: string }> = {
   ],
 }
 void nontextLabel
+
+const formattedFields = {
+  id: 'formatted',
+  fields: [
+    { field: 'code', control: 'text', format: 'short-hash' },
+    {
+      field: 'day',
+      control: 'text',
+      format: 'date',
+      formatOptions: { dateFormat: 'dd/MM/yyyy', timeZone: 'UTC' },
+    },
+    { field: 'active', control: 'checkbox', format: 'boolean-symbol' },
+  ],
+} as const satisfies FormDescription<{
+  code: string
+  day: string
+  active: boolean
+}>
+const formattedColumns = {
+  id: 'formatted-columns',
+  columns: {
+    code: { format: 'short-hash' },
+    active: { format: 'boolean-symbol' },
+    day: { format: 'datetime', formatOptions: { timeZone: 'browser' } },
+  },
+} as const satisfies TableDescription
+const invalidFormat: TableDescription = {
+  id: 'bad-format',
+  columns: {
+    code: {
+      // @ts-expect-error Unsupported formats are not part of the shared value contract.
+      format: 'invented',
+    },
+  },
+}
+void [formattedFields, formattedColumns, invalidFormat]

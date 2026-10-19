@@ -107,7 +107,8 @@ Add short-hash once in the shared value formatter, with a documented length and 
 Formatting must not replace raw data used for identity, filtering, sorting, grouping, or submission.
 Preserve the existing native copy interaction.
 Keep existing date patterns, locale, timezone, date-only, and datetime semantics.
-The owner must resolve the editable-field question below before W4 implementation.
+The initial implementation applies formats to read-only values. Editable controls retain their existing input configuration and raw values.
+This follows the proposed default while owner feedback remains open.
 
 Use up to three issues for optional-label fallbacks, shared formatting and generated views, then examples/docs/qualification.
 Update form, generator, layout, and adoption guides as the affected contracts change.
@@ -152,7 +153,7 @@ Do not publish packages or invent a version/tag convention.
 
 ## Remaining owner decisions
 
-- For FormView, do formats apply only to read-only values, while editable fields retain their current controls and raw values?
+- The initial FormView default formats read-only values. Owner feedback can change this boundary in a separate issue.
 - What release tag must W7 use? The current packages are private at version `0.0.0`.
 
 The branch baseline decision is resolved: merge charts first, merge cleanup second, then branch for implementation.

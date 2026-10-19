@@ -6,6 +6,15 @@ import {
 import { formatDisplayValue } from '../../packages/components/src/utils/valueFormat'
 
 describe('value formatting', () => {
+  it('shortens string identifiers by codepoint without changing other scalar values', () => {
+    expect(formatDisplayValue('0123456789abcdef', 'short-hash')).toBe(
+      '01234567',
+    )
+    expect(formatDisplayValue('abc', 'short-hash')).toBe('abc')
+    expect(formatDisplayValue('', 'short-hash')).toBe('')
+    expect(formatDisplayValue(123456789, 'short-hash')).toBe('123456789')
+    expect(formatDisplayValue(false, 'short-hash')).toBe('false')
+  })
   it('preserves false, zero and empty values', () => {
     expect(formatDisplayValue(false, 'boolean-text')).toBe('No')
     expect(formatDisplayValue(true, 'boolean-symbol')).toBe('Yes')

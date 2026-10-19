@@ -217,3 +217,33 @@ The [type contract](../tests/contracts/grid-contract.ts) rejects unknown row/col
 StatusTile presents application-supplied values and explicit states through the existing display components.
 TileRow reuses the responsive DashboardGrid. It adds no form coordinator or application controller.
 Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) for read-only composition and formats.
+
+## Display formats
+
+Fields and columns accept the shared `ValueFormat` names through `format`.
+These include `date`, `datetime`, `boolean-symbol`, and `short-hash`.
+Optional `formatOptions` supplies `locale`, `dateFormat`, `timeFormat`, and `timeZone` through the existing shared contract.
+Runtime descriptions reject unknown configuration keys and nontext configuration values.
+Date-only values retain their calendar day. Datetime values use the configured zone, with UTC as the default.
+The `browser` zone resolves after hydration through the existing timezone helper.
+
+TableView formats ordinary cells. A custom cell renderer takes precedence over the declared format.
+FormView formats a built-in field when its application binding marks that field read-only.
+Editable fields retain their controls, draft handling, and raw values.
+A custom field component retains ownership of its presentation.
+Input date patterns remain on the date control description. Display patterns belong to `formatOptions`.
+Changing display metadata preserves editable inputs and mounted read-only outputs.
+Changing between editable and read-only presentation replaces the control inside the existing field.
+
+The shared FieldValue output retains its label, help, error, and invalid associations.
+It disables implicit live announcements. Applications can request announcements through its native `aria-live` property.
+The `short-hash` format shows the first eight Unicode codepoints of a string.
+It does not calculate a hash or define record identity.
+The full string remains available through the displayed span's title and accessible label.
+Shorter strings remain complete. Missing values remain empty, and other scalar values retain their text.
+
+Formats do not replace engine data, validation snapshots, or submission values.
+Sorting, filtering, grouping, and application exports continue to use their configured raw values.
+Native text selection copies the displayed text, including a shortened prefix.
+An application can supply raw copy text through the existing table selection binding.
+There is no separate clipboard mechanism for formatted values.

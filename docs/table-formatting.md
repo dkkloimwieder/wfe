@@ -91,3 +91,9 @@ These caches retain formatting machinery and never retain record values.
 The [date review example](../examples/generator/DateApp.tsx) shares one display configuration across inputs, table cells, detail values, and a summary.
 Its browser tests require unchanged raw records, sorting, filtering, and exported data after format changes.
 Exports remain an application decision.
+
+Generated table columns accept the same `format` names with optional `formatOptions`.
+Custom cell renderers take precedence.
+The `short-hash` format shows eight Unicode codepoints and retains the full string in its title and accessible label.
+Formats leave raw sorting, filtering, grouping, and export values intact.
+Native text selection copies the visible text. Application-provided table copy text keeps its existing policy.

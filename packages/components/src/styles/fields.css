@@ -22,3 +22,12 @@
 :where([data-ui]) .popup-trigger {
   border-radius: 0;
 }
+
+:where([data-ui]) .ui-field-value {
+  display: block;
+  min-width: 0;
+  padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
+  border: 1px solid var(--ui-control-border, #999);
+  background-color: var(--ui-surface, white);
+  overflow-wrap: anywhere;
+}

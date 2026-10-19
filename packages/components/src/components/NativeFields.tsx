@@ -1,3 +1,6 @@
+import { Show } from 'solid-js'
+import { ValueDisplay } from './ValueDisplay'
+import type { ValueFormat, ValueFormatOptions } from '../utils/valueFormat'
 import { styledClasses } from '../internal/classes'
 import { restoreTextValue } from '../internal/controlledText'
 import { buttonAttributes } from '../internal/buttonPresentation'
@@ -380,5 +383,61 @@ export function NativeSelect(props: NativeSelectProps) {
       class={styledClasses('ui-native-select', props.class)}
       ref={[props.ref, events]}
     />
+  ))
+}
+
+export type FieldValueProps = Omit<
+  JSX.OutputHTMLAttributes<HTMLOutputElement>,
+  'value' | 'children'
+> &
+  ValueFormatOptions & { value: unknown; format?: ValueFormat }
+
+/** A named read-only value that shares the surrounding Field associations. */
+export function FieldValue(props: FieldValueProps) {
+  const field = useContext(FieldContext)
+  const generated = `field-value-${createUniqueId()}`
+  const id = () => props.id || field?.baseControlId() || generated
+  field?.registerControl(id)
+  const rest = omit(
+    props,
+    'value',
+    'format',
+    'locale',
+    'dateFormat',
+    'timeFormat',
+    'timeZone',
+    'ref',
+    ...nativeEventProps,
+  )
+  const events = ownedElementEvents(props)
+  return renderAfterRegistration(() => (
+    <output
+      {...rest}
+      id={id()}
+      aria-live={props['aria-live'] ?? 'off'}
+      aria-invalid={
+        props['aria-invalid'] ?? (field?.invalid() ? 'true' : undefined)
+      }
+      aria-describedby={
+        [field?.describedBy(), props['aria-describedby']]
+          .filter(Boolean)
+          .join(' ') || undefined
+      }
+      class={styledClasses('ui-field-value', props.class)}
+      ref={[props.ref, events]}
+    >
+      <Show when={props.format} keyed fallback={String(props.value ?? '')}>
+        {(format) => (
+          <ValueDisplay
+            value={props.value}
+            format={format}
+            locale={props.locale}
+            dateFormat={props.dateFormat}
+            timeFormat={props.timeFormat}
+            timeZone={props.timeZone}
+          />
+        )}
+      </Show>
+    </output>
   ))
 }
