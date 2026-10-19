@@ -5,37 +5,25 @@ import type {
   FormErrors,
   FormOutcome,
   FormPhase,
-  FormScalar,
+  FormShape,
+  FormSnapshot,
 } from './types'
+import {
+  copyValues,
+  copySnapshot,
+  sameValues,
+  copyErrors,
+  hasErrors,
+} from './formValues'
 type Attempt<T> = {
   id: number
-  snapshot: Readonly<T>
+  snapshot: FormSnapshot<T>
   controller: AbortController
   promise: Promise<FormOutcome>
   resolve: (outcome: FormOutcome) => void
 }
-function copy<T extends object>(values: Readonly<T>): Readonly<T> {
-  return Object.freeze({ ...values })
-}
-function same<T extends object>(left: Readonly<T>, right: Readonly<T>) {
-  const keys = Reflect.ownKeys(left)
-  return (
-    keys.length === Reflect.ownKeys(right).length &&
-    keys.every(
-      (key) =>
-        Object.hasOwn(right, key) &&
-        Object.is(Reflect.get(left, key), Reflect.get(right, key)),
-    )
-  )
-}
-function hasErrors<T>(errors: FormErrors<T>) {
-  return Boolean(
-    errors.form || Object.values(errors.fields ?? {}).some(Boolean),
-  )
-}
-
 /** Create inside a Solid owner. Applications own accepted values and callbacks. */
-export function createForm<T extends object & { [K in keyof T]: FormScalar }>(
+export function createForm<T extends object & FormShape<T>>(
   bindings: FormBindings<T>,
 ): FormContract<T> {
   const [phase, setPhase] = createSignal<FormPhase>('idle')
@@ -44,7 +32,7 @@ export function createForm<T extends object & { [K in keyof T]: FormScalar }>(
   let alive = true
   let sequence = 0
   let active: Attempt<T> | undefined
-  let accepted = copy(untrack(bindings.values))
+  let accepted = copyValues(untrack(bindings.values))
   function clear() {
     setPhase('idle')
     setErrors({})
@@ -60,15 +48,15 @@ export function createForm<T extends object & { [K in keyof T]: FormScalar }>(
     }
   }
   function accept(next: Readonly<T>) {
-    if (same(next, accepted)) return
-    accepted = copy(next)
+    if (sameValues(next, accepted)) return
+    accepted = copyValues(next)
     cancel()
   }
   function synchronize() {
     accept(untrack(bindings.values))
   }
   createEffect(
-    () => copy(bindings.values()),
+    () => copyValues(bindings.values()),
     (value) => {
       accept(value)
     },
@@ -89,12 +77,7 @@ export function createForm<T extends object & { [K in keyof T]: FormScalar }>(
     run.resolve(outcome)
   }
   function publishErrors(value: FormErrors<T>) {
-    setErrors(
-      Object.freeze({
-        fields: Object.freeze({ ...value.fields }),
-        form: value.form,
-      }),
-    )
+    setErrors(copyErrors(value))
   }
   async function execute(run: Attempt<T>) {
     const context = Object.freeze({
@@ -145,20 +128,20 @@ export function createForm<T extends object & { [K in keyof T]: FormScalar }>(
       return phase() === 'validating' || phase() === 'submitting'
     },
     get dirty() {
-      return !same(bindings.values(), bindings.defaults())
+      return !sameValues(bindings.values(), bindings.defaults())
     },
     setValue(field, value) {
       if (!alive) return
       synchronize()
       bindings.onValuesChange(
-        copy<T>({ ...untrack(bindings.values), [field]: value }),
+        copyValues<T>({ ...untrack(bindings.values), [field]: value }),
       )
       synchronize()
     },
     reset() {
       if (!alive) return
       cancel()
-      bindings.onValuesChange(copy(untrack(bindings.defaults)))
+      bindings.onValuesChange(copyValues(untrack(bindings.defaults)))
       synchronize()
     },
     cancel() {
@@ -174,7 +157,7 @@ export function createForm<T extends object & { [K in keyof T]: FormScalar }>(
       })
       const run: Attempt<T> = {
         id: ++sequence,
-        snapshot: copy(untrack(bindings.values)),
+        snapshot: copySnapshot(untrack(bindings.values)),
         controller: new AbortController(),
         promise,
         resolve,

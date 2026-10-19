@@ -252,3 +252,12 @@ The [generated formats example](../examples/generator/FormatsApp.tsx) shows opti
 Open `/?app=formats` on the generator preview.
 Its application supplies read-only flags and submits the original values through one callback.
 Browser tests cover label and format updates, retained controls, native prefix selection, server output, hydration, narrow screens, and disposal.
+
+## Repeated form foundation
+
+The form coordinator accepts one-level arrays of scalar records and typed row errors.
+Snapshots copy and freeze the arrays and rows without freezing application records.
+Equal arrays with equal scalar row contents preserve pending work.
+Accepted edits, additions, removals, or row reordering cancel pending attempts.
+The generator's repeated-group renderer is the next W5 task.
+The [form contract](form-contract.md#repeated-record-snapshots) defines snapshot and row-error ownership.

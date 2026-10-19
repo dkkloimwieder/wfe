@@ -1,7 +1,7 @@
 # Form contract
 
 The private `@wfe/form` package coordinates errors, submission, reset, and cancellation.
-Its `createForm` function supports application-defined field names and scalar types.
+Its `createForm` function supports application-defined fields, scalar values, and one-level lists of scalar records.
 The example uses text, choice, and boolean controls from `@wfe/components`.
 Its application owns values, defaults, validation rules, service calls, and displayed messages.
 The package owns no controls, styles, transport, or record schema.
@@ -13,7 +13,11 @@ Create the form inside a Solid component or another Solid owner so that disposal
 ## Values and defaults
 
 `FormBindings<T>` supplies `values`, `defaults`, `onValuesChange`, `validate`, and `onSubmit`.
-The first contract supports a flat object of scalar values: strings, numbers, booleans, null, or undefined.
+A scalar value is a string, number, boolean, null, or undefined.
+A form field can also contain a list of records with scalar fields.
+Repeated lists require an array, including an empty array when there are no rows.
+Rows use own enumerable scalar fields.
+Nested records, nested lists, hidden row properties, and class instances are outside this value contract.
 Field names and corresponding value types come from `T`.
 Nested records, repeating fields, field arrays, and schema inference remain outside this first contract.
 
@@ -98,7 +102,7 @@ Attempt numbers increase within one form lifetime.
 They are not global service request identifiers.
 
 Validation can return errors immediately or through a promise.
-`FormErrors<T>` contains optional field messages and an optional form message.
+`FormErrors<T>` contains optional field messages, row messages, and a form message.
 Nonempty messages stop submission and produce an `invalid` outcome.
 The application controls error text and the order used to focus invalid fields.
 The example focuses the first invalid control in its DOM order.
@@ -244,5 +248,59 @@ export function Identifier() {
       </HelpText>
     </Field>
   )
+}
+```
+
+## Repeated record snapshots
+
+The existing coordinator accepts one-level arrays of scalar records through FormShape.
+Scalar row interfaces need no index signature.
+Applications still own accepted rows, defaults, keys, factories, validation rules, and persistence.
+The coordinator does not choose row keys or add/remove policies.
+
+Each requested or submitted snapshot copies and freezes the array and each row.
+The coordinator never freezes application-owned rows in place.
+Validation and submission share one FormSnapshot and attempt identity.
+This public type marks arrays and row properties read-only, even when accepted application arrays are mutable.
+Equal row contents in the same order preserve pending work and remain clean against equal defaults.
+Accepted additions, removals, reordering, or scalar edits cancel pending work and clear stale errors.
+Rejected requests leave accepted state and pending work intact.
+Reset copies the application's current defaults.
+
+Use `rows.entries[rowKey]` for an error on a row in the `entries` field.
+A row message belongs to `row`. Scalar messages belong to `fields` with keys from the row type.
+Row-only errors block submission, and published error maps are copied and frozen.
+The application supplies these keys. Their meaning does not become a coordinator identity rule.
+
+```tsx
+import { createForm } from '@wfe/form'
+import { createSignal } from 'solid-js'
+
+interface Entry {
+  key: string
+  name: string
+}
+interface Values {
+  title: string
+  entries: readonly Entry[]
+}
+export function createEntryForm() {
+  const initial: Values = {
+    title: 'Entries',
+    entries: [{ key: 'first', name: '' }],
+  }
+  const [values, setValues] = createSignal<Readonly<Values>>(initial)
+  return createForm<Values>({
+    values,
+    defaults: () => initial,
+    onValuesChange: setValues,
+    validate: (snapshot) =>
+      snapshot.entries[0]?.name
+        ? {}
+        : {
+            rows: { entries: { first: { fields: { name: 'Enter a name' } } } },
+          },
+    onSubmit: () => ({ ok: true }),
+  })
 }
 ```

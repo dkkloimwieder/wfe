@@ -564,3 +564,32 @@ assert.equal(formatRequests, 0)
 console.log(
   'Generated read-only formats render named outputs without change or submit requests.',
 )
+
+const repeatedServerRows = [{ key: 'first', name: 'First', quantity: 0 }]
+let repeatedServerRequests = 0
+const repeatedServerOutput = await renderToString(() => {
+  const initial = { entries: repeatedServerRows }
+  const form = createForm({
+    values: () => initial,
+    defaults: () => initial,
+    onValuesChange() {
+      repeatedServerRequests++
+    },
+    validate() {
+      repeatedServerRequests++
+      return {}
+    },
+    onSubmit() {
+      repeatedServerRequests++
+      return { ok: true }
+    },
+  })
+  return `${form.values.entries[0].name}: ${form.values.entries[0].quantity}`
+})
+assert.equal(repeatedServerOutput, 'First: 0')
+assert.equal(repeatedServerRequests, 0)
+assert.equal(Object.isFrozen(repeatedServerRows), false)
+assert.equal(Object.isFrozen(repeatedServerRows[0]), false)
+console.log(
+  'Repeated form records render without callbacks or freezing application rows.',
+)

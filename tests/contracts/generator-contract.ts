@@ -6,7 +6,7 @@ import type {
   LayoutDescription,
   LayoutViewBindings,
 } from '@wfe/generator'
-import type { FormContract } from '@wfe/form'
+import type { FormContract, FormBindings, FormErrors } from '@wfe/form'
 import type { NativeTable, TableSelection } from '@wfe/components/table'
 
 type MemberInput = {
@@ -500,3 +500,101 @@ const invalidFormat: TableDescription = {
   },
 }
 void [formattedFields, formattedColumns, invalidFormat]
+
+interface RepeatedRow {
+  key: string
+  name: string
+  quantity: number | null
+  active: boolean
+}
+interface RepeatedValues {
+  title: string
+  entries: readonly RepeatedRow[]
+}
+const repeatedBindings: FormBindings<RepeatedValues> = {
+  values: () => ({ title: 'List', entries: [] }),
+  defaults: () => ({ title: 'List', entries: [] }),
+  onValuesChange(next) {
+    void next.entries[0]?.quantity
+  },
+  validate: () => ({
+    rows: {
+      entries: { first: { fields: { name: 'Required' }, row: 'Review row' } },
+    },
+  }),
+  onSubmit(snapshot) {
+    // @ts-expect-error Callback row fields are immutable.
+    snapshot.entries[0]!.name = 'Mutation'
+    // @ts-expect-error Callback arrays are immutable.
+    snapshot.entries.push({
+      key: 'extra',
+      name: '',
+      quantity: null,
+      active: false,
+    })
+    return { ok: true }
+  },
+}
+declare const repeatedContract: FormContract<RepeatedValues>
+repeatedContract.setValue('entries', [
+  { key: 'first', name: 'Name', quantity: 0, active: false },
+])
+const badRepeatedErrors: FormErrors<RepeatedValues> = {
+  rows: {
+    // @ts-expect-error Only repeated fields accept row messages.
+    title: {},
+  },
+}
+const badRowFields: FormErrors<RepeatedValues> = {
+  rows: {
+    entries: {
+      first: {
+        fields: {
+          // @ts-expect-error Row field errors use keys from the scalar row interface.
+          unknown: 'Error',
+        },
+      },
+    },
+  },
+}
+// @ts-expect-error Repeated rows cannot contain nested records.
+declare const nestedRepeated: FormContract<{
+  entries: readonly { nested: { name: string } }[]
+}>
+// @ts-expect-error Repeated groups require records rather than scalar arrays.
+declare const scalarRepeated: FormContract<{ entries: readonly string[] }>
+void [
+  repeatedBindings,
+  repeatedContract,
+  badRepeatedErrors,
+  badRowFields,
+  nestedRepeated,
+  scalarRepeated,
+]
+
+const mutableRepeatedBindings: FormBindings<{ entries: RepeatedRow[] }> = {
+  values: () => ({ entries: [] }),
+  defaults: () => ({ entries: [] }),
+  onValuesChange() {},
+  validate(snapshot) {
+    // @ts-expect-error A mutable accepted-state array still creates an immutable callback snapshot.
+    snapshot.entries.push({
+      key: 'extra',
+      name: '',
+      quantity: null,
+      active: false,
+    })
+    return {}
+  },
+  onSubmit: () => ({ ok: true }),
+}
+void mutableRepeatedBindings
+
+const initiallyEmptyBindings: FormBindings<{ entries: never[] }> = {
+  values: () => ({ entries: [] }),
+  defaults: () => ({ entries: [] }),
+  onValuesChange() {},
+  validate: () => ({}),
+  onSubmit: () => ({ ok: true }),
+}
+void initiallyEmptyBindings
