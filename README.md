@@ -7,6 +7,12 @@ The private `@wfe/generator` package defines typed descriptions and application 
 Its public views compose the existing form, table, layout, and chart components.
 Application records, routing, permissions, validation rules, requests, and persistence remain application-owned.
 
+## Documentation
+
+Use the [documentation index](docs/README.md) to find the current guides.
+The [feature catalog](docs/features.md) records implemented functionality and its ownership boundaries.
+The [plans directory](docs/plan/README.md) keeps proposed work separate from current APIs.
+
 ## Development
 
 Use Node 22.12 or newer and pnpm 12.4.1.
