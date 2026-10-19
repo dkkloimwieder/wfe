@@ -22,6 +22,8 @@ import {
   scaleBand,
 } from '@wfe/components/chart'
 import type { ChartProps, ChartTooltipContext } from '@wfe/components/chart'
+import { ChartView } from '@wfe/generator/chart'
+import type { ChartDescription } from '@wfe/generator/chart'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
   appearanceStyle,
@@ -123,7 +125,11 @@ export function App(props: {
         ),
       ],
       scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
-      tooltip: { use: tooltip, portal: tooltipPortal },
+      tooltip: {
+        use: tooltip,
+        portal: tooltipPortal,
+        className: 'chart-primary-tooltip',
+      },
       maxFocusDistance: 1000,
     }),
   )
@@ -307,6 +313,30 @@ function ForCharts(props: { revision: number }) {
           height={280}
         />
       </section>
+      <section
+        class="chart-review-panel chart-review-generated"
+        aria-label="Generated chart panel"
+      >
+        <h2>GENERATED CHART</h2>
+        <ChartView
+          description={generatedDescription}
+          bindings={{
+            rows,
+            formatters: { count: (value) => `${value} requests` },
+          }}
+        />
+      </section>
     </>
   )
 }
+
+const generatedDescription: ChartDescription<{ label: string; value: number }> =
+  {
+    id: 'generated-requests',
+    kind: 'bar',
+    ariaLabel: 'Generated daily requests',
+    key: 'label',
+    x: { field: 'label', scale: 'band', label: 'DAY' },
+    y: { field: 'value', label: 'REQUESTS', formatter: 'count' },
+    height: 280,
+  }

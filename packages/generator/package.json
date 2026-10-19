@@ -11,6 +11,13 @@
       "solid": "./dist/source/index.js",
       "node": "./dist/server/index.js",
       "import": "./dist/client/index.js"
+    },
+    "./chart": {
+      "types": "./dist/client/chart/index.d.ts",
+      "wfe-source": "./src/chart/index.ts",
+      "solid": "./dist/source/chart/index.js",
+      "node": "./dist/server/chart/index.js",
+      "import": "./dist/client/chart/index.js"
     }
   },
   "sideEffects": false,

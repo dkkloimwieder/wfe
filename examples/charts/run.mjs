@@ -62,7 +62,7 @@ const server = createServer(async (request, response) => {
       response.end(
         template.replace(
           '<div id="root"></div>',
-          `<div id="root" data-ssr="true">${await render(url.href)}</div><script>window.chartServerNodes={svg:document.querySelector('svg.ts-chart'),line:document.querySelector('.ts-chart__line path')}</script>`,
+          `<div id="root" data-ssr="true">${await render(url.href)}</div><script>window.chartServerNodes={svg:document.querySelector('svg.ts-chart'),line:document.querySelector('.ts-chart__line path'),generated:document.querySelector('[data-generator-view] svg.ts-chart')}</script>`,
         ),
       )
     } else
@@ -122,7 +122,9 @@ try {
           (window.chartServerNodes.svg ===
             document.querySelector('svg.ts-chart') &&
             window.chartServerNodes.line ===
-              document.querySelector('.ts-chart__line path')),
+              document.querySelector('.ts-chart__line path') &&
+            window.chartServerNodes.generated ===
+              document.querySelector('[data-generator-view] svg.ts-chart')),
         hydration,
       ),
     )
@@ -163,7 +165,7 @@ try {
     await settle()
     const note = page.getByRole('textbox', { name: 'Tooltip note' })
     await expect(note).toBeVisible()
-    await expect(page.locator('.ts-chart-tooltip')).toHaveAttribute(
+    await expect(page.locator('.chart-primary-tooltip')).toHaveAttribute(
       'data-ts-chart-tooltip-portal',
       process.env.BENCH_CHART_FALLBACK ? 'fallback' : 'popover',
     )
@@ -210,7 +212,7 @@ try {
     await svg.focus()
     await svg.press('ArrowRight')
     await settle()
-    await expect(page.locator('.ts-chart-tooltip')).toBeVisible()
+    await expect(page.locator('.chart-primary-tooltip')).toBeVisible()
   })
   await run(
     'shared surfaces and accents repaint without replacing chart nodes',
@@ -255,9 +257,9 @@ try {
         await page
           .getByRole('button', { name: `${surface} surfaces`, exact: true })
           .evaluate((button) => button.click())
-        await expect(page.locator('.ts-chart-tooltip')).toBeVisible()
+        await expect(page.locator('.chart-primary-tooltip')).toBeVisible()
         const paint = await page
-          .locator('.ts-chart-tooltip')
+          .locator('.chart-primary-tooltip')
           .evaluate((element) => {
             const scope = document.querySelector('.chart-preview')
             const probe = document.createElement('span')
@@ -286,6 +288,44 @@ try {
         assert.equal(paint.radius, '0px')
         assert.deepEqual(paint.actual, paint.expected)
       }
+    },
+  )
+  await run(
+    'generated charts share the engine and accept application row updates',
+    async () => {
+      const generated = page.getByRole('img', {
+        name: 'Generated daily requests',
+        exact: true,
+      })
+      await expect(generated).toBeVisible()
+      const before = await generated.evaluate((element) => {
+        window.generatedChartNode = element
+        return element.innerHTML
+      })
+      await page
+        .getByRole('button', { name: 'Update data', exact: true })
+        .click()
+      assert.ok(
+        await generated.evaluate(
+          (element) => element === window.generatedChartNode,
+        ),
+      )
+      assert.notEqual(
+        await generated.evaluate((element) => element.innerHTML),
+        before,
+      )
+      assert.ok(
+        (await generated.locator('text').allTextContents()).some((text) =>
+          text.includes('requests'),
+        ),
+      )
+      await generated.focus()
+      await generated.press('ArrowRight')
+      await settle()
+      await expect(page.locator('.ts-chart-tooltip:visible')).toContainText(
+        'REQUESTS',
+      )
+      await generated.press('Escape')
     },
   )
   await run(
@@ -402,7 +442,7 @@ try {
       .getByRole('button', { name: 'Toggle chart', exact: true })
       .click()
     await expect(svg).toHaveCount(0)
-    await expect(page.locator('.ts-chart-tooltip')).toHaveCount(0)
+    await expect(page.locator('.chart-primary-tooltip')).toHaveCount(0)
     await page
       .getByRole('button', { name: 'Toggle chart', exact: true })
       .click()
@@ -411,9 +451,10 @@ try {
       window.chartFixture.stop()
     })
     await expect(page.locator('#root')).toBeEmpty()
+    await expect(page.locator('.ts-chart-tooltip')).toHaveCount(0)
     await page.setViewportSize({ width: 1000, height: 700 })
     await settle()
-    await expect(page.locator('.ts-chart-tooltip')).toHaveCount(0)
+    await expect(page.locator('.chart-primary-tooltip')).toHaveCount(0)
   })
   await run(
     'standalone charts retain self-scoped focus and sizing styles',

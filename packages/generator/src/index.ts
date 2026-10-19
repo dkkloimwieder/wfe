@@ -22,3 +22,9 @@ export type {
 export { FormView } from './FormView'
 export { TableView } from './TableView'
 export { LayoutView } from './LayoutView'
+
+export type {
+  ChartAxisDescription,
+  ChartDescription,
+  ChartViewBindings,
+} from './chart/types'
