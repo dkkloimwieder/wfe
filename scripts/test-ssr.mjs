@@ -475,3 +475,43 @@ assert.match(tileOutput, /1,250/)
 assert.match(tileOutput, /data-state="ok"/)
 assert.match(tileOutput, /data-tone="success"/)
 assert.match(tileOutput, /Full detail &amp; context/)
+
+let labelRequests = 0
+const unlabeledOutput = await renderToString(() => {
+  const values = () => ({ name: 'Raw value' })
+  const form = createForm({
+    values,
+    defaults: values,
+    onValuesChange: () => {
+      labelRequests++
+    },
+    validate: () => ({}),
+    onSubmit: () => {
+      labelRequests++
+      return { ok: true }
+    },
+  })
+  return createComponent(FormView, {
+    description: {
+      id: 'unlabeled',
+      fields: [{ field: 'name', control: 'text' }],
+      submit: { id: 'save' },
+      actions: [{ id: 'clear' }],
+    },
+    bindings: {
+      form,
+      actions: {
+        clear: {
+          run: () => {
+            labelRequests++
+          },
+        },
+      },
+    },
+  })
+})
+assert.match(unlabeledOutput, />name<\/label>/)
+assert.match(unlabeledOutput, />save<\/button>/)
+assert.match(unlabeledOutput, />clear<\/button>/)
+assert.match(unlabeledOutput, /value="Raw value"/)
+assert.equal(labelRequests, 0)

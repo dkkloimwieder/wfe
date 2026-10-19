@@ -164,3 +164,7 @@ The [grid example](../examples/grid/README.md) demonstrates 150 cells, independe
 StatusTile presents application-supplied values and explicit states through the existing display components.
 TileRow reuses the responsive DashboardGrid. It adds no form coordinator or application controller.
 Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) for read-only composition and formats.
+
+Generated field labels default to their field keys when omitted.
+Generated action and submit labels default to their operation IDs.
+These presentation fallbacks preserve accepted values, callbacks, control identities, and existing table header aliases.

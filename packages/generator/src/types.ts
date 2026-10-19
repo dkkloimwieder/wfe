@@ -21,7 +21,7 @@ import type { FormContract, FormScalar } from '@wfe/form'
 
 export type ActionDescription = Readonly<{
   id: string
-  label: string
+  label?: string
   variant?: ButtonVariant
   tone?: ButtonTone
 }>
@@ -92,7 +92,7 @@ export type FormFieldDescription<
   [K in FieldKey<T>]: Readonly<
     {
       field: K
-      label: string
+      label?: string
       help?: string
       required?: boolean
       span?: FormSpan

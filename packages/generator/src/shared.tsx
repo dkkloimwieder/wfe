@@ -22,6 +22,18 @@ export function uniqueIds(ids: readonly string[], kind: string) {
   }
 }
 
+export function descriptionLabel(
+  label: string | undefined,
+  key: string,
+): string {
+  requireValue(
+    label === undefined ||
+      (typeof label === 'string' && label.trim().length > 0),
+    `invalid label for "${key}"`,
+  )
+  return label ?? key
+}
+
 export type Actions = Readonly<Record<string, ActionBinding>>
 export function validateActions(
   descriptions: readonly ActionDescription[],
@@ -36,10 +48,7 @@ export function validateActions(
     'action',
   )
   for (const action of [...descriptions, ...(submit ? [submit] : [])]) {
-    requireValue(
-      typeof action.label === 'string',
-      `missing label for action "${action.id}"`,
-    )
+    descriptionLabel(action.label, action.id)
     requireValue(
       action.variant === undefined ||
         ['outline', 'filled', 'inverted', 'ghost'].includes(action.variant),
@@ -72,7 +81,7 @@ export function ActionsView(props: {
           disabled={props.bindings?.[action().id]?.disabled?.()}
           onClick={() => props.bindings?.[action().id]?.run()}
         >
-          {action().label}
+          {descriptionLabel(action().label, action().id)}
         </Button>
       )}
     </For>

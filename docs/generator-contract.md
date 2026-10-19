@@ -31,6 +31,9 @@ The tests also reject incompatible field controls, choice values, aliases, and l
 
 A field's record key is its identity.
 Labels and help text do not define identity.
+Field labels are optional. An omitted label defaults to the field key.
+Action and submit labels are optional and default to the operation ID.
+Explicit labels and existing table header-alias precedence remain unchanged.
 The field list defines display order unless named groups provide that order.
 Optional [form layout](form-layout.md) metadata supplies named groups, columns, and field spans.
 An application supplies one existing `FormContract<T>` from `@wfe/form`.

@@ -59,7 +59,8 @@ The [generator guide](generator-contract.md) documents type constraints and runt
 
 Form field labels and action labels are currently required.
 Table column labels are already optional, with existing column-header fallbacks.
-The shell draft proposes optional field/action labels and built-in field display formats.
+Generated fields and actions accept omitted labels with field-key and operation-ID fallbacks.
+Built-in generated field display formats remain the next W4 addition.
 Those generator changes are not implemented yet.
 
 ## Tables and virtualization

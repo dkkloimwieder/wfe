@@ -430,3 +430,37 @@ const missingWorkspaceRegion: LayoutViewBindings<typeof workspaceRegions> = {
   views: { records: () => null, menu: () => null },
 }
 void [workspaceRegions, workspaceRegionBindings, missingWorkspaceRegion]
+
+const unlabeledForm = {
+  id: 'unlabeled',
+  fields: [{ field: 'code', control: 'text' }],
+  submit: { id: 'save' },
+  actions: [{ id: 'reset' }],
+} as const satisfies FormDescription<{ code: string }>
+const unlabeledBindings: FormViewBindings<
+  { code: string },
+  typeof unlabeledForm
+> = {
+  form: null as unknown as FormContract<{ code: string }>,
+  actions: { reset: { run: () => {} } },
+}
+void [unlabeledForm, unlabeledBindings]
+const unlabeledTable = {
+  id: 'records',
+  columns: { code: {} },
+  actions: [{ id: 'export' }],
+} as const satisfies TableDescription
+void unlabeledTable
+
+const nontextLabel: FormDescription<{ code: string }> = {
+  id: 'invalid-label',
+  fields: [
+    {
+      field: 'code',
+      control: 'text',
+      // @ts-expect-error Optional labels still require text when present.
+      label: 1,
+    },
+  ],
+}
+void nontextLabel

@@ -33,6 +33,7 @@ import type {
 } from './types'
 import {
   ActionsView,
+  descriptionLabel,
   StatusView,
   requireValue,
   uniqueIds,
@@ -135,6 +136,7 @@ export function FormView<
     regions = nextRegions
     validateActions(value.actions ?? [], bindings().actions, value.submit)
     for (const field of value.fields) {
+      descriptionLabel(field.label, field.field)
       const control = field.control
       requireValue(
         [
@@ -224,6 +226,7 @@ export function FormView<
       return value as FormFieldDescription<T> &
         NumberControlDescription & { empty?: 'reject' | 'null' | 'undefined' }
     }
+    const label = () => descriptionLabel(checkedField().label, key)
     const booleanControl = control === 'checkbox' || control === 'switch'
     const id = `${domId}-${encodeURIComponent(key)}`
     const disabled = () => Boolean(bindings().disabled?.(key))
@@ -254,7 +257,7 @@ export function FormView<
         invalid={Boolean(form.errors.fields?.[key])}
       >
         <Show when={!booleanControl}>
-          <Label data-ui-text="system">{checkedField().label}</Label>
+          <Label data-ui-text="system">{label()}</Label>
         </Show>
         {control === 'text' ? (
           <Input value={String(form.values[key])} onValueChange={set} />
@@ -277,7 +280,7 @@ export function FormView<
           />
         ) : control === 'date' ? (
           <DatePicker
-            label={checkedField().label}
+            label={label()}
             value={String(form.values[key]) || undefined}
             dateFormat={dateDescription().dateFormat}
             locale={dateDescription().locale}
@@ -288,7 +291,7 @@ export function FormView<
           />
         ) : control === 'datetime' ? (
           <DateTimePicker
-            label={checkedField().label}
+            label={label()}
             value={String(form.values[key]) || undefined}
             dateFormat={datetimeDescription().dateFormat}
             timeFormat={datetimeDescription().timeFormat}
@@ -302,7 +305,7 @@ export function FormView<
           />
         ) : control === 'select' ? (
           <SelectField
-            label={checkedField().label}
+            label={label()}
             choices={choices()}
             value={String(form.values[key])}
             onValueChange={(value) => {
@@ -328,9 +331,7 @@ export function FormView<
             <Checkbox.Control>
               <Checkbox.Indicator />
             </Checkbox.Control>
-            <Checkbox.Label data-ui-text="system">
-              {checkedField().label}
-            </Checkbox.Label>
+            <Checkbox.Label data-ui-text="system">{label()}</Checkbox.Label>
             <Show when={checkedField().help}>
               <Checkbox.Description>{checkedField().help}</Checkbox.Description>
             </Show>
@@ -352,9 +353,7 @@ export function FormView<
             <Switch.Control>
               <Switch.Thumb />
             </Switch.Control>
-            <Switch.Label data-ui-text="system">
-              {checkedField().label}
-            </Switch.Label>
+            <Switch.Label data-ui-text="system">{label()}</Switch.Label>
             <Show when={checkedField().help}>
               <Switch.Description>{checkedField().help}</Switch.Description>
             </Show>
@@ -478,7 +477,7 @@ export function FormView<
             disabled={form.pending}
             type="submit"
           >
-            {submit().label}
+            {descriptionLabel(submit().label, submit().id)}
           </Button>
         )}
       </Show>
