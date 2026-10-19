@@ -537,6 +537,56 @@ try {
       await page.evaluate(() => window.chartFixture.stop())
     },
   )
+  await run(
+    'hidden charts recover their measured width and retain SVG nodes',
+    async () => {
+      await page.goto(
+        (process.env.BENCH_URL ??
+          `http://127.0.0.1:${server.address().port}/`) +
+          '?standalone=1&hidden=1',
+      )
+      const host = page.locator('[data-chart-test-host]')
+      const chart = page.getByRole('img', {
+        name: 'Standalone chart',
+        includeHidden: true,
+      })
+      await expect(chart).toHaveCount(1)
+      await expect(chart).not.toBeVisible()
+      await chart.evaluate((element) => {
+        window.chartHiddenNodes = {
+          svg: element,
+          path: element.querySelector('.ts-chart__line path'),
+        }
+      })
+      for (const width of [640, 320, 480]) {
+        await host.evaluate((element, width) => {
+          element.style.display = 'block'
+          element.style.width = `${width}px`
+        }, width)
+        await expect
+          .poll(async () => chart.getAttribute('viewBox'))
+          .toBe(`0 0 ${width} 280`)
+        assert.ok(
+          await chart.evaluate(
+            (element) =>
+              window.chartHiddenNodes.svg === element &&
+              window.chartHiddenNodes.path ===
+                element.querySelector('.ts-chart__line path'),
+          ),
+        )
+        assert.doesNotMatch(await chart.innerHTML(), /NaN|Infinity/)
+        if (width === 320) {
+          await host.evaluate((element) => {
+            element.style.display = 'none'
+          })
+          await settle()
+          await expect(chart).not.toBeVisible()
+        }
+      }
+      await page.evaluate(() => window.chartFixture.stop())
+      await expect(page.locator('#root')).toBeEmpty()
+    },
+  )
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } finally {

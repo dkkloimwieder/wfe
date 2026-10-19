@@ -34,6 +34,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
     ]),
     stage('server-rendering', ['run', 'test:ssr']),
     stage('contracts', ['exec', 'node', 'scripts/test-contracts.mjs']),
+    stage('chart-imports', ['exec', 'node', 'scripts/check-chart-imports.mjs']),
     stage('engine-imports', [
       'exec',
       'node',
@@ -55,6 +56,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
       BENCH_DEVELOPMENT: mode === 'development' ? '1' : '',
     }
     for (const fixture of [
+      'charts',
       'components',
       'table-editing',
       'table-read-only',
@@ -90,6 +92,28 @@ export function qualificationStages(output, { wamn = false } = {}) {
         ),
       )
     }
+    stages.push(
+      stage(
+        `charts-hydration-${mode}`,
+        ['exec', 'node', 'examples/charts/run.mjs', '--hydration'],
+        {
+          ...env,
+          BENCH_OUTPUT: resolve(output, `charts-hydration-${mode}.json`),
+        },
+      ),
+    )
+    if (mode === 'source')
+      stages.push(
+        stage(
+          'charts-fallback-browser',
+          ['exec', 'node', 'examples/charts/run.mjs'],
+          {
+            ...env,
+            BENCH_CHART_FALLBACK: '1',
+            BENCH_OUTPUT: resolve(output, 'charts-fallback.json'),
+          },
+        ),
+      )
     stages.push(
       stage(
         `date-hydration-${mode}`,

@@ -16,6 +16,10 @@ Component and form hydration run in all three modes and reject server warnings a
 The form runner preserves server nodes and exercises six mount and disposal cycles without navigation.
 Live checks test component exports, hot updates, interaction, focus, and cleanup.
 The virtual demo also tests scrolling and bounded DOM rows.
+Charts run against source, built packages, and development code, with server rendering and hydration in each mode.
+Chart cases cover retained SVG nodes, tooltip cleanup, controlled legends, responsive sizing, hidden hosts, and forced colors.
+The source chart run also tests the fallback tooltip portal.
+The chart import probe rejects chart code in normal form and layout imports.
 The bundle guard rejects modules outside the wfe checkout.
 
 The runner executes stages serially and stops at the first failure.

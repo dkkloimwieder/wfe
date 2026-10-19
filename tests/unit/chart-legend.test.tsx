@@ -99,3 +99,42 @@ test('legend line cues preserve the application supplied dash style', () => {
   expect(swatch.style.borderBlockStartStyle).toBe('dashed')
   expect(swatch.style.background).toBe('')
 })
+
+test('adds and removes legend items while retaining survivors and the latest callback', () => {
+  const first = vi.fn()
+  const latest = vi.fn()
+  const [items, setItems] = createSignal(initial)
+  const [request, setRequest] = createSignal(() => first)
+  const h = render(() => (
+    <ChartLegend
+      label="Request series"
+      items={items()}
+      onVisibilityChange={request()}
+    />
+  ))
+  const actual = h.getByRole('button', { name: 'Actual requests' })
+  const removed = h.getByRole('button', { name: 'Planned requests' })
+  actual.focus()
+  setRequest(() => latest)
+  setItems([
+    { ...initial[0]!, label: 'Retained requests' },
+    { ...initial[1]!, id: 'new', label: 'New requests' },
+  ])
+  flush()
+  expect(h.getByRole('button', { name: 'Retained requests' })).toBe(actual)
+  expect(document.activeElement).toBe(actual)
+  expect(removed.isConnected).toBe(false)
+  fireEvent.click(actual)
+  fireEvent.click(h.getByRole('button', { name: 'New requests' }))
+  fireEvent.click(removed)
+  flush()
+  expect(first).not.toHaveBeenCalled()
+  expect(latest.mock.calls).toEqual([
+    ['actual', false],
+    ['new', true],
+  ])
+  h.unmount()
+  fireEvent.click(actual)
+  flush()
+  expect(latest).toHaveBeenCalledTimes(2)
+})

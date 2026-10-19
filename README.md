@@ -4,7 +4,7 @@ Wfe is a generic frontend library for applications that use Solid.
 The private `@wfe/components` package contains controls, Table, shared styles, internal behavior, and owned vendor source.
 The private `@wfe/form` package coordinates errors, submission, reset, and cancellation through application callbacks.
 The private `@wfe/generator` package defines typed descriptions and application bindings.
-Its public views compose the existing form, table, and layout components.
+Its public views compose the existing form, table, layout, and chart components.
 Application records, routing, permissions, validation rules, requests, and persistence remain application-owned.
 
 ## Development
@@ -40,7 +40,9 @@ Within `packages/components`, `src/components` contains individual controls.
 `src/table` contains Table presentation and its engine.
 The dashboard shell, panels, and grid live under `src/layout`.
 The [layout guide](docs/layout.md) describes slots, navigation, scrolling, and available height.
-`src/vendor` contains the owned Kobalte and virtual engine subsets with their attribution and provenance.
+`src/chart` contains the owned chart adapter and controlled legend.
+The [chart guide](docs/charts.md) describes imports, data boundaries, generated views, and supported plots.
+`src/vendor` contains the owned Kobalte, virtual, calendar, and chart subsets with their attribution and provenance.
 `packages/form/src` contains the generic form implementation and its public types.
 The [form guide](docs/form-contract.md) describes controlled values, callbacks, reset, and cancellation.
 `packages/generator/src` contains typed contracts and rendering compositions.

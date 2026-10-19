@@ -32,6 +32,7 @@ test('qualification selects shared toolchain and package changes', () => {
 test('qualification covers both browser inputs and keeps heap work separate', () => {
   const stages = qualificationStages('/tmp/solid-gates')
   for (const fixture of [
+    'charts',
     'table-editing',
     'components',
     'analytics',
@@ -83,6 +84,23 @@ test('qualification covers both browser inputs and keeps heap work separate', ()
       mode === 'distribution' ? '1' : '',
     )
     assert.equal(form.env.BENCH_DEVELOPMENT, mode === 'development' ? '1' : '')
+  }
+  assert.ok(stages.some(({ name }) => name === 'chart-imports'))
+  const fallback = stages.find(({ name }) => name === 'charts-fallback-browser')
+  assert.equal(fallback.env.BENCH_CHART_FALLBACK, '1')
+  for (const mode of ['source', 'distribution', 'development']) {
+    const charts = stages.find(
+      ({ name }) => name === `charts-hydration-${mode}`,
+    )
+    assert.equal(charts.args.at(-1), '--hydration')
+    assert.equal(
+      charts.env.BENCH_OUTPUT,
+      `/tmp/solid-gates/charts-hydration-${mode}.json`,
+    )
+    assert.equal(
+      charts.env.BENCH_DISTRIBUTION,
+      mode === 'distribution' ? '1' : '',
+    )
   }
   assert.ok(stages.some(({ name }) => name === 'analytics-server'))
   assert.ok(stages.every(({ env }) => !env.BENCH_HEAPS && !env.BENCH_WORKLOAD))

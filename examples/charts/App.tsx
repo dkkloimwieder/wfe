@@ -43,17 +43,23 @@ export type ChartFixture = { context: () => Context | undefined }
 export function App(props: {
   ready?: (api: ChartFixture) => void
   standalone?: boolean
+  hidden?: boolean
 }) {
   if (untrack(() => props.standalone))
     return (
-      <Chart
-        definition={defineChart({
-          marks: [lineY([1, 3, 2])],
-          scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
-        })}
-        ariaLabel="Standalone chart"
-        height={280}
-      />
+      <div
+        data-chart-test-host
+        style={{ display: props.hidden ? 'none' : undefined, width: '100%' }}
+      >
+        <Chart
+          definition={defineChart({
+            marks: [lineY([1, 3, 2])],
+            scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
+          })}
+          ariaLabel="Standalone chart"
+          height={280}
+        />
+      </div>
     )
   const scope = uiScope()
   const [scheme, setScheme] = createSignal(schemes[1]!)

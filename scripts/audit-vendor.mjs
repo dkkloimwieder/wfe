@@ -339,6 +339,7 @@ if (values['calendar-upstream']) {
 }
 
 function group(id) {
+  if (id.includes('/components/src/vendor/charts/')) return 'charts'
   if (id.includes('/components/src/vendor/kobalte/')) return 'kobalte'
   if (id.includes('/components/src/vendor/virtual-core/')) return 'virtual'
   if (id.includes('/components/src/vendor/corvu-calendar/')) return 'calendar'
@@ -393,6 +394,7 @@ if (values.bundles) {
   }
   const { build } = await import('vite')
   for (const fixture of [
+    'charts',
     'table-read-only',
     'table-editing',
     'analytics',

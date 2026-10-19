@@ -73,3 +73,6 @@ Its optional qualification reuses the prepared inputs and keeps production WAMN 
 The read-only and platform examples support rectangular cell selection.
 See [table selection](../docs/table-selection.md) for keyboard commands and copy behavior.
 The read-only browser fixture also tests the shared virtual renderer with 1,000 available rows.
+
+The [chart example](charts/README.md) demonstrates the owned chart API and generated views.
+It includes shared appearance controls and source, package, development, and hydration tests.

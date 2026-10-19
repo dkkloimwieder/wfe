@@ -5,6 +5,7 @@ export async function render(url = '/') {
     generateHydrationScript() +
     (await renderToString(() => (
       <App
+        hidden={new URL(url, 'http://chart.example').searchParams.has('hidden')}
         standalone={new URL(url, 'http://chart.example').searchParams.has(
           'standalone',
         )}
