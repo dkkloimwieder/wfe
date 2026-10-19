@@ -215,6 +215,9 @@ importers:
       '@wfe/generator':
         specifier: workspace:*
         version: link:packages/generator
+      '@wfe/shell':
+        specifier: workspace:*
+        version: link:packages/shell
       eslint:
         specifier: 10.10.0
         version: 10.10.0(supports-color@7.2.0)
@@ -332,6 +335,18 @@ importers:
       '@wfe/form':
         specifier: workspace:*
         version: link:../form
+      solid-js:
+        specifier: '>=2.0.0-rc.14 <3.0.0'
+        version: 2.0.0-rc.14
+
+  packages/shell:
+    dependencies:
+      '@solidjs/web':
+        specifier: '>=2.0.0-rc.14 <3.0.0'
+        version: 2.0.0-rc.14(solid-js@2.0.0-rc.14)
+      '@wfe/components':
+        specifier: workspace:*
+        version: link:../components
       solid-js:
         specifier: '>=2.0.0-rc.14 <3.0.0'
         version: 2.0.0-rc.14

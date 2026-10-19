@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 
 const packageName = process.argv[2] ?? 'components'
-if (!['components', 'generator'].includes(packageName))
+if (!['components', 'generator', 'shell'].includes(packageName))
   throw new Error('Unsupported source package')
 const source = fileURLToPath(
   new URL(`../packages/${packageName}/src/`, import.meta.url),

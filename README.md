@@ -5,6 +5,8 @@ The private `@wfe/components` package contains controls, Table, shared styles, i
 The private `@wfe/form` package coordinates errors, submission, reset, and cancellation through application callbacks.
 The private `@wfe/generator` package defines typed descriptions and application bindings.
 Its public views compose the existing form, table, layout, and chart components.
+The private `@wfe/shell` package defines navigation metadata and application binding contracts.
+Its renderer is the next part of the shell implementation.
 Application records, routing, permissions, validation rules, requests, and persistence remain application-owned.
 
 ## Documentation

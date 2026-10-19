@@ -1,0 +1,35 @@
+{
+  "name": "@wfe/shell",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/client/index.d.ts",
+      "wfe-source": "./src/index.ts",
+      "solid": "./dist/source/index.js",
+      "node": "./dist/server/index.js",
+      "import": "./dist/client/index.js"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown && node ../../scripts/build-source.mjs shell",
+    "types": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@wfe/components": "workspace:*"
+  },
+  "peerDependencies": {
+    "solid-js": ">=2.0.0-rc.14 <3.0.0",
+    "@solidjs/web": ">=2.0.0-rc.14 <3.0.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
