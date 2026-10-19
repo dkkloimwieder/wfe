@@ -48,10 +48,10 @@ function decorateActions(root: HTMLDivElement) {
     randomize(action)
   }
   root.addEventListener('pointerover', enter)
-  onCleanup(() => {
+  return () => {
     observer.disconnect()
     root.removeEventListener('pointerover', enter)
-  })
+  }
 }
 
 /** One appearance scope for client rendering and server hydration. */
@@ -61,10 +61,18 @@ export function DefaultAppearance(props: {
   style?: JSX.CSSProperties
 }) {
   const scope = uiScope()
+  let disposeActions: (() => void) | undefined
+  onCleanup(() => {
+    disposeActions?.()
+    disposeActions = undefined
+  })
   return (
     <div
       {...scope}
-      ref={decorateActions}
+      ref={(node) => {
+        disposeActions?.()
+        disposeActions = decorateActions(node)
+      }}
       class={['default-appearance', 'appearance-scope', props.class]}
       data-ui-portal-root=""
       style={{
