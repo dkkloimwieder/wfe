@@ -16,7 +16,7 @@
     "test": "node --test tests/*.test.mjs tests/tooling/*.test.mjs",
     "test:unit": "vitest run",
     "check": "node scripts/check.mjs",
-    "test:integrity": "node scripts/check-calendar.mjs && node scripts/check-kobalte.mjs && node scripts/check-virtual.mjs && node scripts/check-imports.mjs && node scripts/check-controls.mjs",
+    "test:integrity": "node scripts/check-calendar.mjs && node scripts/check-kobalte.mjs && node scripts/check-virtual.mjs && node scripts/check-imports.mjs && node scripts/check-controls.mjs && node scripts/check-charts.mjs",
     "types:examples": "node scripts/typecheck-examples.mjs",
     "test:ssr": "node scripts/test-ssr.mjs",
     "test:qualification": "node scripts/qualify.mjs",
@@ -46,6 +46,8 @@
     "@wfe/components": "workspace:*",
     "zod": "4.6.5",
     "@wfe/form": "workspace:*",
-    "@wfe/generator": "workspace:*"
+    "@wfe/generator": "workspace:*",
+    "@types/d3-scale": "4.0.9",
+    "@types/d3-shape": "3.1.8"
   }
 }

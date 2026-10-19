@@ -1,0 +1,422 @@
+{
+  "repository": "https://github.com/TanStack/charts",
+  "version": "1.1.0",
+  "revision": "57774e14a1a86081eddb3a23523724a40da05640",
+  "tagObject": "d5dec10b5a9665d992e6d4b7bca08c1d8e1142cb",
+  "license": "MIT",
+  "entrypoints": [
+    "scene",
+    "line",
+    "area",
+    "bar",
+    "dot",
+    "scales-linear",
+    "scales-band",
+    "scales-point",
+    "scales-ordinal",
+    "adapter-renderer",
+    "svg",
+    "svg-surface",
+    "tooltip",
+    "tooltip-portal",
+    "legend",
+    "types",
+    "dom-types"
+  ],
+  "externalImports": ["d3-scale", "d3-shape"],
+  "files": {
+    "charts-core/src/adapter-renderer.ts": {
+      "source": "packages/charts-core/src/adapter-renderer.ts",
+      "upstreamSha256": "413383ab291694abaca06f34e904708e654522b4ae8d8d750f0da1436455074c",
+      "localSha256": "413383ab291694abaca06f34e904708e654522b4ae8d8d750f0da1436455074c"
+    },
+    "charts-core/src/adapter-shared.ts": {
+      "source": "packages/charts-core/src/adapter-shared.ts",
+      "upstreamSha256": "2ec3592a3271ee15982d5b39cd84963ddf2b63eb9318295e82e668388482139d",
+      "localSha256": "2ec3592a3271ee15982d5b39cd84963ddf2b63eb9318295e82e668388482139d"
+    },
+    "charts-core/src/area.ts": {
+      "source": "packages/charts-core/src/area.ts",
+      "upstreamSha256": "9d4dd6f7b93e980f4098f89bda78fb3b93a5f4e2f99e1f279c483a67543fc2cc",
+      "localSha256": "9d4dd6f7b93e980f4098f89bda78fb3b93a5f4e2f99e1f279c483a67543fc2cc"
+    },
+    "charts-core/src/bar.ts": {
+      "source": "packages/charts-core/src/bar.ts",
+      "upstreamSha256": "71017e5a75a9cadd44a79ab15b4d553734badd317f694691fce0c96662104ad0",
+      "localSha256": "37de822f627e2f8fcebddd54ac177a37b8286560996732da71d1293a7e71521c",
+      "repair": "strict-types"
+    },
+    "charts-core/src/configured-scale.ts": {
+      "source": "packages/charts-core/src/configured-scale.ts",
+      "upstreamSha256": "11486a486dd8b9e3e775f40143a8f42741cb59d065784595b6edb07596c40501",
+      "localSha256": "11486a486dd8b9e3e775f40143a8f42741cb59d065784595b6edb07596c40501"
+    },
+    "charts-core/src/cursor-host-contract.ts": {
+      "source": "packages/charts-core/src/cursor-host-contract.ts",
+      "upstreamSha256": "b62c67f8528401b02e3778573a72ac3792f00a7595ee8df03de82f7c891f6aa3",
+      "localSha256": "b62c67f8528401b02e3778573a72ac3792f00a7595ee8df03de82f7c891f6aa3"
+    },
+    "charts-core/src/default-focus-internal.ts": {
+      "source": "packages/charts-core/src/default-focus-internal.ts",
+      "upstreamSha256": "6b9e8be3e9a20447caa95b0cc60e36ff6c089e00d8117e59f0f3ccecaa62dddb",
+      "localSha256": "6b9e8be3e9a20447caa95b0cc60e36ff6c089e00d8117e59f0f3ccecaa62dddb"
+    },
+    "charts-core/src/dom-text.ts": {
+      "source": "packages/charts-core/src/dom-text.ts",
+      "upstreamSha256": "e2630dd33c6c32be4ba9d19a675cf1b02247a1dd68cf412068045e3a0f9a40d4",
+      "localSha256": "e2630dd33c6c32be4ba9d19a675cf1b02247a1dd68cf412068045e3a0f9a40d4"
+    },
+    "charts-core/src/dom-types.ts": {
+      "source": "packages/charts-core/src/dom-types.ts",
+      "upstreamSha256": "ec65f9426f7a6c4c17a265a9fa6d3ae6b4b9c8f4d1f3a44a07f61f9dcc04db22",
+      "localSha256": "ec65f9426f7a6c4c17a265a9fa6d3ae6b4b9c8f4d1f3a44a07f61f9dcc04db22"
+    },
+    "charts-core/src/dot-layout.ts": {
+      "source": "packages/charts-core/src/dot-layout.ts",
+      "upstreamSha256": "1f4a304308576258bdb5901ce249273135a05581350dc05120615dea23a6ceab",
+      "localSha256": "1f4a304308576258bdb5901ce249273135a05581350dc05120615dea23a6ceab"
+    },
+    "charts-core/src/dot.ts": {
+      "source": "packages/charts-core/src/dot.ts",
+      "upstreamSha256": "04125104e61d26354c98eb26a619b8883e2b1aeef038b342a4ee03ba52ce5f64",
+      "localSha256": "04125104e61d26354c98eb26a619b8883e2b1aeef038b342a4ee03ba52ce5f64"
+    },
+    "charts-core/src/focus-coordinate-internal.ts": {
+      "source": "packages/charts-core/src/focus-coordinate-internal.ts",
+      "upstreamSha256": "8e44908cf8b535bf6dc9beadd26e80132ce4d68f516321818fa4e516442e6de0",
+      "localSha256": "8e44908cf8b535bf6dc9beadd26e80132ce4d68f516321818fa4e516442e6de0"
+    },
+    "charts-core/src/focus-disabled.ts": {
+      "source": "packages/charts-core/src/focus-disabled.ts",
+      "upstreamSha256": "122523c32128be3fb1b6fb7618baf1088f347e73725e461eaf9ec9412eb92a36",
+      "localSha256": "122523c32128be3fb1b6fb7618baf1088f347e73725e461eaf9ec9412eb92a36"
+    },
+    "charts-core/src/focus-layer.ts": {
+      "source": "packages/charts-core/src/focus-layer.ts",
+      "upstreamSha256": "1aa959a2944d337be92980cbfac1a85a13144c17452512d36bb58bc254c5515b",
+      "localSha256": "1aa959a2944d337be92980cbfac1a85a13144c17452512d36bb58bc254c5515b"
+    },
+    "charts-core/src/focus-presentation.ts": {
+      "source": "packages/charts-core/src/focus-presentation.ts",
+      "upstreamSha256": "acdb985810ab67fd52b294c73aecef1f7165f0c7582514c054bd8f7fb0b5f7d5",
+      "localSha256": "acdb985810ab67fd52b294c73aecef1f7165f0c7582514c054bd8f7fb0b5f7d5"
+    },
+    "charts-core/src/focus.ts": {
+      "source": "packages/charts-core/src/focus.ts",
+      "upstreamSha256": "a5159690f53f15ea1c83f9b33957920a8f22db95783b5dec914c6ad7992e7d52",
+      "localSha256": "a5159690f53f15ea1c83f9b33957920a8f22db95783b5dec914c6ad7992e7d52"
+    },
+    "charts-core/src/group.ts": {
+      "source": "packages/charts-core/src/group.ts",
+      "upstreamSha256": "927fc802090f9f003fa56dd061ae73069331e9a1a6679b4c8a007458f282f230",
+      "localSha256": "927fc802090f9f003fa56dd061ae73069331e9a1a6679b4c8a007458f282f230"
+    },
+    "charts-core/src/guide-layout.ts": {
+      "source": "packages/charts-core/src/guide-layout.ts",
+      "upstreamSha256": "2bb5b358fbfb3ef00a75d7e1ff6a070de9ba970e66bc634f8c902e4bd93295fd",
+      "localSha256": "2bb5b358fbfb3ef00a75d7e1ff6a070de9ba970e66bc634f8c902e4bd93295fd"
+    },
+    "charts-core/src/interaction-signal.ts": {
+      "source": "packages/charts-core/src/interaction-signal.ts",
+      "upstreamSha256": "58fd08889c666722fb8c9e8c5f4632d4e03c91647303fa48d8e711d7f22ee851",
+      "localSha256": "58fd08889c666722fb8c9e8c5f4632d4e03c91647303fa48d8e711d7f22ee851"
+    },
+    "charts-core/src/interaction.ts": {
+      "source": "packages/charts-core/src/interaction.ts",
+      "upstreamSha256": "3dc6a5c3d039e83474b0b54e7648dc589acc32bc9e1ed364853e381cfbd160aa",
+      "localSha256": "3dc6a5c3d039e83474b0b54e7648dc589acc32bc9e1ed364853e381cfbd160aa"
+    },
+    "charts-core/src/interactive-legend.ts": {
+      "source": "packages/charts-core/src/interactive-legend.ts",
+      "upstreamSha256": "b155db175bbef68cdebaffb2a3dfdcae5a00ca715a0f7a489f27095cf1ed87d5",
+      "localSha256": "b07e138459b59b9ca0c57e5270b552dee2f9069334a28df1453c5e39f85e0ce5",
+      "repair": "strict-types"
+    },
+    "charts-core/src/legend-layout-internal.ts": {
+      "source": "packages/charts-core/src/legend-layout-internal.ts",
+      "upstreamSha256": "5f2d4d114751ce57ecaa18becf4d590254cadbebbeaba94fba37c8218e85c68b",
+      "localSha256": "5f2d4d114751ce57ecaa18becf4d590254cadbebbeaba94fba37c8218e85c68b"
+    },
+    "charts-core/src/legend-static.ts": {
+      "source": "packages/charts-core/src/legend-static.ts",
+      "upstreamSha256": "ba57a8f2146e96ff1cc849948d9f8277b91bd363607ca22f369006ee330afa70",
+      "localSha256": "3ea078acb88649c2b7822798984a931059743926a5434ddf8adac83179070718",
+      "repair": "strict-types"
+    },
+    "charts-core/src/legend.ts": {
+      "source": "packages/charts-core/src/legend.ts",
+      "upstreamSha256": "ce7c6e5fedc790d199883dc09809dfa35b54768c300633c4f72333817b55bc73",
+      "localSha256": "ce7c6e5fedc790d199883dc09809dfa35b54768c300633c4f72333817b55bc73"
+    },
+    "charts-core/src/line.ts": {
+      "source": "packages/charts-core/src/line.ts",
+      "upstreamSha256": "3fc3a537f82c9f2cb9b58a1284c650f91ad8f6dcc439cb30762ff76d0db7bbf7",
+      "localSha256": "63319126cded4618c7cd2a1e9f3bb6f3c1dd6b5ad1296ed44fb205dcf52f9d74",
+      "repair": "strict-types"
+    },
+    "charts-core/src/mark-scene-filter-internal.ts": {
+      "source": "packages/charts-core/src/mark-scene-filter-internal.ts",
+      "upstreamSha256": "d54ee7c67f3a06aa52ba70f144f5a4313ced53864388f99abd54e83adcab432b",
+      "localSha256": "d54ee7c67f3a06aa52ba70f144f5a4313ced53864388f99abd54e83adcab432b"
+    },
+    "charts-core/src/mark-state-transition.ts": {
+      "source": "packages/charts-core/src/mark-state-transition.ts",
+      "upstreamSha256": "95c59fc8c9ce4aaed919cc41203081dd4628c33e05ecf51d7d344dd11df716e5",
+      "localSha256": "95c59fc8c9ce4aaed919cc41203081dd4628c33e05ecf51d7d344dd11df716e5"
+    },
+    "charts-core/src/mark-state.ts": {
+      "source": "packages/charts-core/src/mark-state.ts",
+      "upstreamSha256": "c641a02faa5a2355b8758f628bc828a8f3b603fbfd0075e6bd3774cee4424b11",
+      "localSha256": "f392869c58c9e0c011486364383a118ec2fb22d5e446dd1557d867949d1408f9",
+      "repair": "strict-types"
+    },
+    "charts-core/src/mark-with-scale-values.ts": {
+      "source": "packages/charts-core/src/mark-with-scale-values.ts",
+      "upstreamSha256": "de6373e06d5a597b8ebdc306b94e70e7f63e4f65bbd56d31cd8622f50d82aa69",
+      "localSha256": "de6373e06d5a597b8ebdc306b94e70e7f63e4f65bbd56d31cd8622f50d82aa69"
+    },
+    "charts-core/src/mark.ts": {
+      "source": "packages/charts-core/src/mark.ts",
+      "upstreamSha256": "c57de38417b3062fa0a869bbce981ffd37d52a9ed560b1f0543d5556bd70fff8",
+      "localSha256": "c57de38417b3062fa0a869bbce981ffd37d52a9ed560b1f0543d5556bd70fff8"
+    },
+    "charts-core/src/markup-internal.ts": {
+      "source": "packages/charts-core/src/markup-internal.ts",
+      "upstreamSha256": "2e39f90af24f4560f7e22728fda1daf45c120e9b1b072ef964828900a5840b1c",
+      "localSha256": "ad1939f970dff04ea9468479fe50b32e9fa672a5ee7fc7e38a0ec3330fa93786",
+      "repair": "strict-types"
+    },
+    "charts-core/src/materialized-channel-internal.ts": {
+      "source": "packages/charts-core/src/materialized-channel-internal.ts",
+      "upstreamSha256": "09ad3d92aa469cfedf4b929fec6a247f6ffe57d17eb34acdfd101418a5b1bc4f",
+      "localSha256": "09ad3d92aa469cfedf4b929fec6a247f6ffe57d17eb34acdfd101418a5b1bc4f"
+    },
+    "charts-core/src/nearest.ts": {
+      "source": "packages/charts-core/src/nearest.ts",
+      "upstreamSha256": "5e818ae4ed51b86976bc2bc6a60418660829c5fa1402a9156d988aee6cb8cfdc",
+      "localSha256": "ccc3cd81277f920c42dba93e2ff7ad562356bf2b744a722cb8d99a81cdd9ea67",
+      "repair": "strict-types"
+    },
+    "charts-core/src/reconcile.ts": {
+      "source": "packages/charts-core/src/reconcile.ts",
+      "upstreamSha256": "e8b775003694a5bb10ca803c2631fa132fc063bdda97ad68e2529dd4d5c327e9",
+      "localSha256": "46f6372351cb2c1cbde637c58010af1ddad984e9c8ccdb0a88d148ea61fbf3e3",
+      "repair": "strict-types"
+    },
+    "charts-core/src/rect-radius-internal.ts": {
+      "source": "packages/charts-core/src/rect-radius-internal.ts",
+      "upstreamSha256": "008d15e584026017306916534747a7ecb6d52d1c8d302a3407ca6336cc1f5dba",
+      "localSha256": "008d15e584026017306916534747a7ecb6d52d1c8d302a3407ca6336cc1f5dba"
+    },
+    "charts-core/src/rect-radius-state-internal.ts": {
+      "source": "packages/charts-core/src/rect-radius-state-internal.ts",
+      "upstreamSha256": "554fe2be6516a80ea785f4195e10878c0652ccbebde38aa71b49fc8bbb443d2e",
+      "localSha256": "554fe2be6516a80ea785f4195e10878c0652ccbebde38aa71b49fc8bbb443d2e"
+    },
+    "charts-core/src/renderer-rect.ts": {
+      "source": "packages/charts-core/src/renderer-rect.ts",
+      "upstreamSha256": "5999059b5560b8328b5ba941fdc6900c57eda8065f4a16bfc54d8e081a004b39",
+      "localSha256": "5999059b5560b8328b5ba941fdc6900c57eda8065f4a16bfc54d8e081a004b39"
+    },
+    "charts-core/src/renderer.ts": {
+      "source": "packages/charts-core/src/renderer.ts",
+      "upstreamSha256": "7336d24e6ab67862ffcc349e160db653fbf7b6f4cde571a992fe3f99e6a9df3a",
+      "localSha256": "7336d24e6ab67862ffcc349e160db653fbf7b6f4cde571a992fe3f99e6a9df3a"
+    },
+    "charts-core/src/resolved-layout-position.ts": {
+      "source": "packages/charts-core/src/resolved-layout-position.ts",
+      "upstreamSha256": "adf30f60ae2a15c2171b0939879972956a89254736c4b5c73815c6e777a886a7",
+      "localSha256": "adf30f60ae2a15c2171b0939879972956a89254736c4b5c73815c6e777a886a7"
+    },
+    "charts-core/src/runtime.ts": {
+      "source": "packages/charts-core/src/runtime.ts",
+      "upstreamSha256": "f32a0cfb3f3293fe6363b3e74e5d21788739e274002263441d74a46fab010408",
+      "localSha256": "f32a0cfb3f3293fe6363b3e74e5d21788739e274002263441d74a46fab010408"
+    },
+    "charts-core/src/scale-input.ts": {
+      "source": "packages/charts-core/src/scale-input.ts",
+      "upstreamSha256": "8fe84c1e8bd137fd4cb2c48be5b0d3e5a81395bad35116770ca933700f473ebe",
+      "localSha256": "8fe84c1e8bd137fd4cb2c48be5b0d3e5a81395bad35116770ca933700f473ebe"
+    },
+    "charts-core/src/scales-band.ts": {
+      "source": "packages/charts-core/src/scales-band.ts",
+      "upstreamSha256": "062e841f6e7103a3c1c75667f88d8c870887a9205706137c05570456cd567776",
+      "localSha256": "062e841f6e7103a3c1c75667f88d8c870887a9205706137c05570456cd567776"
+    },
+    "charts-core/src/scales-linear.ts": {
+      "source": "packages/charts-core/src/scales-linear.ts",
+      "upstreamSha256": "ee510b576b19ed67969c6db2896808874365f0ff08a75b616f60a4437be1c871",
+      "localSha256": "ee510b576b19ed67969c6db2896808874365f0ff08a75b616f60a4437be1c871"
+    },
+    "charts-core/src/scales-ordinal.ts": {
+      "source": "packages/charts-core/src/scales-ordinal.ts",
+      "upstreamSha256": "ec76bc11995829fc5ee4a3c529e41e6875f3ff2f7ccd7add0a9eb53a2bd92df5",
+      "localSha256": "ec76bc11995829fc5ee4a3c529e41e6875f3ff2f7ccd7add0a9eb53a2bd92df5"
+    },
+    "charts-core/src/scales-point.ts": {
+      "source": "packages/charts-core/src/scales-point.ts",
+      "upstreamSha256": "50ec16ebba1f857f31c8b99f45714d8d47f7fd1ddba62bbc5c75df0ef5f3d07a",
+      "localSha256": "50ec16ebba1f857f31c8b99f45714d8d47f7fd1ddba62bbc5c75df0ef5f3d07a"
+    },
+    "charts-core/src/scales.ts": {
+      "source": "packages/charts-core/src/scales.ts",
+      "upstreamSha256": "d21d8eb7014c6deb78f1113d8dc9e5aa4d39206e54778185c45daa4ee2dba65a",
+      "localSha256": "d21d8eb7014c6deb78f1113d8dc9e5aa4d39206e54778185c45daa4ee2dba65a"
+    },
+    "charts-core/src/scene-motion-internal.ts": {
+      "source": "packages/charts-core/src/scene-motion-internal.ts",
+      "upstreamSha256": "ddf2141bb8a7032936763214599cc690fdad5a5c389d7a943d2a8158e9f14553",
+      "localSha256": "ddf2141bb8a7032936763214599cc690fdad5a5c389d7a943d2a8158e9f14553"
+    },
+    "charts-core/src/scene-point-map.ts": {
+      "source": "packages/charts-core/src/scene-point-map.ts",
+      "upstreamSha256": "d2a1024800fede523391c668d964cface3d081c371c538f6fe6eeecaff0bcfc1",
+      "localSha256": "d2a1024800fede523391c668d964cface3d081c371c538f6fe6eeecaff0bcfc1"
+    },
+    "charts-core/src/scene-point-ownership-internal.ts": {
+      "source": "packages/charts-core/src/scene-point-ownership-internal.ts",
+      "upstreamSha256": "4ed150fef638f6ae61661d5d1c2829528e10dd3eaae9db85598d8e4f19656935",
+      "localSha256": "4ed150fef638f6ae61661d5d1c2829528e10dd3eaae9db85598d8e4f19656935"
+    },
+    "charts-core/src/scene-source.ts": {
+      "source": "packages/charts-core/src/scene-source.ts",
+      "upstreamSha256": "a37a40b9c3da77775bc53b16ce339d0af89e8d2f1a977d9d067171708fe37ed5",
+      "localSha256": "a37a40b9c3da77775bc53b16ce339d0af89e8d2f1a977d9d067171708fe37ed5"
+    },
+    "charts-core/src/scene.ts": {
+      "source": "packages/charts-core/src/scene.ts",
+      "upstreamSha256": "6ffb6fd17977fe48d9b334eb988e180bcf30d5c7a4271c22c94d9a885ec25456",
+      "localSha256": "6ffb6fd17977fe48d9b334eb988e180bcf30d5c7a4271c22c94d9a885ec25456"
+    },
+    "charts-core/src/stack-ends-internal.ts": {
+      "source": "packages/charts-core/src/stack-ends-internal.ts",
+      "upstreamSha256": "ddf871974cee84763a1edf9f3d5aa7f553bd028d9f601c9024f5306147b15084",
+      "localSha256": "ddf871974cee84763a1edf9f3d5aa7f553bd028d9f601c9024f5306147b15084"
+    },
+    "charts-core/src/stack-internal.ts": {
+      "source": "packages/charts-core/src/stack-internal.ts",
+      "upstreamSha256": "a7063248851b36d86b5929bc78ca67ac5ff96be171f62cae9fa3dafa2bb1a287",
+      "localSha256": "a7063248851b36d86b5929bc78ca67ac5ff96be171f62cae9fa3dafa2bb1a287"
+    },
+    "charts-core/src/stack.ts": {
+      "source": "packages/charts-core/src/stack.ts",
+      "upstreamSha256": "009abeab57be7fb6d7c1eaac316191c915e00e9458acfce0a82daf1b26b96b74",
+      "localSha256": "009abeab57be7fb6d7c1eaac316191c915e00e9458acfce0a82daf1b26b96b74"
+    },
+    "charts-core/src/svg-coordinates.ts": {
+      "source": "packages/charts-core/src/svg-coordinates.ts",
+      "upstreamSha256": "b5a8e40cd28c354c3787cdb783429521a193d5c42fbfdab2fcd46647d34ccfc8",
+      "localSha256": "b5a8e40cd28c354c3787cdb783429521a193d5c42fbfdab2fcd46647d34ccfc8"
+    },
+    "charts-core/src/svg-focus-guide-layer.ts": {
+      "source": "packages/charts-core/src/svg-focus-guide-layer.ts",
+      "upstreamSha256": "c94810ab997f986c52f07680d6e6991dfaf99fd6904fac13352efb64d06ae478",
+      "localSha256": "c94810ab997f986c52f07680d6e6991dfaf99fd6904fac13352efb64d06ae478"
+    },
+    "charts-core/src/svg-focus-guide-serializer.ts": {
+      "source": "packages/charts-core/src/svg-focus-guide-serializer.ts",
+      "upstreamSha256": "4e8206c5790853b2047ad8a014991e0931b3045f47a28804eb0263c85cd32144",
+      "localSha256": "4e8206c5790853b2047ad8a014991e0931b3045f47a28804eb0263c85cd32144"
+    },
+    "charts-core/src/svg-render-context-internal.ts": {
+      "source": "packages/charts-core/src/svg-render-context-internal.ts",
+      "upstreamSha256": "ec8ff5dfdeb5d885d846b6884244536374bec9c64f951892b856744769f22900",
+      "localSha256": "ec8ff5dfdeb5d885d846b6884244536374bec9c64f951892b856744769f22900"
+    },
+    "charts-core/src/svg-renderer.ts": {
+      "source": "packages/charts-core/src/svg-renderer.ts",
+      "upstreamSha256": "545a8109fdc4bd892aa3bb126a20f4c1e2825bc6bb6656683c982043222eed91",
+      "localSha256": "545a8109fdc4bd892aa3bb126a20f4c1e2825bc6bb6656683c982043222eed91"
+    },
+    "charts-core/src/svg-surface.ts": {
+      "source": "packages/charts-core/src/svg-surface.ts",
+      "upstreamSha256": "95cd3b24b280011c3abc62b1bf4ae2536cfc384cc06f1f1c92331ac50779b1a5",
+      "localSha256": "95cd3b24b280011c3abc62b1bf4ae2536cfc384cc06f1f1c92331ac50779b1a5"
+    },
+    "charts-core/src/svg.ts": {
+      "source": "packages/charts-core/src/svg.ts",
+      "upstreamSha256": "4991d24426a2a4d995fccf491e580df2e179a46f9b0d824ae8863b3c8b9bbdec",
+      "localSha256": "4991d24426a2a4d995fccf491e580df2e179a46f9b0d824ae8863b3c8b9bbdec"
+    },
+    "charts-core/src/tooltip-model.ts": {
+      "source": "packages/charts-core/src/tooltip-model.ts",
+      "upstreamSha256": "f03f78c105c83b757f824c6103a4d1af496610121404976edb09b1b64de300b8",
+      "localSha256": "f03f78c105c83b757f824c6103a4d1af496610121404976edb09b1b64de300b8"
+    },
+    "charts-core/src/tooltip-placement.ts": {
+      "source": "packages/charts-core/src/tooltip-placement.ts",
+      "upstreamSha256": "64a644eee3c6a62dcb0c3a2dd7af276856ecf94bf461996441022a57562d7d8f",
+      "localSha256": "64a644eee3c6a62dcb0c3a2dd7af276856ecf94bf461996441022a57562d7d8f"
+    },
+    "charts-core/src/tooltip-portal.ts": {
+      "source": "packages/charts-core/src/tooltip-portal.ts",
+      "upstreamSha256": "3b83c4d23e06cd0ca73f5b33ec176305699a99d7184c113cf2e5895708d36c70",
+      "localSha256": "3b83c4d23e06cd0ca73f5b33ec176305699a99d7184c113cf2e5895708d36c70"
+    },
+    "charts-core/src/tooltip-position.ts": {
+      "source": "packages/charts-core/src/tooltip-position.ts",
+      "upstreamSha256": "782037d25eefa43dc53265e06bdba488871be1db228fa9d7565562f324d93a6c",
+      "localSha256": "782037d25eefa43dc53265e06bdba488871be1db228fa9d7565562f324d93a6c"
+    },
+    "charts-core/src/tooltip.ts": {
+      "source": "packages/charts-core/src/tooltip.ts",
+      "upstreamSha256": "d615638f9982b2b419ff04095c0f4d58e052b5873ac80d6938a5cbb17ff9b086",
+      "localSha256": "13592e64511edc47fc97f43a949f4ee1ea056a0195de91147dd364e937ac1bfc",
+      "repair": "strict-types"
+    },
+    "charts-core/src/types.ts": {
+      "source": "packages/charts-core/src/types.ts",
+      "upstreamSha256": "e07a239a631adce94ab2f23fde12c6b5f249b2dedd209dcdec8a5218d2162b4d",
+      "localSha256": "d36f832a5dc65e67c3e84b80d009814e946e45d70027889b91628463d96718e4",
+      "repair": "strict-types"
+    },
+    "charts-scales/src/band-kernel.ts": {
+      "source": "packages/charts-scales/src/band-kernel.ts",
+      "upstreamSha256": "1740afdce1444f920d750bc6deccdf3ba8d7ff52bc4261fae2a09fa424d466a1",
+      "localSha256": "1740afdce1444f920d750bc6deccdf3ba8d7ff52bc4261fae2a09fa424d466a1"
+    },
+    "charts-scales/src/band.ts": {
+      "source": "packages/charts-scales/src/band.ts",
+      "upstreamSha256": "8efa84aa830fceba2465dfec2d343e8e8ee79c8a30a87fb488f28d229594ae6a",
+      "localSha256": "8efa84aa830fceba2465dfec2d343e8e8ee79c8a30a87fb488f28d229594ae6a"
+    },
+    "charts-scales/src/intern.ts": {
+      "source": "packages/charts-scales/src/intern.ts",
+      "upstreamSha256": "03f6b19001bdddef0260f0ac8ce091d54c978fa54e03e745901f4bc41bd710b1",
+      "localSha256": "03f6b19001bdddef0260f0ac8ce091d54c978fa54e03e745901f4bc41bd710b1"
+    },
+    "charts-scales/src/linear.ts": {
+      "source": "packages/charts-scales/src/linear.ts",
+      "upstreamSha256": "c669d26d4d61da3cbe7c172bad179956d811461f69e31bf3c3855e340efe5d1a",
+      "localSha256": "c669d26d4d61da3cbe7c172bad179956d811461f69e31bf3c3855e340efe5d1a"
+    },
+    "charts-scales/src/ordinal.ts": {
+      "source": "packages/charts-scales/src/ordinal.ts",
+      "upstreamSha256": "93ba2ab44385afed8d098aaddd1c5d6b75b33c06155172af64eb8d6d86371e0e",
+      "localSha256": "93ba2ab44385afed8d098aaddd1c5d6b75b33c06155172af64eb8d6d86371e0e"
+    },
+    "charts-scales/src/point.ts": {
+      "source": "packages/charts-scales/src/point.ts",
+      "upstreamSha256": "bee29e9c616aa7883f041d8dd3d86dfcb0407322e5cbf5ebf1c8158625fef779",
+      "localSha256": "bee29e9c616aa7883f041d8dd3d86dfcb0407322e5cbf5ebf1c8158625fef779"
+    },
+    "charts-scales/src/ticks.ts": {
+      "source": "packages/charts-scales/src/ticks.ts",
+      "upstreamSha256": "fb64a4762236e4f2bcbf8966827d297d6e9a7aec566f41b995b362caa218fdd9",
+      "localSha256": "fb64a4762236e4f2bcbf8966827d297d6e9a7aec566f41b995b362caa218fdd9"
+    }
+  },
+  "licenseSha256": "a09cf172b475f76e0cb456e3cd346b1aa3fe5169ae5454f9f7fbe98b3e93c85f",
+  "repairs": {
+    "charts-core/src/bar.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/interactive-legend.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/legend-static.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/line.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/mark-state.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/markup-internal.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/nearest.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/reconcile.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/tooltip.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/types.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged."
+  }
+}

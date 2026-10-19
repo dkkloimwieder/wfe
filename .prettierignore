@@ -9,3 +9,6 @@ test-results
 coverage
 
 examples/platform/snapshot
+
+packages/components/src/vendor/charts/charts-core
+packages/components/src/vendor/charts/charts-scales

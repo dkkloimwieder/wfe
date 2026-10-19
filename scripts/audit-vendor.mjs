@@ -33,7 +33,9 @@ const core = ui
 const kobalte = resolve(core, 'src/vendor/kobalte')
 const virtual = resolve(ui, 'src/vendor/virtual-core')
 const calendar = resolve(ui, 'src/vendor/corvu-calendar')
+const charts = resolve(ui, 'src/vendor/charts')
 const origins = {
+  charts: await json(resolve(charts, 'provenance.json')),
   calendar: await json(resolve(calendar, 'provenance.json')),
   kobalte: await json(resolve(kobalte, 'provenance.json')),
   virtual: await json(resolve(virtual, 'provenance.json')),
@@ -52,6 +54,7 @@ const report = {
 await mkdir(output, { recursive: true })
 
 for (const script of [
+  'scripts/check-charts.mjs',
   'scripts/check-calendar.mjs',
   'scripts/check-kobalte.mjs',
   'scripts/check-virtual.mjs',
