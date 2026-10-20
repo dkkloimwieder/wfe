@@ -101,7 +101,7 @@ test('decoration URLs round trip and reject unbounded presentation values', () =
     { dots: 101 },
     { border: -1 },
     { inside: NaN },
-    { secondary: 9 },
+    { secondary: 12 },
     { dotColor: 'red' },
     { borderColor: 'url(evil)' },
   ]) {
@@ -115,8 +115,24 @@ test('decoration URLs round trip and reject unbounded presentation values', () =
   expect(
     readRoute(
       new URL(
-        'https://example.test?dots=-1&border=101&inside=1.2&secondary=9&dotColor=red&borderColor=red',
+        'https://example.test?dots=-1&border=101&inside=1.2&secondary=12&dotColor=red&borderColor=red',
       ),
     ).decorations,
   ).toEqual(defaults.decorations)
+})
+
+test('additional secondary accents round trip without changing primary bounds', () => {
+  for (const secondary of [9, 10, 11]) {
+    const route = {
+      ...defaults,
+      id: 'fields' as const,
+      viewport: 'full' as const,
+      decorations: { ...defaults.decorations, secondary },
+    }
+    expect(
+      readRoute(galleryUrl(new URL('https://example.test'), route)),
+    ).toEqual(route)
+    expect(readConfig(route)?.decorations.secondary).toBe(secondary)
+  }
+  expect(readConfig({ ...defaults, accent: 9 })).toBeUndefined()
 })

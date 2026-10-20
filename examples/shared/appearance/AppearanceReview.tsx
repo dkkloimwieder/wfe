@@ -4,6 +4,7 @@ import { Button, Input, Field, Label } from '@wfe/components'
 import {
   schemes,
   accents,
+  secondaryAccents,
   accentColor,
   dividerSurfaces,
   decorationColors,
@@ -252,7 +253,7 @@ export function AppearanceReview(props: {
             aria-label="Secondary accent colors"
           >
             <span data-ui-text="system">Secondary accent</span>
-            <For each={accents}>
+            <For each={secondaryAccents}>
               {(accent, index) => (
                 <Button
                   class="accent-swatch"

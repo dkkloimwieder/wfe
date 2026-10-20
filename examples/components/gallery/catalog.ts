@@ -1,6 +1,7 @@
 import {
   defaultDecorations,
   decorationColors,
+  secondaryAccents,
 } from '../../shared/appearance/appearance'
 import type { Decorations } from '../../shared/appearance/appearance'
 export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
@@ -117,7 +118,7 @@ function readDecorations(value: unknown): Decorations | undefined {
   if (!value || typeof value !== 'object') return
   const d = value as Record<string, unknown>
   if (
-    !integer(d.secondary, 8) ||
+    !integer(d.secondary, secondaryAccents.length - 1) ||
     !integer(d.dots, 100) ||
     !integer(d.border, 100) ||
     !integer(d.inside, 100) ||
@@ -179,7 +180,7 @@ export function readRoute(url: URL): GalleryRoute {
   return {
     id,
     decorations: {
-      secondary: number('secondary', 1, 8),
+      secondary: number('secondary', 1, secondaryAccents.length - 1),
       dots: number('dots', 35, 100),
       border: number('border', 20, 100),
       inside: number('inside', 100, 100),

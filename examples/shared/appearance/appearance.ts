@@ -80,6 +80,12 @@ export const accents: readonly Accent[] = [
   { name: 'Brown', light: '#6f4b2d', dark: '#d3b79e' },
   { name: 'Choco', light: '#8a4513', dark: '#f1b280' },
 ]
+export const secondaryAccents: readonly Accent[] = [
+  ...accents,
+  { name: 'Yellow', light: '#fcc419', dark: '#ffe066' },
+  { name: 'Light blue', light: '#74c0fc', dark: '#74c0fc' },
+  { name: 'Dark blue', light: '#1864ab', dark: '#1971c2' },
+]
 export function accentColor(accent: Accent, scheme: SurfaceScheme) {
   return accent[scheme.mode]
 }
@@ -130,7 +136,10 @@ export function appearanceStyle(
       ? monochrome.surfaces[0]
       : monochrome.text[0]
   const hoverTarget = focus === opposite ? onAccent : opposite
-  const secondaryAccent = accentColor(accents[decorations.secondary]!, scheme)
+  const secondaryAccent = accentColor(
+    secondaryAccents[decorations.secondary]!,
+    scheme,
+  )
   const decorationColor = (role: DecorationColor) =>
     role === 'primary'
       ? focus
