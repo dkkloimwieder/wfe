@@ -147,6 +147,7 @@ body:has(.component-preview) {
     .ui-dashboard-menu a[href]
   ):is(
     [aria-pressed='true'],
+    [data-ui-active='true'],
     [aria-selected='true'],
     [aria-current='page']
   )::before {
@@ -183,6 +184,7 @@ body:has(.component-preview) {
     ):is(
       :hover,
       [aria-pressed='true'],
+      [data-ui-active='true'],
       [aria-selected='true'],
       [aria-current='page']
     ):not(
@@ -213,6 +215,7 @@ body:has(.component-preview) {
   ):is(
     :hover,
     [aria-pressed='true'],
+    [data-ui-active='true'],
     [aria-selected='true'],
     [aria-current='page']
   )::before {

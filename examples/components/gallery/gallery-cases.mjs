@@ -820,11 +820,46 @@ async function sidebarCases({ page, url, record }) {
             height: node.getBoundingClientRect().height,
           })),
         )
+      const icons = () =>
+        page.locator('.ui-sidebar-group').evaluateAll((nodes) =>
+          nodes.map((node) => {
+            const icon = node.querySelector(
+              '.ui-sidebar-group-icon svg, button svg',
+            )
+            const rect = icon.getBoundingClientRect()
+            const face = icon.closest('.ui-button')
+            const style = getComputedStyle(face)
+            return {
+              x: rect.x,
+              y: rect.y,
+              width: rect.width,
+              height: rect.height,
+              appearance: {
+                color: style.color,
+                border: style.border,
+                background: style.backgroundColor,
+                decoration: getComputedStyle(face, '::before').opacity,
+              },
+            }
+          }),
+        )
+      const expandedIcons = await icons()
       const expanded = await rows()
       await page
         .getByRole('button', { name: 'Collapse sidebar', exact: true })
         .click()
       assert.deepEqual(await rows(), expanded)
+      const collapsedIcons = await icons()
+      for (let i = 0; i < expandedIcons.length; i++) {
+        assert.deepEqual(
+          collapsedIcons[i].appearance,
+          expandedIcons[i].appearance,
+        )
+        assert.equal(collapsedIcons[i].width, expandedIcons[i].width)
+        assert.equal(collapsedIcons[i].height, expandedIcons[i].height)
+        assert.ok(Math.abs(collapsedIcons[i].x - expandedIcons[i].x) <= 0.5)
+        assert.ok(Math.abs(collapsedIcons[i].y - expandedIcons[i].y) <= 0.5)
+      }
       await page
         .getByRole('button', { name: 'Expand sidebar', exact: true })
         .click()

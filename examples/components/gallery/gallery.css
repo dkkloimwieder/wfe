@@ -32,9 +32,6 @@ body:has(.gallery-preview) {
   flex: 1;
   min-width: 0;
 }
-.gallery-dashboard .ui-sidebar-group > .ui-collapsible > summary {
-  padding-inline: var(--ui-layout-inset);
-}
 .gallery-dashboard .ui-sidebar-group .ui-collapsible-content {
   gap: 0;
   padding: 0 var(--ui-gap) var(--ui-gap);

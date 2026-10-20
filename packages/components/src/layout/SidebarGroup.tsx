@@ -6,6 +6,8 @@ import type { JSX } from '@solidjs/web'
 import { Collapsible } from '../components/Collapsible'
 import { Button } from '../components/NativeFields'
 import { Popover } from '../components/Popover'
+import { Icon } from '../components/Icon'
+import { buttonAttributes } from '../internal/buttonPresentation'
 
 export type SidebarGroupProps = {
   label: string
@@ -81,7 +83,21 @@ export function SidebarGroup(props: SidebarGroupProps) {
     retainFocus()
     return (
       <Collapsible
-        summary={props.label}
+        summary={
+          <>
+            <span
+              {...buttonAttributes({ class: 'ui-sidebar-group-icon' })}
+              aria-hidden="true"
+              data-ui-active={props.active ? 'true' : undefined}
+            >
+              {props.icon}
+            </span>
+            <span class="ui-sidebar-group-label">{props.label}</span>
+            <span class="ui-sidebar-group-chevron">
+              <Icon name="chevron-right" />
+            </span>
+          </>
+        }
         open={props.open}
         onOpenChange={props.onOpenChange}
       >
