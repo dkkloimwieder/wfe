@@ -323,7 +323,16 @@ export function TableWorkspace(props: TableWorkspaceProps) {
       >
         <div class="table-workspace-title">
           <Show when={props.resultsHeader} keyed>
-            {(title) => title}
+            {(title) => (
+              <div
+                class="table-workspace-title-face ui-button"
+                data-variant="outline"
+                data-tone="neutral"
+                data-ui-active="true"
+              >
+                <div class="table-workspace-title-text">{title}</div>
+              </div>
+            )}
           </Show>
         </div>
         <div

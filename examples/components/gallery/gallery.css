@@ -115,8 +115,13 @@ body:has(.gallery-preview) {
 .gallery-preview > main {
   padding: 0;
 }
+.gallery-preview:has(.gallery-table) {
+  padding: 0;
+}
 .gallery-table {
-  height: calc(100dvh - 2 * var(--ui-layout-inset));
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
   min-height: 0;
 }
 @media (width < 48rem) {

@@ -172,7 +172,8 @@
   padding: 12px;
 }
 
-.ui-theme :is(.ui-sidebar-group, .ui-sidebar-flyout) {
+.ui-theme
+  :is(.ui-sidebar-group, .ui-sidebar-flyout, .table-workspace-title-face) {
   --ui-button-color: var(--ui-sidebar-neutral);
   --ui-accent: var(--ui-sidebar-neutral);
   --ui-text: var(--ui-sidebar-accent);
@@ -194,24 +195,6 @@
 }
 .ui-theme .ui-sidebar-flyout .ui-popup-title {
   color: var(--ui-sidebar-neutral);
-}
-
-.ui-theme :is(.ui-sidebar-group, .ui-sidebar-flyout) .ui-dashboard-menu > a {
-  --ui-decoration-border: color-mix(
-    in srgb,
-    var(--ui-control-border) var(--ui-decoration-border-opacity, 20%),
-    transparent
-  );
-  --ui-canvas-pattern: radial-gradient(
-    circle,
-    color-mix(
-        in srgb,
-        var(--ui-accent) var(--ui-decoration-dot-opacity, 35%),
-        transparent
-      )
-      0.5px,
-    transparent 0.75px
-  );
 }
 
 .ui-theme
@@ -260,4 +243,23 @@
       transparent
     );
   }
+}
+
+/* Table titles share action decoration without becoming interactive controls. */
+.ui-theme .table-workspace-header {
+  background-image: radial-gradient(
+    circle,
+    color-mix(
+        in srgb,
+        var(--ui-muted-text) var(--ui-decoration-dot-opacity, 35%),
+        transparent
+      )
+      0.5px,
+    transparent 0.75px
+  );
+  background-size: var(--ui-canvas-pattern-size);
+}
+.ui-theme .table-workspace-title-face {
+  color: var(--ui-sidebar-neutral);
+  border-color: var(--ui-control-border);
 }

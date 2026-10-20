@@ -58,6 +58,8 @@
 }
 :where([data-ui]) .table-workspace-header {
   grid-area: header;
+  position: relative;
+  z-index: 6;
   display: grid;
   grid-template-columns: minmax(0, 1fr) fit-content(50%) minmax(0, 1fr);
   align-items: center;
@@ -73,11 +75,23 @@
 :where([data-ui]) .table-workspace-title {
   grid-area: 1 / 2;
   min-width: 0;
+  text-align: center;
+}
+:where([data-ui]) .table-workspace-title-face {
+  height: var(--ui-control-height, 26px);
+  max-width: 100%;
+  cursor: default;
+}
+:where([data-ui]) .table-workspace-title-text {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  text-align: center;
-  font-weight: 650;
+}
+/* Preserve heading semantics without the browser heading margin or size. */
+:where([data-ui]) .table-workspace-title-text > :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font: inherit;
 }
 :where([data-ui]) .table-workspace-header-actions {
   grid-area: 1 / 1;
