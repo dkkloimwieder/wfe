@@ -22,6 +22,7 @@ export function App() {
 ```
 
 The Default theme uses light mode, a blue accent, outline buttons, and shadow depth 2.
+Default outline buttons use soft neutral borders and text in the accent color.
 Content uses surface 1. The main canvas uses surface 2 with subtle dots.
 Controls use Fira Code at 12px, with a 32px height.
 Forms use a 30rem field limit. Table controls retain compact sizing.

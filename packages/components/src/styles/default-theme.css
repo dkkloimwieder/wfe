@@ -227,7 +227,7 @@
 /* Keep the action face quieter than its text and separate from the backing. */
 @media (forced-colors: none) {
   .ui-theme .ui-button[data-variant='outline'][data-tone='default'] {
-    --_ui-outline-color: var(--ui-button-color, var(--ui-button-border));
+    --_ui-outline-color: var(--ui-control-border);
   }
   .ui-theme .ui-button[data-variant='outline'][data-tone='accent'] {
     --_ui-outline-color: var(--_button-color);
