@@ -809,6 +809,30 @@ async function sidebarCases({ page, url, record }) {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
       await page.locator('.gallery-frame[data-ready]').waitFor()
+      const contained = await page
+        .locator('.ui-sidebar-group details[open]')
+        .first()
+        .evaluate((panel) => {
+          const border = panel.getBoundingClientRect()
+          const style = getComputedStyle(panel)
+          return {
+            outlined: ['Top', 'Right', 'Bottom', 'Left'].every(
+              (side) => style[`border${side}Width`] === '1px',
+            ),
+            linksInside: [
+              ...panel.querySelectorAll('.ui-dashboard-menu a'),
+            ].every((link) => {
+              const rect = link.getBoundingClientRect()
+              return (
+                rect.left > border.left &&
+                rect.right < border.right &&
+                rect.top > border.top &&
+                rect.bottom < border.bottom
+              )
+            }),
+          }
+        })
+      assert.deepEqual(contained, { outlined: true, linksInside: true })
       for (const summary of await page
         .locator('.ui-sidebar-group details[open] > summary')
         .all())

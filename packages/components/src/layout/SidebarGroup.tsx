@@ -83,11 +83,10 @@ export function SidebarGroup(props: SidebarGroupProps) {
     retainFocus()
     return (
       <Collapsible
+        {...buttonAttributes({ class: 'ui-sidebar-group-panel' })}
+        data-ui-active={props.active ? 'true' : undefined}
         summary={
-          <span
-            {...buttonAttributes({ class: 'ui-sidebar-group-control' })}
-            data-ui-active={props.active ? 'true' : undefined}
-          >
+          <span class="ui-sidebar-group-control">
             <span class="ui-sidebar-group-icon" aria-hidden="true">
               {props.icon}
             </span>

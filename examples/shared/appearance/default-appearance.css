@@ -226,3 +226,24 @@ body:has(.component-preview) {
 .default-appearance .ui-sidebar-flyout {
   padding: 12px;
 }
+
+.default-appearance
+  :is(.ui-sidebar-group, .ui-sidebar-flyout)
+  .ui-dashboard-menu
+  > a {
+  --ui-decoration-border: color-mix(
+    in srgb,
+    var(--ui-accent) var(--ui-decoration-border-opacity, 20%),
+    transparent
+  );
+  --ui-canvas-pattern: radial-gradient(
+    circle,
+    color-mix(
+        in srgb,
+        var(--ui-accent) var(--ui-decoration-dot-opacity, 35%),
+        transparent
+      )
+      0.5px,
+    transparent 0.75px
+  );
+}

@@ -149,6 +149,8 @@ export function appearanceStyle(
   return {
     '--ui-secondary-accent': secondaryAccent,
     '--ui-decoration-border': `color-mix(in srgb, ${decorationColor(decorations.borderColor)} ${decorations.border}%, transparent)`,
+    '--ui-decoration-dot-opacity': `${decorations.dots}%`,
+    '--ui-decoration-border-opacity': `${decorations.border}%`,
     '--ui-action-dot-visibility': `${decorations.inside}%`,
     '--ui-color-scheme': scheme.mode,
     '--ui-canvas-surface': canvas,
