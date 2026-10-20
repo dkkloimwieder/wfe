@@ -321,11 +321,34 @@ try {
     'data-tone',
     'accent',
   )
+  const sidebarDraft = await page.locator('#sidebar-draft').elementHandle()
+  await page.locator('#sidebar-destination').focus()
+  await page.locator('#sidebar-collapse').evaluate((node) => node.click())
+  const sidebarIcon = page
+    .locator('#sidebar-review')
+    .getByRole('button', { name: 'Fixture pages', exact: true })
+  await expect(sidebarIcon).toBeFocused()
+  await sidebarIcon.press('Enter')
+  await expect(page.locator('.ui-sidebar-flyout')).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(sidebarIcon).toBeFocused()
+  assert.equal(
+    await sidebarDraft.evaluate(
+      (node) => node === document.getElementById('sidebar-draft'),
+    ),
+    true,
+  )
+  report.assertions.push(
+    'Sidebar groups attach icon and popup behavior while retaining the content owner',
+  )
   await page.setViewportSize({ width: 390, height: 800 })
-  const navigationToggle = page.getByRole('button', {
-    name: 'Navigation',
-    exact: true,
-  })
+  const navigationToggle = page
+    .locator('#adopt-layout-header')
+    .locator('..')
+    .getByRole('button', {
+      name: 'Navigation',
+      exact: true,
+    })
   await navigationToggle.press('Enter')
   await page
     .getByRole('navigation', { name: 'Primary navigation', exact: true })

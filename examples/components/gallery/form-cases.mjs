@@ -103,9 +103,7 @@ export async function galleryFormCases({ page, url, record }) {
         assert.equal(await sidebarLink.evaluate(backing), '1')
         await expect(hoverAction).toHaveCSS('box-shadow', 'none')
         assert.equal(await hoverAction.evaluate(backing), '0')
-        const navigationGroup = page
-          .locator('.gallery-navigation-group')
-          .first()
+        const navigationGroup = page.locator('.ui-sidebar-group').first()
         const summary = navigationGroup.locator('summary')
         for (const open of [false, true]) {
           if ((await navigationGroup.evaluate((node) => node.open)) !== open)
@@ -126,7 +124,10 @@ export async function galleryFormCases({ page, url, record }) {
         for (const button of await page
           .locator('.gallery-toolbar button[aria-pressed=true]')
           .all()) {
-          await expect(button).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+          await expect(button).toHaveCSS(
+            'background-color',
+            /^(rgba\(0, 0, 0, 0\)|color\(srgb 0 0 0 \/ 0\))$/,
+          )
           assert.match(
             await button.evaluate(
               (node) => getComputedStyle(node, '::before').backgroundImage,

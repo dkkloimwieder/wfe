@@ -179,3 +179,23 @@ The group span follows the surrounding form grid, and row actions use the shared
 
 The [repeated form example](../examples/generator/RepeatedApp.tsx) uses one full-height main panel.
 Its rows stack on narrow screens and retain their controls through row and child-field reorders.
+
+## Icon sidebar
+
+`DashboardShell` accepts controlled `navigationCollapsed` state.
+The navigation callback receives `compact()` and `mobile()` alongside `close()`.
+`compact()` is false in the mobile drawer, which keeps labels available.
+`--ui-navigation-rail-width` sets the desktop icon width and defaults to 3.5rem.
+
+`SidebarGroup` composes a labeled disclosure and an icon control.
+The application supplies `label`, `icon`, `active`, `open`, `onOpenChange`, `onExpand`, and links through its `children(close)` callback.
+Pass the shell's `compact()` value to the group.
+With `behavior="flyout"`, the icon opens an adjacent popup.
+With `behavior="expand"`, the icon requests an open group and calls `onExpand`.
+The application expands the shell in that callback.
+
+The group keeps temporary popup state separate from the controlled disclosure state.
+Presentation changes transfer focus within the group unless the application moves focus elsewhere.
+Links retain native browser behavior.
+The application owns destinations, selection, navigation, and accepted state changes.
+The gallery Appearance panel compares both behaviors.

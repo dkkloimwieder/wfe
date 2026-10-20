@@ -1,4 +1,5 @@
 :where(.ui-dashboard[data-ui]) {
+  --_ui-navigation-width: var(--ui-navigation-width, 15rem);
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -10,7 +11,9 @@
   background: var(--ui-surface, white);
 }
 :where(.ui-dashboard[data-ui][data-has-navigation]) {
-  grid-template-columns: var(--ui-navigation-width, 15rem) minmax(0, 1fr);
+  grid-template-columns:
+    var(--_ui-navigation-width, var(--ui-navigation-width, 15rem))
+    minmax(0, 1fr);
 }
 :where([data-ui]) .ui-dashboard-header {
   grid-row: 1;
@@ -88,7 +91,10 @@
     grid-column: 1 / -1;
     inset-block: 0;
     z-index: 10;
-    width: min(var(--ui-navigation-width, 15rem), 100%);
+    width: min(
+      var(--_ui-navigation-width, var(--ui-navigation-width, 15rem)),
+      100%
+    );
     display: none;
     border-inline-end: 1px solid var(--ui-border, #bbb);
   }
@@ -109,7 +115,10 @@
 }
 :where(.ui-dashboard[data-ui][data-has-navigation][data-has-context]) {
   grid-template-columns:
-    var(--ui-navigation-width, 15rem) var(--ui-context-width, 14rem)
+    var(--_ui-navigation-width, var(--ui-navigation-width, 15rem)) var(
+      --ui-context-width,
+      14rem
+    )
     minmax(0, 1fr);
 }
 :where([data-ui]) .ui-dashboard-header {
@@ -178,7 +187,9 @@
     grid-template-columns: minmax(0, 1fr);
   }
   :where(.ui-dashboard[data-ui][data-has-navigation][data-has-context]) {
-    grid-template-columns: var(--ui-navigation-width, 15rem) minmax(0, 1fr);
+    grid-template-columns:
+      var(--_ui-navigation-width, var(--ui-navigation-width, 15rem))
+      minmax(0, 1fr);
   }
   :where([data-ui]) .ui-dashboard-context {
     position: absolute;
@@ -191,7 +202,10 @@
   }
   :where(.ui-dashboard[data-ui][data-has-navigation]) > .ui-dashboard-context {
     grid-column: 1 / -1;
-    inset-inline-start: var(--ui-navigation-width, 15rem);
+    inset-inline-start: var(
+      --_ui-navigation-width,
+      var(--ui-navigation-width, 15rem)
+    );
   }
   :where(.ui-dashboard[data-ui][data-context-open]) > .ui-dashboard-context {
     display: block;
@@ -226,4 +240,29 @@
   align-items: center;
   gap: var(--ui-gap, 6px);
   margin-inline-start: auto;
+}
+
+@media (width >= 48rem) {
+  :where(.ui-dashboard[data-ui][data-navigation-collapsed]) {
+    --_ui-navigation-width: var(--ui-navigation-rail-width, 3.5rem);
+  }
+  :where(.ui-dashboard[data-ui][data-navigation-collapsed])
+    > .ui-dashboard-navigation {
+    padding-inline: 0;
+  }
+}
+:where([data-ui]) .ui-sidebar-group[data-compact] {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-sidebar-group[data-compact] > .ui-button {
+  flex-shrink: 0;
+  inline-size: var(--ui-control-height, 32px);
+  padding-inline: 0;
+}
+:where([data-ui]) .ui-sidebar-flyout {
+  inline-size: min(18rem, calc(100vw - 24px));
+  max-block-size: min(32rem, calc(100dvh - 24px));
+  overflow: auto;
 }

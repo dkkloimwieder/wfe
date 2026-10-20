@@ -5,3 +5,6 @@ export type {
   DashboardPanelProps,
   DashboardGridProps,
 } from './Dashboard'
+
+export { SidebarGroup } from './SidebarGroup'
+export type { SidebarGroupProps } from './SidebarGroup'

@@ -22,6 +22,7 @@ const catalog = [
   ['table', 'Table'],
 ]
 export async function galleryCases({ page, url, record, settle }) {
+  await sidebarCases({ page, url, record })
   await appearanceCases({ page, url, record })
   await galleryLoadingCases({ page, url, record })
   await galleryFormCases({ page, url, record })
@@ -797,6 +798,183 @@ async function appearanceCases({ page, url, record }) {
       await expect(
         page.frameLocator('.gallery-frame').locator('.gallery-preview'),
       ).toHaveCSS('--ui-action-dot-visibility', '0%')
+    },
+  )
+}
+
+async function sidebarCases({ page, url, record }) {
+  await record(
+    'gallery: generic sidebar retains focus across external presentation changes',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(`${url}?gallery=collapsible`)
+      const frame = page.frameLocator('.gallery-frame')
+      const fixture = frame.locator('#sidebar-review')
+      const destination = frame.locator('#sidebar-destination')
+      await destination.focus()
+      await frame.locator('#sidebar-collapse').evaluate((node) => node.click())
+      const trigger = fixture.getByRole('button', {
+        name: 'Fixture pages',
+        exact: true,
+      })
+      await expect(trigger).toBeFocused()
+      const size = await trigger.evaluate((node) => ({
+        width: node.getBoundingClientRect().width,
+        height: node.getBoundingClientRect().height,
+      }))
+      assert.equal(size.width, size.height)
+      const nestedWidth = await fixture.evaluate((node) => {
+        const nested = document.createElement('div')
+        nested.className = 'ui-dashboard'
+        nested.setAttribute('data-ui', '')
+        nested.setAttribute('data-has-navigation', '')
+        nested.style.setProperty('--ui-navigation-width', '176px')
+        node.querySelector('.ui-dashboard-main').append(nested)
+        const width = getComputedStyle(nested).gridTemplateColumns.split(' ')[0]
+        nested.remove()
+        return width
+      })
+      assert.equal(nestedWidth, '176px')
+
+      await trigger.click()
+      await destination.focus()
+      await frame.locator('#sidebar-behavior').evaluate((node) => node.click())
+      await expect(trigger).toBeFocused()
+      await expect(frame.locator('.ui-sidebar-flyout')).toHaveCount(0)
+      await trigger.press('Enter')
+      await expect(fixture.locator('summary')).toBeFocused()
+      await expect(frame.locator('#sidebar-draft')).toHaveValue(
+        'Retained content',
+      )
+      await frame.locator('#sidebar-behavior').evaluate((node) => node.click())
+      await frame.locator('#sidebar-collapse').evaluate((node) => node.click())
+      await trigger.click()
+      await destination.focus()
+      await page.setViewportSize({ width: 390, height: 844 })
+      const toggle = fixture.getByRole('button', {
+        name: 'Navigation',
+        exact: true,
+      })
+      await expect(toggle).toBeFocused()
+      await expect(frame.locator('.ui-sidebar-flyout')).toHaveCount(0)
+      await toggle.press('Enter')
+      await destination.focus()
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await expect(trigger).toBeFocused()
+      await frame.locator('#sidebar-behavior').evaluate((node) => node.click())
+      await frame.locator('#sidebar-draft').evaluate((node) => {
+        document.addEventListener('click', () => node.focus(), { once: true })
+      })
+      await trigger.click()
+      await expect(frame.locator('#sidebar-draft')).toBeFocused()
+    },
+  )
+  await record(
+    'gallery: icon sidebar supports flyout, expansion and mobile navigation',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(`${url}?gallery=fields`)
+      const preview = page.frameLocator('.gallery-frame')
+      const name = preview.getByRole('textbox', { name: 'Name', exact: true })
+      await name.fill('Sidebar draft')
+      const nav = page.getByRole('navigation', { name: 'Component catalog' })
+      const shell = page.locator('.gallery-dashboard')
+      const wide = await nav.evaluate(
+        (node) => node.getBoundingClientRect().width,
+      )
+      await page
+        .getByRole('button', { name: 'Collapse sidebar', exact: true })
+        .click()
+      await expect(shell).toHaveAttribute('data-navigation-collapsed', '')
+      assert.ok(
+        (await nav.evaluate((node) => node.getBoundingClientRect().width)) <
+          wide / 2,
+      )
+      await expect(name).toHaveValue('Sidebar draft')
+      const forms = nav.getByRole('button', { name: 'Forms', exact: true })
+      await forms.press('Enter')
+      const flyout = page.locator('.ui-sidebar-flyout')
+      await expect(flyout).toBeVisible()
+      await expect(
+        flyout.getByRole('link', { name: 'Fields', exact: true }),
+      ).toHaveAttribute('aria-current', 'page')
+      await page.keyboard.press('Escape')
+      await expect(flyout).toBeHidden()
+      await expect(forms).toBeFocused()
+      await forms.click()
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click()
+      await expect(flyout).toBeHidden()
+      await page
+        .getByRole('group', { name: 'Icon sidebar behavior' })
+        .getByRole('button', { name: 'Expand sidebar', exact: true })
+        .click()
+      await forms.click()
+      await expect(shell).not.toHaveAttribute('data-navigation-collapsed', '')
+      await expect(
+        nav.locator('summary').filter({ hasText: 'Forms' }),
+      ).toBeFocused()
+      await expect(
+        nav.getByRole('link', { name: 'Fields', exact: true }),
+      ).toBeVisible()
+      await expect(name).toHaveValue('Sidebar draft')
+      await page
+        .getByRole('button', { name: 'Open beside icons', exact: true })
+        .click()
+      await forms.click()
+      await page.evaluate(() => {
+        document.addEventListener(
+          'click',
+          (event) => {
+            window.sidebarModifiedClick = {
+              prevented: event.defaultPrevented,
+              control: event.ctrlKey,
+              href: event.target.closest('a')?.href,
+            }
+            // Observe after the application handler, then contain browser transport.
+            event.preventDefault()
+          },
+          { once: true },
+        )
+      })
+      await flyout
+        .getByRole('link', { name: 'Numbers', exact: true })
+        .click({ modifiers: ['Control'] })
+      const modified = await page.evaluate(() => window.sidebarModifiedClick)
+      assert.equal(modified.prevented, false)
+      assert.equal(modified.control, true)
+      assert.equal(
+        new URL(modified.href).searchParams.get('gallery'),
+        'numbers',
+      )
+      await expect(page).toHaveURL(/gallery=fields/)
+      await expect(name).toHaveValue('Sidebar draft')
+      await page.keyboard.press('Escape')
+      await page.setViewportSize({ width: 390, height: 844 })
+      await expect(nav).toBeHidden()
+      await page
+        .getByRole('button', { name: 'Components', exact: true })
+        .click()
+      await expect(
+        nav.getByRole('link', { name: 'Fields', exact: true }),
+      ).toBeVisible()
+      await expect(nav.locator('[data-compact]')).toHaveCount(0)
+      await nav.getByRole('link', { name: 'Numbers', exact: true }).click()
+      await expect(page).toHaveURL(/gallery=numbers/)
+      await expect(nav).toBeHidden()
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await expect(shell).toHaveAttribute('data-navigation-collapsed', '')
+      await expect(
+        nav.getByRole('button', { name: 'Forms', exact: true }),
+      ).toHaveAttribute('aria-pressed', 'true')
+      await forms.click()
+      await flyout.getByRole('link', { name: 'Fields', exact: true }).click()
+      await expect(page).toHaveURL(/gallery=fields/)
+      await expect(flyout).toBeHidden()
+      await expect(
+        page.getByRole('heading', { name: 'Fields', exact: true }),
+      ).toBeFocused()
     },
   )
 }

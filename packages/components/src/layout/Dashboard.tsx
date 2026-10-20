@@ -18,7 +18,11 @@ import type { JSX } from '@solidjs/web'
 import type { CardProps } from '../components/Display'
 import type { UIDensity } from '../styles/density'
 
-export type DashboardNavigation = { close: () => void }
+export type DashboardNavigation = {
+  close: () => void
+  compact: () => boolean
+  mobile: () => boolean
+}
 export type DashboardShellProps = {
   header?: JSX.Element
   navigation?: (controls: DashboardNavigation) => JSX.Element
@@ -29,6 +33,7 @@ export type DashboardShellProps = {
   footer?: JSX.Element
   footerLabel?: string
   children: JSX.Element
+  navigationCollapsed?: boolean
   navigationLabel?: string
   toggleLabel?: string
   closeLabel?: string
@@ -43,6 +48,7 @@ export type DashboardShellProps = {
 
 type RailOptions = {
   kind: 'navigation' | 'context'
+  collapsed: () => boolean
   label: () => string | undefined
   toggleLabel: () => string | undefined
   closeLabel: () => string | undefined
@@ -54,6 +60,8 @@ type RailOptions = {
 }
 
 function createRail(options: RailOptions) {
+  const [mobile, setMobile] = createSignal(false)
+  const compact = () => options.collapsed() && !mobile()
   const navigationId = `dashboard-${options.kind}-${createUniqueId()}`
   let toggle: HTMLButtonElement | undefined
   let navigation: HTMLElement | undefined
@@ -105,6 +113,7 @@ function createRail(options: RailOptions) {
     )
     const changed = () => {
       if (!alive) return
+      setMobile(query.matches)
       if (
         query.matches &&
         !untrack(options.open) &&
@@ -119,6 +128,7 @@ function createRail(options: RailOptions) {
       )
         navigation?.focus({ preventScroll: true })
     }
+    changed()
     query.addEventListener('change', changed)
     return () => query.removeEventListener('change', changed)
   })
@@ -218,11 +228,11 @@ function createRail(options: RailOptions) {
               ? 'Close navigation'
               : 'Close context')}
         </Button>
-        {options.content()?.({ close })}
+        {options.content()?.({ close, compact, mobile })}
       </nav>
     )
   }
-  return { Toggle: NavigationToggle, Region: NavigationRegion, events }
+  return { Toggle: NavigationToggle, Region: NavigationRegion, events, compact }
 }
 
 /** Persistent menu owners with independent scrolling and responsive placement. */
@@ -232,6 +242,8 @@ export function DashboardShell(props: DashboardShellProps) {
   const rail = (kind: 'navigation' | 'context') =>
     createRail({
       kind,
+      collapsed: () =>
+        kind === 'navigation' && Boolean(props.navigationCollapsed),
       label: () =>
         kind === 'navigation' ? props.navigationLabel : props.contextLabel,
       toggleLabel: () =>
@@ -259,6 +271,7 @@ export function DashboardShell(props: DashboardShellProps) {
       data-ui-portal-root=""
       class={styledClasses('ui-dashboard', props.class)}
       style={{ ...uiScope(props.density, props.theme).style, ...props.style }}
+      data-navigation-collapsed={navigation.compact() ? '' : undefined}
       data-navigation-open={
         props.navigation && active() === 'navigation' ? '' : undefined
       }

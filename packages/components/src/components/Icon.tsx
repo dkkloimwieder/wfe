@@ -1,6 +1,10 @@
 import { styledClasses, type ClassValue } from '../internal/classes'
 
 const paths = {
+  form: 'M3 1h10v14H3zM5 5h6M5 8h6M5 11h3',
+  grid: 'M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z',
+  navigation: 'M2 3h12M2 8h8M2 13h5',
+  layout: 'M1 2h14v12H1zM1 5h14M5 5v9',
   check: 'm2 8 4 4 8-9',
   view: 'M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Zm5 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0',
   people:

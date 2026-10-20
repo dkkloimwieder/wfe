@@ -1,3 +1,4 @@
+import { SidebarControls } from './SidebarControls'
 import { createSignal, flush } from 'solid-js'
 import { Button, Collapsible, Input } from '@wfe/components'
 
@@ -80,6 +81,7 @@ export function CollapsibleControls() {
           defaultValue="Native draft"
         />
       </Collapsible>
+      <SidebarControls />
       <Button id="disclosure-outside">Outside disclosure</Button>
     </section>
   )

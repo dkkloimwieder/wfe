@@ -18,12 +18,18 @@ If that server already runs, use its existing URL.
 
 The top header shows Gallery, the current category, and the current example as breadcrumbs.
 An empty footer stays at the bottom.
-The left pane contains only the Forms, Components, Navigation, and Layout disclosure sections.
+The left pane contains Forms, Components, Navigation, and Layout sections, with a collapse button above them.
 The current category starts open. Route and history changes reveal the selected category.
 Expand a category and choose an example from the sidebar. On a narrow screen, use Components to open the navigation pane.
 The selected link identifies the current example. Choosing a link closes narrow navigation and focuses the example title.
 Escape closes navigation and returns focus to its toggle.
 Modified link clicks retain normal browser behavior.
+
+The desktop sidebar can collapse to icons.
+Appearance offers two icon behaviors: Open beside icons and Expand sidebar.
+The first opens an adjacent submenu. The second expands the sidebar and the selected group.
+Small screens keep labeled sections in the navigation drawer.
+Changing sidebar presentation preserves the current example and its draft.
 
 Each example has a direct URL. Browser Back and Forward restore the example and presentation controls.
 The Direct link action points to the current URL, including the selected appearance, state, and preview width.
@@ -35,6 +41,10 @@ Appearance uses the existing surface, accent, depth, and layer controls.
 The default is Light, Blue, depth 2, Surface 1 for components, and Surface 2 for the background.
 Appearance controls stay collapsed initially so the example receives the available height.
 They scroll within their region on small screens.
+The secondary accent has its own color choice.
+Dots and decorative borders can use neutral, primary, or secondary colors.
+Separate sliders control dot opacity, decorative border opacity, and dots inside buttons.
+Slider changes update the preview immediately and create one history entry when the adjustment ends.
 
 Example states appear only where the component supports them.
 Fields, dates, choices, and boolean controls demonstrate normal, disabled, readonly, and invalid states.

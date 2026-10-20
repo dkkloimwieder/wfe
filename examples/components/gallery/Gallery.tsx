@@ -7,8 +7,8 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
-import { Breadcrumbs, Button, Collapsible } from '@wfe/components'
-import { DashboardShell } from '@wfe/components/layout'
+import { Breadcrumbs, Button, Icon } from '@wfe/components'
+import { DashboardShell, SidebarGroup } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import { AppearanceReview } from '../../shared/appearance/AppearanceReview'
@@ -27,6 +27,10 @@ export function Gallery() {
   const [route, setRoute] = createSignal(
     untrack(() => readRoute(new URL(window.location.href))),
   )
+  const [collapsed, setCollapsed] = createSignal(false)
+  const [sidebarBehavior, setSidebarBehavior] = createSignal<
+    'flyout' | 'expand'
+  >('flyout')
   const [appearanceOpen, setAppearanceOpen] = createSignal(false)
   const [openGroups, setOpenGroups] = createSignal<Record<string, boolean>>({
     [entryFor(untrack(route).id).group]: true,
@@ -178,6 +182,7 @@ export function Gallery() {
         toggleLabel="Components"
         closeLabel="Close components"
         navigationLabel="Component catalog"
+        navigationCollapsed={collapsed()}
         header={
           <>
             <Breadcrumbs aria-label="Gallery location">
@@ -215,51 +220,121 @@ export function Gallery() {
         }
         footer={null}
         navigation={(controls) => (
-          <For each={['Forms', 'Components', 'Navigation', 'Layout']}>
-            {(group) => (
-              <Collapsible
-                class="gallery-navigation-group"
-                summary={group}
-                open={Boolean(openGroups()[group])}
-                onOpenChange={(open) =>
-                  setOpenGroups((groups) => ({ ...groups, [group]: open }))
-                }
-              >
-                <For each={entries.filter((entry) => entry.group === group)}>
-                  {(item) => (
-                    <a
-                      href={href({ ...route(), id: item.id, state: 'normal' })}
-                      aria-current={route().id === item.id ? 'page' : undefined}
-                      data-ui-text="system"
-                      ref={nativeEvents<HTMLAnchorElement>({
-                        click: (event) => {
-                          if (
-                            event.defaultPrevented ||
-                            event.button !== 0 ||
-                            event.ctrlKey ||
-                            event.metaKey ||
-                            event.shiftKey ||
-                            event.altKey
-                          )
-                            return
-                          event.preventDefault()
-                          change({ id: item.id, state: 'normal' })
-                          controls.close()
-                          focusTitle()
-                        },
-                      })}
+          <>
+            <Show when={!controls.mobile()}>
+              <div class="gallery-sidebar-toggle">
+                <Button
+                  aria-label={
+                    collapsed() ? 'Expand sidebar' : 'Collapse sidebar'
+                  }
+                  title={collapsed() ? 'Expand sidebar' : 'Collapse sidebar'}
+                  aria-expanded={collapsed() ? 'false' : 'true'}
+                  onClick={() => setCollapsed(!collapsed())}
+                >
+                  <Icon name={collapsed() ? 'chevron-right' : 'chevron-left'} />
+                </Button>
+              </div>
+            </Show>
+            <For
+              each={['Forms', 'Components', 'Navigation', 'Layout'] as const}
+            >
+              {(group) => (
+                <SidebarGroup
+                  label={group}
+                  icon={
+                    <Icon
+                      name={
+                        (
+                          {
+                            Forms: 'form',
+                            Components: 'grid',
+                            Navigation: 'navigation',
+                            Layout: 'layout',
+                          } as const
+                        )[group]
+                      }
+                    />
+                  }
+                  active={entry().group === group}
+                  compact={controls.compact()}
+                  behavior={sidebarBehavior()}
+                  onExpand={() => setCollapsed(false)}
+                  open={Boolean(openGroups()[group])}
+                  onOpenChange={(open) =>
+                    setOpenGroups((groups) => ({ ...groups, [group]: open }))
+                  }
+                >
+                  {(close) => (
+                    <For
+                      each={entries.filter((entry) => entry.group === group)}
                     >
-                      {item.label}
-                    </a>
+                      {(item) => (
+                        <a
+                          href={href({
+                            ...route(),
+                            id: item.id,
+                            state: 'normal',
+                          })}
+                          aria-current={
+                            route().id === item.id ? 'page' : undefined
+                          }
+                          data-ui-text="system"
+                          ref={nativeEvents<HTMLAnchorElement>({
+                            click: (event) => {
+                              if (
+                                event.defaultPrevented ||
+                                event.button !== 0 ||
+                                event.ctrlKey ||
+                                event.metaKey ||
+                                event.shiftKey ||
+                                event.altKey
+                              )
+                                return
+                              event.preventDefault()
+                              change({ id: item.id, state: 'normal' })
+                              close()
+                              controls.close()
+                              focusTitle()
+                            },
+                          })}
+                        >
+                          {item.label}
+                        </a>
+                      )}
+                    </For>
                   )}
-                </For>
-              </Collapsible>
-            )}
-          </For>
+                </SidebarGroup>
+              )}
+            </For>
+          </>
         )}
       >
         <Show when={appearanceOpen()}>
           <section id="gallery-appearance" class="gallery-appearance">
+            <div
+              class="appearance-options gallery-sidebar-options"
+              role="group"
+              aria-label="Icon sidebar behavior"
+            >
+              <span data-ui-text="system">Icon sidebar</span>
+              <For each={['flyout', 'expand'] as const}>
+                {(behavior) => (
+                  <Button
+                    aria-pressed={
+                      sidebarBehavior() === behavior ? 'true' : 'false'
+                    }
+                    onClick={() => {
+                      setSidebarBehavior(behavior)
+                      setCollapsed(true)
+                    }}
+                  >
+                    {behavior === 'flyout'
+                      ? 'Open beside icons'
+                      : 'Expand sidebar'}
+                  </Button>
+                )}
+              </For>
+            </div>
             <AppearanceReview
               decorations={route().decorations}
               onDecorationsChange={(decorations, commit) =>
