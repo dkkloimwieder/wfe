@@ -23,7 +23,11 @@ export function ThemeConsumer() {
   return (
     <Theme id="theme-consumer" mode={mode()}>
       <DashboardShell header="Public theme" style={{ height: '28rem' }}>
-        <DashboardShell header="Nested layout" style={{ height: '22rem' }}>
+        <DashboardShell
+          mainAs="section"
+          header="Nested layout"
+          style={{ height: '22rem' }}
+        >
           <DashboardPanel>
             <Field>
               <Label>Name</Label>

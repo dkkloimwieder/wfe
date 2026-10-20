@@ -13,7 +13,7 @@ export async function tableTitleCases({ page, url, record }) {
           const title = table.locator('.table-workspace-title-face')
           await expect(title).toHaveText('Records')
           const dimensions = await table.boundingBox()
-          assert.deepEqual(dimensions, { x: 0, y: 20, width, height: 880 })
+          assert.deepEqual(dimensions, { x: 0, y: 0, width, height: 900 })
           await expect(table).toHaveCSS('overflow', 'visible')
           const header = table.locator('.table-workspace-header')
           assert.equal((await header.boundingBox()).height, 31)
@@ -39,8 +39,8 @@ export async function tableTitleCases({ page, url, record }) {
           assert.match(paint.header, /radial-gradient/)
           assert.match(paint.pattern, /radial-gradient/)
           assert.notEqual(paint.header, paint.pattern)
-          assert.equal(paint.opacity, '1')
-          assert.equal(paint.inset, '-7px')
+          assert.equal(paint.opacity, '0')
+          assert.equal(paint.inset, '-6px')
           assert.equal(paint.overflow, 'visible')
           assert.notEqual(paint.angle, '')
           await title
@@ -54,10 +54,17 @@ export async function tableTitleCases({ page, url, record }) {
             })
           await expect(title.getByRole('heading', { level: 2 })).toBeVisible()
           await title.hover()
-          for (const angle of ['-1.75deg', '1.75deg']) {
+          assert.equal(
+            await title.evaluate(
+              (node) => getComputedStyle(node, '::before').opacity,
+            ),
+            '1',
+          )
+          for (const angle of ['-2.25deg', '2.25deg']) {
             const bounds = await title.evaluate((node, angle) => {
               node.style.setProperty('--ui-action-angle', angle)
-              node.style.setProperty('--ui-action-taper', '2deg')
+              node.style.setProperty('--ui-action-taper', '1.75deg')
+              node.style.setProperty('--ui-action-taper-y', '-1.75deg')
               const p = getComputedStyle(node, '::before')
               const style = getComputedStyle(node)
               const box = node.getBoundingClientRect()
@@ -87,7 +94,6 @@ export async function tableTitleCases({ page, url, record }) {
                 headerBottom: header.bottom,
               }
             }, angle)
-            assert.ok(bounds.top >= 0, JSON.stringify(bounds))
             assert.ok(bounds.top < bounds.headerTop, JSON.stringify(bounds))
             assert.ok(
               bounds.bottom > bounds.headerBottom,
@@ -113,27 +119,123 @@ export async function tableTitleCases({ page, url, record }) {
           }
         }
       }
-      await page.setViewportSize({ width: 1280, height: 900 })
-      for (const scheme of [1, 2]) {
+      for (const [scheme, width] of [
+        [1, 1280],
+        [2, 1280],
+        [1, 390],
+        [2, 390],
+      ]) {
+        await page.setViewportSize({ width, height: 900 })
         await page.goto(`${url}?gallery=table&scheme=${scheme}`)
         const title = page
-          .frameLocator('.gallery-frame')
+          .locator('.gallery-example-host')
           .locator('.table-workspace-title-face')
         await expect(title).toBeVisible()
+        await expect(page.locator('iframe')).toHaveCount(0)
+        const geometry = await title.evaluate((node) => {
+          const face = node.getBoundingClientRect()
+          const backing = getComputedStyle(node, '::before')
+          const matrix = new DOMMatrix(backing.transform)
+          const origin = backing.transformOrigin.split(' ').map(parseFloat)
+          const width = parseFloat(backing.width),
+            height = parseFloat(backing.height)
+          const points = [
+            [0, 0],
+            [width, 0],
+            [width, height],
+            [0, height],
+          ].map(([x, y]) => {
+            const p = new DOMPoint(
+              x - origin[0],
+              y - origin[1],
+            ).matrixTransform(matrix)
+            return (
+              face.top +
+              parseFloat(getComputedStyle(node).borderTopWidth) +
+              parseFloat(backing.top) +
+              origin[1] +
+              p.y / p.w
+            )
+          })
+          const top = Math.min(...points),
+            bottom = Math.max(...points)
+          const clippedBy = []
+          for (
+            let parent = node.parentElement;
+            parent;
+            parent = parent.parentElement
+          ) {
+            const box = parent.getBoundingClientRect()
+            if (
+              getComputedStyle(parent).overflowY !== 'visible' &&
+              (top < box.top || bottom > box.bottom)
+            )
+              clippedBy.push(parent.className)
+          }
+          const table = node.closest('.table-workspace').getBoundingClientRect()
+          const stage = node.closest('.gallery-stage').getBoundingClientRect()
+          const toolbar = document
+            .querySelector('.gallery-toolbar')
+            .getBoundingClientRect()
+          return {
+            top,
+            bottom,
+            headerTop: node.closest('header').getBoundingClientRect().top,
+            clippedBy,
+            topGap: table.top - stage.top,
+            toolbarGap: stage.top - toolbar.bottom,
+            width: table.width,
+            stageWidth: stage.width,
+          }
+        })
+        assert.deepEqual(geometry.clippedBy, [], JSON.stringify(geometry))
+        assert.ok(
+          geometry.top >= 0 && geometry.top < geometry.headerTop,
+          JSON.stringify(geometry),
+        )
+        assert.equal(geometry.topGap, 0)
+        assert.equal(geometry.toolbarGap, 0)
+        assert.equal(geometry.width, geometry.stageWidth)
         const paint = (locator) =>
           locator.evaluate((node) => {
             const style = getComputedStyle(node, '::before')
             return { dots: style.backgroundImage, border: style.borderColor }
           })
         const expected = await paint(title)
+        const navigation = page.getByRole('navigation', {
+          name: 'Component catalog',
+        })
+        if (!(await navigation.isVisible()))
+          await page
+            .getByRole('button', { name: 'Components', exact: true })
+            .click()
         const selected = page
           .getByRole('navigation', { name: 'Component catalog' })
           .locator('a[aria-current="page"]')
-        assert.deepEqual(await paint(selected), expected)
-        assert.deepEqual(
-          await paint(page.locator('.ui-sidebar-group .ui-button').first()),
-          expected,
+        const inner = await paint(selected)
+        assert.notEqual(inner.dots, expected.dots)
+        assert.notEqual(inner.border, expected.border)
+        assert.equal(
+          inner.dots,
+          await title.evaluate(
+            (node) => getComputedStyle(node.closest('header')).backgroundImage,
+          ),
         )
+        const outer = await paint(
+          page.locator('.ui-sidebar-group .ui-button').first(),
+        )
+        assert.equal(outer.dots, expected.dots)
+        assert.equal(outer.border, expected.border)
+        const titleBorder = await title.evaluate((node) => {
+          const reference = document.createElement('span')
+          reference.style.color =
+            'color-mix(in srgb, var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 20%), transparent)'
+          node.append(reference)
+          const color = getComputedStyle(reference).color
+          reference.remove()
+          return color
+        })
+        assert.equal(expected.border, titleBorder)
       }
     },
   )

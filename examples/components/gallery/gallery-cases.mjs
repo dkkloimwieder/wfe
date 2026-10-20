@@ -26,7 +26,7 @@ export async function galleryCases({ page, url, record, settle }) {
   await appearanceCases({ page, url, record })
   await galleryLoadingCases({ page, url, record })
   await galleryFormCases({ page, url, record })
-  const preview = () => page.frameLocator('.gallery-frame')
+  const preview = () => page.locator('.gallery-example-host')
   const ready = async () => {
     await expect(preview().locator('.gallery-preview')).toBeVisible()
     const navigation = page.getByRole('navigation', {
@@ -42,6 +42,46 @@ export async function galleryCases({ page, url, record, settle }) {
   const name = () =>
     preview().getByRole('textbox', { name: 'Name', exact: true })
   await record(
+    'gallery: table cell ranges copy in displayed order',
+    async () => {
+      await page.goto(`${url}?gallery=table`)
+      const table = preview().getByRole('table', {
+        name: 'Records',
+        exact: true,
+      })
+      await expect(table).toBeVisible()
+      await page
+        .context()
+        .grantPermissions(['clipboard-read', 'clipboard-write'])
+      const selectAndCopy = async (expected) => {
+        const rows = table.locator('tr[data-row]')
+        await rows.first().locator('td[data-column="id"]').click()
+        await rows
+          .last()
+          .locator('td[data-column="status"]')
+          .click({ modifiers: ['Shift'] })
+        await expect(table.locator('td[data-cell-selection]')).toHaveCount(6)
+        await page.keyboard.press('Control+c')
+        assert.equal(
+          await page.evaluate(() => navigator.clipboard.readText()),
+          expected,
+        )
+      }
+      await selectAndCopy('1\tSample record\tOpen\n2\tSecond record\tClosed')
+      await table
+        .getByRole('button', { name: 'Sort by Name', exact: true })
+        .click()
+      await table
+        .getByRole('button', { name: 'Sort by Name', exact: true })
+        .click()
+      await expect(table.locator('tr[data-row]').first()).toHaveAttribute(
+        'data-row',
+        '2',
+      )
+      await selectAndCopy('2\tSecond record\tClosed\n1\tSample record\tOpen')
+    },
+  )
+  await record(
     'gallery: all examples share control sizing across light and dark modes',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
@@ -49,9 +89,12 @@ export async function galleryCases({ page, url, record, settle }) {
         for (const [id] of catalog) {
           await page.goto(`${url}?gallery=${id}&scheme=${scheme}`)
           await expect(preview().locator('.gallery-preview')).toBeVisible()
+          await expect(page.getByRole('main')).toHaveCount(1)
+          await expect(page.locator('[data-ui-theme-owner]')).toHaveCount(1)
+          await expect(page.locator('iframe')).toHaveCount(0)
           const heights = await preview()
             .locator(
-              '.ui-button:not(.column-sort, .column-move, .header-rename)',
+              '.ui-button:not(.column-sort, .column-move, .header-rename, .table-workspace-header .ui-button)',
             )
             .evaluateAll((nodes) =>
               nodes
@@ -174,7 +217,9 @@ export async function galleryCases({ page, url, record, settle }) {
         0,
       )
       await name().fill('Retained section draft')
-      const frame = await page.locator('.gallery-frame').elementHandle()
+      const previewHost = await page
+        .locator('.gallery-example-host')
+        .elementHandle()
       await forms.locator('summary').focus()
       await page.keyboard.press('Enter')
       await expect(forms).not.toHaveAttribute('open')
@@ -183,8 +228,8 @@ export async function galleryCases({ page, url, record, settle }) {
       ).toBeHidden()
       await expect(name()).toHaveValue('Retained section draft')
       assert.equal(
-        await frame.evaluate(
-          (node) => node === document.querySelector('.gallery-frame'),
+        await previewHost.evaluate(
+          (node) => node === document.querySelector('.gallery-example-host'),
         ),
         true,
       )
@@ -249,7 +294,9 @@ export async function galleryCases({ page, url, record, settle }) {
         page.getByRole('link', { name: 'Fields', exact: true }),
       ).toHaveAttribute('aria-current', 'page')
       const historyLength = await page.evaluate(() => history.length)
-      const originalFrame = await page.locator('.gallery-frame').elementHandle()
+      const originalHost = await page
+        .locator('.gallery-example-host')
+        .elementHandle()
       await page.evaluate(() => {
         window.galleryObserveModifiedClick = (event) => {
           window.galleryModifiedClick = {
@@ -289,8 +336,8 @@ export async function galleryCases({ page, url, record, settle }) {
       assert.equal(new URL(page.url()).searchParams.get('gallery'), 'fields')
       assert.equal(await page.evaluate(() => history.length), historyLength)
       assert.equal(
-        await originalFrame.evaluate(
-          (node) => node === document.querySelector('.gallery-frame'),
+        await originalHost.evaluate(
+          (node) => node === document.querySelector('.gallery-example-host'),
         ),
         true,
       )
@@ -310,7 +357,7 @@ export async function galleryCases({ page, url, record, settle }) {
         await tab.goto(destination.href)
         await expect(
           tab
-            .frameLocator('.gallery-frame')
+            .locator('.gallery-example-host')
             .getByRole('group', { name: 'accent buttons', exact: true }),
         ).toBeVisible()
         assert.deepEqual(diagnostics, [])
@@ -319,8 +366,8 @@ export async function galleryCases({ page, url, record, settle }) {
       }
       for (const [id, label] of catalog) {
         await page.getByRole('link', { name: label, exact: true }).click()
-        await expect(page.locator('.gallery-frame')).toHaveAttribute(
-          'title',
+        await expect(page.locator('.gallery-example-host')).toHaveAttribute(
+          'aria-label',
           `${label} preview`,
         )
         await ready()
@@ -343,8 +390,8 @@ export async function galleryCases({ page, url, record, settle }) {
       await expect(name()).toHaveAttribute('readonly', '')
       assert.equal(
         await preview()
-          .locator('body')
-          .evaluate(() => innerWidth),
+          .locator('.gallery-preview')
+          .evaluate((node) => node.getBoundingClientRect().width),
         320,
       )
       await page.goto(`${url}?galleryPreview=fields`)
@@ -365,14 +412,13 @@ export async function galleryCases({ page, url, record, settle }) {
   await record(
     'gallery: recipes interact and reused examples receive semantic state changes',
     async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
       await ready()
       await preview()
         .getByRole('button', { name: /^Status / })
         .click()
-      await preview()
-        .getByRole('option', { name: 'Closed', exact: true })
-        .click()
+      await page.getByRole('option', { name: 'Closed', exact: true }).click()
       await expect(
         preview().getByRole('button', { name: /^Status / }),
       ).toContainText('Closed')
@@ -383,9 +429,9 @@ export async function galleryCases({ page, url, record, settle }) {
       await preview()
         .getByRole('button', { name: 'Open Date calendar', exact: true })
         .click()
-      await expect(preview().getByRole('grid')).toBeVisible()
+      await expect(page.getByRole('grid')).toBeVisible()
       await page.keyboard.press('Escape')
-      await expect(preview().getByRole('grid')).not.toBeVisible()
+      await expect(page.getByRole('grid')).not.toBeVisible()
       await page
         .getByRole('link', { name: 'Dialogs and confirmations', exact: true })
         .click()
@@ -394,23 +440,19 @@ export async function galleryCases({ page, url, record, settle }) {
         .getByRole('button', { name: 'Open dialog', exact: true })
         .click()
       await expect(
-        preview().getByRole('dialog', { name: 'Record information' }),
+        page.getByRole('dialog', { name: 'Record information' }),
       ).toBeVisible()
-      await preview()
-        .getByRole('button', { name: 'Dismiss', exact: true })
-        .click()
-      await expect(preview().getByRole('dialog')).not.toBeVisible()
+      await page.getByRole('button', { name: 'Dismiss', exact: true }).click()
+      await expect(page.getByRole('dialog')).not.toBeVisible()
       for (const action of ['Cancel', 'Confirm']) {
         await preview()
           .getByRole('button', { name: 'Open confirmation', exact: true })
           .click()
         await expect(
-          preview().getByRole('alertdialog', { name: 'Confirm action' }),
+          page.getByRole('alertdialog', { name: 'Confirm action' }),
         ).toBeVisible()
-        await preview()
-          .getByRole('button', { name: action, exact: true })
-          .click()
-        await expect(preview().getByRole('alertdialog')).not.toBeVisible()
+        await page.getByRole('button', { name: action, exact: true }).click()
+        await expect(page.getByRole('alertdialog')).not.toBeVisible()
       }
       await page.getByRole('link', { name: 'Table', exact: true }).click()
       await ready()
@@ -467,21 +509,21 @@ export async function galleryCases({ page, url, record, settle }) {
       await expect(select).toBeDisabled()
       await state('normal')
       await select.click()
-      await preview()
-        .getByRole('option', { name: 'Gamma', exact: true })
-        .click()
+      await page.getByRole('option', { name: 'Gamma', exact: true }).click()
       await expect(select).toContainText('Gamma')
     },
   )
   await record(
-    'gallery: appearance, real viewport widths and semantic states preserve drafts and nodes',
+    'gallery: appearance, content widths and semantic states preserve drafts and nodes',
     async () => {
       await page.goto(`${url}?gallery=fields`)
       await ready()
       const draft = name()
       await draft.fill('Retained gallery draft')
       const retained = await draft.elementHandle()
-      const frame = await page.locator('.gallery-frame').elementHandle()
+      const previewHost = await page
+        .locator('.gallery-example-host')
+        .elementHandle()
       assert.equal(
         await page
           .locator('.gallery-shell')
@@ -525,39 +567,38 @@ export async function galleryCases({ page, url, record, settle }) {
       await page
         .getByRole('button', { name: 'Violet accent', exact: true })
         .click()
-      await page.getByRole('button', { name: 'Depth 1', exact: true }).click()
       await page
         .getByRole('button', { name: 'Content Surface 3', exact: true })
         .click()
       await expect(draft).toHaveValue('Retained gallery draft')
       assert.equal(
         await retained.evaluate(
-          (node) => node === document.querySelector('input'),
+          (node) => node === document.querySelector('.gallery-preview input'),
         ),
         true,
       )
       assert.equal(
-        await frame.evaluate(
-          (node) => node === document.querySelector('.gallery-frame'),
+        await previewHost.evaluate(
+          (node) => node === document.querySelector('.gallery-example-host'),
         ),
         true,
       )
       await page
-        .getByRole('button', { name: 'Phone · 320px', exact: true })
+        .getByRole('button', { name: '320px panel', exact: true })
         .click()
       await expect
         .poll(() =>
           preview()
-            .locator('body')
-            .evaluate(() => innerWidth),
+            .locator('.gallery-preview')
+            .evaluate((node) => node.getBoundingClientRect().width),
         )
         .toBe(320)
       await page.goBack()
       await expect
         .poll(() =>
           preview()
-            .locator('body')
-            .evaluate(() => innerWidth),
+            .locator('.gallery-preview')
+            .evaluate((node) => node.getBoundingClientRect().width),
         )
         .toBeGreaterThan(320)
       await expect(draft).toHaveValue('Retained gallery draft')
@@ -565,8 +606,8 @@ export async function galleryCases({ page, url, record, settle }) {
       await expect
         .poll(() =>
           preview()
-            .locator('body')
-            .evaluate(() => innerWidth),
+            .locator('.gallery-preview')
+            .evaluate((node) => node.getBoundingClientRect().width),
         )
         .toBe(320)
       const direct = await page
@@ -586,8 +627,8 @@ export async function galleryCases({ page, url, record, settle }) {
       )
       assert.equal(
         await preview()
-          .locator('body')
-          .evaluate(() => innerWidth),
+          .locator('.gallery-preview')
+          .evaluate((node) => node.getBoundingClientRect().width),
         320,
       )
       assert.equal(
@@ -622,10 +663,9 @@ export async function galleryCases({ page, url, record, settle }) {
     },
   )
   await record(
-    'gallery: message guards, replaced frames and parent disposal keep one listener owner',
+    'gallery: direct examples and history have one listener owner',
     async () => {
       await page.addInitScript(() => {
-        if (window.parent !== window) return
         const listeners = { message: new Set(), popstate: new Set() }
         const add = window.addEventListener,
           remove = window.removeEventListener
@@ -645,103 +685,28 @@ export async function galleryCases({ page, url, record, settle }) {
       await page.goto(`${url}?gallery=fields`)
       await ready()
       const counts = await page.evaluate(() => window.galleryListenerCounts())
-      await preview()
-        .locator('.gallery-preview')
-        .evaluate(() => {
-          const config = {
-            scheme: 2,
-            accent: 8,
-            depth: 3,
-            layers: { canvas: 2, pane: 2, content: 2 },
-            state: 'disabled',
-          }
-          window.dispatchEvent(
-            new MessageEvent('message', {
-              source: window,
-              origin: location.origin,
-              data: { type: 'wfe-gallery-config', config },
-            }),
-          )
-          window.dispatchEvent(
-            new MessageEvent('message', {
-              source: parent,
-              origin: 'https://wrong.example',
-              data: { type: 'wfe-gallery-config', config },
-            }),
-          )
-          window.dispatchEvent(
-            new MessageEvent('message', {
-              source: parent,
-              origin: location.origin,
-              data: {
-                type: 'wfe-gallery-config',
-                config: { ...config, scheme: -1 },
-              },
-            }),
-          )
-        })
-      await expect(name()).toBeEditable()
-      await expect(preview().locator('.gallery-preview')).toHaveCSS(
-        'background-color',
-        'rgb(252, 252, 253)',
-      )
-      await page.locator('.gallery-frame').evaluate((node) => {
-        window.retiredGalleryFrame = node.contentWindow
-      })
-      for (const label of ['Buttons', 'Fields', 'Tabs', 'Fields']) {
+      const retired = await name().elementHandle()
+      for (const label of ['Select and combobox', 'Fields', 'Tabs', 'Fields']) {
         await page.getByRole('link', { name: label, exact: true }).click()
         await ready()
+        await expect(page.locator('iframe')).toHaveCount(0)
+        assert.equal(page.frames().length, 1)
       }
+      assert.equal(await retired.evaluate((node) => node.isConnected), false)
       assert.deepEqual(
         await page.evaluate(() => window.galleryListenerCounts()),
         counts,
       )
-      const stale = await page.evaluate(() => {
-        const current = document.querySelector('.gallery-frame').contentWindow
-        const post = current.postMessage
-        let requests = 0
-        current.postMessage = function (...args) {
-          requests++
-          return post.apply(this, args)
-        }
-        window.dispatchEvent(
-          new MessageEvent('message', {
-            source: window.retiredGalleryFrame,
-            origin: location.origin,
-            data: { type: 'wfe-gallery-ready' },
-          }),
-        )
-        window.dispatchEvent(
-          new MessageEvent('message', {
-            source: current,
-            origin: 'https://wrong.example',
-            data: { type: 'wfe-gallery-ready' },
-          }),
-        )
-        current.postMessage = post
-        return requests
-      })
-      assert.equal(stale, 0)
       const disposed = await page.evaluate(() => {
         window.galleryFixture.stop()
         window.dispatchEvent(new Event('popstate'))
-        window.dispatchEvent(
-          new MessageEvent('message', {
-            source: window.retiredGalleryFrame,
-            origin: location.origin,
-            data: { type: 'wfe-gallery-ready' },
-          }),
-        )
-        return {
-          counts: window.galleryListenerCounts(),
-          frames: document.querySelectorAll('iframe').length,
-        }
+        return window.galleryListenerCounts()
       })
-      assert.deepEqual(disposed.counts, {
-        message: counts.message - 1,
+      assert.deepEqual(disposed, {
+        message: counts.message,
         popstate: counts.popstate - 1,
       })
-      assert.equal(disposed.frames, 0)
+      await expect(page.locator('.gallery-example-host')).toHaveCount(0)
     },
   )
 }
@@ -752,7 +717,7 @@ async function appearanceCases({ page, url, record }) {
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
-      const preview = page.frameLocator('.gallery-frame')
+      const preview = page.locator('.gallery-example-host')
       const name = preview.getByRole('textbox', { name: 'Name', exact: true })
       await name.fill('Retained draft')
       await page
@@ -793,7 +758,7 @@ async function appearanceCases({ page, url, record }) {
       )
       await expect(name).toHaveValue('Retained draft')
       await page.goBack()
-      await expect(slider).toHaveValue('35')
+      await expect(slider).toHaveValue('50')
       await expect(name).toHaveValue('Retained draft')
       await page.goForward()
       await expect(slider).toHaveValue('65')
@@ -806,7 +771,7 @@ async function appearanceCases({ page, url, record }) {
       )
       await page.reload()
       await expect(
-        page.frameLocator('.gallery-frame').locator('.gallery-preview'),
+        page.locator('.gallery-example-host').locator('.gallery-preview'),
       ).toHaveCSS('--ui-action-dot-visibility', '0%')
     },
   )
@@ -818,7 +783,7 @@ async function sidebarCases({ page, url, record }) {
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
-      await page.locator('.gallery-frame[data-ready]').waitFor()
+      await page.locator('.gallery-example-host').waitFor()
       const contained = await page
         .locator('.ui-sidebar-group details[open]')
         .first()
@@ -869,7 +834,7 @@ async function sidebarCases({ page, url, record }) {
               width: rect.width,
               height: rect.height,
               appearance: {
-                color: style.color,
+                color: getComputedStyle(icon).color,
                 border: style.border,
                 background: style.backgroundColor,
                 decoration: getComputedStyle(face, '::before').opacity,
@@ -930,7 +895,7 @@ async function sidebarCases({ page, url, record }) {
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
-      await expect(page.locator('.gallery-frame[data-ready]')).toBeVisible()
+      await expect(page.locator('.gallery-example-host')).toBeVisible()
       const toggle = page.locator('.ui-dashboard-divider-toggle')
       await expect(page.locator('.gallery-sidebar-toggle')).toHaveCount(0)
       await expect(toggle.locator('svg')).toHaveCSS(
@@ -942,7 +907,9 @@ async function sidebarCases({ page, url, record }) {
           document.querySelector('.ui-dashboard-navigation'),
         ).borderRightColor,
         stroke: getComputedStyle(node.querySelector('svg')).stroke,
-        triangleRight: node.querySelector('svg').getBoundingClientRect().right,
+        triangleRight: node
+          .querySelector('.ui-disclosure-arrow')
+          .getBoundingClientRect().right,
         divider: document
           .querySelector('.ui-dashboard-navigation')
           .getBoundingClientRect().right,
@@ -956,13 +923,56 @@ async function sidebarCases({ page, url, record }) {
         .evaluate((node) => node.getBoundingClientRect().top)
       const navTop = await page
         .locator('.ui-dashboard-navigation')
-        .evaluate((node) => node.getBoundingClientRect().top)
+        .evaluate(
+          (node) =>
+            node.getBoundingClientRect().top +
+            parseFloat(getComputedStyle(node).paddingTop),
+        )
       assert.equal(top, navTop)
+      const hitArea = await toggle.boundingBox()
+      const arrowBounds = await toggle
+        .locator('.ui-disclosure-arrow')
+        .evaluate((node) => node.getBoundingClientRect().toJSON())
+      await expect(toggle.locator('.ui-disclosure-decoration')).toHaveCSS(
+        'opacity',
+        '0',
+      )
       await toggle.hover()
+      await expect(toggle.locator('svg')).toHaveCSS('width', '14px')
+      await expect(toggle.locator('svg')).toHaveCSS('height', '21px')
+      assert.deepEqual(await toggle.boundingBox(), hitArea)
+      assert.deepEqual(
+        await toggle
+          .locator('.ui-disclosure-arrow')
+          .evaluate((node) => node.getBoundingClientRect().toJSON()),
+        arrowBounds,
+      )
+      const decoration = await toggle.evaluate((node) => {
+        const backing = node.querySelector('.ui-disclosure-decoration')
+        const arrow = node.querySelector('.ui-disclosure-arrow')
+        const center = (path) => {
+          const box = path.getBBox()
+          return [box.x + box.width / 3, box.y + box.height / 2]
+        }
+        return {
+          opacity: getComputedStyle(backing).opacity,
+          fill: getComputedStyle(backing).fill,
+          center: center(backing),
+          arrowCenter: center(arrow),
+        }
+      })
+      assert.equal(decoration.opacity, '1')
+      assert.match(decoration.fill, /url\(/)
+      assert.ok(
+        decoration.center.every(
+          (value, index) =>
+            Math.abs(value - decoration.arrowCenter[index]) < 0.001,
+        ),
+      )
       await expect(toggle).toHaveAttribute('aria-expanded', 'true')
-      await expect(toggle.locator('svg')).not.toHaveCSS(
-        'fill',
-        'rgb(255, 255, 255)',
+      await expect(toggle.locator('.ui-disclosure-arrow')).toHaveCSS(
+        'visibility',
+        'hidden',
       )
       await expect(toggle).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
       await expect(toggle.locator('svg')).toHaveCSS('stroke', resting.border)
@@ -986,11 +996,13 @@ async function sidebarCases({ page, url, record }) {
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=collapsible`)
-      const frame = page.frameLocator('.gallery-frame')
-      const fixture = frame.locator('#sidebar-review')
-      const destination = frame.locator('#sidebar-destination')
+      const previewHost = page.locator('.gallery-example-host')
+      const fixture = previewHost.locator('#sidebar-review')
+      const destination = previewHost.locator('#sidebar-destination')
       await destination.focus()
-      await frame.locator('#sidebar-collapse').evaluate((node) => node.click())
+      await previewHost
+        .locator('#sidebar-collapse')
+        .evaluate((node) => node.click())
       const trigger = fixture.getByRole('button', {
         name: 'Fixture pages',
         exact: true,
@@ -1016,16 +1028,22 @@ async function sidebarCases({ page, url, record }) {
 
       await trigger.click()
       await destination.focus()
-      await frame.locator('#sidebar-behavior').evaluate((node) => node.click())
+      await previewHost
+        .locator('#sidebar-behavior')
+        .evaluate((node) => node.click())
       await expect(trigger).toBeFocused()
-      await expect(frame.locator('.ui-sidebar-flyout')).toHaveCount(0)
+      await expect(previewHost.locator('.ui-sidebar-flyout')).toHaveCount(0)
       await trigger.press('Enter')
       await expect(fixture.locator('summary')).toBeFocused()
-      await expect(frame.locator('#sidebar-draft')).toHaveValue(
+      await expect(previewHost.locator('#sidebar-draft')).toHaveValue(
         'Retained content',
       )
-      await frame.locator('#sidebar-behavior').evaluate((node) => node.click())
-      await frame.locator('#sidebar-collapse').evaluate((node) => node.click())
+      await previewHost
+        .locator('#sidebar-behavior')
+        .evaluate((node) => node.click())
+      await previewHost
+        .locator('#sidebar-collapse')
+        .evaluate((node) => node.click())
       await trigger.click()
       await destination.focus()
       await page.setViewportSize({ width: 390, height: 844 })
@@ -1034,17 +1052,19 @@ async function sidebarCases({ page, url, record }) {
         exact: true,
       })
       await expect(toggle).toBeFocused()
-      await expect(frame.locator('.ui-sidebar-flyout')).toHaveCount(0)
+      await expect(previewHost.locator('.ui-sidebar-flyout')).toHaveCount(0)
       await toggle.press('Enter')
       await destination.focus()
       await page.setViewportSize({ width: 1280, height: 900 })
       await expect(trigger).toBeFocused()
-      await frame.locator('#sidebar-behavior').evaluate((node) => node.click())
-      await frame.locator('#sidebar-draft').evaluate((node) => {
+      await previewHost
+        .locator('#sidebar-behavior')
+        .evaluate((node) => node.click())
+      await previewHost.locator('#sidebar-draft').evaluate((node) => {
         document.addEventListener('click', () => node.focus(), { once: true })
       })
       await trigger.click()
-      await expect(frame.locator('#sidebar-draft')).toBeFocused()
+      await expect(previewHost.locator('#sidebar-draft')).toBeFocused()
     },
   )
   await record(
@@ -1052,7 +1072,7 @@ async function sidebarCases({ page, url, record }) {
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
-      const preview = page.frameLocator('.gallery-frame')
+      const preview = page.locator('.gallery-example-host')
       const name = preview.getByRole('textbox', { name: 'Name', exact: true })
       await name.fill('Sidebar draft')
       const nav = page.getByRole('navigation', { name: 'Component catalog' })

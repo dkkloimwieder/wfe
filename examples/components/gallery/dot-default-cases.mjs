@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
-async function faceAlpha(locator) {
+export async function faceAlpha(locator) {
   return locator.evaluate((node) => {
     const canvas = document.createElement('canvas')
     canvas.width = canvas.height = 1
@@ -38,7 +38,7 @@ export async function dotDefaultCases({ page, url, record }) {
         )
         assert.match(decoration, /radial-gradient/)
         const preview = page
-          .frameLocator('.gallery-frame')
+          .locator('.gallery-example-host')
           .locator('.gallery-preview')
         await expect(preview).toHaveCSS('--ui-action-dot-visibility', '0%')
       }

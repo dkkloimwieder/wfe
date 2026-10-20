@@ -1,6 +1,6 @@
 import { SubTables } from './SubTables'
 import { EverythingForm } from './EverythingForm'
-import { createSignal, onCleanup, onSettled, untrack } from 'solid-js'
+import { createEffect, onCleanup, untrack } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import {
@@ -14,9 +14,18 @@ import {
   numberLifecycle,
 } from '../../shared/controls/NumberControls'
 import { TabsControls, tabsLifecycle } from '../../shared/controls/TabsControls'
-import { BreadcrumbControls } from '../../shared/controls/BreadcrumbControls'
-import { CollapsibleControls } from '../../shared/controls/CollapsibleControls'
-import { AccordionControls } from '../../shared/controls/AccordionControls'
+import {
+  BreadcrumbControls,
+  breadcrumbLifecycle,
+} from '../../shared/controls/BreadcrumbControls'
+import {
+  CollapsibleControls,
+  collapsibleLifecycle,
+} from '../../shared/controls/CollapsibleControls'
+import {
+  AccordionControls,
+  accordionLifecycle,
+} from '../../shared/controls/AccordionControls'
 import {
   ResizableControls,
   resizableLifecycle,
@@ -26,9 +35,8 @@ import { BooleanControls } from '../BooleanControls'
 import { OverlayControls } from '../OverlayControls'
 import { DisplayControls } from '../DisplayControls'
 import { Fields, Buttons, Dates, Dialogs, TableExample } from './Recipes'
-import { entryFor, readConfig, readRoute } from './catalog'
-import type { GalleryState } from './catalog'
-import { exampleSizing } from '../../shared/appearance/sizing'
+import { entryFor, readRoute } from './catalog'
+import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'
 
 const views = {
@@ -51,10 +59,31 @@ const views = {
   overlays: OverlayControls,
   display: DisplayControls,
 }
-export function GalleryPreview() {
-  const initial = untrack(() => readRoute(new URL(window.location.href)))
-  const entry = entryFor(initial.id)
-  const [config, setConfig] = createSignal(initial)
+export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
+  const entry = entryFor(untrack(() => props.id))
+  const lifecycle = (
+    {
+      files: fileLifecycle,
+      numbers: numberLifecycle,
+      tabs: tabsLifecycle,
+      resizable: resizableLifecycle,
+      breadcrumbs: breadcrumbLifecycle,
+      collapsible: collapsibleLifecycle,
+      accordion: accordionLifecycle,
+    } as Partial<Record<GalleryId, object>>
+  )[entry.id]
+  const previousLifecycle = lifecycle ? { ...lifecycle } : undefined
+  const fixtureKey = (
+    {
+      choices: 'choiceFixture',
+      booleans: 'booleanFixture',
+      overlays: 'overlayFixture',
+      display: 'displayFixture',
+    } as Partial<Record<GalleryId, string>>
+  )[entry.id]
+  const previousFixture = fixtureKey
+    ? Reflect.get(window, fixtureKey)
+    : undefined
   function applyState(state: GalleryState) {
     const disabled = state === 'disabled',
       readonly = state === 'readonly',
@@ -88,69 +117,30 @@ export function GalleryPreview() {
         break
     }
   }
-  onSettled(() => {
-    let active = true
-    let paint: number | undefined
-    queueMicrotask(() => {
-      if (!active) return
-      applyState(untrack(config).state)
-      window.parent.postMessage(
-        { type: 'wfe-gallery-ready' },
-        window.location.origin,
-      )
-    })
-    const receive = (event: MessageEvent) => {
-      if (
-        event.source !== window.parent ||
-        event.origin !== window.location.origin ||
-        event.data?.type !== 'wfe-gallery-config'
-      )
-        return
-      const next = readConfig(event.data.config)
-      if (!next || !(entry.states as readonly string[]).includes(next.state))
-        return
-      setConfig({ ...initial, ...next })
-      applyState(next.state)
-      cancelAnimationFrame(paint ?? 0)
-      const version = event.data.version
-      void document.fonts.ready.then(() => {
-        if (!active) return
-        paint = requestAnimationFrame(() => {
-          if (active)
-            window.parent.postMessage(
-              { type: 'wfe-gallery-painted', version },
-              window.location.origin,
-            )
-        })
+  let alive = true
+  let revision = 0
+  createEffect(
+    () => props.state,
+    (state) => {
+      const current = ++revision
+      queueMicrotask(() => {
+        if (alive && current === revision) applyState(state)
       })
-    }
-    window.addEventListener('message', receive)
-    return () => {
-      active = false
-      cancelAnimationFrame(paint ?? 0)
-      window.removeEventListener('message', receive)
-    }
-  })
-  const oldTitle = untrack(() => document.title)
-  document.title = `${entry.label} · Component preview`
+    },
+  )
   onCleanup(() => {
-    document.title = oldTitle
+    alive = false
+    revision++
+    if (lifecycle && previousLifecycle)
+      Object.assign(lifecycle, previousLifecycle)
+    if (fixtureKey) {
+      if (previousFixture === undefined)
+        Reflect.deleteProperty(window, fixtureKey)
+      else Reflect.set(window, fixtureKey, previousFixture)
+    }
   })
   return (
-    <DefaultAppearance
-      class="gallery-preview"
-      style={{
-        ...exampleSizing,
-        ...appearanceStyle(
-          schemes[config().scheme]!,
-          accents[config().accent]!,
-          config().depth,
-          config().layers,
-          undefined,
-          config().decorations,
-        ),
-      }}
-    >
+    <div class="gallery-preview">
       <div
         class={
           entry.id === 'everything' ||
@@ -161,8 +151,31 @@ export function GalleryPreview() {
         }
         data-gallery-group={entry.group}
       >
-        <Dynamic component={views[entry.id]} state={config().state} embedded />
+        <Dynamic component={views[entry.id]} state={props.state} embedded />
       </div>
+    </div>
+  )
+}
+
+export function GalleryPreview() {
+  const route = untrack(() => readRoute(new URL(window.location.href)))
+  const oldTitle = document.title
+  document.title = `${entryFor(route.id).label} · Component preview`
+  onCleanup(() => {
+    document.title = oldTitle
+  })
+  return (
+    <DefaultAppearance
+      style={appearanceStyle(
+        schemes[route.scheme]!,
+        accents[route.accent]!,
+        route.depth,
+        route.layers,
+        undefined,
+        route.decorations,
+      )}
+    >
+      <GalleryExample id={route.id} state={route.state} />
     </DefaultAppearance>
   )
 }

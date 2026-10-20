@@ -1,3 +1,4 @@
+import { GalleryExample } from './Preview'
 import {
   For,
   Show,
@@ -20,7 +21,6 @@ import {
 import { entries, entryFor, galleryUrl, readRoute } from './catalog'
 import type { GalleryRoute } from './catalog'
 import '../../shared/appearance/style.css'
-import { exampleSizing } from '../../shared/appearance/sizing'
 import './gallery.css'
 
 export function Gallery() {
@@ -38,9 +38,6 @@ export function Gallery() {
   function reveal(id: GalleryRoute['id']) {
     setOpenGroups((groups) => ({ ...groups, [entryFor(id).group]: true }))
   }
-  const [previewReady, setPreviewReady] = createSignal(false)
-  let configurationVersion = 0
-  let frame: HTMLIFrameElement | undefined
   let heading: HTMLHeadingElement | undefined
   let alive = true
   let focusAttempt = 0
@@ -62,18 +59,6 @@ export function Gallery() {
         heading?.focus({ preventScroll: true })
     })
   }
-  function send() {
-    if (!alive) return
-    const { scheme, accent, depth, layers, state, decorations } = untrack(route)
-    frame?.contentWindow?.postMessage(
-      {
-        type: 'wfe-gallery-config',
-        version: ++configurationVersion,
-        config: { scheme, accent, depth, layers, state, decorations },
-      },
-      window.location.origin,
-    )
-  }
   function change(next: Partial<GalleryRoute>, commit = true) {
     if (!alive) return
     const candidate = { ...untrack(route), ...next }
@@ -90,52 +75,7 @@ export function Gallery() {
       focusTitle()
     }
   }
-  function PreviewFrame(props: { id: string }) {
-    const initialUrl = untrack(
-      () =>
-        galleryUrl(
-          new URL(window.location.href),
-          { ...route(), id: props.id as GalleryRoute['id'] },
-          true,
-        ).href,
-    )
-    let node: HTMLIFrameElement | undefined
-    onCleanup(() => {
-      if (frame === node) frame = undefined
-      node = undefined
-    })
-    return (
-      <iframe
-        class="gallery-frame"
-        data-ready={previewReady() ? '' : undefined}
-        data-viewport={route().viewport}
-        title={`${entryFor(props.id).label} preview`}
-        src={initialUrl}
-        ref={(element) => {
-          node = element
-          frame = element
-          setPreviewReady(false)
-        }}
-      />
-    )
-  }
-  createEffect(route, () => {
-    send()
-  })
   onSettled(() => {
-    const receive = (event: MessageEvent) => {
-      if (
-        event.source !== frame?.contentWindow ||
-        event.origin !== window.location.origin
-      )
-        return
-      if (event.data?.type === 'wfe-gallery-ready') send()
-      if (
-        event.data?.type === 'wfe-gallery-painted' &&
-        event.data.version === configurationVersion
-      )
-        setPreviewReady(true)
-    }
     const pop = () => {
       const previous = untrack(route).id
       const next = readRoute(new URL(window.location.href))
@@ -145,17 +85,14 @@ export function Gallery() {
         focusTitle()
       }
     }
-    window.addEventListener('message', receive)
     window.addEventListener('popstate', pop)
     return () => {
-      window.removeEventListener('message', receive)
       window.removeEventListener('popstate', pop)
     }
   })
   onCleanup(() => {
     document.title = oldTitle
     alive = false
-    frame = undefined
     heading = undefined
     focusAttempt++
   })
@@ -163,7 +100,6 @@ export function Gallery() {
     <DefaultAppearance
       class="gallery-shell"
       style={{
-        ...exampleSizing,
         ...appearanceStyle(
           schemes[route().scheme]!,
           accents[route().accent]!,
@@ -368,8 +304,8 @@ export function Gallery() {
                   {viewport === 'full'
                     ? 'Full width'
                     : viewport === 'tablet'
-                      ? 'Tablet · 768px'
-                      : 'Phone · 320px'}
+                      ? '768px panel'
+                      : '320px panel'}
                 </Button>
               )}
             </For>
@@ -380,12 +316,20 @@ export function Gallery() {
         </div>
         <section
           class="gallery-stage"
-          aria-busy={previewReady() ? 'false' : 'true'}
+          data-example={route().id}
           aria-label="Preview viewport"
           tabindex={0}
         >
           <Show when={route().id} keyed>
-            {(id) => <PreviewFrame id={id} />}
+            {(id) => (
+              <div
+                class="gallery-example-host"
+                data-viewport={route().viewport}
+                aria-label={`${entryFor(id).label} preview`}
+              >
+                <GalleryExample id={id} state={route().state} />
+              </div>
+            )}
           </Show>
         </section>
       </DashboardShell>

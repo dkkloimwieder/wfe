@@ -1,3 +1,4 @@
+import { Dynamic } from '@solidjs/web'
 import { exampleSizing } from '../shared/appearance/sizing'
 import {
   Badge,
@@ -54,7 +55,8 @@ export function DisplayControls(props: { embedded?: boolean } = {}) {
     read: () => ({ open: open(), actions, requests, cleanups, refs }),
   }
   return (
-    <main
+    <Dynamic
+      component={props.embedded ? 'section' : 'main'}
       data-ui=""
       class="example-stack"
       style={
@@ -142,7 +144,7 @@ export function DisplayControls(props: { embedded?: boolean } = {}) {
         </Show>
       </Toast.Region>
       <Toast defaultOpen={false}>Initially closed</Toast>
-    </main>
+    </Dynamic>
   )
 }
 declare global {

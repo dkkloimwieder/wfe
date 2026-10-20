@@ -120,58 +120,6 @@ const integer = (value: unknown, max: number) =>
   Number.isInteger(value) &&
   value >= 0 &&
   value <= max
-function readDecorations(value: unknown): Decorations | undefined {
-  if (!value || typeof value !== 'object') return
-  const d = value as Record<string, unknown>
-  if (
-    !integer(d.secondary, secondaryAccents.length - 1) ||
-    !integer(d.dots, 100) ||
-    !integer(d.border, 100) ||
-    !integer(d.inside, 100) ||
-    !decorationColors.includes(d.dotColor as Decorations['dotColor']) ||
-    !decorationColors.includes(d.borderColor as Decorations['borderColor'])
-  )
-    return
-  return {
-    secondary: d.secondary as number,
-    dots: d.dots as number,
-    border: d.border as number,
-    inside: d.inside as number,
-    dotColor: d.dotColor as Decorations['dotColor'],
-    borderColor: d.borderColor as Decorations['borderColor'],
-  }
-}
-/** The message boundary accepts presentation enums only. */
-export function readConfig(value: unknown): GalleryConfig | undefined {
-  if (!value || typeof value !== 'object') return
-  const config = value as Record<string, unknown>
-  const decorations = readDecorations(config.decorations ?? defaultDecorations)
-  const layers = config.layers as Record<string, unknown> | undefined
-  if (
-    !decorations ||
-    !integer(config.scheme, 2) ||
-    !integer(config.accent, 8) ||
-    !integer(config.depth, 3) ||
-    !states.includes(config.state as GalleryState) ||
-    !layers ||
-    !integer(layers.canvas, 2) ||
-    !integer(layers.pane, 2) ||
-    !integer(layers.content, 2)
-  )
-    return
-  return {
-    decorations,
-    scheme: config.scheme as number,
-    accent: config.accent as number,
-    depth: config.depth as GalleryConfig['depth'],
-    state: config.state as GalleryState,
-    layers: {
-      canvas: layers.canvas as 0 | 1 | 2,
-      pane: layers.pane as 0 | 1 | 2,
-      content: layers.content as 0 | 1 | 2,
-    },
-  }
-}
 export function readRoute(url: URL): GalleryRoute {
   const id = entryFor(
     url.searchParams.get('gallery') ?? url.searchParams.get('galleryPreview'),
@@ -187,8 +135,8 @@ export function readRoute(url: URL): GalleryRoute {
     id,
     decorations: {
       secondary: number('secondary', 1, secondaryAccents.length - 1),
-      dots: number('dots', 35, 100),
-      border: number('border', 20, 100),
+      dots: number('dots', defaultDecorations.dots, 100),
+      border: number('border', defaultDecorations.border, 100),
       inside: number('inside', defaultDecorations.inside, 100),
       dotColor:
         decorationColors.find(

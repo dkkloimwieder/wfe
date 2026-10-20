@@ -47,10 +47,10 @@ export async function reviewTheme(page, { hydrated = false } = {}) {
   await page.keyboard.press('Escape')
   await root.locator('#theme-mode').click()
   await expect(root).toHaveCSS('--ui-color-scheme', 'dark')
-  await expect(input).toHaveCSS('color', 'rgb(250, 250, 250)')
+  await expect(input).toHaveCSS('color', 'rgb(224, 224, 224)')
   await expect(input).toHaveValue('Retained theme draft')
   await root.getByRole('button', { name: 'Theme popup', exact: true }).click()
-  await expect(popup).toHaveCSS('color', 'rgb(250, 250, 250)')
+  await expect(popup).toHaveCSS('color', 'rgb(224, 224, 224)')
   await page.keyboard.press('Escape')
   const fonts = await page.evaluate(async () => {
     await document.fonts.load('12px "Fira Code Variable"')

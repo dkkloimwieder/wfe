@@ -243,7 +243,7 @@ It also runs the usage guard and negative CSS build tests through `pnpm check`.
 ## Default appearance previews
 
 The `?tabs=1`, `?breadcrumbs=1`, and `?accordion=1` routes share the records example appearance.
-They use a blue accent, outline buttons, Surface 1 components, a Surface 2 backdrop, and shadow depth 2.
+They use a blue accent, outline buttons, Surface 1 components, a Surface 2 backdrop, and no shadows.
 The shared `DefaultAppearance` wrapper supplies those values and the stylesheet dependencies.
 The generic components continue to inherit their appearance from the application scope.
 

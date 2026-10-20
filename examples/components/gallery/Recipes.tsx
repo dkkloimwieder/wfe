@@ -16,7 +16,11 @@ import {
   Dialog,
   AlertDialog,
 } from '@wfe/components'
-import { ReadOnlyTable, createTable } from '@wfe/components/table'
+import {
+  ReadOnlyTable,
+  createTable,
+  createTableSelection,
+} from '@wfe/components/table'
 import type { GalleryState } from './catalog'
 export type RecipeProps = { state: GalleryState }
 export function Fields(props: RecipeProps) {
@@ -214,9 +218,18 @@ export function TableExample() {
       { ...textColumn, id: 'status', accessorKey: 'status', header: 'Status' },
     ],
   })
+  const selection = createTableSelection({
+    rows: () =>
+      table.getDisplayKeys().flatMap((key) => {
+        const item = table.getDisplayItem(key)
+        return item.kind === 'row' ? [item.id] : []
+      }),
+    columns: () => table.getVisibleColumns().map((column) => column.id),
+    getText: ({ row, column }) => String(table.getValue(row, column) ?? ''),
+  })
   return (
     <div class="gallery-table">
-      <ReadOnlyTable table={table} title="Records" />
+      <ReadOnlyTable table={table} selection={selection} title="Records" />
     </div>
   )
 }

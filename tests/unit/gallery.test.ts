@@ -3,7 +3,6 @@ import {
   defaults,
   entries,
   galleryUrl,
-  readConfig,
   readRoute,
 } from '../../examples/components/gallery/catalog'
 
@@ -42,29 +41,6 @@ test('invalid URL input falls back to finite presentation defaults and capabilit
     readRoute(new URL('https://example.test/?gallery=https://foreign.test')).id,
   ).toBe('fields')
 })
-test('message configuration rejects invalid enums and copies presentation data without retaining caller objects', () => {
-  for (const value of [
-    null,
-    {},
-    'invalid',
-    { ...defaults, scheme: NaN },
-    { ...defaults, accent: 9 },
-    { ...defaults, depth: -1 },
-    { ...defaults, state: 'submit' },
-    { ...defaults, layers: { canvas: 0, pane: 0, content: 9 } },
-  ])
-    expect(readConfig(value)).toBeUndefined()
-  const config = {
-    ...defaults,
-    layers: { ...defaults.layers },
-    unrelated: { record: 'not presentation' },
-  }
-  const parsed = readConfig(config)!
-  expect(parsed).toEqual(defaults)
-  expect(parsed).not.toBe(config)
-  expect(parsed.layers).not.toBe(config.layers)
-  expect(parsed).not.toHaveProperty('unrelated')
-})
 test('every catalog entry has a unique direct URL and supports the normal state', () => {
   expect(new Set(entries.map((entry) => entry.id)).size).toBe(entries.length)
   for (const entry of entries) {
@@ -95,23 +71,6 @@ test('decoration URLs round trip and reject unbounded presentation values', () =
   expect(readRoute(galleryUrl(new URL('https://example.test'), route))).toEqual(
     route,
   )
-  expect(readConfig(route)?.decorations).toEqual(route.decorations)
-  expect(readConfig(route)?.decorations).not.toBe(route.decorations)
-  for (const invalid of [
-    { dots: 101 },
-    { border: -1 },
-    { inside: NaN },
-    { secondary: 12 },
-    { dotColor: 'red' },
-    { borderColor: 'url(evil)' },
-  ]) {
-    expect(
-      readConfig({
-        ...defaults,
-        decorations: { ...defaults.decorations, ...invalid },
-      }),
-    ).toBeUndefined()
-  }
   expect(
     readRoute(
       new URL(
@@ -132,7 +91,8 @@ test('additional secondary accents round trip without changing primary bounds', 
     expect(
       readRoute(galleryUrl(new URL('https://example.test'), route)),
     ).toEqual(route)
-    expect(readConfig(route)?.decorations.secondary).toBe(secondary)
   }
-  expect(readConfig({ ...defaults, accent: 9 })).toBeUndefined()
+  expect(readRoute(new URL('https://example.test?accent=9')).accent).toBe(
+    defaults.accent,
+  )
 })

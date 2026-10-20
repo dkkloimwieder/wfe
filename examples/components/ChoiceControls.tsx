@@ -1,3 +1,4 @@
+import { Dynamic } from '@solidjs/web'
 import { exampleSizing } from '../shared/appearance/sizing'
 import { Button } from '@wfe/components/fields'
 import { Combobox, Icon, Select, uiScope } from '@wfe/components'
@@ -68,7 +69,8 @@ export function ChoiceControls(props: { embedded?: boolean } = {}) {
     }),
   }
   return (
-    <main
+    <Dynamic
+      component={props.embedded ? 'section' : 'main'}
       data-ui=""
       class="example-stack"
       style={
@@ -188,7 +190,7 @@ export function ChoiceControls(props: { embedded?: boolean } = {}) {
         </div>
       </form>
       <output aria-label="Choice value">{value()?.id ?? '(empty)'}</output>
-    </main>
+    </Dynamic>
   )
 }
 declare global {

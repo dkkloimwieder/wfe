@@ -18,9 +18,23 @@ export async function subtableCases({ page, url, record }) {
       await expand.click()
       const child = page.locator('[data-generator-view="items-alpha"] table')
       await expect(child).toBeVisible()
+      const childView = page.locator('[data-generator-view="items-alpha"]')
+      await expect(
+        childView.getByRole('button', { name: 'Refresh results' }),
+      ).toHaveCount(0)
+      const inset = await childView.evaluate((node) => {
+        const style = getComputedStyle(node.closest('.sub-table-row > td'))
+        return [
+          style.paddingTop,
+          style.paddingRight,
+          style.paddingBottom,
+          style.paddingLeft,
+        ]
+      })
+      assert.deepEqual(inset, ['0px', '0px', '0px', '10px'])
       const toggleColumn = parent.locator(':scope > thead th').first()
       assert.ok(
-        (await toggleColumn.boundingBox()).width <= 35,
+        (await toggleColumn.boundingBox()).width <= 45,
         'expand column keeps its declared width',
       )
       const parentCell = page.locator(

@@ -1,3 +1,4 @@
+import { Dynamic } from '@solidjs/web'
 import { exampleSizing } from '../shared/appearance/sizing'
 import {
   Button,
@@ -56,7 +57,8 @@ export function OverlayControls(props: { embedded?: boolean } = {}) {
     if (prevent()) event.preventDefault()
   }
   return (
-    <main
+    <Dynamic
+      component={props.embedded ? 'section' : 'main'}
       data-ui=""
       class="example-stack"
       style={
@@ -257,7 +259,7 @@ export function OverlayControls(props: { embedded?: boolean } = {}) {
           </Dialog.Portal>
         </Dialog>
       </div>
-    </main>
+    </Dynamic>
   )
 }
 declare global {

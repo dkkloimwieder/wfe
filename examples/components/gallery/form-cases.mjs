@@ -1,3 +1,4 @@
+import { faceAlpha } from './dot-default-cases.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
@@ -8,9 +9,10 @@ export async function galleryFormCases({ page, url, record }) {
       for (const scheme of [1, 2]) {
         await page.setViewportSize({ width: 1280, height: 900 })
         await page.goto(`${url}?gallery=everything&scheme=${scheme}`)
-        const frame = page.frameLocator('.gallery-frame')
-        const form = frame.getByRole('form', { name: 'Everything form' })
+        const previewHost = page.locator('.gallery-example-host')
+        const form = previewHost.getByRole('form', { name: 'Everything form' })
         await expect(form).toBeVisible()
+        await page.evaluate(() => document.fonts.ready)
         await expect(form.locator('.ui-field-group')).toHaveCount(7)
         const metrics = await form.evaluate((node) => {
           const input = node.querySelector('input[name=name]')
@@ -33,9 +35,12 @@ export async function galleryFormCases({ page, url, record }) {
         assert.equal(metrics.width, 480)
         const layout = await form.evaluate((node) => {
           const rect = node.getBoundingClientRect()
+          const preview = node
+            .closest('.gallery-preview')
+            .getBoundingClientRect()
           return {
-            left: rect.left,
-            right: innerWidth - rect.right,
+            left: rect.left - preview.left,
+            right: preview.right - rect.right,
             headingsInside: [...node.querySelectorAll('.ui-field-group')].every(
               (group) =>
                 group
@@ -113,7 +118,7 @@ export async function galleryFormCases({ page, url, record }) {
           const colors = await summary.evaluate((node) => {
             const style = getComputedStyle(node)
             const probe = document.createElement('span')
-            probe.style.color = style.getPropertyValue('--ui-button-color')
+            probe.style.color = style.getPropertyValue('--ui-heading-color')
             node.append(probe)
             const expected = getComputedStyle(probe).color
             probe.remove()
@@ -124,10 +129,7 @@ export async function galleryFormCases({ page, url, record }) {
         for (const button of await page
           .locator('.gallery-toolbar button[aria-pressed=true]')
           .all()) {
-          await expect(button).toHaveCSS(
-            'background-color',
-            /^(rgba\(0, 0, 0, 0\)|color\(srgb 0 0 0 \/ 0\))$/,
-          )
+          assert.equal(await faceAlpha(button), 255)
           assert.match(
             await button.evaluate(
               (node) => getComputedStyle(node, '::before').backgroundImage,
@@ -157,7 +159,7 @@ export async function galleryFormCases({ page, url, record }) {
         assert.equal(metrics.labelWeight, '400')
         assert.equal(
           metrics.border,
-          scheme === 2 ? 'rgba(255, 255, 255, 0.15)' : 'rgb(229, 229, 229)',
+          scheme === 2 ? 'rgb(92, 92, 92)' : 'rgb(229, 229, 229)',
         )
         const expectedBackground = await form.evaluate((node) => {
           const probe = document.createElement('span')

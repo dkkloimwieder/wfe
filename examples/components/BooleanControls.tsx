@@ -1,3 +1,4 @@
+import { Dynamic } from '@solidjs/web'
 import { exampleSizing } from '../shared/appearance/sizing'
 import { Button, Checkbox, RadioGroup, Switch, uiScope } from '@wfe/components'
 import { Show, createSignal, flush, onCleanup } from 'solid-js'
@@ -53,7 +54,8 @@ export function BooleanControls(props: { embedded?: boolean } = {}) {
     refs++
   }
   return (
-    <main
+    <Dynamic
+      component={props.embedded ? 'section' : 'main'}
       data-ui=""
       class="example-stack"
       style={
@@ -193,7 +195,7 @@ export function BooleanControls(props: { embedded?: boolean } = {}) {
           <Button type="submit">Submit form</Button>
         </div>
       </form>
-    </main>
+    </Dynamic>
   )
 }
 declare global {

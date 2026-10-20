@@ -38,8 +38,8 @@ Changing examples starts a fresh example. Changing presentation retains the curr
 
 ## Review controls
 
-Appearance uses the existing surface, accent, depth, and layer controls.
-The default is Light, Blue, depth 2, Surface 1 for components, and Surface 2 for the background.
+Appearance uses the existing surface, accent, and layer controls.
+The default is Light, Blue, no shadows, Surface 1 for components, and Surface 2 for the background.
 Appearance controls stay collapsed initially so the example receives the available height.
 They scroll within their region on small screens.
 The secondary accent has its own color choice.
@@ -52,9 +52,9 @@ Fields, dates, choices, and boolean controls demonstrate normal, disabled, reado
 Buttons and tabs demonstrate normal and disabled states.
 Readonly buttons and invalid breadcrumbs do not represent useful component states, so the gallery does not offer them.
 
-Full width fills the preview panel. Phone creates a 320-pixel viewport, and Tablet creates a 768-pixel viewport.
-When a requested width exceeds the panel, horizontal scrolling stays inside the preview region.
-The gallery does not scale the example or silently shrink a requested viewport.
+Full width fills the preview panel. The other controls limit content width to 320 or 768 pixels.
+Each limit fits within the available panel width. The gallery does not scale the example.
+These controls test content layout. Resize the browser to test viewport media queries.
 
 ## Examples
 
@@ -76,17 +76,18 @@ The examples use Fira Code Variable with its unchanged SIL Open Font License in 
 Controls and labels use 12-pixel text. Controls use a 32-pixel height and 10-pixel horizontal padding.
 The root size is 16 pixels. Form fields have a configurable maximum width of 30rem.
 Light surfaces use white with dark text. Dark panels use #171717 over a #1b1b1b canvas.
-Dark inputs use a faint white fill and border. Focus uses a one-pixel neutral ring.
+Dark inputs use a faint white fill and muted gray borders. Focus uses a one-pixel neutral ring.
 Blue accents and outline buttons retain the selected presentation.
 Table dividers retain their separate contrast scale, so matching canvas and panel surfaces do not hide gridlines.
 Fields use an 8-pixel label gap. Example sections use a 20-pixel gap, and action rows use an 8-pixel gap.
 The same measurements apply in Light and Dark.
 
-The gallery canvas uses tiny neutral dots at 0.3em spacing and 35% opacity.
+The gallery canvas uses tiny neutral dots at 0.3em spacing and 50% opacity.
 Solid panels protect labels, descriptions, values, and status messages from the texture.
 Form examples use a centered 30rem panel. Tables and resizable layouts retain their full width.
-Hover and selection reveal a dotted backing six pixels beyond each action, with a 20% gray outline and no tint.
-Each pointer entry chooses a new rotation of 0.5–2 degrees in either direction and a taper between −2 and +2 degrees.
+Hover and selection reveal a dotted backing six pixels beyond each action, with a neutral or accent outline and no tint.
+Each pointer entry chooses a new rotation of 0.25–2.25 degrees in either direction.
+Horizontal and vertical tapers vary independently between −1.75 and +1.75 degrees.
 Selected controls retain the latest shape after the pointer leaves.
 The backing does not change the click area, intercept input, or replace the keyboard focus ring.
 Forced-color mode hides the decoration.
@@ -98,22 +99,19 @@ Explicit density diagnostics and virtual table rows retain their configured geom
 
 ## Preview ownership
 
-Each example runs in a same-origin iframe with a meaningful title.
-The frame isolates viewport geometry, landmarks, popup owners, and fixture globals.
-This is presentation and lifecycle isolation. It is not a security sandbox.
+Each example renders directly in the gallery document. The gallery contains no iframes.
+One default Theme wraps the gallery and its examples.
+Appearance controls update that shared theme. State controls pass reactive props to the current example.
+Gallery CSS arranges the page and does not override button or input styling.
+Changes to those props preserve the example and its draft values.
+Changing examples disposes the previous component and mounts the next one.
+Disposal also removes the gallery history listener.
 
-The preview announces readiness after its owners and message listener exist.
-The parent sends its latest presentation state in response.
-The frame stays hidden over the pane surface until it applies that state and loads its fonts.
-The parent reveals the frame only after an acknowledgment with the current configuration version.
-Both sides accept messages only from the expected window and origin.
-The message parser accepts finite presentation values from the catalog.
-Files, record values, callbacks, and application actions never cross the message boundary.
-
-Changing examples replaces the frame. Late messages from replaced frames do not affect its replacement.
-Disposal removes gallery history and message listeners.
-The browser suites cover direct links, modified clicks, history, retained drafts, native viewport dimensions, mobile focus, message guards, and disposal.
-They run against source, packaged, and development components.
+The width controls change the available content width, not the browser viewport.
+Resize the browser to test viewport media queries and mobile navigation.
+Standalone preview URLs remain available for focused browser tests.
+Table title decorations can extend into the existing toolbar area without extra spacing.
+The browser suites cover direct links, history, retained drafts, state changes, mobile focus, and cleanup.
 
 Generated examples pass the shared sizing profile through `LayoutView.style`.
 Form controls use 32px height, 12px text, 8px control gaps, and 20px field gaps.
