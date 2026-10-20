@@ -3,6 +3,7 @@
 @import './theme-sizing.css';
 
 .ui-theme {
+  --ui-action-outline-opacity: 65%;
   min-width: 0;
   background: var(--ui-canvas-surface);
 }
@@ -221,4 +222,42 @@
   .ui-dashboard-menu
   > a:is(:hover, [aria-current='page']) {
   border-color: var(--ui-control-border);
+}
+
+/* Keep the action face quieter than its text and separate from the backing. */
+@media (forced-colors: none) {
+  .ui-theme .ui-button[data-variant='outline'][data-tone='default'] {
+    --_ui-outline-color: var(--ui-button-color, var(--ui-button-border));
+  }
+  .ui-theme .ui-button[data-variant='outline'][data-tone='accent'] {
+    --_ui-outline-color: var(--_button-color);
+  }
+  .ui-theme .ui-button[data-variant='outline'] {
+    --_ui-outline-color: var(--ui-button-border);
+    border-color: color-mix(
+      in srgb,
+      var(--_ui-outline-color) var(--ui-action-outline-opacity),
+      transparent
+    );
+  }
+  .ui-theme .ui-dashboard-menu > a:is(:hover, [aria-current='page']) {
+    border-color: color-mix(
+      in srgb,
+      var(--ui-accent) var(--ui-action-outline-opacity),
+      transparent
+    );
+  }
+  .ui-theme
+    :is(.ui-sidebar-group, .ui-sidebar-flyout)
+    .ui-button[data-variant='outline'],
+  .ui-theme
+    :is(.ui-sidebar-group, .ui-sidebar-flyout)
+    .ui-dashboard-menu
+    > a:is(:hover, [aria-current='page']) {
+    border-color: color-mix(
+      in srgb,
+      var(--ui-control-border) var(--ui-action-outline-opacity),
+      transparent
+    );
+  }
 }
