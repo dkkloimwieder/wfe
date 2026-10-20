@@ -183,6 +183,7 @@ export function Gallery() {
         closeLabel="Close components"
         navigationLabel="Component catalog"
         navigationCollapsed={collapsed()}
+        onNavigationCollapsedChange={setCollapsed}
         header={
           <>
             <Breadcrumbs aria-label="Gallery location">
@@ -221,20 +222,6 @@ export function Gallery() {
         footer={null}
         navigation={(controls) => (
           <>
-            <Show when={!controls.mobile()}>
-              <div class="gallery-sidebar-toggle">
-                <Button
-                  aria-label={
-                    collapsed() ? 'Expand sidebar' : 'Collapse sidebar'
-                  }
-                  title={collapsed() ? 'Expand sidebar' : 'Collapse sidebar'}
-                  aria-expanded={collapsed() ? 'false' : 'true'}
-                  onClick={() => setCollapsed(!collapsed())}
-                >
-                  <Icon name={collapsed() ? 'chevron-right' : 'chevron-left'} />
-                </Button>
-              </div>
-            </Show>
             <For
               each={['Forms', 'Components', 'Navigation', 'Layout'] as const}
             >

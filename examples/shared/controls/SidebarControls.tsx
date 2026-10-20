@@ -12,6 +12,7 @@ export function SidebarControls() {
     <div id="sidebar-review" style={{ height: '20rem' }}>
       <DashboardShell
         navigationCollapsed={collapsed()}
+        onNavigationCollapsedChange={setCollapsed}
         navigationLabel="Fixture sidebar"
         header={
           <>

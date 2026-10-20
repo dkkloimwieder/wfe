@@ -39,15 +39,6 @@ body:has(.gallery-preview) {
   gap: 0;
   padding: 0 var(--ui-gap) var(--ui-gap);
 }
-.gallery-sidebar-toggle {
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--ui-layout-inset);
-  border-bottom: 1px solid var(--ui-border);
-}
-.gallery-dashboard[data-navigation-collapsed] .gallery-sidebar-toggle {
-  justify-content: center;
-}
 .gallery-sidebar-options {
   padding: 12px;
   flex-wrap: wrap;
@@ -176,9 +167,4 @@ body:has(.gallery-preview) {
   max-width: none;
   margin: 0;
   padding: 0;
-}
-
-.gallery-sidebar-toggle > .ui-button {
-  inline-size: var(--ui-control-height);
-  padding-inline: 0;
 }

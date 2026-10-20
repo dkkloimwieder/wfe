@@ -18,14 +18,15 @@ If that server already runs, use its existing URL.
 
 The top header shows Gallery, the current category, and the current example as breadcrumbs.
 An empty footer stays at the bottom.
-The left pane contains Forms, Components, Navigation, and Layout sections, with a collapse button above them.
+The left pane contains Forms, Components, Navigation, and Layout sections, with a small outlined triangle on the divider.
 The current category starts open. Route and history changes reveal the selected category.
 Expand a category and choose an example from the sidebar. On a narrow screen, use Components to open the navigation pane.
 The selected link identifies the current example. Choosing a link closes narrow navigation and focuses the example title.
 Escape closes navigation and returns focus to its toggle.
 Modified link clicks retain normal browser behavior.
 
-The desktop sidebar can collapse to icons.
+Click the divider triangle to collapse or expand the desktop sidebar.
+Hover fills the triangle with the accent color without changing the sidebar.
 Appearance offers two icon behaviors: Open beside icons and Expand sidebar.
 The first opens an adjacent submenu. The second expands the sidebar and the selected group.
 Small screens keep labeled sections in the navigation drawer.

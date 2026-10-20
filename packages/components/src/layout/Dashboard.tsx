@@ -3,6 +3,7 @@ import { styledClasses, type ClassValue } from '../internal/classes'
 import {
   Show,
   createSignal,
+  createEffect,
   createMemo,
   createUniqueId,
   omit,
@@ -34,6 +35,7 @@ export type DashboardShellProps = {
   footerLabel?: string
   children: JSX.Element
   navigationCollapsed?: boolean
+  onNavigationCollapsedChange?: (collapsed: boolean) => void
   navigationLabel?: string
   toggleLabel?: string
   closeLabel?: string
@@ -232,7 +234,15 @@ function createRail(options: RailOptions) {
       </nav>
     )
   }
-  return { Toggle: NavigationToggle, Region: NavigationRegion, events, compact }
+  return {
+    Toggle: NavigationToggle,
+    Region: NavigationRegion,
+    events,
+    compact,
+    mobile,
+    id: navigationId,
+    focusToggle: () => toggle?.focus({ preventScroll: true }),
+  }
 }
 
 /** Persistent menu owners with independent scrolling and responsive placement. */
@@ -261,6 +271,76 @@ export function DashboardShell(props: DashboardShellProps) {
   const footer = createMemo(() => props.footer)
   const navigation = rail('navigation')
   const context = rail('context')
+  function NavigationDivider() {
+    let button: HTMLButtonElement | undefined
+    let focused = false
+    const events = ownedElementEvents({
+      onFocusIn: () => {
+        focused = true
+      },
+      onFocusOut: (event: FocusEvent) => {
+        if (
+          event.relatedTarget &&
+          event.relatedTarget !== button?.ownerDocument.body
+        )
+          focused = false
+      },
+      onClick: () =>
+        props.onNavigationCollapsedChange?.(
+          !Boolean(props.navigationCollapsed),
+        ),
+    })
+    createEffect(navigation.mobile, (mobile) => {
+      if (
+        mobile &&
+        button &&
+        (button.ownerDocument.activeElement === button ||
+          (focused &&
+            button.ownerDocument.activeElement === button.ownerDocument.body))
+      ) {
+        navigation.focusToggle()
+        focused = false
+      }
+    })
+    onCleanup(() => {
+      if (button && button.ownerDocument.activeElement === button)
+        main?.focus({ preventScroll: true })
+      button = undefined
+    })
+    return (
+      <div class="ui-dashboard-navigation-divider">
+        <button
+          type="button"
+          class="ui-dashboard-divider-toggle"
+          aria-label={
+            props.navigationCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
+          }
+          title={
+            props.navigationCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
+          }
+          aria-expanded={props.navigationCollapsed ? 'false' : 'true'}
+          aria-controls={navigation.id}
+          ref={[
+            (node) => {
+              button = node
+            },
+            events,
+          ]}
+        >
+          <svg
+            width="8"
+            height="12"
+            viewBox="0 0 8 12"
+            aria-hidden="true"
+            {...{ focusable: 'false' }}
+          >
+            <path d="M0.5 1 7.5 6 0.5 11Z" />
+          </svg>
+        </button>
+      </div>
+    )
+  }
+
   onCleanup(() => {
     main = undefined
   })
@@ -295,6 +375,9 @@ export function DashboardShell(props: DashboardShellProps) {
       </header>
       <Show when={props.navigation}>
         <navigation.Region />
+        <Show when={props.onNavigationCollapsedChange}>
+          <NavigationDivider />
+        </Show>
       </Show>
       <Show when={props.context}>
         <context.Region />

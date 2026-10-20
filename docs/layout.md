@@ -183,6 +183,10 @@ Its rows stack on narrow screens and retain their controls through row and child
 ## Icon sidebar
 
 `DashboardShell` accepts controlled `navigationCollapsed` state.
+Supply `onNavigationCollapsedChange` to show the click-operated divider triangle.
+The triangle consumes no layout space and uses the pane fill and divider border.
+Hover fills it with the accent color.
+The collapse triangle sits inside the sidebar, and the expand triangle sits outside it.
 The navigation callback receives `compact()` and `mobile()` alongside `close()`.
 `compact()` is false in the mobile drawer, which keeps labels available.
 `--ui-navigation-rail-width` sets the desktop icon width and defaults to 3.5rem.

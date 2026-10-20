@@ -323,7 +323,9 @@ try {
   )
   const sidebarDraft = await page.locator('#sidebar-draft').elementHandle()
   await page.locator('#sidebar-destination').focus()
-  await page.locator('#sidebar-collapse').evaluate((node) => node.click())
+  await page
+    .locator('#sidebar-review .ui-dashboard-divider-toggle')
+    .evaluate((node) => node.click())
   const sidebarIcon = page
     .locator('#sidebar-review')
     .getByRole('button', { name: 'Fixture pages', exact: true })

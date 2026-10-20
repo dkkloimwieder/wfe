@@ -804,6 +804,62 @@ async function appearanceCases({ page, url, record }) {
 
 async function sidebarCases({ page, url, record }) {
   await record(
+    'gallery: divider triangle toggles only on activation without a toolbar row',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(`${url}?gallery=fields`)
+      await expect(page.locator('.gallery-frame[data-ready]')).toBeVisible()
+      const toggle = page.locator('.ui-dashboard-divider-toggle')
+      await expect(page.locator('.gallery-sidebar-toggle')).toHaveCount(0)
+      await expect(toggle.locator('svg')).toHaveCSS(
+        'fill',
+        'rgb(255, 255, 255)',
+      )
+      const resting = await toggle.evaluate((node) => ({
+        border: getComputedStyle(
+          document.querySelector('.ui-dashboard-navigation'),
+        ).borderRightColor,
+        stroke: getComputedStyle(node.querySelector('svg')).stroke,
+        triangleRight: node.querySelector('svg').getBoundingClientRect().right,
+        divider: document
+          .querySelector('.ui-dashboard-navigation')
+          .getBoundingClientRect().right,
+      }))
+      assert.equal(resting.stroke, resting.border)
+      assert.ok(Math.abs(resting.triangleRight - resting.divider) <= 1)
+
+      const top = await page
+        .locator('.ui-sidebar-group')
+        .first()
+        .evaluate((node) => node.getBoundingClientRect().top)
+      const navTop = await page
+        .locator('.ui-dashboard-navigation')
+        .evaluate((node) => node.getBoundingClientRect().top)
+      assert.equal(top, navTop)
+      await toggle.hover()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await expect(toggle.locator('svg')).not.toHaveCSS(
+        'fill',
+        'rgb(255, 255, 255)',
+      )
+      await expect(toggle).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+      await expect(toggle.locator('svg')).toHaveCSS('stroke', resting.border)
+      await toggle.click()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await toggle.hover()
+      await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      await toggle.press('Enter')
+      await expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      await expect(toggle).toBeFocused()
+      await page.setViewportSize({ width: 390, height: 844 })
+      await expect(toggle).toBeHidden()
+      await expect(
+        page.getByRole('button', { name: 'Components', exact: true }),
+      ).toBeFocused()
+    },
+  )
+
+  await record(
     'gallery: generic sidebar retains focus across external presentation changes',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
