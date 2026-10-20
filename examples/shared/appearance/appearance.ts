@@ -148,6 +148,8 @@ export function appearanceStyle(
         : secondary
   return {
     '--ui-secondary-accent': secondaryAccent,
+    '--ui-sidebar-accent': focus,
+    '--ui-sidebar-neutral': text,
     '--ui-decoration-border': `color-mix(in srgb, ${decorationColor(decorations.borderColor)} ${decorations.border}%, transparent)`,
     '--ui-decoration-dot-opacity': `${decorations.dots}%`,
     '--ui-decoration-border-opacity': `${decorations.border}%`,
