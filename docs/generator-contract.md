@@ -336,3 +336,25 @@ Applications supply any pending or failure presentation and prevent new operatio
 The [detail and delete example](../examples/generator/DetailsApp.tsx) uses public imports and records stored in application memory.
 Open `/?app=details` in the generator preview.
 Its tests cover formats, actions, cancellation, target changes, exactly one confirmation callback, narrow screens, focus, hydration, and disposal.
+
+## Row details and sub-tables
+
+`TableViewBindings.rowDetails` accepts `TableRowDetails` from `@wfe/components/table`.
+`ReadOnlyTable` accepts the same binding as a prop.
+The application supplies `expanded(id)`, `onExpandedChange(id, expanded)`, and `render(id)`.
+The component requests expansion and waits for the application to accept it.
+Optional `canExpand`, `disabled`, and `label` callbacks control each row button.
+
+Keep the `render` function stable for the mounted table.
+Remount the table to replace this function or add or remove the binding.
+Expanded content retains its component state through sorting, column visibility changes, and updates to other bindings.
+Collapse removes the content and restores focus when focus remains inside that content.
+Keep state outside the renderer when it must survive collapse.
+Applications own child records, requests, loading states, errors, caching, and permissions.
+
+The renderer can return another `TableView`, a form, or other content.
+Nested tables keep separate columns, sorting, filters, and selection.
+This contract does not flatten child records into a single tree of rows.
+`TableDetailToggle` and `TableDetailRow` expose the same presentation for custom row adapters.
+The editing example uses these components with its existing application model.
+The gallery includes a Sub-tables example with populated and empty child tables.

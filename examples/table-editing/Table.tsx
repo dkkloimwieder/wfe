@@ -1,4 +1,3 @@
-import { Icon } from '@wfe/components'
 import {
   For,
   Show,
@@ -22,6 +21,8 @@ import {
   TableHeaderFilter,
   Table as TablePresentation,
   TableRow,
+  TableDetailToggle,
+  TableDetailRow,
   TableSort,
   moveColumn,
 } from '@wfe/components/table'
@@ -560,40 +561,26 @@ export function Table(props: {
   function SubTableToggle(id: string) {
     return (
       <Show when={props.details}>
-        <Button
-          class="sub-table-toggle"
-          data-subtable-toggle={id}
-          aria-label={`${props.details!.expanded(id) ? 'Collapse' : 'Expand'} sub-table ${id}`}
-          aria-describedby={
+        <TableDetailToggle
+          rowId={id}
+          contentId={domId(`child-${id}`)}
+          expanded={props.details!.expanded(id)}
+          label={`${props.details!.expanded(id) ? 'Collapse' : 'Expand'} sub-table ${id}`}
+          describedBy={
             props.details!.draftCount(id)
               ? domId(`child-drafts-${id}`)
               : undefined
           }
-          aria-expanded={props.details!.expanded(id) ? 'true' : 'false'}
-          aria-controls={
-            props.details!.expanded(id) ? domId(`child-${id}`) : undefined
-          }
-          ref={nativeEvents<HTMLButtonElement>({
-            click: (event) => {
-              if (model.locked()) return
-              event.currentTarget.focus({ preventScroll: true })
-              props.details!.toggle(id)
-            },
-          })}
+          onExpandedChange={() => {
+            if (!model.locked()) props.details!.toggle(id)
+          }}
         >
-          <span class="ui-icon-text-slot">
-            <Icon
-              name={
-                props.details!.expanded(id) ? 'chevron-down' : 'chevron-right'
-              }
-            />
-          </span>
           <Show when={props.details!.draftCount(id)}>
             <span id={domId(`child-drafts-${id}`)} class="sr-only">
               {props.details!.draftCount(id)} drafts
             </span>
           </Show>
-        </Button>
+        </TableDetailToggle>
       </Show>
     )
   }
@@ -602,20 +589,15 @@ export function Table(props: {
     setDetail: (node: HTMLTableRowElement) => void,
   ) {
     return (
-      <Show when={props.details?.expanded(id)}>
-        <tr
-          ref={setDetail}
-          id={domId(`child-${id}`)}
-          class="sub-table-row"
-          data-child-row={id}
-        >
-          <td
-            colspan={table.getVisibleColumns().length + (props.details ? 2 : 1)}
-          >
-            {props.details!.render(id)}
-          </td>
-        </tr>
-      </Show>
+      <TableDetailRow
+        ref={setDetail}
+        id={domId(`child-${id}`)}
+        rowId={id}
+        expanded={Boolean(props.details?.expanded(id))}
+        columnSpan={table.getVisibleColumns().length + (props.details ? 2 : 1)}
+      >
+        {props.details!.render(id)}
+      </TableDetailRow>
     )
   }
   function RowActions(id: string) {

@@ -1,3 +1,4 @@
+import { SubTables } from '../components/gallery/SubTables'
 import { DetailsApp } from './DetailsApp'
 import type { createDetailsApplication } from './DetailsApp'
 import { RepeatedApp } from './RepeatedApp'
@@ -14,6 +15,7 @@ import type { createRecordsApplication } from './records-application'
 import type { createRecordsWorkflow } from './records-workflow'
 import type { createDispatchApplication } from './dispatch-application'
 export const applications = {
+  subtables: () => <SubTables initiallyExpanded />,
   details: DetailsApp,
   repeated: RepeatedApp,
   records: App,
@@ -33,6 +35,7 @@ export type Application =
   | ReturnType<typeof createRecordsWorkflow>
   | ReturnType<typeof createDispatchApplication>
 export function applicationName(value: string | null): ApplicationName {
+  if (value === 'subtables') return 'subtables'
   if (value === 'repeated') return 'repeated'
   if (value === 'details') return 'details'
   if (value === null || value === 'records') return 'records'

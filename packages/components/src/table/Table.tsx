@@ -109,7 +109,9 @@ export function Table<T, M>(props: {
         <Show when={props.caption}>
           <caption>{props.caption}</caption>
         </Show>
-        <Show when={props.width !== undefined}>
+        <Show
+          when={props.width !== undefined || props.leading || props.trailing}
+        >
           <colgroup>
             <Show when={props.leading}>
               <col style={{ width: `${props.leading!.width}px` }} />
@@ -118,7 +120,12 @@ export function Table<T, M>(props: {
               {(column) => (
                 <col
                   data-column-width={column.id}
-                  style={{ width: `${column.getSize()}px` }}
+                  style={{
+                    width:
+                      props.width === undefined
+                        ? undefined
+                        : `${column.getSize()}px`,
+                  }}
                 />
               )}
             </For>

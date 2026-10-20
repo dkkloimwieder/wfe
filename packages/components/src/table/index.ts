@@ -46,3 +46,6 @@ export type {
   TableSelectionRange,
   TableSelectionOptions,
 } from './createTableSelection'
+
+export { TableDetailToggle, TableDetailRow } from './TableDetails'
+export type { TableRowDetails } from './TableDetails'

@@ -28,10 +28,11 @@ export function nativeSelectionMirror(
   function focus(event: FocusEvent) {
     const target = event.target
     if (!(target instanceof Element) || target === table) return
-    if (!table.contains(target) || target.closest(interactive)) release()
+    if (target.closest('table') !== table || target.closest(interactive))
+      release()
   }
   document.addEventListener('selectionchange', changed)
-  document.addEventListener('focusin', focus)
+  document.addEventListener('focusin', focus, true)
   return {
     owns,
     release,
@@ -40,7 +41,7 @@ export function nativeSelectionMirror(
       const selection = document.getSelection()
       if (
         !active ||
-        !(active === table || table.contains(active)) ||
+        active.closest('table') !== table ||
         active.closest(interactive)
       ) {
         release()
@@ -69,7 +70,7 @@ export function nativeSelectionMirror(
     dispose() {
       release()
       document.removeEventListener('selectionchange', changed)
-      document.removeEventListener('focusin', focus)
+      document.removeEventListener('focusin', focus, true)
     },
   }
 }

@@ -84,6 +84,12 @@ export const entries = [
     states: ['normal'],
   },
   { id: 'table', label: 'Table', group: 'Components', states: ['normal'] },
+  {
+    id: 'subtables',
+    label: 'Sub-tables',
+    group: 'Components',
+    states: ['normal'],
+  },
 ] as const
 export type GalleryId = (typeof entries)[number]['id']
 export type GalleryConfig = {

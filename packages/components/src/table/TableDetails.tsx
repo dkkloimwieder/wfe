@@ -1,0 +1,119 @@
+import { Show, onCleanup, untrack } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { Button } from '../components/NativeFields'
+import { Icon } from '../components/Icon'
+import { ownsFocus } from '../internal/ownedFocus'
+
+/** Applications own expansion, child records, loading, and content lifetimes. */
+export type TableRowDetails = {
+  expanded: (id: string) => boolean
+  onExpandedChange: (id: string, expanded: boolean) => void
+  render: (id: string) => JSX.Element
+  canExpand?: (id: string) => boolean
+  disabled?: (id: string) => boolean
+  label?: (id: string, expanded: boolean) => string
+}
+
+export function TableDetailToggle(props: {
+  rowId: string
+  contentId: string
+  expanded: boolean
+  onExpandedChange: (expanded: boolean) => void
+  label?: string
+  disabled?: boolean
+  describedBy?: string
+  children?: JSX.Element
+  ref?: (element: HTMLButtonElement) => void
+}) {
+  return (
+    <Button
+      class="sub-table-toggle"
+      data-subtable-toggle={props.rowId}
+      aria-label={
+        props.label ??
+        `${props.expanded ? 'Collapse' : 'Expand'} details for row ${props.rowId}`
+      }
+      aria-describedby={props.describedBy}
+      aria-expanded={props.expanded ? 'true' : 'false'}
+      aria-controls={props.expanded ? props.contentId : undefined}
+      disabled={props.disabled}
+      ref={props.ref}
+      onClick={(event) => {
+        event.currentTarget.focus({ preventScroll: true })
+        props.onExpandedChange(!props.expanded)
+      }}
+    >
+      <span class="ui-icon-text-slot">
+        <Icon name={props.expanded ? 'chevron-down' : 'chevron-right'} />
+      </span>
+      {props.children}
+    </Button>
+  )
+}
+
+/** Mount detail content only for accepted expansion. No child data is retained here. */
+export function TableDetailRow(props: {
+  id: string
+  rowId: string
+  expanded: boolean
+  columnSpan: number
+  children: JSX.Element
+  ref?: (element: HTMLTableRowElement) => void
+  restoreFocus?: () => HTMLElement | undefined
+}) {
+  function Content() {
+    let element: HTMLTableRowElement | undefined
+    onCleanup(() => {
+      const row = element
+      const document = row?.ownerDocument
+      const active = document?.activeElement
+      if (!row || !document || !active || !ownsFocus(row, active)) return
+      queueMicrotask(() => {
+        if (
+          document.activeElement === document.body ||
+          document.activeElement === active
+        ) {
+          const target = untrack(() => props.restoreFocus?.())
+          if (
+            target?.isConnected &&
+            !target.matches(':disabled') &&
+            !target.closest('[hidden], [inert], [aria-hidden="true"]')
+          ) {
+            for (
+              let ancestor: Element | null = target;
+              ancestor;
+              ancestor = ancestor.parentElement
+            ) {
+              const style = document.defaultView?.getComputedStyle(ancestor)
+              if (
+                style?.display === 'none' ||
+                style?.visibility === 'hidden' ||
+                style?.visibility === 'collapse'
+              )
+                return
+            }
+            target.focus({ preventScroll: true })
+          }
+        }
+      })
+    })
+    return (
+      <tr
+        id={props.id}
+        class="sub-table-row"
+        data-child-row={props.rowId}
+        ref={(node) => {
+          element = node
+          props.ref?.(node)
+        }}
+      >
+        <td colspan={props.columnSpan}>{props.children}</td>
+      </tr>
+    )
+  }
+  return (
+    <Show when={props.expanded}>
+      <Content />
+    </Show>
+  )
+}

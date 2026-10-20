@@ -1,0 +1,85 @@
+import assert from 'node:assert/strict'
+import { expect } from '@playwright/test'
+
+export async function subtableCases({ page, url, record }) {
+  await record(
+    'subtables: controlled details, nested copy, sorting and empty records',
+    async () => {
+      await page.goto(`${url}?galleryPreview=subtables`)
+      const parent = page
+        .locator(
+          '[data-generator-view="collections"] > .table-workspace > .table-workspace-results table',
+        )
+        .first()
+      const expand = page.getByRole('button', {
+        name: 'Expand Collection A',
+        exact: true,
+      })
+      await expand.click()
+      const child = page.locator('[data-generator-view="items-alpha"] table')
+      await expect(child).toBeVisible()
+      const toggleColumn = parent.locator(':scope > thead th').first()
+      assert.ok(
+        (await toggleColumn.boundingBox()).width <= 35,
+        'expand column keeps its declared width',
+      )
+      const parentCell = page.locator(
+        '[data-row="alpha"] > [data-column="name"]',
+      )
+      const childCell = child.locator('[data-row="one"] > [data-column="name"]')
+      await parentCell.click()
+      await expect(parent).toHaveAttribute('data-native-cell-selection', '')
+      await childCell.click()
+      await expect(child).toHaveAttribute('data-native-cell-selection', '')
+      await expect(parent).not.toHaveAttribute('data-native-cell-selection', '')
+      const copy = (locator) =>
+        locator.evaluate((node) => {
+          const data = new DataTransfer()
+          node.dispatchEvent(
+            new ClipboardEvent('copy', {
+              clipboardData: data,
+              bubbles: true,
+              cancelable: true,
+            }),
+          )
+          return data.getData('text/plain')
+        })
+      assert.equal(await copy(child), 'First item')
+      await parent.focus()
+      await expect(parent).toHaveAttribute('data-native-cell-selection', '')
+      await expect(child).not.toHaveAttribute('data-native-cell-selection', '')
+      assert.equal(await copy(parent), 'Collection A')
+      await child.focus()
+      await expect(child).toHaveAttribute('data-native-cell-selection', '')
+      assert.equal(await copy(child), 'First item')
+      const marker = await child.evaluate((node) => {
+        node.dataset.retained = 'yes'
+        return node.dataset.retained
+      })
+      await parent
+        .locator(':scope > thead')
+        .getByRole('button', { name: /Sort by Name/ })
+        .click()
+      await expect(child).toHaveAttribute('data-retained', marker)
+      await page
+        .getByRole('button', { name: 'Collapse Collection A', exact: true })
+        .click()
+      await expect(child).toHaveCount(0)
+      await expect(expand).toBeFocused()
+      await page
+        .getByRole('button', { name: 'Expand Collection B', exact: true })
+        .click()
+      const empty = page.locator('[data-generator-view="items-beta"]')
+      await expect(empty).toContainText('0/0 records')
+      await expect(empty.locator('tbody > tr[data-row]')).toHaveCount(0)
+      await page.setViewportSize({ width: 390, height: 844 })
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+        true,
+      )
+      await page.setViewportSize({ width: 1280, height: 900 })
+    },
+  )
+}

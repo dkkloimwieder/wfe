@@ -1,3 +1,4 @@
+import { SubTables } from './SubTables'
 import { EverythingForm } from './EverythingForm'
 import { createSignal, onCleanup, onSettled, untrack } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
@@ -37,6 +38,7 @@ const views = {
   dates: Dates,
   dialogs: Dialogs,
   table: TableExample,
+  subtables: SubTables,
   files: FileControls,
   numbers: NumberControls,
   tabs: TabsControls,
@@ -151,7 +153,9 @@ export function GalleryPreview() {
     >
       <div
         class={
-          entry.id === 'everything' || entry.id === 'table'
+          entry.id === 'everything' ||
+          entry.id === 'table' ||
+          entry.id === 'subtables'
             ? 'gallery-example-unframed'
             : 'gallery-example-panel'
         }

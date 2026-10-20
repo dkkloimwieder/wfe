@@ -1,3 +1,4 @@
+import { subtableChecks } from './review-subtables.mjs'
 import { reviewExampleSizing } from '../shared/appearance/sizing-review.mjs'
 import { reviewDetails, reviewDetailsServer } from './review-details.mjs'
 import { reviewRepeated, reviewRepeatedServer } from './review-repeated.mjs'
@@ -18,6 +19,7 @@ import { reviewDispatch } from './review-dispatch.mjs'
 import { reviewRecordsWorkflow } from './review-records-workflow.mjs'
 
 const defaultApplications = {
+  subtables: subtableChecks,
   details: {
     initial: reviewDetailsServer,
     server: reviewDetailsServer,
@@ -257,9 +259,10 @@ export async function run({
         report.cases.push('hydration keeps server controls and table')
       }
       report.cssProvenance = await reviewCssProvenance(page, url)
-      await record('shared form sizing survives nested layouts', () =>
-        reviewExampleSizing(page),
-      )
+      if (checks.sizing !== false)
+        await record('shared form sizing survives nested layouts', () =>
+          reviewExampleSizing(page),
+        )
       await checks.review({ page, report, record })
       report.diagnostics = (
         await page.evaluate(() => window.generatorFixture.diagnostics())

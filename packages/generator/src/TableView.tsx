@@ -155,6 +155,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
       <ReadOnlyTable
         table={table}
         selection={props.bindings.selection}
+        rowDetails={props.bindings.rowDetails}
         width={props.bindings.width}
         headerEnd={props.bindings.headerEnd}
         title={description().title}

@@ -3,7 +3,10 @@
 The private `@wfe/components/table` components render an application-owned native Table. They do not create an editing model or a record store.
 `Table.tsx` owns the table structure, headers, read-only cells, and grouped rows.
 It accepts callbacks for custom headers, row content, formatting, and extra columns.
-The editing adapter supplies editors, save controls, sub-tables, and edit locks through these callbacks.
+The editing adapter supplies editors, save controls, and edit locks through these callbacks.
+`TableDetailToggle` and `TableDetailRow` provide shared presentation for expandable row details.
+`ReadOnlyTable` and the generator expose this presentation through `rowDetails`.
+The application supplies expansion state and child content, including nested tables.
 The analytics adapter supplies query status, header names, server sorting, and a server export action.
 The optional `renderBody` callback supports virtual rows while preserving the shared headers and cells.
 

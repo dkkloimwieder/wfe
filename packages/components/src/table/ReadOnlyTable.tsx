@@ -1,12 +1,22 @@
 import { Icon } from '../components/Icon'
-import { For, Show, createMemo, createStore } from 'solid-js'
+import {
+  For,
+  Show,
+  createMemo,
+  createStore,
+  createUniqueId,
+  onCleanup,
+  untrack,
+} from 'solid-js'
 import { Checkbox } from '../components/Checkbox'
 import { Button } from '../components/NativeFields'
 import { SelectField } from '../components/Select'
 import { createTableFilterDraft } from './createTableFilterDraft'
 import type { TableFilterCriteria } from './createTableFilterDraft'
 import { TableSort } from './TableSort'
-import { Table } from './Table'
+import { Table, TableRow } from './Table'
+import { TableDetailToggle, TableDetailRow } from './TableDetails'
+import type { TableRowDetails } from './TableDetails'
 import type { TableSelection } from './createTableSelection'
 import type { TableColumnAlignment, TableColumnAlignments } from './Table'
 import { TableControlSection, TableWorkspace } from './TableWorkspace'
@@ -32,6 +42,7 @@ export function ReadOnlyTable<T, M>(
   props: {
     table: NativeTable<T, M>
     selection?: TableSelection
+    rowDetails?: TableRowDetails
     columnAlignment?: TableColumnAlignments
     onColumnAlignmentChange?: (
       id: string,
@@ -80,6 +91,71 @@ export function ReadOnlyTable<T, M>(
         draft[id] = value
       })
     props.onColumnAlignmentChange?.(id, value)
+  }
+  const initialDetailRenderer = untrack(() => props.rowDetails?.render)
+  const details = createMemo(() => {
+    const value = props.rowDetails
+    if (value?.render !== initialDetailRenderer)
+      throw new Error('Remount the table to replace its row detail renderer.')
+    return value
+  })
+  const detailPrefix = createUniqueId()
+  let alive = true
+  onCleanup(() => {
+    alive = false
+  })
+  function DataRow(row: { id: string }) {
+    const id = untrack(() => row.id)
+    const contentId = `${detailPrefix}-detail-${Array.from(id)
+      .map((char) => char.codePointAt(0)!.toString(16))
+      .join('-')}`
+    let toggle: HTMLButtonElement | undefined
+    const available = () =>
+      Boolean(details()) && (details()?.canExpand?.(id) ?? true)
+    const expanded = () => available() && Boolean(details()?.expanded(id))
+    return (
+      <TableRow
+        table={table}
+        id={id}
+        columnAlignment={alignment()}
+        renderCell={props.renderCell}
+        formatValue={props.formatValue}
+        leading={() => (
+          <Show when={details()}>
+            <td class="sub-table-control">
+              <Show when={available()}>
+                <TableDetailToggle
+                  rowId={id}
+                  contentId={contentId}
+                  expanded={expanded()}
+                  disabled={details()?.disabled?.(id)}
+                  label={details()?.label?.(id, expanded())}
+                  onExpandedChange={(next) =>
+                    details()?.onExpandedChange(id, next)
+                  }
+                  ref={(node) => {
+                    toggle = node
+                  }}
+                />
+              </Show>
+            </td>
+          </Show>
+        )}
+        detail={() => (
+          <TableDetailRow
+            id={contentId}
+            rowId={id}
+            expanded={expanded()}
+            columnSpan={table.getVisibleColumns().length + 1}
+            restoreFocus={() =>
+              alive ? (toggle?.isConnected ? toggle : tableElement) : undefined
+            }
+          >
+            {initialDetailRenderer?.(id)}
+          </TableDetailRow>
+        )}
+      />
+    )
   }
   const table = props.table
   const filters = createTableFilterDraft(table, {
@@ -404,6 +480,22 @@ export function ReadOnlyTable<T, M>(
       >
         <Table
           table={table}
+          leading={
+            details()
+              ? {
+                  width: 34,
+                  header: () => (
+                    <th scope="col" class="sub-table-control">
+                      <span class="sr-only">Details</span>
+                    </th>
+                  ),
+                  group: () => <td class="sub-table-control" />,
+                }
+              : undefined
+          }
+          renderRow={
+            initialDetailRenderer ? (id) => <DataRow id={id} /> : undefined
+          }
           selection={props.selection}
           elementRef={(node) => {
             tableElement = node
