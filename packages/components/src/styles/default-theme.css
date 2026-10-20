@@ -264,7 +264,5 @@
 }
 
 .ui-theme .table-workspace-title-face {
-  --ui-action-decoration-inset: -1px -7px;
-  --ui-action-decoration-transform: skewX(var(--ui-action-angle, 0deg))
-    perspective(240px) rotateX(var(--ui-action-taper, 0deg));
+  --ui-action-decoration-inset: -7px;
 }

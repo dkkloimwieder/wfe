@@ -13,7 +13,8 @@ export async function tableTitleCases({ page, url, record }) {
           const title = table.locator('.table-workspace-title-face')
           await expect(title).toHaveText('Records')
           const dimensions = await table.boundingBox()
-          assert.deepEqual(dimensions, { x: 0, y: 0, width, height: 900 })
+          assert.deepEqual(dimensions, { x: 0, y: 20, width, height: 880 })
+          await expect(table).toHaveCSS('overflow', 'visible')
           const header = table.locator('.table-workspace-header')
           assert.equal((await header.boundingBox()).height, 31)
           assert.equal((await title.boundingBox()).height, 26)
@@ -39,7 +40,7 @@ export async function tableTitleCases({ page, url, record }) {
           assert.match(paint.pattern, /radial-gradient/)
           assert.notEqual(paint.header, paint.pattern)
           assert.equal(paint.opacity, '1')
-          assert.equal(paint.inset, '-1px')
+          assert.equal(paint.inset, '-7px')
           assert.equal(paint.overflow, 'visible')
           assert.notEqual(paint.angle, '')
           await title
@@ -86,9 +87,10 @@ export async function tableTitleCases({ page, url, record }) {
                 headerBottom: header.bottom,
               }
             }, angle)
-            assert.ok(bounds.top >= bounds.headerTop, JSON.stringify(bounds))
+            assert.ok(bounds.top >= 0, JSON.stringify(bounds))
+            assert.ok(bounds.top < bounds.headerTop, JSON.stringify(bounds))
             assert.ok(
-              bounds.bottom <= bounds.headerBottom,
+              bounds.bottom > bounds.headerBottom,
               JSON.stringify(bounds),
             )
           }

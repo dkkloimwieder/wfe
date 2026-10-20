@@ -116,12 +116,13 @@ body:has(.gallery-preview) {
   padding: 0;
 }
 .gallery-preview:has(.gallery-table) {
-  padding: 0;
+  --gallery-table-decoration-space: 20px;
+  padding: var(--gallery-table-decoration-space) 0 0;
 }
 .gallery-table {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: calc(100dvh - var(--gallery-table-decoration-space, 0px));
   min-height: 0;
 }
 @media (width < 48rem) {
