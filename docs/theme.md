@@ -40,6 +40,9 @@ Use the same initial values on the server and client for hydration.
 `layers`, `dividers`, and `decorations` accept partial overrides.
 Pass values from the exported TypeScript types. Opacity percentages use the range 0 to 100.
 Omitted or undefined values retain their defaults.
+Button and sidebar-link faces are opaque by default, including during hover and selection.
+The dotted decoration remains visible outside their borders.
+Set `decorations={{ inside: 100 }}` to show all decoration dots through the faces.
 Layer numbers are zero-based: `0` selects surface 1.
 The `style` prop overrides individual CSS variables last.
 Import the public types and `themeStyle` from `@wfe/components/theme`.

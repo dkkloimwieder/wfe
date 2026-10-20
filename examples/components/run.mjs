@@ -1,3 +1,4 @@
+import { dotDefaultCases } from './gallery/dot-default-cases.mjs'
 import { subtableCases } from './gallery/subtable-cases.mjs'
 import { reviewTheme } from '../theme/review.mjs'
 import { galleryCases } from './gallery/gallery-cases.mjs'
@@ -245,6 +246,7 @@ try {
   )
   await galleryCases({ page, url, record, settle })
   await subtableCases({ page, url, record })
+  await dotDefaultCases({ page, url, record })
   await fileCases({ page, url, record, settle })
   await resizableCases({ page, url, record, settle })
   await accordionCases({ page, url, record, settle })

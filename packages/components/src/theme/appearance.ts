@@ -38,7 +38,7 @@ export const defaultDecorations: Decorations = {
   secondary: 1,
   dots: 35,
   border: 20,
-  inside: 100,
+  inside: 0,
   dotColor: 'neutral',
   borderColor: 'neutral',
 }

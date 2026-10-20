@@ -189,7 +189,7 @@ export function readRoute(url: URL): GalleryRoute {
       secondary: number('secondary', 1, secondaryAccents.length - 1),
       dots: number('dots', 35, 100),
       border: number('border', 20, 100),
-      inside: number('inside', 100, 100),
+      inside: number('inside', defaultDecorations.inside, 100),
       dotColor:
         decorationColors.find(
           (value) => value === url.searchParams.get('dotColor'),
