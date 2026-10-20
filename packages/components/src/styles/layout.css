@@ -251,15 +251,25 @@
     padding-inline: 0;
   }
 }
+:where([data-ui]) .ui-sidebar-group {
+  --_ui-sidebar-row-height: calc(
+    var(--ui-header-height, 22px) + 2 * var(--ui-cell-padding-y, 6px)
+  );
+}
+:where([data-ui]) .ui-sidebar-group > .ui-collapsible > summary {
+  min-block-size: var(--_ui-sidebar-row-height);
+}
 :where([data-ui]) .ui-sidebar-group[data-compact] {
   display: flex;
   justify-content: center;
-  padding-block: var(--ui-gap, 6px);
+  align-items: center;
+  block-size: calc(var(--_ui-sidebar-row-height) + 1px);
 }
 :where([data-ui]) .ui-sidebar-group[data-compact] > .ui-button {
   flex-shrink: 0;
   inline-size: var(--ui-control-height, 32px);
-  padding-inline: 0;
+  block-size: var(--ui-control-height, 32px);
+  padding: 0;
 }
 :where([data-ui]) .ui-sidebar-flyout {
   inline-size: min(18rem, calc(100vw - 24px));

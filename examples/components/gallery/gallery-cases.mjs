@@ -804,6 +804,34 @@ async function appearanceCases({ page, url, record }) {
 
 async function sidebarCases({ page, url, record }) {
   await record(
+    'gallery: sidebar heading and icon rows retain their positions',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(`${url}?gallery=fields`)
+      await page.locator('.gallery-frame[data-ready]').waitFor()
+      for (const summary of await page
+        .locator('.ui-sidebar-group details[open] > summary')
+        .all())
+        await summary.click()
+      const rows = () =>
+        page.locator('.ui-sidebar-group').evaluateAll((nodes) =>
+          nodes.map((node) => ({
+            top: node.getBoundingClientRect().top,
+            height: node.getBoundingClientRect().height,
+          })),
+        )
+      const expanded = await rows()
+      await page
+        .getByRole('button', { name: 'Collapse sidebar', exact: true })
+        .click()
+      assert.deepEqual(await rows(), expanded)
+      await page
+        .getByRole('button', { name: 'Expand sidebar', exact: true })
+        .click()
+      assert.deepEqual(await rows(), expanded)
+    },
+  )
+  await record(
     'gallery: divider triangle toggles only on activation without a toolbar row',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
