@@ -51,7 +51,7 @@ function peopleTable<T extends PlatformUser | PlatformMember>(
         id: 'actions',
         accessorKey: 'principalId',
         header: 'Actions',
-        size: 80,
+        size: members ? 80 : 140,
         enableGlobalFilter: false,
         enableHiding: false,
       },

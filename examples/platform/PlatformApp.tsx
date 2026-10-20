@@ -1,3 +1,4 @@
+import { InvitationView } from './InvitationView'
 import { exampleSizing } from '../shared/appearance/sizing'
 import { createPlatformTableSelection } from './table-selection'
 import { AccessViews } from './AccessViews'
@@ -90,24 +91,26 @@ export function PlatformApp(props: {
       app.route().screen,
     )
   const peopleRoute = () =>
-    app.route().screen === 'users' || app.route().screen === 'access'
+    ['users', 'access', 'invite'].includes(app.route().screen)
   const title = () => {
     const route = app.route()
-    return route.screen === 'projects'
-      ? 'Projects'
-      : route.screen === 'users'
-        ? 'Users'
-        : route.screen === 'members'
-          ? `Members · ${route.project}`
-          : route.screen === 'access'
-            ? 'Manage access'
-            : route.screen === 'create'
-              ? projectMetadata.label
-              : route.screen === 'project'
-                ? route.project
-                : route.screen === 'environment'
-                  ? `${route.project} / ${route.env}`
-                  : 'Page not found'
+    return route.screen === 'invite'
+      ? 'Invite a user'
+      : route.screen === 'projects'
+        ? 'Projects'
+        : route.screen === 'users'
+          ? 'Users'
+          : route.screen === 'members'
+            ? `Members · ${route.project}`
+            : route.screen === 'access'
+              ? 'Manage access'
+              : route.screen === 'create'
+                ? projectMetadata.label
+                : route.screen === 'project'
+                  ? route.project
+                  : route.screen === 'environment'
+                    ? `${route.project} / ${route.env}`
+                    : 'Page not found'
   }
   const href = (route: PlatformRoute) => {
     const url = platformUrl(base(), route)
@@ -322,7 +325,7 @@ export function PlatformApp(props: {
             app.route().screen === 'users' ||
             app.route().screen === 'members' ||
             app.route().screen === 'create' ||
-            app.route().screen === 'access'
+            ['access', 'invite'].includes(app.route().screen)
               ? 'content'
               : 'main'
           }
@@ -449,7 +452,7 @@ export function PlatformApp(props: {
                     <Show
                       when={
                         peopleRoute()
-                          ? app.route().screen === 'access'
+                          ? ['access', 'invite'].includes(app.route().screen)
                           : app.route().screen !== 'projects'
                       }
                       fallback={
@@ -503,7 +506,7 @@ export function PlatformApp(props: {
                       app.route().screen === 'environment' ||
                       app.route().screen === 'create' ||
                       app.route().screen === 'members' ||
-                      app.route().screen === 'access'
+                      ['access', 'invite'].includes(app.route().screen)
                     }
                   >
                     <Breadcrumbs.Item>
@@ -517,8 +520,10 @@ export function PlatformApp(props: {
                       >
                         {app.route().screen === 'members'
                           ? 'Members'
-                          : app.route().screen === 'access'
-                            ? 'Manage access'
+                          : ['access', 'invite'].includes(app.route().screen)
+                            ? app.route().screen === 'invite'
+                              ? 'Invite a user'
+                              : 'Manage access'
                             : app.route().screen === 'create'
                               ? 'Create a project'
                               : app.route().screen === 'environment'
@@ -680,6 +685,7 @@ export function PlatformApp(props: {
             </Show>
           </div>
           <AccessViews app={app} navigate={navigate} />
+          <InvitationView app={app} navigate={navigate} />
           <Show
             when={
               !app.session().loading && !app.session().error && accessible()

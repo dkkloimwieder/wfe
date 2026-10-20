@@ -1,3 +1,4 @@
+import { invitationCases } from './invitation-cases.mjs'
 import { reviewExampleSizing } from '../shared/appearance/sizing-review.mjs'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
@@ -120,6 +121,11 @@ const initialize = async (query = '') => {
   )
 }
 async function record(name, work) {
+  if (
+    process.env.BENCH_CASE_PATTERN &&
+    !new RegExp(process.env.BENCH_CASE_PATTERN).test(name)
+  )
+    return
   await work()
   await settle()
   assert.deepEqual(report.errors, [])
@@ -128,6 +134,7 @@ async function record(name, work) {
   console.log(`PASS ${name}`)
 }
 try {
+  await invitationCases({ page, initialize, record })
   await record(
     'platform: native navigation, persistent tables, stable resizing and approved appearance',
     async () => {
@@ -1040,7 +1047,11 @@ try {
         expected,
       )
       await page.screenshot({ path: '/tmp/wfe-platform-cell-selection.png' })
-      await table.locator('tr[data-row]').first().getByRole('button').click()
+      await table
+        .locator('tr[data-row]')
+        .first()
+        .getByRole('button', { name: /^Manage access for / })
+        .click()
       await expect
         .poll(() => new URL(page.url()).searchParams.get('screen'))
         .toBe('access')

@@ -93,3 +93,18 @@ body,
   margin: 0;
   overflow-wrap: anywhere;
 }
+
+.platform-mockup-form {
+  width: 100%;
+  max-width: var(--ui-form-max-width, 30rem);
+  margin-inline: auto;
+  display: grid;
+  gap: var(--ui-field-gap, 20px);
+}
+
+.platform-user-actions {
+  padding: var(--ui-gap);
+  border: 1px solid var(--ui-border);
+  border-bottom: 0;
+  background: var(--ui-surface);
+}

@@ -2,6 +2,7 @@ import { createPlatformTableSelection } from './table-selection'
 import { For, Show, createSignal } from 'solid-js'
 import {
   Button,
+  AlertDialog,
   IconButton,
   Icon,
   InlineAlert,
@@ -36,6 +37,33 @@ export function AccessViews(props: {
       ? access.users().find((user) => user.principalId === route.principal)
       : undefined
   }
+  const UserActions = (cell: CustomCellProps<PlatformUser, unknown>) => (
+    <div class="platform-inline-actions">
+      <Manage {...cell} />
+      <Show when={props.app.authority()?.orgAdmin}>
+        <IconButton
+          aria-label={`Activate ${cell.row.original?.displayName}`}
+          title={`Activate ${cell.row.original?.displayName}`}
+          onClick={() => {
+            if (cell.row.original)
+              props.app.lifecycle.open(cell.row.original, 'activate')
+          }}
+        >
+          <Icon name="check" />
+        </IconButton>
+        <IconButton
+          aria-label={`Deactivate ${cell.row.original?.displayName}`}
+          title={`Deactivate ${cell.row.original?.displayName}`}
+          onClick={() => {
+            if (cell.row.original)
+              props.app.lifecycle.open(cell.row.original, 'deactivate')
+          }}
+        >
+          <Icon name="cross" />
+        </IconButton>
+      </Show>
+    </div>
+  )
   const Manage = <T extends Person>(cell: CustomCellProps<T, unknown>) => (
     <IconButton
       title={`Manage access for ${cell.row.original?.displayName ?? cell.row.id}`}
@@ -138,6 +166,43 @@ export function AccessViews(props: {
     !props.app.session().loading && !props.app.session().error
   return (
     <>
+      <AlertDialog
+        open={Boolean(props.app.lifecycle.target())}
+        onOpenChange={(open) => {
+          if (!open) props.app.lifecycle.close()
+        }}
+      >
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay />
+          <AlertDialog.Content>
+            <AlertDialog.Title>
+              {props.app.lifecycle.target()?.command === 'activate'
+                ? 'Activate sample user'
+                : 'Deactivate sample user'}
+            </AlertDialog.Title>
+            <AlertDialog.Description>
+              {props.app.lifecycle.target()?.name}. This confirmation changes
+              sample data only.
+            </AlertDialog.Description>
+            <Show when={props.app.lifecycle.form.errors.form}>
+              <InlineAlert tone="error" announce="assertive">
+                {props.app.lifecycle.form.errors.form}
+              </InlineAlert>
+            </Show>
+            <div class="platform-inline-actions">
+              <AlertDialog.Cancel>
+                {props.app.lifecycle.form.pending ? 'Stop waiting' : 'Cancel'}
+              </AlertDialog.Cancel>
+              <Button
+                disabled={props.app.lifecycle.form.pending}
+                onClick={() => void props.app.lifecycle.form.submit()}
+              >
+                Confirm sample change
+              </Button>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog>
       <Show when={props.app.route().screen === 'access' && access.completed()}>
         <InlineAlert announce="polite">{access.completed()}</InlineAlert>
       </Show>
@@ -145,6 +210,15 @@ export function AccessViews(props: {
         class="platform-table-screen"
         hidden={props.app.route().screen !== 'users' || !visible()}
       >
+        <div class="platform-user-actions">
+          <IconButton
+            title="Invite a user"
+            aria-label="Invite a user"
+            onClick={() => props.navigate({ screen: 'invite' })}
+          >
+            <Icon name="people" />
+          </IconButton>
+        </div>
         <TableView
           description={usersDescription}
           bindings={{
@@ -156,7 +230,7 @@ export function AccessViews(props: {
             status: access.state,
             controlsCollapsed: usersCollapsed(),
             onControlsCollapsedChange: setUsersCollapsed,
-            cells: { manage: Manage, boolean: BooleanCell },
+            cells: { manage: UserActions, boolean: BooleanCell },
             headerEnd: resize,
             onApplyFilters: (criteria) => {
               access.usersTable.setGlobalFilter(criteria.globalFilter)

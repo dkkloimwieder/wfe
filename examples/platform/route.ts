@@ -1,6 +1,6 @@
 import type { PlatformScenario } from './provider'
 export type PlatformRoute =
-  | { screen: 'projects' | 'create' | 'users' | 'missing' }
+  | { screen: 'projects' | 'create' | 'invite' | 'users' | 'missing' }
   | { screen: 'project' | 'members'; project: string }
   | { screen: 'access'; principal: string }
   | { screen: 'environment'; project: string; env: string }
@@ -22,7 +22,10 @@ export function platformRoute(input: string): PlatformRoute {
     return { screen, principal }
   if (principal !== null) return { screen: 'missing' }
   if (
-    (screen === 'projects' || screen === 'create' || screen === 'users') &&
+    (screen === 'projects' ||
+      screen === 'create' ||
+      screen === 'invite' ||
+      screen === 'users') &&
     project === null &&
     env === null
   )

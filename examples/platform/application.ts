@@ -1,3 +1,5 @@
+import { createInvitationApplication } from './invitation-application'
+import { createLifecycleApplication } from './lifecycle-application'
 import { createAccessApplication } from './access-application'
 import { createSignal, onCleanup, untrack } from 'solid-js'
 import { createForm } from '@wfe/form'
@@ -171,6 +173,19 @@ export function createPlatformApplication(
     projects,
     initialize,
   )
+  const acceptedAuthority = () =>
+    !session().loading && !session().error ? authority() : undefined
+  const invitation = createInvitationApplication(
+    client,
+    acceptedAuthority,
+    projects,
+  )
+  const lifecycle = createLifecycleApplication(
+    client,
+    acceptedAuthority,
+    access.users,
+    () => access.load({ screen: 'users' }, untrack(authority)),
+  )
   async function loadProjects(access = untrack(authority)) {
     if (!alive || !access) return
     const sequence = ++listSequence
@@ -204,6 +219,10 @@ export function createPlatformApplication(
     detailAbort?.abort()
     setStatus(undefined)
     setDetail({ loading: false })
+    if (target.screen === 'invite') {
+      await invitation.load(acceptedAuthority)
+      return
+    }
     if (['users', 'members', 'access'].includes(target.screen)) {
       await access.load(target, acceptedAuthority)
       return
@@ -291,6 +310,11 @@ export function createPlatformApplication(
   function enter(next: PlatformRoute) {
     if (!alive) return
     const previous = untrack(route)
+    lifecycle.close()
+    if (previous.screen === 'invite' && next.screen !== 'invite')
+      invitation.leave()
+    if (previous.screen !== 'invite' && next.screen === 'invite')
+      invitation.reset()
     if (
       previous.screen === 'access' &&
       access.form.pending &&
@@ -338,6 +362,8 @@ export function createPlatformApplication(
   })
   return {
     route,
+    invitation,
+    lifecycle,
     access,
     authority,
     projects,

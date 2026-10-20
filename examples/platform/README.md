@@ -1,6 +1,8 @@
 # WAMN platform example
 
-This application example uses captured WAMN control clients and a deterministic mock transport.
+This interactive mockup uses captured WAMN control clients and a deterministic mock transport.
+It changes sample records only and sends no email or network request to an application server.
+Its workflows, sample validation, access scenarios, and lifecycle outcomes do not prescribe application behavior.
 Its first operations are `control.mine`, `project.list`, `project.create`, `environment.list`, and `environment.status`.
 The generated clients encode request members and decode returned member names.
 The copied runtime classifies mock HTTP replies against the actual operation contracts.
@@ -18,8 +20,8 @@ Cancellation stops the application from waiting. It does not undo a command that
 Captured client imports point to the copied wire module. Other source bytes stay unchanged.
 The original workspace declares Apache-2.0. The snapshot includes that license text and the original Cargo metadata.
 The snapshot includes unused operations from seven client modules.
-The mock supports the five initial operations plus user listing, project membership listing, and six access commands.
-Captured host authority declarations and identity rules explain the application policy mapping.
+The mock supports the five initial operations, user and membership lists, six access commands, and user invitation, activation, and deactivation.
+Captured declarations inform the example scenarios. The mock is not an authorization or lifecycle implementation.
 
 From the WFE repository root, make sure that the snapshot retains its captured bytes:
 
@@ -48,7 +50,7 @@ Application roles use separate operations and remain outside this screen.
 Beads epic `wfe-f81` owns this application and its follow-up work.
 Issue `wfe-f81.2` implements the project and environment screens.
 Issue `wfe-f81.3.1` adds the user directory and scoped access editor.
-Issue `wfe-f81.3.2` tracks invitations and user activation.
+Issue `wfe-f81.3.2` adds invitation and user lifecycle mockups.
 Issue `wfe-f81.3.3` tracks application roles, which use separate application-host operations.
 Issue `wfe-f81.4` tracks the adapter from host metadata to generic view descriptions.
 Issue `wfe-f81.5` tracks validation metadata that omits server constraints.
@@ -138,3 +140,24 @@ The regular qualification command includes all three modes and their hydration c
 Tables use compact 32px rows and Surface 2 row and column dividers by default.
 The controls pane has a fixed width and shared sections. Its toolbar button opens and closes it.
 Sidebar names use uppercase presentation as navigation labels. Table values retain their original case.
+
+## Invitation and lifecycle mockups
+
+Open Users, then select Invite a user.
+Add environment membership rows or project administration rows as needed.
+Each row uses a searchable shared Combobox. Empty collections are valid in this sample.
+Unspecified, Yes, and No map explicitly to null, true, and false in the captured request shape.
+This mapping does not define what an application must do with null.
+The example removes draft keys and picker IDs before it constructs a request.
+
+The user table exposes separate activation and deactivation confirmations.
+Both actions stay explicit because the captured status field is text, not a declared state machine.
+Cancel closes the confirmation without a request. Stop waiting ignores a late response but does not undo an accepted sample change.
+The mock labels successful invitations as invited and lifecycle results as active or inactive for demonstration only.
+
+The existing pinned `snapshot/client/user.ts` supplies all three request and result contracts.
+No new upstream snapshot or library API is needed for these screens.
+The invite action uses a separate strip because generated table actions sit inside collapsible controls.
+Issue `wfe-f81.18` tracks an always-visible toolbar action slot.
+`platform-invitations.test.ts` and `invitation-cases.mjs` cover request projection, row errors, response failures, navigation, and cleanup.
+Shared components render controlled values and errors. The example owns all simulation choices.

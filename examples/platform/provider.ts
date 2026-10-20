@@ -54,6 +54,13 @@ const userSchema = z.object({
     }),
   ),
 })
+const invitationWireSchema = z.object({
+  display_name: z.string(),
+  email: z.string(),
+  org_admin: z.nullable(z.boolean()),
+  memberships: z.array(z.object({ project: z.string(), env: z.string() })),
+  project_admins: z.array(z.string()),
+})
 const memberSchema = z.object({
   members: z.array(
     z.object({
@@ -137,6 +144,31 @@ export function createPlatformClient(transport: Transport) {
     }
   }
   return {
+    invite: (
+      value: user.UserInviteRequestValue,
+      requestId: string,
+      signal?: AbortSignal,
+    ) =>
+      call(
+        (t) => user.invite(t, [{ requestId, value }]),
+        z.object({
+          principalId: principal,
+          invited: z.boolean(),
+          enrolled: z.boolean(),
+        }),
+        signal,
+      ),
+    lifecycle: (
+      command: 'activate' | 'deactivate',
+      principalId: string,
+      requestId: string,
+      signal?: AbortSignal,
+    ) =>
+      call(
+        (t) => user[command](t, [{ requestId, value: { principalId } }]),
+        z.object({ principalId: z.literal(principalId), status: z.string() }),
+        signal,
+      ),
     users: (signal?: AbortSignal) =>
       call((t) => user.list(t, [{}]), userSchema, signal),
     members: (name: string, signal?: AbortSignal) =>
@@ -321,6 +353,55 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
     })
     if (!item || request.items.length !== 1)
       return { status: 400, body: 'Invalid mock request.' }
+    // These outcomes are mockup choices, not application lifecycle or grant policy.
+    if (request.operation === user.USER_INVITE_ROUTE.operation) {
+      if (!orgAdmin && !accessible().length) return denied()
+      const parsed = invitationWireSchema.safeParse(item.value)
+      if (!id || !parsed.success) return refuse('invalid_input', 'value')
+      const value = parsed.data
+      const principalId = crypto.randomUUID()
+      users.set(principalId, {
+        principalId,
+        displayName: value.display_name,
+        email: value.email,
+        orgAdmin: value.org_admin === true,
+        status: 'invited',
+      })
+      for (const entry of value.memberships) {
+        const target = entry
+        const key = `${target.project}/${target.env}`
+        const rows = memberships.get(key) ?? new Set<string>()
+        rows.add(principalId)
+        memberships.set(key, rows)
+      }
+      for (const project of value.project_admins) {
+        const rows = projectAdmins.get(String(project)) ?? new Set<string>()
+        rows.add(principalId)
+        projectAdmins.set(String(project), rows)
+      }
+      return complete({
+        principal_id: principalId,
+        invited: true,
+        enrolled: false,
+      })
+    }
+    if (
+      request.operation === user.USER_ACTIVATE_ROUTE.operation ||
+      request.operation === user.USER_DEACTIVATE_ROUTE.operation
+    ) {
+      if (!orgAdmin) return denied()
+      const value = item.value as Record<string, JsonValue> | undefined
+      if (!id || typeof value?.principal_id !== 'string')
+        return refuse('invalid_input', 'principal_id')
+      const row = users.get(value.principal_id)
+      if (!row) return refuse('user_not_found', 'principal_id')
+      const status =
+        request.operation === user.USER_ACTIVATE_ROUTE.operation
+          ? 'active'
+          : 'inactive'
+      users.set(row.principalId, { ...row, status })
+      return complete({ principal_id: row.principalId, status })
+    }
     if (request.operation === user.USER_LIST_ROUTE.operation) {
       if (!orgAdmin && !accessible().length) return denied()
       return complete({
