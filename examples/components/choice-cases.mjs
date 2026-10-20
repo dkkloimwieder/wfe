@@ -9,6 +9,58 @@ export async function choiceCases({ page, url, record, press, settle }) {
     page.evaluate((next) => window.choiceFixture.configure(next), next)
 
   await record(
+    'choices: popup uses available height and reserves room for its footer',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 1000 })
+      await open()
+      await configure({
+        options: Array.from({ length: 12 }, (_, i) => ({
+          id: `item-${i}`,
+          label: `Item ${i}`,
+        })),
+      })
+      await select().click()
+      await settle()
+      const popup = page.locator('.popup-content').filter({
+        has: page.getByRole('button', { name: 'More select options' }),
+      })
+      const measure = () =>
+        popup.evaluate((node) => {
+          const list = node.querySelector('.popup-listbox')
+          const footer = node.querySelector('.choice-footer')
+          return {
+            scroll: list.scrollHeight,
+            height: list.clientHeight,
+            top: node.getBoundingClientRect().top,
+            bottom: node.getBoundingClientRect().bottom,
+            footerBottom: footer.getBoundingClientRect().bottom,
+          }
+        })
+      const fitting = await measure()
+      assert.ok(fitting.height > 216)
+      assert.ok(fitting.scroll <= fitting.height + 1)
+      await page.setViewportSize({ width: 1280, height: 400 })
+      await configure({
+        options: Array.from({ length: 100 }, (_, i) => ({
+          id: `item-${i}`,
+          label: `Item ${i}`,
+        })),
+      })
+      await settle()
+      const overflowing = await measure()
+      assert.ok(overflowing.scroll > overflowing.height)
+      assert.ok(overflowing.top >= 0 && overflowing.bottom <= 400)
+      assert.ok(overflowing.footerBottom <= overflowing.bottom)
+      await page.getByRole('option', { name: 'Item 0', exact: true }).focus()
+      await page.keyboard.press('End')
+      await settle()
+      const last = page.getByRole('option', { name: 'Item 99', exact: true })
+      assert.equal(await last.getAttribute('data-highlighted'), '')
+      await page.keyboard.press('Escape')
+      await page.setViewportSize({ width: 1280, height: 900 })
+    },
+  )
+  await record(
     'choices: icon and text triggers fit their labels within a bounded compound field',
     async () => {
       await open()

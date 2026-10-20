@@ -814,6 +814,9 @@
 }
 
 :where([data-ui]) .popup-content {
+  display: flex;
+  flex-direction: column;
+  max-height: var(--kb-popper-content-available-height, calc(100dvh - 16px));
   z-index: 1001;
   min-width: calc(var(--ui-font-size, 12px) * 11);
   max-width: calc(100vw - calc(var(--ui-font-size, 12px) * 1));
@@ -822,10 +825,7 @@
   list-style: none;
   padding: calc(var(--ui-font-size, 12px) * 0.25);
   margin: 0;
-  max-height: min(
-    calc(var(--ui-font-size, 12px) * 18),
-    var(--kb-popper-content-available-height)
-  );
+  min-height: 0;
   overflow-y: auto;
 }
 :where([data-ui]) .popup-option {
@@ -873,6 +873,7 @@
 }
 :where([data-ui]) .choice-footer,
 :where([data-ui]) .choice-status {
+  flex: none;
   padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
 }
 
@@ -1079,7 +1080,7 @@
   z-index: 1001;
   box-sizing: border-box;
   max-width: min(360px, calc(100dvw - 16px));
-  max-height: min(480px, calc(100dvh - 16px));
+  max-height: var(--kb-popper-content-available-height, calc(100dvh - 16px));
   overflow: auto;
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
   font: inherit;

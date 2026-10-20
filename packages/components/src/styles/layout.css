@@ -263,7 +263,6 @@
 }
 :where([data-ui]) .ui-sidebar-flyout {
   inline-size: min(18rem, calc(100vw - 24px));
-  max-block-size: min(32rem, calc(100dvh - 24px));
   overflow: auto;
 }
 

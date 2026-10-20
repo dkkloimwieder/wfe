@@ -218,3 +218,8 @@ body:has(.component-preview) {
   )::before {
   background-image: var(--ui-canvas-pattern);
 }
+
+/* Leave room for the decorative link outlines inside scrolling flyouts. */
+.default-appearance .ui-sidebar-flyout {
+  padding: 12px;
+}
