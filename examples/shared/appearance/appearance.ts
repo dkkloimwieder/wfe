@@ -55,7 +55,7 @@ export const schemes: readonly SurfaceScheme[] = [
     name: 'Light',
     mode: 'light',
     surfaces: ['#ffffff', '#fcfcfd', '#f5f5f5', '#e5e5e5'],
-    text: ['#0a0a0a', '#737373'],
+    text: ['#262626', '#737373'],
   },
   {
     name: 'Dark',
