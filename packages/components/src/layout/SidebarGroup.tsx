@@ -84,19 +84,18 @@ export function SidebarGroup(props: SidebarGroupProps) {
     return (
       <Collapsible
         summary={
-          <>
-            <span
-              {...buttonAttributes({ class: 'ui-sidebar-group-icon' })}
-              aria-hidden="true"
-              data-ui-active={props.active ? 'true' : undefined}
-            >
+          <span
+            {...buttonAttributes({ class: 'ui-sidebar-group-control' })}
+            data-ui-active={props.active ? 'true' : undefined}
+          >
+            <span class="ui-sidebar-group-icon" aria-hidden="true">
               {props.icon}
             </span>
             <span class="ui-sidebar-group-label">{props.label}</span>
             <span class="ui-sidebar-group-chevron">
               <Icon name="chevron-right" />
             </span>
-          </>
+          </span>
         }
         open={props.open}
         onOpenChange={props.onOpenChange}

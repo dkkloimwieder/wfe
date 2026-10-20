@@ -259,6 +259,9 @@
     var(--ui-control-height, 32px) + 2 * var(--ui-gap, 6px)
   );
 }
+:where([data-ui]) .ui-sidebar-group > .ui-collapsible {
+  border: 0;
+}
 :where([data-ui]) .ui-sidebar-group > .ui-collapsible > summary {
   display: flex;
   align-items: center;
@@ -280,22 +283,36 @@
   > summary::-webkit-details-marker {
   display: none;
 }
+:where([data-ui]) .ui-sidebar-group-control {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  inline-size: 100%;
+  min-inline-size: 0;
+  block-size: var(--ui-control-height, 32px);
+  padding: 0;
+  text-align: start;
+}
 :where([data-ui]) .ui-sidebar-group-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
   padding: 0;
-  inline-size: var(--ui-control-height, 32px);
-  block-size: var(--ui-control-height, 32px);
+  inline-size: calc(var(--ui-control-height, 32px) - 2px);
+  block-size: calc(var(--ui-control-height, 32px) - 2px);
 }
 :where([data-ui]) .ui-sidebar-group-label {
   flex: 1;
   min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 :where([data-ui]) .ui-sidebar-group-chevron {
   display: inline-flex;
   flex: none;
+  margin-inline-end: var(--ui-gap, 6px);
 }
 :where([data-ui])
   .ui-sidebar-group
@@ -308,7 +325,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  block-size: calc(var(--_ui-sidebar-row-height) + 1px);
+  block-size: var(--_ui-sidebar-row-height);
 }
 :where([data-ui]) .ui-sidebar-group[data-compact] > .ui-button {
   flex-shrink: 0;

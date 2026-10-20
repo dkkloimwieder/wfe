@@ -843,6 +843,7 @@ async function sidebarCases({ page, url, record }) {
             }
           }),
         )
+      await page.mouse.move(700, 700)
       const expandedIcons = await icons()
       const expanded = await rows()
       await page
@@ -864,6 +865,30 @@ async function sidebarCases({ page, url, record }) {
         .getByRole('button', { name: 'Expand sidebar', exact: true })
         .click()
       assert.deepEqual(await rows(), expanded)
+      const longLabel = await page
+        .locator('.ui-sidebar-group')
+        .first()
+        .evaluate((group) => {
+          group.style.inlineSize = '150px'
+          const label = group.querySelector('.ui-sidebar-group-label')
+          label.textContent =
+            'A long navigation group label that must stay on one line'
+          const face = group
+            .querySelector('.ui-sidebar-group-control')
+            .getBoundingClientRect()
+          const text = label.getBoundingClientRect()
+          return {
+            truncated: label.scrollWidth > label.clientWidth,
+            fits: text.top >= face.top && text.bottom <= face.bottom,
+            fullText: label.textContent,
+          }
+        })
+      assert.equal(longLabel.truncated, true)
+      assert.equal(longLabel.fits, true)
+      assert.equal(
+        longLabel.fullText,
+        'A long navigation group label that must stay on one line',
+      )
     },
   )
   await record(
