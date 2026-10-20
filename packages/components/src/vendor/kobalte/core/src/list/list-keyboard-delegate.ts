@@ -87,7 +87,11 @@ export class ListKeyboardDelegate implements KeyboardDelegate {
   }
 
   private getItem(key: string): HTMLElement | null {
-    return this.ref?.()?.querySelector(`[data-key="${key}"]`) ?? null
+    return (
+      Array.from(
+        this.ref?.()?.querySelectorAll<HTMLElement>('[data-key]') ?? [],
+      ).find((node) => node.getAttribute('data-key') === key) ?? null
+    )
   }
 
   // TODO: not working correctly

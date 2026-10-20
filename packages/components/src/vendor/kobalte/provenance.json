@@ -31,7 +31,7 @@
     },
     "core/src/combobox/combobox-base.tsx": {
       "upstreamSha256": "81fd5a18f0e8c515ee6e0f3ac0fdaccbb3d332cbb80118dcc3fe017ab93f7566",
-      "localSha256": "373d0f298c0f2370319bd0a6f7a07f23bd14cfae0370dc9d514440ba21793cc6"
+      "localSha256": "48d306925f97e4ff9bd3d46ff5e41748fda8e0aed52b4ec890f978363c8f9eab"
     },
     "core/src/combobox/combobox-content.tsx": {
       "upstreamSha256": "7545e2833b0ee4267c6636048ebf904c6a749dbce09e0ee5689908cdd69d13f2",
@@ -183,7 +183,7 @@
     },
     "core/src/list/list-keyboard-delegate.ts": {
       "upstreamSha256": "f06be684893e3ae6aea81c0871e0a57132c6c83ddc8f541837975115d707ae74",
-      "localSha256": "31e6dcd955b751b765655b338ff4de15dc40e300b1576bc973a42b1c8f699436"
+      "localSha256": "7c787ba74b4a50f66fb74b55817ca4329f4d02f4021ed93d0e1af3216901b915"
     },
     "core/src/listbox/index.tsx": {
       "upstreamSha256": "9056b04306685111c24ba5efcbe325e80ae43b27e130b705cf95b68d13e40149",

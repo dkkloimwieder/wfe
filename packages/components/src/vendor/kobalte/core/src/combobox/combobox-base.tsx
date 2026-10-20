@@ -728,7 +728,9 @@ export function ComboboxBase<
     const focusedKey = listState.selectionManager().focusedKey()
 
     if (focusedKey) {
-      return listboxRef()?.querySelector(`[data-key="${focusedKey}"]`)?.id
+      return Array.from(
+        listboxRef()?.querySelectorAll<HTMLElement>('[data-key]') ?? [],
+      ).find((node) => node.getAttribute('data-key') === focusedKey)?.id
     }
 
     return undefined

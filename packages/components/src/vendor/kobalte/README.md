@@ -25,6 +25,8 @@ The strict type pass makes implicit undefined returns explicit in the keyboard d
 It preserves known nonempty array accesses and guards missing collection keys and touch entries.
 Dependency iteration avoids unchecked array access.
 Combobox now returns its plural option-count announcement instead of discarding that string.
+Combobox active-descendant and list page-navigation lookups also compare exact `data-key` values.
+Quoted and backslash keys remain valid identities without CSS escaping or selector interpretation.
 A focused source test covers zero, one, and multiple results.
 
 Combobox accepts `inputValue` for application-controlled search text.
