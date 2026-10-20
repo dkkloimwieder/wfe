@@ -61,7 +61,7 @@
   min-width: 0;
 }
 :where([data-ui]) .ui-dashboard-panel {
-  padding: var(--ui-cell-padding-x, 8px);
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
 }
 :where([data-ui]) .ui-dashboard-panel > :is(h1, h2, h3, p) {
   margin: 0;
@@ -251,16 +251,20 @@
     padding-inline: 0;
   }
 }
+:where([data-ui]) .ui-dashboard-navigation,
+:where([data-ui]) .ui-sidebar-group {
+  --_ui-sidebar-inset: calc(
+    (var(--ui-navigation-rail-width, 3.5rem) - var(--ui-control-height, 32px)) /
+      2
+  );
+}
 :where([data-ui]) .ui-dashboard-navigation:has(> .ui-sidebar-group) {
   padding-inline: 0;
+  padding-block: max(0px, calc(var(--_ui-sidebar-inset) - var(--ui-gap, 6px)));
 }
 :where([data-ui]) .ui-sidebar-group {
   --_ui-sidebar-row-height: calc(
     var(--ui-control-height, 32px) + 2 * var(--ui-gap, 6px)
-  );
-  --_ui-sidebar-inset: calc(
-    (var(--ui-navigation-rail-width, 3.5rem) - var(--ui-control-height, 32px)) /
-      2
   );
   padding-block: var(--ui-gap, 6px);
 }
@@ -279,7 +283,7 @@
   padding: 0;
   list-style: none;
   color: inherit;
-  font-weight: var(--ui-font-weight, 400);
+  font-weight: var(--ui-heading-weight, 500);
 }
 :where([data-ui]) .ui-sidebar-group .ui-collapsible-content {
   padding: var(--ui-gap, 6px);
@@ -317,18 +321,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:where([data-ui]) .ui-sidebar-group-chevron {
-  display: inline-flex;
-  flex: none;
-  margin-inline-end: var(--ui-gap, 6px);
-}
-:where([data-ui])
-  .ui-sidebar-group
-  > .ui-collapsible[open]
-  > summary
-  .ui-sidebar-group-chevron {
-  transform: rotate(90deg);
-}
 :where([data-ui]) .ui-sidebar-group[data-compact] {
   display: flex;
   justify-content: center;
@@ -362,14 +354,14 @@
 }
 :where([data-ui]) .ui-dashboard-divider-toggle {
   position: absolute;
-  inset-inline-end: -16px;
+  inset-inline-end: -18px;
   inset-block-start: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;
-  inline-size: 24px;
-  block-size: 24px;
+  inline-size: 28px;
+  block-size: 28px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -384,7 +376,7 @@
   pointer-events: none;
 }
 :where([data-ui]) .ui-dashboard-divider-toggle[aria-expanded='true'] {
-  inset-inline-end: -8px;
+  inset-inline-end: -10px;
 }
 :where([data-ui]) .ui-dashboard-divider-toggle[aria-expanded='true'] svg {
   transform: rotate(180deg);

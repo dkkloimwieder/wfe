@@ -1,0 +1,26 @@
+:where([data-ui]) .ui-disclosure-indicator {
+  display: inline-block;
+  vertical-align: middle;
+  flex: none;
+  fill: var(--ui-pane-surface, var(--ui-surface, white));
+  stroke: var(--ui-border, #bbb);
+  stroke-width: 1px;
+  pointer-events: none;
+}
+:where([data-ui]) .ui-disclosure-indicator:dir(rtl) {
+  scale: -1 1;
+}
+:where([data-ui]) .ui-disclosure-decoration {
+  display: none;
+}
+:where([data-ui])
+  .sub-table-toggle[aria-expanded='true']
+  .ui-disclosure-indicator {
+  transform: rotate(90deg);
+}
+@media (forced-colors: active) {
+  :where([data-ui]) .ui-disclosure-indicator {
+    fill: ButtonFace;
+    stroke: ButtonText;
+  }
+}

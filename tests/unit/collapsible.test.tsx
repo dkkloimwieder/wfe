@@ -2,7 +2,7 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
 import { Collapsible } from '@wfe/components/collapsible'
-import { TableControlSection } from '@wfe/components/table'
+import { TableControlSection, TableDetailToggle } from '@wfe/components/table'
 
 afterEach(cleanup)
 
@@ -123,4 +123,46 @@ test('native attributes, classes, refs and interactive summary content survive u
   )
   expect(node.querySelector('.body-slot.ui-collapsible-content')).not.toBeNull()
   expect(refs).toHaveBeenCalledTimes(1)
+})
+
+test('disclosure indicators have unique patterns and do not replace their control semantics', () => {
+  const requests = vi.fn()
+  const h = render(() => (
+    <>
+      <Collapsible
+        summary="Section"
+        indicatorPlacement="end"
+        open={false}
+        onOpenChange={requests}
+      >
+        Content
+      </Collapsible>
+      <TableDetailToggle
+        rowId="one"
+        contentId="detail-one"
+        expanded={false}
+        onExpandedChange={requests}
+      />
+    </>
+  ))
+  const indicators = [
+    ...h.container.querySelectorAll('.ui-disclosure-indicator'),
+  ]
+  expect(indicators).toHaveLength(2)
+  const ids = indicators.map((svg) => svg.querySelector('pattern')!.id)
+  expect(new Set(ids).size).toBe(2)
+  indicators.forEach((svg, index) => {
+    expect(svg.getAttribute('aria-hidden')).toBe('true')
+    expect(svg.getAttribute('focusable')).toBe('false')
+    expect(svg.hasAttribute('tabindex')).toBe(false)
+    expect(
+      svg.querySelector('.ui-disclosure-decoration')!.getAttribute('fill'),
+    ).toBe(`url(#${ids[index]})`)
+  })
+  const summary = h.container.querySelector('summary')!
+  expect(summary.dataset.indicatorPlacement).toBe('end')
+  summary.click()
+  h.getByRole('button', { name: 'Expand details for row one' }).click()
+  expect(requests.mock.calls).toEqual([[true], [true]])
+  expect(h.container.querySelector('details')!.open).toBe(false)
 })

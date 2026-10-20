@@ -1,3 +1,4 @@
+import { DashboardShell } from '@wfe/components/layout'
 import { Theme, StatusTile, TileRow } from '@wfe/components'
 import { GridView } from '@wfe/generator'
 import { FileInput } from '@wfe/components/file-input'
@@ -747,3 +748,16 @@ assert.ok(themeOutput.includes('ui-theme'))
 assert.ok(themeOutput.includes('--ui-color-scheme:dark'))
 assert.ok(themeOutput.includes('--ui-control-height:32px'))
 assert.ok(themeOutput.includes('Themed record'))
+
+const embeddedShell = await renderToString(() =>
+  createComponent(DashboardShell, {
+    mainAs: 'section',
+    mainLabel: 'Embedded content',
+    children: 'Nested example',
+  }),
+)
+assert.match(
+  embeddedShell,
+  /<section[^>]*class="ui-dashboard-main"[^>]*aria-label="Embedded content"/,
+)
+assert.doesNotMatch(embeddedShell, /<main[\s>]/)

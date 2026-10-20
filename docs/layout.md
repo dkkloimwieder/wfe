@@ -63,6 +63,7 @@ The header uses a banner landmark, and the content uses a main landmark.
 `navigationLabel` names the navigation landmark.
 `toggleLabel` and `closeLabel` supply localized button text.
 `mainLabel` optionally names the main landmark.
+For an embedded shell example, set `mainAs="section"` to avoid a nested main landmark.
 The default navigation state starts closed on narrow screens.
 The shell owns this temporary display state.
 

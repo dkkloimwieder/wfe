@@ -1,3 +1,4 @@
+import { DisclosureIndicator } from './DisclosureIndicator'
 import { createEffect, merge, omit, onCleanup, untrack } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { styledClasses, type ClassValue } from '../internal/classes'
@@ -16,6 +17,7 @@ export type CollapsibleProps = Omit<
   onToggle?: never
   onBeforeToggle?: never
   summary: JSX.Element
+  indicatorPlacement?: 'start' | 'end'
   children: JSX.Element
   open?: boolean
   defaultOpen?: boolean
@@ -98,6 +100,7 @@ export function Collapsible(props: CollapsibleProps) {
   const attributes = omit(
     props,
     'summary',
+    'indicatorPlacement',
     'children',
     'open',
     'defaultOpen',
@@ -132,10 +135,13 @@ export function Collapsible(props: CollapsibleProps) {
       ref={references}
     >
       <summary
+        class="ui-disclosure-trigger"
+        data-indicator-placement={props.indicatorPlacement ?? 'start'}
         ref={(node) => {
           summary = node
         }}
       >
+        <DisclosureIndicator />
         {props.summary}
       </summary>
       <div class={styledClasses('ui-collapsible-content', props.contentClass)}>

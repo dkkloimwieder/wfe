@@ -1,8 +1,11 @@
-import { Show, onCleanup, untrack } from 'solid-js'
+import { Show, createContext, useContext, onCleanup, untrack } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { Button } from '../components/NativeFields'
-import { Icon } from '../components/Icon'
+import { DisclosureIndicator } from '../components/DisclosureIndicator'
 import { ownsFocus } from '../internal/ownedFocus'
+
+const TableDetailContext = createContext(false)
+export const useTableDetail = () => useContext(TableDetailContext)
 
 /** Applications own expansion, child records, loading, and content lifetimes. */
 export type TableRowDetails = {
@@ -27,7 +30,7 @@ export function TableDetailToggle(props: {
 }) {
   return (
     <Button
-      class="sub-table-toggle"
+      class="sub-table-toggle ui-disclosure-trigger"
       data-subtable-toggle={props.rowId}
       aria-label={
         props.label ??
@@ -44,7 +47,7 @@ export function TableDetailToggle(props: {
       }}
     >
       <span class="ui-icon-text-slot">
-        <Icon name={props.expanded ? 'chevron-down' : 'chevron-right'} />
+        <DisclosureIndicator />
       </span>
       {props.children}
     </Button>
@@ -107,7 +110,9 @@ export function TableDetailRow(props: {
           props.ref?.(node)
         }}
       >
-        <td colspan={props.columnSpan}>{props.children}</td>
+        <td colspan={props.columnSpan}>
+          <TableDetailContext value={true}>{props.children}</TableDetailContext>
+        </td>
       </tr>
     )
   }

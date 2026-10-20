@@ -6,12 +6,14 @@
   background: var(--ui-surface, white);
 }
 :where(.ui-collapsible[data-ui]) > summary {
-  display: list-item;
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
   padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
   line-height: var(--ui-header-height, 22px);
-  list-style-position: inside;
+  list-style: none;
   background: transparent;
-  font-weight: 600;
+  font-weight: var(--ui-heading-weight, 500);
   color: var(--ui-muted-text, #666);
 }
 
@@ -24,4 +26,18 @@
 
 :where(.ui-collapsible[data-ui])[open] > summary {
   color: var(--ui-text, #191919);
+}
+
+:where(.ui-collapsible[data-ui]) > summary::-webkit-details-marker {
+  display: none;
+}
+:where(.ui-collapsible[data-ui])
+  > summary[data-indicator-placement='end']
+  > .ui-disclosure-indicator {
+  order: 1;
+  transform: rotate(180deg);
+  margin-inline-end: var(--ui-gap, 6px);
+}
+:where(.ui-collapsible[data-ui])[open] > summary > .ui-disclosure-indicator {
+  transform: rotate(90deg);
 }

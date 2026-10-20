@@ -11,10 +11,12 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
+import { DisclosureIndicator } from '../components/DisclosureIndicator'
 import { Button } from '../components/NativeFields'
 import { Card } from '../components/Display'
 import { nativeEventProps, ownedElementEvents } from '../internal/events'
 import { uiScope } from '../styles/density'
+import { Dynamic } from '@solidjs/web'
 import type { JSX } from '@solidjs/web'
 import type { CardProps } from '../components/Display'
 import type { UIDensity } from '../styles/density'
@@ -40,6 +42,7 @@ export type DashboardShellProps = {
   toggleLabel?: string
   closeLabel?: string
   mainLabel?: string
+  mainAs?: 'main' | 'section'
   scroll?: 'main' | 'content'
   density?: UIDensity
   theme?: 'dark'
@@ -311,7 +314,7 @@ export function DashboardShell(props: DashboardShellProps) {
       <div class="ui-dashboard-navigation-divider">
         <button
           type="button"
-          class="ui-dashboard-divider-toggle"
+          class="ui-dashboard-divider-toggle ui-disclosure-trigger"
           aria-label={
             props.navigationCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
           }
@@ -327,15 +330,7 @@ export function DashboardShell(props: DashboardShellProps) {
             events,
           ]}
         >
-          <svg
-            width="8"
-            height="12"
-            viewBox="0 0 8 12"
-            aria-hidden="true"
-            {...{ focusable: 'false' }}
-          >
-            <path d="M0.5 1 7.5 6 0.5 11Z" />
-          </svg>
+          <DisclosureIndicator />
         </button>
       </div>
     )
@@ -385,7 +380,8 @@ export function DashboardShell(props: DashboardShellProps) {
       <Show when={props.context}>
         <context.Region />
       </Show>
-      <main
+      <Dynamic
+        component={props.mainAs ?? 'main'}
         ref={(node) => {
           main = node
         }}
@@ -394,7 +390,7 @@ export function DashboardShell(props: DashboardShellProps) {
         aria-label={props.mainLabel}
       >
         {props.children}
-      </main>
+      </Dynamic>
       <Show when={footer() !== undefined}>
         <footer class="ui-dashboard-footer" aria-label={props.footerLabel}>
           {footer()}
