@@ -1,9 +1,9 @@
 import { styledClasses, type ClassValue } from '../internal/classes'
 
 const paths = {
-  form: 'M3 1h10v14H3zM5 5h6M5 8h6M5 11h3',
+  form: 'M3 1h10v14H3zM5 4h6M5 8h6M5 12h3',
   grid: 'M2 2h5v5H2zM9 2h5v5H9zM2 9h5v5H2zM9 9h5v5H9z',
-  navigation: 'M2 3h12M2 8h8M2 13h5',
+  navigation: 'M2 4h12M2 8h8M2 12h5',
   layout: 'M1 2h14v12H1zM1 5h14M5 5v9',
   check: 'm2 8 4 4 8-9',
   view: 'M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5Zm5 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0',
@@ -23,6 +23,16 @@ const paths = {
 } as const
 
 export type IconName = keyof typeof paths
+// Snap only axis-aligned glyphs; curves and diagonals retain edge smoothing.
+const pixelAligned = new Set<IconName>([
+  'form',
+  'grid',
+  'navigation',
+  'layout',
+  'minus',
+  'controls',
+  'calendar',
+])
 export type IconProps = {
   name: IconName
   class?: ClassValue
@@ -42,7 +52,10 @@ export function Icon(props: IconProps) {
       aria-hidden="true"
       {...{ focusable: 'false' }}
     >
-      <path d={paths[props.name]} />
+      <path
+        d={paths[props.name]}
+        shape-rendering={pixelAligned.has(props.name) ? 'crispEdges' : 'auto'}
+      />
     </svg>
   )
 }

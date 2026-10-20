@@ -24,6 +24,9 @@ test('shared glyphs retain their SVG node through name and structured class chan
   expect(svg.getAttribute('aria-hidden')).toBe('true')
   expect(svg.getAttribute('focusable')).toBe('false')
   expect(svg.hasAttribute('tabindex')).toBe(false)
+  expect(svg.querySelector('path')!.getAttribute('shape-rendering')).toBe(
+    'auto',
+  )
   setName('minus')
   setActive(true)
   flush()
@@ -31,6 +34,9 @@ test('shared glyphs retain their SVG node through name and structured class chan
   expect(svg.querySelector('path')!.getAttribute('d')).not.toBe(original)
   expect(svg.classList.contains('ui-icon')).toBe(true)
   expect(svg.classList.contains('active')).toBe(true)
+  expect(svg.querySelector('path')!.getAttribute('shape-rendering')).toBe(
+    'crispEdges',
+  )
 })
 
 test('checkbox and boolean displays share reactive glyphs and retain custom indicator children', () => {
