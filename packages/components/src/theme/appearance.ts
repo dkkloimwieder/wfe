@@ -36,8 +36,8 @@ export type Decorations = {
 }
 export const defaultDecorations: Decorations = {
   secondary: 1,
-  dots: 35,
-  border: 20,
+  dots: 50,
+  border: 100,
   inside: 0,
   dotColor: 'neutral',
   borderColor: 'neutral',
@@ -55,13 +55,13 @@ export const schemes: readonly SurfaceScheme[] = [
     name: 'Light',
     mode: 'light',
     surfaces: ['#ffffff', '#fcfcfd', '#f5f5f5', '#e5e5e5'],
-    text: ['#262626', '#737373'],
+    text: ['#262626', '#999999'],
   },
   {
     name: 'Dark',
     mode: 'dark',
     surfaces: ['#171717', '#1b1b1b', '#262626', '#404040'],
-    text: ['#fafafa', '#a1a1a1'],
+    text: ['#e0e0e0', '#bbbbbb'],
   },
 ]
 export const neutralAccent: Accent = {
@@ -111,7 +111,7 @@ export function dividerSurfaces(scheme: SurfaceScheme) {
 export function appearanceStyle(
   scheme: SurfaceScheme,
   accent: Accent,
-  depth: Depth,
+  _depth: Depth,
   layers: SurfaceLayers,
   dividers: TableDividers = defaultDividers,
   decorations: Decorations = defaultDecorations,
@@ -122,24 +122,20 @@ export function appearanceStyle(
   const surface = scheme.surfaces[layers.content]
   const [text, secondary] = scheme.text
   const dark = scheme.mode === 'dark'
-  const border =
-    scheme === monochrome ? text : dark ? 'rgb(255 255 255 / 0.1)' : edge
-  const controlBorder = dark ? 'rgb(255 255 255 / 0.15)' : border
+  const border = scheme === monochrome ? text : dark ? '#5c5c5c' : edge
+  const controlBorder = border
   const controlSurface = dark
     ? `color-mix(in srgb, ${surface} 95.5%, white)`
     : surface
   const ring = dark ? '#737373' : '#a3a3a3'
   const focus = accentColor(accent, scheme)
   const onAccent = accentText(focus)
-  const opposite =
-    onAccent === monochrome.text[0]
-      ? monochrome.surfaces[0]
-      : monochrome.text[0]
-  const hoverTarget = focus === opposite ? onAccent : opposite
   const secondaryAccent = accentColor(
     secondaryAccents[decorations.secondary]!,
     scheme,
   )
+  const neutralBorder = dark ? border : secondary
+  const neutralDot = dark ? '#a8a8a8' : secondary
   const decorationColor = (role: DecorationColor) =>
     role === 'primary'
       ? focus
@@ -150,7 +146,7 @@ export function appearanceStyle(
     '--ui-secondary-accent': secondaryAccent,
     '--ui-sidebar-accent': focus,
     '--ui-sidebar-neutral': text,
-    '--ui-decoration-border': `color-mix(in srgb, ${decorationColor(decorations.borderColor)} ${decorations.border}%, transparent)`,
+    '--ui-decoration-border': `color-mix(in srgb, ${decorations.borderColor === 'neutral' ? neutralBorder : decorationColor(decorations.borderColor)} ${decorations.border}%, transparent)`,
     '--ui-decoration-dot-opacity': `${decorations.dots}%`,
     '--ui-decoration-border-opacity': `${decorations.border}%`,
     '--ui-action-dot-visibility': `${decorations.inside}%`,
@@ -164,6 +160,7 @@ export function appearanceStyle(
     '--ui-highlight': hover,
     '--ui-hover': hover,
     '--ui-text': text,
+    '--ui-heading-color': `color-mix(in srgb, ${text} 80%, ${secondary})`,
     '--ui-muted-text': secondary,
     '--ui-subtle-text': secondary,
     '--ui-border': border,
@@ -177,23 +174,27 @@ export function appearanceStyle(
     '--ui-focus-offset': '0px',
     '--ui-field-focus-border': ring,
     '--ui-button-border': border,
-    '--ui-neutral-dot-color': `color-mix(in srgb, ${secondary} 85%, transparent)`,
-    '--ui-canvas-pattern': `radial-gradient(circle, color-mix(in srgb, ${decorations.dotColor === 'neutral' ? `color-mix(in srgb, ${secondary} 85%, transparent)` : decorationColor(decorations.dotColor)} ${decorations.dots}%, transparent) 0.5px, transparent 0.75px)`,
+    '--ui-neutral-dot-color': neutralDot,
+    '--ui-neutral-border-color': neutralBorder,
+    '--ui-neutral-button-border': dark
+      ? border
+      : 'var(--ui-button-color, var(--ui-button-border))',
+    '--ui-canvas-pattern': `radial-gradient(circle, color-mix(in srgb, ${decorations.dotColor === 'neutral' ? neutralDot : decorationColor(decorations.dotColor)} ${decorations.dots}%, transparent) 0.75px, transparent 0.75px)`,
     '--ui-canvas-pattern-size': '0.3em 0.3em',
     '--ui-handle-border': border,
     '--ui-focus': focus,
-    '--ui-focus-ring': `color-mix(in srgb, ${ring} 50%, transparent)`,
+    '--ui-focus-ring': ring,
     '--ui-selection': focus,
     '--ui-on-selection': onAccent,
     '--ui-accent': focus,
     '--ui-on-accent': onAccent,
-    '--ui-accent-hover': `color-mix(in srgb, ${focus} 90%, ${hoverTarget})`,
-    '--ui-accent-inverted-hover': `color-mix(in srgb, ${onAccent} 95%, ${focus})`,
+    '--ui-accent-hover': focus,
+    '--ui-accent-inverted-hover': onAccent,
     '--ui-shadow-overflow': '24px',
-    '--ui-panel-shadow': depth ? `var(--ui-theme-shadow-${depth})` : 'none',
-    '--ui-popup-shadow': depth ? 'var(--ui-theme-shadow-3)' : 'none',
+    '--ui-panel-shadow': 'none',
+    '--ui-popup-shadow': 'none',
     '--ui-theme-shadow-color':
       scheme.mode === 'dark' ? '220 40% 2%' : '220 3% 15%',
-    '--ui-theme-shadow-strength': scheme.mode === 'dark' ? '25%' : '1%',
+    '--ui-theme-shadow-strength': '100%',
   }
 }

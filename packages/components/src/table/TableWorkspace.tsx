@@ -328,7 +328,6 @@ export function TableWorkspace(props: TableWorkspaceProps) {
                 class="table-workspace-title-face ui-button"
                 data-variant="outline"
                 data-tone="neutral"
-                data-ui-active="true"
               >
                 <div class="table-workspace-title-text">{title}</div>
               </div>

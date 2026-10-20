@@ -32,7 +32,7 @@
   height: 16px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.5;
+  stroke-width: var(--ui-icon-stroke-width, 1.5);
   pointer-events: none;
 }
 :where([data-ui]) .table-controls-close {

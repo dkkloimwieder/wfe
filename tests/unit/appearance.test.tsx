@@ -21,6 +21,16 @@ test('action decorations release their pointer listener and observer with the ap
   const random = vi.spyOn(Math, 'random').mockReturnValue(0.8)
   button.dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
   expect(random).toHaveBeenCalled()
+  random.mockReset()
+  random
+    .mockReturnValueOnce(0.8)
+    .mockReturnValueOnce(0.5)
+    .mockReturnValueOnce(0.1)
+    .mockReturnValueOnce(0.9)
+  button.dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
+  expect(button.style.getPropertyValue('--ui-action-angle')).toBe('1.25deg')
+  expect(button.style.getPropertyValue('--ui-action-taper')).toBe('-1.40deg')
+  expect(button.style.getPropertyValue('--ui-action-taper-y')).toBe('1.40deg')
   view.unmount()
   random.mockClear()
   button.dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
@@ -47,7 +57,7 @@ test('nested themes own decoration events exactly once', async () => {
   view
     .getByRole('button', { name: 'Nested action' })
     .dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
-  expect(random).toHaveBeenCalledTimes(3)
+  expect(random).toHaveBeenCalledTimes(4)
 })
 
 test('undefined partial theme values retain the defaults', () => {
@@ -73,5 +83,5 @@ test('CSS-only scopes retain the enclosing theme decoration owner', async () => 
   expect(button.style.getPropertyValue('--ui-action-angle')).not.toBe('')
   const random = vi.spyOn(Math, 'random').mockReturnValue(0.8)
   button.dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
-  expect(random).toHaveBeenCalledTimes(3)
+  expect(random).toHaveBeenCalledTimes(4)
 })

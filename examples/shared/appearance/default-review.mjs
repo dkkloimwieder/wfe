@@ -44,8 +44,8 @@ export async function reviewDefaultAppearance(page) {
     assert.equal(appearance.border, appearance.action)
     assert.equal(appearance.variant, 'outline')
   }
-  assert.equal(appearance.depth, 'var(--ui-theme-shadow-2)')
-  assert.notEqual(appearance.shadow, 'none')
+  assert.equal(appearance.depth, 'none')
+  assert.equal(appearance.shadow, 'none')
   assert.equal(appearance.reachesBottom, true)
   assert.equal(appearance.fullWidth, true)
   if (appearance.outsideButton) {

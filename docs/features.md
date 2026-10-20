@@ -109,7 +109,7 @@ Shared styles own density, typography, spacing, surfaces, borders, button varian
 Compact and comfortable densities use the same geometry contract as virtual rows.
 System text uses uppercase presentation. Record values and prose retain their supplied case.
 Import `@wfe/components/styles.css` once. Read the [style guide](../packages/components/src/styles/README.md) for tokens and scope.
-The review examples use Light, Blue, Surface 1 components, Surface 2 background, and shadow depth 2.
+The review examples use Light, Blue, Surface 1 components, Surface 2 background, and no shadows.
 Those review defaults do not replace every low-level library token fallback.
 
 `ValueDisplay` and `formatDisplayValue` already support date/datetime, boolean, and numeric display formats.

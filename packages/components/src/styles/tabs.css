@@ -16,7 +16,7 @@
   border-color: var(--ui-accent, currentColor);
 }
 :where(.ui-tabs-content) {
-  padding: var(--ui-cell-padding-x, 8px);
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
   min-width: 0;
 }
 :where(.ui-tabs-content[hidden]) {

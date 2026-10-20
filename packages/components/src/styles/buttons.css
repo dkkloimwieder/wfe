@@ -37,13 +37,10 @@
   font-weight: var(--ui-button-font-weight, inherit);
   --_button-color: var(--ui-text, #000);
   --_button-contrast: var(--ui-surface, #fff);
-  --_button-hover: var(
-    --ui-button-filled-hover,
-    color-mix(in srgb, var(--_button-color) 90%, var(--_button-contrast))
-  );
+  --_button-hover: var(--ui-button-filled-hover, var(--_button-color));
   --_button-inverted-hover: var(
     --ui-button-inverted-hover,
-    color-mix(in srgb, var(--_button-contrast) 95%, var(--_button-color))
+    var(--_button-contrast)
   );
 }
 :where([data-ui]) .ui-button[data-tone='default'] {
@@ -60,13 +57,10 @@
 :where([data-ui]) .ui-button[data-tone='accent'] {
   --_button-color: var(--ui-accent, var(--ui-text, #000));
   --_button-contrast: var(--ui-on-accent, var(--ui-surface, #fff));
-  --_button-hover: var(
-    --ui-accent-hover,
-    color-mix(in srgb, var(--_button-color) 90%, var(--_button-contrast))
-  );
+  --_button-hover: var(--ui-accent-hover, var(--_button-color));
   --_button-inverted-hover: var(
     --ui-accent-inverted-hover,
-    color-mix(in srgb, var(--_button-contrast) 95%, var(--_button-color))
+    var(--_button-contrast)
   );
 }
 :where([data-ui]) .ui-button[data-variant='filled'] {

@@ -357,21 +357,12 @@ try {
         .evaluate((node) => node.style.getPropertyValue('--ui-focus')),
       '#4dabf7',
     )
-    await button('No shadows').click()
     assert.equal(
       await page
         .locator('.form-example')
         .evaluate((node) => getComputedStyle(node).boxShadow),
       'none',
     )
-    await button('Depth 3').click()
-    assert.notEqual(
-      await page
-        .locator('.form-example')
-        .evaluate((node) => getComputedStyle(node).boxShadow),
-      'none',
-    )
-    await expect(button('Depth 3')).toBeFocused()
     await name.focus()
     await expect(name).toBeFocused()
     assert.equal(

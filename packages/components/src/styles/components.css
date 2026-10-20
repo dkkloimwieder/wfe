@@ -1,4 +1,5 @@
 :where([data-ui]) .ui-icon {
+  stroke-width: var(--ui-icon-stroke-width, 1.5);
   display: inline-block;
   vertical-align: middle;
   flex: none;
@@ -138,6 +139,9 @@
   text-align: left;
   padding: 8px 10px;
   font-weight: 650;
+}
+:where([data-ui]) th {
+  font-weight: var(--ui-heading-weight, 500);
 }
 :where([data-ui]) th,
 :where([data-ui]) td {
@@ -548,7 +552,7 @@
 }
 :where([data-ui]) .group-row > td {
   background: var(--ui-highlight, #edf3fb);
-  padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
+  padding: var(--ui-table-cell-padding-y, 1px) var(--ui-cell-padding-x, 8px);
 }
 :where([data-ui]) .group-heading button {
   text-align: left;
@@ -570,18 +574,19 @@
   font-weight: 400;
 }
 :where([data-ui]) .sub-table-row > td {
-  padding: 10px;
+  padding: 0;
+  padding-inline-start: 10px;
   background: var(--ui-muted-surface, #f0f0f0);
 }
 :where([data-ui]) .sub-table {
   min-width: 0;
-  max-width: calc(100cqw - 24px);
+  max-width: calc(100cqw - 10px);
 }
 :where([data-ui]) .sub-table h2 {
   font-size: 16px;
 }
 :where([data-ui]) .sub-table-control {
-  padding: 4px;
+  padding: var(--ui-table-cell-padding-y, 1px) 4px;
   text-align: center;
 }
 :where([data-ui]) .sub-table-toggle {
@@ -666,7 +671,7 @@
 }
 :where([data-ui]) .column-resize[aria-disabled='true'] {
   cursor: default;
-  opacity: 0.4;
+  opacity: 1;
 }
 :where([data-ui]) .editing-lock {
   color: var(--ui-warning-text, #734b00);
@@ -692,7 +697,7 @@
   height: 12px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.2;
+  stroke-width: var(--ui-icon-stroke-width, 1.2);
   stroke-linejoin: round;
 }
 :where([data-ui]) .header-filter-trigger[data-filtered='true'] {
@@ -850,7 +855,7 @@
 }
 :where([data-ui]) .popup-option[data-disabled] {
   color: var(--ui-muted-text, #666);
-  opacity: 0.65;
+  opacity: 1;
 }
 
 @media (max-width: 700px) {
@@ -958,7 +963,7 @@
   height: 100%;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: var(--ui-icon-stroke-width, 2);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -1005,7 +1010,7 @@
 :where([data-ui]) .ui-dialog-overlay {
   position: fixed;
   inset: 0;
-  background: var(--ui-overlay, rgb(0 0 0 / 30%));
+  background: var(--ui-overlay, rgb(0 0 0));
   pointer-events: auto;
 }
 :where([data-ui]) .ui-dialog-content {
@@ -1020,7 +1025,7 @@
   overscroll-behavior: contain;
   display: grid;
   gap: var(--ui-gap, 6px);
-  padding: calc(var(--ui-cell-padding-x, 8px) * 1.5);
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
   pointer-events: auto;
 }
 :where([data-ui]) .ui-dialog-title {
@@ -1089,6 +1094,7 @@
   display: none;
 }
 :where([data-ui]) .ui-popover {
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
   display: grid;
   gap: var(--ui-gap, 5px);
 }
@@ -1123,7 +1129,7 @@
   box-shadow: inset 0 0 0 1px var(--ui-focus-ring, var(--ui-focus, #1657a8));
 }
 :where([data-ui]) .ui-menu-item[data-disabled] {
-  opacity: 0.5;
+  opacity: 1;
   cursor: default;
 }
 :where([data-ui]) .ui-menu-separator {
@@ -1139,6 +1145,9 @@
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
   background: var(--ui-surface, white);
   color: var(--ui-text, #191919);
+}
+:where([data-ui]) .ui-card {
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
 }
 :where([data-ui]) .ui-badge {
   display: inline-flex;
@@ -1394,7 +1403,7 @@
 :where([data-ui]) td[data-cell-selection] {
   background: var(
     --ui-cell-selection-surface,
-    var(--ui-canvas-surface, #e9ecef)
+    color-mix(in srgb, var(--ui-text, #262626) 4%, var(--ui-surface, white))
   );
   --_selection-top: 0;
   --_selection-bottom: 0;
@@ -1406,20 +1415,17 @@
     inset var(--_selection-left) 0 var(--ui-accent, #1c7ed6),
     inset var(--_selection-right) 0 var(--ui-accent, #1c7ed6);
 }
-:where([data-ui]) td[data-selection-active] {
-  background: var(--ui-surface, white);
-}
 :where([data-ui]) td[data-selection-edges~='top'] {
-  --_selection-top: 2px;
+  --_selection-top: 1px;
 }
 :where([data-ui]) td[data-selection-edges~='bottom'] {
-  --_selection-bottom: -2px;
+  --_selection-bottom: -1px;
 }
 :where([data-ui]) td[data-selection-edges~='left'] {
-  --_selection-left: 2px;
+  --_selection-left: 1px;
 }
 :where([data-ui]) td[data-selection-edges~='right'] {
-  --_selection-right: -2px;
+  --_selection-right: -1px;
 }
 :where([data-ui]) table[data-native-cell-selection] ::selection {
   background: transparent;

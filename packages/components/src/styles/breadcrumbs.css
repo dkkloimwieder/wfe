@@ -4,7 +4,7 @@
 :where(.ui-breadcrumbs-list) {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: var(--ui-gap, 6px);
   margin: 0;
   padding: 4px;
@@ -12,7 +12,7 @@
 }
 :where(.ui-breadcrumbs-item) {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--ui-gap, 6px);
   min-width: 0;
   overflow-wrap: anywhere;
@@ -27,4 +27,12 @@
 :where(.ui-breadcrumbs-separator) {
   color: var(--ui-muted-text, currentColor);
   user-select: none;
+}
+
+:where(.ui-breadcrumbs-current),
+:where(.ui-breadcrumbs-item) > :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  font-size: var(--ui-heading-font-size, 14px);
+  line-height: var(--ui-heading-line-height, 20px);
+  font-weight: var(--ui-heading-weight, 500);
 }

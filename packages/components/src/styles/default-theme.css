@@ -3,7 +3,8 @@
 @import './theme-sizing.css';
 
 .ui-theme {
-  --ui-action-outline-opacity: 65%;
+  --ui-icon-stroke-width: 1;
+  --ui-action-outline-opacity: 100%;
   min-width: 0;
   background: var(--ui-canvas-surface);
 }
@@ -41,7 +42,8 @@
     .clear-input,
     .column-sort,
     .column-move,
-    .header-rename
+    .header-rename,
+    .sub-table-toggle
   ) {
   position: relative;
   --_ui-action-tilt: var(--ui-action-angle, 0deg);
@@ -70,7 +72,8 @@
     .clear-input,
     .column-sort,
     .column-move,
-    .header-rename
+    .header-rename,
+    .sub-table-toggle
   )::before {
   content: '';
   position: absolute;
@@ -85,6 +88,7 @@
     --ui-action-decoration-transform,
     rotate(var(--_ui-action-tilt)) perspective(240px)
       rotateX(var(--ui-action-taper, 0deg))
+      rotateY(var(--ui-action-taper-y, 0deg))
   );
   opacity: 0;
 }
@@ -144,7 +148,8 @@
       .clear-input,
       .column-sort,
       .column-move,
-      .header-rename
+      .header-rename,
+      .sub-table-toggle
     ) {
     background-color: color-mix(
       in srgb,
@@ -176,7 +181,18 @@
 }
 
 .ui-theme
-  :is(.ui-sidebar-group, .ui-sidebar-flyout, .table-workspace-title-face) {
+  :is(
+    .ui-sidebar-group,
+    .ui-sidebar-flyout,
+    .table-workspace-title-face,
+    .table-controls-toggle,
+    .table-refresh
+  ) {
+  --ui-decoration-border: color-mix(
+    in srgb,
+    var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
+    transparent
+  );
   --ui-button-color: var(--ui-sidebar-neutral);
   --ui-accent: var(--ui-sidebar-neutral);
   --ui-text: var(--ui-sidebar-accent);
@@ -184,10 +200,29 @@
     circle,
     color-mix(
         in srgb,
-        var(--ui-sidebar-accent) var(--ui-decoration-dot-opacity, 35%),
+        var(--ui-sidebar-accent) var(--ui-decoration-dot-opacity, 50%),
         transparent
       )
-      0.5px,
+      0.75px,
+    transparent 0.75px
+  );
+}
+.ui-theme :is(.ui-sidebar-group, .ui-sidebar-flyout) .ui-dashboard-menu > a {
+  --ui-decoration-border: color-mix(
+    in srgb,
+    var(--ui-neutral-border-color, var(--ui-neutral-dot-color))
+      var(--ui-decoration-border-opacity, 100%),
+    transparent
+  );
+  --ui-canvas-pattern: radial-gradient(
+    circle,
+    color-mix(
+        in srgb,
+        var(--ui-neutral-dot-color, var(--ui-sidebar-neutral))
+          var(--ui-decoration-dot-opacity, 50%),
+        transparent
+      )
+      0.75px,
     transparent 0.75px
   );
 }
@@ -208,16 +243,36 @@
 /* Keep the action face quieter than its text and separate from the backing. */
 @media (forced-colors: none) {
   .ui-theme .ui-button[data-variant='outline'][data-tone='default'] {
-    --_ui-outline-color: var(--ui-control-border);
+    --_ui-outline-color: var(
+      --ui-neutral-button-border,
+      var(--ui-button-border)
+    );
+    --_ui-outline-opacity: 100%;
+  }
+  .ui-theme
+    .ui-button[data-variant='outline'][data-tone='default']:is(
+      :focus-within,
+      [aria-pressed='true'],
+      [data-ui-active='true'],
+      [aria-selected='true'],
+      [aria-current='page']
+    ) {
+    --_ui-outline-opacity: 100%;
+  }
+  @media (hover: hover) {
+    .ui-theme .ui-button[data-variant='outline'][data-tone='default']:hover {
+      --_ui-outline-opacity: 100%;
+    }
   }
   .ui-theme .ui-button[data-variant='outline'][data-tone='accent'] {
     --_ui-outline-color: var(--_button-color);
   }
   .ui-theme .ui-button[data-variant='outline'] {
     --_ui-outline-color: var(--ui-button-border);
+    --_ui-outline-opacity: var(--ui-action-outline-opacity);
     border-color: color-mix(
       in srgb,
-      var(--_ui-outline-color) var(--ui-action-outline-opacity),
+      var(--_ui-outline-color) var(--_ui-outline-opacity),
       transparent
     );
   }
@@ -250,19 +305,92 @@
     color-mix(
         in srgb,
         var(--ui-neutral-dot-color, var(--ui-muted-text))
-          var(--ui-decoration-dot-opacity, 35%),
+          var(--ui-decoration-dot-opacity, 50%),
         transparent
       )
-      0.5px,
+      0.75px,
     transparent 0.75px
   );
   background-size: var(--ui-canvas-pattern-size);
 }
-.ui-theme .table-workspace-title-face {
+.ui-theme
+  :is(.table-workspace-title-face, .table-controls-toggle, .table-refresh) {
   color: var(--ui-sidebar-neutral);
   border-color: var(--ui-control-border);
 }
 
+.ui-theme :is(.table-controls-toggle, .table-refresh) {
+  --ui-button-color: var(--ui-muted-text);
+  color: var(--ui-muted-text);
+}
+
 .ui-theme .table-workspace-title-face {
-  --ui-action-decoration-inset: -7px;
+  --ui-action-decoration-inset: -6px;
+  --ui-decoration-border: color-mix(
+    in srgb,
+    var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
+    transparent
+  );
+}
+
+.ui-theme
+  :is(
+    th,
+    .table-control-section > summary,
+    .ui-sidebar-group > .ui-collapsible > summary,
+    .ui-sidebar-group[data-compact] > .ui-button,
+    .ui-sidebar-flyout .ui-popup-title
+  ) {
+  color: var(--ui-heading-color, var(--ui-text));
+  font-weight: var(--ui-heading-weight, 500);
+}
+
+.ui-theme .ui-disclosure-indicator {
+  overflow: visible;
+  inline-size: 14px;
+  block-size: 21px;
+}
+.ui-theme .ui-disclosure-arrow {
+  transform-box: fill-box;
+  transform-origin: 33.333333% 50%;
+  scale: calc(4 / 7);
+}
+.ui-theme .ui-disclosure-decoration {
+  display: initial;
+  opacity: 0;
+  pointer-events: none;
+}
+.ui-theme .ui-disclosure-trigger:focus-visible .ui-disclosure-decoration {
+  opacity: 1;
+}
+.ui-theme .ui-disclosure-trigger:focus-visible .ui-disclosure-arrow {
+  fill: var(--ui-muted-text);
+}
+@media (hover: hover) {
+  .ui-theme
+    .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
+    .ui-disclosure-decoration {
+    opacity: 1;
+  }
+  .ui-theme
+    .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
+    .ui-disclosure-arrow {
+    visibility: hidden;
+  }
+}
+@media (forced-colors: active) {
+  .ui-theme .ui-disclosure-decoration {
+    display: none;
+  }
+  .ui-theme
+    .ui-disclosure-trigger:is(:hover, :focus-visible)
+    .ui-disclosure-arrow {
+    fill: Highlight;
+    visibility: visible;
+  }
+}
+
+.ui-theme .ui-button.sub-table-toggle {
+  border-color: transparent;
+  background-color: transparent;
 }

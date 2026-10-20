@@ -1,6 +1,6 @@
 # Default theme
 
-`Theme` applies the approved appearance from `v0.0.3`.
+`Theme` applies the approved appearance from `v0.0.4`.
 The theme lives in `@wfe/components`, including its CSS, fonts, and decorative behavior.
 The gallery uses this implementation too.
 
@@ -21,11 +21,13 @@ export function App() {
 }
 ```
 
-The Default theme uses light mode, a blue accent, outline buttons, and shadow depth 2.
-Default outline buttons use soft neutral borders and text in the accent color.
+The Default theme uses light mode, a blue accent, outline buttons, and flat surfaces without shadows.
+Default outline buttons use shared border colors and text in the accent color.
 Content uses surface 1. The main canvas uses surface 2 with subtle dots.
 Controls use Fira Code at 12px, with a 32px height.
 Forms use a 30rem field limit. Table controls retain compact sizing.
+Content panels, cards, dialogs, popovers, and tab content share `--ui-layout-inset` (16px in Default).
+Sidebar groups use equal outer insets. Table cells retain compact vertical padding, including grouped rows and expansion controls.
 Action decorations use random tilted outlines. Each Theme owns their event handlers and cleanup.
 
 ## Application configuration
@@ -36,7 +38,7 @@ Pass `secondaryAccent="yellow"` to set the secondary accent.
 The application owns these values, persistence, and any system preference detection.
 Use the same initial values on the server and client for hydration.
 
-`depth` accepts the exported `Depth` values.
+`depth` remains accepted for compatibility. The Default theme renders all depths without shadows.
 `layers`, `dividers`, and `decorations` accept partial overrides.
 Pass values from the exported TypeScript types. Opacity percentages use the range 0 to 100.
 Omitted or undefined values retain their defaults.

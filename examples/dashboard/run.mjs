@@ -1265,16 +1265,11 @@ try {
       1000,
     )
   })
-  await test('Neutral surface modes, accents and depth preserve table state and geometry', async () => {
+  await test('Neutral surface modes and accents preserve table state and geometry', async () => {
     const schemeButton = (name) =>
       page.getByRole('button', { name: `${name} surfaces`, exact: true })
     const accentButton = (name) =>
       page.getByRole('button', { name: `${name} accent`, exact: true })
-    const depth = (level) =>
-      page.getByRole('button', {
-        name: level ? `Depth ${level}` : 'No shadows',
-        exact: true,
-      })
     const header = page.locator('.table-workspace-header')
     const caption = page.locator('.table-workspace-title')
     const tableHeader = page.locator('thead')
@@ -1346,7 +1341,7 @@ try {
           .evaluate((node) => getComputedStyle(node).boxShadow),
         sectionShadow,
       )
-      assert.notEqual(
+      assert.equal(
         await page
           .locator('.table-workspace')
           .evaluate((node) => getComputedStyle(node).boxShadow),
@@ -1425,19 +1420,9 @@ try {
     await page
       .getByRole('button', { name: 'Content Surface 1', exact: true })
       .click()
-    const shadows = []
-    for (const level of [1, 2, 3]) {
-      await depth(level).click()
-      await expect(depth(level)).toHaveAttribute('aria-pressed', 'true')
-      shadows.push(
-        await page
-          .locator('.table-workspace')
-          .evaluate((node) => getComputedStyle(node).boxShadow),
-      )
-      assert.deepEqual(await surface.boundingBox(), geometry)
-    }
-    assert.equal(new Set(shadows).size, 3)
-    await depth(1).click()
+    await expect(page.getByRole('group', { name: 'Shadow depth' })).toHaveCount(
+      0,
+    )
     await schemeButton('Light').click()
     await accentButton('Blue').click()
     assert.equal(
@@ -1451,25 +1436,16 @@ try {
     await choiceTrigger('Region').click()
     const popup = page.locator('.popup-content')
     assert.equal(await background(popup), await background(sample('Surface 1')))
-    assert.notEqual(
+    assert.equal(
       await popup.evaluate((node) => getComputedStyle(node).boxShadow),
       'none',
     )
     await page.keyboard.press('Escape')
-    await depth(0).click()
-    await expect(depth(0)).toHaveAttribute('aria-pressed', 'true')
     assert.equal(
       await surface.evaluate((node) => getComputedStyle(node).boxShadow),
       'none',
     )
     assert.equal(
-      await sample('Surface 4').evaluate(
-        (node) => getComputedStyle(node).boxShadow,
-      ),
-      'none',
-    )
-    await depth(1).click()
-    assert.notEqual(
       await sample('Surface 4').evaluate(
         (node) => getComputedStyle(node).boxShadow,
       ),

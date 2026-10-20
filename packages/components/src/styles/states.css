@@ -47,11 +47,11 @@
 :where([data-ui]) textarea:disabled,
 :where([data-ui]) select:disabled {
   cursor: default;
-  opacity: var(--ui-disabled-opacity, 0.55);
+  opacity: var(--ui-disabled-opacity, 1);
 }
 :where([data-ui]) .ui-toggle[data-disabled],
 :where([data-ui]) .ui-radio-item[data-disabled] {
-  opacity: var(--ui-disabled-opacity, 0.55);
+  opacity: var(--ui-disabled-opacity, 1);
 }
 
 :where([data-ui]) .ui-field-value,

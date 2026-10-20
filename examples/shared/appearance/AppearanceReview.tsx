@@ -20,12 +20,12 @@ import type {
 } from './appearance'
 
 const roles = [
-  { name: 'Surface 1', source: 'surfaces', index: 0, shadow: 0 },
-  { name: 'Surface 2', source: 'surfaces', index: 1, shadow: 1 },
-  { name: 'Surface 3', source: 'surfaces', index: 2, shadow: 2 },
-  { name: 'Surface 4', source: 'surfaces', index: 3, shadow: 3 },
-  { name: 'Text 1', source: 'text', index: 0, shadow: 0 },
-  { name: 'Text 2', source: 'text', index: 1, shadow: 0 },
+  { name: 'Surface 1', source: 'surfaces', index: 0 },
+  { name: 'Surface 2', source: 'surfaces', index: 1 },
+  { name: 'Surface 3', source: 'surfaces', index: 2 },
+  { name: 'Surface 4', source: 'surfaces', index: 3 },
+  { name: 'Text 1', source: 'text', index: 0 },
+  { name: 'Text 2', source: 'text', index: 1 },
 ] as const
 
 /** Temporary application-owned review. Nothing is persisted. */
@@ -82,20 +82,6 @@ export function AppearanceReview(props: {
                   aria-hidden="true"
                   style={{ background: accentColor(accent, props.scheme) }}
                 />
-              </Button>
-            )}
-          </For>
-        </div>
-        <div class="appearance-options" role="group" aria-label="Shadow depth">
-          <span data-ui-text="system">Depth</span>
-          <For each={[0, 1, 2, 3] as const}>
-            {(depth) => (
-              <Button
-                aria-label={depth ? `Depth ${depth}` : 'No shadows'}
-                aria-pressed={props.depth === depth ? 'true' : 'false'}
-                onClick={() => props.onDepthChange(depth)}
-              >
-                {depth || 'Off'}
               </Button>
             )}
           </For>
@@ -362,10 +348,6 @@ export function AppearanceReview(props: {
                 aria-hidden="true"
                 style={{
                   background: props.scheme[role.source][role.index],
-                  'box-shadow':
-                    props.depth && role.shadow
-                      ? `var(--ui-theme-shadow-${role.shadow})`
-                      : 'none',
                 }}
               />
               <span>

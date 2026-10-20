@@ -107,8 +107,8 @@ Disabled and read-only fields use `--ui-muted-surface` and suppress editable hov
 A selected Switch retains its highlight and thumb position in these states.
 `--ui-disabled-opacity` applies once to each visible control or toggle group.
 The default opacity is 1, so disabled actions do not acquire a gray fill.
-Unavailable choice options retain opacity 0.65 and muted text.
-Unavailable action menu items retain opacity 0.5.
+Unavailable choice options use full opacity and muted text.
+Unavailable action menu items use full opacity.
 Choice selection uses `--ui-selection` and `--ui-on-selection`.
 Action menu focus retains the hover surface and inset focus border.
 All visible field focus uses `--ui-focus-ring` with the `--ui-focus` fallback.

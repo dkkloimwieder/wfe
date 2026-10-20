@@ -94,7 +94,7 @@ The default theme reads shared text, divider, surface, and accent tokens.
 An authored definition theme takes precedence over these defaults.
 Multiple series use the same accent until the application supplies another theme or mark appearance.
 Use line styles, opacity, or explicit labels to distinguish series within that accent.
-The gallery uses Surface 1 components, a Surface 2 background, Blue accent, outline buttons, and shadow depth 2.
+The gallery uses Surface 1 components, a Surface 2 background, Blue accent, outline buttons, and no shadows.
 
 Use the owned `tooltipPortal` with the `tooltip` extension.
 It keeps fallback content within the current UI scope and respects native popup hosts.

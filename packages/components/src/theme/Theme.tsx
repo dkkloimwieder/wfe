@@ -88,7 +88,7 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
     ...appearanceStyle(
       scheme,
       accent,
-      options.depth ?? 2,
+      options.depth ?? 0,
       withDefaults<SurfaceLayers>(
         { canvas: 1, pane: 0, content: 0 },
         options.layers,

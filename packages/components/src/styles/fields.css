@@ -70,7 +70,7 @@
 :where([data-ui]) :is(.filter-input, .choice-control) > button > .ui-icon {
   inline-size: 14px;
   block-size: 14px;
-  stroke-width: 1.25;
+  stroke-width: var(--ui-icon-stroke-width, 1.25);
 }
 :where([data-ui]) .filter-input > :is(input, select) {
   flex: 1;
