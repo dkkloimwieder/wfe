@@ -58,6 +58,9 @@
 }
 :where([data-ui]) .table-workspace-header {
   grid-area: header;
+  --ui-control-height: var(--ui-table-control-height, 26px);
+  --ui-control-padding-y: 2px;
+  --ui-control-padding-x: 6px;
   position: relative;
   z-index: 6;
   display: grid;

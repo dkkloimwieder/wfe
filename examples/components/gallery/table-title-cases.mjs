@@ -15,8 +15,8 @@ export async function tableTitleCases({ page, url, record }) {
           const dimensions = await table.boundingBox()
           assert.deepEqual(dimensions, { x: 0, y: 0, width, height: 900 })
           const header = table.locator('.table-workspace-header')
-          assert.equal((await header.boundingBox()).height, 41)
-          assert.equal((await title.boundingBox()).height, 32)
+          assert.equal((await header.boundingBox()).height, 31)
+          assert.equal((await title.boundingBox()).height, 26)
           assert.equal(await title.getAttribute('role'), null)
           assert.equal(await title.getAttribute('tabindex'), null)
           await expect(title).toHaveCSS('cursor', 'default')
@@ -39,11 +39,60 @@ export async function tableTitleCases({ page, url, record }) {
           assert.match(paint.pattern, /radial-gradient/)
           assert.notEqual(paint.header, paint.pattern)
           assert.equal(paint.opacity, '1')
-          assert.equal(paint.inset, '-6px')
+          assert.equal(paint.inset, '-1px')
           assert.equal(paint.overflow, 'visible')
           assert.notEqual(paint.angle, '')
+          await title
+            .locator('.table-workspace-title-text')
+            .evaluate((node) => {
+              const heading = document.createElement('h2')
+              heading.textContent = 'A deliberately long table title '.repeat(
+                12,
+              )
+              node.replaceChildren(heading)
+            })
+          await expect(title.getByRole('heading', { level: 2 })).toBeVisible()
           await title.hover()
-          assert.equal((await header.boundingBox()).height, 41)
+          for (const angle of ['-1.75deg', '1.75deg']) {
+            const bounds = await title.evaluate((node, angle) => {
+              node.style.setProperty('--ui-action-angle', angle)
+              node.style.setProperty('--ui-action-taper', '2deg')
+              const p = getComputedStyle(node, '::before')
+              const style = getComputedStyle(node)
+              const box = node.getBoundingClientRect()
+              const origin = p.transformOrigin.split(' ').map(parseFloat)
+              const matrix = new DOMMatrix(p.transform)
+              const width = parseFloat(p.width),
+                height = parseFloat(p.height)
+              const y =
+                box.top + parseFloat(style.borderTopWidth) + parseFloat(p.top)
+              const ys = [
+                [0, 0],
+                [width, 0],
+                [width, height],
+                [0, height],
+              ].map(([x, dy]) => {
+                const point = new DOMPoint(
+                  x - origin[0],
+                  dy - origin[1],
+                ).matrixTransform(matrix)
+                return y + origin[1] + point.y / point.w
+              })
+              const header = node.closest('header').getBoundingClientRect()
+              return {
+                top: Math.min(...ys),
+                bottom: Math.max(...ys),
+                headerTop: header.top,
+                headerBottom: header.bottom,
+              }
+            }, angle)
+            assert.ok(bounds.top >= bounds.headerTop, JSON.stringify(bounds))
+            assert.ok(
+              bounds.bottom <= bounds.headerBottom,
+              JSON.stringify(bounds),
+            )
+          }
+          assert.equal((await header.boundingBox()).height, 31)
           assert.equal(
             await page.evaluate(() => document.documentElement.scrollWidth),
             width,

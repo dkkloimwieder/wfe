@@ -74,15 +74,18 @@
   )::before {
   content: '';
   position: absolute;
-  inset: -6px;
+  inset: var(--ui-action-decoration-inset, -6px);
   z-index: -1;
   pointer-events: none;
   border: 1px solid var(--ui-decoration-border);
   background-color: var(--ui-canvas-surface);
   background-image: var(--ui-canvas-pattern);
   background-size: var(--ui-canvas-pattern-size);
-  transform: rotate(var(--_ui-action-tilt)) perspective(240px)
-    rotateX(var(--ui-action-taper, 0deg));
+  transform: var(
+    --ui-action-decoration-transform,
+    rotate(var(--_ui-action-tilt)) perspective(240px)
+      rotateX(var(--ui-action-taper, 0deg))
+  );
   opacity: 0;
 }
 .ui-theme
@@ -177,11 +180,6 @@
   --ui-button-color: var(--ui-sidebar-neutral);
   --ui-accent: var(--ui-sidebar-neutral);
   --ui-text: var(--ui-sidebar-accent);
-  --ui-decoration-border: color-mix(
-    in srgb,
-    var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 20%),
-    transparent
-  );
   --ui-canvas-pattern: radial-gradient(
     circle,
     color-mix(
@@ -251,7 +249,8 @@
     circle,
     color-mix(
         in srgb,
-        var(--ui-muted-text) var(--ui-decoration-dot-opacity, 35%),
+        var(--ui-neutral-dot-color, var(--ui-muted-text))
+          var(--ui-decoration-dot-opacity, 35%),
         transparent
       )
       0.5px,
@@ -262,4 +261,10 @@
 .ui-theme .table-workspace-title-face {
   color: var(--ui-sidebar-neutral);
   border-color: var(--ui-control-border);
+}
+
+.ui-theme .table-workspace-title-face {
+  --ui-action-decoration-inset: -1px -7px;
+  --ui-action-decoration-transform: skewX(var(--ui-action-angle, 0deg))
+    perspective(240px) rotateX(var(--ui-action-taper, 0deg));
 }
