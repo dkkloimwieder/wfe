@@ -49,7 +49,7 @@ dependency is required.
 
 The samples come from [Open Props](https://open-props.style/#color), commit
 `f39ab7c377a0e047f930982e3611bbc95254a260`. The source URLs and SHA-256 hashes
-remain in `examples/shared/appearance/appearance.ts` and `review-shadows.css`.
+live in `packages/components/src/theme/appearance.ts` and `packages/components/src/styles/theme-shadows.css`.
 The exact MIT license remains in `examples/shared/appearance/OPEN-PROPS-LICENSE`.
 The shadow subset changes its variable prefix and scope selector.
 

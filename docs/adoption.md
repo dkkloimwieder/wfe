@@ -23,8 +23,11 @@ Use Solid with `@solidjs/web` and the Solid Vite plugin.
 Keep the runtime and compiler versions aligned with this repository.
 Include Vite client types in the application TypeScript configuration to type CSS imports.
 Import `@wfe/components/styles.css` once in the application entry.
-Apply `uiScope()` to the wrapper that owns the controls.
-Use `uiScope('comfortable', 'dark')` for larger controls with the dark theme.
+Wrap the application in `Theme` for the Default theme introduced in `v0.0.3`.
+Use `<Theme mode="dark">` for dark mode.
+The gallery and consumers use the same theme implementation.
+See [Theme](theme.md) for configuration and a minimal example.
+Use `uiScope()` only for low-level density scopes without the Default theme.
 Provide the same density to fixed row geometry through `uiDensity(density).rowHeight`.
 Component styles stay inside the UI scope.
 Application CSS owns page height, layout, and available table space.
@@ -46,14 +49,7 @@ Place this code in the application entry that uses the Solid compiler:
 import '@wfe/components/styles.css'
 import { createSignal } from 'solid-js'
 import { render } from '@solidjs/web'
-import {
-  Checkbox,
-  Field,
-  HelpText,
-  Input,
-  Label,
-  uiScope,
-} from '@wfe/components'
+import { Checkbox, Field, HelpText, Input, Label, Theme } from '@wfe/components'
 import { createTable, ReadOnlyTable } from '@wfe/components/table'
 
 export function Records() {
@@ -86,7 +82,7 @@ export function Records() {
     ],
   })
   return (
-    <main {...uiScope()}>
+    <Theme>
       <Field controlId="record-name">
         <Label>Record name</Label>
         <Input id="record-name" value={name()} onValueChange={rename} />
@@ -100,7 +96,7 @@ export function Records() {
         <Checkbox.Label>Include record</Checkbox.Label>
       </Checkbox>
       <ReadOnlyTable table={table} title="Records" />
-    </main>
+    </Theme>
   )
 }
 

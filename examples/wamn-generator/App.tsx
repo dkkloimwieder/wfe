@@ -397,7 +397,7 @@ export function App(props: {
   return (
     <div
       {...scope}
-      class="wamn-page appearance-scope"
+      class="wamn-page ui-theme"
       style={{
         ...scope.style,
         ...exampleSizing,

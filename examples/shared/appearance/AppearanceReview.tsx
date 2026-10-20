@@ -364,7 +364,7 @@ export function AppearanceReview(props: {
                   background: props.scheme[role.source][role.index],
                   'box-shadow':
                     props.depth && role.shadow
-                      ? `var(--review-shadow-${role.shadow})`
+                      ? `var(--ui-theme-shadow-${role.shadow})`
                       : 'none',
                 }}
               />

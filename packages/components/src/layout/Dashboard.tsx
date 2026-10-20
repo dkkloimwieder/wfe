@@ -350,7 +350,10 @@ export function DashboardShell(props: DashboardShellProps) {
       id={props.id}
       data-ui-portal-root=""
       class={styledClasses('ui-dashboard', props.class)}
-      style={{ ...uiScope(props.density, props.theme).style, ...props.style }}
+      style={{
+        ...(props.density ? uiScope(props.density, props.theme).style : {}),
+        ...props.style,
+      }}
       data-navigation-collapsed={navigation.compact() ? '' : undefined}
       data-navigation-open={
         props.navigation && active() === 'navigation' ? '' : undefined

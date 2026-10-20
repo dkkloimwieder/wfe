@@ -1,3 +1,4 @@
+import { ThemeConsumer } from '../theme/ThemeConsumer'
 import { ButtonLinkControls } from '../shared/controls/ButtonLinkControls'
 import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
 import {
@@ -147,6 +148,7 @@ export default function App() {
         />
       )}
     >
+      <ThemeConsumer />
       <ButtonLinkControls />
       <FileControls />
       <ResizableControls />

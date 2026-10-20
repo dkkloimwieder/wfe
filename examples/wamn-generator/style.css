@@ -1,7 +1,4 @@
 @import '@wfe/components/styles.css';
-@import '../shared/appearance/review-shadows.css';
-@import '../shared/appearance/fonts/font.css';
-@import '../shared/appearance/sizing.css';
 html,
 body,
 #root {

@@ -45,7 +45,6 @@ import {
   defaultLayers,
   defaultDividers,
 } from '../shared/appearance/appearance'
-import '../shared/appearance/review-shadows.css'
 import '../shared/appearance/style.css'
 
 type RecordData = {
@@ -311,7 +310,7 @@ function TablePage() {
         ...appearanceStyle(scheme(), accent(), depth(), layers(), dividers()),
       }}
       data-ui-portal-root=""
-      class="table-page appearance-scope"
+      class="table-page ui-theme"
       aria-label="Records workspace"
     >
       <AppearanceReview

@@ -1,3 +1,4 @@
+import { reviewTheme } from '../theme/review.mjs'
 import { galleryCases } from './gallery/gallery-cases.mjs'
 import { fileCases } from './file-cases.mjs'
 import { resizableCases } from './resizable-cases.mjs'
@@ -234,6 +235,13 @@ async function record(name, work) {
   }
 }
 try {
+  await record(
+    'theme: public defaults, nested layouts, fonts and portals',
+    async () => {
+      await page.goto(`${url}?theme=1`)
+      await reviewTheme(page)
+    },
+  )
   await galleryCases({ page, url, record, settle })
   await fileCases({ page, url, record, settle })
   await resizableCases({ page, url, record, settle })

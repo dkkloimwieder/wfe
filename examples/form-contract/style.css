@@ -1,6 +1,5 @@
 @import '@wfe/components/styles.css';
 @import '../shared/appearance/style.css';
-@import '../shared/appearance/review-shadows.css';
 html,
 body {
   margin: 0;

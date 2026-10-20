@@ -151,7 +151,7 @@ export function App(props: {
     <div
       {...scope}
       data-ui-portal-root=""
-      class="chart-preview appearance-scope"
+      class="chart-preview ui-theme"
       style={{
         ...scope.style,
         ...appearanceStyle(scheme(), accent(), depth(), layers()),

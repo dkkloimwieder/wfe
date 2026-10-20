@@ -64,3 +64,5 @@ The [inventory](migration/inventory.json) records source commit, file mapping, a
 The [migration record](migration/README.md) explains the extraction boundaries.
 Beads epic `wfe-w2y` records the work and dependency order.
 Run `bd ready --type task` to find the next implementation issue.
+
+See [Default theme](docs/theme.md) for the shared consumer appearance.

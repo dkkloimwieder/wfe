@@ -1,3 +1,4 @@
+import { ThemeConsumer } from '../theme/ThemeConsumer'
 import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
 import {
   ResizableControls,
@@ -45,7 +46,9 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('galleryPreview')) {
+if (new URLSearchParams(location.search).has('theme')) {
+  render(() => <ThemeConsumer />, document.getElementById('root')!)
+} else if (new URLSearchParams(location.search).has('galleryPreview')) {
   const { GalleryPreview } = await import('./gallery/Preview')
   render(() => <GalleryPreview />, document.getElementById('root')!)
 } else if (new URLSearchParams(location.search).has('gallery')) {

@@ -176,7 +176,6 @@ export function Gallery() {
     >
       <DashboardShell
         class="gallery-dashboard"
-        style={exampleSizing}
         scroll="content"
         mainLabel="Component review"
         toggleLabel="Components"

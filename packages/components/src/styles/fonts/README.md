@@ -1,7 +1,7 @@
 # Fira Code
 
 These unchanged variable fonts come from `@fontsource-variable/fira-code` version 5.3.0.
-They supply the Latin and Latin Extended characters for the example presentation.
+They supply the Latin and Latin Extended characters for the default theme.
 The font remains under SIL Open Font License 1.1. See [OFL.txt](./OFL.txt).
 
 Source: https://github.com/fontsource/font-files/tree/main/fonts/google/fira-code

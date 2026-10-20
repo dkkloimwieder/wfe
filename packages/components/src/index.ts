@@ -1,3 +1,11 @@
+export { Theme, themeStyle, themeSizing } from './theme'
+export type {
+  ThemeProps,
+  ThemeOptions,
+  ThemeMode,
+  ThemeAccent,
+  ThemeSecondaryAccent,
+} from './theme'
 export { UI_DENSITIES, uiDensity, uiScope } from './styles/density'
 export type { UIDensity } from './styles/density'
 export { Icon } from './components/Icon'

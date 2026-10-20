@@ -204,6 +204,13 @@
       "solid": "./dist/source/chart/index.js",
       "node": "./dist/server/chart/index.js",
       "import": "./dist/client/chart/index.js"
+    },
+    "./theme": {
+      "types": "./dist/client/theme/index.d.ts",
+      "wfe-source": "./src/theme/index.ts",
+      "solid": "./dist/source/theme/index.js",
+      "node": "./dist/server/theme/index.js",
+      "import": "./dist/client/theme/index.js"
     }
   },
   "sideEffects": [

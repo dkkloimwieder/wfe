@@ -55,7 +55,17 @@ export async function galleryCases({ page, url, record, settle }) {
             )
             .evaluateAll((nodes) =>
               nodes
-                .map((node) => node.getBoundingClientRect().height)
+                .map((node) => {
+                  if (!node.matches('details'))
+                    return node.getBoundingClientRect().height
+                  const style = getComputedStyle(node)
+                  return (
+                    node.querySelector('summary').getBoundingClientRect()
+                      .height +
+                    parseFloat(style.borderTopWidth) +
+                    parseFloat(style.borderBottomWidth)
+                  )
+                })
                 .filter(Boolean),
             )
           for (const height of heights)

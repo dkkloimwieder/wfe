@@ -45,7 +45,7 @@ export function App(props: {
   return (
     <main
       {...scope}
-      class="form-page appearance-scope"
+      class="form-page ui-theme"
       style={{
         ...scope.style,
         ...appearanceStyle(scheme(), accent(), depth(), layers()),

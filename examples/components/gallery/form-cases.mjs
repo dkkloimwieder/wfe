@@ -106,14 +106,14 @@ export async function galleryFormCases({ page, url, record }) {
         const navigationGroup = page.locator('.ui-sidebar-group').first()
         const summary = navigationGroup.locator('summary')
         for (const open of [false, true]) {
-          if ((await navigationGroup.evaluate((node) => node.open)) !== open)
+          if (
+            (await summary.evaluate((node) => node.parentElement.open)) !== open
+          )
             await summary.click()
           const colors = await summary.evaluate((node) => {
             const style = getComputedStyle(node)
             const probe = document.createElement('span')
-            probe.style.color = style.getPropertyValue(
-              node.parentElement.open ? '--ui-text' : '--ui-muted-text',
-            )
+            probe.style.color = style.getPropertyValue('--ui-button-color')
             node.append(probe)
             const expected = getComputedStyle(probe).color
             probe.remove()

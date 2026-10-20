@@ -71,7 +71,7 @@ Unknown example IDs fall back to Fields. Invalid presentation values fall back t
 
 ## Shared presentation
 
-The gallery and reused standalone examples share `examples/shared/appearance/sizing.ts`.
+The gallery and reused standalone examples share `themeSizing` from `@wfe/components/theme`.
 The examples use Fira Code Variable with its unchanged SIL Open Font License in the shared font directory.
 Controls and labels use 12-pixel text. Controls use a 32-pixel height and 10-pixel horizontal padding.
 The root size is 16 pixels. Form fields have a configurable maximum width of 30rem.

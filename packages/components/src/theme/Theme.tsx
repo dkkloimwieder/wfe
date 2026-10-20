@@ -1,0 +1,132 @@
+import { onCleanup } from 'solid-js'
+import type { JSX } from '@solidjs/web'
+import { styledClasses, type ClassValue } from '../internal/classes'
+import { uiScope } from '../styles/density'
+import { decorateActions } from './decorations'
+import { themeSizing } from './sizing'
+import {
+  accents,
+  secondaryAccents,
+  schemes,
+  appearanceStyle,
+  defaultDecorations,
+  defaultDividers,
+} from './appearance'
+import type {
+  Depth,
+  SurfaceLayers,
+  TableDividers,
+  Decorations,
+} from './appearance'
+
+export type ThemeMode = 'light' | 'dark' | 'monochrome'
+export type ThemeAccent =
+  | 'neutral'
+  | 'blue'
+  | 'teal'
+  | 'green'
+  | 'violet'
+  | 'pink'
+  | 'orange'
+  | 'brown'
+  | 'choco'
+export type ThemeSecondaryAccent =
+  ThemeAccent | 'yellow' | 'light-blue' | 'dark-blue'
+export type ThemeOptions = {
+  mode?: ThemeMode
+  accent?: ThemeAccent
+  secondaryAccent?: ThemeSecondaryAccent
+  depth?: Depth
+  layers?: Partial<SurfaceLayers>
+  dividers?: Partial<TableDividers>
+  decorations?: Partial<Omit<Decorations, 'secondary'>>
+}
+export type ThemeProps = ThemeOptions & {
+  children: JSX.Element
+  id?: string
+  class?: ClassValue
+  style?: JSX.CSSProperties
+}
+const accentNames: readonly ThemeSecondaryAccent[] = [
+  'neutral',
+  'blue',
+  'teal',
+  'green',
+  'violet',
+  'pink',
+  'orange',
+  'brown',
+  'choco',
+  'yellow',
+  'light-blue',
+  'dark-blue',
+]
+
+function withDefaults<T extends object>(
+  defaults: T,
+  overrides?: Partial<T>,
+): T {
+  return Object.fromEntries(
+    Object.entries(defaults).map(([key, value]) => [
+      key,
+      overrides?.[key as keyof T] ?? value,
+    ]),
+  ) as T
+}
+
+/** The approved default theme, resolved without browser state. */
+export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
+  const scheme =
+    schemes[
+      options.mode === 'dark' ? 2 : options.mode === 'monochrome' ? 0 : 1
+    ]!
+  const accent =
+    accents[accentNames.indexOf(options.accent ?? 'blue')] ?? accents[1]!
+  const secondary = accentNames.indexOf(options.secondaryAccent ?? 'blue')
+  return {
+    ...themeSizing,
+    ...appearanceStyle(
+      scheme,
+      accent,
+      options.depth ?? 2,
+      withDefaults<SurfaceLayers>(
+        { canvas: 1, pane: 0, content: 0 },
+        options.layers,
+      ),
+      withDefaults(defaultDividers, options.dividers),
+      {
+        ...withDefaults(defaultDecorations, options.decorations),
+        secondary:
+          secondary >= 0 && secondary < secondaryAccents.length ? secondary : 1,
+      },
+    ),
+    '--ui-button-color': 'var(--ui-accent)',
+    '--ui-button-on-color': 'var(--ui-on-accent)',
+  }
+}
+
+/** Theme and portal owner. The application owns mode and accent state. */
+export function Theme(props: ThemeProps) {
+  const scope = uiScope()
+  let dispose: (() => void) | undefined
+  onCleanup(() => {
+    dispose?.()
+    dispose = undefined
+  })
+  return (
+    <div
+      {...scope}
+      id={props.id}
+      class={styledClasses('ui-theme', props.class)}
+      data-ui-portal-root=""
+      data-ui-theme-owner=""
+      ref={(node) => {
+        dispose?.()
+        dispose = decorateActions(node)
+      }}
+      style={{ ...scope.style, ...themeStyle(props), ...props.style }}
+    >
+      {props.children}
+    </div>
+  )
+}
