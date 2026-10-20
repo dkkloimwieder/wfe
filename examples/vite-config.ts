@@ -68,7 +68,9 @@ export function exampleConfig(url: string, extra: PluginOption[] = []) {
         'solid-js',
         '@solidjs/web',
         'zod',
-        ...dependencies.map((name) => `@wfe/components > ${name}`),
+        ...dependencies
+          .filter((name) => !name.startsWith('@types/'))
+          .map((name) => `@wfe/components > ${name}`),
       ],
     },
     resolve: {
