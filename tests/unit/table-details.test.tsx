@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-import { cleanup, fireEvent, render } from '@solidjs/testing-library'
+import { cleanup, fireEvent, render, within } from '@solidjs/testing-library'
 import { createSignal, flush, onCleanup } from 'solid-js'
 import { Input } from '@wfe/components'
 import { ReadOnlyTable, createTable } from '@wfe/components/table'
@@ -177,3 +177,44 @@ test.each(['disabled', 'hidden', 'css-hidden', 'outside', 'disposed'] as const)(
     if (mode === 'outside') expect(document.activeElement).toBe(outside)
   },
 )
+
+test('nested tables omit refresh but allow pending filters to be applied', async () => {
+  let child!: ReturnType<typeof model>
+  const view = render(() => {
+    const parent = model()
+    child = model()
+    return (
+      <ReadOnlyTable
+        table={parent}
+        rowDetails={{
+          expanded: (id) => id !== 'empty',
+          onExpandedChange: () => {},
+          render: () => <ReadOnlyTable table={child} />,
+        }}
+      />
+    )
+  })
+  expect(view.getAllByRole('button', { name: 'Refresh results' })).toHaveLength(
+    1,
+  )
+  const nested = within(
+    view.container.querySelector('.sub-table-row') as HTMLElement,
+  )
+  expect(nested.queryByRole('button', { name: 'Refresh results' })).toBeNull()
+  expect(nested.queryByRole('button', { name: 'Apply filters' })).toBeNull()
+  fireEvent.input(
+    nested.getByRole('searchbox', { name: 'Search all columns' }),
+    {
+      target: { value: 'First' },
+    },
+  )
+  flush()
+  const apply = nested.getByRole('button', { name: 'Apply filters' })
+  apply.focus()
+  fireEvent.click(apply)
+  flush()
+  await new Promise<void>((resolve) => queueMicrotask(resolve))
+  expect(document.activeElement).toBe(nested.getByRole('table'))
+  expect(child.state.globalFilter).toBe('First')
+  expect(nested.queryByRole('button', { name: 'Apply filters' })).toBeNull()
+})

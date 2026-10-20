@@ -15,7 +15,11 @@ import { createTableFilterDraft } from './createTableFilterDraft'
 import type { TableFilterCriteria } from './createTableFilterDraft'
 import { TableSort } from './TableSort'
 import { Table, TableRow } from './Table'
-import { TableDetailToggle, TableDetailRow } from './TableDetails'
+import {
+  TableDetailToggle,
+  TableDetailRow,
+  useTableDetail,
+} from './TableDetails'
 import type { TableRowDetails } from './TableDetails'
 import type { TableSelection } from './createTableSelection'
 import type { TableColumnAlignment, TableColumnAlignments } from './Table'
@@ -80,6 +84,7 @@ export function ReadOnlyTable<T, M>(
     formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   } & Pick<Parameters<typeof Table<T, M>>[0], 'width' | 'headerEnd'>,
 ) {
+  const isDetail = useTableDetail()
   const [localAlignment, setLocalAlignment] = createStore<
     Record<string, TableColumnAlignment | undefined>
   >({})
@@ -185,6 +190,42 @@ export function ReadOnlyTable<T, M>(
       )
       .map((column) => column.id),
   )
+  function FilterApplyControl() {
+    let button: HTMLButtonElement | undefined
+    onCleanup(() => {
+      const document = button?.ownerDocument
+      if (!isDetail || !document || document.activeElement !== button) return
+      const target = button
+        ?.closest('.table-workspace')
+        ?.querySelector<HTMLElement>('.table-scroll table')
+      queueMicrotask(() => {
+        if (target?.isConnected && document.activeElement === document.body)
+          target.focus({ preventScroll: true })
+      })
+    })
+    return (
+      <Button
+        ref={(node) => {
+          button = node
+        }}
+        aria-label={isDetail ? 'Apply filters' : 'Refresh results'}
+        title={isDetail ? 'Apply filters' : 'Apply filters and refresh results'}
+        class="table-refresh"
+        onClick={() => {
+          const invalid = filterControls?.querySelector<HTMLElement>(
+            '[aria-invalid="true"]:not(:disabled)',
+          )
+          if (invalid) workspaceControls?.focus(invalid)
+          else filters.apply({ refresh: !isDetail })
+        }}
+      >
+        <Icon
+          class="table-controls-icon"
+          name={isDetail ? 'check' : 'refresh'}
+        />
+      </Button>
+    )
+  }
   return (
     <TableWorkspace
       class="table-component"
@@ -215,38 +256,14 @@ export function ReadOnlyTable<T, M>(
         <span data-ui-text="system">{props.title ?? 'Read-only records'}</span>
       }
       controlsHeader={
-        <Show
-          when={
-            props.controls?.filtering !== false ||
-            props.controls?.search !== false
-          }
-        >
-          <div class="table-filter-actions">
-            <Button
-              aria-label="Refresh results"
-              title="Apply filters and refresh results"
-              class="table-refresh"
-              disabled={!filtering()}
-              aria-disabled={
-                !filters.changed && !props.onApplyFilters ? 'true' : undefined
-              }
-              onClick={() => {
-                if (!filtering() || (!filters.changed && !props.onApplyFilters))
-                  return
-                const invalid = filterControls?.querySelector<HTMLElement>(
-                  '[aria-invalid="true"]:not(:disabled)',
-                )
-                if (invalid) workspaceControls?.focus(invalid)
-                else filters.apply({ refresh: true })
-              }}
-            >
-              <Icon class="table-controls-icon" name="refresh" />
-            </Button>
-            <Show when={filters.changed}>
-              <span data-ui-text="system">Unapplied changes</span>
-            </Show>
-          </div>
-        </Show>
+        <div class="table-filter-actions">
+          <Show when={!isDetail || filters.changed}>
+            <FilterApplyControl />
+          </Show>
+          <Show when={filters.changed}>
+            <span data-ui-text="system">Unapplied changes</span>
+          </Show>
+        </div>
       }
       controls={
         <>
@@ -483,7 +500,7 @@ export function ReadOnlyTable<T, M>(
           leading={
             details()
               ? {
-                  width: 34,
+                  width: 44,
                   header: () => (
                     <th scope="col" class="sub-table-control">
                       <span class="sr-only">Details</span>

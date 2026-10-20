@@ -353,6 +353,8 @@ Keep state outside the renderer when it must survive collapse.
 Applications own child records, requests, loading states, errors, caching, and permissions.
 
 The renderer can return another `TableView`, a form, or other content.
+Nested tables have a left inset and no refresh control. Applications can load child records through the expansion callback.
+Pending filter changes expose an Apply control without a separate reload action.
 Nested tables keep separate columns, sorting, filters, and selection.
 This contract does not flatten child records into a single tree of rows.
 `TableDetailToggle` and `TableDetailRow` expose the same presentation for custom row adapters.
