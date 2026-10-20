@@ -476,7 +476,7 @@ try {
       const appearance = await svg.evaluate((element) => {
         const probe = document.createElement('span')
         probe.style.cssText =
-          'color:CanvasText;background:Canvas;border:1px solid GrayText;outline:2px solid Highlight'
+          'color:CanvasText;background:Canvas;border:1px solid GrayText;outline:1px solid Highlight'
         document.body.append(probe)
         const system = getComputedStyle(probe)
         const line = getComputedStyle(
@@ -504,12 +504,23 @@ try {
       })
       assert.equal(appearance.stroke, appearance.systemAccent)
       assert.equal(appearance.focus, 'solid')
-      assert.equal(appearance.focusWidth, '2px')
+      assert.equal(appearance.focusWidth, '1px')
       assert.equal(appearance.focusColor, appearance.systemAccent)
       assert.equal(appearance.text, appearance.systemText)
       assert.equal(appearance.background, appearance.systemBackground)
       assert.equal(appearance.border, '1px')
       assert.equal(appearance.borderColor, appearance.systemBorder)
+      await svg.evaluate((element) => {
+        element
+          .closest('.ui-chart')
+          .style.setProperty('--ui-focus-width', '3px')
+      })
+      await expect(svg).toHaveCSS('outline-width', '3px')
+      await expect(svg).toHaveCSS('outline-color', appearance.systemAccent)
+      await svg.evaluate((element) => {
+        element.closest('.ui-chart').style.removeProperty('--ui-focus-width')
+      })
+      await expect(svg).toHaveCSS('outline-width', '1px')
       await svg.press('Escape')
       await expect(tip).not.toBeVisible()
       await page.emulateMedia({ forcedColors: 'none' })
@@ -556,7 +567,7 @@ try {
       }))
       assert.deepEqual(style, {
         outline: 'solid',
-        width: '2px',
+        width: '1px',
         minWidth: '0px',
         outer: false,
       })

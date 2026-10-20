@@ -87,6 +87,9 @@ Optional line styles distinguish series without a second accent color.
 
 ## Appearance and tooltips
 
+Charts use the shared `--ui-focus-width` property, with a 1px default.
+Custom widths also apply in forced-color mode, which retains the system highlight color.
+
 The default theme reads shared text, divider, surface, and accent tokens.
 An authored definition theme takes precedence over these defaults.
 Multiple series use the same accent until the application supplies another theme or mark appearance.
