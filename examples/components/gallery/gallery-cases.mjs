@@ -22,6 +22,7 @@ const catalog = [
   ['table', 'Table'],
 ]
 export async function galleryCases({ page, url, record, settle }) {
+  await appearanceCases({ page, url, record })
   await galleryLoadingCases({ page, url, record })
   await galleryFormCases({ page, url, record })
   const preview = () => page.frameLocator('.gallery-frame')
@@ -730,6 +731,72 @@ export async function galleryCases({ page, url, record, settle }) {
         popstate: counts.popstate - 1,
       })
       assert.equal(disposed.frames, 0)
+    },
+  )
+}
+
+async function appearanceCases({ page, url, record }) {
+  await record(
+    'gallery: decoration controls preserve drafts and history',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(`${url}?gallery=fields`)
+      const preview = page.frameLocator('.gallery-frame')
+      const name = preview.getByRole('textbox', { name: 'Name', exact: true })
+      await name.fill('Retained draft')
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click()
+      await page
+        .getByRole('button', { name: 'Orange secondary accent', exact: true })
+        .click()
+      await page
+        .getByRole('group', { name: 'Dot color', exact: true })
+        .getByRole('button', { name: 'secondary', exact: true })
+        .click()
+      const slider = page.getByRole('slider', { name: /Dot opacity/ })
+      const before = await page.evaluate(() => ({
+        length: history.length,
+        url: location.href,
+      }))
+      await slider.evaluate((node) => {
+        for (const value of ['40', '50', '65']) {
+          node.value = value
+          node.dispatchEvent(new Event('input', { bubbles: true }))
+        }
+      })
+      await expect(slider).toHaveValue('65')
+      assert.deepEqual(
+        await page.evaluate(() => ({
+          length: history.length,
+          url: location.href,
+        })),
+        before,
+      )
+      await slider.dispatchEvent('change')
+      await expect(page).toHaveURL(/dots=65/)
+      assert.equal(await page.evaluate(() => history.length), before.length + 1)
+      await expect(preview.locator('.gallery-preview')).toHaveCSS(
+        '--ui-secondary-accent',
+        '#f76707',
+      )
+      await expect(name).toHaveValue('Retained draft')
+      await page.goBack()
+      await expect(slider).toHaveValue('35')
+      await expect(name).toHaveValue('Retained draft')
+      await page.goForward()
+      await expect(slider).toHaveValue('65')
+      await page
+        .getByRole('slider', { name: /Dots inside buttons/ })
+        .press('Home')
+      await expect(preview.locator('.gallery-preview')).toHaveCSS(
+        '--ui-action-dot-visibility',
+        '0%',
+      )
+      await page.reload()
+      await expect(
+        page.frameLocator('.gallery-frame').locator('.gallery-preview'),
+      ).toHaveCSS('--ui-action-dot-visibility', '0%')
     },
   )
 }

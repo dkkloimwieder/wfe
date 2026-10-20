@@ -77,3 +77,46 @@ test('every catalog entry has a unique direct URL and supports the normal state'
     expect(readRoute(url).id).toBe(entry.id)
   }
 })
+
+test('decoration URLs round trip and reject unbounded presentation values', () => {
+  const route = {
+    ...defaults,
+    id: 'fields' as const,
+    viewport: 'full' as const,
+    decorations: {
+      secondary: 6,
+      dots: 0,
+      border: 100,
+      inside: 42,
+      dotColor: 'secondary' as const,
+      borderColor: 'primary' as const,
+    },
+  }
+  expect(readRoute(galleryUrl(new URL('https://example.test'), route))).toEqual(
+    route,
+  )
+  expect(readConfig(route)?.decorations).toEqual(route.decorations)
+  expect(readConfig(route)?.decorations).not.toBe(route.decorations)
+  for (const invalid of [
+    { dots: 101 },
+    { border: -1 },
+    { inside: NaN },
+    { secondary: 9 },
+    { dotColor: 'red' },
+    { borderColor: 'url(evil)' },
+  ]) {
+    expect(
+      readConfig({
+        ...defaults,
+        decorations: { ...defaults.decorations, ...invalid },
+      }),
+    ).toBeUndefined()
+  }
+  expect(
+    readRoute(
+      new URL(
+        'https://example.test?dots=-1&border=101&inside=1.2&secondary=9&dotColor=red&borderColor=red',
+      ),
+    ).decorations,
+  ).toEqual(defaults.decorations)
+})

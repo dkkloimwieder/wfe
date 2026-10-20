@@ -132,7 +132,7 @@ body:has(.component-preview) {
   inset: -6px;
   z-index: -1;
   pointer-events: none;
-  border: 1px solid color-mix(in srgb, var(--ui-muted-text) 20%, transparent);
+  border: 1px solid var(--ui-decoration-border);
   background-color: var(--ui-canvas-surface);
   background-image: var(--ui-canvas-pattern);
   background-size: var(--ui-canvas-pattern-size);
@@ -196,7 +196,11 @@ body:has(.component-preview) {
       .column-move,
       .header-rename
     ) {
-    background-color: transparent;
+    background-color: color-mix(
+      in srgb,
+      var(--ui-canvas-surface) calc(100% - var(--ui-action-dot-visibility)),
+      transparent
+    );
   }
 }
 

@@ -60,24 +60,24 @@ export function Gallery() {
   }
   function send() {
     if (!alive) return
-    const { scheme, accent, depth, layers, state } = untrack(route)
+    const { scheme, accent, depth, layers, state, decorations } = untrack(route)
     frame?.contentWindow?.postMessage(
       {
         type: 'wfe-gallery-config',
         version: ++configurationVersion,
-        config: { scheme, accent, depth, layers, state },
+        config: { scheme, accent, depth, layers, state, decorations },
       },
       window.location.origin,
     )
   }
-  function change(next: Partial<GalleryRoute>) {
+  function change(next: Partial<GalleryRoute>, commit = true) {
     if (!alive) return
     const candidate = { ...untrack(route), ...next }
     const parsed = readRoute(
       galleryUrl(new URL(window.location.href), candidate),
     )
     const url = galleryUrl(new URL(window.location.href), parsed)
-    if (url.href !== window.location.href)
+    if (commit && url.href !== window.location.href)
       window.history.pushState(null, '', url)
     const changed = parsed.id !== untrack(route).id
     setRoute(parsed)
@@ -165,6 +165,8 @@ export function Gallery() {
           accents[route().accent]!,
           route().depth,
           route().layers,
+          undefined,
+          route().decorations,
         ),
       }}
     >
@@ -259,6 +261,10 @@ export function Gallery() {
         <Show when={appearanceOpen()}>
           <section id="gallery-appearance" class="gallery-appearance">
             <AppearanceReview
+              decorations={route().decorations}
+              onDecorationsChange={(decorations, commit) =>
+                change({ decorations }, commit)
+              }
               scheme={schemes[route().scheme]!}
               accent={accents[route().accent]!}
               depth={route().depth}

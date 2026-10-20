@@ -144,6 +144,8 @@ export function GalleryPreview() {
           accents[config().accent]!,
           config().depth,
           config().layers,
+          undefined,
+          config().decorations,
         ),
       }}
     >

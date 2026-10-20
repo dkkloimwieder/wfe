@@ -24,6 +24,24 @@ export type SurfaceLayers = {
   content: SurfaceLevel
 }
 export const defaultLayers: SurfaceLayers = { canvas: 0, pane: 0, content: 0 }
+export const decorationColors = ['neutral', 'primary', 'secondary'] as const
+export type DecorationColor = (typeof decorationColors)[number]
+export type Decorations = {
+  secondary: number
+  dots: number
+  border: number
+  inside: number
+  dotColor: DecorationColor
+  borderColor: DecorationColor
+}
+export const defaultDecorations: Decorations = {
+  secondary: 1,
+  dots: 35,
+  border: 20,
+  inside: 100,
+  dotColor: 'neutral',
+  borderColor: 'neutral',
+}
 export type Accent = { name: string; light: string; dark: string }
 export const monochrome: SurfaceScheme = {
   name: 'Black / white',
@@ -90,6 +108,7 @@ export function appearanceStyle(
   depth: Depth,
   layers: SurfaceLayers,
   dividers: TableDividers = defaultDividers,
+  decorations: Decorations = defaultDecorations,
 ): JSX.CSSProperties {
   const [, , hover, edge] = scheme.surfaces
   const canvas = scheme.surfaces[layers.canvas]
@@ -111,7 +130,17 @@ export function appearanceStyle(
       ? monochrome.surfaces[0]
       : monochrome.text[0]
   const hoverTarget = focus === opposite ? onAccent : opposite
+  const secondaryAccent = accentColor(accents[decorations.secondary]!, scheme)
+  const decorationColor = (role: DecorationColor) =>
+    role === 'primary'
+      ? focus
+      : role === 'secondary'
+        ? secondaryAccent
+        : secondary
   return {
+    '--ui-secondary-accent': secondaryAccent,
+    '--ui-decoration-border': `color-mix(in srgb, ${decorationColor(decorations.borderColor)} ${decorations.border}%, transparent)`,
+    '--ui-action-dot-visibility': `${decorations.inside}%`,
     '--ui-color-scheme': scheme.mode,
     '--ui-canvas-surface': canvas,
     '--ui-pane-surface': pane,
@@ -135,8 +164,7 @@ export function appearanceStyle(
     '--ui-focus-offset': '0px',
     '--ui-field-focus-border': ring,
     '--ui-button-border': border,
-    '--ui-canvas-pattern':
-      'radial-gradient(circle, color-mix(in srgb, var(--ui-muted-text) 35%, transparent) 0.5px, transparent 0.75px)',
+    '--ui-canvas-pattern': `radial-gradient(circle, color-mix(in srgb, ${decorationColor(decorations.dotColor)} ${decorations.dots}%, transparent) 0.5px, transparent 0.75px)`,
     '--ui-canvas-pattern-size': '0.3em 0.3em',
     '--ui-handle-border': border,
     '--ui-focus': focus,

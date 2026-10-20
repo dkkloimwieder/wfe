@@ -84,3 +84,20 @@
   margin-inline-end: 4px;
   border: 1px solid var(--ui-border);
 }
+
+.appearance-decorations {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+  padding: 12px;
+}
+.appearance-opacity {
+  flex: 1 1 14rem;
+  max-width: 24rem;
+}
+.appearance-opacity input[type='range'] {
+  width: 100%;
+  padding: 0;
+  accent-color: var(--ui-accent);
+}
