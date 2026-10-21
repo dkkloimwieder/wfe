@@ -869,11 +869,22 @@ try {
       await expect(
         workspace.locator('.table-workspace-resize'),
       ).toHaveAttribute('tabindex', '-1')
+      const frameBorders = await workspace.evaluate((node) => {
+        const style = getComputedStyle(node)
+        return (
+          parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth)
+        )
+      })
+      assert.equal(
+        frameBorders,
+        0,
+        'The full-width table uses the flush frame profile',
+      )
       assert.equal(
         await workspace
           .locator('.table-scroll')
           .evaluate((node) => node.getBoundingClientRect().width),
-        frame.width - 2,
+        frame.width - frameBorders,
       )
       await workspace
         .getByRole('button', { name: 'Table controls', exact: true })
@@ -1105,10 +1116,16 @@ try {
         'All projects',
         'Create a project',
       ])
-      await expect(page.getByRole('main')).toHaveCSS(
-        'color',
-        'rgb(115, 115, 115)',
-      )
+      const main = page.getByRole('main')
+      const mutedColor = await main.evaluate((node) => {
+        const reference = document.createElement('span')
+        reference.style.color = 'var(--ui-muted-text)'
+        node.append(reference)
+        const color = getComputedStyle(reference).color
+        reference.remove()
+        return color
+      })
+      await expect(main).toHaveCSS('color', mutedColor)
       const bands = await page.locator('.ui-dashboard').evaluate((shell) => {
         const box = (selector) => {
           const rect = shell.querySelector(selector).getBoundingClientRect()

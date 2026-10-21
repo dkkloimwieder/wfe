@@ -32,6 +32,7 @@ export async function reviewExampleSizing(page) {
             label:
               node.getAttribute('aria-label') || node.textContent || node.id,
             height: node.getBoundingClientRect().height,
+            compactHeader: Boolean(node.closest('.table-workspace-header')),
           })),
           forms: forms.map((node) => {
             const box = node.getBoundingClientRect(),
@@ -76,7 +77,11 @@ export async function reviewExampleSizing(page) {
       for (const scope of result.scopes)
         assert.deepEqual(scope, ['32px', '8px', '12px'])
       for (const control of result.controls)
-        assert.equal(control.height, 32, JSON.stringify(control))
+        assert.equal(
+          control.height,
+          control.compactHeader ? 26 : 32,
+          JSON.stringify(control),
+        )
       for (const form of result.forms) {
         if (!form.multiColumn)
           assert.ok(form.width <= 480.5, JSON.stringify(form))
