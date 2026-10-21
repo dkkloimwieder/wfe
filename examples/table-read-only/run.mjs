@@ -1,3 +1,4 @@
+import { reviewPagination } from '../shared/controls/pagination-review.mjs'
 import { reviewSelection } from './review-selection.mjs'
 import { collapsedGroupLabel } from '../shared/controls/icon-review.mjs'
 import {
@@ -390,6 +391,24 @@ try {
     assert.equal(await page.locator('#root').textContent(), '')
   })
   await reviewSelection(page, test)
+  await test('Pagination uses accepted application pages, pending responses, unknown totals and narrow controls', async () => {
+    await page.evaluate(() => window.readOnlyFixture.startPaged())
+    await reviewPagination(page)
+    const next = await page
+      .getByRole('button', { name: 'Previous page' })
+      .elementHandle()
+    const requests = await page.evaluate(
+      () => window.readOnlyFixture.pagination.read().requests,
+    )
+    await page.evaluate(() => window.readOnlyFixture.stop())
+    await next.evaluate((node) => node.click())
+    assert.equal(
+      await page.evaluate(
+        () => window.readOnlyFixture.pagination.read().requests,
+      ),
+      requests,
+    )
+  })
   report.diagnostics = await page.evaluate(() =>
     window.readOnlyFixture.diagnostics(),
   )

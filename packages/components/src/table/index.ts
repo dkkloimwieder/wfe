@@ -49,3 +49,6 @@ export type {
 
 export { TableDetailToggle, TableDetailRow } from './TableDetails'
 export type { TableRowDetails } from './TableDetails'
+
+export { TablePagination } from './TablePagination'
+export type { TablePaginationProps, TablePageSize } from './TablePagination'

@@ -1,3 +1,7 @@
+import {
+  PagedRecords,
+  paginationLifecycle,
+} from '../shared/controls/PagedRecords'
 import { MatchingCombobox } from '../components/gallery/MatchingChoices'
 import { ThemeConsumer } from '../theme/ThemeConsumer'
 import { ButtonLinkControls } from '../shared/controls/ButtonLinkControls'
@@ -57,6 +61,7 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  pagination: paginationLifecycle,
   files: fileLifecycle,
   resizable: resizableLifecycle,
   accordion: accordionLifecycle,
@@ -169,6 +174,7 @@ export default function App() {
       <ButtonLinkControls />
       <FileControls />
       <ResizableControls />
+      <PagedRecords />
       <AccordionControls />
       <section hidden>
         <StructuredClasses />

@@ -365,3 +365,16 @@ This contract does not flatten child records into a single tree of rows.
 `TableDetailToggle` and `TableDetailRow` expose the same presentation for custom row adapters.
 The editing example uses these components with its existing application model.
 The gallery includes a Sub-tables example with populated and empty child tables.
+
+## Table pagination
+
+`TableViewBindings.pagination` forwards `TablePaginationProps` to the shared read-only table.
+Pagination is a runtime binding, not serializable table metadata.
+The application supplies accepted rows, previous/next availability, callbacks, optional status text, and optional page-size configuration.
+The UI does not fetch records, interpret cursors, infer totals, slice rows, or reset pages when criteria change.
+Use the native table's `manualProcessing` mode when the server owns sorting and filtering.
+
+A pending page request disables page and page-size controls while accepted rows remain visible.
+Refresh remains available. The application decides how refresh interacts with a pending request.
+Unknown totals need no special value: omit a total from the application-supplied status text.
+See the [pagination contract](../packages/components/src/table/README.md#controlled-pagination) for the shared properties.

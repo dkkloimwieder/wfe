@@ -1,3 +1,4 @@
+import { reviewPagination } from '../shared/controls/pagination-review.mjs'
 import { reviewTheme } from '../theme/review.mjs'
 import { reviewButtonLinks } from '../shared/controls/button-link-review.mjs'
 import { reviewFiles } from '../shared/controls/file-review.mjs'
@@ -118,7 +119,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
+      '<script>window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -141,6 +142,19 @@ try {
       .then(() => page.waitForSelector('html[data-hydrated="true"]')),
     new Promise((_, reject) => page.once('pageerror', reject)),
   ])
+  assert.equal(
+    await page.evaluate(
+      () =>
+        window.serverPaginationButtons.length >= 3 &&
+        window.serverPaginationButtons.every((node) => node.isConnected),
+    ),
+    true,
+    'Pagination adopts server-rendered controls',
+  )
+  await reviewPagination(page, 'hydration')
+  report.assertions.push(
+    'Hydrated pagination retains controls and accepted application pages',
+  )
   assert.equal(
     await page.evaluate(
       () =>
@@ -499,7 +513,7 @@ try {
   const pendingName = page
     .locator('#adopt-table')
     .getByRole('textbox', { name: 'Name', exact: true })
-  const applyTable = page.getByRole('button', {
+  const applyTable = page.locator('#adopt-table').getByRole('button', {
     name: 'Refresh results',
     exact: true,
   })

@@ -160,6 +160,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
       <ReadOnlyTable
         table={table}
         toolbarActions={ToolbarActions ? <ToolbarActions /> : undefined}
+        pagination={props.bindings.pagination}
         selection={props.bindings.selection}
         rowDetails={props.bindings.rowDetails}
         width={props.bindings.width}

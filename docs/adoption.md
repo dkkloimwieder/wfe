@@ -318,3 +318,15 @@ DetailDescription/DetailView compose one present read-only record with the share
 DeleteDescription/DeleteView compose the shared confirmation dialog for one key and one application callback.
 Applications retain record ownership, deletion, asynchronous outcomes, and navigation.
 See the [generator contract](generator-contract.md#record-details) and [example](../examples/generator/DetailsApp.tsx).
+
+## Growing record lists
+
+These pagination bindings are available after `v0.0.4` and are not tagged yet.
+Use `ReadOnlyTable.pagination` or `TableViewBindings.pagination` for application-owned pages.
+The application supplies accepted rows and handles page requests.
+See the [pagination contract](../packages/components/src/table/README.md#controlled-pagination) and the [paged example](../examples/table-read-only/README.md).
+
+Use `ReadOnlyTable.toolbarActions` for create or invite controls beside refresh and the controls toggle.
+For generated tables, supply a stable application component through `TableViewBindings.toolbarActions`.
+Use `EntryPanel` and `EntryPanelActions` from `@wfe/components/layout` for a centered entry form.
+These components provide presentation. Applications retain navigation, requests, authentication, and validation rules.

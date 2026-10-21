@@ -30,3 +30,9 @@ Use `BENCH_DISTRIBUTION=1` for both commands after a package build to test packa
 Use `NODE_ENV=development BENCH_DEVELOPMENT=1` for both commands to include runtime diagnostics.
 The Solid qualification command includes the source and distribution tests.
 The browser test also makes sure that the bundle excludes editing code, the UI accepts source replacements, and disposal removes its DOM.
+
+Open `http://127.0.0.1:7784/?pagination` for the paged mock.
+The mock application owns the accepted page, page size, request state, and total.
+It supplies one page to `ReadOnlyTable` and handles callbacks from the pinned footer.
+The mock slices its local data to simulate a server response. The library does not slice records.
+The browser and hydration cases also exercise held responses, rejection, unknown totals, empty pages, keyboard actions, and narrow screens.

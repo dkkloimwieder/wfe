@@ -52,6 +52,18 @@ const memberRecords = {
 const memberRows = {
   table: memberTable,
   selection,
+  pagination: {
+    hasPrevious: false,
+    hasNext: true,
+    onPrevious() {},
+    onNext() {},
+    status: 'More records available',
+    pageSize: {
+      value: 25,
+      options: [25, 50],
+      onValueChange(_value: number) {},
+    },
+  },
   headerAliases: () => ({ displayLabel: 'Full name' }),
   cells: {
     points: (props) =>

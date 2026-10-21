@@ -96,3 +96,27 @@ Table controls use a fixed pane by default. The toolbar button opens and closes 
 Set `controlsResizable={true}` only for custom controls that need adjustable space.
 Table cell padding fits the configured row and control heights.
 Use `--ui-table-cell-padding-y` to override vertical table padding.
+
+## Controlled pagination
+
+`ReadOnlyTable.pagination` accepts `TablePaginationProps` from `@wfe/components/table`.
+The same subpath exports `TablePagination` for a custom table footer.
+Applications supply `hasPrevious`, `hasNext`, `onPrevious`, and `onNext`.
+The component emits requests. It never fetches, slices rows, calculates page numbers, or resets criteria.
+Supply only the accepted page through the table source.
+For server-side sorting and filtering, use `manualProcessing: true` and handle criteria in the application.
+
+Optional `pending` disables page navigation and page-size changes while the application handles a request.
+It does not disable refresh or clear accepted rows.
+Optional `status` announces application text, such as `Page 2 of 8` or `More records available`.
+Totals and cursor formats remain application concerns.
+The record count describes the current page, not an inferred total.
+
+Optional `pageSize` supplies a positive integer `value`, unique positive integer `options`, and `onValueChange`.
+The application accepts the requested size by updating `value` and the accepted rows.
+The component does not select a new page or change rows while it waits.
+Use live getters or reactive props for availability, status, page size, and pending state.
+
+`TableWorkspace.footerActions` places controls beside its summary, outside the status announcement region.
+Pagination uses the existing select and icon buttons and wraps within narrow footers.
+The [paged mock](../../../../examples/table-read-only/README.md) demonstrates application-owned responses.

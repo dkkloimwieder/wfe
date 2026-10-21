@@ -6,6 +6,7 @@ import { styledClasses, type ClassValue } from '../internal/classes'
 import {
   Show,
   createSignal,
+  createMemo,
   createEffect,
   createRenderEffect,
   createUniqueId,
@@ -36,6 +37,7 @@ export type TableWorkspaceProps = {
   controlsRef?: (handle: TableControlsHandle) => void
   resultsHeader?: JSX.Element
   footer?: JSX.Element
+  footerActions?: JSX.Element
   children: JSX.Element
   label?: string
   controlsLabel?: string
@@ -47,6 +49,8 @@ export type TableWorkspaceProps = {
 
 /** Independent controls and results. The application assigns the workspace height. */
 export function TableWorkspace(props: TableWorkspaceProps) {
+  const footer = createMemo(() => props.footer)
+  const footerActions = createMemo(() => props.footerActions)
   const [open, setOpen] = createSignal(false)
   const [localCollapsed, setLocalCollapsed] = createSignal(
     untrack(() => props.defaultControlsCollapsed ?? false),
@@ -408,9 +412,15 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         }}
       >
         {props.children}
-        <Show when={props.footer != null && props.footer !== false}>
-          <footer class="table-workspace-summary" role="status">
-            {props.footer}
+        <Show
+          when={
+            (footer() != null && footer() !== false) ||
+            (footerActions() != null && footerActions() !== false)
+          }
+        >
+          <footer class="table-workspace-summary">
+            <div role="status">{footer()}</div>
+            {footerActions()}
           </footer>
         </Show>
       </div>

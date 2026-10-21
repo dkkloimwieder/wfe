@@ -1,3 +1,7 @@
+import {
+  PagedRecords,
+  paginationLifecycle,
+} from '../shared/controls/PagedRecords'
 import { uiScope } from '@wfe/components'
 import { render } from '@solidjs/web'
 import {
@@ -192,8 +196,22 @@ function start(virtual = false, width?: number) {
   }, document.getElementById('root')!)
   flush()
 }
+function startPaged() {
+  stop()
+  dispose = render(
+    () => (
+      <main {...uiScope()}>
+        <PagedRecords />
+      </main>
+    ),
+    document.getElementById('root')!,
+  )
+  flush()
+}
 const api = {
   start,
+  startPaged,
+  pagination: paginationLifecycle,
   stop,
   setCopyFailure: (value: boolean) => {
     failCopy = value
@@ -218,4 +236,5 @@ declare global {
   }
 }
 window.readOnlyFixture = api
-start()
+if (new URLSearchParams(location.search).has('pagination')) startPaged()
+else start()

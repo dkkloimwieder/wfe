@@ -1,3 +1,5 @@
+import { TablePagination } from './TablePagination'
+import type { TablePaginationProps } from './TablePagination'
 import { Icon } from '../components/Icon'
 import {
   For,
@@ -45,6 +47,7 @@ export type TableFilterConfig =
 export function ReadOnlyTable<T, M>(
   props: {
     table: NativeTable<T, M>
+    pagination?: TablePaginationProps
     selection?: TableSelection
     rowDetails?: TableRowDetails
     columnAlignment?: TableColumnAlignments
@@ -246,13 +249,18 @@ export function ReadOnlyTable<T, M>(
       footer={
         <>
           {table.getFilteredRowIds().length}/{table.getSourceIds().length}{' '}
-          records
+          {props.pagination ? 'records on this page' : 'records'}
           <Show when={props.selection?.range}>
             {' '}
             · {props.selection!.rowCount} × {props.selection!.columnCount}{' '}
             selected
           </Show>
         </>
+      }
+      footerActions={
+        <Show when={props.pagination !== undefined}>
+          <TablePagination {...props.pagination!} />
+        </Show>
       }
       resultsHeader={
         <span data-ui-text="system">{props.title ?? 'Read-only records'}</span>

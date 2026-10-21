@@ -138,6 +138,11 @@
 }
 :where([data-ui]) .table-workspace-summary {
   flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ui-gap, 6px);
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
   border: 0;
   border-top: 1px solid var(--ui-border, #ccc);
@@ -482,4 +487,16 @@
 }
 :where([data-ui]) .sub-table-row .table-workspace-summary {
   border-top: 0;
+}
+
+:where([data-ui]) .table-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+  max-width: 100%;
+}
+:where([data-ui]) .table-pagination-status {
+  overflow-wrap: anywhere;
 }
