@@ -1,4 +1,4 @@
-import { DashboardShell } from '@wfe/components/layout'
+import { EntryPanel, DashboardShell } from '@wfe/components/layout'
 import { Theme, StatusTile, TileRow } from '@wfe/components'
 import { GridView } from '@wfe/generator'
 import { FileInput } from '@wfe/components/file-input'
@@ -761,3 +761,10 @@ assert.match(
   /<section[^>]*class="ui-dashboard-main"[^>]*aria-label="Embedded content"/,
 )
 assert.doesNotMatch(embeddedShell, /<main[\s>]/)
+
+const entryOutput = await renderToString(() =>
+  createComponent(EntryPanel, { children: 'Entry content' }),
+)
+assert.match(entryOutput, /ui-entry-panel-surface/)
+assert.match(entryOutput, /Entry content/)
+assert.doesNotMatch(entryOutput, /<form|<main/)

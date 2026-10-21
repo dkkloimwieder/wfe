@@ -1,3 +1,4 @@
+import { EntryExample } from './EntryExample'
 import { SubTables } from './SubTables'
 import { EverythingForm } from './EverythingForm'
 import { createEffect, onCleanup, untrack } from 'solid-js'
@@ -40,6 +41,7 @@ import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'
 
 const views = {
+  entry: EntryExample,
   everything: EverythingForm,
   fields: Fields,
   buttons: Buttons,
@@ -143,6 +145,7 @@ export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
     <div class="gallery-preview">
       <div
         class={
+          entry.id === 'entry' ||
           entry.id === 'everything' ||
           entry.id === 'table' ||
           entry.id === 'subtables'

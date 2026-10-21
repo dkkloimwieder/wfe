@@ -8,3 +8,6 @@ export type {
 
 export { SidebarGroup } from './SidebarGroup'
 export type { SidebarGroupProps } from './SidebarGroup'
+
+export { EntryPanel } from './EntryPanel'
+export type { EntryPanelProps } from './EntryPanel'

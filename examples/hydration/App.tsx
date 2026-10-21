@@ -36,7 +36,7 @@ import {
   ValueDisplay,
 } from '@wfe/components'
 import type { ValueFormat } from '@wfe/components'
-import { DashboardShell } from '@wfe/components/layout'
+import { EntryPanel, DashboardShell } from '@wfe/components/layout'
 import {
   createTable as createNativeTable,
   ReadOnlyTable,
@@ -148,6 +148,11 @@ export default function App() {
         />
       )}
     >
+      <div style={{ height: '240px' }}>
+        <EntryPanel size="container" id="adopt-entry-panel">
+          <Input id="adopt-entry-input" aria-label="Entry draft" />
+        </EntryPanel>
+      </div>
       <ThemeConsumer />
       <ButtonLinkControls />
       <FileControls />

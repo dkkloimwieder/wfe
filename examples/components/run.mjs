@@ -1,3 +1,4 @@
+import { entryPanelCases } from './gallery/entry-panel-cases.mjs'
 import { tableTitleCases } from './gallery/table-title-cases.mjs'
 import { dotDefaultCases } from './gallery/dot-default-cases.mjs'
 import { subtableCases } from './gallery/subtable-cases.mjs'
@@ -246,6 +247,7 @@ try {
     },
   )
   await galleryCases({ page, url, record, settle })
+  await entryPanelCases({ page, url, record })
   await subtableCases({ page, url, record })
   await dotDefaultCases({ page, url, record })
   await tableTitleCases({ page, url, record })

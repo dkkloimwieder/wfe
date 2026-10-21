@@ -7,6 +7,7 @@ import type { Decorations } from '../../shared/appearance/appearance'
 export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
+  { id: 'entry', label: 'Entry panel', group: 'Layout', states: ['normal'] },
   {
     id: 'everything',
     label: 'Everything form',

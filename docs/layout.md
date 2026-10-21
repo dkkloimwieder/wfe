@@ -204,3 +204,8 @@ Presentation changes transfer focus within the group unless the application move
 Links retain native browser behavior.
 The application owns destinations, selection, navigation, and accepted state changes.
 The gallery Appearance panel compares both behaviors.
+
+## Entry screens
+
+Use [EntryPanel](entry-panel.md) for a small content-sized surface centered on both axes.
+It accepts application-owned content and supports viewport or container sizing.
