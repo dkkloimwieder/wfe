@@ -14,11 +14,15 @@ for (const file of [...manifest.files, ...manifest.support]) {
     `Changed captured source: ${file.local}`,
   )
   if (file.sourceSha256) {
-    const original = file.local.startsWith('client/')
+    const original = file.local.startsWith('application/client/')
       ? bytes
           .toString('utf8')
-          .replaceAll('"../runtime/wire"', '"@wamn/web-runtime"')
-      : bytes
+          .replaceAll('"../../runtime/wire"', '"@wamn/web-runtime"')
+      : file.local.startsWith('client/')
+        ? bytes
+            .toString('utf8')
+            .replaceAll('"../runtime/wire"', '"@wamn/web-runtime"')
+        : bytes
     assert.equal(
       hash(original),
       file.sourceSha256,
@@ -26,7 +30,7 @@ for (const file of [...manifest.files, ...manifest.support]) {
     )
   }
 }
-assert.equal(manifest.files.length, 67)
+assert.equal(manifest.files.length, 105)
 console.log(
   `Checked ${manifest.files.length} platform source snapshots from WAMN ${manifest.revision}.`,
 )

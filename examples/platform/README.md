@@ -19,7 +19,12 @@ Cancellation stops the application from waiting. It does not undo a command that
 `snapshot/provenance.json` records the WAMN revision, source paths, and hashes.
 Captured client imports point to the copied wire module. Other source bytes stay unchanged.
 The original workspace declares Apache-2.0. The snapshot includes that license text and the original Cargo metadata.
-The snapshot includes unused operations from seven client modules.
+The control snapshot includes unused operations from seven client modules.
+`snapshot/application` separately captures application-host user, role, permission, and user-role clients.
+It includes metadata for the eight role-assignment and read operations, plus the host and identity implementation sources.
+The application and control user operations share identifiers but return different records.
+A transport must bind the application host to a project and environment before it invokes those operations.
+The capture does not enable application screens or add authorization rules to shared components.
 The mock supports the five initial operations, user and membership lists, six access commands, and user invitation, activation, and deactivation.
 Captured declarations inform the example scenarios. The mock is not an authorization or lifecycle implementation.
 

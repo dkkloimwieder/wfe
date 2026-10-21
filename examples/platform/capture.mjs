@@ -57,6 +57,35 @@ for (const operation of [
       `crates/catalog/model/src/host_route/control/contracts/${operation}.${kind}.json`,
       `metadata/${operation}.${kind}.json`,
     )
+for (const name of ['user', 'role', 'permission', 'user_role'])
+  await capture(
+    `apps/target/wamn/wamn_control/client-ts/${name}.ts`,
+    `application/client/${name}.ts`,
+    (text) => text.replaceAll('"@wamn/web-runtime"', '"../../runtime/wire"'),
+  )
+for (const operation of [
+  'user/list',
+  'role/list',
+  'permission/mine',
+  'permission/list',
+  'permission/grant',
+  'permission/revoke',
+  'user_role/grant',
+  'user_role/revoke',
+])
+  for (const kind of ['input', 'result', 'operation', 'errors'])
+    await capture(
+      `crates/catalog/model/src/host_route/contracts/${operation}.${kind}.json`,
+      `application/metadata/${operation}.${kind}.json`,
+    )
+await capture(
+  'crates/execution/host/src/application_route.rs',
+  'application/policy/application_route.rs',
+)
+await capture(
+  'crates/identity/platform/src/application.rs',
+  'application/policy/application.rs',
+)
 await capture('crates/catalog/model/src/host_route.rs', 'policy/host_route.rs')
 await capture('crates/identity/platform/src/org.rs', 'policy/org.rs')
 await capture('Cargo.toml', 'upstream-Cargo.toml')

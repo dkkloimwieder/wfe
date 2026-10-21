@@ -1,6 +1,6 @@
 {
   "revision": "bd69b4e82b005d22f8fab3842ed6bf1a0dbd1a64",
-  "captured": "2026-10-21T05:02:01.033Z",
+  "captured": "2026-10-21T05:55:10.592Z",
   "changes": "Client imports point to the copied wire module. All other captured source bytes stay unchanged.",
   "files": [
     {
@@ -380,6 +380,234 @@
       "local": "metadata/project_admin/revoke.errors.json",
       "sourceSha256": "ea93397ae3b94f07a0fd10a612357d57de7109819c4e1815d671602691e49230",
       "sha256": "ea93397ae3b94f07a0fd10a612357d57de7109819c4e1815d671602691e49230"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/client-ts/user.ts",
+      "local": "application/client/user.ts",
+      "sourceSha256": "9d1d15d3035fa2bb810401d60e7ab86b663a5ced90a78b8e81cfc54540f4ce3d",
+      "sha256": "8297530e3411b59201e768bf620130ac36ca9c8ff0d3c4d2cbd0f5085b16a551"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/client-ts/role.ts",
+      "local": "application/client/role.ts",
+      "sourceSha256": "db879ec63bb0e13848439dea5b23033dff455f0eef71ddb6723b274451349511",
+      "sha256": "3301be01aec92b7b1fa7dabbe807ef2f4da4cb45f070701cdc399e5d45319f54"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/client-ts/permission.ts",
+      "local": "application/client/permission.ts",
+      "sourceSha256": "9e2516aa6e83143ff836f925f999c884813102b5d84353cd96c433f46a548ec0",
+      "sha256": "140c4d0414ccccaed0b6c96bc8e00de7f4fbfb8f66edbf2888834d7d85eae765"
+    },
+    {
+      "source": "apps/target/wamn/wamn_control/client-ts/user_role.ts",
+      "local": "application/client/user_role.ts",
+      "sourceSha256": "31ed5b9146f320c4ce60983a79e526e23e201b5d51db1413a97f0a59768ab160",
+      "sha256": "43fb3226d48fd42c213a33fb9ebc30005406f4f828c9f90df7114d2c4432495d"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user/list.input.json",
+      "local": "application/metadata/user/list.input.json",
+      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
+      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user/list.result.json",
+      "local": "application/metadata/user/list.result.json",
+      "sourceSha256": "5009458c1f36f68d461126c226bfc15c6bcbf95f9ad397f1811adbdf2a855fb6",
+      "sha256": "5009458c1f36f68d461126c226bfc15c6bcbf95f9ad397f1811adbdf2a855fb6"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user/list.operation.json",
+      "local": "application/metadata/user/list.operation.json",
+      "sourceSha256": "d5332916bcbf6451f71d908fa21f2156263812162d55ba460daa1142ddbd970c",
+      "sha256": "d5332916bcbf6451f71d908fa21f2156263812162d55ba460daa1142ddbd970c"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user/list.errors.json",
+      "local": "application/metadata/user/list.errors.json",
+      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
+      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/role/list.input.json",
+      "local": "application/metadata/role/list.input.json",
+      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
+      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/role/list.result.json",
+      "local": "application/metadata/role/list.result.json",
+      "sourceSha256": "c189c558f4f0f030d65906cb9918e327a8704e638f6eb6077d0bcfb5f53486de",
+      "sha256": "c189c558f4f0f030d65906cb9918e327a8704e638f6eb6077d0bcfb5f53486de"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/role/list.operation.json",
+      "local": "application/metadata/role/list.operation.json",
+      "sourceSha256": "a8b0e7dff74538400d15224fdc354ff23a43184bde2080e422f3939b04484432",
+      "sha256": "a8b0e7dff74538400d15224fdc354ff23a43184bde2080e422f3939b04484432"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/role/list.errors.json",
+      "local": "application/metadata/role/list.errors.json",
+      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
+      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/mine.input.json",
+      "local": "application/metadata/permission/mine.input.json",
+      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
+      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/mine.result.json",
+      "local": "application/metadata/permission/mine.result.json",
+      "sourceSha256": "c5189ed272ee5bed50de2394068dafd9adc88760f44acaa60c4f74b04bc3a1e9",
+      "sha256": "c5189ed272ee5bed50de2394068dafd9adc88760f44acaa60c4f74b04bc3a1e9"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/mine.operation.json",
+      "local": "application/metadata/permission/mine.operation.json",
+      "sourceSha256": "7f0cdd981190fe76ead318ea22cb51fc0abff86bb4c8a722badbe47cd99b82bf",
+      "sha256": "7f0cdd981190fe76ead318ea22cb51fc0abff86bb4c8a722badbe47cd99b82bf"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/mine.errors.json",
+      "local": "application/metadata/permission/mine.errors.json",
+      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
+      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/list.input.json",
+      "local": "application/metadata/permission/list.input.json",
+      "sourceSha256": "4abc88b49f28e181a8084378a2989d0caf015ed35dfc834e3ce674647c2786d6",
+      "sha256": "4abc88b49f28e181a8084378a2989d0caf015ed35dfc834e3ce674647c2786d6"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/list.result.json",
+      "local": "application/metadata/permission/list.result.json",
+      "sourceSha256": "ac757f9682b73ddc01c57ca4bbaee3be9e59e777e79e48a34eb91d873cf49dc5",
+      "sha256": "ac757f9682b73ddc01c57ca4bbaee3be9e59e777e79e48a34eb91d873cf49dc5"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/list.operation.json",
+      "local": "application/metadata/permission/list.operation.json",
+      "sourceSha256": "1a66fffd6b9b575186ba928059ba9480aa59893073456d8c8fe532616f4fea2d",
+      "sha256": "1a66fffd6b9b575186ba928059ba9480aa59893073456d8c8fe532616f4fea2d"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/list.errors.json",
+      "local": "application/metadata/permission/list.errors.json",
+      "sourceSha256": "6d4bbf15b828a9314fe9a1dc481358f5be743f117e218bea8a06ea8d7ecb6a09",
+      "sha256": "6d4bbf15b828a9314fe9a1dc481358f5be743f117e218bea8a06ea8d7ecb6a09"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/grant.input.json",
+      "local": "application/metadata/permission/grant.input.json",
+      "sourceSha256": "8ea0db6f31e2c7ad7f65c0394c0313178da460f546e8130540df0e781a728cee",
+      "sha256": "8ea0db6f31e2c7ad7f65c0394c0313178da460f546e8130540df0e781a728cee"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/grant.result.json",
+      "local": "application/metadata/permission/grant.result.json",
+      "sourceSha256": "b1579f363a1ebfbb2b82bc34317e5322cecc213d46cfcc491cdb274c37f624cc",
+      "sha256": "b1579f363a1ebfbb2b82bc34317e5322cecc213d46cfcc491cdb274c37f624cc"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/grant.operation.json",
+      "local": "application/metadata/permission/grant.operation.json",
+      "sourceSha256": "a51174120d54440b62b84efdb3629c0ff6155eb75010b34259f4e5a2cc89bb6b",
+      "sha256": "a51174120d54440b62b84efdb3629c0ff6155eb75010b34259f4e5a2cc89bb6b"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/grant.errors.json",
+      "local": "application/metadata/permission/grant.errors.json",
+      "sourceSha256": "e69a6df24bca27168a170a6b302cb529efbc29f0a69f726b9a06ae5cbac12d7a",
+      "sha256": "e69a6df24bca27168a170a6b302cb529efbc29f0a69f726b9a06ae5cbac12d7a"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/revoke.input.json",
+      "local": "application/metadata/permission/revoke.input.json",
+      "sourceSha256": "8ea0db6f31e2c7ad7f65c0394c0313178da460f546e8130540df0e781a728cee",
+      "sha256": "8ea0db6f31e2c7ad7f65c0394c0313178da460f546e8130540df0e781a728cee"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/revoke.result.json",
+      "local": "application/metadata/permission/revoke.result.json",
+      "sourceSha256": "39fc5e8f85ab7fe791c85b8b582140cea015f1fbc6fb190d3ab4aabea815b6f4",
+      "sha256": "39fc5e8f85ab7fe791c85b8b582140cea015f1fbc6fb190d3ab4aabea815b6f4"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/revoke.operation.json",
+      "local": "application/metadata/permission/revoke.operation.json",
+      "sourceSha256": "e472cc1f6f22574f00c7aadfabda269fc608b761db2010f52cddb0c3a4083a7d",
+      "sha256": "e472cc1f6f22574f00c7aadfabda269fc608b761db2010f52cddb0c3a4083a7d"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/permission/revoke.errors.json",
+      "local": "application/metadata/permission/revoke.errors.json",
+      "sourceSha256": "079667d782f27d9667b41baf7a40332dc36b2f29836ae4542e2e882e03613e20",
+      "sha256": "079667d782f27d9667b41baf7a40332dc36b2f29836ae4542e2e882e03613e20"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user_role/grant.input.json",
+      "local": "application/metadata/user_role/grant.input.json",
+      "sourceSha256": "550c70ea79ebf568753f4a5e065a0f7b097f9dd722b9ed5347f7980b62d47c6a",
+      "sha256": "550c70ea79ebf568753f4a5e065a0f7b097f9dd722b9ed5347f7980b62d47c6a"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user_role/grant.result.json",
+      "local": "application/metadata/user_role/grant.result.json",
+      "sourceSha256": "f4f26333d63443e853a15a723e288387d8c460de6110a26a3b484264cd6753fb",
+      "sha256": "f4f26333d63443e853a15a723e288387d8c460de6110a26a3b484264cd6753fb"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user_role/grant.operation.json",
+      "local": "application/metadata/user_role/grant.operation.json",
+      "sourceSha256": "98e4e4fceb57dc954e181a4a998b6e0095171d85fc910b424c5ed8180e5ffa31",
+      "sha256": "98e4e4fceb57dc954e181a4a998b6e0095171d85fc910b424c5ed8180e5ffa31"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user_role/grant.errors.json",
+      "local": "application/metadata/user_role/grant.errors.json",
+      "sourceSha256": "617d837d317446b3031a8ca69e3e48a0c5091fe8ea35e8d3cfc05a2b603d559b",
+      "sha256": "617d837d317446b3031a8ca69e3e48a0c5091fe8ea35e8d3cfc05a2b603d559b"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user_role/revoke.input.json",
+      "local": "application/metadata/user_role/revoke.input.json",
+      "sourceSha256": "550c70ea79ebf568753f4a5e065a0f7b097f9dd722b9ed5347f7980b62d47c6a",
+      "sha256": "550c70ea79ebf568753f4a5e065a0f7b097f9dd722b9ed5347f7980b62d47c6a"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user_role/revoke.result.json",
+      "local": "application/metadata/user_role/revoke.result.json",
+      "sourceSha256": "a329b7ed57cad9370ccfa310e3fd8f8b7a053ebb84e3285a720c7286522f2a23",
+      "sha256": "a329b7ed57cad9370ccfa310e3fd8f8b7a053ebb84e3285a720c7286522f2a23"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user_role/revoke.operation.json",
+      "local": "application/metadata/user_role/revoke.operation.json",
+      "sourceSha256": "b8a1ea4828f7cd43748d13a72615138bb311d6699d1c5737c1eeede45bc95df4",
+      "sha256": "b8a1ea4828f7cd43748d13a72615138bb311d6699d1c5737c1eeede45bc95df4"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/contracts/user_role/revoke.errors.json",
+      "local": "application/metadata/user_role/revoke.errors.json",
+      "sourceSha256": "bfe0f89adfd4ad4b6908055c5f111ea742030405539b4ffdac7223e9796528b9",
+      "sha256": "bfe0f89adfd4ad4b6908055c5f111ea742030405539b4ffdac7223e9796528b9"
+    },
+    {
+      "source": "crates/execution/host/src/application_route.rs",
+      "local": "application/policy/application_route.rs",
+      "sourceSha256": "aef676c548d8e6660abff5ed74c661ed3c25a5c5ada1935b5b05904b53bbf136",
+      "sha256": "aef676c548d8e6660abff5ed74c661ed3c25a5c5ada1935b5b05904b53bbf136"
+    },
+    {
+      "source": "crates/identity/platform/src/application.rs",
+      "local": "application/policy/application.rs",
+      "sourceSha256": "47fca552781183e3ee694c745c68f4866777b2aa5a046d0f2fe9a613c25923e9",
+      "sha256": "47fca552781183e3ee694c745c68f4866777b2aa5a046d0f2fe9a613c25923e9"
     },
     {
       "source": "crates/catalog/model/src/host_route.rs",
