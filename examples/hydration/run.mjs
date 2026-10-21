@@ -381,6 +381,19 @@ try {
     ),
     true,
   )
+  const textSidebar = page
+    .locator('#sidebar-review')
+    .getByRole('button', { name: 'Collections', exact: true })
+  await expect(textSidebar).toHaveText('C')
+  await textSidebar.press('Enter')
+  await page.locator('.ui-sidebar-flyout summary').click()
+  await expect(
+    page
+      .locator('.ui-sidebar-flyout')
+      .getByRole('link', { name: 'Saved report' }),
+  ).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(textSidebar).toBeFocused()
   report.assertions.push(
     'Sidebar groups attach icon and popup behavior while retaining the content owner',
   )

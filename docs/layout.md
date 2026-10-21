@@ -192,12 +192,15 @@ The navigation callback receives `compact()` and `mobile()` alongside `close()`.
 `compact()` is false in the mobile drawer, which keeps labels available.
 `--ui-navigation-rail-width` sets the desktop icon width and defaults to 3.5rem.
 
-`SidebarGroup` composes a labeled disclosure and an icon control.
-The application supplies `label`, `icon`, `active`, `open`, `onOpenChange`, `onExpand`, and links through its `children(close)` callback.
+`SidebarGroup` composes a labeled disclosure and a compact control.
+The application supplies `label`, optional `icon`, `active`, `open`, `onOpenChange`, `onExpand`, and links through its `children(close)` callback.
 Pass the shell's `compact()` value to the group.
-With `behavior="flyout"`, the icon opens an adjacent popup.
-With `behavior="expand"`, the icon requests an open group and calls `onExpand`.
+With `behavior="flyout"`, the compact control opens an adjacent popup.
+With `behavior="expand"`, the compact control requests an open group and calls `onExpand`.
 The application expands the shell in that callback.
+Without an icon, expanded groups show the label without an empty icon slot.
+Compact groups show the first Unicode character of the label, with the full label as their accessible name and tooltip.
+The same component supports nested groups through its children callback.
 
 The group keeps temporary popup state separate from the controlled disclosure state.
 Presentation changes transfer focus within the group unless the application moves focus elsewhere.

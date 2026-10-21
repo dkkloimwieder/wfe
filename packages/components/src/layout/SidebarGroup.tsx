@@ -10,7 +10,7 @@ import { buttonAttributes } from '../internal/buttonPresentation'
 
 export type SidebarGroupProps = {
   label: string
-  icon: JSX.Element
+  icon?: JSX.Element
   active?: boolean
   compact: boolean
   behavior?: 'flyout' | 'expand'
@@ -22,6 +22,17 @@ export type SidebarGroupProps = {
 
 /** Navigation presentation only. The application supplies links and selection. */
 export function SidebarGroup(props: SidebarGroupProps) {
+  const initial = () => Array.from(props.label.trim())[0] ?? '?'
+  function CompactContent() {
+    return (
+      <Show
+        when={props.icon}
+        fallback={<span aria-hidden="true">{initial()}</span>}
+      >
+        {props.icon}
+      </Show>
+    )
+  }
   let section: HTMLDivElement | undefined
   let alive = true
   let focused: HTMLElement | undefined
@@ -87,9 +98,11 @@ export function SidebarGroup(props: SidebarGroupProps) {
         indicatorPlacement="end"
         summary={
           <span class="ui-sidebar-group-control">
-            <span class="ui-sidebar-group-icon" aria-hidden="true">
-              {props.icon}
-            </span>
+            <Show when={props.icon}>
+              <span class="ui-sidebar-group-icon" aria-hidden="true">
+                {props.icon}
+              </span>
+            </Show>
             <span class="ui-sidebar-group-label">{props.label}</span>
           </span>
         }
@@ -109,7 +122,7 @@ export function SidebarGroup(props: SidebarGroupProps) {
         aria-pressed={props.active ? 'true' : 'false'}
         onClick={expand}
       >
-        {props.icon}
+        <CompactContent />
       </Button>
     )
   }
@@ -166,7 +179,7 @@ export function SidebarGroup(props: SidebarGroupProps) {
           title={props.label}
           aria-pressed={props.active ? 'true' : 'false'}
         >
-          {props.icon}
+          <CompactContent />
         </Popover.Trigger>
         <Popover.Portal>
           <Content />
@@ -177,6 +190,7 @@ export function SidebarGroup(props: SidebarGroupProps) {
   return (
     <div
       class="ui-sidebar-group"
+      data-text-only={!props.icon ? '' : undefined}
       data-compact={props.compact ? '' : undefined}
       ref={[
         (node) => {

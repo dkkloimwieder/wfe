@@ -306,6 +306,13 @@
   padding: 0;
   text-align: start;
 }
+:where([data-ui])
+  .ui-sidebar-group[data-text-only]
+  > .ui-collapsible
+  > summary
+  > .ui-sidebar-group-control {
+  padding-inline-start: var(--ui-gap, 6px);
+}
 :where([data-ui]) .ui-sidebar-group-icon {
   display: inline-flex;
   align-items: center;

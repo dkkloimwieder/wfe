@@ -992,6 +992,59 @@ async function sidebarCases({ page, url, record }) {
   )
 
   await record(
+    'gallery: text-only sidebar groups support nested navigation and compact modes',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(`${url}?gallery=collapsible`)
+      const fixture = page.locator('#sidebar-review')
+      const groups = fixture.locator('.ui-sidebar-group[data-text-only]')
+      await expect(groups).toHaveCount(2)
+      await expect(groups.locator('.ui-sidebar-group-icon')).toHaveCount(0)
+      const reports = fixture.locator('summary').filter({ hasText: 'Reports' })
+      await reports.click()
+      await expect(
+        fixture.getByRole('link', { name: 'Saved report' }),
+      ).toBeVisible()
+      await fixture.locator('#sidebar-collapse').click()
+      const trigger = fixture.getByRole('button', {
+        name: 'Collections',
+        exact: true,
+      })
+      await expect(trigger).toHaveText('C')
+      await expect(trigger).toHaveAttribute('title', 'Collections')
+      await trigger.press('Enter')
+      const flyout = page.locator('.ui-sidebar-flyout')
+      await expect(
+        flyout.getByRole('link', { name: 'Saved report' }),
+      ).toBeVisible()
+      await page.keyboard.press('Escape')
+      await expect(trigger).toBeFocused()
+      await fixture.locator('#sidebar-behavior').click()
+      await trigger.press('Enter')
+      await expect(
+        fixture.locator('summary').filter({ hasText: 'Collections' }),
+      ).toBeFocused()
+      await expect(
+        fixture.getByRole('link', { name: 'Saved report' }),
+      ).toBeVisible()
+      await expect(page.locator('.ui-sidebar-flyout')).toHaveCount(0)
+      await page.setViewportSize({ width: 390, height: 844 })
+      const navigation = fixture.getByRole('button', {
+        name: 'Navigation',
+        exact: true,
+      })
+      await navigation.click()
+      await expect(
+        fixture.locator('summary').filter({ hasText: 'Collections' }),
+      ).toBeVisible()
+      await fixture.getByRole('link', { name: 'Saved report' }).click()
+      await expect(
+        fixture.getByRole('link', { name: 'Saved report' }),
+      ).toBeHidden()
+      await expect(fixture.locator('#sidebar-draft')).toBeVisible()
+    },
+  )
+  await record(
     'gallery: generic sidebar retains focus across external presentation changes',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
@@ -1034,7 +1087,7 @@ async function sidebarCases({ page, url, record }) {
       await expect(trigger).toBeFocused()
       await expect(previewHost.locator('.ui-sidebar-flyout')).toHaveCount(0)
       await trigger.press('Enter')
-      await expect(fixture.locator('summary')).toBeFocused()
+      await expect(fixture.locator('summary').first()).toBeFocused()
       await expect(previewHost.locator('#sidebar-draft')).toHaveValue(
         'Retained content',
       )
