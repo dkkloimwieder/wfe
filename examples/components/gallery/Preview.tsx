@@ -31,7 +31,7 @@ import {
   ResizableControls,
   resizableLifecycle,
 } from '../../shared/controls/ResizableControls'
-import { ChoiceControls } from '../ChoiceControls'
+import { MatchingChoices } from './MatchingChoices'
 import { BooleanControls } from '../BooleanControls'
 import { OverlayControls } from '../OverlayControls'
 import { DisplayControls } from '../DisplayControls'
@@ -56,7 +56,7 @@ const views = {
   collapsible: CollapsibleControls,
   accordion: AccordionControls,
   resizable: ResizableControls,
-  choices: ChoiceControls,
+  choices: MatchingChoices,
   booleans: BooleanControls,
   overlays: OverlayControls,
   display: DisplayControls,

@@ -1,3 +1,4 @@
+import { MatchingCombobox } from '../components/gallery/MatchingChoices'
 import { ThemeConsumer } from '../theme/ThemeConsumer'
 import { ButtonLinkControls } from '../shared/controls/ButtonLinkControls'
 import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
@@ -160,6 +161,9 @@ export default function App() {
             <Button>Cancel entry</Button>
           </EntryPanelActions>
         </EntryPanel>
+      </div>
+      <div id="adopt-matching">
+        <MatchingCombobox mode="fuzzy" />
       </div>
       <ThemeConsumer />
       <ButtonLinkControls />

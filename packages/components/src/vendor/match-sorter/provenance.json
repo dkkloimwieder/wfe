@@ -1,0 +1,34 @@
+{
+  "repository": "https://github.com/kentcdodds/match-sorter",
+  "version": "8.3.0",
+  "commit": "e7c9c20efd8fd8b4428ba20795f7a376fb46ff00",
+  "license": "MIT",
+  "accentDependency": {
+    "repository": "https://github.com/tyxla/remove-accents",
+    "version": "0.5.0",
+    "tarball": "https://registry.npmjs.org/remove-accents/-/remove-accents-0.5.0.tgz",
+    "integrity": "sha512-8g3/Otx1eJaVD12e31UbJj1YzdtVvzH85HV7t+9MJYk/u3XmkOUJ5Ys9wQrf9PCPK8+xn4ymzqYCiZl6QWKn+A=="
+  },
+  "sources": {
+    "index.ts": {
+      "upstreamPath": "src/index.ts",
+      "upstreamSha256": "48bcb933068a3328b200a0ab20019e481ea43ec5138a2f37865824fb1c84ec93",
+      "localSha256": "ad2388c6e9762bfb74c0c89ed92c118d0fc06a83fe132fc34d18eb28d3383cdc"
+    },
+    "remove-accents.ts": {
+      "upstreamPath": "remove-accents@0.5.0/index.js",
+      "upstreamSha256": "c07d9e6ebb538c443504fcdafa4a6cdc2a1cdd84616f097a7e4ae0e1c44cf875",
+      "localSha256": "68b77a4308a77e66f3f60fb62a98d1a38c27ddea668ba9e5f9b17a3e8fdfd0b2"
+    },
+    "LICENSE": {
+      "upstreamPath": "LICENSE",
+      "upstreamSha256": "bfa09d57d1de35570dfd7b14e1dc3f5af860728b76bdf79d8c50c5e505eef4f2",
+      "localSha256": "bfa09d57d1de35570dfd7b14e1dc3f5af860728b76bdf79d8c50c5e505eef4f2"
+    },
+    "LICENSE-remove-accents": {
+      "upstreamPath": "remove-accents@0.5.0/LICENSE",
+      "upstreamSha256": "d1a4d73a0c668a735b4a74e2858396a39cb3110ca14c9baff8136ab1b5a479ee",
+      "localSha256": "d1a4d73a0c668a735b4a74e2858396a39cb3110ca14c9baff8136ab1b5a479ee"
+    }
+  }
+}

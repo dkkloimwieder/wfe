@@ -34,7 +34,9 @@ const kobalte = resolve(core, 'src/vendor/kobalte')
 const virtual = resolve(ui, 'src/vendor/virtual-core')
 const calendar = resolve(ui, 'src/vendor/corvu-calendar')
 const charts = resolve(ui, 'src/vendor/charts')
+const matching = resolve(ui, 'src/vendor/match-sorter')
 const origins = {
+  matching: await json(resolve(matching, 'provenance.json')),
   charts: await json(resolve(charts, 'provenance.json')),
   calendar: await json(resolve(calendar, 'provenance.json')),
   kobalte: await json(resolve(kobalte, 'provenance.json')),
@@ -54,6 +56,7 @@ const report = {
 await mkdir(output, { recursive: true })
 
 for (const script of [
+  'scripts/check-matching.mjs',
   'scripts/check-charts.mjs',
   'scripts/check-calendar.mjs',
   'scripts/check-kobalte.mjs',
@@ -188,7 +191,9 @@ for (const path of sourceFiles) {
       ? 'virtual'
       : path.startsWith(calendar + '/')
         ? 'calendar'
-        : 'repository'
+        : path.startsWith(matching + '/')
+          ? 'matching'
+          : 'repository'
   const name = relative(
     upstream === 'kobalte'
       ? kobalte
@@ -196,7 +201,9 @@ for (const path of sourceFiles) {
         ? virtual
         : upstream === 'calendar'
           ? calendar
-          : root,
+          : upstream === 'matching'
+            ? matching
+            : root,
     path,
   )
   const upstreamSha256 =
@@ -206,7 +213,9 @@ for (const path of sourceFiles) {
         ? origins.virtual.upstreamSha256[name]
         : upstream === 'calendar'
           ? origins.calendar.sources[name].upstreamSha256
-          : undefined
+          : upstream === 'matching'
+            ? origins.matching.sources[name].upstreamSha256
+            : undefined
   if (upstream !== 'repository') {
     assert.match(
       upstreamSha256,
@@ -224,7 +233,9 @@ for (const path of sourceFiles) {
           ? 'src/' + name
           : upstream === 'calendar'
             ? origins.calendar.sources[name].upstreamPath
-            : undefined,
+            : upstream === 'matching'
+              ? origins.matching.sources[name].upstreamPath
+              : undefined,
     localSha256: hash(bytes),
     upstreamSha256,
     imports: imported,

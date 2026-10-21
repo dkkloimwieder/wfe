@@ -44,6 +44,7 @@ Beads records task status and dependencies.
 
 - [Examples and preview commands](../examples/README.md)
 - [Component gallery](component-gallery.md)
+- [Combobox matching](combobox-matching.md)
 - [Appearance review](appearance-review.md)
 - [Qualification commands and reports](qualification.md)
 - [Shared style ownership](../packages/components/src/styles/README.md)

@@ -17,7 +17,9 @@ function CustomItem(
 ) {
   return <div {...props} data-custom-item={props.marker} />
 }
-export function ChoiceControls(props: { embedded?: boolean } = {}) {
+export function ChoiceControls(
+  props: { embedded?: boolean; localMatching?: boolean } = {},
+) {
   const [options, setOptions] = createSignal(initial)
   const [value, setValue] = createSignal<Option | null>(initial[0]!)
   const [query, setQuery] = createSignal('Alpha')
@@ -112,9 +114,11 @@ export function ChoiceControls(props: { embedded?: boolean } = {}) {
           <Select.Portal>
             <Select.Content
               footer={
-                <Button type="button" ref={nativeEvents({ click: nextPage })}>
-                  More select options
-                </Button>
+                !props.localMatching && (
+                  <Button type="button" ref={nativeEvents({ click: nextPage })}>
+                    More select options
+                  </Button>
+                )
               }
             >
               <Select.Listbox />
@@ -134,7 +138,7 @@ export function ChoiceControls(props: { embedded?: boolean } = {}) {
           optionTextValue="label"
           optionLabel="label"
           optionDisabled="disabled"
-          defaultFilter={() => true}
+          defaultFilter={props.localMatching ? 'contains' : () => true}
           disabled={disabled()}
           readOnly={readOnly()}
           validationState={invalid() ? 'invalid' : 'valid'}
@@ -149,7 +153,9 @@ export function ChoiceControls(props: { embedded?: boolean } = {}) {
             </Combobox.Item>
           )}
         >
-          <Combobox.Label>Find category</Combobox.Label>
+          <Combobox.Label>
+            {props.localMatching ? 'Contains' : 'Find category'}
+          </Combobox.Label>
           <Combobox.Control>
             <Combobox.Input />
             <Combobox.Trigger aria-label="Show categories">
@@ -157,7 +163,9 @@ export function ChoiceControls(props: { embedded?: boolean } = {}) {
             </Combobox.Trigger>
           </Combobox.Control>
           <Combobox.Description>
-            Results come from the application.
+            {props.localMatching
+              ? 'Type mm to match Gamma anywhere in the label.'
+              : 'Results come from the application.'}
           </Combobox.Description>
           <Combobox.ErrorMessage>Choose a result.</Combobox.ErrorMessage>
           <Combobox.Portal>
@@ -170,9 +178,11 @@ export function ChoiceControls(props: { embedded?: boolean } = {}) {
                     : undefined
               }
               footer={
-                <Button type="button" ref={nativeEvents({ click: nextPage })}>
-                  More search options
-                </Button>
+                !props.localMatching && (
+                  <Button type="button" ref={nativeEvents({ click: nextPage })}>
+                    More search options
+                  </Button>
+                )
               }
             >
               <Combobox.Listbox />

@@ -1,3 +1,4 @@
+import { matchingCases } from './gallery/matching-cases.mjs'
 import { entryPanelCases } from './gallery/entry-panel-cases.mjs'
 import { tableTitleCases } from './gallery/table-title-cases.mjs'
 import { dotDefaultCases } from './gallery/dot-default-cases.mjs'
@@ -246,6 +247,7 @@ try {
       await reviewTheme(page)
     },
   )
+  await matchingCases({ page, url, record })
   await galleryCases({ page, url, record, settle })
   await entryPanelCases({ page, url, record })
   await subtableCases({ page, url, record })
