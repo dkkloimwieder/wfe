@@ -1,8 +1,28 @@
 # Adopt the components
 
+## v0.0.5
+
+Use Git tag `v0.0.5` for the current components and Default theme.
+The base canvas uses surface 1, panes use surface 3, and content uses surface 2.
+The theme retains the blue accent, outline buttons, dotted decoration, and flat surfaces without shadows.
+
+Tables support application-owned pagination and header actions.
+Applications can omit the title/action bar, footer, configuration controls, and refresh control.
+Child tables retain their header and omit configuration controls, refresh, and the footer by default.
+Explicit properties override those defaults. Applications own loading when a parent row expands.
+Footer summaries show the current row count and the total when the application supplies it.
+
+`EntryPanel` provides a centered form with shared decoration and full-width actions.
+Combobox examples demonstrate starts-with, contains, and fuzzy matching through the shared search implementation.
+Sidebar groups support text-only headings. Directional controls use shared triangles.
+
+This release uses Solid `2.0.0-rc.16` with the matching runtime and compiler pins in the repository.
+Platform examples include updated record state and application-owned role and permission screens.
+These examples demonstrate component use and do not prescribe application behavior.
+
 ## v0.0.4
 
-Use Git tag `v0.0.4` for the current shared Default theme and component gallery.
+Git tag `v0.0.4` records the preceding Default theme and component gallery.
 This release refines borders, dots, icons, spacing, and disclosure controls, and removes surface shadows.
 The gallery renders examples directly in one document with the same theme that consumers import.
 Tables keep refresh available. Nested tables load through application-owned expansion and show Apply only for pending filters.
@@ -321,7 +341,7 @@ See the [generator contract](generator-contract.md#record-details) and [example]
 
 ## Growing record lists
 
-These pagination bindings are available after `v0.0.4` and are not tagged yet.
+These pagination bindings are available in Git tag `v0.0.5`.
 Use `ReadOnlyTable.pagination` or `TableViewBindings.pagination` for application-owned pages.
 The application supplies accepted rows and handles page requests.
 See the [pagination contract](../packages/components/src/table/README.md#controlled-pagination) and the [paged example](../examples/table-read-only/README.md).
