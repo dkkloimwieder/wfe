@@ -1,6 +1,6 @@
 # Form layout
 
-`FormGrid` and `FieldGroup` provide shared form layout through `@wfe/components`.
+`FormGrid`, `FieldGroup`, and `FormActions` provide shared form layout through `@wfe/components`.
 They use the existing spacing, borders, text, and surfaces from `@wfe/components/styles.css`.
 They do not own field values, validation, actions, or requests.
 
@@ -48,6 +48,32 @@ export function ContactFields() {
   )
 }
 ```
+
+## Action rows
+
+`FormActions` renders a `div` with the shared `ui-form-actions` class.
+It wraps children with the shared gap and keeps buttons at their natural widths.
+Native attributes, classes, refs, and owned event handlers remain available.
+The application supplies the children, order, button types, and callbacks.
+The container does not submit a form or hide itself when empty.
+
+```tsx
+import { Button, FormActions } from '@wfe/components'
+
+export function RecordActions(props: { cancel: () => void }) {
+  return (
+    <FormActions role="group" aria-label="Record actions">
+      <Button type="submit">Save</Button>
+      <Button type="button" onClick={props.cancel}>
+        Cancel
+      </Button>
+    </FormActions>
+  )
+}
+```
+
+`FormView` uses this component and omits it when no submit or described actions exist.
+`EntryPanelActions` remains the separate full-width layout for entry screens.
 
 ## Generated forms
 

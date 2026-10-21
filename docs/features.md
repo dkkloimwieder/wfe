@@ -56,6 +56,7 @@ Applications can disable FormView submission through the reactive `submitDisable
 Built-in controls include text, textarea, select, checkbox, switch, number, date, and datetime.
 Custom field bindings cover other scalar presentations.
 `FormGrid` and `FieldGroup` support grouped fields, column counts, and spans.
+`FormActions` provides the same wrapping action row for handwritten forms and FormView.
 
 `TableView` composes the supplied native table with column presentation, aliases, actions, and optional custom cell bindings.
 `LayoutView` composes described main panels, navigation, context, footer, and actions through existing dashboard components.

@@ -87,3 +87,19 @@ export function FieldGroup(props: FieldGroupProps) {
     </fieldset>
   )
 }
+
+export type FormActionsProps = JSX.HTMLAttributes<HTMLDivElement>
+
+/** A shared wrapping row. Callers supply buttons and their behavior. */
+export function FormActions(props: FormActionsProps) {
+  const attributes = omit(props, 'ref', ...nativeEventProps)
+  const events = ownedElementEvents(props)
+  return (
+    <div
+      {...attributes}
+      data-ui=""
+      class={styledClasses('ui-form-actions', props.class)}
+      ref={[props.ref, events]}
+    />
+  )
+}

@@ -65,7 +65,7 @@ Direct calls to `bindings.form.submit()` remain under application control and by
 This control does not replace authorization or validation in the application or service.
 Without a submit description, the form prevents native submission.
 Extra actions use application callbacks keyed by their described IDs.
-FormView places submit first, then described actions in order, in one final `.ui-form-actions` row after alerts and status.
+FormView uses `FormActions` to place submit first, then described actions in order, in one final `.ui-form-actions` row after alerts and status.
 The shared row wraps at the available width and retains natural button widths.
 Forms without submit or actions omit the row.
 Submit retains `type="submit"`. Described actions retain `type="button"`.

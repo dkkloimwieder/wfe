@@ -81,11 +81,12 @@ export type { CollapsibleProps } from './components/Collapsible'
 export { NumberInput } from './components/NumberInput'
 export type { NumberInputProps } from './components/NumberInput'
 
-export { FormGrid, FieldGroup } from './components/FormLayout'
+export { FormGrid, FieldGroup, FormActions } from './components/FormLayout'
 export type {
   FormColumns,
   FormSpan,
   FormGridProps,
+  FormActionsProps,
   FieldGroupProps,
 } from './components/FormLayout'
 

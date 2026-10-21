@@ -62,6 +62,7 @@
   }
 }
 
+:where([data-ui]).ui-form-actions,
 :where([data-ui]) .ui-form-actions {
   display: flex;
   flex-wrap: wrap;

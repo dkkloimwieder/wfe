@@ -4,6 +4,7 @@ import {
   Checkbox,
   Field,
   FieldError,
+  FormActions,
   HelpText,
   Input,
   Label,
@@ -118,7 +119,7 @@ export function App(props: {
               {form.errors.form ?? 'The save failed. Try again.'}
             </p>
           </Show>
-          <div class="buttons">
+          <FormActions>
             <Button
               onClick={() => {
                 void save()
@@ -131,7 +132,7 @@ export function App(props: {
             <Button onClick={() => form.cancel()} disabled={!form.pending}>
               Cancel
             </Button>
-          </div>
+          </FormActions>
           <p role="status" data-ui-text="system">
             {form.phase} · {form.dirty ? 'Changed' : 'Unchanged'}
           </p>

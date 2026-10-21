@@ -8,7 +8,7 @@ import { ScalarField } from './scalarField'
 import type { RuntimeCustomField, RuntimeScalarField } from './scalarField'
 import { preserveReorderFocus } from './reorderFocus'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
-import { Button, FormGrid, FieldGroup } from '@wfe/components'
+import { Button, FormGrid, FieldGroup, FormActions } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
 import type { Accessor, Component } from 'solid-js'
 import type {
@@ -307,7 +307,7 @@ export function FormView<
       </Show>
       <StatusView status={bindings().status} />
       <Show when={description().submit || description().actions?.length}>
-        <div class="ui-form-actions">
+        <FormActions>
           <Show when={description().submit}>
             {(submit) => (
               <Button
@@ -324,7 +324,7 @@ export function FormView<
             descriptions={description().actions ?? []}
             bindings={bindings().actions}
           />
-        </div>
+        </FormActions>
       </Show>
     </form>
   )
