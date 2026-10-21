@@ -59,6 +59,11 @@ Its label and ID remain presentation data.
 The enabled submit button and native form submission call the same bound operation.
 Without a submit description, the form prevents native submission.
 Extra actions use application callbacks keyed by their described IDs.
+FormView places submit first, then described actions in order, in one final `.ui-form-actions` row after alerts and status.
+The shared row wraps at the available width and retains natural button widths.
+Forms without submit or actions omit the row.
+Submit retains `type="submit"`. Described actions retain `type="button"`.
+EntryPanel forms retain their separate full-width `EntryPanelActions` layout.
 Applications handle asynchronous extra actions and supply their own pending or error presentation.
 Disabled and read-only bindings remain application decisions.
 A required flag supplies field semantics and does not replace application validation.

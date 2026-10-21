@@ -3,9 +3,11 @@ import { expect } from '@playwright/test'
 import { choiceControl } from '../shared/controls/select-review.mjs'
 export async function reviewServer(initial, name) {
   if (name === 'focus') {
+    await reviewFormActions(initial, true)
     for (const label of ['Title', 'Notes', 'Extra'])
       await expect(initial.getByLabel(label, { exact: true })).toHaveCount(1)
   } else if (name === 'records') {
+    await reviewFormActions(initial)
     const group = initial.getByRole('group', {
       name: 'Record details',
       exact: true,
@@ -71,4 +73,30 @@ export async function reviewServer(initial, name) {
       initial.locator('[data-generator-panel="dispatch-footer-panel"]'),
     ).toHaveCount(1)
   }
+}
+
+export async function reviewFormActions(page, empty = false) {
+  const form = page.locator('form')
+  const row = form.locator(':scope > .ui-form-actions')
+  if (empty) {
+    await expect(row).toHaveCount(0)
+    return
+  }
+  await expect(row).toHaveCount(1)
+  await expect(row.locator(':scope > button')).toHaveText([
+    'Save',
+    'Reset',
+    'Extra',
+  ])
+  await expect(
+    row.getByRole('button', { name: 'Save', exact: true }),
+  ).toHaveAttribute('type', 'submit')
+  for (const name of ['Reset', 'Extra'])
+    await expect(
+      row.getByRole('button', { name, exact: true }),
+    ).toHaveAttribute('type', 'button')
+  assert.equal(
+    await row.evaluate((node) => node.parentElement.lastElementChild === node),
+    true,
+  )
 }

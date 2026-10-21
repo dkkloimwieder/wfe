@@ -1,3 +1,4 @@
+import { reviewFormActions } from './review-server.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 import {
@@ -6,6 +7,9 @@ import {
 } from '../shared/controls/select-review.mjs'
 
 export async function reviewRecords({ page, report, record }) {
+  await record('submit and described actions share the final form row', () =>
+    reviewFormActions(page),
+  )
   await record(
     'named form groups respond to panel width and clamp field spans',
     async () => {

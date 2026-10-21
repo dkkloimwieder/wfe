@@ -1,6 +1,10 @@
+import { reviewFormActions } from './review-server.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 export async function reviewFocus({ page, record }) {
+  await record('forms without submit or actions omit the action row', () =>
+    reviewFormActions(page, true),
+  )
   for (const kind of ['fields', 'panels'])
     await record(
       `retained ${kind} moves preserve each focused control and selection`,

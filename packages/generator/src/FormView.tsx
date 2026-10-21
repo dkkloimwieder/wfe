@@ -303,22 +303,26 @@ export function FormView<
         <p role="alert">The form action failed.</p>
       </Show>
       <StatusView status={bindings().status} />
-      <Show when={description().submit}>
-        {(submit) => (
-          <Button
-            variant={submit().variant}
-            tone={submit().tone}
-            disabled={form.pending}
-            type="submit"
-          >
-            {descriptionLabel(submit().label, submit().id)}
-          </Button>
-        )}
+      <Show when={description().submit || description().actions?.length}>
+        <div class="ui-form-actions">
+          <Show when={description().submit}>
+            {(submit) => (
+              <Button
+                variant={submit().variant}
+                tone={submit().tone}
+                disabled={form.pending}
+                type="submit"
+              >
+                {descriptionLabel(submit().label, submit().id)}
+              </Button>
+            )}
+          </Show>
+          <ActionsView
+            descriptions={description().actions ?? []}
+            bindings={bindings().actions}
+          />
+        </div>
       </Show>
-      <ActionsView
-        descriptions={description().actions ?? []}
-        bindings={bindings().actions}
-      />
     </form>
   )
 }
