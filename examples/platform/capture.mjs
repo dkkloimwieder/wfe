@@ -83,6 +83,10 @@ await capture(
   'application/policy/application_route.rs',
 )
 await capture(
+  'crates/execution/host/src/host_route.rs',
+  'application/policy/host_route.rs',
+)
+await capture(
   'crates/identity/platform/src/application.rs',
   'application/policy/application.rs',
 )

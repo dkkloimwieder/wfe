@@ -24,7 +24,13 @@ The control snapshot includes unused operations from seven client modules.
 It includes metadata for the eight role-assignment and read operations, plus the host and identity implementation sources.
 The application and control user operations share identifiers but return different records.
 A transport must bind the application host to a project and environment before it invokes those operations.
-The capture does not enable application screens or add authorization rules to shared components.
+The capture does not add authorization rules to shared components.
+`application-access-provider.ts` and `application-access-application.ts` provide the separately scoped mock and controller.
+They bind each transport to an immutable project and environment, outside the operation body.
+They read caller authority from `permission.mine`, independently of control administration.
+They preserve stored roles, administrator coverage, served operations, and stored permissions as separate fields.
+Their sample outcomes do not prescribe application workflows or replace server authorization.
+The follow-up screen issue connects these controllers to generated views.
 The mock supports the five initial operations, user and membership lists, six access commands, and user invitation, activation, and deactivation.
 Captured declarations inform the example scenarios. The mock is not an authorization or lifecycle implementation.
 

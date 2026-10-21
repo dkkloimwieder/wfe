@@ -1,6 +1,6 @@
 {
   "revision": "bd69b4e82b005d22f8fab3842ed6bf1a0dbd1a64",
-  "captured": "2026-10-21T05:55:10.592Z",
+  "captured": "2026-10-21T06:04:07.044Z",
   "changes": "Client imports point to the copied wire module. All other captured source bytes stay unchanged.",
   "files": [
     {
@@ -602,6 +602,12 @@
       "local": "application/policy/application_route.rs",
       "sourceSha256": "aef676c548d8e6660abff5ed74c661ed3c25a5c5ada1935b5b05904b53bbf136",
       "sha256": "aef676c548d8e6660abff5ed74c661ed3c25a5c5ada1935b5b05904b53bbf136"
+    },
+    {
+      "source": "crates/execution/host/src/host_route.rs",
+      "local": "application/policy/host_route.rs",
+      "sourceSha256": "f1b1cee9553bdc6dac97879f646d668bde2748284eacde915af8eade206da039",
+      "sha256": "f1b1cee9553bdc6dac97879f646d668bde2748284eacde915af8eade206da039"
     },
     {
       "source": "crates/identity/platform/src/application.rs",
