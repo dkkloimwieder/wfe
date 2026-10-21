@@ -24,6 +24,7 @@ export type TableControlsHandle = {
 
 export type TableWorkspaceProps = {
   /** Fixed controls are the default. Enable resizing explicitly for custom content. */
+  controlsEnabled?: boolean
   controlsResizable?: boolean
   controlsSize?: number
   defaultControlsSize?: number
@@ -49,13 +50,18 @@ export type TableWorkspaceProps = {
 
 /** Independent controls and results. The application assigns the workspace height. */
 export function TableWorkspace(props: TableWorkspaceProps) {
+  const controlsEnabled = createMemo(() => props.controlsEnabled !== false)
+  const controls = createMemo(() =>
+    controlsEnabled() ? props.controls : undefined,
+  )
   const footer = createMemo(() => props.footer)
   const footerActions = createMemo(() => props.footerActions)
-  const [open, setOpen] = createSignal(false)
+  const [open, setOpen] = createSignal(false, { ownedWrite: true })
   const [localCollapsed, setLocalCollapsed] = createSignal(
     untrack(() => props.defaultControlsCollapsed ?? false),
   )
-  const collapsed = () => props.controlsCollapsed ?? localCollapsed()
+  const collapsed = () =>
+    !controlsEnabled() || (props.controlsCollapsed ?? localCollapsed())
   const [localSize, setLocalSize] = createSignal(
     untrack(() => props.defaultControlsSize),
   )
@@ -96,6 +102,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
   }
   const panelId = `table-controls-${createUniqueId()}`
   let toggle: HTMLButtonElement | undefined
+  let panelObserver: ResizeObserver | undefined
+  let measurePanel: (() => void) | undefined
   let panel: HTMLElement | undefined
   let results: HTMLDivElement | undefined
   let headerActions: HTMLDivElement | undefined
@@ -107,6 +115,23 @@ export function TableWorkspace(props: TableWorkspaceProps) {
       target && (separator?.contains(target) || ownsFocus(panel, target)),
     )
   }
+  createRenderEffect(controlsEnabled, (enabled) => {
+    if (enabled !== false || !workspace) return
+    const active = document.activeElement
+    if (
+      workspace &&
+      (controlsOwnFocus(active) ||
+        toggle === active ||
+        (panelFocused && active === document.body))
+    )
+      workspace?.focus({ preventScroll: true })
+    setOpen(false)
+    panelFocused = false
+    toggle = undefined
+    if (panel) panelObserver?.unobserve(panel)
+    panel = undefined
+    separator = undefined
+  })
   function changeCollapsed(next: boolean) {
     if (!alive) return
     if (
@@ -125,7 +150,13 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     setOpen(false)
   }
   function focusControls(target?: HTMLElement) {
-    if (!alive || !panel || (target && !panel.contains(target))) return
+    if (
+      !alive ||
+      !controlsEnabled() ||
+      !panel?.isConnected ||
+      (target && !panel.contains(target))
+    )
+      return
     if (untrack(narrow)) setOpen(true)
     else if (untrack(collapsed)) changeCollapsed(false)
     for (
@@ -137,7 +168,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     queueMicrotask(() => {
       if (
         !alive ||
-        !panel ||
+        !controlsEnabled() ||
+        !panel?.isConnected ||
         (target && !panel.contains(target)) ||
         (untrack(narrow) ? !untrack(open) : untrack(collapsed))
       )
@@ -192,7 +224,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
   onSettled(() => {
     const measure = () =>
       untrack(() => {
-        if (!alive) return
+        if (!alive || !workspace?.isConnected) return
         setHeaderHeight(header?.getBoundingClientRect().height ?? 0)
         const available = availableSize()
         if (
@@ -216,6 +248,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
       typeof ResizeObserver === 'undefined'
         ? undefined
         : new ResizeObserver(measure)
+    panelObserver = observer
+    measurePanel = measure
     for (const node of [workspace, header, panel])
       if (node) observer?.observe(node)
     measure()
@@ -258,6 +292,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     doc.addEventListener('focusin', guardHiddenFocus)
     return () => {
       observer?.disconnect()
+      panelObserver = undefined
+      measurePanel = undefined
       query.removeEventListener('change', changed)
       doc.removeEventListener('focusin', guardHiddenFocus)
     }
@@ -291,6 +327,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
   return (
     <section
       data-ui=""
+      tabindex={-1}
       class={styledClasses('table-workspace', props.class)}
       style={{
         ...props.style,
@@ -305,7 +342,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
             : `calc((100% - var(--ui-table-header-height) - ${props.controlsResizable !== true ? '0px' : 'var(--ui-resize-handle-size, 6px)'}) * ${size()! / 100})`,
       }}
       data-controls-resizable={
-        props.controlsResizable === true ? '' : undefined
+        controlsEnabled() && props.controlsResizable === true ? '' : undefined
       }
       data-controls-sized={size() !== undefined ? '' : undefined}
       aria-label={props.label ?? 'Table workspace'}
@@ -344,67 +381,85 @@ export function TableWorkspace(props: TableWorkspaceProps) {
             headerActions = node
           }}
         >
-          <IconButton
-            class="table-controls-toggle"
-            ref={(node) => {
-              toggle = node
-            }}
-            title={
-              (narrow() ? open() : !collapsed())
-                ? 'HIDE CONTROLS'
-                : 'SHOW CONTROLS'
-            }
-            aria-controls={panelId}
-            aria-label={props.toggleLabel ?? 'Table controls'}
-            aria-expanded={
-              (narrow() ? open() : !collapsed()) ? 'true' : 'false'
-            }
-            onClick={() => {
-              if (narrow()) {
-                if (open()) close()
-                else setOpen(true)
-              } else changeCollapsed(!collapsed())
-            }}
-          >
-            <Icon class="table-controls-icon" name="controls" />
-          </IconButton>
+          <Show when={controlsEnabled()} keyed>
+            {(_enabled) => (
+              <IconButton
+                class="table-controls-toggle"
+                ref={(node) => {
+                  toggle = node
+                }}
+                title={
+                  (narrow() ? open() : !collapsed())
+                    ? 'HIDE CONTROLS'
+                    : 'SHOW CONTROLS'
+                }
+                aria-controls={panelId}
+                aria-label={props.toggleLabel ?? 'Table controls'}
+                aria-expanded={
+                  (narrow() ? open() : !collapsed()) ? 'true' : 'false'
+                }
+                onClick={() => {
+                  if (narrow()) {
+                    if (open()) close()
+                    else setOpen(true)
+                  } else changeCollapsed(!collapsed())
+                }}
+              >
+                <Icon class="table-controls-icon" name="controls" />
+              </IconButton>
+            )}
+          </Show>
           <Show when={props.controlsHeader} keyed>
             {(actions) => actions}
           </Show>
         </div>
       </header>
-      <aside
-        id={panelId}
-        class="table-workspace-controls"
-        aria-label={props.controlsLabel ?? 'Table controls'}
-        tabindex={-1}
-        ref={(node) => {
-          panel = node
-        }}
-      >
-        <Button class="table-controls-close" onClick={close}>
-          {props.closeLabel ?? 'Close table controls'}
-        </Button>
-        <div class="table-workspace-controls-body">{props.controls}</div>
-      </aside>
-      <ResizeHandle
-        class="table-workspace-resize"
-        ref={(node) => {
-          separator = node
-        }}
-        aria-label={props.controlsLabel ?? 'Table controls'}
-        aria-controls={panelId}
-        value={collapsed() ? 0 : (size() ?? measuredSize())}
-        collapsed={collapsed()}
-        onToggle={() => changeCollapsed(!collapsed())}
-        onValueChange={changeSize}
-        disabled={props.controlsResizable !== true || narrow()}
-        orientation={
-          props.controlsPlacement === 'top' ? 'horizontal' : 'vertical'
-        }
-        reverse={props.controlsPlacement === 'right'}
-        getAvailableSize={availableSize}
-      />
+      <Show when={controlsEnabled()} keyed>
+        {(_enabled) => (
+          <>
+            <aside
+              id={panelId}
+              class="table-workspace-controls"
+              aria-label={props.controlsLabel ?? 'Table controls'}
+              tabindex={-1}
+              ref={(node) => {
+                panel = node
+                panelObserver?.observe(node)
+                // Initial measurement belongs to onSettled. Suspended owners can
+                // outlive their DOM, so deferred remount work also checks connection.
+                if (measurePanel)
+                  queueMicrotask(() => {
+                    if (alive && panel === node && node.isConnected)
+                      measurePanel?.()
+                  })
+              }}
+            >
+              <Button class="table-controls-close" onClick={close}>
+                {props.closeLabel ?? 'Close table controls'}
+              </Button>
+              <div class="table-workspace-controls-body">{controls()}</div>
+            </aside>
+            <ResizeHandle
+              class="table-workspace-resize"
+              ref={(node) => {
+                separator = node
+              }}
+              aria-label={props.controlsLabel ?? 'Table controls'}
+              aria-controls={panelId}
+              value={collapsed() ? 0 : (size() ?? measuredSize())}
+              collapsed={collapsed()}
+              onToggle={() => changeCollapsed(!collapsed())}
+              onValueChange={changeSize}
+              disabled={props.controlsResizable !== true || narrow()}
+              orientation={
+                props.controlsPlacement === 'top' ? 'horizontal' : 'vertical'
+              }
+              reverse={props.controlsPlacement === 'right'}
+              getAvailableSize={availableSize}
+            />
+          </>
+        )}
+      </Show>
       <div
         class="table-workspace-results"
         ref={(node) => {

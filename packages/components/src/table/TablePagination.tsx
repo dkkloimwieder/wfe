@@ -1,6 +1,6 @@
 import { Show } from 'solid-js'
 import { IconButton } from '../components/NativeFields'
-import { Icon } from '../components/Icon'
+import { DisclosureIndicator } from '../components/DisclosureIndicator'
 import { SelectField } from '../components/Select'
 
 export type TablePageSize = {
@@ -17,6 +17,8 @@ export type TablePaginationProps = {
   onNext: () => void
   pending?: boolean
   status?: string
+  /** Total matching rows reported by the application. Omit when unknown. */
+  totalRows?: number
   pageSize?: TablePageSize
   label?: string
 }
@@ -73,22 +75,24 @@ export function TablePagination(props: TablePaginationProps) {
         />
       </Show>
       <IconButton
+        class="table-page-action ui-disclosure-trigger"
         aria-label="Previous page"
         disabled={props.pending || !props.hasPrevious}
         onClick={() => {
           if (!props.pending && props.hasPrevious) props.onPrevious()
         }}
       >
-        <Icon name="chevron-left" />
+        <DisclosureIndicator class="table-page-previous" />
       </IconButton>
       <IconButton
+        class="table-page-action ui-disclosure-trigger"
         aria-label="Next page"
         disabled={props.pending || !props.hasNext}
         onClick={() => {
           if (!props.pending && props.hasNext) props.onNext()
         }}
       >
-        <Icon name="chevron-right" />
+        <DisclosureIndicator />
       </IconButton>
     </nav>
   )

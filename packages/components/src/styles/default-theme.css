@@ -179,6 +179,8 @@
     .ui-sidebar-flyout,
     .table-workspace-title-face,
     .table-controls-toggle,
+    .table-workspace-header-actions .ui-icon-button,
+    .table-page-action,
     .table-refresh
   ) {
   --ui-decoration-border: color-mix(
@@ -292,7 +294,8 @@
 }
 
 /* Table titles share action decoration without becoming interactive controls. */
-.ui-theme .table-workspace-header {
+.ui-theme :is(.table-workspace-header, .table-workspace-summary) {
+  background-color: var(--ui-pane-surface);
   background-image: radial-gradient(
     circle,
     color-mix(
@@ -312,7 +315,12 @@
   border-color: var(--ui-control-border);
 }
 
-.ui-theme :is(.table-controls-toggle, .table-refresh) {
+.ui-theme
+  :is(
+    .table-workspace-header-actions .ui-icon-button,
+    .table-refresh,
+    .table-page-action
+  ) {
   --ui-button-color: var(--ui-muted-text);
   color: var(--ui-muted-text);
 }
@@ -402,4 +410,25 @@
       rotateX(var(--ui-action-taper, 0deg))
       rotateY(var(--ui-action-taper-y, 0deg))
   );
+}
+
+.ui-theme .table-page-action .ui-disclosure-arrow {
+  scale: 0.8;
+}
+.ui-theme .table-page-action .ui-disclosure-indicator pattern circle {
+  fill: var(--ui-neutral-dot-color, var(--ui-muted-text));
+}
+.ui-theme .table-page-action .ui-disclosure-decoration {
+  stroke: var(--ui-neutral-border-color, var(--ui-muted-text));
+}
+
+.ui-theme .table-workspace-summary > [role='status']:not(:empty),
+.ui-theme .table-pagination-status:not(:empty) {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: var(--ui-table-control-height, 26px);
+  padding: 0 var(--ui-cell-padding-x, 8px);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-pane-surface);
 }

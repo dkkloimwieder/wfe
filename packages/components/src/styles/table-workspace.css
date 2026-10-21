@@ -490,6 +490,7 @@
 }
 
 :where([data-ui]) .table-pagination {
+  --ui-control-height: var(--ui-table-control-height, 26px);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -499,4 +500,15 @@
 }
 :where([data-ui]) .table-pagination-status {
   overflow-wrap: anywhere;
+}
+:where([data-ui]) .table-pagination > .ui-select-field {
+  width: auto;
+  flex: none;
+}
+
+:where([data-ui]) .table-page-previous {
+  transform: rotate(180deg);
+}
+:where([data-ui]) .table-page-action .ui-disclosure-indicator {
+  stroke: currentColor;
 }

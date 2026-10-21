@@ -120,3 +120,7 @@ Use live getters or reactive props for availability, status, page size, and pend
 `TableWorkspace.footerActions` places controls beside its summary, outside the status announcement region.
 Pagination uses the existing select and icon buttons and wraps within narrow footers.
 The [paged mock](../../../../examples/table-read-only/README.md) demonstrates application-owned responses.
+
+For paginated tables, supply `pagination.totalRows` with the total matching rows from the application.
+The footer shows the current page row count over that total, such as `3/8`.
+If the total is unknown, omit `totalRows`. The footer then shows only the current row count.

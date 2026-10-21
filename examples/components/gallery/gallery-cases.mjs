@@ -20,8 +20,38 @@ const catalog = [
   ['dialogs', 'Dialogs and confirmations'],
   ['display', 'Display and status'],
   ['table', 'Table'],
+  ['pagination', 'Pagination and header actions'],
 ]
 export async function galleryCases({ page, url, record, settle }) {
+  await record(
+    'gallery: pagination and header actions remain application-owned',
+    async () => {
+      await page.goto(`${url}?gallery=pagination`)
+      const host = page.locator('#paged-records')
+      await expect(host.locator('tr[data-row]')).toHaveCount(3)
+      await expect(
+        host.locator('.table-workspace-summary > [role=status]'),
+      ).toHaveText('3/8')
+      await expect(
+        page.getByText('Mock actions. No requests are sent.', { exact: true }),
+      ).toHaveCount(0)
+      await host
+        .getByRole('button', { name: 'Create record', exact: true })
+        .click()
+      await expect(page.locator('output')).toContainText('Create requested')
+      await host
+        .getByRole('button', { name: 'Invite member', exact: true })
+        .click()
+      await expect(page.locator('output')).toContainText('Invite requested')
+      await host.getByRole('button', { name: 'Next page', exact: true }).click()
+      await expect(host.locator('tr[data-row]').first()).toHaveText('Record 4')
+      await host
+        .getByRole('button', { name: 'Previous page', exact: true })
+        .click()
+      await expect(host.locator('tr[data-row]').first()).toHaveText('Record 1')
+    },
+  )
+
   await sidebarCases({ page, url, record })
   await appearanceCases({ page, url, record })
   await galleryLoadingCases({ page, url, record })

@@ -1,3 +1,4 @@
+import { PaginationExample } from './PaginationExample'
 import { EntryExample } from './EntryExample'
 import { SubTables } from './SubTables'
 import { EverythingForm } from './EverythingForm'
@@ -41,6 +42,7 @@ import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'
 
 const views = {
+  pagination: PaginationExample,
   entry: EntryExample,
   everything: EverythingForm,
   fields: Fields,
@@ -148,6 +150,7 @@ export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
           entry.id === 'entry' ||
           entry.id === 'everything' ||
           entry.id === 'table' ||
+          entry.id === 'pagination' ||
           entry.id === 'subtables'
             ? 'gallery-example-unframed'
             : 'gallery-example-panel'

@@ -84,6 +84,12 @@ export const entries = [
     group: 'Components',
     states: ['normal'],
   },
+  {
+    id: 'pagination',
+    label: 'Pagination and header actions',
+    group: 'Components',
+    states: ['normal'],
+  },
   { id: 'table', label: 'Table', group: 'Components', states: ['normal'] },
   {
     id: 'subtables',

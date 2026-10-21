@@ -90,7 +90,11 @@ body:has(.gallery-preview) {
 .gallery-example-host > .gallery-preview {
   min-height: 100%;
 }
-.gallery-stage:is([data-example='table'], [data-example='subtables']) {
+.gallery-stage:is(
+  [data-example='table'],
+  [data-example='subtables'],
+  [data-example='pagination']
+) {
   overflow: visible;
 }
 .gallery-example-host:has(.gallery-table) > .gallery-preview {

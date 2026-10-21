@@ -10,6 +10,7 @@ import { Resizable } from '@wfe/components/resizable'
 import {
   createTable as createNativeTable,
   nativeAggregations,
+  TableWorkspace,
 } from '@wfe/components/table'
 
 const nativeOutput = await renderToString(() => {
@@ -768,3 +769,16 @@ const entryOutput = await renderToString(() =>
 assert.match(entryOutput, /ui-entry-panel-surface/)
 assert.match(entryOutput, /Entry content/)
 assert.doesNotMatch(entryOutput, /<form|<main/)
+
+const omittedControls = await renderToString(() =>
+  createComponent(TableWorkspace, {
+    controlsEnabled: false,
+    get controls() {
+      throw new Error('Disabled table controls must not mount')
+    },
+    children: 'Table results',
+  }),
+)
+assert.ok(omittedControls.includes('Table results'))
+assert.ok(!omittedControls.includes('table-controls-toggle'))
+assert.ok(!omittedControls.includes('<aside'))

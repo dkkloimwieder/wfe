@@ -965,7 +965,11 @@
   min-width: 0;
 }
 :where([data-ui]) .ui-icon-button {
-  padding: var(--ui-control-padding-y, 4px);
+  box-sizing: border-box;
+  width: var(--ui-control-height, 26px);
+  height: var(--ui-control-height, 26px);
+  flex: none;
+  padding: 0;
 }
 :where([data-ui]) .ui-textarea {
   resize: vertical;

@@ -55,6 +55,10 @@ export function ReadOnlyTable<T, M>(
       id: string,
       alignment: TableColumnAlignment,
     ) => void
+    /** Omit the configuration button and panel when false. */
+    controlsEnabled?: boolean
+    /** Omit the refresh/apply button when false. */
+    refreshEnabled?: boolean
     controlsResizable?: boolean
     controlsSize?: number
     defaultControlsSize?: number
@@ -237,6 +241,7 @@ export function ReadOnlyTable<T, M>(
       controlsRef={(handle) => {
         workspaceControls = handle
       }}
+      controlsEnabled={props.controlsEnabled}
       controlsResizable={props.controlsResizable}
       controlsSize={props.controlsSize}
       defaultControlsSize={props.defaultControlsSize}
@@ -248,8 +253,9 @@ export function ReadOnlyTable<T, M>(
       label={props.title ?? 'Read-only table'}
       footer={
         <>
-          {table.getFilteredRowIds().length}/{table.getSourceIds().length}{' '}
-          {props.pagination ? 'records on this page' : 'records'}
+          {props.pagination
+            ? `${table.getFilteredRowIds().length}${props.pagination.totalRows === undefined ? '' : `/${props.pagination.totalRows}`}`
+            : `${table.getFilteredRowIds().length}/${table.getSourceIds().length} records`}
           <Show when={props.selection?.range}>
             {' '}
             · {props.selection!.rowCount} × {props.selection!.columnCount}{' '}
@@ -267,17 +273,21 @@ export function ReadOnlyTable<T, M>(
       }
       controlsHeader={
         <>
-          <Show when={props.toolbarActions} keyed>
-            {(actions) => actions}
-          </Show>
           <div class="table-filter-actions">
-            <Show when={!isDetail || filters.changed}>
+            <Show
+              when={
+                props.refreshEnabled !== false && (!isDetail || filters.changed)
+              }
+            >
               <FilterApplyControl />
             </Show>
             <Show when={filters.changed}>
               <span data-ui-text="system">Unapplied changes</span>
             </Show>
           </div>
+          <Show when={props.toolbarActions} keyed>
+            {(actions) => actions}
+          </Show>
         </>
       }
       controls={

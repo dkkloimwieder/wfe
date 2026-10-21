@@ -1,3 +1,4 @@
+import type { JSX } from '@solidjs/web'
 import { createSignal, flush, onCleanup } from 'solid-js'
 import { createTable, ReadOnlyTable } from '@wfe/components/table'
 
@@ -16,7 +17,9 @@ export const paginationLifecycle = {
 }
 
 /** Mock application code. Only this example chooses pages and accepts responses. */
-export function PagedRecords() {
+export function PagedRecords(
+  props: { embedded?: boolean; toolbarActions?: JSX.Element } = {},
+) {
   const [page, setPage] = createSignal({
     index: 0,
     size: 3,
@@ -83,10 +86,18 @@ export function PagedRecords() {
   return (
     <section
       id="paged-records"
-      style={{ height: '32rem', display: 'flex', 'min-width': 0 }}
+      style={{
+        height: props.embedded ? undefined : '32rem',
+        flex: props.embedded ? '1' : undefined,
+        display: 'flex',
+        'flex-direction': 'column',
+        'min-width': 0,
+        'min-height': 0,
+      }}
     >
       <ReadOnlyTable
         table={table}
+        toolbarActions={props.toolbarActions}
         title="Paged records"
         defaultControlsCollapsed
         controls={{
@@ -97,6 +108,9 @@ export function PagedRecords() {
         }}
         onApplyFilters={() => request(page().index, page().size)}
         pagination={{
+          get totalRows() {
+            return knownTotal() ? records.length : undefined
+          },
           get hasPrevious() {
             return page().index > 0
           },

@@ -80,6 +80,10 @@ Current header aliases belong to the application binding and override those labe
 Bindings also supply optional existing filter, grouping, alignment, refresh, and collapse contracts.
 The renderer passes the same table to `ReadOnlyTable` and uses its existing slots.
 The optional `toolbarActions` binding is a stable application component for persistent header actions.
+The application supplies each action and its icon. Actions follow the built-in controls and refresh buttons.
+Set `controlsEnabled: false` to omit the configuration button and panel from mounting.
+Set `refreshEnabled: false` to omit the refresh or apply button. These bindings are independent and default to enabled.
+The same properties are available on `ReadOnlyTable`.
 The renderer constructs it once and disposes it with the table view.
 Keep reactive labels, availability, and callbacks inside that component.
 Remount the view to replace or add the component binding.
@@ -376,5 +380,6 @@ Use the native table's `manualProcessing` mode when the server owns sorting and 
 
 A pending page request disables page and page-size controls while accepted rows remain visible.
 Refresh remains available. The application decides how refresh interacts with a pending request.
-Unknown totals need no special value: omit a total from the application-supplied status text.
+Supply `totalRows` for the footer count, such as `3/8`. Omit it when the total is unknown.
+Without a total, the footer shows only the current row count.
 See the [pagination contract](../packages/components/src/table/README.md#controlled-pagination) for the shared properties.
