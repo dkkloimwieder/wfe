@@ -17,7 +17,7 @@
     "types": "tsc --project tsconfig.json"
   },
   "peerDependencies": {
-    "solid-js": ">=2.0.0-rc.14 <3.0.0"
+    "solid-js": ">=2.0.0-rc.16 <3.0.0"
   },
   "files": [
     "dist",

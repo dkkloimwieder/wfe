@@ -3,6 +3,19 @@ packages:
   - examples/*
 
 minimumReleaseAge: 1440
+# Exact releases explicitly approved for this upgrade. Automatic upgrades retain the age rule.
+minimumReleaseAgeExclude:
+  - 'solid-js@2.0.0-rc.16'
+  - '@solidjs/web@2.0.0-rc.16'
+  - '@solidjs/signals@2.0.0-rc.16'
+  - '@solidjs/compiler@2.0.0-rc.16'
+  - '@solidjs/babel-plugin@2.0.0-rc.16'
+  - '@solidjs/compiler-darwin-x64@2.0.0-rc.16'
+  - '@solidjs/compiler-wasm32-wasi@2.0.0-rc.16'
+  - '@solidjs/compiler-darwin-arm64@2.0.0-rc.16'
+  - '@solidjs/compiler-linux-x64-gnu@2.0.0-rc.16'
+  - '@solidjs/compiler-win32-x64-msvc@2.0.0-rc.16'
+  - '@solidjs/compiler-linux-arm64-gnu@2.0.0-rc.16'
 linkWorkspacePackages: true
 preferWorkspacePackages: true
 blockExoticSubdeps: true
@@ -21,3 +34,7 @@ trustPolicyExclude:
 # Preserve the bundler version tested in the source checkout.
 overrides:
   rolldown: 1.2.8
+  # Qualify the runtime and compilers together.
+  '@solidjs/compiler': 2.0.0-rc.16
+  '@solidjs/babel-plugin': 2.0.0-rc.16
+  '@solidjs/signals': 2.0.0-rc.16

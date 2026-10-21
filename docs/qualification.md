@@ -64,3 +64,49 @@ Record reads, retained scopes, and cleanup assertions remain correctness checks.
 
 The [native tab investigation](native-tab-investigation.md) records the isolated browser failure and bounded reproduction commands.
 These diagnostics remain separate from the component qualification assertions.
+
+## Solid rc.16 toolchain
+
+The 2026-10-21 upgrade uses `solid-js`, `@solidjs/web`, `@solidjs/signals`,
+`@solidjs/compiler`, and `@solidjs/babel-plugin` at `2.0.0-rc.16`.
+The paired Vite plugin is `3.0.0-next.50`.
+The npm registry identifies source commit `b0ad1df505b835058a4b3750ab37d6576bb18c01`.
+The lockfile records archive integrity hashes, including the compiler binaries.
+Solid pins `seroval` and `seroval-plugins` to `1.6.7`.
+
+The owner explicitly approved this upgrade before the normal 24-hour release age.
+Exact rc.16 exclusions cover these packages and their compiler binaries.
+Automatic upgrades retain the age rule and the existing trust policy.
+The existing interaction, scrolling, disposal, and native listener repairs remain in place.
+This upgrade does not establish that upstream fixes replace those repairs.
+
+Release references: [Solid rc.16](https://github.com/solidjs/solid/releases/tag/solid-js%402.0.0-rc.16)
+and [Vite plugin next.50](https://github.com/solidjs/solid-vite-plugin/releases/tag/%40solidjs%2Fvite-plugin%403.0.0-next.50).
+
+The release review found no owned module-level reactive state or use of the removed nonce and binding-slot APIs.
+Application factories and providers retain state ownership.
+The compiler now evaluates ref setup beside spreads during server rendering.
+Our ref factories defer DOM work to attachment or effects; the qualification suite exercises server rendering and hydration.
+The cleanup-write guard relaxation does not replace application guards against late responses after disposal.
+The root initialization closure fix does not establish that the separate action disposal workaround is obsolete.
+
+The [signals notes](https://github.com/solidjs/solid/releases/tag/%40solidjs%2Fsignals%402.0.0-rc.16)
+cover cleanup, diagnostics, and root disposal.
+The [compiler notes](https://github.com/solidjs/solid/releases/tag/%40solidjs%2Fcompiler%402.0.0-rc.16)
+cover ref setup and diagnostic locations.
+
+The upgrade qualification ran serially because this host had high variable load.
+The unit suite passed 786 tests across 79 files before the focused sidebar regression was added.
+The four sidebar tests also pass, including retained icon ownership and cleanup.
+Source, built-package, and development browser and hydration stages pass after the recorded repairs.
+Live browser interactions, stylesheet updates, and concurrent preview isolation also pass.
+Reports remain in `test-results/solid-rc16-functional` and the numbered `solid-rc16-functional-resumed` directories.
+These are staged runs with preserved failures, not one uninterrupted passing run.
+
+Qualification found duplicate sidebar icon construction during hydration (`wfe-1pf`).
+The repair caches the icon and retains its server-rendered node.
+It also found that CSS provenance hashed font URLs before Vite resolved them (`wfe-kg3`).
+The repair hashes transformed CSS while retaining source and asset freshness assertions.
+Cosmetic assertions were removed separately in `wfe-gjk`; interaction and accessibility assertions remain.
+The existing native-tab timeout (`wfe-x6o`) recurred and then passed unchanged.
+Its cause remains open; this upgrade does not claim to fix it.
