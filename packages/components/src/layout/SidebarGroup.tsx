@@ -1,7 +1,7 @@
 import { ownedElementEvents } from '../internal/events'
 import { nativeEvents } from '../utils/nativeEvents'
 import { ownsFocus } from '../internal/ownedFocus'
-import { Show, createSignal, onCleanup } from 'solid-js'
+import { Show, createMemo, createSignal, onCleanup } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { Collapsible } from '../components/Collapsible'
 import { Button } from '../components/NativeFields'
@@ -22,14 +22,16 @@ export type SidebarGroupProps = {
 
 /** Navigation presentation only. The application supplies links and selection. */
 export function SidebarGroup(props: SidebarGroupProps) {
+  const icon = createMemo(() => props.icon)
   const initial = () => Array.from(props.label.trim())[0] ?? '?'
   function CompactContent() {
     return (
       <Show
-        when={props.icon}
+        when={icon()}
+        keyed
         fallback={<span aria-hidden="true">{initial()}</span>}
       >
-        {props.icon}
+        {(value) => value}
       </Show>
     )
   }
@@ -98,10 +100,12 @@ export function SidebarGroup(props: SidebarGroupProps) {
         indicatorPlacement="end"
         summary={
           <span class="ui-sidebar-group-control">
-            <Show when={props.icon}>
-              <span class="ui-sidebar-group-icon" aria-hidden="true">
-                {props.icon}
-              </span>
+            <Show when={icon()} keyed>
+              {(value) => (
+                <span class="ui-sidebar-group-icon" aria-hidden="true">
+                  {value}
+                </span>
+              )}
             </Show>
             <span class="ui-sidebar-group-label">{props.label}</span>
           </span>
@@ -190,7 +194,7 @@ export function SidebarGroup(props: SidebarGroupProps) {
   return (
     <div
       class="ui-sidebar-group"
-      data-text-only={!props.icon ? '' : undefined}
+      data-text-only={!icon() ? '' : undefined}
       data-compact={props.compact ? '' : undefined}
       ref={[
         (node) => {

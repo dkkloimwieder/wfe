@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from 'vitest'
 import { cleanup, fireEvent, render } from '@solidjs/testing-library'
-import { createSignal, flush } from 'solid-js'
+import { createSignal, flush, onCleanup } from 'solid-js'
 import { Icon } from '@wfe/components'
 import { SidebarGroup } from '@wfe/components/layout'
 
@@ -88,3 +88,50 @@ for (const behavior of ['flyout', 'expand'] as const) {
     expect(expansions).toBe(behavior === 'expand' ? 1 : 0)
   })
 }
+
+test('the icon mounts once and survives sidebar presentation changes', () => {
+  const [compact, setCompact] = createSignal(false)
+  const [visible, setVisible] = createSignal(true)
+  let mounts = 0
+  let disposals = 0
+  function TrackedIcon() {
+    mounts++
+    onCleanup(() => disposals++)
+    return (
+      <svg data-testid="sidebar-icon">
+        <path d="M0 0L1 1" />
+      </svg>
+    )
+  }
+  const mounted = render(() => (
+    <SidebarGroup
+      label="Reports"
+      icon={visible() ? <TrackedIcon /> : undefined}
+      compact={compact()}
+      behavior="expand"
+      open={false}
+      onOpenChange={() => {}}
+      onExpand={() => {}}
+    >
+      {() => <a href="#report">Report</a>}
+    </SidebarGroup>
+  ))
+  const icon = mounted.getByTestId('sidebar-icon')
+  expect(mounts).toBe(1)
+  for (const state of [true, false, true]) {
+    setCompact(state)
+    flush()
+    expect(mounted.getByTestId('sidebar-icon')).toBe(icon)
+    expect(mounts).toBe(1)
+    expect(disposals).toBe(0)
+  }
+  setVisible(false)
+  flush()
+  expect(mounted.queryByTestId('sidebar-icon')).toBeNull()
+  expect(disposals).toBe(1)
+  setVisible(true)
+  flush()
+  expect(mounts).toBe(2)
+  mounted.unmount()
+  expect(disposals).toBe(2)
+})
