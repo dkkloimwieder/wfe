@@ -134,6 +134,36 @@ async function record(name, work) {
   console.log(`PASS ${name}`)
 }
 try {
+  await record(
+    'platform: list states display supplied values without changing navigation or scope',
+    async () => {
+      await initialize('?screen=projects')
+      const state = (table, name) =>
+        table.locator(`tr[data-row="${name}"] td[data-column="state"]`)
+      await expect(state(projects(), 'archive')).toHaveText('inactive')
+      await expect(state(projects(), 'billing')).toHaveText('active')
+      await openProject('billing').click()
+      const environments = page.getByRole('table', {
+        name: 'Environments · billing',
+        exact: true,
+      })
+      await expect(state(environments, 'dev')).toHaveText('active')
+      await expect(state(environments, 'prod')).toHaveText('inactive')
+      await environments
+        .locator('tr[data-row="prod"]')
+        .getByRole('button', { name: 'View environment prod', exact: true })
+        .click()
+      await expect(
+        page.getByRole('heading', {
+          name: 'billing / prod',
+          exact: true,
+          level: 2,
+        }),
+      ).toBeVisible()
+      await initialize('?scenario=project-admin&screen=projects')
+      await expect(state(projects(), 'billing')).toHaveText('Unknown')
+    },
+  )
   await invitationCases({ page, initialize, record })
   await record(
     'platform: native navigation, persistent tables, stable resizing and approved appearance',

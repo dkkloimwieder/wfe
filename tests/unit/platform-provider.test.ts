@@ -22,11 +22,22 @@ test('platform reads use generated routes and revive nested wire member names', 
   })
   expect(await client.projects()).toEqual({
     status: 'completed',
-    value: { projects: ['archive', 'billing', 'shop'] },
+    value: {
+      projects: [
+        { name: 'archive', state: 'inactive' },
+        { name: 'billing', state: 'active' },
+        { name: 'shop', state: 'active' },
+      ],
+    },
   })
   expect(await client.environments('billing')).toEqual({
     status: 'completed',
-    value: { environments: ['dev', 'prod'] },
+    value: {
+      environments: [
+        { name: 'dev', state: 'active' },
+        { name: 'prod', state: 'inactive' },
+      ],
+    },
   })
   const status = await client.status('billing', 'dev')
   expect(status).toMatchObject({
@@ -172,7 +183,9 @@ test('application cancellation stops waiting but does not claim command rollback
   release()
   expect(await client.projects()).toMatchObject({
     status: 'completed',
-    value: { projects: expect.arrayContaining(['late']) },
+    value: {
+      projects: expect.arrayContaining([{ name: 'late', state: 'inactive' }]),
+    },
   })
   expect(
     mock.sent().filter((r) => r.operation === PROJECT_CREATE_ROUTE.operation),
@@ -285,3 +298,42 @@ test('application result checks reject wrong types at every leaf declared by the
     })
   }
 })
+
+for (const key of ['projects', 'environments'] as const) {
+  test(`${key} validate current record states instead of trusting stale generated array types`, async () => {
+    const mock = createPlatformMock()
+    const client = createPlatformClient(mock.transport)
+    const read = () =>
+      key === 'projects' ? client.projects() : client.environments('billing')
+    for (const rows of [
+      ['legacy'],
+      [{ name: 'x' }],
+      [{ name: 'x', state: null }],
+      [{ name: 'x', state: 'unknown' }],
+      [{ name: 42, state: 'active' }],
+      [{ name: 'x', state: 1 }],
+    ]) {
+      mock.replyNext({
+        status: 200,
+        body: JSON.stringify([{ value: { [key]: rows } }]),
+      })
+      expect(await read()).toMatchObject({
+        status: 'uncertain',
+        reason: 'The reply does not match the operation result.',
+      })
+    }
+    const rows = [
+      { name: 'Mixed / Case', state: 'inactive' },
+      { name: 'second', state: 'active' },
+    ]
+    mock.replyNext({
+      status: 200,
+      body: JSON.stringify([{ value: { [key]: rows } }]),
+    })
+    expect(await read()).toEqual({
+      status: 'completed',
+      value: { [key]: rows },
+    })
+    mock.dispose()
+  })
+}

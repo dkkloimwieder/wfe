@@ -14,12 +14,13 @@ import type {
   EnvironmentStatus,
   PlatformScenario,
   ProjectValues,
+  PlatformRecord,
 } from './provider'
 import type { Outcome } from './snapshot/runtime/wire'
 import { refusedMember } from './snapshot/runtime/transport'
 import type { PlatformRoute } from './route'
 
-export type NameRow = { name: string }
+export type NameRow = { name: string; state?: PlatformRecord['state'] }
 type ReadState = { loading: boolean; error?: string }
 export function outcomeMessage(
   outcome: Exclude<Outcome<unknown>, { status: 'completed' }>,
@@ -39,10 +40,11 @@ export function outcomeMessage(
     ? outcome.reason
     : 'The operation returned a partial reply.'
 }
-function nameRows(names: readonly string[]): NameRow[] {
+function nameRows(rows: readonly NameRow[]): NameRow[] {
+  const names = rows.map((row) => row.name)
   if (new Set(names).size !== names.length || names.some((name) => !name))
     throw new Error('The reply contains missing or duplicate record names.')
-  return names.map((name) => ({ name }))
+  return [...rows]
 }
 function nameTable(rows: () => NameRow[]) {
   return createTable({
@@ -67,6 +69,13 @@ function nameTable(rows: () => NameRow[]) {
         sortFn: (a, b) => String(a).localeCompare(String(b)),
         filterFn: (value, filter) =>
           String(value).toLowerCase().includes(String(filter).toLowerCase()),
+      },
+      {
+        id: 'state',
+        accessorFn: (row) => row.state ?? 'Unknown',
+        header: 'State',
+        size: 160,
+        sortFn: (a, b) => String(a).localeCompare(String(b)),
       },
     ],
   })
@@ -197,7 +206,9 @@ export function createPlatformApplication(
       ? await client.projects(abort.signal)
       : {
           status: 'completed' as const,
-          value: { projects: access.projects.map((row) => row.project) },
+          value: {
+            projects: access.projects.map((row) => ({ name: row.project })),
+          },
         }
     if (!alive || sequence !== listSequence || abort.signal.aborted) return
     if (outcome.status !== 'completed') {

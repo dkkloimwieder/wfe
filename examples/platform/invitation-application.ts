@@ -183,7 +183,7 @@ export function createInvitationApplication(
     setMemberships(
       replies.flatMap((reply) =>
         reply.outcome.status === 'completed'
-          ? reply.outcome.value.environments.map((env) => ({
+          ? reply.outcome.value.environments.map(({ name: env }) => ({
               id: JSON.stringify([reply.name, env]),
               label: `${reply.name} / ${env}`,
               project: reply.name,

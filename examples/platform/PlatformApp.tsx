@@ -194,7 +194,13 @@ export function PlatformApp(props: {
       min={40}
       max={4000}
       onSizeChange={column.setSize}
-      label={column.id === 'name' ? 'Project' : 'Actions'}
+      label={
+        column.id === 'name'
+          ? 'Project'
+          : column.id === 'state'
+            ? 'State'
+            : 'Actions'
+      }
     />
   )
   const environmentHeader = (column: NativeColumn<NameRow, unknown>) => (
@@ -203,7 +209,13 @@ export function PlatformApp(props: {
       min={40}
       max={4000}
       onSizeChange={column.setSize}
-      label={column.id === 'name' ? 'Environment' : 'Actions'}
+      label={
+        column.id === 'name'
+          ? 'Environment'
+          : column.id === 'state'
+            ? 'State'
+            : 'Actions'
+      }
     />
   )
   const projectRoute = (): PlatformRoute => {
@@ -263,6 +275,7 @@ export function PlatformApp(props: {
     title: 'Projects',
     columns: {
       name: { label: 'Project' },
+      state: { label: 'State' },
       actions: { label: 'Actions', renderer: 'openProject' },
     },
     controls,
@@ -274,6 +287,7 @@ export function PlatformApp(props: {
       title: `Environments · ${routeProject()}`,
       columns: {
         name: { label: 'Environment' },
+        state: { label: 'State' },
         actions: { label: 'Actions', renderer: 'openEnvironment' },
       },
       controls,

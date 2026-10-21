@@ -1,6 +1,6 @@
 {
-  "revision": "93f85681ed5338fec29008a59aa08dddc61953a6",
-  "captured": "2026-10-18T22:44:11.973Z",
+  "revision": "bd69b4e82b005d22f8fab3842ed6bf1a0dbd1a64",
+  "captured": "2026-10-21T05:02:01.033Z",
   "changes": "Client imports point to the copied wire module. All other captured source bytes stay unchanged.",
   "files": [
     {
@@ -102,8 +102,8 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/project/list.result.json",
       "local": "metadata/project/list.result.json",
-      "sourceSha256": "d1a2382e6fe6861a5be482dc1dc26e1e427bdbcbf425dfe267307ac187f5dc4f",
-      "sha256": "d1a2382e6fe6861a5be482dc1dc26e1e427bdbcbf425dfe267307ac187f5dc4f"
+      "sourceSha256": "bbbd15d991681cf422d6de9bcc6009492ea8c173e858b015c47a09cd153b6976",
+      "sha256": "bbbd15d991681cf422d6de9bcc6009492ea8c173e858b015c47a09cd153b6976"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/project/list.operation.json",
@@ -150,8 +150,8 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.result.json",
       "local": "metadata/environment/list.result.json",
-      "sourceSha256": "cbb919bd52e105ac47a8913cefd4374003be1670defeddb4a1778e98dffaa468",
-      "sha256": "cbb919bd52e105ac47a8913cefd4374003be1670defeddb4a1778e98dffaa468"
+      "sourceSha256": "1b3e4d4704f1b4c790fd43da7213a180e2d61c43d0551dc28be06094acd2741a",
+      "sha256": "1b3e4d4704f1b4c790fd43da7213a180e2d61c43d0551dc28be06094acd2741a"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.operation.json",
@@ -384,20 +384,20 @@
     {
       "source": "crates/catalog/model/src/host_route.rs",
       "local": "policy/host_route.rs",
-      "sourceSha256": "ab2c7b0048c034cfff38cc1271b26bba8d9698262fa5b24c5793f596b4ef0f3c",
-      "sha256": "ab2c7b0048c034cfff38cc1271b26bba8d9698262fa5b24c5793f596b4ef0f3c"
+      "sourceSha256": "1a584f9b464d6b20c621e46622a451dbe1ae7d93cc6cddfb5cea5454d5b6f560",
+      "sha256": "1a584f9b464d6b20c621e46622a451dbe1ae7d93cc6cddfb5cea5454d5b6f560"
     },
     {
       "source": "crates/identity/platform/src/org.rs",
       "local": "policy/org.rs",
-      "sourceSha256": "87d9896e74fc8f764d3cdfe0bc180209ae279b5f9f70053043c0ea5d572dd5ed",
-      "sha256": "87d9896e74fc8f764d3cdfe0bc180209ae279b5f9f70053043c0ea5d572dd5ed"
+      "sourceSha256": "8670218920ba6891d5073a3788e821f65d2a8c9942540db619a5f863a28b1891",
+      "sha256": "8670218920ba6891d5073a3788e821f65d2a8c9942540db619a5f863a28b1891"
     },
     {
       "source": "Cargo.toml",
       "local": "upstream-Cargo.toml",
-      "sourceSha256": "48fbe527cadaa57412e65962f006f85810d987447a243f2cde423a2f5dd411c8",
-      "sha256": "48fbe527cadaa57412e65962f006f85810d987447a243f2cde423a2f5dd411c8"
+      "sourceSha256": "898b757b3d03c0b69e2d140209372f0c66f4054a464a19480b55ed0a3ba58fe9",
+      "sha256": "898b757b3d03c0b69e2d140209372f0c66f4054a464a19480b55ed0a3ba58fe9"
     },
     {
       "source": "web/runtime/package.json",

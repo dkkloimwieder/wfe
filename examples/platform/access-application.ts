@@ -272,7 +272,7 @@ export function createAccessApplication(
         setChoicesState({ loading: false, error: accessFailure(outcome) })
         return
       }
-      const names = outcome.value.environments
+      const names = outcome.value.environments.map((row) => row.name)
       if (names.some((name) => !name) || new Set(names).size !== names.length) {
         setChoicesState({
           loading: false,

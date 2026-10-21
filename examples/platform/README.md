@@ -64,7 +64,18 @@ Project names use the recorded server rule: trim, then accept 1 to 40 UTF-8 byte
 The generated input metadata only declares text. It does not carry this length rule.
 The application applies the rule and maps declared server refusals to its form.
 The rule does not require a lowercase slug.
-Project and environment lists contain names only. Deployment status does not describe activation state.
+Project and environment lists contain name and state records in the captured result metadata.
+The State column shows the supplied `active` or `inactive` value.
+State does not change navigation or authorization in this mockup.
+Authority and creation replies contain no state, so their rows show Unknown until an authorized list read supplies it.
+Deployment status remains separate from registry state.
+
+The capture at `bd69b4e82b005d22f8fab3842ed6bf1a0dbd1a64` contains stale generated list declarations.
+Those clients still declare string arrays, while the captured result metadata declares records.
+The application treats decoded replies as unknown and returns schema-parsed values from its checked boundary.
+It rejects old string arrays, missing states, and states outside the captured contract.
+This adapter does not repair the upstream generator or claim that its declarations match the current metadata.
+Issue `wfe-f81.29` tracks replacement after upstream regeneration. Generated snapshot files retain their captured bytes.
 
 ## Review the application
 

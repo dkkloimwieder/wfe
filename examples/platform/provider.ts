@@ -90,8 +90,13 @@ const statusSchema = z.object({
   ),
   live: z.array(z.object({ digest: z.string(), pods: count })),
 })
-const names = (key: 'projects' | 'environments') =>
-  z.object({ [key]: z.array(z.string()) })
+const recordSchema = z.object({
+  name: z.string(),
+  state: z.enum(['active', 'inactive']),
+})
+export type PlatformRecord = z.infer<typeof recordSchema>
+const projectsSchema = z.object({ projects: z.array(recordSchema) })
+const environmentsSchema = z.object({ environments: z.array(recordSchema) })
 const mineSchema = z.object({
   orgAdmin: z.boolean(),
   projects: z.array(
@@ -107,8 +112,12 @@ const uncertain = (reason: string): Outcome<never> => ({
 /** The application checks returned shapes; generated field maps only rename them. */
 export function createPlatformClient(transport: Transport) {
   async function call<T>(
-    invoke: (checked: Transport) => Promise<Outcome<T>>,
-    schema: { safeParse: (value: unknown) => { success: boolean } },
+    invoke: (checked: Transport) => Promise<Outcome<unknown>>,
+    schema: {
+      safeParse: (
+        value: unknown,
+      ) => { success: true; data: T } | { success: false }
+    },
     signal?: AbortSignal,
   ): Promise<Outcome<T>> {
     if (signal?.aborted)
@@ -127,8 +136,10 @@ export function createPlatformClient(transport: Transport) {
       try {
         const outcome = await invoke(transport)
         if (outcome.status === 'completed') {
-          if (!schema.safeParse(outcome.value).success)
+          const parsed = schema.safeParse(outcome.value)
+          if (!parsed.success)
             return uncertain('The reply does not match the operation result.')
+          return { ...outcome, value: parsed.data }
         } else if (outcome.status === 'partiallyCompleted') {
           return uncertain('This screen cannot apply a partial reply.')
         }
@@ -225,11 +236,11 @@ export function createPlatformClient(transport: Transport) {
     mine: (signal?: AbortSignal) =>
       call((t) => control.mine(t, [{}]), mineSchema, signal),
     projects: (signal?: AbortSignal) =>
-      call((t) => project.list(t, [{}]), names('projects'), signal),
+      call((t) => project.list(t, [{}]), projectsSchema, signal),
     environments: (name: string, signal?: AbortSignal) =>
       call(
         (t) => environment.list(t, [{ project: name }]),
-        names('environments'),
+        environmentsSchema,
         signal,
       ),
     status: (name: string, env: string, signal?: AbortSignal) =>
@@ -263,6 +274,17 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
           ['archive', []],
         ],
   )
+  // Explicit sample response data, independent of application authorization.
+  const projectStates = new Map<string, PlatformRecord['state']>([
+    ['billing', 'active'],
+    ['shop', 'active'],
+    ['archive', 'inactive'],
+  ])
+  const environmentStates = new Map<string, PlatformRecord['state']>([
+    [JSON.stringify(['billing', 'dev']), 'active'],
+    [JSON.stringify(['billing', 'prod']), 'inactive'],
+    [JSON.stringify(['shop', 'dev']), 'active'],
+  ])
   let orgAdmin = scenario === 'normal' || scenario === 'empty'
   const users = new Map<string, PlatformUser>([
     [
@@ -529,7 +551,11 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
         })
       case project.PROJECT_LIST_ROUTE.operation:
         return orgAdmin
-          ? complete({ projects: [...projects.keys()].sort() })
+          ? complete({
+              projects: [...projects.keys()]
+                .sort()
+                .map((name) => ({ name, state: projectStates.get(name)! })),
+            })
           : denied()
       case project.PROJECT_CREATE_ROUTE.operation: {
         if (!orgAdmin) return denied()
@@ -539,6 +565,7 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
         const canonical = canonicalProject(name)
         if (projects.has(canonical)) return refuse('project_exists', 'project')
         projects.set(canonical, [])
+        projectStates.set(canonical, 'inactive')
         for (const user of users.values())
           if (user.orgAdmin) materialize(user.principalId, canonical)
         return complete({ project: canonical })
@@ -546,7 +573,14 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
       case environment.ENVIRONMENT_LIST_ROUTE.operation:
         if (!accessible().includes(String(item.project))) return denied()
         return complete({
-          environments: projects.get(String(item.project)) ?? [],
+          environments: (projects.get(String(item.project)) ?? []).map(
+            (name) => ({
+              name,
+              state: environmentStates.get(
+                JSON.stringify([String(item.project), name]),
+              )!,
+            }),
+          ),
         })
       case environment.ENVIRONMENT_STATUS_ROUTE.operation: {
         const name = String(item.project),

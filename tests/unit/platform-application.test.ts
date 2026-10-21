@@ -157,7 +157,16 @@ test('malformed replies surface as errors and disposal rejects late publication'
   await settle()
   app.mock.replyNext({
     status: 200,
-    body: '[{"value":{"projects":["duplicate","duplicate"]}}]',
+    body: JSON.stringify([
+      {
+        value: {
+          projects: [
+            { name: 'duplicate', state: 'active' },
+            { name: 'duplicate', state: 'inactive' },
+          ],
+        },
+      },
+    ]),
   })
   await app.refresh()
   await settle()
@@ -219,5 +228,57 @@ test('backend identity errors do not mark the editable project field invalid', a
   } finally {
     identity.mockRestore()
     stop()
+  }
+})
+
+test('list state stays supplied data while authority and creation leave it unknown', async () => {
+  const { app, stop } = mount()
+  try {
+    await app.initialize()
+    await settle()
+    expect(app.projects()).toEqual([
+      { name: 'archive', state: 'inactive' },
+      { name: 'billing', state: 'active' },
+      { name: 'shop', state: 'active' },
+    ])
+    app.enter({ screen: 'project', project: 'billing' })
+    await settle()
+    expect(app.environments()).toEqual([
+      { name: 'dev', state: 'active' },
+      { name: 'prod', state: 'inactive' },
+    ])
+    app.enter({ screen: 'environment', project: 'billing', env: 'prod' })
+    await settle()
+    expect(app.status()?.rollout.readyReplicas).toBe(2)
+    app.enter({ screen: 'create' })
+    app.form.setValue('project', 'fresh')
+    flush()
+    expect(await app.form.submit()).toEqual({ status: 'success' })
+    expect(app.projects().find((row) => row.name === 'fresh')).toEqual({
+      name: 'fresh',
+    })
+    app.enter({ screen: 'projects' })
+    flush()
+    await app.refresh()
+    await settle()
+    expect(app.projects().find((row) => row.name === 'fresh')).toEqual({
+      name: 'fresh',
+      state: 'inactive',
+    })
+  } finally {
+    stop()
+  }
+  const scoped = mount('/', 'project-admin')
+  try {
+    await scoped.app.initialize()
+    await settle()
+    expect(scoped.app.projects()).toEqual([{ name: 'billing' }])
+    expect(
+      scoped.app.mock
+        .sent()
+        .some((request) => request.operation.includes('project/list')),
+    ).toBe(false)
+  } finally {
+    scoped.stop()
   }
 })
