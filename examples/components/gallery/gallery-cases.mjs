@@ -321,14 +321,22 @@ export async function galleryCases({ page, url, record, settle }) {
         ).toHaveAttribute('aria-current', 'page')
         assert.equal(new URL(page.url()).searchParams.get('gallery'), id)
       }
-      await page.goBack()
-      await ready()
-      await expect(
-        page.getByRole('link', { name: 'Display and status', exact: true }),
-      ).toHaveAttribute('aria-current', 'page')
-      await page.goForward()
-      await ready()
-      await expect(preview().getByRole('table')).toBeVisible()
+      for (const [navigate, [id, label]] of [
+        [() => page.goBack(), catalog.at(-2)],
+        [() => page.goForward(), catalog.at(-1)],
+      ]) {
+        await navigate()
+        await ready()
+        assert.equal(new URL(page.url()).searchParams.get('gallery'), id)
+        await expect(
+          page.getByRole('link', { name: label, exact: true }),
+        ).toHaveAttribute('aria-current', 'page')
+        await expect(page.locator('.gallery-example-host')).toHaveAttribute(
+          'aria-label',
+          `${label} preview`,
+        )
+        await expect(preview().getByRole('table')).toBeVisible()
+      }
       await page.goto(
         `${url}?gallery=fields&state=readonly&viewport=phone&scheme=2`,
       )
