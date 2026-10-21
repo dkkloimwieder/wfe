@@ -7,7 +7,7 @@ The panel creates no form, main landmark, dialog, or focus trap.
 
 ```tsx
 import { Theme, Field, Label, Input, Button } from '@wfe/components'
-import { EntryPanel } from '@wfe/components/layout'
+import { EntryPanel, EntryPanelActions } from '@wfe/components/layout'
 import '@wfe/components/styles.css'
 
 ;<Theme>
@@ -19,7 +19,10 @@ import '@wfe/components/styles.css'
           <Label>Name</Label>
           <Input name="name" />
         </Field>
-        <Button type="submit">Continue</Button>
+        <EntryPanelActions>
+          <Button type="submit">Continue</Button>
+          <Button type="reset">Clear</Button>
+        </EntryPanelActions>
       </form>
     </EntryPanel>
   </main>
@@ -37,9 +40,17 @@ The limit does not set field widths.
 Native attributes, classes, styles, events, and refs apply to the outer container.
 
 The panel uses the shared surface, spacing, border, and accent colors.
+The surrounding canvas uses the shared neutral dotted background.
 Its dotted frame uses the primary accent, which is blue in the Default theme.
 Decoration remains behind an opaque surface and cannot receive pointer events.
 Forced-color mode removes the decorative frame.
 The component adds no shadow.
 
 Open `?gallery=entry` for the gallery example or `?galleryPreview=entry` for the standalone example.
+
+`EntryPanelActions` gives each direct child equal width across the available content width, with the shared gap between actions.
+Use it for the panel buttons without changing their submit, reset, or callback behavior.
+
+The frame uses the same random rotation and independent two-axis trapezoid distortion as buttons and sidebar links.
+The shared theme selects geometry when the panel mounts and when the pointer enters its surface.
+Only the decorative backing transforms. Fields, text, and buttons keep their normal layout.

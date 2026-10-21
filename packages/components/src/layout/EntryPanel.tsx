@@ -24,3 +24,18 @@ export function EntryPanel(props: EntryPanelProps) {
     </div>
   )
 }
+
+export type EntryPanelActionsProps = JSX.HTMLAttributes<HTMLDivElement>
+
+/** Equal-width actions fill the content width without changing button behavior. */
+export function EntryPanelActions(props: EntryPanelActionsProps) {
+  const attributes = omit(props, 'ref', ...nativeEventProps)
+  const events = ownedElementEvents(props)
+  return (
+    <div
+      {...attributes}
+      class={styledClasses('ui-entry-panel-actions', props.class)}
+      ref={[props.ref, events]}
+    />
+  )
+}

@@ -1,13 +1,13 @@
 /** Refresh decorative geometry on entry without changing the action hit area. */
 export function decorateActions(root: HTMLDivElement) {
   const selector =
-    '.ui-button, .ui-dashboard-navigation a[href], .ui-dashboard-menu a[href]'
+    '.ui-button, .ui-dashboard-navigation a[href], .ui-dashboard-menu a[href], .ui-entry-panel-surface'
   const randomize = (node: HTMLElement) => {
-    const angle = (Math.random() < 0.5 ? -1 : 1) * (0.25 + Math.random() * 2)
+    const angle = (Math.random() < 0.5 ? -1 : 1) * (0.25 + Math.random() * 1.75)
     node.style.setProperty('--ui-action-angle', `${angle.toFixed(2)}deg`)
-    const taper = Math.random() * 3.5 - 1.75
+    const taper = Math.random() * 4 - 2
     node.style.setProperty('--ui-action-taper', `${taper.toFixed(2)}deg`)
-    const taperY = Math.random() * 3.5 - 1.75
+    const taperY = Math.random() * 4 - 2
     node.style.setProperty('--ui-action-taper-y', `${taperY.toFixed(2)}deg`)
   }
   const pin = (node: Element) => {

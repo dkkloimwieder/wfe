@@ -437,6 +437,8 @@
   overflow: auto;
   padding: calc(2 * var(--ui-content-padding, 16px));
   background: var(--ui-canvas-surface, var(--ui-surface, white));
+  background-image: var(--ui-canvas-pattern);
+  background-size: var(--ui-canvas-pattern-size);
 }
 :where([data-ui]) .ui-entry-panel[hidden]:not([hidden='until-found']) {
   display: none;
@@ -461,6 +463,7 @@
   position: absolute;
   z-index: -1;
   inset: -8px;
+  background-color: var(--ui-canvas-surface, var(--ui-surface, white));
   border: 1px solid
     color-mix(
       in srgb,
@@ -492,4 +495,22 @@
   :where([data-ui]) .ui-entry-panel-surface::before {
     display: none;
   }
+}
+
+:where([data-ui]) .ui-entry-panel-actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--ui-gap, 8px);
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-entry-panel-actions > * {
+  min-inline-size: 0;
+  inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+:where([data-ui]) .ui-entry-panel-actions[hidden]:not([hidden='until-found']) {
+  display: none;
 }

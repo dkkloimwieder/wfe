@@ -46,7 +46,6 @@
     .sub-table-toggle
   ) {
   position: relative;
-  --_ui-action-tilt: var(--ui-action-angle, 0deg);
 }
 .ui-theme
   :has(
@@ -84,12 +83,6 @@
   background-color: var(--ui-canvas-surface);
   background-image: var(--ui-canvas-pattern);
   background-size: var(--ui-canvas-pattern-size);
-  transform: var(
-    --ui-action-decoration-transform,
-    rotate(var(--_ui-action-tilt)) perspective(240px)
-      rotateX(var(--ui-action-taper, 0deg))
-      rotateY(var(--ui-action-taper-y, 0deg))
-  );
   opacity: 0;
 }
 .ui-theme
@@ -393,4 +386,20 @@
 .ui-theme .ui-button.sub-table-toggle {
   border-color: transparent;
   background-color: transparent;
+}
+
+/* Panels and actions share the same randomized backing geometry. */
+.ui-theme
+  :is(
+    .ui-button,
+    .ui-dashboard-navigation a[href],
+    .ui-dashboard-menu a[href],
+    .ui-entry-panel-surface
+  )::before {
+  transform: var(
+    --ui-action-decoration-transform,
+    rotate(var(--ui-action-angle, 0deg)) perspective(240px)
+      rotateX(var(--ui-action-taper, 0deg))
+      rotateY(var(--ui-action-taper-y, 0deg))
+  );
 }

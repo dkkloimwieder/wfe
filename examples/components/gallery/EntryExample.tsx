@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js'
 import { Button, Field, Input, Label } from '@wfe/components'
-import { EntryPanel } from '@wfe/components/layout'
+import { EntryPanel, EntryPanelActions } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 
 export function EntryExample() {
@@ -28,14 +28,14 @@ export function EntryExample() {
           <Label>Email</Label>
           <Input name="email" type="email" autocomplete="email" />
         </Field>
-        <div class="example-actions">
+        <EntryPanelActions>
           <Button type="submit" tone="accent">
             Continue
           </Button>
           <Button type="reset" onClick={() => setSubmitted(false)}>
             Clear
           </Button>
-        </div>
+        </EntryPanelActions>
         <p role="status">
           {submitted() ? 'Example submitted. No request was sent.' : ''}
         </p>

@@ -36,7 +36,11 @@ import {
   ValueDisplay,
 } from '@wfe/components'
 import type { ValueFormat } from '@wfe/components'
-import { EntryPanel, DashboardShell } from '@wfe/components/layout'
+import {
+  EntryPanel,
+  EntryPanelActions,
+  DashboardShell,
+} from '@wfe/components/layout'
 import {
   createTable as createNativeTable,
   ReadOnlyTable,
@@ -151,6 +155,10 @@ export default function App() {
       <div style={{ height: '240px' }}>
         <EntryPanel size="container" id="adopt-entry-panel">
           <Input id="adopt-entry-input" aria-label="Entry draft" />
+          <EntryPanelActions id="adopt-entry-actions">
+            <Button>Continue entry</Button>
+            <Button>Cancel entry</Button>
+          </EntryPanelActions>
         </EntryPanel>
       </div>
       <ThemeConsumer />
