@@ -1,6 +1,7 @@
 # Sidebar context switcher
 
 `SidebarContextSwitcher` presents an accepted context, searchable sibling choices, and an optional parent action.
+The component is available from Git tag `v0.0.6`.
 Import it from `@wfe/components/layout` or the component package root.
 Applications supply all records, relationships, permissions, menus, and navigation callbacks.
 The component does not fetch data, build a hierarchy, or change browser history.

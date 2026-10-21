@@ -9,6 +9,12 @@ The private `@wfe/shell` package composes described navigation through the exist
 Applications supply accepted audience and route IDs, links, and page components.
 Application records, routing, permissions, validation rules, requests, and persistence remain application-owned.
 
+## Current release
+
+Use Git tag [`v0.0.6`](https://github.com/dkkloimwieder/wfe/tree/v0.0.6).
+The [adoption guide](docs/adoption.md#v006) describes the release and its application-controlled sidebar context switcher.
+The [release verification record](docs/qualification.md#v006-release) identifies the tested commit and test scope.
+
 ## Documentation
 
 Use the [documentation index](docs/README.md) to find the current guides.

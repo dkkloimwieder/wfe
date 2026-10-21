@@ -46,6 +46,30 @@ The optional `--wamn` extension tests prepared integration inputs.
 It never runs the external WAMN generator.
 Prepare those inputs through the [fixture instructions](../examples/wamn/README.md).
 
+## v0.0.6 release
+
+Git tag `v0.0.6` points to commit `87a5ebc74e3f8df33377804e40d9cd2cad3bab1e` on main.
+The tag includes the sidebar context switcher, its examples and API guide, and the browser investigation records.
+The release retains the dependency pins and Default theme from `v0.0.5`.
+
+The feature passed `pnpm check`, including package builds, package and example types, and 43 tooling tests.
+The release documentation run also passed `pnpm check`.
+Source, built-package, and development browser runs each passed six context and existing navigation cases.
+The hydration suites passed 27 assertions in each mode without server warnings, browser warnings, or errors.
+After the final parent-label markup correction, all three focused browser runs and built-package hydration passed again.
+Independent review approved the component boundaries, focus handling, identity preservation, and final markup.
+Visual review covered light, dark, and narrow layouts.
+
+These results cover this release change, not a fresh run of every qualification stage.
+The [native tab investigation](native-tab-investigation.md) remains open under `wfe-x6o`.
+The candidate browser toolchain remains unqualified, and the release does not upgrade it.
+The [action disposal investigation](action-disposal-investigation.md) retains the existing disposal workaround.
+
+Local evidence includes `/tmp/wfe-context-check-final.log` and `/tmp/wfe-v006-check.log`.
+The final browser reports use `/tmp/wfe-context-label-{source,package,development}.json`.
+The final hydration report is `/tmp/wfe-context-label-hydration-package.json`.
+These temporary files are local evidence, not release artifacts.
+
 ## Vendor repairs
 
 Run `pnpm audit:vendor` to record source ownership, external imports, and retained bundle contributions.
