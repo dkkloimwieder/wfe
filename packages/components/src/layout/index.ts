@@ -11,3 +11,9 @@ export type { SidebarGroupProps } from './SidebarGroup'
 
 export { EntryPanel, EntryPanelActions } from './EntryPanel'
 export type { EntryPanelProps, EntryPanelActionsProps } from './EntryPanel'
+
+export { SidebarContextSwitcher } from './SidebarContextSwitcher'
+export type {
+  SidebarContext,
+  SidebarContextSwitcherProps,
+} from './SidebarContextSwitcher'

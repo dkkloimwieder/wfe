@@ -13,6 +13,7 @@ const catalog = [
   ['files', 'File selection'],
   ['tabs', 'Tabs'],
   ['breadcrumbs', 'Breadcrumbs'],
+  ['contexts', 'Context switcher'],
   ['collapsible', 'Collapsible'],
   ['accordion', 'Accordion'],
   ['resizable', 'Resizable panes'],

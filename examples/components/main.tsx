@@ -1,3 +1,4 @@
+import { ContextControls } from '../shared/controls/ContextControls'
 import { ThemeConsumer } from '../theme/ThemeConsumer'
 import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
 import {
@@ -46,7 +47,26 @@ import { OverlayControls } from './OverlayControls'
 import { DisplayControls } from './DisplayControls'
 import { GenericConsumer } from './GenericConsumer'
 
-if (new URLSearchParams(location.search).has('theme')) {
+if (new URLSearchParams(location.search).has('contexts')) {
+  const dispose = render(
+    () => (
+      <DefaultAppearance>
+        <ContextControls />
+      </DefaultAppearance>
+    ),
+    document.getElementById('root')!,
+  )
+  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
+  const cleanup = action(function* () {
+    dispose()
+  })
+  window.contextFixture = {
+    stop: () => {
+      cleanup()
+      flush()
+    },
+  }
+} else if (new URLSearchParams(location.search).has('theme')) {
   render(() => <ThemeConsumer />, document.getElementById('root')!)
 } else if (new URLSearchParams(location.search).has('galleryPreview')) {
   const { GalleryPreview } = await import('./gallery/Preview')
@@ -342,6 +362,7 @@ else mountEditingFixture(PopupPriorityEditor, popupFields)
 
 declare global {
   interface Window {
+    contextFixture: { stop: () => void }
     galleryFixture: { stop: () => void }
     classFixture: typeof classLifecycle & { stop: () => void }
   }

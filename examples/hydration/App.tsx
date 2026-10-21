@@ -1,3 +1,4 @@
+import { ContextControls } from '../shared/controls/ContextControls'
 import {
   PagedRecords,
   paginationLifecycle,
@@ -174,6 +175,7 @@ export default function App() {
       <ButtonLinkControls />
       <FileControls />
       <ResizableControls />
+      <ContextControls embedded />
       <PagedRecords />
       <AccordionControls />
       <section hidden>

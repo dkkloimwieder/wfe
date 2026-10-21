@@ -525,3 +525,57 @@
 :where([data-ui]) .ui-entry-panel-actions[hidden]:not([hidden='until-found']) {
   display: none;
 }
+
+:where([data-ui]) .ui-sidebar-context {
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-sidebar-context-trigger {
+  inline-size: 100%;
+  justify-content: flex-start;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-sidebar-context-label {
+  display: grid;
+  min-inline-size: 0;
+  flex: 1;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+:where([data-ui])
+  .ui-sidebar-context[data-compact]
+  .ui-sidebar-context-trigger {
+  inline-size: var(--ui-control-height, 26px);
+  block-size: var(--ui-control-height, 26px);
+  padding: 0;
+  justify-content: center;
+}
+:where([data-ui]).ui-sidebar-context-popup {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  inline-size: min(22rem, calc(100vw - 2 * var(--ui-gap, 6px)));
+  max-block-size: var(
+    --kb-popper-content-available-height,
+    calc(100dvh - 2 * var(--ui-gap, 6px))
+  );
+  overflow: auto;
+}
+:where([data-ui]) .ui-sidebar-context-options {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  list-style: none;
+  margin: 0;
+  padding: var(--ui-gap, 6px);
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-sidebar-context-options .ui-button,
+:where([data-ui]) .ui-sidebar-context-parent {
+  inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  justify-content: flex-start;
+  text-align: start;
+}
+:where([data-ui]) .ui-sidebar-context-options .ui-icon {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}

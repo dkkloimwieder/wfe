@@ -176,6 +176,8 @@
 .ui-theme
   :is(
     .ui-sidebar-group,
+    .ui-sidebar-context,
+    .ui-sidebar-context-popup,
     .ui-sidebar-flyout,
     .table-workspace-title-face,
     .table-controls-toggle,
@@ -227,7 +229,12 @@
 }
 
 .ui-theme
-  :is(.ui-sidebar-group, .ui-sidebar-flyout)
+  :is(
+    .ui-sidebar-group,
+    .ui-sidebar-context,
+    .ui-sidebar-context-popup,
+    .ui-sidebar-flyout
+  )
   .ui-button[data-variant='outline'],
 .ui-theme
   :is(.ui-sidebar-group, .ui-sidebar-flyout)

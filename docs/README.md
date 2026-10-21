@@ -28,6 +28,7 @@ Beads records task status and dependencies.
 - [Form layout](form-layout.md)
 - [Tabs](tabs.md)
 - [Breadcrumbs](breadcrumbs.md)
+- [Sidebar context switcher](sidebar-context-switcher.md)
 - [Collapsible content](collapsible.md)
 - [Accordion](accordion.md)
 - [Resizable panes](resizable.md)

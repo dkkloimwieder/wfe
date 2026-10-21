@@ -1,3 +1,4 @@
+import { ContextControls } from '../../shared/controls/ContextControls'
 import { PaginationExample } from './PaginationExample'
 import { EntryExample } from './EntryExample'
 import { SubTables } from './SubTables'
@@ -42,6 +43,7 @@ import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'
 
 const views = {
+  contexts: ContextControls,
   pagination: PaginationExample,
   entry: EntryExample,
   everything: EverythingForm,

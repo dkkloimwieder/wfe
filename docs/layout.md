@@ -212,3 +212,9 @@ The gallery Appearance panel compares both behaviors.
 
 Use [EntryPanel](entry-panel.md) for a small content-sized surface centered on both axes.
 It accepts application-owned content and supports viewport or container sizing.
+
+## Context navigation
+
+[SidebarContextSwitcher](sidebar-context-switcher.md) presents the current context, searchable sibling choices, and an optional parent action.
+Place it before the existing SidebarGroup menu in the navigation callback.
+Applications supply accepted contexts, available choices, and menu content.

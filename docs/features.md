@@ -34,6 +34,9 @@ The [ownership contract](contracts/UI-BOUNDARIES.md) separates these responsibil
 | Feedback                | `Badge`, `Card`, `Separator`, `InlineAlert`, `EmptyState`, `Spinner`, `Skeleton`, `Progress`, `Toast`, `StatusTile`, and `TileRow` | [Display source](../packages/components/src/components/Display.tsx) and [Toast](../packages/components/src/components/Toast.tsx)    |
 | Navigation and sections | Tabs, breadcrumbs, collapsible content, accordion, and resizable panes                                                             | [Tabs](tabs.md), [breadcrumbs](breadcrumbs.md), [collapsible](collapsible.md), [accordion](accordion.md), [resizable](resizable.md) |
 
+SidebarContextSwitcher presents application-controlled contexts, searchable siblings, and parent navigation above the existing sidebar menu.
+Read the [context switcher guide](sidebar-context-switcher.md) for ownership and keyboard behavior.
+
 `SelectField` composes the shared Select for ordinary string choices.
 `NativeSelect` remains a compatibility export for native interoperability cases.
 It is not the default choice for new library views.

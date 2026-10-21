@@ -1,3 +1,4 @@
+import { contextCases } from './gallery/context-cases.mjs'
 import { matchingCases } from './gallery/matching-cases.mjs'
 import { entryPanelCases } from './gallery/entry-panel-cases.mjs'
 import { tableTitleCases } from './gallery/table-title-cases.mjs'
@@ -239,6 +240,7 @@ async function record(name, work) {
   }
 }
 try {
+  await contextCases({ page, url, record })
   await record(
     'theme: public defaults, nested layouts, fonts and portals',
     async () => {
