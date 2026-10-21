@@ -30,7 +30,12 @@ They bind each transport to an immutable project and environment, outside the op
 They read caller authority from `permission.mine`, independently of control administration.
 They preserve stored roles, administrator coverage, served operations, and stored permissions as separate fields.
 Their sample outcomes do not prescribe application workflows or replace server authorization.
-The follow-up screen issue connects these controllers to generated views.
+`ApplicationAccessViews.tsx` uses the shared table and form views for users, assigned roles, and stored permissions.
+Open `?screen=app-users&project=billing&env=dev` to review user assignments.
+Open `?screen=app-roles&project=billing&env=dev` to review permissions by role.
+The environment screen links to both views. Browser history preserves each table owner.
+The `billing/prod` example denies application administration even when the caller administers the control organization.
+These screens require no new shared component or generator behavior.
 The mock supports the five initial operations, user and membership lists, six access commands, and user invitation, activation, and deactivation.
 Captured declarations inform the example scenarios. The mock is not an authorization or lifecycle implementation.
 

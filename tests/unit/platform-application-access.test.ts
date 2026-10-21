@@ -60,7 +60,11 @@ const edit = async (
 
 test('scoped clients keep audience outside wire inputs and preserve role encoding', async () => {
   const mock = createApplicationAccessMock()
-  const mutable = { ...scope },
+  const mutable = {
+      ...scope,
+      screen: 'app-user',
+      principal: APPLICATION_MEMBER,
+    },
     client = createApplicationAccessClient(mock.transport(mutable))
   mutable.env = 'prod'
   const outcome = await client.assign(

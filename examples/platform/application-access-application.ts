@@ -15,7 +15,8 @@ import type {
 
 export type ApplicationAccessTarget = ApplicationScope &
   (
-    | { screen: 'app-users' | 'app-roles' }
+    | { screen: 'app-users' }
+    | { screen: 'app-roles' }
     | { screen: 'app-user'; principal: string }
     | { screen: 'app-role'; role: string }
   )

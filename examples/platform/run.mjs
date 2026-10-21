@@ -1,3 +1,4 @@
+import { applicationAccessCases } from './application-access-cases.mjs'
 import { invitationCases } from './invitation-cases.mjs'
 import { reviewExampleSizing } from '../shared/appearance/sizing-review.mjs'
 import assert from 'node:assert/strict'
@@ -165,6 +166,7 @@ try {
     },
   )
   await invitationCases({ page, initialize, record })
+  await applicationAccessCases({ page, initialize, record, hydration })
   await record(
     'platform: native navigation, persistent tables, stable resizing and approved appearance',
     async () => {

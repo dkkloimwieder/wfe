@@ -1,3 +1,5 @@
+import { createApplicationAccessApplication } from './application-access-application'
+import { isApplicationAccessRoute } from './route'
 import { createInvitationApplication } from './invitation-application'
 import { createLifecycleApplication } from './lifecycle-application'
 import { createAccessApplication } from './access-application'
@@ -86,6 +88,7 @@ export function createPlatformApplication(
   mock = createPlatformMock(scenario),
 ) {
   const client = createPlatformClient(mock.transport)
+  const applicationAccess = createApplicationAccessApplication()
   const [route, setRoute] = createSignal(initial)
   const [authority, setAuthority] = createSignal<Authority>()
   const [projects, setProjects] = createSignal<NameRow[]>([])
@@ -240,6 +243,7 @@ export function createPlatformApplication(
     }
     if (!('project' in target)) return
     if (!untrack(projects).some((row) => row.name === target.project)) {
+      if (isApplicationAccessRoute(target)) applicationAccess.leave()
       setEnvironments([])
       setDetail({
         loading: false,
@@ -262,7 +266,27 @@ export function createPlatformApplication(
         (!('env' in target) || ('env' in now && now.env === target.env))
       )
     }
-    if (target.screen === 'project') {
+    if (isApplicationAccessRoute(target)) {
+      const available = await client.environments(target.project, abort.signal)
+      if (!current()) return
+      if (available.status !== 'completed') {
+        applicationAccess.leave()
+        setDetail({ loading: false, error: outcomeMessage(available) })
+        return
+      }
+      if (
+        !available.value.environments.some((row) => row.name === target.env)
+      ) {
+        applicationAccess.leave()
+        setDetail({
+          loading: false,
+          error: 'This environment is unavailable in the current scope.',
+        })
+        return
+      }
+      setDetail({ loading: false })
+      await applicationAccess.load(target)
+    } else if (target.screen === 'project') {
       setEnvironments([])
       const outcome = await client.environments(target.project, abort.signal)
       if (!current()) return
@@ -321,6 +345,15 @@ export function createPlatformApplication(
   function enter(next: PlatformRoute) {
     if (!alive) return
     const previous = untrack(route)
+    if (
+      isApplicationAccessRoute(previous) &&
+      (applicationAccess.assignment.pending ||
+        applicationAccess.command().loading)
+    )
+      setNotice(
+        'The application stopped waiting. The command can still complete. Refresh to read the current result.',
+      )
+    applicationAccess.leave()
     lifecycle.close()
     if (previous.screen === 'invite' && next.screen !== 'invite')
       invitation.leave()
@@ -376,6 +409,7 @@ export function createPlatformApplication(
     invitation,
     lifecycle,
     access,
+    applicationAccess,
     authority,
     projects,
     environments,

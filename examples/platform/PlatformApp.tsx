@@ -1,3 +1,5 @@
+import { ApplicationAccessViews } from './ApplicationAccessViews'
+import { isApplicationAccessRoute } from './route'
 import { InvitationView } from './InvitationView'
 import { exampleSizing } from '../shared/appearance/sizing'
 import { createPlatformTableSelection } from './table-selection'
@@ -94,13 +96,29 @@ export function PlatformApp(props: {
     alive = true,
     focusSequence = 0
   const projectsRoute = () =>
-    ['projects', 'project', 'environment', 'members', 'create'].includes(
-      app.route().screen,
-    )
+    [
+      'projects',
+      'project',
+      'environment',
+      'members',
+      'create',
+      'app-users',
+      'app-user',
+      'app-roles',
+      'app-role',
+    ].includes(app.route().screen)
   const peopleRoute = () =>
     ['users', 'access', 'invite'].includes(app.route().screen)
   const title = () => {
     const route = app.route()
+    if (isApplicationAccessRoute(route))
+      return route.screen === 'app-users'
+        ? 'Application users'
+        : route.screen === 'app-user'
+          ? 'Application role assignment'
+          : route.screen === 'app-roles'
+            ? 'Application roles'
+            : `Permissions · ${route.role}`
     return route.screen === 'invite'
       ? 'Invite a user'
       : route.screen === 'projects'
@@ -194,6 +212,10 @@ export function PlatformApp(props: {
   const routeEnvironment = () => {
     const current = app.route()
     return 'env' in current ? current.env : ''
+  }
+  const routeRole = () => {
+    const current = app.route()
+    return current.screen === 'app-role' ? current.role : ''
   }
   const projectHeader = (column: NativeColumn<NameRow, unknown>) => (
     <TableColumnResize
@@ -520,7 +542,8 @@ export function PlatformApp(props: {
                       <Show
                         when={
                           app.route().screen === 'environment' ||
-                          app.route().screen === 'members'
+                          app.route().screen === 'members' ||
+                          isApplicationAccessRoute(app.route())
                         }
                         fallback={
                           <Breadcrumbs.Current>
@@ -535,6 +558,36 @@ export function PlatformApp(props: {
                           {routeProject()}
                         </Breadcrumbs.Link>
                       </Show>
+                    </Breadcrumbs.Item>
+                  </Show>
+                  <Show when={isApplicationAccessRoute(app.route())}>
+                    <Breadcrumbs.Item>
+                      <Breadcrumbs.Separator />
+                      <Breadcrumbs.Link
+                        href={href({
+                          screen: 'environment',
+                          project: routeProject(),
+                          env: routeEnvironment(),
+                        })}
+                        onClick={follow({
+                          screen: 'environment',
+                          project: routeProject(),
+                          env: routeEnvironment(),
+                        })}
+                      >
+                        {routeEnvironment()}
+                      </Breadcrumbs.Link>
+                    </Breadcrumbs.Item>
+                    <Breadcrumbs.Item>
+                      <Breadcrumbs.Separator />
+                      <Breadcrumbs.Current
+                        data-ui-text={routeRole() ? undefined : 'system'}
+                      >
+                        <Show when={routeRole()} fallback={title()}>
+                          <span data-ui-text="system">Permissions</span> ·{' '}
+                          {routeRole()}
+                        </Show>
+                      </Breadcrumbs.Current>
                     </Breadcrumbs.Item>
                   </Show>
                   <Show
@@ -721,6 +774,7 @@ export function PlatformApp(props: {
             </Show>
           </div>
           <AccessViews app={app} navigate={navigate} />
+          <ApplicationAccessViews app={app} navigate={navigate} />
           <InvitationView app={app} navigate={navigate} />
           <Show
             when={
@@ -780,6 +834,30 @@ export function PlatformApp(props: {
                 <Button onClick={() => void app.refresh()}>
                   Refresh environment
                 </Button>
+                <div class="platform-inline-actions">
+                  <Button
+                    onClick={() =>
+                      navigate({
+                        screen: 'app-users',
+                        project: routeProject(),
+                        env: routeEnvironment(),
+                      })
+                    }
+                  >
+                    Application users
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      navigate({
+                        screen: 'app-roles',
+                        project: routeProject(),
+                        env: routeEnvironment(),
+                      })
+                    }
+                  >
+                    Application roles
+                  </Button>
+                </div>
                 <Show when={app.detail().loading}>
                   <p role="status" data-ui-text="system">
                     Loading environment status

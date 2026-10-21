@@ -354,7 +354,7 @@ export function createApplicationAccessMock() {
   }
   return {
     transport(scope: ApplicationScope): Transport {
-      const bound = Object.freeze({ ...scope })
+      const bound = Object.freeze({ project: scope.project, env: scope.env })
       return {
         async invoke(request) {
           if (disposed) return uncertain()
