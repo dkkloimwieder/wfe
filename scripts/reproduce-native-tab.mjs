@@ -1,5 +1,6 @@
 import { createServer } from 'node:http'
-import { writeFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { loadavg } from 'node:os'
 import { chromium, expect } from '@playwright/test'
@@ -10,10 +11,15 @@ if (!['loopback', 'fetch', 'fulfill'].includes(mode))
 const output = process.env.BENCH_OUTPUT ?? '/tmp/wfe-native-tab.json'
 const html =
   '<!doctype html><title>Native link probe</title><a id="link" href="#destination">Destination</a><h1 id="destination">Destination</h1>'
+const require = createRequire(import.meta.url)
+const hash = (value) => createHash('sha256').update(value).digest('hex')
 const report = {
   mode,
-  playwright: createRequire(import.meta.url)('@playwright/test/package.json')
-    .version,
+  playwright: require('@playwright/test/package.json').version,
+  playwrightPackage: require.resolve('@playwright/test/package.json'),
+  executable: chromium.executablePath(),
+  scriptHash: hash(await readFile(new URL(import.meta.url))),
+  htmlHash: hash(html),
   browser: '',
   hostLoad: loadavg(),
   hasPreload: Boolean(process.env.NODE_OPTIONS?.includes('--import')),
