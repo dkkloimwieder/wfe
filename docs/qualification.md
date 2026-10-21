@@ -59,3 +59,8 @@ Heap captures and timing campaigns remain separate from qualification.
 Run them through the moved performance examples and their documented configuration.
 Elapsed times remain advisory because host load varies.
 Record reads, retained scopes, and cleanup assertions remain correctness checks.
+
+## Native tab diagnostics
+
+The [native tab investigation](native-tab-investigation.md) records the isolated browser failure and bounded reproduction commands.
+These diagnostics remain separate from the component qualification assertions.
