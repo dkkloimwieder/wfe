@@ -52,10 +52,6 @@ export function cssProvenance(root, distribution = false) {
         }
       if (ownsStyles && ast.source?.input.file) {
         compilations.set(ast.source.input.file, loaded)
-        stylesheets.set(
-          relative(root, ast.source.input.file),
-          hashCss(ast.toString().trim()),
-        )
       }
     },
   }
@@ -107,6 +103,13 @@ export function cssProvenance(root, distribution = false) {
         resolve: { alias: { '@wfe/components/styles.css': entry } },
         css: { postcss: { plugins: [postcss] } },
       }
+    },
+    transform(code, id, options) {
+      const [file, query = ''] = id.split('?')
+      const parameters = new URLSearchParams(query)
+      if (options?.ssr || parameters.has('raw') || parameters.has('url')) return
+      if (compilations.has(file))
+        stylesheets.set(relative(root, file), hashCss(code.trim()))
     },
     configResolved(config) {
       serverBuild = Boolean(config.build.ssr)

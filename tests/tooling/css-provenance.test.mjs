@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, writeFile, readFile, rm } from 'node:fs/promises'
 import { writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { build } from 'vite'
+import { build, createServer } from 'vite'
 import { cssProvenance, hashCss } from '../../scripts/css-provenance.mjs'
 
 async function fixture(work) {
@@ -154,4 +154,49 @@ test('CSS provenance discards imports removed during recompilation', () =>
     await compile({ instance })
     await writeFile(entry, "@import './fields.css';\n")
     await compile({ instance })
+  }))
+
+test('live CSS provenance hashes resolved asset URLs after PostCSS', () =>
+  fixture(async ({ root }) => {
+    const styles = join(root, 'packages/components/src/styles')
+    await writeFile(join(styles, 'font.woff2'), 'fixture font bytes')
+    await writeFile(
+      join(styles, 'fields.css'),
+      '@font-face { font-family: fixture; src: url("./font.woff2"); }',
+    )
+    const server = await createServer({
+      configFile: false,
+      root,
+      logLevel: 'silent',
+      plugins: [cssProvenance(root)],
+      server: { host: '127.0.0.1', port: 0 },
+    })
+    try {
+      await server.listen()
+      const entry = '/packages/components/src/styles/styles.css'
+      const transformed = await server.transformRequest(entry)
+      const literal = transformed.code.match(/const __vite__css = (".*")/)
+      assert.ok(literal, 'Vite attaches a stylesheet to the page')
+      const css = JSON.parse(literal[1])
+      assert.ok(css.includes('/packages/components/src/styles/font.woff2'))
+      for (const query of ['', '?raw', '?url', '?direct']) {
+        await server.transformRequest(`${entry}${query}`)
+        const response = await fetch(
+          `http://127.0.0.1:${server.httpServer.address().port}/css-provenance.json`,
+        )
+        assert.equal(response.status, 200)
+        const manifest = await response.json()
+        const sheet = manifest.stylesheets.find(
+          (value) => value.file === entry.slice(1),
+        )
+        assert.equal(
+          sheet.sha256,
+          hashCss(css.trim()),
+          `Preserve CSS hash after ${query || 'normal'} import`,
+        )
+        assert.equal(manifest.inputs.length, 2)
+      }
+    } finally {
+      await server.close()
+    }
   }))
