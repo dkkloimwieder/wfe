@@ -89,7 +89,7 @@ Issue `wfe-f81.3.2` adds invitation and user lifecycle mockups.
 Issue `wfe-f81.3.3` tracks application roles, which use separate application-host operations.
 Issue `wfe-f81.4` adds the adapter from host metadata to generic view descriptions.
 Issue `wfe-f81.5` tracks validation metadata that omits server constraints.
-Issue `wfe-f81.6` tracks structural result validators in generated clients.
+Issue `wfe-f81.6` adds example-owned structural validators generated from captured result metadata.
 Issue `wfe-f81.7` tracks a shared native link with button appearance.
 Issue `wfe-f81.8` fixes duplicate construction of shared table action and configuration slots.
 Issue `wfe-f81.9` tracks authority declarations missing from operation metadata.
@@ -111,6 +111,40 @@ The application treats decoded replies as unknown and returns schema-parsed valu
 It rejects old string arrays, missing states, and states outside the captured contract.
 This adapter does not repair the upstream generator or claim that its declarations match the current metadata.
 Issue `wfe-f81.29` tracks replacement after upstream regeneration. Generated snapshot files retain their captured bytes.
+
+## Generated result validation
+
+The example generates 24 wire result schemas: 16 control operations and eight application operations.
+The lifecycle metadata capture adds invitation, activation, and deactivation contracts from the same upstream revision.
+The two schema registries remain separate because control and application operations can share identifiers.
+
+`metadata-invoke.ts` checks completed replies before the captured clients rename their fields.
+It returns accepted replies unchanged. It does not strip unknown members or normalize values.
+An unsupported operation or result class returns an uncertain outcome before dispatch.
+A malformed completed reply also returns an uncertain outcome.
+Refused, uncertain, and partial outcomes retain their original meanings.
+The existing application adapter still rejects partial replies that the screen cannot apply.
+
+The generator supports required objects and arrays, nullable scalar leaves, text, booleans, UUIDs, int32 values, and declared enum values.
+It rejects unsupported metadata, duplicate paths, and conflicting structures.
+It does not infer input limits, authorization rules, or optional containers.
+The invocation helper supports one outcome per request. It does not expose streaming or batch transport methods.
+Existing decoded schemas retain application identity checks and TypeScript types while the upstream list declarations remain stale.
+No shared UI package or upstream WAMN source changes for this path.
+
+From the WFE repository root, regenerate the example schemas:
+
+```sh
+node examples/platform/generate-result-schemas.mjs
+```
+
+To detect changes in the generated output, run:
+
+```sh
+node examples/platform/generate-result-schemas.mjs --check
+```
+
+The repository test suite also compares generated output with the captured metadata.
 
 ## Review the application
 

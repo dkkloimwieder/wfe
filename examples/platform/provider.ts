@@ -1,3 +1,5 @@
+import { createMetadataInvoke } from './metadata-invoke'
+import { controlResultSchemas } from './result-schemas.generated'
 import { createCheckedOperation } from './checked-operation'
 import * as z from 'zod/mini'
 import * as user from './snapshot/client/user'
@@ -112,7 +114,9 @@ const uncertain = (reason: string): Outcome<never> => ({
 
 /** The application checks returned shapes; generated field maps only rename them. */
 export function createPlatformClient(transport: Transport) {
-  const call = createCheckedOperation(transport)
+  const call = createCheckedOperation(
+    createMetadataInvoke(transport, controlResultSchemas),
+  )
   return {
     invite: (
       value: user.UserInviteRequestValue,

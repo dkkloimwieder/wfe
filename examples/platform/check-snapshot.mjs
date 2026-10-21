@@ -30,7 +30,7 @@ for (const file of [...manifest.files, ...manifest.support]) {
     )
   }
 }
-assert.equal(manifest.files.length, 106)
+assert.equal(manifest.files.length, 118)
 console.log(
   `Checked ${manifest.files.length} platform source snapshots from WAMN ${manifest.revision}.`,
 )

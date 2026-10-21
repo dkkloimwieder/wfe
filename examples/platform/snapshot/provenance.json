@@ -638,6 +638,78 @@
       "local": "runtime-package.json",
       "sourceSha256": "03e76e866feb03049b681a319d9b0935c005fe8bab8b8c19db23895edb359e36",
       "sha256": "03e76e866feb03049b681a319d9b0935c005fe8bab8b8c19db23895edb359e36"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.input.json",
+      "local": "metadata/user/invite.input.json",
+      "sourceSha256": "dfc06594ea4b6da2272534d9e67a018cb378474331953b8dd43324403896cc0e",
+      "sha256": "dfc06594ea4b6da2272534d9e67a018cb378474331953b8dd43324403896cc0e"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.result.json",
+      "local": "metadata/user/invite.result.json",
+      "sourceSha256": "81d676eaca31dacae14a06c00c3720d3771166959494aa561d1a7474ad4a95e7",
+      "sha256": "81d676eaca31dacae14a06c00c3720d3771166959494aa561d1a7474ad4a95e7"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.operation.json",
+      "local": "metadata/user/invite.operation.json",
+      "sourceSha256": "cb95379fcb0ebf05362d892e159d412e1dcac41f924679fe95272eef55b9d446",
+      "sha256": "cb95379fcb0ebf05362d892e159d412e1dcac41f924679fe95272eef55b9d446"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.errors.json",
+      "local": "metadata/user/invite.errors.json",
+      "sourceSha256": "34b2f91bd7f115398339ece25ed910d100dd8283d9312b094150bc1fbe45e943",
+      "sha256": "34b2f91bd7f115398339ece25ed910d100dd8283d9312b094150bc1fbe45e943"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.input.json",
+      "local": "metadata/user/activate.input.json",
+      "sourceSha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616",
+      "sha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.result.json",
+      "local": "metadata/user/activate.result.json",
+      "sourceSha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435",
+      "sha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.operation.json",
+      "local": "metadata/user/activate.operation.json",
+      "sourceSha256": "1e3d2bbf81450666272f11654bdfa91811da00940e67af620bccbcb47d81818c",
+      "sha256": "1e3d2bbf81450666272f11654bdfa91811da00940e67af620bccbcb47d81818c"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.errors.json",
+      "local": "metadata/user/activate.errors.json",
+      "sourceSha256": "1b3f5059260d9a063fec34d47d2fce4473fbd502271e3a7407168962523d0e15",
+      "sha256": "1b3f5059260d9a063fec34d47d2fce4473fbd502271e3a7407168962523d0e15"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.input.json",
+      "local": "metadata/user/deactivate.input.json",
+      "sourceSha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616",
+      "sha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.result.json",
+      "local": "metadata/user/deactivate.result.json",
+      "sourceSha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435",
+      "sha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.operation.json",
+      "local": "metadata/user/deactivate.operation.json",
+      "sourceSha256": "a9d3be32fd80e2fddd59969a51a7f2b6c3c8cdae4f7b33bf8add8e12acc3a346",
+      "sha256": "a9d3be32fd80e2fddd59969a51a7f2b6c3c8cdae4f7b33bf8add8e12acc3a346"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.errors.json",
+      "local": "metadata/user/deactivate.errors.json",
+      "sourceSha256": "cfc2ca5fc96f2f5ef7c37f0f7bf6437096364d09cb6111bd211f1adf6e4a2f69",
+      "sha256": "cfc2ca5fc96f2f5ef7c37f0f7bf6437096364d09cb6111bd211f1adf6e4a2f69"
     }
   ],
   "support": [

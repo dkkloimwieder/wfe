@@ -1,3 +1,5 @@
+import { createMetadataInvoke } from './metadata-invoke'
+import { applicationResultSchemas } from './result-schemas.generated'
 import * as z from 'zod/mini'
 import * as user from './snapshot/application/client/user'
 import * as role from './snapshot/application/client/role'
@@ -42,7 +44,9 @@ const operationSchema = z.object({
 })
 
 export function createApplicationAccessClient(transport: Transport) {
-  const call = createCheckedOperation(transport)
+  const call = createCheckedOperation(
+    createMetadataInvoke(transport, applicationResultSchemas),
+  )
   return {
     mine: (signal?: AbortSignal) =>
       call((t) => permission.mine(t, [{}]), mineSchema, signal),
