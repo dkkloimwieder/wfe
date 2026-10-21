@@ -2,6 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { gunzipSync } from 'node:zlib'
 
 const file = process.argv[2]
+const requestedKey = process.argv[3]
 if (!file) throw new Error('Pass a Chrome .heapsnapshot path.')
 const bytes = await readFile(file)
 const heap = JSON.parse(
@@ -303,6 +304,15 @@ const result = {
   strongReachableNodes: tail,
   note: 'Category sizes sum object self sizes. They are not exclusive dominator retained sizes. Paths exclude weak edges.',
   groups: summarize(groups),
+  requestedGroup: requestedKey
+    ? {
+        key: requestedKey,
+        count: groups.get(requestedKey)?.count ?? 0,
+        retainingPath: groups.has(requestedKey)
+          ? path(groups.get(requestedKey).sample)
+          : [],
+      }
+    : undefined,
   shapes: summarize(shapes),
   categories: summarize(categories),
   categoryNote:

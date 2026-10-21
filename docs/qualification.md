@@ -110,3 +110,5 @@ The repair hashes transformed CSS while retaining source and asset freshness ass
 Cosmetic assertions were removed separately in `wfe-gjk`; interaction and accessibility assertions remain.
 The existing native-tab timeout (`wfe-x6o`) recurred and then passed unchanged.
 Its cause remains open; this upgrade does not claim to fix it.
+
+The [action disposal investigation](action-disposal-investigation.md) preserves the runtime-only heap reproduction and the current removal decision.
