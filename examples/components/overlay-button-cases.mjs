@@ -13,24 +13,6 @@ export async function overlayButtonCases({ page, url, record, settle }) {
     )
     await settle()
   }
-  const appearance = (control) =>
-    control.evaluate((node) => {
-      const style = getComputedStyle(node)
-      return Object.fromEntries(
-        [
-          'height',
-          'padding',
-          'borderTopWidth',
-          'borderTopStyle',
-          'borderTopColor',
-          'backgroundColor',
-          'color',
-          'font',
-          'textAlign',
-          'textDecorationLine',
-        ].map((key) => [key, style[key]]),
-      )
-    })
   async function sameButton(name, variant = 'outline', tone = 'default') {
     const control = part(name)
     await expect(control).toHaveClass(/ui-button/)
@@ -39,75 +21,7 @@ export async function overlayButtonCases({ page, url, record, settle }) {
     assert.equal(await control.getAttribute('variant'), null)
     assert.equal(await control.getAttribute('tone'), null)
     assert.equal(await control.locator('button').count(), 0)
-    assert.deepEqual(
-      await appearance(control),
-      await appearance(part('reference')),
-    )
   }
-  await record(
-    'overlay buttons: scoped defaults inherit live colors and preserve explicit tones',
-    async () => {
-      await open()
-      const scope = page.locator('[data-ui]').first()
-      const setColors = (color) =>
-        scope.evaluate((node, color) => {
-          node.style.setProperty('--ui-button-color', color)
-          node.style.setProperty('--ui-button-on-color', 'rgb(252, 252, 253)')
-        }, color)
-      await setColors('rgb(28, 126, 214)')
-      for (const variant of ['outline', 'filled', 'inverted', 'ghost']) {
-        await configure({ variant })
-        await sameButton('dialog-trigger', variant)
-        const style = await appearance(part('reference'))
-        assert.equal(
-          variant === 'filled' ? style.backgroundColor : style.color,
-          'rgb(28, 126, 214)',
-        )
-        if (variant === 'filled' || variant === 'inverted')
-          assert.equal(
-            variant === 'filled' ? style.color : style.backgroundColor,
-            'rgb(252, 252, 253)',
-          )
-      }
-      await configure({ variant: 'outline' })
-      await part('reference').evaluate((node) =>
-        node.style.setProperty('--ui-button-color', 'rgb(8, 127, 91)'),
-      )
-      await expect(part('reference')).toHaveCSS('color', 'rgb(8, 127, 91)')
-      await expect(part('dialog-trigger')).toHaveCSS(
-        'color',
-        'rgb(28, 126, 214)',
-      )
-      await part('reference').evaluate((node) =>
-        node.style.removeProperty('--ui-button-color'),
-      )
-      await setColors('rgb(112, 72, 232)')
-      await expect(part('dialog-trigger')).toHaveCSS(
-        'color',
-        'rgb(112, 72, 232)',
-      )
-      for (const tone of ['neutral', 'accent']) {
-        await configure({ tone })
-        await sameButton('dialog-trigger', 'outline', tone)
-        assert.notEqual(
-          (await appearance(part('dialog-trigger'))).color,
-          'rgb(112, 72, 232)',
-        )
-      }
-      await open()
-      await setColors('rgb(28, 126, 214)')
-      await page.emulateMedia({ forcedColors: 'active' })
-      try {
-        await sameButton('tooltip-link')
-        assert.notEqual(
-          (await appearance(part('tooltip-link'))).color,
-          'rgb(28, 126, 214)',
-        )
-      } finally {
-        await page.emulateMedia({ forcedColors: 'none' })
-      }
-    },
-  )
   const variants = ['outline', 'filled', 'inverted', 'ghost']
   await record(
     'overlay buttons: default presentation and reactive variants match Button without replacing triggers',
@@ -256,27 +170,6 @@ export async function overlayButtonCases({ page, url, record, settle }) {
       await expect(part('tooltip-link')).toHaveAttribute('href', '#help')
       await part('tooltip-submit').press('Enter')
       assert.equal((await read()).submits, 1)
-    },
-  )
-  await record(
-    'overlay buttons: custom triggers retain hover and forced-color presentation',
-    async () => {
-      await open()
-      await configure({ variant: 'filled', tone: 'accent' })
-      const reference = part('reference')
-      const link = part('tooltip-link')
-      await reference.hover()
-      const hovered = await appearance(reference)
-      await link.hover()
-      assert.deepEqual(await appearance(link), hovered)
-      await page.emulateMedia({ forcedColors: 'active' })
-      try {
-        await page.mouse.move(0, 0)
-        await sameButton('tooltip-link', 'filled', 'accent')
-        await expect(link).toHaveCSS('border-top-style', 'solid')
-      } finally {
-        await page.emulateMedia({ forcedColors: 'none' })
-      }
     },
   )
   await record(

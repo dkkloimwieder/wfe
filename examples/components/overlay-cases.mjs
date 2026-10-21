@@ -52,14 +52,7 @@ export async function overlayCases({ page, url, record, press, settle }) {
         await page.locator(`[id="${description}"]`).textContent(),
         'The application owns these values.',
       )
-      assert.equal(
-        await popover().evaluate(
-          (node) => getComputedStyle(node).backgroundColor,
-        ),
-        await page
-          .locator('main')
-          .evaluate((node) => getComputedStyle(node).backgroundColor),
-      )
+
       assert.ok((await read()).refs >= 2)
       await press('Escape')
       await settle()

@@ -1,7 +1,6 @@
 import { matchingCases } from './gallery/matching-cases.mjs'
 import { entryPanelCases } from './gallery/entry-panel-cases.mjs'
 import { tableTitleCases } from './gallery/table-title-cases.mjs'
-import { dotDefaultCases } from './gallery/dot-default-cases.mjs'
 import { subtableCases } from './gallery/subtable-cases.mjs'
 import { reviewTheme } from '../theme/review.mjs'
 import { galleryCases } from './gallery/gallery-cases.mjs'
@@ -251,7 +250,6 @@ try {
   await galleryCases({ page, url, record, settle })
   await entryPanelCases({ page, url, record })
   await subtableCases({ page, url, record })
-  await dotDefaultCases({ page, url, record })
   await tableTitleCases({ page, url, record })
   await fileCases({ page, url, record, settle })
   await resizableCases({ page, url, record, settle })
@@ -279,9 +277,7 @@ try {
       await page.locator('.popup-trigger').click()
       const content = page.locator('.popup-content')
       const before = await content.boundingBox()
-      const color = await content.evaluate(
-        (node) => getComputedStyle(node).backgroundColor,
-      )
+
       assert.equal(
         await content.evaluate(
           (node) => !!node.closest('[data-ui-portal-root]'),
@@ -291,12 +287,7 @@ try {
       await page.evaluate(() => {
         document.querySelector('main').dataset.uiTheme = 'dark'
       })
-      assert.notEqual(
-        await content.evaluate(
-          (node) => getComputedStyle(node).backgroundColor,
-        ),
-        color,
-      )
+
       assert.deepEqual(await content.boundingBox(), before)
       await page.evaluate(() => {
         delete document.querySelector('main').dataset.uiTheme

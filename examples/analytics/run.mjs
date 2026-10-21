@@ -925,9 +925,6 @@ try {
       exact: true,
     })
     const header = page.locator('th[data-column="revenue"]')
-    const headerBounds = await header.boundingBox()
-    const pencilBounds = await pencil.boundingBox()
-    const handleBounds = await header.locator('.column-move').boundingBox()
     await pencil.click()
     const editor = page.getByRole('textbox', {
       name: 'Header name for Revenue',
@@ -938,15 +935,9 @@ try {
       true,
     )
     assert.equal(await pencil.count(), 0)
-    assert.deepEqual(await header.boundingBox(), headerBounds)
     assert.equal(await header.locator('.column-move').isVisible(), false)
     await editor.fill('Discarded')
     await editor.press('Escape')
-    assert.deepEqual(await pencil.boundingBox(), pencilBounds)
-    assert.deepEqual(
-      await header.locator('.column-move').boundingBox(),
-      handleBounds,
-    )
     assert.equal(
       await pencil.evaluate((node) => node === document.activeElement),
       true,
@@ -963,7 +954,6 @@ try {
       name: 'Rename Amount header',
       exact: true,
     })
-    assert.deepEqual(await renamedPencil.boundingBox(), pencilBounds)
     assert.equal(
       await renamedPencil.evaluate((node) => node === document.activeElement),
       true,

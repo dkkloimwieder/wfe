@@ -105,13 +105,7 @@ export async function dialogCases({ page, url, record, press, settle }) {
       await page.goto(`${url}?dialogs=1&defaultDialog=1&dark=1`)
       await main().waitFor()
       await settle()
-      const colors = await page.evaluate(() =>
-        [
-          document.querySelector('main'),
-          document.querySelector('[data-content=main]'),
-        ].map((node) => getComputedStyle(node).backgroundColor),
-      )
-      assert.equal(colors[1], colors[0])
+
       assert.equal(
         await page
           .locator('.ui-dialog-portal')

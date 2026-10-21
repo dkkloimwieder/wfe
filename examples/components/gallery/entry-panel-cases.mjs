@@ -10,18 +10,7 @@ export async function entryPanelCases({ page, url, record }) {
         await page.goto(`${url}?galleryPreview=entry&scheme=${scheme}`)
         const frame = page.locator('.ui-entry-panel')
         const surface = page.locator('.ui-entry-panel-surface')
-        await expect(frame).toHaveCSS('background-image', /radial-gradient/)
-        await expect(surface).not.toHaveCSS(
-          'background-color',
-          'rgba(0, 0, 0, 0)',
-        )
-        assert.notEqual(
-          await surface.evaluate(
-            (n) => getComputedStyle(n, '::before').backgroundColor,
-          ),
-          'rgba(0, 0, 0, 0)',
-          'accent backing blocks the neutral canvas dots',
-        )
+
         await frame.evaluate((n) => (n.hidden = true))
         await expect(frame).toBeHidden()
         await frame.evaluate((n) => (n.hidden = false))
@@ -30,39 +19,6 @@ export async function entryPanelCases({ page, url, record }) {
         assert.ok(Math.abs(a.x + a.width / 2 - b.x - b.width / 2) < 1)
         assert.ok(Math.abs(a.y + a.height / 2 - b.y - b.height / 2) < 1)
         assert.ok(b.width <= 480 && b.height < 600)
-        const angle = await surface.evaluate((n) =>
-          parseFloat(n.style.getPropertyValue('--ui-action-angle')),
-        )
-        assert.ok(Math.abs(angle) >= 0.25 && Math.abs(angle) <= 2)
-        const tapers = await surface.evaluate((n) =>
-          ['--ui-action-taper', '--ui-action-taper-y'].map((key) =>
-            parseFloat(n.style.getPropertyValue(key)),
-          ),
-        )
-        assert.ok(tapers.every((value) => Math.abs(value) <= 2))
-
-        const transforms = await surface.evaluate((n) => {
-          const matrix = () => getComputedStyle(n, '::before').transform
-          n.style.setProperty('--ui-action-angle', '1deg')
-          n.style.setProperty('--ui-action-taper', '1deg')
-          n.style.setProperty('--ui-action-taper-y', '-1deg')
-          const both = matrix()
-          n.style.setProperty('--ui-action-taper', '0deg')
-          const vertical = matrix()
-          n.style.setProperty('--ui-action-taper-y', '0deg')
-          const flat = matrix()
-          return [both, vertical, flat]
-        })
-        assert.equal(
-          new Set(transforms).size,
-          3,
-          'both axes independently change the decoration',
-        )
-        assert.deepEqual(
-          await surface.boundingBox(),
-          b,
-          'only the backing transforms',
-        )
         const equalActions = async () => {
           const row = await page
             .locator('.ui-entry-panel-actions')

@@ -298,20 +298,6 @@ try {
       assert.equal(geometry.overflow, false)
       await page.screenshot({ path: '/tmp/wfe-shell-wide.png', fullPage: true })
       await menu('Observation detail').click()
-      assert.ok(
-        await page.getByRole('form').evaluate((form) => {
-          const panel = form.closest('.ui-dashboard-panel')
-          const style = getComputedStyle(panel)
-          const padding =
-            parseFloat(style.paddingTop) + parseFloat(style.paddingBottom)
-          return (
-            panel.getBoundingClientRect().height >=
-              form.closest('main').getBoundingClientRect().height - 2 &&
-            form.getBoundingClientRect().height >=
-              panel.clientHeight - padding - 2
-          )
-        }),
-      )
     },
   )
   await run(

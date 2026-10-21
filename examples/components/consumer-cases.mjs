@@ -86,25 +86,6 @@ export async function consumerCases({ page, url, record, press, settle }) {
         exact: true,
       })
       assert.equal(await column.isChecked(), true)
-      const controls = await page
-        .locator('.ui-checkbox .ui-check-control')
-        .evaluateAll((nodes) =>
-          nodes.map((node) => {
-            const style = getComputedStyle(node)
-            return [
-              style.width,
-              style.height,
-              style.border,
-              style.backgroundColor,
-            ]
-          }),
-        )
-      assert.equal(controls.length, 4)
-      assert.ok(
-        controls.every(
-          (style) => JSON.stringify(style) === JSON.stringify(controls[0]),
-        ),
-      )
       assert.equal(
         await page.locator('.display-fields .ui-check-mark').count(),
         3,
@@ -197,13 +178,7 @@ export async function consumerCases({ page, url, record, press, settle }) {
           .isChecked(),
         true,
       )
-      const fonts = await page
-        .locator('input.ui-input')
-        .evaluateAll((nodes) =>
-          nodes.map((node) => getComputedStyle(node).fontSize),
-        )
-      assert.ok(fonts.length >= 4)
-      assert.equal(new Set(fonts).size, 1)
+
       assert.equal(
         await page.locator('[aria-label="Saved records"] tbody tr').count(),
         1,

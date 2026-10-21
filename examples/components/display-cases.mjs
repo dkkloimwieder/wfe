@@ -84,14 +84,6 @@ export async function displayCases({ createPage, url, record }) {
       async () => {
         await page.goto(`${url}?display=1&dark=1`)
         const bounds = await page.locator('#reserved-viewport').boundingBox()
-        const background = (selector) =>
-          page
-            .locator(selector)
-            .evaluate((node) => getComputedStyle(node).backgroundColor)
-        assert.equal(
-          await background('#display-card'),
-          await background('main'),
-        )
         await configure({ loading: false })
         assert.deepEqual(
           await page.locator('#reserved-viewport').boundingBox(),

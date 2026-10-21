@@ -262,14 +262,7 @@ try {
       await renamed.focus()
       await renamed.press('Space')
       await expect(renamed).not.toBeChecked()
-      const focus = await renamed
-        .locator('..')
-        .locator('.ui-check-control')
-        .evaluate((control) => ({
-          outline: getComputedStyle(control).outlineStyle,
-          width: getComputedStyle(control).outlineWidth,
-        }))
-      assert.deepEqual(focus, { outline: 'solid', width: '2px' })
+      await expect(renamed).toBeFocused()
       await renamed.press('Space')
       await expect(renamed).toBeChecked()
       await expect(

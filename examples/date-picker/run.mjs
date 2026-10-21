@@ -129,10 +129,7 @@ try {
     const selected = day('2024-02-29')
     await selected.press('ArrowLeft')
     await page.keyboard.press('ArrowRight')
-    assert.equal(
-      await selected.evaluate((node) => getComputedStyle(node).outlineOffset),
-      '-2px',
-    )
+    await expect(selected).toBeFocused()
     await expect(selected.locator('..')).toHaveAttribute(
       'aria-selected',
       'true',

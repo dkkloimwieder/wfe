@@ -3,42 +3,6 @@ import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
 export async function reviewAppearance({ page, record }) {
-  await record(
-    'WAMN preview shares blue outlines and layered surfaces',
-    async () => {
-      await expect(page.locator('.wamn-page')).toHaveCSS(
-        'background-color',
-        'rgb(252, 252, 253)',
-      )
-      const panels = page.locator('.ui-dashboard-panel:visible')
-      for (const panel of await panels.all()) {
-        await expect(panel).toHaveCSS('background-color', 'rgb(255, 255, 255)')
-        assert.notEqual(
-          await panel.evaluate((node) => getComputedStyle(node).boxShadow),
-          'none',
-        )
-      }
-      const headings = page.locator('thead .column-move, thead .column-sort')
-      assert.ok(await headings.count())
-      for (const heading of await headings.all()) {
-        const textColor = await heading.evaluate(
-          (node) => getComputedStyle(node.closest('th')).color,
-        )
-        await expect(heading).toHaveCSS('color', textColor)
-        await heading.hover()
-        await expect(heading).toHaveCSS('color', textColor)
-      }
-      await page.mouse.move(0, 0)
-      const actions = page.locator(
-        '.ui-dashboard-header:visible .ui-button, .table-controls-toggle, [data-row-action]',
-      )
-      for (const action of await actions.all()) {
-        await expect(action).toHaveAttribute('data-variant', 'outline')
-        await expect(action).toHaveCSS('color', 'rgb(25, 113, 194)')
-        await expect(action).toHaveCSS('border-top-color', 'rgb(25, 113, 194)')
-      }
-    },
-  )
   await record('WAMN editor shares the standard form sizing', async () => {
     await page.locator('[data-row-action=edit]').first().click()
     await reviewExampleSizing(page)
@@ -156,6 +120,7 @@ export async function reviewAppearance({ page, record }) {
         await expect(editor).toBeHidden()
         const bounds = await main.boundingBox()
         const panel = await records.locator('.ui-dashboard-panel').boundingBox()
+
         assert.ok(
           Math.abs(panel.width - bounds.width) < 1,
           `${width}x${height}: records fill the main panel`,

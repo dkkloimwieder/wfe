@@ -193,12 +193,6 @@ export async function applicationAccessCases({
           .locator('[aria-current="page"]')
           .filter({ hasText: 'Team / reviewer' })
         await expect(breadcrumb).toContainText('Team / reviewer')
-        assert.equal(
-          await breadcrumb.evaluate(
-            (node) => getComputedStyle(node).textTransform,
-          ),
-          'none',
-        )
         if (width === 390)
           await page.screenshot({ path: '/tmp/wfe-application-mobile.png' })
         assert.equal(

@@ -22,53 +22,6 @@ export async function subtableCases({ page, url, record }) {
       await expect(
         childView.getByRole('button', { name: 'Refresh results' }),
       ).toHaveCount(0)
-      const inset = await childView.evaluate((node) => {
-        const style = getComputedStyle(node.closest('.sub-table-row > td'))
-        return [
-          style.paddingTop,
-          style.paddingRight,
-          style.paddingBottom,
-          style.paddingLeft,
-        ]
-      })
-      assert.deepEqual(inset, ['0px', '0px', '0px', '10px'])
-      const toggleColumn = parent.locator(':scope > thead th').first()
-      const toggleBounds = await toggleColumn.boundingBox()
-      assert.ok(
-        Math.abs(toggleBounds.width - toggleBounds.height) <= 1,
-        'expand column is as wide as the header is tall',
-      )
-      await expect(
-        parent.locator(':scope > tbody > tr:last-child > td').first(),
-      ).toHaveCSS('border-bottom-width', '1px')
-      await expect(childView.locator('.table-workspace').first()).toHaveCSS(
-        'border-right-width',
-        '0px',
-      )
-      await expect(
-        page.getByRole('button', {
-          name: 'Collapse Collection A',
-          exact: true,
-        }),
-      ).toHaveCSS('height', '26px')
-      for (const height of ['32px', '40px']) {
-        await parent.evaluate(
-          (node, value) => node.style.setProperty('--ui-row-height', value),
-          height,
-        )
-        assert.equal(
-          (
-            await parent
-              .locator(':scope > tbody > tr[data-row]')
-              .first()
-              .boundingBox()
-          ).height,
-          Number.parseFloat(height),
-        )
-      }
-      await parent.evaluate((node) =>
-        node.style.removeProperty('--ui-row-height'),
-      )
       const parentCell = page.locator(
         '[data-row="alpha"] > [data-column="name"]',
       )

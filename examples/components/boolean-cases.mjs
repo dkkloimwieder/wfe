@@ -37,45 +37,6 @@ export async function booleanCases({ page, url, record, press, settle }) {
           assert.equal(await mark.getAttribute('aria-hidden'), 'true')
           assert.equal(await mark.getAttribute('tabindex'), null)
           assert.equal(await mark.evaluate((node) => node.tabIndex), -1)
-          const geometry = await mark.evaluate((svg) => {
-            const path = svg.querySelector('path')
-            const ink = path.getBBox()
-            const bounds = svg.getBoundingClientRect()
-            const control = svg
-              .closest('.ui-check-control')
-              .getBoundingClientRect()
-            const stroke = parseFloat(getComputedStyle(svg).strokeWidth)
-            return {
-              width: bounds.width,
-              height: bounds.height,
-              controlWidth: control.width,
-              controlHeight: control.height,
-              inkWidth:
-                ((ink.width + stroke) / svg.viewBox.baseVal.width) *
-                bounds.width,
-              inkX: ink.x,
-              inkY: ink.y,
-              inkRight: ink.x + ink.width,
-              inkBottom: ink.y + ink.height,
-              stroke,
-            }
-          })
-          assert.equal(geometry.controlWidth, font + 4)
-          assert.equal(geometry.controlHeight, font + 4)
-          assert.equal(geometry.width, geometry.controlWidth - 2)
-          assert.equal(geometry.height, geometry.controlHeight - 2)
-          assert.ok(
-            geometry.inkWidth >=
-              geometry.controlWidth * (indeterminate ? 0.65 : 0.75),
-          )
-          assert.ok(
-            geometry.inkX >= geometry.stroke / 2 &&
-              geometry.inkY >= geometry.stroke / 2,
-          )
-          assert.ok(
-            geometry.inkRight <= 16 - geometry.stroke / 2 &&
-              geometry.inkBottom <= 16 - geometry.stroke / 2,
-          )
           assert.equal(
             await mark.evaluate((node) => getComputedStyle(node).pointerEvents),
             'none',
@@ -202,18 +163,7 @@ export async function booleanCases({ page, url, record, press, settle }) {
     'booleans: help, errors and mixed indicators remain linked and detach cleanly',
     async () => {
       await open()
-      const controls = page.locator(
-        '[data-control=checkbox], [data-control=switch], [data-control=a]',
-      )
-      const borderColors = () =>
-        controls.evaluateAll((nodes) =>
-          nodes.map((node) => getComputedStyle(node).borderTopColor),
-        )
-      const normal = await borderColors()
       await configure({ invalid: true, indeterminate: true })
-      const invalid = await borderColors()
-      assert.equal(new Set(invalid).size, 1)
-      assert.notDeepEqual(invalid, normal)
       assert.equal(await checkbox().getAttribute('aria-invalid'), 'true')
       assert.equal(
         await checkbox().getAttribute('aria-describedby'),

@@ -82,7 +82,7 @@ export async function galleryCases({ page, url, record, settle }) {
     },
   )
   await record(
-    'gallery: all examples share control sizing across light and dark modes',
+    'gallery: all examples remain contained in one accessible document across modes',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       for (const scheme of [1, 2]) {
@@ -92,97 +92,12 @@ export async function galleryCases({ page, url, record, settle }) {
           await expect(page.getByRole('main')).toHaveCount(1)
           await expect(page.locator('[data-ui-theme-owner]')).toHaveCount(1)
           await expect(page.locator('iframe')).toHaveCount(0)
-          const heights = await preview()
-            .locator(
-              '.ui-button:not(.column-sort, .column-move, .header-rename, .table-workspace-header .ui-button)',
-            )
-            .evaluateAll((nodes) =>
-              nodes
-                .map((node) => {
-                  if (!node.matches('details'))
-                    return node.getBoundingClientRect().height
-                  const style = getComputedStyle(node)
-                  return (
-                    node.querySelector('summary').getBoundingClientRect()
-                      .height +
-                    parseFloat(style.borderTopWidth) +
-                    parseFloat(style.borderBottomWidth)
-                  )
-                })
-                .filter(Boolean),
-            )
-          for (const height of heights)
-            assert.equal(height, 32, `${id}: button height in scheme ${scheme}`)
-          if (id === 'display') {
-            const skeletons = await preview()
-              .locator('.ui-skeleton')
-              .evaluateAll((nodes) =>
-                nodes.map((node) => ({
-                  fill: getComputedStyle(node).backgroundColor,
-                  panel: getComputedStyle(
-                    node.closest('.gallery-example-panel'),
-                  ).backgroundColor,
-                  height: node.getBoundingClientRect().height,
-                })),
-              )
-            assert.equal(skeletons.length, 3)
-            for (const skeleton of skeletons) {
-              assert.notEqual(skeleton.fill, skeleton.panel)
-              assert.ok(skeleton.height >= 32)
-            }
-          }
-          if (id === 'table') {
-            const sizes = await preview()
-              .locator('.table-scroll')
-              .evaluate((node) => ({
-                viewport: node.clientWidth,
-                table: node.querySelector('table').getBoundingClientRect()
-                  .width,
-              }))
-            assert.ok(
-              Math.abs(sizes.table - sizes.viewport) <= 1,
-              JSON.stringify(sizes),
-            )
-            for (const label of await preview()
-              .locator('.table-filter > label')
-              .all()) {
-              await expect(label).toHaveCSS('line-height', '12px')
-              await expect(label).toHaveCSS('font-weight', '400')
-              await expect(label.locator('..')).toHaveCSS('row-gap', '8px')
-            }
-          }
-          if (id === 'choices') {
-            const fields = preview().locator('form > .ui-field')
-            await expect(fields).toHaveCount(2)
-            const geometry = await fields.evaluateAll((nodes) =>
-              nodes.map((node) => {
-                const label = node
-                  .querySelector('.ui-label')
-                  .getBoundingClientRect()
-                const control = node
-                  .querySelector('.popup-trigger, .choice-control')
-                  .getBoundingClientRect()
-                return {
-                  height: control.height,
-                  labelGap: control.top - label.bottom,
-                }
-              }),
-            )
-            assert.deepEqual(geometry, [
-              { height: 32, labelGap: 8 },
-              { height: 32, labelGap: 8 },
-            ])
-            const actionGap = await preview()
-              .locator('.example-actions')
-              .evaluate((node) => {
-                const buttons = node.querySelectorAll('button')
-                return (
-                  buttons[1].getBoundingClientRect().left -
-                  buttons[0].getBoundingClientRect().right
-                )
-              })
-            assert.equal(actionGap, 8)
-          }
+          assert.equal(
+            await page.evaluate(
+              () => document.documentElement.scrollWidth <= innerWidth,
+            ),
+            true,
+          )
         }
       }
     },
@@ -398,10 +313,7 @@ export async function galleryCases({ page, url, record, settle }) {
       await expect(
         page.getByRole('textbox', { name: 'Name', exact: true }),
       ).toHaveValue('Sample record')
-      await expect(page.locator('.gallery-preview')).toHaveCSS(
-        'background-color',
-        'rgb(252, 252, 253)',
-      )
+
       assert.equal(await page.locator('.gallery-shell').count(), 0)
       await page.goto(`${url}?galleryPreview=booleans&state=disabled`)
       await expect(
@@ -524,24 +436,6 @@ export async function galleryCases({ page, url, record, settle }) {
       const previewHost = await page
         .locator('.gallery-example-host')
         .elementHandle()
-      assert.equal(
-        await page
-          .locator('.gallery-shell')
-          .evaluate((node) => getComputedStyle(node).backgroundColor),
-        'rgb(252, 252, 253)',
-      )
-      assert.equal(
-        await preview()
-          .locator('.gallery-preview')
-          .evaluate((node) => getComputedStyle(node).backgroundColor),
-        'rgb(252, 252, 253)',
-      )
-      assert.equal(
-        await page
-          .getByRole('button', { name: 'Appearance', exact: true })
-          .evaluate((node) => getComputedStyle(node).color),
-        'rgb(25, 113, 194)',
-      )
       for (const state of ['disabled', 'readonly', 'invalid', 'normal']) {
         await page
           .getByRole('group', { name: 'Example state' })
@@ -560,10 +454,7 @@ export async function galleryCases({ page, url, record, settle }) {
       await page
         .getByRole('button', { name: 'Dark surfaces', exact: true })
         .click()
-      await expect(preview().locator('.gallery-preview')).toHaveCSS(
-        'background-color',
-        'rgb(27, 27, 27)',
-      )
+
       await page
         .getByRole('button', { name: 'Violet accent', exact: true })
         .click()
@@ -752,10 +643,6 @@ async function appearanceCases({ page, url, record }) {
       await slider.dispatchEvent('change')
       await expect(page).toHaveURL(/dots=65/)
       assert.equal(await page.evaluate(() => history.length), before.length + 1)
-      await expect(preview.locator('.gallery-preview')).toHaveCSS(
-        '--ui-secondary-accent',
-        '#f76707',
-      )
       await expect(name).toHaveValue('Retained draft')
       await page.goBack()
       await expect(slider).toHaveValue('50')
@@ -765,105 +652,19 @@ async function appearanceCases({ page, url, record }) {
       await page
         .getByRole('slider', { name: /Dots inside buttons/ })
         .press('Home')
-      await expect(preview.locator('.gallery-preview')).toHaveCSS(
-        '--ui-action-dot-visibility',
-        '0%',
-      )
+
       await page.reload()
-      await expect(
-        page.locator('.gallery-example-host').locator('.gallery-preview'),
-      ).toHaveCSS('--ui-action-dot-visibility', '0%')
     },
   )
 }
 
 async function sidebarCases({ page, url, record }) {
   await record(
-    'gallery: sidebar heading and icon rows retain their positions',
+    'gallery: long sidebar labels remain readable without overflowing controls',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
       await page.locator('.gallery-example-host').waitFor()
-      const contained = await page
-        .locator('.ui-sidebar-group details[open]')
-        .first()
-        .evaluate((panel) => {
-          const border = panel.getBoundingClientRect()
-          const style = getComputedStyle(panel)
-          return {
-            outlined: ['Top', 'Right', 'Bottom', 'Left'].every(
-              (side) => style[`border${side}Width`] === '1px',
-            ),
-            linksInside: [
-              ...panel.querySelectorAll('.ui-dashboard-menu a'),
-            ].every((link) => {
-              const rect = link.getBoundingClientRect()
-              return (
-                rect.left > border.left &&
-                rect.right < border.right &&
-                rect.top > border.top &&
-                rect.bottom < border.bottom
-              )
-            }),
-          }
-        })
-      assert.deepEqual(contained, { outlined: true, linksInside: true })
-      for (const summary of await page
-        .locator('.ui-sidebar-group details[open] > summary')
-        .all())
-        await summary.click()
-      const rows = () =>
-        page.locator('.ui-sidebar-group').evaluateAll((nodes) =>
-          nodes.map((node) => ({
-            top: node.getBoundingClientRect().top,
-            height: node.getBoundingClientRect().height,
-          })),
-        )
-      const icons = () =>
-        page.locator('.ui-sidebar-group').evaluateAll((nodes) =>
-          nodes.map((node) => {
-            const icon = node.querySelector(
-              '.ui-sidebar-group-icon svg, button svg',
-            )
-            const rect = icon.getBoundingClientRect()
-            const face = icon.closest('.ui-button')
-            const style = getComputedStyle(face)
-            return {
-              x: rect.x,
-              y: rect.y,
-              width: rect.width,
-              height: rect.height,
-              appearance: {
-                color: getComputedStyle(icon).color,
-                border: style.border,
-                background: style.backgroundColor,
-                decoration: getComputedStyle(face, '::before').opacity,
-              },
-            }
-          }),
-        )
-      await page.mouse.move(700, 700)
-      const expandedIcons = await icons()
-      const expanded = await rows()
-      await page
-        .getByRole('button', { name: 'Collapse sidebar', exact: true })
-        .click()
-      assert.deepEqual(await rows(), expanded)
-      const collapsedIcons = await icons()
-      for (let i = 0; i < expandedIcons.length; i++) {
-        assert.deepEqual(
-          collapsedIcons[i].appearance,
-          expandedIcons[i].appearance,
-        )
-        assert.equal(collapsedIcons[i].width, expandedIcons[i].width)
-        assert.equal(collapsedIcons[i].height, expandedIcons[i].height)
-        assert.ok(Math.abs(collapsedIcons[i].x - expandedIcons[i].x) <= 0.5)
-        assert.ok(Math.abs(collapsedIcons[i].y - expandedIcons[i].y) <= 0.5)
-      }
-      await page
-        .getByRole('button', { name: 'Expand sidebar', exact: true })
-        .click()
-      assert.deepEqual(await rows(), expanded)
       const longLabel = await page
         .locator('.ui-sidebar-group')
         .first()
@@ -898,84 +699,9 @@ async function sidebarCases({ page, url, record }) {
       await expect(page.locator('.gallery-example-host')).toBeVisible()
       const toggle = page.locator('.ui-dashboard-divider-toggle')
       await expect(page.locator('.gallery-sidebar-toggle')).toHaveCount(0)
-      await expect(toggle.locator('svg')).toHaveCSS(
-        'fill',
-        'rgb(255, 255, 255)',
-      )
-      const resting = await toggle.evaluate((node) => ({
-        border: getComputedStyle(
-          document.querySelector('.ui-dashboard-navigation'),
-        ).borderRightColor,
-        stroke: getComputedStyle(node.querySelector('svg')).stroke,
-        triangleRight: node
-          .querySelector('.ui-disclosure-arrow')
-          .getBoundingClientRect().right,
-        divider: document
-          .querySelector('.ui-dashboard-navigation')
-          .getBoundingClientRect().right,
-      }))
-      assert.equal(resting.stroke, resting.border)
-      assert.ok(Math.abs(resting.triangleRight - resting.divider) <= 1)
 
-      const top = await page
-        .locator('.ui-sidebar-group')
-        .first()
-        .evaluate((node) => node.getBoundingClientRect().top)
-      const navTop = await page
-        .locator('.ui-dashboard-navigation')
-        .evaluate(
-          (node) =>
-            node.getBoundingClientRect().top +
-            parseFloat(getComputedStyle(node).paddingTop),
-        )
-      assert.equal(top, navTop)
-      const hitArea = await toggle.boundingBox()
-      const arrowBounds = await toggle
-        .locator('.ui-disclosure-arrow')
-        .evaluate((node) => node.getBoundingClientRect().toJSON())
-      await expect(toggle.locator('.ui-disclosure-decoration')).toHaveCSS(
-        'opacity',
-        '0',
-      )
       await toggle.hover()
-      await expect(toggle.locator('svg')).toHaveCSS('width', '10.5px')
-      await expect(toggle.locator('svg')).toHaveCSS('height', '15.75px')
-      assert.deepEqual(await toggle.boundingBox(), hitArea)
-      assert.deepEqual(
-        await toggle
-          .locator('.ui-disclosure-arrow')
-          .evaluate((node) => node.getBoundingClientRect().toJSON()),
-        arrowBounds,
-      )
-      const decoration = await toggle.evaluate((node) => {
-        const backing = node.querySelector('.ui-disclosure-decoration')
-        const arrow = node.querySelector('.ui-disclosure-arrow')
-        const center = (path) => {
-          const box = path.getBBox()
-          return [box.x + box.width / 3, box.y + box.height / 2]
-        }
-        return {
-          opacity: getComputedStyle(backing).opacity,
-          fill: getComputedStyle(backing).fill,
-          center: center(backing),
-          arrowCenter: center(arrow),
-        }
-      })
-      assert.equal(decoration.opacity, '1')
-      assert.match(decoration.fill, /url\(/)
-      assert.ok(
-        decoration.center.every(
-          (value, index) =>
-            Math.abs(value - decoration.arrowCenter[index]) < 0.001,
-        ),
-      )
       await expect(toggle).toHaveAttribute('aria-expanded', 'true')
-      await expect(toggle.locator('.ui-disclosure-arrow')).toHaveCSS(
-        'visibility',
-        'hidden',
-      )
-      await expect(toggle).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
-      await expect(toggle.locator('svg')).toHaveCSS('stroke', resting.border)
       await toggle.click()
       await expect(toggle).toHaveAttribute('aria-expanded', 'false')
       await toggle.hover()

@@ -18,18 +18,11 @@ export async function galleryLoadingCases({ page, url, record }) {
           .getByRole('link', { name: 'Select and combobox', exact: true })
           .click()
         await expect(
-          page.getByRole('combobox', { name: 'Find category' }),
+          page.getByRole('combobox', { name: 'Contains', exact: true }),
         ).toBeVisible()
         await expect(page.locator('iframe')).toHaveCount(0)
         assert.equal(page.frames().length, 1)
-        assert.equal(
-          await page
-            .locator('.gallery-preview')
-            .evaluate((node) => getComputedStyle(node).backgroundColor),
-          await page
-            .locator('.gallery-stage')
-            .evaluate((node) => getComputedStyle(node).backgroundColor),
-        )
+
         await page.goBack()
         await expect(
           page

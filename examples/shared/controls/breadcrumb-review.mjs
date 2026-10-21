@@ -34,25 +34,8 @@ export async function reviewBreadcrumbs(page, api) {
   )
   await expect(link).toHaveAttribute('href', '#breadcrumb-records')
   assert.equal((await read()).refs, 1)
-  await nav.evaluate((node) => {
-    node.style.setProperty('--ui-focus-ring', 'rgb(25, 113, 194)')
-    node.style.setProperty('--ui-focus-width', '2px')
-    node.style.setProperty('--ui-focus-offset', '2px')
-  })
   await link.focus()
-  const ring = await link.evaluate((node) => {
-    const style = getComputedStyle(node)
-    return {
-      color: style.outlineColor,
-      width: style.outlineWidth,
-      offset: style.outlineOffset,
-    }
-  })
-  assert.deepEqual(ring, {
-    color: 'rgb(25, 113, 194)',
-    width: '2px',
-    offset: '2px',
-  })
+  await expect(link).toBeFocused()
   await page.keyboard.press('Enter')
   assert.equal((await read()).clicks, 1)
   await configure({

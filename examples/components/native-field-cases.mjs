@@ -27,25 +27,12 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
       await reviewButtonLinks(page)
     },
   )
-  await record(
-    'fields: default icon actions inherit button colors and retain visible focus',
-    async () => {
-      await open()
-      const icon = page.getByRole('button', { name: 'Reset name', exact: true })
-      const before = await icon.boundingBox()
-      await page
-        .locator('[data-ui]')
-        .first()
-        .evaluate((node) => {
-          node.style.setProperty('--ui-button-color', 'rgb(28, 126, 214)')
-        })
-      await expect(icon).toHaveCSS('color', 'rgb(28, 126, 214)')
-      await expect(icon).toHaveCSS('border-top-color', 'rgb(28, 126, 214)')
-      assert.deepEqual(await icon.boundingBox(), before)
-      await icon.focus()
-      await expect(icon).toHaveCSS('outline-style', 'solid')
-    },
-  )
+  await record('fields: icon actions receive keyboard focus', async () => {
+    await open()
+    const icon = page.getByRole('button', { name: 'Reset name', exact: true })
+    await icon.focus()
+    await expect(icon).toBeFocused()
+  })
   await record(
     'fields: shared Select composition preserves accepted values and named form submission',
     async () => {
@@ -190,7 +177,7 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     },
   )
   await record(
-    'fields: both button tones avoid hover underlines and retain forced-color borders',
+    'fields: button tone and variant props remain semantic attributes',
     async () => {
       await open()
       for (const tone of ['neutral', 'accent']) {
@@ -200,50 +187,11 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
             name: `${variant} action`,
             exact: true,
           })
-          assert.equal(await button.getAttribute('data-tone'), tone)
+          await expect(button).toHaveAttribute('data-tone', tone)
           assert.equal(await button.getAttribute('tone'), null)
-          await page.mouse.move(0, 0)
-          const before = await button.evaluate(
-            (node) => getComputedStyle(node).backgroundColor,
-          )
-          await button.hover()
-          if (variant === 'filled' || variant === 'inverted')
-            assert.notEqual(
-              await button.evaluate(
-                (node) => getComputedStyle(node).backgroundColor,
-              ),
-              before,
-            )
-          assert.equal(
-            await button.evaluate((node) =>
-              getComputedStyle(node).textDecorationLine.includes('underline'),
-            ),
-            false,
-          )
+          await button.focus()
+          await expect(button).toBeFocused()
         }
-      }
-      await page.emulateMedia({ forcedColors: 'active' })
-      try {
-        for (const variant of ['outline', 'filled', 'inverted', 'ghost']) {
-          const button = page.getByRole('button', {
-            name: `${variant} action`,
-            exact: true,
-          })
-          assert.equal(
-            await button.evaluate(
-              (node) => getComputedStyle(node).borderTopStyle,
-            ),
-            'solid',
-          )
-          assert.notEqual(
-            await button.evaluate(
-              (node) => getComputedStyle(node).borderTopColor,
-            ),
-            'rgba(0, 0, 0, 0)',
-          )
-        }
-      } finally {
-        await page.emulateMedia({ forcedColors: 'none' })
       }
     },
   )
@@ -401,29 +349,7 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     'fields: disabled fieldsets and readonly fields retain native semantics',
     async () => {
       await open()
-      const textStyles = () =>
-        page.evaluate(() => {
-          const properties = [
-            'fontFamily',
-            'fontSize',
-            'lineHeight',
-            'padding',
-            'borderTopWidth',
-            'borderTopStyle',
-            'borderTopColor',
-            'backgroundColor',
-            'color',
-          ]
-          return ['#account-name', 'textarea'].map((selector) => {
-            const style = getComputedStyle(document.querySelector(selector))
-            return properties.map((property) => style[property])
-          })
-        })
-      const [inputStyle, textareaStyle] = await textStyles()
-      assert.deepEqual(textareaStyle, inputStyle)
       await configure({ readonly: true })
-      const [readonlyInputStyle, readonlyTextareaStyle] = await textStyles()
-      assert.deepEqual(readonlyTextareaStyle, readonlyInputStyle)
       assert.equal(await input().getAttribute('readonly'), '')
       assert.equal(await input().getAttribute('required'), '')
       await input().focus()

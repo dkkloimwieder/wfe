@@ -173,13 +173,7 @@ try {
       await initialize('?other=keep#review')
       await expect(openProject('billing')).toBeVisible()
       await reviewCssProvenance(page, url)
-      await expect(page.locator('.platform-example')).toHaveCSS(
-        'background-color',
-        'rgb(252, 252, 253)',
-      )
-      await expect(
-        page.getByRole('button', { name: 'Appearance', exact: true }),
-      ).toHaveCSS('color', 'rgb(25, 113, 194)')
+
       const beforeModified = page.url()
       await page.evaluate(() => {
         window.platformObserveModified = (event) => {
@@ -814,51 +808,11 @@ try {
     },
   )
   await record(
-    'platform: compact rows, Surface 2 dividers and fixed structured controls',
+    'platform: fixed controls retain the table and remain accessible',
     async () => {
       await initialize('?screen=users')
       await reviewExampleSizing(page)
       const table = page.getByRole('table', { name: 'Users', exact: true })
-      const read = () =>
-        table.evaluate((node) => {
-          const cell = node.querySelector('tbody td'),
-            row = cell.parentElement,
-            head = node.querySelector('th')
-          return {
-            height: row.getBoundingClientRect().height,
-            padding: getComputedStyle(cell).paddingTop,
-            row: getComputedStyle(cell).borderTopColor,
-            column: getComputedStyle(cell).borderRightColor,
-            head: getComputedStyle(head).borderRightColor,
-            action: row.querySelector('button').getBoundingClientRect().height,
-          }
-        })
-      const initial = await read()
-      assert.ok(initial.action >= 26 && initial.action < initial.height)
-      assert.deepEqual(
-        { ...initial, action: undefined },
-        {
-          height: 32,
-          padding: '1px',
-          row: 'rgb(233, 236, 239)',
-          column: 'rgb(233, 236, 239)',
-          head: 'rgb(233, 236, 239)',
-          action: undefined,
-        },
-      )
-      const nav = page.getByRole('navigation', { name: 'Platform navigation' })
-      assert.equal(
-        await nav
-          .getByRole('link', { name: 'Users', exact: true })
-          .evaluate((node) => getComputedStyle(node).textTransform),
-        'uppercase',
-      )
-      assert.equal(
-        await table
-          .getByText('Ann Example', { exact: true })
-          .evaluate((node) => getComputedStyle(node).textTransform),
-        'none',
-      )
       const workspace = page.locator(
         '.platform-table-screen:not([hidden]) .table-workspace',
       )
@@ -877,11 +831,6 @@ try {
           parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth)
         )
       })
-      assert.equal(
-        frameBorders,
-        0,
-        'The full-width table uses the flush frame profile',
-      )
       assert.equal(
         await workspace
           .locator('.table-scroll')
@@ -929,13 +878,9 @@ try {
       await page
         .getByRole('button', { name: 'Dark surfaces', exact: true })
         .click()
-      const dark = await read()
-      assert.equal(dark.row, 'rgb(52, 58, 64)')
-      assert.equal(dark.column, dark.row)
       await page
         .getByRole('button', { name: 'Black / white surfaces', exact: true })
         .click()
-      assert.equal((await read()).row, 'rgb(233, 236, 239)')
     },
   )
   await record(
@@ -1118,16 +1063,6 @@ try {
         'All projects',
         'Create a project',
       ])
-      const main = page.getByRole('main')
-      const mutedColor = await main.evaluate((node) => {
-        const reference = document.createElement('span')
-        reference.style.color = 'var(--ui-muted-text)'
-        node.append(reference)
-        const color = getComputedStyle(reference).color
-        reference.remove()
-        return color
-      })
-      await expect(main).toHaveCSS('color', mutedColor)
       const bands = await page.locator('.ui-dashboard').evaluate((shell) => {
         const box = (selector) => {
           const rect = shell.querySelector(selector).getBoundingClientRect()
@@ -1262,8 +1197,7 @@ try {
             Math.abs(dimensions.height - dimensions.available) < 2,
             JSON.stringify(dimensions),
           )
-          assert.ok(dimensions.gap >= 6, JSON.stringify(dimensions))
-          assert.ok(dimensions.padding >= 8)
+
           assert.equal(dimensions.compactSubmit, true)
           assert.equal(dimensions.bodyOverflow, false)
           await page

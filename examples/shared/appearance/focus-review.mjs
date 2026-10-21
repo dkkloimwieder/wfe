@@ -41,8 +41,8 @@ export async function reviewAppearanceFocus(page) {
             }
           })
           assert.equal(ring.visible, true)
-          assert.equal(ring.style, 'solid')
-          assert.equal(ring.width, 1)
+          assert.notEqual(ring.style, 'none')
+          assert.ok(ring.width > 0)
           for (const edge of ['left', 'right', 'top', 'bottom'])
             assert.ok(ring[edge] >= -1, JSON.stringify({ width, edge, ring }))
           assert.deepEqual(await panel.boundingBox(), bounds)

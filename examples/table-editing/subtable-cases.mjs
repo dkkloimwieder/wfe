@@ -63,10 +63,14 @@ export async function subtableCases({
           ),
           true,
         )
-        const width = await child().evaluate(
-          (node) => node.getBoundingClientRect().width,
+        const containment = await child().evaluate((node) => ({
+          width: node.getBoundingClientRect().width,
+          available: node.parentElement.closest('.table-scroll').clientWidth,
+        }))
+        assert.ok(
+          containment.width <= containment.available,
+          JSON.stringify(containment),
         )
-        assert.ok(width <= 342)
         await choiceControl(child(), {
           name: 'Save mode',
           exact: true,

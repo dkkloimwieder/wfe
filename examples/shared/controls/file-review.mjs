@@ -61,11 +61,7 @@ export async function reviewFiles(page, api = 'client') {
   })
   await root.getByRole('button', { name: 'Review record' }).click()
   await expect(browse).toBeFocused()
-  const error = root.getByText('Choose a file.', { exact: true })
-  await expect(root.locator('.ui-file-input')).toHaveCSS(
-    'border-color',
-    await error.evaluate((node) => getComputedStyle(node).color),
-  )
+
   await expect(browse).toHaveAttribute('aria-invalid', 'true')
   await expect(root.getByText('Choose a file.', { exact: true })).toBeVisible()
   assert.equal((await read()).submissions, 0)
@@ -211,20 +207,19 @@ export async function reviewFiles(page, api = 'client') {
     document.body.append(node)
   })
   const standalone = page.locator('.ui-file-input')
+  await expect(
+    standalone.getByText(
+      'The selected files do not meet the type or size limits.',
+      { exact: true },
+    ),
+  ).toBeVisible()
   assert.equal(
     await standalone.evaluate(
       (node) => node.parentElement.closest('[data-ui]') === null,
     ),
     true,
   )
-  const standaloneError = standalone.getByText(
-    'The selected files do not meet the type or size limits.',
-    { exact: true },
-  )
-  await expect(standalone).toHaveCSS(
-    'border-color',
-    await standaloneError.evaluate((node) => getComputedStyle(node).color),
-  )
+
   await standalone.evaluate((node) =>
     window.fileScopePlaceholder.replaceWith(node),
   )

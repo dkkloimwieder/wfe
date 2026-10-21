@@ -12,6 +12,9 @@ Use Node 22.12 or newer and pnpm 12.4.1.
 From the repository root, install with `pnpm install --frozen-lockfile`.
 Run `pnpm check` before committing a change.
 Run relevant unit and browser suites once those sources move into this repository.
+Test behavior, accessibility, focus, retained state, and cleanup.
+Do not assert exact colors, fonts, shadows, decoration, or cosmetic sizes in automated tests.
+Review appearance in the browser. Keep containment and hit tests that protect interaction on different screen sizes.
 Run source and built-package cases when exports or runtime behavior change.
 Include rendering, hydration, accessibility, and cleanup checks when the change affects those contracts.
 Run heavy checks serially and keep first-failure reports.

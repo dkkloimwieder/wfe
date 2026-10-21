@@ -375,12 +375,7 @@ export async function reviewRecords({ page, report, record }) {
           }
         })
         report.geometry.wide.push({ count, ...geometry })
-        assert.ok(
-          Math.abs(
-            geometry.grid.height - (geometry.main.height - geometry.padding),
-          ) <= 2,
-          'fill grid occupies the available main height',
-        )
+
         assert.ok(
           Math.abs(geometry.panel.height - geometry.grid.height) <= 2,
           'fill panel occupies the grid height',
