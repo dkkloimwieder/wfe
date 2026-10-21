@@ -8,7 +8,10 @@
 
 :where([data-ui]) .ui-direction-triangle {
   fill: var(--ui-pane-surface, var(--ui-surface, white));
-  stroke: var(--ui-border, #bbb);
+  stroke: var(
+    --ui-triangle-color,
+    color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+  );
   stroke-width: 1px;
 }
 @media (forced-colors: active) {
@@ -54,18 +57,40 @@
     linear-gradient(
       54.462322deg,
       transparent calc(50% - 0.5px),
-      var(--ui-border, #bbb) calc(50% - 0.5px),
-      var(--ui-border, #bbb) calc(50% + 0.5px),
+      var(
+          --ui-triangle-color,
+          color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+        )
+        calc(50% - 0.5px),
+      var(
+          --ui-triangle-color,
+          color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+        )
+        calc(50% + 0.5px),
       transparent calc(50% + 0.5px)
     ),
     linear-gradient(
       125.537678deg,
       transparent calc(50% - 0.5px),
-      var(--ui-border, #bbb) calc(50% - 0.5px),
-      var(--ui-border, #bbb) calc(50% + 0.5px),
+      var(
+          --ui-triangle-color,
+          color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+        )
+        calc(50% - 0.5px),
+      var(
+          --ui-triangle-color,
+          color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+        )
+        calc(50% + 0.5px),
       transparent calc(50% + 0.5px)
     ),
-    linear-gradient(var(--ui-border, #bbb) 0 0);
+    linear-gradient(
+      var(
+          --ui-triangle-color,
+          color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+        )
+        0 0
+    );
   background-repeat: no-repeat;
   background-size:
     3px 4.2px,

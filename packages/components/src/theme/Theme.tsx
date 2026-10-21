@@ -11,6 +11,7 @@ import {
   appearanceStyle,
   defaultDecorations,
   defaultDividers,
+  defaultLayers,
 } from './appearance'
 import type {
   Depth,
@@ -89,10 +90,7 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
       scheme,
       accent,
       options.depth ?? 0,
-      withDefaults<SurfaceLayers>(
-        { canvas: 1, pane: 0, content: 0 },
-        options.layers,
-      ),
+      withDefaults<SurfaceLayers>(defaultLayers, options.layers),
       withDefaults(defaultDividers, options.dividers),
       {
         ...withDefaults(defaultDecorations, options.decorations),

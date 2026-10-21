@@ -280,6 +280,8 @@ export type TableViewBindings<
     | 'groupable'
     | 'columnAlignment'
     | 'onColumnAlignmentChange'
+    | 'headerEnabled'
+    | 'footerEnabled'
     | 'controlsEnabled'
     | 'refreshEnabled'
     | 'controlsResizable'

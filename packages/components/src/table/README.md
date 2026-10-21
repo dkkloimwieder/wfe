@@ -97,6 +97,24 @@ Set `controlsResizable={true}` only for custom controls that need adjustable spa
 Table cell padding fits the configured row and control heights.
 Use `--ui-table-cell-padding-y` to override vertical table padding.
 
+## Optional framing
+
+`ReadOnlyTable` accepts `headerEnabled`, `footerEnabled`, `controlsEnabled`, and `refreshEnabled`.
+Top-level tables enable all four by default.
+The header is the title and action bar, separate from column headings.
+Set `headerEnabled={false}` to omit that bar and the configuration pane.
+Set `footerEnabled={false}` to omit the summary and pagination controls.
+Disabled regions do not construct their content.
+The result rows remain mounted when these properties change.
+
+Inside row details, child tables retain their header and column headings by default.
+Their configuration pane, refresh button, and footer default to disabled.
+Set each property to `true` to enable it explicitly.
+The application owns requests and can load child records through the parent expansion callback.
+An enabled child refresh button uses the normal refresh callback.
+`TableView` forwards these properties through its bindings.
+`TableWorkspace` also accepts `headerEnabled` and `footerEnabled` for custom compositions.
+
 ## Controlled pagination
 
 `ReadOnlyTable.pagination` accepts `TablePaginationProps` from `@wfe/components/table`.

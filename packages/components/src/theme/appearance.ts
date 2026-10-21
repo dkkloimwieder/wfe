@@ -4,7 +4,7 @@
 // Source SHA-256: 9197aaccf67264fa1f4acc6c19504f3b79fa7c4c1d684af7e29368dcca4cf39f
 // Accent and table-divider samples retain the Open Props provenance above.
 // Local adaptation: neutral roles match the measured reference presentation.
-// Surface 1 is the section; Surface 2 provides slight canvas contrast.
+// Defaults use Surface 1 for the canvas, Surface 3 for panes, and Surface 2 for content.
 import type { JSX } from '@solidjs/web'
 
 export type SurfaceScheme = {
@@ -23,7 +23,7 @@ export type SurfaceLayers = {
   pane: SurfaceLevel
   content: SurfaceLevel
 }
-export const defaultLayers: SurfaceLayers = { canvas: 0, pane: 0, content: 0 }
+export const defaultLayers: SurfaceLayers = { canvas: 0, pane: 2, content: 1 }
 export const decorationColors = ['neutral', 'primary', 'secondary'] as const
 export type DecorationColor = (typeof decorationColors)[number]
 export type Decorations = {

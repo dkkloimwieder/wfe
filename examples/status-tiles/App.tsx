@@ -5,6 +5,7 @@ import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import {
   accents,
   appearanceStyle,
+  defaultLayers,
   schemes,
 } from '../shared/appearance/appearance'
 import './style.css'
@@ -57,7 +58,7 @@ export function App(props: { ready?: (api: TileFixture) => void }) {
               schemes.find((entry) => entry.mode === 'dark')!,
               accents[1]!,
               2,
-              { canvas: 1, pane: 0, content: 0 },
+              defaultLayers,
             )
           : undefined
       }

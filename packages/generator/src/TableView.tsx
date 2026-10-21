@@ -171,6 +171,8 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
         controlsResizable={props.bindings.controlsResizable}
         controlsSize={props.bindings.controlsSize}
         onControlsSizeChange={props.bindings.onControlsSizeChange}
+        headerEnabled={props.bindings.headerEnabled}
+        footerEnabled={props.bindings.footerEnabled}
         controlsEnabled={props.bindings.controlsEnabled}
         refreshEnabled={props.bindings.refreshEnabled}
         controlsCollapsed={props.bindings.controlsCollapsed}

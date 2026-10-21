@@ -39,17 +39,19 @@ export function DisclosureIndicator(props: { class?: ClassValue }) {
       </defs>
       <path
         class="ui-disclosure-decoration"
-        d="M-1.18375 -2.64375 15.1175 9 -1.18375 20.64375Z"
+        d="M-2.150625 -2.64375 14.150625 9 -2.150625 20.64375Z"
         fill={`url(#${decorationPattern})`}
         stroke="var(--ui-sidebar-accent, var(--ui-accent))"
         stroke-opacity="var(--ui-decoration-border-opacity, 100%)"
         vector-effect="non-scaling-stroke"
       />
-      <path
-        class="ui-disclosure-arrow"
-        d={trianglePath}
-        vector-effect="non-scaling-stroke"
-      />
+      <g transform="translate(0.4375 0)">
+        <path
+          class="ui-disclosure-arrow"
+          d={trianglePath}
+          vector-effect="non-scaling-stroke"
+        />
+      </g>
     </svg>
   )
 }

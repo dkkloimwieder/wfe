@@ -41,6 +41,7 @@ import {
   accents,
   schemes,
   appearanceStyle,
+  defaultLayers,
 } from '../shared/appearance/appearance'
 import type { SurfaceLayers, Depth } from '../shared/appearance/appearance'
 import { createPlatformApplication } from './application'
@@ -88,9 +89,7 @@ export function PlatformApp(props: {
   const [accent, setAccent] = createSignal(accents[1]!)
   const [depth, setDepth] = createSignal<Depth>(2)
   const [layers, setLayers] = createSignal<SurfaceLayers>({
-    canvas: 1,
-    pane: 0,
-    content: 0,
+    ...defaultLayers,
   })
   let root: HTMLDivElement | undefined,
     alive = true,

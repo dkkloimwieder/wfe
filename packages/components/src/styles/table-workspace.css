@@ -118,18 +118,23 @@
   overscroll-behavior: contain;
   padding: 0;
 }
-:where([data-ui]) .table-workspace-results {
+:where([data-ui]) .table-workspace-results,
+:where([data-ui]) .table-workspace-content {
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  overflow: visible;
+}
+:where([data-ui]) .table-workspace-content {
+  flex: 1;
   overflow: hidden;
 }
-:where([data-ui]) .table-workspace-results > [role='status'] {
+:where([data-ui]) .table-workspace-content > [role='status'] {
   flex: none;
   margin: 0;
 }
-:where([data-ui]) .table-workspace-results > .table-scroll {
+:where([data-ui]) .table-workspace-content > .table-scroll {
   flex: 1;
   min-height: 0;
   margin: 0;
@@ -509,6 +514,6 @@
 :where([data-ui]) .table-page-previous {
   transform: rotate(180deg);
 }
-:where([data-ui]) .table-page-action .ui-disclosure-indicator {
-  stroke: currentColor;
+:where([data-ui]) .table-page-action {
+  --ui-triangle-color: color-mix(in srgb, currentColor 85%, black);
 }

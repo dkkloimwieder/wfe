@@ -178,30 +178,71 @@ test.each(['disabled', 'hidden', 'css-hidden', 'outside', 'disposed'] as const)(
   },
 )
 
-test('nested tables omit refresh but allow pending filters to be applied', async () => {
-  let child!: ReturnType<typeof model>
-  const view = render(() => {
-    const parent = model()
-    child = model()
-    return (
-      <ReadOnlyTable
-        table={parent}
-        rowDetails={{
-          expanded: (id) => id !== 'empty',
-          onExpandedChange: () => {},
-          render: () => <ReadOnlyTable table={child} />,
-        }}
-      />
-    )
-  })
-  expect(view.getAllByRole('button', { name: 'Refresh results' })).toHaveLength(
-    1,
+test('nested tables retain their title and columns without controls, refresh or footer', () => {
+  const load = vi.fn()
+  const [expanded, setExpanded] = createSignal(false)
+  const view = render(() => (
+    <ReadOnlyTable
+      table={model()}
+      rowDetails={{
+        expanded: (id) => id !== 'empty' && expanded(),
+        onExpandedChange: (_, next) => {
+          load(next)
+          setExpanded(next)
+        },
+        canExpand: (id) => id !== 'empty',
+        render: () => <ReadOnlyTable table={model()} title="Child records" />,
+      }}
+    />
+  ))
+  expect(load).not.toHaveBeenCalled()
+  fireEvent.click(
+    view.getByRole('button', { name: 'Expand details for row a"/b' }),
   )
-  const nested = within(
-    view.container.querySelector('.sub-table-row') as HTMLElement,
-  )
+  flush()
+  expect(load).toHaveBeenCalledExactlyOnceWith(true)
+  const child = view.container.querySelector('.sub-table-row') as HTMLElement
+  const nested = within(child)
+  expect(nested.getByText('Child records')).toBeTruthy()
+  expect(nested.getByRole('columnheader', { name: /Name/ })).toBeTruthy()
+  expect(nested.queryByRole('button', { name: 'Table controls' })).toBeNull()
   expect(nested.queryByRole('button', { name: 'Refresh results' })).toBeNull()
   expect(nested.queryByRole('button', { name: 'Apply filters' })).toBeNull()
+  expect(child.querySelector('.table-workspace-controls')).toBeNull()
+  expect(child.querySelector('.table-workspace-summary')).toBeNull()
+  expect(nested.getAllByRole('row').length).toBeGreaterThan(1)
+  expect(load).toHaveBeenCalledTimes(1)
+})
+
+test('nested tables can opt into controls, footer and application-owned refresh', () => {
+  const refresh = vi.fn()
+  const view = render(() => (
+    <ReadOnlyTable
+      table={model()}
+      rowDetails={{
+        expanded: (id) => id !== 'empty',
+        onExpandedChange: () => {},
+        render: () => (
+          <ReadOnlyTable
+            table={model()}
+            controlsEnabled
+            refreshEnabled
+            footerEnabled
+            onApplyFilters={refresh}
+          />
+        ),
+      }}
+    />
+  ))
+  const child = view.container.querySelector('.sub-table-row') as HTMLElement
+  const nested = within(child)
+  expect(nested.getByRole('button', { name: 'Table controls' })).toBeTruthy()
+  expect(child.querySelector('.table-workspace-summary')).not.toBeNull()
+  expect(refresh).not.toHaveBeenCalled()
+  const button = nested.getByRole('button', { name: 'Refresh results' })
+  fireEvent.click(button)
+  flush()
+  expect(refresh).toHaveBeenCalledTimes(1)
   fireEvent.input(
     nested.getByRole('searchbox', { name: 'Search all columns' }),
     {
@@ -209,12 +250,10 @@ test('nested tables omit refresh but allow pending filters to be applied', async
     },
   )
   flush()
-  const apply = nested.getByRole('button', { name: 'Apply filters' })
-  apply.focus()
-  fireEvent.click(apply)
+  expect(refresh).toHaveBeenCalledTimes(1)
+  fireEvent.click(button)
   flush()
-  await new Promise<void>((resolve) => queueMicrotask(resolve))
-  expect(document.activeElement).toBe(nested.getByRole('table'))
-  expect(child.state.globalFilter).toBe('First')
+  expect(refresh).toHaveBeenCalledTimes(2)
+  expect(refresh.mock.calls[1]?.[0].globalFilter).toBe('First')
   expect(nested.queryByRole('button', { name: 'Apply filters' })).toBeNull()
 })

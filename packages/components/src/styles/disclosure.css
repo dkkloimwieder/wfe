@@ -3,7 +3,10 @@
   vertical-align: middle;
   flex: none;
   fill: var(--ui-pane-surface, var(--ui-surface, white));
-  stroke: var(--ui-border, #bbb);
+  stroke: var(
+    --ui-triangle-color,
+    color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+  );
   stroke-width: 1px;
   pointer-events: none;
 }

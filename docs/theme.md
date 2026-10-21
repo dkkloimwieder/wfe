@@ -23,7 +23,7 @@ export function App() {
 
 The Default theme uses light mode, a blue accent, outline buttons, and flat surfaces without shadows.
 Default outline buttons use shared border colors and text in the accent color.
-Content uses surface 1. The main canvas uses surface 2 with subtle dots.
+The base canvas uses surface 1 with subtle dots. Panes use surface 3, and content uses surface 2.
 Controls use Fira Code at 12px, with a 32px height.
 Forms use a 30rem field limit. Table controls retain compact sizing.
 Content panels, cards, dialogs, popovers, and tab content share `--ui-layout-inset` (16px in Default).
@@ -46,6 +46,7 @@ Button and sidebar-link faces are opaque by default, including during hover and 
 The dotted decoration remains visible outside their borders.
 Set `decorations={{ inside: 100 }}` to show all decoration dots through the faces.
 Layer numbers are zero-based: `0` selects surface 1.
+The default layers are `{ canvas: 0, pane: 2, content: 1 }`.
 The `style` prop overrides individual CSS variables last.
 Import the public types and `themeStyle` from `@wfe/components/theme`.
 `themeStyle` returns CSS variables only. Use `Theme` to include decoration behavior and popup ownership.

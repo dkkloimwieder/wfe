@@ -82,9 +82,12 @@ The renderer passes the same table to `ReadOnlyTable` and uses its existing slot
 The optional `toolbarActions` binding is a stable application component for persistent header actions.
 The application supplies each action and its icon. Actions follow the built-in controls and refresh buttons.
 Set `controlsEnabled: false` to omit the configuration button and panel from mounting.
-Set `refreshEnabled: false` to omit the refresh or apply button. These bindings are independent and default to enabled.
+Set `refreshEnabled: false` to omit the refresh button.
+Set `headerEnabled: false` to omit the title, actions, and configuration pane. Column headings remain mounted.
+Set `footerEnabled: false` to omit the summary and pagination controls.
+These bindings default to enabled for top-level tables.
 The same properties are available on `ReadOnlyTable`.
-The renderer constructs it once and disposes it with the table view.
+The renderer constructs the action component when the header mounts and disposes it when the header unmounts.
 Keep reactive labels, availability, and callbacks inside that component.
 Remount the view to replace or add the component binding.
 Existing described actions remain in the controls pane.
@@ -362,8 +365,11 @@ Keep state outside the renderer when it must survive collapse.
 Applications own child records, requests, loading states, errors, caching, and permissions.
 
 The renderer can return another `TableView`, a form, or other content.
-Nested tables have a left inset and no refresh control. Applications can load child records through the expansion callback.
-Pending filter changes expose an Apply control without a separate reload action.
+Nested tables have a left inset and retain their title header by default.
+Their configuration pane, refresh button, and footer do not mount by default.
+Set `controlsEnabled`, `refreshEnabled`, or `footerEnabled` to `true` to enable each feature independently.
+Applications can load child records through the expansion callback.
+An enabled refresh button calls the same application callback as a top-level table.
 Nested tables keep separate columns, sorting, filters, and selection.
 This contract does not flatten child records into a single tree of rows.
 `TableDetailToggle` and `TableDetailRow` expose the same presentation for custom row adapters.

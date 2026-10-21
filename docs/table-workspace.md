@@ -77,6 +77,11 @@ These slots do not add backend rules or persistence.
 Use them to compose custom controls beside the shared `Table` renderer or virtual rows.
 Give the result scroller the shared `table-scroll` class.
 Pass `footer` content to `TableWorkspace` for application summaries below that scroller.
+Set `headerEnabled={false}` to omit the title, actions, and configuration pane.
+Set `footerEnabled={false}` to omit the summary and footer actions.
+Both properties default to `true` and prevent their slots from mounting when disabled.
+These properties retain the result content, including column headings.
+When a removed region owns focus, the workspace receives focus. Focus outside that region stays in place.
 Set `--ui-table-controls-width` on an owning scope to change the panel width.
 Set `--ui-table-controls-height` to limit the top pane height.
 The top pane uses at most 40% of the workspace height.

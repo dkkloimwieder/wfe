@@ -55,7 +55,11 @@ export function ReadOnlyTable<T, M>(
       id: string,
       alignment: TableColumnAlignment,
     ) => void
-    /** Omit the configuration button and panel when false. */
+    /** Omit the title/actions bar and configuration pane, retaining column headings. */
+    headerEnabled?: boolean
+    /** Omit the summary and pagination. Defaults to false inside child tables. */
+    footerEnabled?: boolean
+    /** Omit the configuration button and panel. Defaults to false inside child tables. */
     controlsEnabled?: boolean
     /** Omit the refresh/apply button when false. */
     refreshEnabled?: boolean
@@ -200,38 +204,20 @@ export function ReadOnlyTable<T, M>(
       .map((column) => column.id),
   )
   function FilterApplyControl() {
-    let button: HTMLButtonElement | undefined
-    onCleanup(() => {
-      const document = button?.ownerDocument
-      if (!isDetail || !document || document.activeElement !== button) return
-      const target = button
-        ?.closest('.table-workspace')
-        ?.querySelector<HTMLElement>('.table-scroll table')
-      queueMicrotask(() => {
-        if (target?.isConnected && document.activeElement === document.body)
-          target.focus({ preventScroll: true })
-      })
-    })
     return (
       <Button
-        ref={(node) => {
-          button = node
-        }}
-        aria-label={isDetail ? 'Apply filters' : 'Refresh results'}
-        title={isDetail ? 'Apply filters' : 'Apply filters and refresh results'}
+        aria-label="Refresh results"
+        title="Apply filters and refresh results"
         class="table-refresh"
         onClick={() => {
           const invalid = filterControls?.querySelector<HTMLElement>(
             '[aria-invalid="true"]:not(:disabled)',
           )
           if (invalid) workspaceControls?.focus(invalid)
-          else filters.apply({ refresh: !isDetail })
+          else filters.apply({ refresh: true })
         }}
       >
-        <Icon
-          class="table-controls-icon"
-          name={isDetail ? 'check' : 'refresh'}
-        />
+        <Icon class="table-controls-icon" name="refresh" />
       </Button>
     )
   }
@@ -241,7 +227,9 @@ export function ReadOnlyTable<T, M>(
       controlsRef={(handle) => {
         workspaceControls = handle
       }}
-      controlsEnabled={props.controlsEnabled}
+      headerEnabled={props.headerEnabled}
+      footerEnabled={props.footerEnabled ?? !isDetail}
+      controlsEnabled={props.controlsEnabled ?? !isDetail}
       controlsResizable={props.controlsResizable}
       controlsSize={props.controlsSize}
       defaultControlsSize={props.defaultControlsSize}
@@ -274,11 +262,7 @@ export function ReadOnlyTable<T, M>(
       controlsHeader={
         <>
           <div class="table-filter-actions">
-            <Show
-              when={
-                props.refreshEnabled !== false && (!isDetail || filters.changed)
-              }
-            >
+            <Show when={props.refreshEnabled ?? !isDetail}>
               <FilterApplyControl />
             </Show>
             <Show when={filters.changed}>

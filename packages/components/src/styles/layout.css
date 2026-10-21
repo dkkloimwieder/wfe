@@ -52,7 +52,8 @@
 }
 :where(.ui-dashboard[data-ui][data-scroll='content']) > .ui-dashboard-main {
   --ui-table-frame-width: 0px;
-  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: var(--ui-layout-inset, 8px);
   padding: 0;
 }
 :where([data-ui]) .ui-dashboard-panel {
@@ -373,7 +374,10 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--ui-border, #bbb);
+  color: var(
+    --ui-triangle-color,
+    color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+  );
   cursor: pointer;
   pointer-events: auto;
 }

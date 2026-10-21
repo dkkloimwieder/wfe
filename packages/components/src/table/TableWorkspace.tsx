@@ -23,6 +23,10 @@ export type TableControlsHandle = {
 }
 
 export type TableWorkspaceProps = {
+  /** Omit the title/actions bar and configuration pane, retaining column headings. */
+  headerEnabled?: boolean
+  /** Omit the summary and pagination without constructing their slots. */
+  footerEnabled?: boolean
   /** Fixed controls are the default. Enable resizing explicitly for custom content. */
   controlsEnabled?: boolean
   controlsResizable?: boolean
@@ -50,12 +54,18 @@ export type TableWorkspaceProps = {
 
 /** Independent controls and results. The application assigns the workspace height. */
 export function TableWorkspace(props: TableWorkspaceProps) {
-  const controlsEnabled = createMemo(() => props.controlsEnabled !== false)
+  const headerEnabled = createMemo(() => props.headerEnabled !== false)
+  const footerEnabled = createMemo(() => props.footerEnabled !== false)
+  const controlsEnabled = createMemo(
+    () => headerEnabled() && props.controlsEnabled !== false,
+  )
   const controls = createMemo(() =>
     controlsEnabled() ? props.controls : undefined,
   )
-  const footer = createMemo(() => props.footer)
-  const footerActions = createMemo(() => props.footerActions)
+  const footer = createMemo(() => (footerEnabled() ? props.footer : undefined))
+  const footerActions = createMemo(() =>
+    footerEnabled() ? props.footerActions : undefined,
+  )
   const [open, setOpen] = createSignal(false, { ownedWrite: true })
   const [localCollapsed, setLocalCollapsed] = createSignal(
     untrack(() => props.defaultControlsCollapsed ?? false),
@@ -66,7 +76,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     untrack(() => props.defaultControlsSize),
   )
   const [measuredSize, setMeasuredSize] = createSignal(30)
-  const [headerHeight, setHeaderHeight] = createSignal(0)
+  const [headerHeight, setHeaderHeight] = createSignal(0, { ownedWrite: true })
   const size = () => props.controlsSize ?? localSize()
   const controlledSize = untrack(() => props.controlsSize !== undefined)
   function validateSize(current: number | undefined) {
@@ -88,6 +98,9 @@ export function TableWorkspace(props: TableWorkspaceProps) {
   let workspace: HTMLElement | undefined
   let separator: HTMLDivElement | undefined
   let header: HTMLElement | undefined
+  let footerElement: HTMLElement | undefined
+  let headerFocused = false
+  let footerFocused = false
   function availableSize() {
     if (!panel || !results) return 0
     const first = panel.getBoundingClientRect()
@@ -131,6 +144,31 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     if (panel) panelObserver?.unobserve(panel)
     panel = undefined
     separator = undefined
+  })
+  createRenderEffect(headerEnabled, (enabled) => {
+    if (enabled || !workspace) return
+    const active = document.activeElement
+    if (
+      ownsFocus(header, active) ||
+      (headerFocused && active === document.body)
+    )
+      workspace.focus({ preventScroll: true })
+    if (header) panelObserver?.unobserve(header)
+    header = undefined
+    headerActions = undefined
+    headerFocused = false
+    setHeaderHeight(0)
+  })
+  createRenderEffect(footerEnabled, (enabled) => {
+    if (enabled || !workspace) return
+    const active = document.activeElement
+    if (
+      ownsFocus(footerElement, active) ||
+      (footerFocused && active === document.body)
+    )
+      workspace.focus({ preventScroll: true })
+    footerElement = undefined
+    footerFocused = false
   })
   function changeCollapsed(next: boolean) {
     if (!alive) return
@@ -180,6 +218,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
   }
   const events = nativeEvents<HTMLElement>({
     focusin: (event) => {
+      headerFocused = ownsFocus(header, event.target as Node)
+      footerFocused = ownsFocus(footerElement, event.target as Node)
       panelFocused = Boolean(
         panel?.contains(event.target as Node) ||
         separator?.contains(event.target as Node),
@@ -198,8 +238,13 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         event.relatedTarget instanceof Node &&
         !event.currentTarget.contains(event.relatedTarget) &&
         !controlsOwnFocus(event.relatedTarget)
-      )
+      ) {
         panelFocused = false
+        if (!ownsFocus(header, event.relatedTarget as Node))
+          headerFocused = false
+        if (!ownsFocus(footerElement, event.relatedTarget as Node))
+          footerFocused = false
+      }
     },
     keydown: (event) => {
       if (
@@ -323,6 +368,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     workspace = undefined
     separator = undefined
     header = undefined
+    footerElement = undefined
   })
   return (
     <section
@@ -356,64 +402,74 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         events,
       ]}
     >
-      <header
-        class="table-workspace-header"
-        ref={(node) => {
-          header = node
-        }}
-      >
-        <div class="table-workspace-title">
-          <Show when={props.resultsHeader} keyed>
-            {(title) => (
-              <div
-                class="table-workspace-title-face ui-button"
-                data-variant="outline"
-                data-tone="neutral"
-              >
-                <div class="table-workspace-title-text">{title}</div>
-              </div>
-            )}
-          </Show>
-        </div>
-        <div
-          class="table-workspace-header-actions"
-          ref={(node) => {
-            headerActions = node
-          }}
-        >
-          <Show when={controlsEnabled()} keyed>
-            {(_enabled) => (
-              <IconButton
-                class="table-controls-toggle"
-                ref={(node) => {
-                  toggle = node
-                }}
-                title={
-                  (narrow() ? open() : !collapsed())
-                    ? 'HIDE CONTROLS'
-                    : 'SHOW CONTROLS'
-                }
-                aria-controls={panelId}
-                aria-label={props.toggleLabel ?? 'Table controls'}
-                aria-expanded={
-                  (narrow() ? open() : !collapsed()) ? 'true' : 'false'
-                }
-                onClick={() => {
-                  if (narrow()) {
-                    if (open()) close()
-                    else setOpen(true)
-                  } else changeCollapsed(!collapsed())
-                }}
-              >
-                <Icon class="table-controls-icon" name="controls" />
-              </IconButton>
-            )}
-          </Show>
-          <Show when={props.controlsHeader} keyed>
-            {(actions) => actions}
-          </Show>
-        </div>
-      </header>
+      <Show when={headerEnabled()} keyed>
+        {(_enabled) => (
+          <header
+            class="table-workspace-header"
+            ref={(node) => {
+              header = node
+              panelObserver?.observe(node)
+              if (measurePanel)
+                queueMicrotask(() => {
+                  if (alive && header === node && node.isConnected)
+                    measurePanel?.()
+                })
+            }}
+          >
+            <div class="table-workspace-title">
+              <Show when={props.resultsHeader} keyed>
+                {(title) => (
+                  <div
+                    class="table-workspace-title-face ui-button"
+                    data-variant="outline"
+                    data-tone="neutral"
+                  >
+                    <div class="table-workspace-title-text">{title}</div>
+                  </div>
+                )}
+              </Show>
+            </div>
+            <div
+              class="table-workspace-header-actions"
+              ref={(node) => {
+                headerActions = node
+              }}
+            >
+              <Show when={controlsEnabled()} keyed>
+                {(_enabled) => (
+                  <IconButton
+                    class="table-controls-toggle"
+                    ref={(node) => {
+                      toggle = node
+                    }}
+                    title={
+                      (narrow() ? open() : !collapsed())
+                        ? 'HIDE CONTROLS'
+                        : 'SHOW CONTROLS'
+                    }
+                    aria-controls={panelId}
+                    aria-label={props.toggleLabel ?? 'Table controls'}
+                    aria-expanded={
+                      (narrow() ? open() : !collapsed()) ? 'true' : 'false'
+                    }
+                    onClick={() => {
+                      if (narrow()) {
+                        if (open()) close()
+                        else setOpen(true)
+                      } else changeCollapsed(!collapsed())
+                    }}
+                  >
+                    <Icon class="table-controls-icon" name="controls" />
+                  </IconButton>
+                )}
+              </Show>
+              <Show when={props.controlsHeader} keyed>
+                {(actions) => actions}
+              </Show>
+            </div>
+          </header>
+        )}
+      </Show>
       <Show when={controlsEnabled()} keyed>
         {(_enabled) => (
           <>
@@ -466,14 +522,19 @@ export function TableWorkspace(props: TableWorkspaceProps) {
           results = node
         }}
       >
-        {props.children}
+        <div class="table-workspace-content">{props.children}</div>
         <Show
           when={
             (footer() != null && footer() !== false) ||
             (footerActions() != null && footerActions() !== false)
           }
         >
-          <footer class="table-workspace-summary">
+          <footer
+            class="table-workspace-summary"
+            ref={(node) => {
+              footerElement = node
+            }}
+          >
             <div role="status">{footer()}</div>
             {footerActions()}
           </footer>

@@ -69,7 +69,9 @@ export async function subtableCases({ page, url, record }) {
         .getByRole('button', { name: 'Expand Collection B', exact: true })
         .click()
       const empty = page.locator('[data-generator-view="items-beta"]')
-      await expect(empty).toContainText('0/0 records')
+      await expect(empty.locator('.table-workspace-header')).toBeVisible()
+      await expect(empty.locator('.table-workspace-summary')).toHaveCount(0)
+      await expect(empty.locator('.table-workspace-controls')).toHaveCount(0)
       await expect(empty.locator('tbody > tr[data-row]')).toHaveCount(0)
       await page.setViewportSize({ width: 390, height: 844 })
       assert.equal(

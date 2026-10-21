@@ -58,6 +58,7 @@ export function TablePagination(props: TablePaginationProps) {
       <Show when={props.pageSize !== undefined}>
         <SelectField
           label="Page size"
+          class="ui-button table-page-size"
           choices={choices()}
           value={String(props.pageSize!.value)}
           disabled={props.pending}

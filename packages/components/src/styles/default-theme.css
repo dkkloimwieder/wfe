@@ -181,6 +181,7 @@
     .table-controls-toggle,
     .table-workspace-header-actions .ui-icon-button,
     .table-page-action,
+    .table-page-size,
     .table-refresh
   ) {
   --ui-decoration-border: color-mix(
@@ -353,7 +354,7 @@
 }
 .ui-theme .ui-disclosure-arrow {
   transform-box: fill-box;
-  transform-origin: 33.333333% 50%;
+  transform-origin: 50% 50%;
   scale: calc(4 / 7);
 }
 .ui-theme .ui-disclosure-decoration {
@@ -430,5 +431,5 @@
   min-height: var(--ui-table-control-height, 26px);
   padding: 0 var(--ui-cell-padding-x, 8px);
   border: 1px solid var(--ui-border);
-  background: var(--ui-pane-surface);
+  background: var(--ui-surface);
 }

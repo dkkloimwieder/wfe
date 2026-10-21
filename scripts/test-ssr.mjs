@@ -782,3 +782,28 @@ const omittedControls = await renderToString(() =>
 assert.ok(omittedControls.includes('Table results'))
 assert.ok(!omittedControls.includes('table-controls-toggle'))
 assert.ok(!omittedControls.includes('<aside'))
+
+const omittedFrames = await renderToString(() =>
+  createComponent(TableWorkspace, {
+    headerEnabled: false,
+    footerEnabled: false,
+    get controls() {
+      throw new Error('Headerless controls must not mount')
+    },
+    get resultsHeader() {
+      throw new Error('Disabled table title must not mount')
+    },
+    get controlsHeader() {
+      throw new Error('Disabled header actions must not mount')
+    },
+    get footer() {
+      throw new Error('Disabled table footer must not mount')
+    },
+    get footerActions() {
+      throw new Error('Disabled footer actions must not mount')
+    },
+    children: 'Table results without frames',
+  }),
+)
+assert.ok(omittedFrames.includes('Table results without frames'))
+assert.doesNotMatch(omittedFrames, /<header|<footer|<aside/)

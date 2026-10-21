@@ -1,5 +1,6 @@
 import {
   defaultDecorations,
+  defaultLayers,
   decorationColors,
   secondaryAccents,
 } from '../../shared/appearance/appearance'
@@ -116,7 +117,7 @@ export const defaults: GalleryConfig = {
   scheme: 1,
   accent: 1,
   depth: 2,
-  layers: { canvas: 1, pane: 0, content: 0 },
+  layers: { ...defaultLayers },
   state: 'normal',
 }
 export const entryFor = (id: string | null) =>
@@ -158,9 +159,9 @@ export function readRoute(url: URL): GalleryRoute {
     accent: number('accent', 1, 8),
     depth: number('depth', 2, 3) as GalleryConfig['depth'],
     layers: {
-      canvas: number('canvas', 1, 2) as 0 | 1 | 2,
-      pane: number('pane', 0, 2) as 0 | 1 | 2,
-      content: number('content', 0, 2) as 0 | 1 | 2,
+      canvas: number('canvas', defaultLayers.canvas, 2) as 0 | 1 | 2,
+      pane: number('pane', defaultLayers.pane, 2) as 0 | 1 | 2,
+      content: number('content', defaultLayers.content, 2) as 0 | 1 | 2,
     },
     state: (entryFor(id).states as readonly string[]).includes(state)
       ? state
