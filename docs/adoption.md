@@ -1,8 +1,19 @@
 # Adopt the components
 
+## v0.0.6
+
+Use Git tag `v0.0.6` for the current components and Default theme.
+This release adds `SidebarContextSwitcher` with searchable context choices, an optional parent action, and compact navigation.
+Applications supply the current context, available choices, parent, selection callback, and menu.
+Existing `SidebarGroup` controls provide expandable items below the switcher.
+See [Sidebar context switcher](sidebar-context-switcher.md) for the API and example.
+
+The theme and dependency pins remain the same as `v0.0.5`.
+The release also corrects the gallery history test and records browser and action-disposal investigation results.
+
 ## v0.0.5
 
-Use Git tag `v0.0.5` for the current components and Default theme.
+Git tag `v0.0.5` records the preceding components and Default theme.
 The base canvas uses surface 1, panes use surface 3, and content uses surface 2.
 The theme retains the blue accent, outline buttons, dotted decoration, and flat surfaces without shadows.
 
