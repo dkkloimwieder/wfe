@@ -287,3 +287,22 @@ declare global {
     }
   }
 }
+
+export function NativeCaretFixture() {
+  return (
+    <>
+      <NativeSelect aria-label="Native caret" data-native-caret>
+        <option>One</option>
+        <option>Two</option>
+      </NativeSelect>
+      <NativeSelect aria-label="Native multiple" multiple>
+        <option>One</option>
+        <option>Two</option>
+      </NativeSelect>
+      <NativeSelect aria-label="Native list" size={2}>
+        <option>One</option>
+        <option>Two</option>
+      </NativeSelect>
+    </>
+  )
+}

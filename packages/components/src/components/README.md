@@ -68,6 +68,6 @@ A shared text slot preserves the previous width and line height of navigation gl
 
 Ordinary selects retain one automatic CSS caret, shared with compatibility NativeSelect.
 An explicit `Select.Icon` slot replaces that caret and its reserved padding.
-Select, Combobox, and DropdownMenu icon slots use shared chevrons by default.
+Select, Combobox, and DropdownMenu icon slots use shared neutral triangles by default.
 Custom children take precedence, including an explicit empty string or `false`.
 Popup positioning arrows remain with their positioning primitive.

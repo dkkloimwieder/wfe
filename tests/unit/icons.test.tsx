@@ -149,3 +149,30 @@ for (const kind of ['select', 'combobox', 'menu'] as const) {
     },
   )
 }
+
+test('directional icons share a closed outline and update direction without replacing their SVG', () => {
+  const [name, setName] = createSignal<IconName>('chevron-right')
+  const mounted = render(() => <Icon name={name()} />)
+  const svg = mounted.container.querySelector('svg')!
+  const path = svg.querySelector('path')!
+  const outline = path.getAttribute('d')
+  expect(outline?.endsWith('Z')).toBe(true)
+  for (const [next, angle] of [
+    ['chevron-down', 90],
+    ['chevron-left', 180],
+    ['chevron-right', 0],
+  ] as const) {
+    setName(next)
+    flush()
+    expect(mounted.container.querySelector('svg')).toBe(svg)
+    expect(path.getAttribute('d')).toBe(outline)
+    expect(path.getAttribute('transform')).toContain(`rotate(${angle})`)
+    expect(path.classList.contains('ui-direction-triangle')).toBe(true)
+    expect(path.getAttribute('vector-effect')).toBe('non-scaling-stroke')
+  }
+  setName('check')
+  flush()
+  expect(path.classList.contains('ui-direction-triangle')).toBe(false)
+  expect(path.hasAttribute('transform')).toBe(false)
+  expect(path.hasAttribute('vector-effect')).toBe(false)
+})

@@ -54,7 +54,7 @@ The suite also covers hydration, cleanup, vendor integrity, and import ownership
 
 Table controls use the shared Button, Input, and Select components.
 SelectField composes the same Select parts for a simple string choice.
-The trigger owns the chevron and spacing. Filters do not supply another icon.
+The trigger owns the triangle and spacing. Filters do not supply another icon.
 Native header popovers and pointer gestures retain their existing browser behavior and event cleanup.
 Header renaming uses an uncontrolled Input draft until Enter or blur commits it.
 Escape discards that draft and restores the rename button focus.

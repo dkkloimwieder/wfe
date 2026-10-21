@@ -1,3 +1,4 @@
+import { NativeCaretFixture } from './NativeFieldsFixture'
 import { Checkbox, Combobox, Icon, Select, uiScope } from '@wfe/components'
 import type { IconName } from '@wfe/components'
 import { createSignal, flush } from 'solid-js'
@@ -81,6 +82,7 @@ export function IconControls() {
           </Combobox.Trigger>
         </Combobox.Control>
       </Combobox>
+      <NativeCaretFixture />
       <Checkbox defaultChecked indeterminate>
         <Checkbox.Input />
         <Checkbox.Control>

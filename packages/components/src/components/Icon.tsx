@@ -1,3 +1,4 @@
+import { trianglePath, triangleTransform } from '../internal/triangle'
 import { styledClasses, type ClassValue } from '../internal/classes'
 
 const paths = {
@@ -12,9 +13,9 @@ const paths = {
   key: 'M5 2a3 3 0 1 0 0 6 3 3 0 1 0 0-6Zm2 5 7 7m-3-3 2-2m-4 0 2-2',
   minus: 'M3 8h10',
   cross: 'M3 3l10 10M13 3 3 13',
-  'chevron-down': 'm4 6 4 4 4-4',
-  'chevron-right': 'm6 4 4 4-4 4',
-  'chevron-left': 'm10 4-4 4 4 4',
+  'chevron-down': trianglePath,
+  'chevron-right': trianglePath,
+  'chevron-left': trianglePath,
   refresh:
     'M3 6a5.4 5.4 0 0 1 10 0M13 2v4H9M13 10a5.4 5.4 0 0 1-10 0M3 14v-4h4',
   controls: 'M2 4h3m3 0h6M2 12h7m3 0h2M5 2v4h3V2zM9 10v4h3v-4z',
@@ -40,6 +41,14 @@ export type IconProps = {
 
 /** Decorative glyph. The surrounding control supplies its accessible name. */
 export function Icon(props: IconProps) {
+  const direction = () =>
+    props.name === 'chevron-down'
+      ? 'down'
+      : props.name === 'chevron-left'
+        ? 'left'
+        : props.name === 'chevron-right'
+          ? 'right'
+          : undefined
   return (
     <svg
       class={styledClasses('ui-icon', props.class)}
@@ -54,6 +63,9 @@ export function Icon(props: IconProps) {
     >
       <path
         d={paths[props.name]}
+        class={direction() ? 'ui-direction-triangle' : undefined}
+        transform={direction() ? triangleTransform(direction()!) : undefined}
+        vector-effect={direction() ? 'non-scaling-stroke' : undefined}
         shape-rendering={pixelAligned.has(props.name) ? 'crispEdges' : 'auto'}
       />
     </svg>

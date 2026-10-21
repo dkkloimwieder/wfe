@@ -6,6 +6,35 @@
   pointer-events: none;
 }
 
+:where([data-ui]) .ui-direction-triangle {
+  fill: var(--ui-pane-surface, var(--ui-surface, white));
+  stroke: var(--ui-border, #bbb);
+  stroke-width: 1px;
+}
+@media (forced-colors: active) {
+  :where([data-ui]) .ui-direction-triangle {
+    fill: ButtonFace;
+    stroke: ButtonText;
+  }
+  :where([data-ui]) .popup-trigger:not(:has(.ui-choice-icon)) {
+    position: relative;
+    background-image: none;
+  }
+  :where([data-ui]) .popup-trigger:not(:has(.ui-choice-icon))::after {
+    content: '';
+    position: absolute;
+    inline-size: 6px;
+    block-size: 4.2px;
+    inset-inline-end: var(--ui-input-padding-x, 6px);
+    top: 50%;
+    translate: 0 -50%;
+    background: ButtonText;
+    forced-color-adjust: none;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    pointer-events: none;
+  }
+}
+
 :where([data-ui]) summary {
   cursor: pointer;
 }
@@ -20,26 +49,32 @@
   padding-inline-end: calc(
     var(--ui-input-padding-x, 6px) + 10px + var(--ui-gap, 6px)
   );
+  /* Match the shared SVG triangle: 6px wide, 4.2px high, 1px outline. */
   background-image:
     linear-gradient(
-      45deg,
-      transparent calc(50% - 0.75px),
-      currentColor calc(50% - 0.75px),
-      currentColor calc(50% + 0.75px),
-      transparent calc(50% + 0.75px)
+      54.462322deg,
+      transparent calc(50% - 0.5px),
+      var(--ui-border, #bbb) calc(50% - 0.5px),
+      var(--ui-border, #bbb) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
     ),
     linear-gradient(
-      135deg,
-      transparent calc(50% - 0.75px),
-      currentColor calc(50% - 0.75px),
-      currentColor calc(50% + 0.75px),
-      transparent calc(50% + 0.75px)
-    );
+      125.537678deg,
+      transparent calc(50% - 0.5px),
+      var(--ui-border, #bbb) calc(50% - 0.5px),
+      var(--ui-border, #bbb) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(var(--ui-border, #bbb) 0 0);
   background-repeat: no-repeat;
-  background-size: 5px 5px;
+  background-size:
+    3px 4.2px,
+    3px 4.2px,
+    6px 1px;
   background-position:
-    right calc(var(--ui-input-padding-x, 6px) + 5px) center,
-    right var(--ui-input-padding-x, 6px) center;
+    right calc(var(--ui-input-padding-x, 6px) + 3px) center,
+    right var(--ui-input-padding-x, 6px) center,
+    right var(--ui-input-padding-x, 6px) top calc(50% - 1.6px);
 }
 :where([data-ui]) .popup-trigger:dir(rtl),
 :where([data-ui])
@@ -50,7 +85,8 @@
   ):dir(rtl) {
   background-position:
     left var(--ui-input-padding-x, 6px) center,
-    left calc(var(--ui-input-padding-x, 6px) + 5px) center;
+    left calc(var(--ui-input-padding-x, 6px) + 3px) center,
+    left var(--ui-input-padding-x, 6px) top calc(50% - 1.6px);
 }
 /* Native semantics and markup stay intact. Unsupported browsers keep their picker. */
 @supports (appearance: base-select) {

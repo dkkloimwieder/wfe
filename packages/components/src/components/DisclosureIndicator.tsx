@@ -1,3 +1,4 @@
+import { trianglePath } from '../internal/triangle'
 import { createUniqueId } from 'solid-js'
 import { styledClasses, type ClassValue } from '../internal/classes'
 
@@ -46,7 +47,7 @@ export function DisclosureIndicator(props: { class?: ClassValue }) {
       />
       <path
         class="ui-disclosure-arrow"
-        d="M1.625 3.375 9.5 9 1.625 14.625Z"
+        d={trianglePath}
         vector-effect="non-scaling-stroke"
       />
     </svg>
