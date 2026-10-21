@@ -39,6 +39,7 @@ import type { Actions } from './shared'
 
 type RuntimeBindings<T extends object & FormShape<T>> = {
   form: FormContract<T>
+  submitDisabled?: Accessor<boolean>
   choices?: Partial<
     Record<keyof T, Accessor<readonly FormChoice<FormScalar>[]>>
   >
@@ -57,6 +58,7 @@ export function FormView<
   // Runtime dispatch erases each field's value type. Descriptions and guards select its control.
   const bindings = () => props.bindings as unknown as RuntimeBindings<T>
   const form = untrack(() => bindings().form)
+  const submitDisabled = () => form.pending || !!bindings().submitDisabled?.()
   const identity = untrack(() => props.description.id)
   const domId = `generated-form-${createUniqueId()}`
   let regions = new Map<string, string | undefined>()
@@ -243,6 +245,7 @@ export function FormView<
       ref={nativeEvents<HTMLFormElement>({
         submit: (event) => {
           event.preventDefault()
+          if (!description().submit || submitDisabled()) return
           const invalid = [
             ...event.currentTarget.querySelectorAll<HTMLInputElement>(
               'input[data-ui-invalid-input]',
@@ -258,7 +261,7 @@ export function FormView<
             invalid.focus()
             return
           }
-          if (description().submit) void form.submit()
+          void form.submit()
         },
       })}
     >
@@ -310,7 +313,7 @@ export function FormView<
               <Button
                 variant={submit().variant}
                 tone={submit().tone}
-                disabled={form.pending}
+                disabled={submitDisabled()}
                 type="submit"
               >
                 {descriptionLabel(submit().label, submit().id)}

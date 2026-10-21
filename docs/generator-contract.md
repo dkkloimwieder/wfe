@@ -57,6 +57,12 @@ Custom controls must honor the supplied DOM identity and existing Field context.
 A submit description explicitly enables the form's existing submission operation.
 Its label and ID remain presentation data.
 The enabled submit button and native form submission call the same bound operation.
+Applications can supply `bindings.submitDisabled: () => boolean` to disable submission through FormView.
+The button and native form submission, including Enter and `requestSubmit()`, honor this value before validation starts.
+Pending validation or submission also disables both paths, regardless of the application value.
+The binding does not disable fields or described actions, cancel existing work, or change validation rules.
+Direct calls to `bindings.form.submit()` remain under application control and bypass this view-level guard.
+This control does not replace authorization or validation in the application or service.
 Without a submit description, the form prevents native submission.
 Extra actions use application callbacks keyed by their described IDs.
 FormView places submit first, then described actions in order, in one final `.ui-form-actions` row after alerts and status.

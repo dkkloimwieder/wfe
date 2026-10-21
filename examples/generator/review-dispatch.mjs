@@ -59,6 +59,67 @@ export async function reviewDispatch({ page, record }) {
     },
   )
   await record(
+    'application submit control gates clicks, Enter and native requests without disabling other actions',
+    async () => {
+      const submit = page.getByRole('button', { name: 'Dispatch', exact: true })
+      const toggle = page.getByRole('button', {
+        name: 'Disable submission',
+        exact: true,
+      })
+      const form = page.locator('form')
+      const count = async () => (await snapshot()).provider.requests.length
+      await page.evaluate(() => window.generatorFixture.hold('validation'))
+      const before = await count()
+      await toggle.click()
+      await expect(submit).toBeDisabled()
+      await expect(code()).toBeEnabled()
+      const reset = page.getByRole('button', {
+        name: 'Reset dispatch',
+        exact: true,
+      })
+      await expect(reset).toBeEnabled()
+      await submit.evaluate((node) => node.click())
+      await code().press('Enter')
+      await form.evaluate((node) => node.requestSubmit())
+      assert.equal(await count(), before)
+      await phase('idle')
+      await reset.click()
+      await expect(submit).toBeDisabled()
+      await toggle.click()
+      await expect(submit).toBeEnabled()
+
+      for (const stage of ['validation', 'save']) {
+        await page.evaluate(
+          (value) => window.generatorFixture.hold(value),
+          stage,
+        )
+        if (stage === 'validation') await code().press('Enter')
+        else await submit.click()
+        await phase(stage === 'validation' ? 'validating' : 'submitting')
+        const entry = await request()
+        const pendingCount = await count()
+        await expect(submit).toBeDisabled()
+        await toggle.click()
+        await toggle.click()
+        await expect(submit).toBeDisabled()
+        await code().press('Enter')
+        await form.evaluate((node) => node.requestSubmit())
+        assert.equal(await count(), pendingCount)
+        await toggle.click()
+        await page
+          .getByRole('button', { name: 'Cancel request', exact: true })
+          .click()
+        await phase('idle')
+        await complete(entry)
+        await expect(submit).toBeDisabled()
+        await toggle.click()
+        await expect(submit).toBeEnabled()
+      }
+      await page.evaluate(() => window.generatorFixture.hold(undefined))
+      assert.equal((await snapshot()).provider.publications, 0)
+    },
+  )
+  await record(
     'dispatch incomplete numeric drafts block UI submission before requests and retain accepted amounts',
     async () => {
       const amount = page.getByRole('textbox', {

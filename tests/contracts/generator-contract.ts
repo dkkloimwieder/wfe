@@ -32,6 +32,7 @@ const memberEditor = {
 } as const satisfies FormDescription<MemberInput>
 const memberBindings = {
   form: memberForm,
+  submitDisabled: () => false,
   choices: {
     role: () => [
       { value: 'reader', label: 'Reader' },
@@ -781,3 +782,11 @@ void [
 export type { InvalidDeleteKey }
 
 void detailDescription
+
+const invalidSubmitControl: FormViewBindings<MemberInput, typeof memberEditor> =
+  {
+    ...memberBindings,
+    // @ts-expect-error Submit control is a reactive boolean accessor.
+    submitDisabled: true,
+  }
+void invalidSubmitControl

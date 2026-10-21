@@ -12,6 +12,7 @@ import type { DispatchValues, DispatchRow } from './dispatch-provider'
 export function createDispatchApplication() {
   const provider = createDispatchProvider()
   const [values, setValues] = createSignal<DispatchValues>(initialDispatch)
+  const [submitDisabled, setSubmitDisabled] = createSignal(false)
   const [rejectEdits, setRejectEdits] = createSignal(false)
   const [revision, setRevision] = createSignal(0)
   const [controlsCollapsed, setControlsCollapsed] = createSignal(true)
@@ -163,6 +164,8 @@ export function createDispatchApplication() {
     tableDescription,
     layoutDescription,
     setRejectEdits,
+    submitDisabled,
+    setSubmitDisabled,
     replace(value: DispatchValues) {
       setValues({ ...value })
     },

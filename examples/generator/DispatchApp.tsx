@@ -14,6 +14,7 @@ export function DispatchApp(props: {
       description={app.formDescription()}
       bindings={{
         form: app.form,
+        submitDisabled: app.submitDisabled,
         choices: {
           carrier: () =>
             [
@@ -32,6 +33,12 @@ export function DispatchApp(props: {
   const Records = () => (
     <>
       <div class="dispatch-summary">
+        <Button
+          aria-pressed={app.submitDisabled() ? 'true' : 'false'}
+          onClick={() => app.setSubmitDisabled(!app.submitDisabled())}
+        >
+          Disable submission
+        </Button>
         <span role="status" data-ui-text="system">
           {app.form.phase} · {app.provider.publications()} dispatched
         </span>

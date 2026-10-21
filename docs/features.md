@@ -51,6 +51,8 @@ The coordinator copies and freezes repeated snapshots and publishes typed errors
 Read the [form contract](form-contract.md) for attempt identity, cancellation, and late-response behavior.
 
 `FormView` renders described fields through the same shared controls and supplied form contract.
+Its shared action row keeps submit first, followed by described actions.
+Applications can disable FormView submission through the reactive `submitDisabled` binding.
 Built-in controls include text, textarea, select, checkbox, switch, number, date, and datetime.
 Custom field bindings cover other scalar presentations.
 `FormGrid` and `FieldGroup` support grouped fields, column counts, and spans.

@@ -210,6 +210,7 @@ export type FormViewBindings<
   D extends FormDescription<T>,
 > = Readonly<{
   form: FormContract<T>
+  submitDisabled?: Accessor<boolean>
   status?: Accessor<ViewStatus>
   disabled?: (field: FieldKey<T>) => boolean
   readOnly?: (field: FieldKey<T>) => boolean
