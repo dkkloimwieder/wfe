@@ -47,6 +47,13 @@ import type { ProjectValues } from './provider'
 import { platformRoute, platformScenario, platformUrl } from './route'
 import type { PlatformRoute } from './route'
 import projectMetadata from './snapshot/metadata/project/create.operation.json'
+import projectInput from './snapshot/metadata/project/create.input.json'
+import projectResult from './snapshot/metadata/project/list.result.json'
+import environmentResult from './snapshot/metadata/environment/list.result.json'
+import {
+  metadataFormFields,
+  metadataTableColumns,
+} from './metadata-description'
 import './style.css'
 import '../shared/appearance/style.css'
 
@@ -274,20 +281,29 @@ export function PlatformApp(props: {
     id: 'platform-projects',
     title: 'Projects',
     columns: {
-      name: { label: 'Project' },
-      state: { label: 'State' },
+      ...metadataTableColumns(projectResult, 'projects', {
+        name: { path: 'projects[].name', label: 'Project' },
+        state: { path: 'projects[].state', label: 'State' },
+      }),
       actions: { label: 'Actions', renderer: 'openProject' },
     },
     controls,
     actions: [{ id: 'create', label: 'Create a project' }],
   } as const satisfies TableDescription
+  const environmentColumns = metadataTableColumns(
+    environmentResult,
+    'environments',
+    {
+      name: { path: 'environments[].name', label: 'Environment' },
+      state: { path: 'environments[].state', label: 'State' },
+    },
+  )
   const environmentDescription = () =>
     ({
       id: 'platform-environments',
       title: `Environments · ${routeProject()}`,
       columns: {
-        name: { label: 'Environment' },
-        state: { label: 'State' },
+        ...environmentColumns,
         actions: { label: 'Actions', renderer: 'openEnvironment' },
       },
       controls,
@@ -295,15 +311,21 @@ export function PlatformApp(props: {
     }) as const satisfies TableDescription
   const formDescription = {
     id: 'platform-create-project',
-    fields: [
-      {
-        field: 'project',
-        label: 'Project',
-        control: 'text',
-        required: true,
-        help: 'Use 1 to 40 UTF-8 bytes. Surrounding whitespace is removed by the server.',
-      },
-    ],
+    fields: metadataFormFields(
+      projectInput,
+      [
+        {
+          path: 'value.project',
+          description: {
+            field: 'project',
+            control: 'text',
+            required: true,
+            help: 'Use 1 to 40 UTF-8 bytes. Surrounding whitespace is removed by the server.',
+          },
+        },
+      ],
+      ['request_id'],
+    ),
     submit: { id: 'create', label: projectMetadata.label },
   } as const satisfies FormDescription<ProjectValues>
   const apply = (

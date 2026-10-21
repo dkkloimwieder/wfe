@@ -45,6 +45,25 @@ Each failed project read stays unknown. The screen does not treat a failed read 
 The captured contracts do not identify direct and inherited grants.
 Application roles use separate operations and remain outside this screen.
 
+## Metadata descriptions
+
+`metadata-description.ts` maps captured fields to explicit form fields and table column IDs.
+Project creation takes its field label from the input metadata.
+Project and environment lists map each captured scalar member to an application column.
+The application supplies control choices, labels that override metadata, required fields, help text, and actions.
+The adapter returns presentation descriptions only. It does not send requests or transform records.
+
+Each input path belongs to one editable field or one application-supplied field.
+The current form subset accepts non-null text and boolean fields without enums.
+It accepts flat input paths and the explicit `value` wrapper.
+The current table subset accepts one record array with text, boolean, or int32 members.
+It allows display enums with values that match their declared type.
+It rejects missing, duplicate, unknown, nullable, and unsupported mappings or metadata annotations.
+Nested deployment status stays an explicit application view.
+
+The adapter does not infer domain constraints from scalar types or field names.
+Application validation, reply schemas, permissions, callbacks, record identity, and table order remain unchanged.
+
 ## Known gaps
 
 Beads epic `wfe-f81` owns this application and its follow-up work.
@@ -52,7 +71,7 @@ Issue `wfe-f81.2` implements the project and environment screens.
 Issue `wfe-f81.3.1` adds the user directory and scoped access editor.
 Issue `wfe-f81.3.2` adds invitation and user lifecycle mockups.
 Issue `wfe-f81.3.3` tracks application roles, which use separate application-host operations.
-Issue `wfe-f81.4` tracks the adapter from host metadata to generic view descriptions.
+Issue `wfe-f81.4` adds the adapter from host metadata to generic view descriptions.
 Issue `wfe-f81.5` tracks validation metadata that omits server constraints.
 Issue `wfe-f81.6` tracks structural result validators in generated clients.
 Issue `wfe-f81.7` tracks a shared native link with button appearance.

@@ -1,5 +1,13 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": { "types": ["node", "vite/client"] },
-  "include": ["*.ts", "*.tsx", "snapshot/**/*.ts", "../vite-config.ts"]
+  "compilerOptions": {
+    "types": ["node", "vite/client"]
+  },
+  "include": [
+    "*.ts",
+    "*.tsx",
+    "snapshot/**/*.ts",
+    "../vite-config.ts",
+    "../../tests/contracts/platform-metadata-contract.ts"
+  ]
 }
