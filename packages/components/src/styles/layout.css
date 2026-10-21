@@ -51,6 +51,7 @@
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
 }
 :where(.ui-dashboard[data-ui][data-scroll='content']) > .ui-dashboard-main {
+  --ui-table-frame-width: 0px;
   overflow: hidden;
   padding: 0;
 }
@@ -354,7 +355,7 @@
 }
 :where([data-ui]) .ui-dashboard-divider-toggle {
   position: absolute;
-  inset-inline-end: -18px;
+  inset-inline-end: -17px;
   inset-block-start: 50%;
   transform: translateY(-50%);
   display: flex;
@@ -376,7 +377,7 @@
   pointer-events: none;
 }
 :where([data-ui]) .ui-dashboard-divider-toggle[aria-expanded='true'] {
-  inset-inline-end: -10px;
+  inset-inline-end: -11px;
 }
 :where([data-ui]) .ui-dashboard-divider-toggle[aria-expanded='true'] svg {
   transform: rotate(180deg);
@@ -410,4 +411,18 @@
 
 :where([data-ui]) button.ui-dashboard-divider-toggle:hover {
   background-color: transparent;
+}
+
+/* Padded content surfaces own a separate table frame within a flush shell. */
+:where([data-ui])
+  :is(
+    .ui-dashboard-panel,
+    .ui-card,
+    .ui-field-set,
+    .ui-field-group,
+    .ui-dialog-content,
+    .ui-popover,
+    .ui-tabs-content
+  ) {
+  --ui-table-frame-width: 1px;
 }

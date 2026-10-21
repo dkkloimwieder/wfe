@@ -22,7 +22,8 @@ export type TableColumnAlignments = Readonly<
 >
 
 export type TableEdge = {
-  width: number
+  /** Numeric pixel width or a CSS length, including shared sizing variables. */
+  width: number | string
   header: () => JSX.Element
   group: () => JSX.Element
 }
@@ -114,7 +115,14 @@ export function Table<T, M>(props: {
         >
           <colgroup>
             <Show when={props.leading}>
-              <col style={{ width: `${props.leading!.width}px` }} />
+              <col
+                style={{
+                  width:
+                    typeof props.leading!.width === 'number'
+                      ? `${props.leading!.width}px`
+                      : props.leading!.width,
+                }}
+              />
             </Show>
             <For each={table.getVisibleColumns()}>
               {(column) => (
@@ -130,7 +138,14 @@ export function Table<T, M>(props: {
               )}
             </For>
             <Show when={props.trailing}>
-              <col style={{ width: `${props.trailing!.width}px` }} />
+              <col
+                style={{
+                  width:
+                    typeof props.trailing!.width === 'number'
+                      ? `${props.trailing!.width}px`
+                      : props.trailing!.width,
+                }}
+              />
             </Show>
           </colgroup>
         </Show>

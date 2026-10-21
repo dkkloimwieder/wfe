@@ -500,7 +500,7 @@ export function ReadOnlyTable<T, M>(
           leading={
             details()
               ? {
-                  width: 44,
+                  width: 'var(--ui-table-header-size, 24.5px)',
                   header: () => (
                     <th scope="col" class="sub-table-control">
                       <span class="sr-only">Details</span>

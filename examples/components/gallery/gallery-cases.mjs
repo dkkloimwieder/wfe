@@ -938,8 +938,8 @@ async function sidebarCases({ page, url, record }) {
         '0',
       )
       await toggle.hover()
-      await expect(toggle.locator('svg')).toHaveCSS('width', '14px')
-      await expect(toggle.locator('svg')).toHaveCSS('height', '21px')
+      await expect(toggle.locator('svg')).toHaveCSS('width', '10.5px')
+      await expect(toggle.locator('svg')).toHaveCSS('height', '15.75px')
       assert.deepEqual(await toggle.boundingBox(), hitArea)
       assert.deepEqual(
         await toggle

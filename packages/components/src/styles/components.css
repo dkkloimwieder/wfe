@@ -131,6 +131,10 @@
   background: var(--ui-surface, white);
 }
 :where([data-ui]) table {
+  --ui-table-header-size: calc(
+    var(--ui-header-height, 22px) + 2 * var(--ui-table-cell-padding-y, 1px) +
+      0.5px
+  );
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -149,6 +153,9 @@
   border-top: 1px solid var(--ui-table-row-divider, var(--ui-divider, #ddd));
   text-align: left;
   vertical-align: middle;
+}
+:where([data-ui]) :is(td, tbody th) {
+  border-bottom: 1px solid var(--ui-table-row-divider, var(--ui-divider, #ddd));
 }
 :where([data-ui]) tr > :is(th, td):not(:last-child) {
   border-inline-end: 1px solid
@@ -586,15 +593,17 @@
   font-size: 16px;
 }
 :where([data-ui]) .sub-table-control {
-  padding: var(--ui-table-cell-padding-y, 1px) 4px;
+  padding: var(--ui-table-cell-padding-y, 1px) 0;
   text-align: center;
 }
 :where([data-ui]) .sub-table-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: 100%;
+  min-width: 0;
   height: 26px;
+  min-block-size: 0;
   padding: 0;
   border-color: transparent;
   background: transparent;

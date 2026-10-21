@@ -347,8 +347,8 @@
 
 .ui-theme .ui-disclosure-indicator {
   overflow: visible;
-  inline-size: 14px;
-  block-size: 21px;
+  inline-size: 10.5px;
+  block-size: 15.75px;
 }
 .ui-theme .ui-disclosure-arrow {
   transform-box: fill-box;

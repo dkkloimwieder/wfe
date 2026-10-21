@@ -11,7 +11,7 @@
   grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas: 'header header' 'controls results';
   gap: 0;
-  border: 1px solid var(--ui-border, #ccc);
+  border: var(--ui-table-frame-width, 1px) solid var(--ui-border, #ccc);
   box-shadow: var(--ui-panel-shadow, none);
   background: var(--ui-canvas-surface, var(--ui-surface, white));
   height: 100%;
@@ -474,4 +474,12 @@
     > .display-fields {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   }
+}
+
+:where([data-ui]) .sub-table-row .table-workspace {
+  border-width: 0;
+  border-inline-start-width: 1px;
+}
+:where([data-ui]) .sub-table-row .table-workspace-summary {
+  border-top: 0;
 }
