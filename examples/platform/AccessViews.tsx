@@ -162,6 +162,18 @@ export function AccessViews(props: {
     env: () =>
       access.environments().map((name) => ({ value: name, label: name })),
   }
+  function UserToolbarActions() {
+    return (
+      <IconButton
+        data-platform-invite
+        title="Invite a user"
+        aria-label="Invite a user"
+        onClick={() => props.navigate({ screen: 'invite' })}
+      >
+        <Icon name="people" />
+      </IconButton>
+    )
+  }
   const visible = () =>
     !props.app.session().loading && !props.app.session().error
   return (
@@ -210,19 +222,11 @@ export function AccessViews(props: {
         class="platform-table-screen"
         hidden={props.app.route().screen !== 'users' || !visible()}
       >
-        <div class="platform-user-actions">
-          <IconButton
-            title="Invite a user"
-            aria-label="Invite a user"
-            onClick={() => props.navigate({ screen: 'invite' })}
-          >
-            <Icon name="people" />
-          </IconButton>
-        </div>
         <TableView
           description={usersDescription}
           bindings={{
             table: access.usersTable,
+            toolbarActions: UserToolbarActions,
             selection: usersSelection,
             width: access.usersTable
               .getVisibleColumns()

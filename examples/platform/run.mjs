@@ -68,7 +68,7 @@ const server = createServer(async (request, response) => {
       response.end(
         template.replace(
           '<div id="root"></div>',
-          `<div id="root" data-ssr="true">${html}</div><script>window.platformServerNodes={main:document.querySelector('main'),heading:document.querySelector('[data-platform-heading]'),table:document.querySelector('table')}</script>`,
+          `<div id="root" data-ssr="true">${html}</div><script>window.platformServerNodes={main:document.querySelector('main'),heading:document.querySelector('[data-platform-heading]'),table:document.querySelector('table'),invite:document.querySelector('[data-platform-invite]')}</script>`,
         ),
       )
     } else

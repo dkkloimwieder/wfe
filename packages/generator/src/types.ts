@@ -261,6 +261,8 @@ export type TableViewBindings<
   D extends TableDescription,
 > = Readonly<{
   table: NativeTable<Row, Meta>
+  /** Stable application component; remount the view to replace it. */
+  toolbarActions?: Component
   headerAliases?: Accessor<
     Readonly<Partial<Record<Extract<keyof D['columns'], string>, string>>>
   >

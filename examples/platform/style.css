@@ -101,10 +101,3 @@ body,
   display: grid;
   gap: var(--ui-field-gap, 20px);
 }
-
-.platform-user-actions {
-  padding: var(--ui-gap);
-  border: 1px solid var(--ui-border);
-  border-bottom: 0;
-  background: var(--ui-surface);
-}

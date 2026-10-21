@@ -13,7 +13,7 @@ test('table slots construct once, retain live controls and dispose one owner per
     addEventListener() {},
     removeEventListener() {},
   }))
-  const mounts = { actions: 0, configuration: 0, formatting: 0 },
+  const mounts = { actions: 0, configuration: 0, formatting: 0, toolbar: 0 },
     disposals = { ...mounts }
   const [enabled, setEnabled] = createSignal(true),
     [label, setLabel] = createSignal('Initial')
@@ -37,13 +37,19 @@ test('table slots construct once, retain live controls and dispose one owner per
     return (
       <ReadOnlyTable
         table={table}
+        toolbarActions={enabled() ? <Slot kind="toolbar" /> : undefined}
         actions={enabled() ? <Slot kind="actions" /> : undefined}
         configuration={enabled() ? <Slot kind="configuration" /> : undefined}
         formatting={enabled() ? <Slot kind="formatting" /> : undefined}
       />
     )
   })
-  expect(mounts).toEqual({ actions: 1, configuration: 1, formatting: 1 })
+  expect(mounts).toEqual({
+    actions: 1,
+    configuration: 1,
+    formatting: 1,
+    toolbar: 1,
+  })
   const button = h.getByRole('button', { name: 'actions: Initial' })
   setLabel('Updated')
   flush()
@@ -52,15 +58,30 @@ test('table slots construct once, retain live controls and dispose one owner per
   expect(calls).toBe(1)
   setEnabled(false)
   flush()
-  expect(disposals).toEqual({ actions: 1, configuration: 1, formatting: 1 })
+  expect(disposals).toEqual({
+    actions: 1,
+    configuration: 1,
+    formatting: 1,
+    toolbar: 1,
+  })
   expect(button.isConnected).toBe(false)
   fireEvent.click(button)
   expect(calls).toBe(1)
   setEnabled(true)
   flush()
-  expect(mounts).toEqual({ actions: 2, configuration: 2, formatting: 2 })
+  expect(mounts).toEqual({
+    actions: 2,
+    configuration: 2,
+    formatting: 2,
+    toolbar: 2,
+  })
   cleanup()
-  expect(disposals).toEqual({ actions: 2, configuration: 2, formatting: 2 })
+  expect(disposals).toEqual({
+    actions: 2,
+    configuration: 2,
+    formatting: 2,
+    toolbar: 2,
+  })
 })
 
 test('refresh stays available without filter controls and forwards unchanged criteria on every click', () => {

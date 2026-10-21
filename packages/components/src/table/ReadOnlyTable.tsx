@@ -68,6 +68,8 @@ export function ReadOnlyTable<T, M>(
       grouping?: boolean
       columnReordering?: boolean
     }
+    /** Persistent application actions beside the table controls toggle. */
+    toolbarActions?: JSX.Element
     actions?: JSX.Element
     configuration?: JSX.Element
     formatting?: JSX.Element
@@ -256,14 +258,19 @@ export function ReadOnlyTable<T, M>(
         <span data-ui-text="system">{props.title ?? 'Read-only records'}</span>
       }
       controlsHeader={
-        <div class="table-filter-actions">
-          <Show when={!isDetail || filters.changed}>
-            <FilterApplyControl />
+        <>
+          <Show when={props.toolbarActions} keyed>
+            {(actions) => actions}
           </Show>
-          <Show when={filters.changed}>
-            <span data-ui-text="system">Unapplied changes</span>
-          </Show>
-        </div>
+          <div class="table-filter-actions">
+            <Show when={!isDetail || filters.changed}>
+              <FilterApplyControl />
+            </Show>
+            <Show when={filters.changed}>
+              <span data-ui-text="system">Unapplied changes</span>
+            </Show>
+          </div>
+        </>
       }
       controls={
         <>

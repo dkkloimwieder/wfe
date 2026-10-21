@@ -21,7 +21,9 @@ The application can supply editors and action controls through these callbacks.
 Its `controls` prop can disable individual features.
 Its default workspace places expandable controls on the left and results on the right.
 Both panels scroll independently within the height that the application assigns.
-The `actions` and `configuration` slots accept application content.
+The `actions` and `configuration` slots accept application content inside the controls pane.
+The `toolbarActions` slot accepts application controls in the persistent header.
+These actions stay visible when the controls pane collapses or becomes a mobile drawer.
 The [workspace guide](../../../../docs/table-workspace.md) describes sizing and the narrow controls drawer.
 Neither component copies the application records.
 ReadOnlyTable forwards `width` and `headerEnd` to Table.

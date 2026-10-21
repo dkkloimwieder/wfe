@@ -24,6 +24,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
   bindings: TableViewBindings<Row, Meta, D>
 }) {
   const table = untrack(() => props.bindings.table)
+  const ToolbarActions = untrack(() => props.bindings.toolbarActions)
   const identity = untrack(() => props.description.id)
   const cells = () =>
     (
@@ -46,6 +47,10 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
     requireValue(
       value.id === identity && props.bindings.table === table,
       'remount the table view to replace its identity or table instance',
+    )
+    requireValue(
+      props.bindings.toolbarActions === ToolbarActions,
+      'remount the table view to replace its toolbar action component',
     )
     uniqueIds([value.id], 'table')
     requireValue(
@@ -154,6 +159,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
       <StatusView status={props.bindings.status} />
       <ReadOnlyTable
         table={table}
+        toolbarActions={ToolbarActions ? <ToolbarActions /> : undefined}
         selection={props.bindings.selection}
         rowDetails={props.bindings.rowDetails}
         width={props.bindings.width}

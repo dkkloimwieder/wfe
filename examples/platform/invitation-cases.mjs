@@ -3,6 +3,56 @@ import { expect } from '@playwright/test'
 
 export async function invitationCases({ page, initialize, record }) {
   await record(
+    'platform: primary table action stays in the header across collapse and mobile layout',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await initialize('?screen=users')
+      const table = page.locator('[data-generator-view="platform-users"]')
+      const action = table
+        .locator('.table-workspace-header')
+        .getByRole('button', { name: 'Invite a user', exact: true })
+      await expect(action).toHaveCount(1)
+      const original = await action.elementHandle()
+      if (await page.evaluate(() => Boolean(window.platformServerNodes))) {
+        assert.equal(
+          await action.evaluate(
+            (node) => node === window.platformServerNodes.invite,
+          ),
+          true,
+        )
+      }
+      const toggle = table.getByRole('button', {
+        name: 'Table controls',
+        exact: true,
+      })
+      await toggle.click()
+      await expect(action).toBeVisible()
+      await toggle.click()
+      for (const width of [390, 320]) {
+        await page.setViewportSize({ width, height: 844 })
+        await expect(toggle).toHaveAttribute('aria-expanded', 'false')
+        await expect(action).toBeVisible()
+        const bounds = await action.boundingBox()
+        assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= width)
+        assert.equal(
+          await action.evaluate((node, old) => node === old, original),
+          true,
+        )
+      }
+      await action.click()
+      await expect(
+        page.getByRole('textbox', { name: 'Display name', exact: true }),
+      ).toBeVisible()
+      await page.goBack()
+      await expect(action).toBeVisible()
+      assert.equal(
+        await action.evaluate((node, old) => node === old, original),
+        true,
+      )
+      await page.setViewportSize({ width: 1280, height: 900 })
+    },
+  )
+  await record(
     'platform: invitation mockup keeps repeated drafts and projects sample requests',
     async () => {
       await initialize('?screen=users')
