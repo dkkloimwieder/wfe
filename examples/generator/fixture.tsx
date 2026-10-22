@@ -221,15 +221,15 @@ export function createFixture(
       flush()
     },
     revise() {
-      if (app?.kind === 'records-workflow')
+      if (!app || !('revise' in app))
         throw new Error('Review actions need review mode')
-      app!.revise()
+      app.revise()
       flush()
     },
     remove() {
-      if (app?.kind === 'records-workflow')
+      if (!app || !('remove' in app))
         throw new Error('Review actions need review mode')
-      app!.remove()
+      app.remove()
       flush()
     },
     snapshot: () => app!.snapshot(),

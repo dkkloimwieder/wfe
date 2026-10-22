@@ -46,7 +46,7 @@ const memberBindings = {
 const memberRecords = {
   id: 'members',
   columns: {
-    displayLabel: { label: 'Member' },
+    displayLabel: { label: 'Member', sortable: false, filterable: false },
     points: { label: 'Points', renderer: 'points' },
   },
   actions: [{ id: 'export', label: 'Export' }],
@@ -803,3 +803,16 @@ const invalidIconOnly: import('@wfe/generator').ActionDescription = {
   iconOnly: () => true,
 }
 void [invalidActionIcon, invalidIconOnly]
+
+const invalidColumnControls = {
+  id: 'invalid-column-controls',
+  columns: {
+    actions: {
+      // @ts-expect-error Column sorting is serializable boolean metadata.
+      sortable: () => false,
+      // @ts-expect-error Column filtering is a boolean, not a filter function.
+      filterable: 'disabled',
+    },
+  },
+} satisfies TableDescription
+void invalidColumnControls

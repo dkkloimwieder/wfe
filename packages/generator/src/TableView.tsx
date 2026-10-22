@@ -77,6 +77,12 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
     for (const [id, column] of Object.entries(value.columns)) {
       requireValue(table.getColumn(id), `unknown table column "${id}"`)
       validatePresentation(column, `column "${id}"`)
+      for (const key of ['sortable', 'filterable'] as const) {
+        requireValue(
+          column[key] === undefined || typeof column[key] === 'boolean',
+          `invalid ${key} for column "${id}"`,
+        )
+      }
       if (column.renderer !== undefined) {
         uniqueIds([column.renderer], 'cell renderer')
         requireValue(
@@ -178,6 +184,12 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
         controlsCollapsed={props.bindings.controlsCollapsed}
         onControlsCollapsedChange={props.bindings.onControlsCollapsedChange}
         onApplyFilters={props.bindings.onApplyFilters}
+        sortable={(column) =>
+          description().columns[column.id]?.sortable !== false
+        }
+        filterable={(column) =>
+          description().columns[column.id]?.filterable !== false
+        }
         filter={props.bindings.filter}
         groupable={props.bindings.groupable}
         columnAlignment={props.bindings.columnAlignment}

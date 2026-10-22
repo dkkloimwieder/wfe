@@ -60,6 +60,7 @@ Custom field bindings cover other scalar presentations.
 `FormActions` provides the same wrapping action row for handwritten forms and FormView.
 
 `TableView` composes the supplied native table with column presentation, aliases, actions, and optional custom cell bindings.
+Columns can independently omit sort and filter controls. Manual sorting keeps sort buttons active for application callbacks.
 `LayoutView` composes described main panels, navigation, context, footer, and actions through existing dashboard components.
 `ChartView` lives under `@wfe/generator/chart` and reuses the owned Chart engine.
 Descriptions remain serializable. Runtime bindings supply records, components, choices, and callbacks.

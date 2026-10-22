@@ -87,6 +87,9 @@ export function ReadOnlyTable<T, M>(
     /** Receives criteria on refresh, including unchanged criteria for reloading. */
     onApplyFilters?: (criteria: TableFilterCriteria) => void
     label?: (column: NativeColumn<T, M>) => string
+    /** Omit sorting or filtering controls for a column when false. */
+    sortable?: (column: NativeColumn<T, M>) => boolean
+    filterable?: (column: NativeColumn<T, M>) => boolean
     filter?: (column: NativeColumn<T, M>) => TableFilterConfig | undefined
     filterKind?: (
       column: NativeColumn<T, M>,
@@ -296,7 +299,11 @@ export function ReadOnlyTable<T, M>(
                   role="region"
                   aria-label="Column filters"
                 >
-                  <For each={table.getColumns()}>
+                  <For
+                    each={table
+                      .getColumns()
+                      .filter((column) => props.filterable?.(column) !== false)}
+                  >
                     {(column) => {
                       const configuration = () => props.filter?.(column)
                       const kind = () =>
@@ -569,15 +576,18 @@ export function ReadOnlyTable<T, M>(
                 />
               </Show>
               <Show
-                when={props.controls?.sorting !== false}
+                when={
+                  props.controls?.sorting !== false &&
+                  props.sortable?.(column) !== false
+                }
                 fallback={<span class="column-title">{label(column)}</span>}
               >
                 <TableSort
                   label={label(column)}
                   sorted={column.getIsSorted()}
                   disabled={
-                    !processing() ||
-                    table.options.manualSorting ||
+                    processing() &&
+                    !table.options.manualSorting &&
                     !column.columnDef?.sortFn
                   }
                   onSort={(multi) => column.toggleSorting(undefined, multi)}

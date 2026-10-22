@@ -1,3 +1,5 @@
+import { ColumnControlsApp } from './ColumnControlsApp'
+import type { createColumnControlsApplication } from './ColumnControlsApp'
 import { SubTables } from '../components/gallery/SubTables'
 import { DetailsApp } from './DetailsApp'
 import type { createDetailsApplication } from './DetailsApp'
@@ -15,6 +17,7 @@ import type { createRecordsApplication } from './records-application'
 import type { createRecordsWorkflow } from './records-workflow'
 import type { createDispatchApplication } from './dispatch-application'
 export const applications = {
+  'column-controls': ColumnControlsApp,
   subtables: () => <SubTables initiallyExpanded />,
   details: DetailsApp,
   repeated: RepeatedApp,
@@ -26,6 +29,7 @@ export const applications = {
 }
 export type ApplicationName = keyof typeof applications
 export type Application =
+  | ReturnType<typeof createColumnControlsApplication>
   | ReturnType<typeof createDetailsApplication>
   | ReturnType<typeof createRepeatedApplication>
   | ReturnType<typeof createFormatsApplication>
@@ -35,6 +39,7 @@ export type Application =
   | ReturnType<typeof createRecordsWorkflow>
   | ReturnType<typeof createDispatchApplication>
 export function applicationName(value: string | null): ApplicationName {
+  if (value === 'column-controls') return 'column-controls'
   if (value === 'subtables') return 'subtables'
   if (value === 'repeated') return 'repeated'
   if (value === 'details') return 'details'

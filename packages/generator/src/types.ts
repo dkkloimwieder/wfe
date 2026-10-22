@@ -224,6 +224,8 @@ export type FormViewBindings<
   RepeatedBindings<T, D>
 
 export type ColumnPresentation = Readonly<{
+  sortable?: boolean
+  filterable?: boolean
   label?: string
   renderer?: string
   format?: ValueFormat

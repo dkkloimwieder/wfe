@@ -408,3 +408,17 @@ Refresh remains available. The application decides how refresh interacts with a 
 Supply `totalRows` for the footer count, such as `3/8`. Omit it when the total is unknown.
 Without a total, the footer shows only the current row count.
 See the [pagination contract](../packages/components/src/table/README.md#controlled-pagination) for the shared properties.
+
+### Column controls
+
+Set `columns.actions.sortable: false` and `columns.actions.filterable: false` for an Actions column.
+`TableView` passes these independent presentation flags to `ReadOnlyTable`.
+A non-sortable column has a plain heading. A non-filterable column has no filter input.
+Omitted flags preserve the existing controls. Global `controls.sorting` and `controls.filtering` still disable their respective controls.
+Direct `ReadOnlyTable` consumers supply `sortable(column)` and `filterable(column)` predicates.
+
+Manual sorting and manual processing keep sort buttons active without a local comparator.
+The buttons update table sort state through the existing callbacks. The application owns requests and returned row order.
+Client sorting still requires the column comparator.
+Changing presentation flags leaves application-owned sort and filter state unchanged.
+The `?app=column-controls` example demonstrates client sorting, server sorting, and omitted Actions controls.

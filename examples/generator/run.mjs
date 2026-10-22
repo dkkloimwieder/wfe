@@ -1,3 +1,4 @@
+import { columnControlChecks } from './review-column-controls.mjs'
 import { subtableChecks } from './review-subtables.mjs'
 import { reviewExampleSizing } from '../shared/appearance/sizing-review.mjs'
 import { reviewDetails, reviewDetailsServer } from './review-details.mjs'
@@ -19,6 +20,7 @@ import { reviewDispatch } from './review-dispatch.mjs'
 import { reviewRecordsWorkflow } from './review-records-workflow.mjs'
 
 const defaultApplications = {
+  'column-controls': columnControlChecks,
   subtables: subtableChecks,
   details: {
     initial: reviewDetailsServer,
