@@ -1,8 +1,24 @@
 # Adopt the components
 
+## v0.0.8
+
+Use Git tag `v0.0.8` for the current components and Default theme.
+ShellView accepts application-supplied `header` and `navigation` content.
+Set `navigation={false}` to omit the navigation pane and its toggle.
+Undefined overrides preserve the defaults. Custom headers leave heading focus with the application.
+Navigation callbacks receive the owning dashboard controls, and accepted route changes close its drawer.
+See the [shell guide](../packages/shell/README.md) for the contract and example.
+
+Inputs and form sections support optional decoration with neutral, primary, or secondary colors.
+The Default theme reduces decoration rotation and taper in proportion to element size.
+The gallery includes a geometry playground, wide input previews, and alternating section decoration in the Everything form.
+The owned icon catalog supports selective imports from `@wfe/components/icons`.
+The gallery also demonstrates form actions and row-dependent table actions.
+Dependency pins remain the same as `v0.0.7`.
+
 ## v0.0.7
 
-Use Git tag `v0.0.7` for the current components and Default theme.
+Git tag `v0.0.7` records the preceding components and Default theme.
 FormView places submit and described actions in one final row at natural button widths.
 The public `FormActions` component provides the same layout for handwritten forms.
 Applications can disable FormView submission through `submitDisabled` without disabling fields or other actions.
