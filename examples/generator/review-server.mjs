@@ -8,6 +8,10 @@ export async function reviewServer(initial, name) {
       await expect(initial.getByLabel(label, { exact: true })).toHaveCount(1)
   } else if (name === 'records') {
     await reviewFormActions(initial)
+    await expect(initial.locator('form .app-first-action-icon')).toHaveCount(2)
+    await expect(
+      initial.locator('form span[aria-hidden="true"][inert]'),
+    ).toHaveCount(2)
     const group = initial.getByRole('group', {
       name: 'Record details',
       exact: true,

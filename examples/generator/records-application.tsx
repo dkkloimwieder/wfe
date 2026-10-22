@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, Show } from 'solid-js'
-import { Input, NumberInput } from '@wfe/components'
+import { Icon, Input, NumberInput } from '@wfe/components'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
 import type {
@@ -22,6 +22,12 @@ export function createRecordsApplication(reviewCells = false) {
   const [reversed, setReversed] = createSignal(false)
   const [formColumns, setFormColumns] = createSignal<1 | 2 | 3>(2)
   const [fieldColumns, setFieldColumns] = createSignal<2 | 3>(2)
+  const [iconOptions, setIconOptions] = createSignal({
+    only: false,
+    visible: true,
+    alternate: false,
+    disabled: false,
+  })
   const [removed, setRemoved] = createSignal(false)
   const [aliases, setAliases] = createSignal<{ quantity?: string }>({})
   const [calls, setCalls] = createSignal<number[]>([])
@@ -29,11 +35,31 @@ export function createRecordsApplication(reviewCells = false) {
     () => () => setCalls((old) => [...old, 1]),
   )
   const lifecycle = {
+    firstIconMounts: 0,
+    firstIconCleanups: 0,
+    secondIconMounts: 0,
+    secondIconCleanups: 0,
     quantityMounts: 0,
     quantityDisposals: 0,
     cellMounts: 0,
     cellDisposals: 0,
   }
+  const FirstIcon = () => {
+    lifecycle.firstIconMounts++
+    onCleanup(() => lifecycle.firstIconCleanups++)
+    return <Icon name="check" class="app-first-action-icon" />
+  }
+  const SecondIcon = () => {
+    lifecycle.secondIconMounts++
+    onCleanup(() => lifecycle.secondIconCleanups++)
+    return <Icon name="view" class="app-second-action-icon" />
+  }
+  const actionIcon = () =>
+    !iconOptions().visible
+      ? undefined
+      : iconOptions().alternate
+        ? SecondIcon
+        : FirstIcon
   const form = createForm<Values>({
     values,
     defaults: () => initial,
@@ -148,10 +174,10 @@ export function createRecordsApplication(reviewCells = false) {
             .map((field) => field.field),
         })),
       },
-      submit: { id: 'save', label: 'Save' },
+      submit: { id: 'save', label: 'Save', iconOnly: iconOptions().only },
       actions: [
         { id: 'reset', label: 'Reset' },
-        { id: 'extra', label: 'Extra' },
+        { id: 'extra', label: 'Extra', iconOnly: iconOptions().only },
       ],
     } as const satisfies FormDescription<Values>
   }
@@ -189,11 +215,20 @@ export function createRecordsApplication(reviewCells = false) {
       actions: [
         { id: 'revise', label: 'Revise description' },
         { id: 'remove', label: 'Remove editor' },
+        { id: 'icon-mode', label: 'Toggle action labels' },
       ],
     } as const satisfies LayoutDescription<'editor' | 'records'>
   }
   return {
     kind: 'records' as const,
+    iconOptions,
+    actionIcon,
+    configureIcons(next: Partial<ReturnType<typeof iconOptions>>) {
+      setIconOptions((previous) => ({ ...previous, ...next }))
+    },
+    toggleActionLabels() {
+      setIconOptions((previous) => ({ ...previous, only: !previous.only }))
+    },
     provider,
     form,
     table,

@@ -27,12 +27,13 @@ const memberEditor = {
     { field: 'role', label: 'Role', control: 'select' },
     { field: 'nickname', label: 'Nickname', control: 'custom' },
   ],
-  submit: { id: 'save', label: 'Save' },
+  submit: { id: 'save', label: 'Save', iconOnly: true },
   actions: [{ id: 'reset', label: 'Reset' }],
 } as const satisfies FormDescription<MemberInput>
 const memberBindings = {
   form: memberForm,
   submitDisabled: () => false,
+  submitIcon: () => null,
   choices: {
     role: () => [
       { value: 'reader', label: 'Reader' },
@@ -40,7 +41,7 @@ const memberBindings = {
     ],
   },
   fields: { nickname: (props) => props.value.toUpperCase() },
-  actions: { reset: { run: () => memberForm.reset() } },
+  actions: { reset: { run: () => memberForm.reset(), icon: () => null } },
 } satisfies FormViewBindings<MemberInput, typeof memberEditor>
 const memberRecords = {
   id: 'members',
@@ -790,3 +791,15 @@ const invalidSubmitControl: FormViewBindings<MemberInput, typeof memberEditor> =
     submitDisabled: true,
   }
 void invalidSubmitControl
+
+const invalidActionIcon: import('@wfe/generator').ActionBinding = {
+  run: () => {},
+  // @ts-expect-error Icons are component factories, not strings.
+  icon: 'check',
+}
+const invalidIconOnly: import('@wfe/generator').ActionDescription = {
+  id: 'save',
+  // @ts-expect-error The icon-only choice is a serializable boolean.
+  iconOnly: () => true,
+}
+void [invalidActionIcon, invalidIconOnly]

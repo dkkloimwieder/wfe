@@ -1,6 +1,6 @@
-import { For, Show } from 'solid-js'
+import { For, Show, createMemo } from 'solid-js'
 import { Button, InlineAlert, isValueFormat } from '@wfe/components'
-import type { Accessor } from 'solid-js'
+import type { Accessor, Component } from 'solid-js'
 import type {
   ActionBinding,
   ActionDescription,
@@ -92,6 +92,10 @@ export function validateActions(
       action.tone === undefined || ['neutral', 'accent'].includes(action.tone),
       `unsupported tone for action "${action.id}"`,
     )
+    requireValue(
+      action.iconOnly === undefined || typeof action.iconOnly === 'boolean',
+      `invalid iconOnly for action "${action.id}"`,
+    )
     if (action === submit) continue
     requireValue(
       Object.hasOwn(bindings ?? {}, action.id) &&
@@ -101,6 +105,49 @@ export function validateActions(
   }
 }
 
+export function ActionButton(props: {
+  description: ActionDescription
+  icon?: Component
+  disabled?: boolean
+  type?: 'button' | 'submit'
+  onClick?: () => void
+  actionId?: string
+}) {
+  const icon = createMemo(() => {
+    const value = props.icon
+    requireValue(
+      value === undefined || typeof value === 'function',
+      `invalid icon component for action "${props.description.id}"`,
+    )
+    return value
+  })
+  const label = () =>
+    descriptionLabel(props.description.label, props.description.id)
+  const iconOnly = () => !!props.description.iconOnly && !!icon()
+  return (
+    <Button
+      data-generator-action={props.actionId}
+      type={props.type ?? 'button'}
+      variant={props.description.variant}
+      tone={props.description.tone}
+      disabled={props.disabled}
+      class={iconOnly() ? 'ui-icon-button' : undefined}
+      aria-label={iconOnly() ? label() : undefined}
+      title={iconOnly() ? label() : undefined}
+      onClick={props.onClick}
+    >
+      <Show when={icon()} keyed>
+        {(Glyph) => (
+          <span aria-hidden="true" inert>
+            <Glyph />
+          </span>
+        )}
+      </Show>
+      <Show when={!iconOnly()}>{label()}</Show>
+    </Button>
+  )
+}
+
 export function ActionsView(props: {
   descriptions: readonly ActionDescription[]
   bindings?: Actions
@@ -108,15 +155,13 @@ export function ActionsView(props: {
   return (
     <For each={props.descriptions} keyed={(action) => action.id}>
       {(action) => (
-        <Button
-          data-generator-action={action().id}
-          variant={action().variant}
-          tone={action().tone}
+        <ActionButton
+          actionId={action().id}
+          description={action()}
+          icon={props.bindings?.[action().id]?.icon}
           disabled={props.bindings?.[action().id]?.disabled?.()}
           onClick={() => props.bindings?.[action().id]?.run()}
-        >
-          {descriptionLabel(action().label, action().id)}
-        </Button>
+        />
       )}
     </For>
   )

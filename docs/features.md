@@ -52,6 +52,7 @@ Read the [form contract](form-contract.md) for attempt identity, cancellation, a
 
 `FormView` renders described fields through the same shared controls and supplied form contract.
 Its shared action row keeps submit first, followed by described actions.
+Generated actions accept application icon components and accessible icon-only presentation.
 Applications can disable FormView submission through the reactive `submitDisabled` binding.
 Built-in controls include text, textarea, select, checkbox, switch, number, date, and datetime.
 Custom field bindings cover other scalar presentations.

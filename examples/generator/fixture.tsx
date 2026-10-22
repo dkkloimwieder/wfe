@@ -207,6 +207,15 @@ export function createFixture(
       records().setFormColumns(count)
       flush()
     },
+    actionIcons(next: {
+      only?: boolean
+      visible?: boolean
+      alternate?: boolean
+      disabled?: boolean
+    }) {
+      records().configureIcons(next)
+      flush()
+    },
     recordOrder(reversed: boolean) {
       records().setReversed(reversed)
       flush()

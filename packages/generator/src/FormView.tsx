@@ -8,7 +8,7 @@ import { ScalarField } from './scalarField'
 import type { RuntimeCustomField, RuntimeScalarField } from './scalarField'
 import { preserveReorderFocus } from './reorderFocus'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
-import { Button, FormGrid, FieldGroup, FormActions } from '@wfe/components'
+import { FormGrid, FieldGroup, FormActions } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
 import type { Accessor, Component } from 'solid-js'
 import type {
@@ -27,7 +27,7 @@ import type {
 } from './types'
 import {
   ActionsView,
-  descriptionLabel,
+  ActionButton,
   StatusView,
   requireValue,
   uniqueIds,
@@ -40,6 +40,7 @@ import type { Actions } from './shared'
 type RuntimeBindings<T extends object & FormShape<T>> = {
   form: FormContract<T>
   submitDisabled?: Accessor<boolean>
+  submitIcon?: Component
   choices?: Partial<
     Record<keyof T, Accessor<readonly FormChoice<FormScalar>[]>>
   >
@@ -310,14 +311,12 @@ export function FormView<
         <FormActions>
           <Show when={description().submit}>
             {(submit) => (
-              <Button
-                variant={submit().variant}
-                tone={submit().tone}
+              <ActionButton
+                description={submit()}
+                icon={bindings().submitIcon}
                 disabled={submitDisabled()}
                 type="submit"
-              >
-                {descriptionLabel(submit().label, submit().id)}
-              </Button>
+              />
             )}
           </Show>
           <ActionsView

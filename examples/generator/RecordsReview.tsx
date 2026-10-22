@@ -16,6 +16,7 @@ export function RecordsReview(props: {
       description={app.formDescription()}
       bindings={{
         form: app.form,
+        submitIcon: app.actionIcon(),
         choices: {
           category: () =>
             [
@@ -26,7 +27,11 @@ export function RecordsReview(props: {
         fields: { quantity: app.Quantity },
         actions: {
           reset: { run: () => app.form.reset() },
-          extra: { run: app.action() },
+          extra: {
+            run: app.action(),
+            icon: app.actionIcon(),
+            disabled: () => app.iconOptions().disabled,
+          },
         },
       }}
     />
@@ -47,7 +52,11 @@ export function RecordsReview(props: {
       description={app.layoutDescription()}
       bindings={{
         views: { editor: Editor, records: Records },
-        actions: { revise: { run: app.revise }, remove: { run: app.remove } },
+        actions: {
+          revise: { run: app.revise },
+          remove: { run: app.remove },
+          'icon-mode': { run: app.toggleActionLabels },
+        },
       }}
     />
   )

@@ -11,6 +11,68 @@ export async function reviewRecords({ page, report, record }) {
     reviewFormActions(page),
   )
   await record(
+    'action icons retain names, focus, button identity, and cleanup',
+    async () => {
+      const form = page.locator('form')
+      const extra = form.getByRole('button', { name: 'Extra', exact: true })
+      const save = form.getByRole('button', { name: 'Save', exact: true })
+      await expect(form.locator('.app-first-action-icon')).toHaveCount(2)
+      await expect(save).toHaveAttribute('type', 'submit')
+      await expect(extra).toHaveAttribute('type', 'button')
+      await extra.evaluate((node) => {
+        node.focus()
+        window.actionIconButton = node
+      })
+      const configure = (value) =>
+        page.evaluate(
+          (value) => window.generatorFixture.actionIcons(value),
+          value,
+        )
+      await configure({ only: true })
+      await expect(extra).toBeFocused()
+      await expect(extra).toHaveText('')
+      await expect(extra).toHaveAttribute('title', 'Extra')
+      await expect(save).toHaveAccessibleName('Save')
+      assert.equal(
+        await extra.evaluate((node) => node === window.actionIconButton),
+        true,
+      )
+      assert.equal(
+        await extra
+          .locator('span[aria-hidden="true"]')
+          .evaluate((node) => node.inert),
+        true,
+      )
+      await configure({ alternate: true })
+      await expect(form.locator('.app-second-action-icon')).toHaveCount(2)
+      await expect(extra).toBeFocused()
+      let snapshot = await page.evaluate(() =>
+        window.generatorFixture.snapshot(),
+      )
+      assert.equal(snapshot.lifecycle.firstIconCleanups, 2)
+      assert.equal(snapshot.lifecycle.secondIconMounts, 2)
+      const calls = snapshot.calls
+      await configure({ disabled: true })
+      await expect(extra).toBeDisabled()
+      await extra.evaluate((node) => node.click())
+      assert.deepEqual(
+        (await page.evaluate(() => window.generatorFixture.snapshot())).calls,
+        calls,
+      )
+      await configure({ disabled: false, visible: false })
+      await expect(extra).toHaveText('Extra')
+      await expect(save).toHaveText('Save')
+      assert.equal(
+        await extra.evaluate((node) => node === window.actionIconButton),
+        true,
+      )
+      snapshot = await page.evaluate(() => window.generatorFixture.snapshot())
+      assert.equal(snapshot.lifecycle.secondIconCleanups, 2)
+      await configure({ only: false, visible: true, alternate: false })
+      await expect(form.locator('.app-first-action-icon')).toHaveCount(2)
+    },
+  )
+  await record(
     'named form groups respond to panel width and clamp field spans',
     async () => {
       const form = page.locator('form')
@@ -224,6 +286,9 @@ export async function reviewRecords({ page, report, record }) {
     },
   )
   await record('optional custom field and explicit submission', async () => {
+    await page.evaluate(() =>
+      window.generatorFixture.actionIcons({ only: true }),
+    )
     await page.locator('form').getByLabel('Quantity', { exact: true }).fill('4')
     await page
       .locator('form')
@@ -308,6 +373,10 @@ export async function reviewRecords({ page, report, record }) {
         window.generatorFixture.snapshot(),
       )
       assert.deepEqual(snapshot.calls, [1, 2])
+      assert.equal(snapshot.lifecycle.firstIconMounts, 4)
+      await page.evaluate(() =>
+        window.generatorFixture.actionIcons({ only: false }),
+      )
       assert.equal(snapshot.lifecycle.quantityMounts, 1)
       assert.equal(snapshot.lifecycle.cellMounts, 1)
     },
@@ -499,6 +568,8 @@ export async function reviewRecords({ page, report, record }) {
       await page.evaluate(() => window.generatorFixture.snapshot())
     ).lifecycle
     assert.equal(lifecycle.cellDisposals, lifecycle.cellMounts)
+    assert.equal(lifecycle.firstIconCleanups, lifecycle.firstIconMounts)
+    assert.equal(lifecycle.secondIconCleanups, lifecycle.secondIconMounts)
     await expect(page.locator('#root input, #root table')).toHaveCount(0)
   })
 }

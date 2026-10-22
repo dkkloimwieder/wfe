@@ -26,9 +26,11 @@ export type ActionDescription = Readonly<{
   label?: string
   variant?: ButtonVariant
   tone?: ButtonTone
+  iconOnly?: boolean
 }>
 export type ActionBinding = Readonly<{
   run: () => void
+  icon?: Component
   disabled?: Accessor<boolean>
 }>
 export type ViewStatus = Readonly<{ loading?: boolean; error?: string }>
@@ -211,6 +213,7 @@ export type FormViewBindings<
 > = Readonly<{
   form: FormContract<T>
   submitDisabled?: Accessor<boolean>
+  submitIcon?: Component
   status?: Accessor<ViewStatus>
   disabled?: (field: FieldKey<T>) => boolean
   readOnly?: (field: FieldKey<T>) => boolean

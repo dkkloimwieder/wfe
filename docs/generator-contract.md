@@ -65,6 +65,14 @@ Direct calls to `bindings.form.submit()` remain under application control and by
 This control does not replace authorization or validation in the application or service.
 Without a submit description, the form prevents native submission.
 Extra actions use application callbacks keyed by their described IDs.
+Applications supply an icon component through `ActionBinding.icon` or `FormViewBindings.submitIcon`.
+Set `ActionDescription.iconOnly: true` to omit visible label text when an icon is present.
+The button keeps its accessible name and title from the label, or the action ID when the label is absent.
+Without an icon, the button shows its label even when `iconOnly` is true.
+Icons are decorative and inert. Supply a component that contains no interactive controls.
+Changing the icon or label mode preserves the button and its focus. Replacing an icon component disposes the previous icon.
+The shared button retains its variant, tone, disabled state, and submit behavior.
+
 FormView uses `FormActions` to place submit first, then described actions in order, in one final `.ui-form-actions` row after alerts and status.
 The shared row wraps at the available width and retains natural button widths.
 Forms without submit or actions omit the row.
