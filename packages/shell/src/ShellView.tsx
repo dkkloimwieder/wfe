@@ -10,7 +10,10 @@ import {
 } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import { Breadcrumbs, SelectField } from '@wfe/components'
-import { DashboardShell } from '@wfe/components/layout'
+import {
+  DashboardShell,
+  type DashboardNavigation,
+} from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { createShellModel, requireValue } from './model'
 import type {
@@ -26,6 +29,7 @@ export function ShellView<const D extends ShellDescription>(
 ) {
   const model = createMemo(() => createShellModel(props.description))
   const identity = untrack(() => model().id)
+  const header = createMemo(() => props.header)
   const titleId = `shell-heading-${createUniqueId()}`
   const state = createMemo(() => {
     const bindings = props.bindings
@@ -115,6 +119,12 @@ export function ShellView<const D extends ShellDescription>(
       focusRoute(route)
     },
   )
+  createEffect(
+    () => props.navigation === false,
+    (removed) => {
+      if (removed) closeNavigation?.()
+    },
+  )
   onCleanup(() => {
     alive = false
     focusAttempt++
@@ -128,6 +138,7 @@ export function ShellView<const D extends ShellDescription>(
     queueMicrotask(() => {
       if (
         alive &&
+        untrack(header) === undefined &&
         attempt === focusAttempt &&
         heading?.isConnected &&
         untrack(() => state().route.id) === route
@@ -158,6 +169,106 @@ export function ShellView<const D extends ShellDescription>(
         focusRoute(route.id)
     }
   }
+  function DefaultHeader() {
+    let element: HTMLHeadingElement | undefined
+    onCleanup(() => {
+      if (heading === element) heading = undefined
+      element = undefined
+    })
+    return (
+      <>
+        <Show when={props.description.title}>
+          <span data-ui-text="system">{props.description.title}</span>
+        </Show>
+        <SelectField
+          label={props.audienceLabel ?? 'Audience'}
+          data-ui-text="system"
+          choices={choices()}
+          value={state().audience.id}
+          onValueChange={(id) => {
+            const audience = untrack(() => model().audiences.get(id))
+            if (alive && audience)
+              untrack(() => props.bindings.onAudienceChange(audience.id))
+          }}
+        />
+        <Breadcrumbs aria-label="Breadcrumbs" data-ui-text="system">
+          <Breadcrumbs.List>
+            <For each={pathIds()}>
+              {(id, index) => (
+                <Breadcrumbs.Item>
+                  <Show when={index() > 0}>
+                    <Breadcrumbs.Separator />
+                  </Show>
+                  <Show
+                    when={id === state().route.id}
+                    fallback={
+                      <Breadcrumbs.Link
+                        href={state().hrefs.get(id)!}
+                        ref={nativeEvents<HTMLAnchorElement>({
+                          click: (event) => navigate(event, id),
+                        })}
+                      >
+                        {model().routes.get(id)!.label}
+                      </Breadcrumbs.Link>
+                    }
+                  >
+                    <Breadcrumbs.Current>
+                      {model().routes.get(id)!.label}
+                    </Breadcrumbs.Current>
+                  </Show>
+                </Breadcrumbs.Item>
+              )}
+            </For>
+          </Breadcrumbs.List>
+        </Breadcrumbs>
+        <h1
+          id={titleId}
+          data-ui-text="system"
+          tabindex={-1}
+          ref={(node) => {
+            element = node
+            heading = node
+          }}
+          style={{ margin: '0', font: 'inherit', 'font-weight': '600' }}
+        >
+          {state().route.label}
+        </h1>
+      </>
+    )
+  }
+  function DefaultNavigation() {
+    return (
+      <div class="ui-dashboard-menu">
+        <For each={menuIds()}>
+          {(id) => (
+            <a
+              href={state().hrefs.get(id)!}
+              aria-current={id === state().route.id ? 'page' : undefined}
+              data-ui-text="system"
+              ref={nativeEvents<HTMLAnchorElement>({
+                click: (event) => navigate(event, id),
+              })}
+            >
+              {model().routes.get(id)!.label}
+            </a>
+          )}
+        </For>
+      </div>
+    )
+  }
+  function renderNavigation(controls: DashboardNavigation) {
+    closeNavigation = controls.close
+    return (
+      <Show
+        when={
+          typeof props.navigation === 'function' ? props.navigation : undefined
+        }
+        fallback={<DefaultNavigation />}
+      >
+        {(render) => render()(controls)}
+      </Show>
+    )
+  }
   return (
     <DashboardShell
       id={identity}
@@ -177,85 +288,11 @@ export function ShellView<const D extends ShellDescription>(
       contextToggleLabel={props.contextToggleLabel}
       contextCloseLabel={props.contextCloseLabel}
       header={
-        <>
-          <Show when={props.description.title}>
-            <span data-ui-text="system">{props.description.title}</span>
-          </Show>
-          <SelectField
-            label={props.audienceLabel ?? 'Audience'}
-            data-ui-text="system"
-            choices={choices()}
-            value={state().audience.id}
-            onValueChange={(id) => {
-              const audience = untrack(() => model().audiences.get(id))
-              if (alive && audience)
-                untrack(() => props.bindings.onAudienceChange(audience.id))
-            }}
-          />
-          <Breadcrumbs aria-label="Breadcrumbs" data-ui-text="system">
-            <Breadcrumbs.List>
-              <For each={pathIds()}>
-                {(id, index) => (
-                  <Breadcrumbs.Item>
-                    <Show when={index() > 0}>
-                      <Breadcrumbs.Separator />
-                    </Show>
-                    <Show
-                      when={id === state().route.id}
-                      fallback={
-                        <Breadcrumbs.Link
-                          href={state().hrefs.get(id)!}
-                          ref={nativeEvents<HTMLAnchorElement>({
-                            click: (event) => navigate(event, id),
-                          })}
-                        >
-                          {model().routes.get(id)!.label}
-                        </Breadcrumbs.Link>
-                      }
-                    >
-                      <Breadcrumbs.Current>
-                        {model().routes.get(id)!.label}
-                      </Breadcrumbs.Current>
-                    </Show>
-                  </Breadcrumbs.Item>
-                )}
-              </For>
-            </Breadcrumbs.List>
-          </Breadcrumbs>
-          <h1
-            id={titleId}
-            data-ui-text="system"
-            tabindex={-1}
-            ref={(node) => {
-              heading = node
-            }}
-            style={{ margin: '0', font: 'inherit', 'font-weight': '600' }}
-          >
-            {state().route.label}
-          </h1>
-        </>
+        <Show when={header() === undefined} fallback={header()}>
+          <DefaultHeader />
+        </Show>
       }
-      navigation={(controls) => {
-        closeNavigation = controls.close
-        return (
-          <div class="ui-dashboard-menu">
-            <For each={menuIds()}>
-              {(id) => (
-                <a
-                  href={state().hrefs.get(id)!}
-                  aria-current={id === state().route.id ? 'page' : undefined}
-                  data-ui-text="system"
-                  ref={nativeEvents<HTMLAnchorElement>({
-                    click: (event) => navigate(event, id),
-                  })}
-                >
-                  {model().routes.get(id)!.label}
-                </a>
-              )}
-            </For>
-          </div>
-        )
-      }}
+      navigation={props.navigation === false ? undefined : renderNavigation}
     >
       <Show when={pageId()} keyed>
         {(id) => (

@@ -21,6 +21,10 @@ pnpm exec vite --config examples/shell/vite.config.ts --host 127.0.0.1 --port 77
 ```
 
 Open `http://127.0.0.1:7794/`.
+Open `http://127.0.0.1:7794/?custom-chrome=1` to try application-supplied header and navigation content.
+That example replaces the default heading and audience selector with a header input.
+Its menu uses the owning dashboard controls to close the drawer and read its responsive state.
+
 Use the sidebar to open each page.
 Use the audience selector to change menus.
 The browser Back and Forward buttons restore accepted pages.

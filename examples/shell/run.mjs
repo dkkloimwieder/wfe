@@ -374,6 +374,147 @@ try {
       )
     },
   )
+  await run(
+    'custom header and navigation hydrate with application-owned content',
+    async () => {
+      await page.setViewportSize({ width: 1100, height: 800 })
+      await page.goto(base + '?qualification=1&custom-chrome=1&page=record')
+      await expect(heading).toHaveText('Custom workspace')
+      await expect(
+        page.getByRole('textbox', { name: 'Workspace note' }),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('navigation', { name: 'Breadcrumbs' }),
+      ).toHaveCount(0)
+      await expect(audience).toHaveCount(0)
+      await expect(nav.getByLabel('Navigation state')).toHaveText(
+        'desktop / expanded',
+      )
+      await settle()
+      if (hydration)
+        assert.ok(
+          await page.evaluate(
+            () =>
+              window.shellServerNodes.heading === document.querySelector('h1'),
+          ),
+        )
+    },
+  )
+  await run(
+    'header overrides retain page drafts and leave route focus with the application',
+    async () => {
+      const input = page.getByRole('textbox', { name: 'Name', exact: true })
+      await input.fill('Chrome-independent draft')
+      await input.evaluate((node) => {
+        window.shellInput = node
+      })
+      await page.evaluate(() => window.shellFixture.setHeader(false))
+      await expect(heading).toHaveText('Record detail')
+      await expect(audience).toBeVisible()
+      await expect(input).toBeFocused()
+      await heading.evaluate((node) => {
+        window.staleShellHeading = node
+      })
+      await page.evaluate(() => window.shellFixture.setHeader(true))
+      await expect(heading).toHaveText('Custom workspace')
+      assert.ok(await input.evaluate((node) => node === window.shellInput))
+      await expect(input).toHaveValue('Chrome-independent draft')
+      const note = page.getByRole('textbox', { name: 'Workspace note' })
+      await note.fill('Retained header focus')
+      await page.evaluate(() => window.shellFixture.accept('overview'))
+      await expect(page.getByRole('main')).toHaveAccessibleName('Overview')
+      await settle()
+      await expect(note).toBeFocused()
+      await expect(note).toHaveValue('Retained header focus')
+      assert.ok(
+        await page.evaluate(() => !window.staleShellHeading.isConnected),
+      )
+    },
+  )
+  await run(
+    'navigation overrides replace defaults and false removes the pane and its owner',
+    async () => {
+      const before = await page.evaluate(() => ({
+        ...window.shellFixture.chromeLifecycle,
+      }))
+      await page.evaluate(() => window.shellFixture.setNavigation('none'))
+      await expect(nav).toHaveCount(0)
+      await expect(
+        page.getByRole('button', { name: 'Navigation', exact: true }),
+      ).toHaveCount(0)
+      assert.equal(
+        await page.evaluate(
+          () => window.shellFixture.chromeLifecycle.navigationDisposals,
+        ),
+        before.navigationDisposals + 1,
+      )
+      await page.evaluate(() => window.shellFixture.accept('record'))
+      await settle()
+      assert.equal(
+        await page.evaluate(
+          () => window.shellFixture.chromeLifecycle.navigationMounts,
+        ),
+        before.navigationMounts,
+      )
+      await page.evaluate(() => window.shellFixture.setNavigation('default'))
+      await expect(menu('Records')).toBeVisible()
+      await expect(
+        nav.getByRole('button', { name: 'Open overview' }),
+      ).toHaveCount(0)
+      await page.evaluate(() => window.shellFixture.setNavigation('custom'))
+      await expect(
+        nav.getByRole('button', { name: 'Open overview' }),
+      ).toBeVisible()
+      await expect(menu('Records')).toHaveCount(0)
+      assert.equal(
+        await page.evaluate(
+          () => window.shellFixture.chromeLifecycle.navigationMounts,
+        ),
+        before.navigationMounts + 1,
+      )
+    },
+  )
+  await run(
+    'custom navigation receives live mobile controls and closes only on accepted route changes',
+    async () => {
+      await page.setViewportSize({ width: 390, height: 844 })
+      const toggle = page.getByRole('button', {
+        name: 'Navigation',
+        exact: true,
+      })
+      await toggle.click()
+      await expect(nav).toBeVisible()
+      await expect(nav.getByLabel('Navigation state')).toHaveText(
+        'mobile / expanded',
+      )
+      await nav.getByRole('button', { name: 'Close custom navigation' }).click()
+      await expect(nav).not.toBeVisible()
+      await toggle.click()
+      await page.evaluate(() => window.shellFixture.reject(true))
+      await nav.getByRole('button', { name: 'Open overview' }).click()
+      await expect(nav).toBeVisible()
+      await expect(page.getByRole('main')).toHaveAccessibleName('Record detail')
+      await page.evaluate(() => window.shellFixture.reject(false))
+      await nav.getByRole('button', { name: 'Open overview' }).click()
+      await expect(page.getByRole('main')).toHaveAccessibleName('Overview')
+      await expect(nav).not.toBeVisible()
+      await expect(heading).not.toBeFocused()
+      await toggle.click()
+      await page.evaluate(() => window.shellFixture.setNavigation('none'))
+      await expect(nav).toHaveCount(0)
+      await expect(toggle).toHaveCount(0)
+      await page.evaluate(() => window.shellFixture.setNavigation('custom'))
+      await expect(nav).not.toBeVisible()
+      await toggle.click()
+      await expect(nav).toBeVisible()
+      await page.evaluate(() => window.shellFixture.stop())
+      await expect(page.locator('#root')).toBeEmpty()
+      const lifecycle = await page.evaluate(
+        () => window.shellFixture.chromeLifecycle,
+      )
+      assert.equal(lifecycle.navigationMounts, lifecycle.navigationDisposals)
+    },
+  )
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {

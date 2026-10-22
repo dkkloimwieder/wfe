@@ -20,13 +20,27 @@ View bindings must be own properties. The shell reports malformed metadata or bi
 
 Ordinary primary link activation requests navigation and leaves acceptance to the application.
 Modified clicks retain native link behavior. The package never installs history listeners or parses URLs.
-Accepted route changes close the shared narrow drawer and focus the page heading after rendering.
+Accepted route changes close the shared narrow drawer. With the default header, they focus the page heading after rendering.
 Activating the already-current route also closes navigation and focuses its heading without replacing the page.
 Initial rendering and hydration do not move focus. Label and href updates preserve the page owner and its drafts.
 The default uses `scroll="content"` so the page can own its scroll region.
 Set a definite height on the shell or its parent, as with DashboardShell.
 Optional context, footer, style, density, and theme props use the existing layout contract.
-The shell supplies one page h1. Page components supply their content without another shell or main landmark.
+The default header supplies one page h1. Page components supply their content without another shell or main landmark.
+
+Pass `header` to replace the entire default header, including its audience selector, breadcrumbs, and heading.
+An undefined `header` keeps the default. An explicit `null` removes its content.
+With a replacement header, the application owns its page heading and focus behavior.
+The shell does not focus a former default heading.
+
+Pass a `navigation` callback to replace the menu inside the existing navigation pane.
+The callback receives the owning DashboardShell controls: `close()`, `compact()`, and `mobile()`.
+Use those controls with shared navigation components or application content.
+An undefined `navigation` keeps the default menu. Set `navigation={false}` to omit the pane and its toggle.
+Accepted route changes still close the drawer with a replacement menu.
+Application links own their addresses, click handling, and modified-click behavior.
+The application also owns hierarchy data, permission filtering, and session actions.
+These presentation overrides do not add description fields or change route bindings.
 
 Use the public component stylesheet once in the application.
 Read the [layout guide](../../docs/layout.md) and [adoption guide](../../docs/adoption.md) for composition.

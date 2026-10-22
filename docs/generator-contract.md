@@ -218,6 +218,10 @@ See [table selection](table-selection.md) for application-owned IDs and copy tex
 ShellView lives in the separate `@wfe/shell` package and composes the existing dashboard frame.
 Application page bindings can render FormView and TableView through their existing contracts.
 Shell metadata does not create a form coordinator, table engine, router, or data client.
+`ShellView.header` replaces the default header. `ShellView.navigation` replaces the menu or removes its pane with `false`.
+Undefined overrides retain the defaults. Navigation callbacks receive the owning dashboard controls.
+Accepted route changes close the drawer. With a custom header, the application owns heading focus.
+These props do not add description metadata, routing rules, or permission logic.
 Use LayoutView for a described dashboard composition when a separate shell frame is not required.
 Read the [shell guide](../packages/shell/README.md) for navigation bindings and page lifetime.
 

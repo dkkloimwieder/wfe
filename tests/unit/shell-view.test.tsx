@@ -49,14 +49,25 @@ const settle = async () => {
   await Promise.resolve()
   flush()
 }
-function mount(initialRoute = 'home') {
+function mount(
+  initialRoute = 'home',
+  initialHeader: 'default' | 'custom' | 'none' = 'default',
+) {
+  const [header, setHeader] = createSignal(initialHeader)
   const [description, setDescription] = createSignal(initial)
   const [audience, setAudience] = createSignal('operations')
   const [route, setRoute] = createSignal(initialRoute)
   const [prefix, setPrefix] = createSignal('#')
   let accept = false,
     mounts = 0,
-    disposals = 0
+    disposals = 0,
+    headerMounts = 0,
+    headerDisposals = 0
+  const CustomHeader = () => {
+    headerMounts++
+    onCleanup(() => headerDisposals++)
+    return <Input aria-label="Header draft" />
+  }
   const Page = () => {
     mounts++
     onCleanup(() => disposals++)
@@ -80,6 +91,11 @@ function mount(initialRoute = 'home') {
         description={description()}
         bindings={bindings()}
         style={{ height: '600px' }}
+        header={
+          header() === 'none' ? null : header() === 'custom' ? (
+            <CustomHeader />
+          ) : undefined
+        }
       />
     </Errored>
   ))
@@ -88,6 +104,7 @@ function mount(initialRoute = 'home') {
     ...h,
     description,
     setDescription,
+    setHeader,
     setAudience,
     setRoute,
     setPrefix,
@@ -99,6 +116,7 @@ function mount(initialRoute = 'home') {
       accept = true
     },
     counts: () => ({ mounts, disposals }),
+    headerCounts: () => ({ mounts: headerMounts, disposals: headerDisposals }),
     menu: () =>
       within(h.getByRole('navigation', { name: 'Primary navigation' })),
   }
@@ -343,4 +361,84 @@ test('replacing a current page component releases its old owner without changing
   expect(h.getByRole('heading', { name: 'Home' })).not.toBe(
     document.activeElement,
   )
+})
+
+test('a null header omits default content without removing navigation or the page', async () => {
+  const h = mount('home', 'none')
+  await settle()
+  expect(h.queryByRole('heading', { level: 1 })).toBeNull()
+  expect(h.queryByRole('navigation', { name: 'Breadcrumbs' })).toBeNull()
+  expect(h.queryByRole('button', { name: /^Audience/ })).toBeNull()
+  expect(h.menu().getByRole('link', { name: 'Home' })).toBeTruthy()
+  const draft = h.getByRole('textbox', { name: 'Page draft' })
+  draft.focus()
+  h.setHeader('default')
+  await settle()
+  expect(h.getByRole('heading', { name: 'Home' })).toBeTruthy()
+  expect(h.getByRole('textbox', { name: 'Page draft' }) === draft).toBe(true)
+  expect(document.activeElement === draft).toBe(true)
+  expect(h.counts()).toEqual({ mounts: 1, disposals: 0 })
+})
+
+test('replacing the default header cancels queued heading focus and restores a fresh default later', async () => {
+  const h = mount()
+  await settle()
+  const originalHeading = h.getByRole('heading', { name: 'Home' })
+  const focus = vi.spyOn(originalHeading, 'focus')
+  try {
+    h.setRoute('queue')
+    flush()
+    h.setHeader('custom')
+    flush()
+    const draft = h.getByRole('textbox', { name: 'Header draft' })
+    draft.focus()
+    await settle()
+    expect(originalHeading.isConnected).toBe(false)
+    expect(focus).not.toHaveBeenCalled()
+    expect(document.activeElement === draft).toBe(true)
+    expect(h.queryByRole('navigation', { name: 'Breadcrumbs' })).toBeNull()
+    h.setHeader('default')
+    await settle()
+    expect(h.queryByRole('textbox', { name: 'Header draft' })).toBeNull()
+    const restoredHeading = h.getByRole('heading', { name: 'Queue' })
+    expect(restoredHeading !== originalHeading).toBe(true)
+    h.setRoute('home')
+    await settle()
+    expect(
+      document.activeElement === h.getByRole('heading', { name: 'Home' }),
+    ).toBe(true)
+    expect(focus).not.toHaveBeenCalled()
+  } finally {
+    focus.mockRestore()
+  }
+})
+
+test('custom header content owns one lifecycle across route reads and releases it on replacement', async () => {
+  const h = mount('home', 'custom')
+  await settle()
+  const draft = h.getByRole('textbox', { name: 'Header draft' })
+  expect(h.headerCounts()).toEqual({ mounts: 1, disposals: 0 })
+  for (const route of ['queue', 'home']) {
+    h.setRoute(route)
+    await settle()
+    expect(h.getByRole('textbox', { name: 'Header draft' }) === draft).toBe(
+      true,
+    )
+    expect(h.headerCounts()).toEqual({ mounts: 1, disposals: 0 })
+  }
+  h.setHeader('none')
+  await settle()
+  expect(draft.isConnected).toBe(false)
+  expect(h.headerCounts()).toEqual({ mounts: 1, disposals: 1 })
+  h.setHeader('default')
+  await settle()
+  expect(h.getByRole('heading', { name: 'Home' })).toBeTruthy()
+  expect(h.headerCounts()).toEqual({ mounts: 1, disposals: 1 })
+  h.setHeader('custom')
+  await settle()
+  expect(h.getByRole('textbox', { name: 'Header draft' }) !== draft).toBe(true)
+  expect(h.headerCounts()).toEqual({ mounts: 2, disposals: 1 })
+  h.unmount()
+  flush()
+  expect(h.headerCounts()).toEqual({ mounts: 2, disposals: 2 })
 })

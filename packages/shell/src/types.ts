@@ -43,6 +43,7 @@ export type ShellViewProps<D extends ShellDescription = ShellDescription> =
     | 'density'
     | 'theme'
     | 'scroll'
+    | 'header'
     | 'footer'
     | 'footerLabel'
     | 'navigationLabel'
@@ -56,5 +57,6 @@ export type ShellViewProps<D extends ShellDescription = ShellDescription> =
   > & {
     description: D
     bindings: ShellBindings<D>
+    navigation?: DashboardShellProps['navigation'] | false
     audienceLabel?: string
   }

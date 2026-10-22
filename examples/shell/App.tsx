@@ -5,8 +5,9 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
-import { ValueDisplay } from '@wfe/components'
+import { Button, Input, ValueDisplay } from '@wfe/components'
 import { DashboardPanel } from '@wfe/components/layout'
+import type { DashboardNavigation } from '@wfe/components/layout'
 import { createTable } from '@wfe/components/table'
 import { createForm } from '@wfe/form'
 import { FormView, TableView } from '@wfe/generator'
@@ -33,6 +34,9 @@ export type ShellFixture = {
   reject: (value: boolean) => void
   accept: (id: RouteId) => void
   refreshMetadata: () => void
+  setHeader: (custom: boolean) => void
+  setNavigation: (mode: 'default' | 'custom' | 'none') => void
+  chromeLifecycle: { navigationMounts: number; navigationDisposals: number }
 }
 const formDescription = {
   id: 'record-details',
@@ -53,6 +57,15 @@ export function App(props: {
   const [address, setAddress] = createSignal(initialUrl.split('#')[0]!)
   const [current, setCurrent] = createSignal(readLocation(initialUrl))
   const [metadata, setMetadata] = createSignal(description)
+  const customChrome = new URL(
+    initialUrl,
+    'http://shell.example',
+  ).searchParams.has('custom-chrome')
+  const [customHeader, setHeader] = createSignal(customChrome)
+  const [navigationMode, setNavigation] = createSignal<
+    'default' | 'custom' | 'none'
+  >(customChrome ? 'custom' : 'default')
+  const chromeLifecycle = { navigationMounts: 0, navigationDisposals: 0 }
   const requests: ShellFixture['requests'] = []
   const lifecycle = {
     mounts: 0,
@@ -187,6 +200,33 @@ export function App(props: {
       if (!rejected) accept(defaultRoute(id))
     },
   }
+  const CustomHeader = () => (
+    <>
+      <h1>Custom workspace</h1>
+      <Input aria-label="Workspace note" placeholder="Application header" />
+    </>
+  )
+  const CustomNavigation = (controls: DashboardNavigation) => {
+    chromeLifecycle.navigationMounts++
+    onCleanup(() => {
+      chromeLifecycle.navigationDisposals++
+    })
+    return (
+      <div class="ui-dashboard-menu">
+        <output aria-label="Navigation state">
+          {controls.mobile() ? 'mobile' : 'desktop'} /{' '}
+          {controls.compact() ? 'compact' : 'expanded'}
+        </output>
+        <Button onClick={() => bindings.onNavigate('overview')}>
+          Open overview
+        </Button>
+        <Button onClick={() => bindings.onNavigate('record')}>
+          Open record
+        </Button>
+        <Button onClick={controls.close}>Close custom navigation</Button>
+      </div>
+    )
+  }
   onSettled(() => {
     setAddress(location.href)
     const pop = () => {
@@ -215,6 +255,9 @@ export function App(props: {
     current,
     requests,
     lifecycle,
+    chromeLifecycle,
+    setHeader,
+    setNavigation,
     accept,
     reject: (value) => {
       rejected = value
@@ -224,7 +267,19 @@ export function App(props: {
   })
   return (
     <DefaultAppearance class="shell-example">
-      <ShellView description={metadata()} bindings={bindings} footer={null} />
+      <ShellView
+        description={metadata()}
+        bindings={bindings}
+        footer={null}
+        header={customHeader() ? <CustomHeader /> : undefined}
+        navigation={
+          navigationMode() === 'none'
+            ? false
+            : navigationMode() === 'custom'
+              ? CustomNavigation
+              : undefined
+        }
+      />
     </DefaultAppearance>
   )
 }
