@@ -1,3 +1,5 @@
+import { omit } from 'solid-js'
+import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/switch'
 import type { Component } from 'solid-js'
@@ -5,13 +7,19 @@ import type { ValidComponent } from '@solidjs/web'
 import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
 export function SwitchRoot<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, Core.SwitchRootProps<T> & { class?: ClassValue }>,
+  props: PolymorphicProps<
+    T,
+    Core.SwitchRootProps<T> & ControlDecorationProps & { class?: ClassValue }
+  >,
 ) {
   const Primitive = Core.Root as Component<typeof props>
   return (
     <Primitive
-      {...props}
+      {...(omit(props, 'decoration') as typeof props)}
       data-ui=""
+      data-ui-control-decoration={
+        props.decoration === false ? 'none' : props.decoration
+      }
       class={styledClasses('ui-toggle ui-switch', props.class)}
     />
   )
@@ -39,6 +47,7 @@ export function SwitchControl<T extends ValidComponent = 'div'>(
   return (
     <Primitive
       {...props}
+      data-ui-control-surface=""
       class={styledClasses('ui-switch-control', props.class)}
     />
   )

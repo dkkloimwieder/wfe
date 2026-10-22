@@ -1,3 +1,4 @@
+import { ControlSurface } from '../internal/controlDecoration'
 import { Icon } from '../components/Icon'
 import { restoreTextValue } from '../internal/controlledText'
 import { Show, createUniqueId, untrack } from 'solid-js'
@@ -46,7 +47,7 @@ export function TableFilter(props: TableFilterProps) {
       <label for={id} class={props.hideLabel ? 'sr-only' : 'ui-label'}>
         {props.label}
       </label>
-      <div class="filter-input">
+      <ControlSurface class="filter-input">
         <Show
           when={props.kind !== 'boolean'}
           fallback={
@@ -159,7 +160,7 @@ export function TableFilter(props: TableFilterProps) {
             <Icon name="cross" />
           </Button>
         </Show>
-      </div>
+      </ControlSurface>
     </div>
   )
 }

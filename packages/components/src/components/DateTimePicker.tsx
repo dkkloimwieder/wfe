@@ -1,3 +1,4 @@
+import type { ControlDecorationProps } from '../internal/controlDecoration'
 import {
   createEffect,
   createMemo,
@@ -22,7 +23,7 @@ import {
 import type { DateInputFormat } from '../utils/dateFormat'
 import type { TimeInputFormat, DateTimeDisambiguation } from '../utils/dateTime'
 
-export type DateTimePickerProps = {
+export type DateTimePickerProps = ControlDecorationProps & {
   label: string
   timeLabel?: string
   id?: string
@@ -172,6 +173,9 @@ export function DateTimePicker(props: DateTimePickerProps) {
   return (
     <div
       class="ui-datetime-picker"
+      data-ui-control-decoration={
+        props.decoration === false ? 'none' : props.decoration
+      }
       data-ui=""
       role="group"
       aria-label={props.label}

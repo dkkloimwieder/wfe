@@ -107,3 +107,9 @@ export type {
   StatusTileState,
   TileRowProps,
 } from './components/StatusTile'
+
+export type {
+  ControlDecoration,
+  ControlDecorationProps,
+  NativeControlFrameProps,
+} from './internal/controlDecoration'

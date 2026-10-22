@@ -9,6 +9,12 @@ export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
   {
+    id: 'input-decoration',
+    label: 'Input decoration',
+    group: 'Forms',
+    states: ['normal'],
+  },
+  {
     id: 'form-actions',
     label: 'Form actions',
     group: 'Forms',

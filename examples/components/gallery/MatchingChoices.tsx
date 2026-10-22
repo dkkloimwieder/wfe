@@ -1,5 +1,6 @@
+import type { ControlDecoration } from '@wfe/components'
 import { createMemo, createSignal } from 'solid-js'
-import { Combobox, Icon } from '@wfe/components'
+import { Combobox, Icon, Input } from '@wfe/components'
 import { matchSorter } from '@wfe/components/search'
 import { ChoiceControls } from '../ChoiceControls'
 import type { GalleryState } from './catalog'
@@ -9,6 +10,8 @@ const items = ['Alpha', 'Gamma', 'Gamma Ray', 'Green Meadow', 'Café']
 /** Local matching and caller-supplied ranked results use the same control. */
 export function MatchingCombobox(props: {
   mode: 'startsWith' | 'fuzzy'
+  decoration?: ControlDecoration
+  nativeInput?: boolean
   state?: GalleryState
 }) {
   const [query, setQuery] = createSignal('')
@@ -42,8 +45,8 @@ export function MatchingCombobox(props: {
       <Combobox.Label>
         {props.mode === 'fuzzy' ? 'Fuzzy' : 'Starts with'}
       </Combobox.Label>
-      <Combobox.Control>
-        <Combobox.Input />
+      <Combobox.Control decoration={props.decoration}>
+        <Combobox.Input as={props.nativeInput ? Input : 'input'} />
         <Combobox.Trigger
           aria-label={
             props.mode === 'fuzzy'

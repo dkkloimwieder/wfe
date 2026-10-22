@@ -1,3 +1,5 @@
+import type { ControlDecorationProps } from '../internal/controlDecoration'
+import { ControlSurface } from '../internal/controlDecoration'
 import { Icon } from './Icon'
 import {
   createEffect,
@@ -31,20 +33,21 @@ export type DatePickerProps = Pick<
   | 'locale'
   | 'startOfWeek'
   | 'initialMonth'
-> & {
-  label: string
-  id?: string
-  name?: string
-  onValidityChange?: (valid: boolean) => void
-  dateFormat?: DateInputFormat
-  readonly?: boolean
-  required?: boolean
-  invalid?: boolean
-  'aria-describedby'?: string
-  clearLabel?: string
-  disabled?: boolean
-  onValueChange: (value: string | undefined) => void
-}
+> &
+  ControlDecorationProps & {
+    label: string
+    id?: string
+    name?: string
+    onValidityChange?: (valid: boolean) => void
+    dateFormat?: DateInputFormat
+    readonly?: boolean
+    required?: boolean
+    invalid?: boolean
+    'aria-describedby'?: string
+    clearLabel?: string
+    disabled?: boolean
+    onValueChange: (value: string | undefined) => void
+  }
 
 export function DatePicker(props: DatePickerProps) {
   return <DatePickerControl {...props} />
@@ -150,7 +153,7 @@ export function DatePickerControl(
           setOpen(value)
         }}
       >
-        <div class="filter-input">
+        <ControlSurface class="filter-input" decoration={props.decoration}>
           <Input
             id={id()}
             type="text"
@@ -207,7 +210,7 @@ export function DatePickerControl(
           >
             <Icon name="cross" />
           </Button>
-        </div>
+        </ControlSurface>
         <Popover.Portal>
           <Popover.Content
             class="ui-date-popup"

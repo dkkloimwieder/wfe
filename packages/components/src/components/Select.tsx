@@ -1,3 +1,4 @@
+import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { FieldContext } from '../internal/fieldContext'
@@ -47,14 +48,18 @@ export function SelectRoot<
 export function SelectTrigger<T extends ValidComponent = 'button'>(
   props: PolymorphicProps<
     T,
-    Core.SelectTriggerProps<T> & { class?: ClassValue }
+    Core.SelectTriggerProps<T> & ControlDecorationProps & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Trigger as Component<typeof props>
   const scope = useChoiceScope()
   return (
     <Primitive
-      {...props}
+      {...(omit(props, 'decoration') as typeof props)}
+      data-ui-control-surface=""
+      data-ui-control-decoration={
+        props.decoration === false ? 'none' : props.decoration
+      }
       class={styledClasses('popup-trigger', props.class)}
       ref={[scope.setControl, untrack(() => props.ref)]}
     />
@@ -162,21 +167,22 @@ export type SelectChoice = { value: string; label: string; disabled?: boolean }
 export type SelectFieldProps = Omit<
   PolymorphicProps<'button', Core.SelectTriggerProps<'button'>>,
   'children' | 'value' | 'onChange' | 'disabled' | 'class' | 'name'
-> & {
-  class?: ClassValue
-  'data-ui-text'?: 'system' | 'value' | 'prose'
-  name?: string
-  contentProps?: { [key: `data-${string}`]: string | undefined }
-  disabled?: boolean
-  readonly?: boolean
-  required?: boolean
-  label: string
-  choices: readonly SelectChoice[]
-  value: string | undefined
-  onValueChange: (value: string) => void
-  placeholder?: string
-  invalid?: boolean
-}
+> &
+  ControlDecorationProps & {
+    class?: ClassValue
+    'data-ui-text'?: 'system' | 'value' | 'prose'
+    name?: string
+    contentProps?: { [key: `data-${string}`]: string | undefined }
+    disabled?: boolean
+    readonly?: boolean
+    required?: boolean
+    label: string
+    choices: readonly SelectChoice[]
+    value: string | undefined
+    onValueChange: (value: string) => void
+    placeholder?: string
+    invalid?: boolean
+  }
 
 /** A single choice composed from the same Select parts as multiple choices. */
 export function SelectField(props: SelectFieldProps) {

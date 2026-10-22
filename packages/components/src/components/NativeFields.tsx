@@ -1,3 +1,8 @@
+import { CompoundControl, ControlFrame } from '../internal/controlDecoration'
+import type {
+  ControlDecorationProps,
+  NativeControlFrameProps,
+} from '../internal/controlDecoration'
 import { Show } from 'solid-js'
 import { ValueDisplay } from './ValueDisplay'
 import type { ValueFormat, ValueFormatOptions } from '../utils/valueFormat'
@@ -26,13 +31,14 @@ import {
 import { isServer } from '@solidjs/web'
 import type { ComponentProps, JSX } from '@solidjs/web'
 
-export type FieldProps = JSX.HTMLAttributes<HTMLDivElement> & {
-  controlId?: string
-  disabled?: boolean
-  readonly?: boolean
-  required?: boolean
-  invalid?: boolean
-}
+export type FieldProps = JSX.HTMLAttributes<HTMLDivElement> &
+  ControlDecorationProps & {
+    controlId?: string
+    disabled?: boolean
+    readonly?: boolean
+    required?: boolean
+    invalid?: boolean
+  }
 export function Field(props: FieldProps) {
   const generated = `field-${createUniqueId()}`
   const [control, setControl] = createSignal<(() => string) | undefined>(
@@ -87,6 +93,7 @@ export function Field(props: FieldProps) {
     'readonly',
     'required',
     'invalid',
+    'decoration',
     'ref',
     ...nativeEventProps,
   )
@@ -97,6 +104,9 @@ export function Field(props: FieldProps) {
         {...attributes}
         id={props.id || generated}
         data-ui=""
+        data-ui-control-decoration={
+          props.decoration === false ? 'none' : props.decoration
+        }
         data-invalid={props.invalid ? '' : undefined}
         class={styledClasses('ui-field', props.class)}
         ref={[props.ref, events]}
@@ -155,23 +165,26 @@ export function FieldError(props: FieldErrorProps) {
   )
 }
 
-export type InputProps = JSX.InputHTMLAttributes<HTMLInputElement> & {
-  invalid?: boolean
-  onValueChange?: (value: string, event: InputEvent) => void
-}
-export type TextareaProps = JSX.TextareaHTMLAttributes<HTMLTextAreaElement> & {
-  invalid?: boolean
-  onValueChange?: (value: string, event: InputEvent) => void
-}
+export type InputProps = JSX.InputHTMLAttributes<HTMLInputElement> &
+  NativeControlFrameProps & {
+    invalid?: boolean
+    onValueChange?: (value: string, event: InputEvent) => void
+  }
+export type TextareaProps = JSX.TextareaHTMLAttributes<HTMLTextAreaElement> &
+  NativeControlFrameProps & {
+    invalid?: boolean
+    onValueChange?: (value: string, event: InputEvent) => void
+  }
 type TextElement = HTMLInputElement | HTMLTextAreaElement
-type TextProps<T extends TextElement> = JSX.HTMLAttributes<T> & {
-  value?: InputProps['value'] | TextareaProps['value']
-  disabled?: InputProps['disabled']
-  readonly?: InputProps['readonly']
-  required?: InputProps['required']
-  invalid?: boolean
-  onValueChange?: (value: string, event: InputEvent) => void
-}
+type TextProps<T extends TextElement> = JSX.HTMLAttributes<T> &
+  NativeControlFrameProps & {
+    value?: InputProps['value'] | TextareaProps['value']
+    disabled?: InputProps['disabled']
+    readonly?: InputProps['readonly']
+    required?: InputProps['required']
+    invalid?: boolean
+    onValueChange?: (value: string, event: InputEvent) => void
+  }
 function textControl<T extends TextElement>(props: TextProps<T>) {
   const field = useContext(FieldContext)
   const generated = `input-${createUniqueId()}`
@@ -181,6 +194,9 @@ function textControl<T extends TextElement>(props: TextProps<T>) {
     props,
     'ref',
     'invalid',
+    'decoration',
+    'frameClass',
+    'frameStyle',
     'onValueChange',
     ...nativeEventProps,
   )
@@ -226,37 +242,54 @@ function textControl<T extends TextElement>(props: TextProps<T>) {
 export function Input(props: InputProps) {
   const state = textControl<HTMLInputElement>(props)
   return renderAfterRegistration(() => (
-    <input
-      {...state.attributes}
-      id={state.id()}
-      disabled={state.disabled()}
-      readonly={state.readonly()}
-      required={state.required()}
-      aria-invalid={
-        props['aria-invalid'] ?? (state.invalid() ? 'true' : undefined)
+    <ControlFrame
+      decoration={props.decoration}
+      frameClass={props.frameClass}
+      frameStyle={props.frameStyle}
+      hidden={
+        Boolean(props.hidden && props.hidden !== 'until-found') ||
+        props.type === 'hidden'
       }
-      aria-describedby={state.describedBy()}
-      class={styledClasses('ui-input', props.class)}
-      ref={[props.ref, state.events]}
-    />
+    >
+      <input
+        {...state.attributes}
+        id={state.id()}
+        disabled={state.disabled()}
+        readonly={state.readonly()}
+        required={state.required()}
+        aria-invalid={
+          props['aria-invalid'] ?? (state.invalid() ? 'true' : undefined)
+        }
+        aria-describedby={state.describedBy()}
+        class={styledClasses('ui-input', props.class)}
+        ref={[props.ref, state.events]}
+      />
+    </ControlFrame>
   ))
 }
 export function Textarea(props: TextareaProps) {
   const state = textControl<HTMLTextAreaElement>(props)
   return renderAfterRegistration(() => (
-    <textarea
-      {...state.attributes}
-      id={state.id()}
-      disabled={state.disabled()}
-      readonly={state.readonly()}
-      required={state.required()}
-      aria-invalid={
-        props['aria-invalid'] ?? (state.invalid() ? 'true' : undefined)
-      }
-      aria-describedby={state.describedBy()}
-      class={styledClasses('ui-textarea', props.class)}
-      ref={[props.ref, state.events]}
-    />
+    <ControlFrame
+      decoration={props.decoration}
+      frameClass={props.frameClass}
+      frameStyle={props.frameStyle}
+      hidden={Boolean(props.hidden && props.hidden !== 'until-found')}
+    >
+      <textarea
+        {...state.attributes}
+        id={state.id()}
+        disabled={state.disabled()}
+        readonly={state.readonly()}
+        required={state.required()}
+        aria-invalid={
+          props['aria-invalid'] ?? (state.invalid() ? 'true' : undefined)
+        }
+        aria-describedby={state.describedBy()}
+        class={styledClasses('ui-textarea', props.class)}
+        ref={[props.ref, state.events]}
+      />
+    </ControlFrame>
   ))
 }
 export type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> &
@@ -298,23 +331,31 @@ export function FieldSet(props: FieldSetProps) {
     />
   )
 }
-export type InputGroupProps = JSX.HTMLAttributes<HTMLDivElement>
+export type InputGroupProps = JSX.HTMLAttributes<HTMLDivElement> &
+  ControlDecorationProps
 export function InputGroup(props: InputGroupProps) {
-  const attributes = omit(props, 'ref', ...nativeEventProps)
+  const attributes = omit(props, 'decoration', 'ref', ...nativeEventProps)
   const events = ownedElementEvents(props)
   return (
-    <div
-      {...attributes}
-      class={styledClasses('ui-input-group', props.class)}
-      ref={[props.ref, events]}
-    />
+    <CompoundControl value={true}>
+      <div
+        {...attributes}
+        data-ui-control-surface=""
+        data-ui-control-decoration={
+          props.decoration === false ? 'none' : props.decoration
+        }
+        class={styledClasses('ui-input-group', props.class)}
+        ref={[props.ref, events]}
+      />
+    </CompoundControl>
   )
 }
 
-export type NativeSelectProps = JSX.SelectHTMLAttributes<HTMLSelectElement> & {
-  invalid?: boolean
-  onValueChange?: (value: string, event: Event) => void
-}
+export type NativeSelectProps = JSX.SelectHTMLAttributes<HTMLSelectElement> &
+  NativeControlFrameProps & {
+    invalid?: boolean
+    onValueChange?: (value: string, event: Event) => void
+  }
 /** Compatibility control for native browser integration. Use SelectField in normal interfaces. */
 export function NativeSelect(props: NativeSelectProps) {
   const field = useContext(FieldContext)
@@ -325,6 +366,9 @@ export function NativeSelect(props: NativeSelectProps) {
     props,
     'ref',
     'invalid',
+    'decoration',
+    'frameClass',
+    'frameStyle',
     'onValueChange',
     ...nativeEventProps,
   )
@@ -373,23 +417,30 @@ export function NativeSelect(props: NativeSelectProps) {
     }),
   )
   return renderAfterRegistration(() => (
-    <select
-      {...attributes}
-      id={id()}
-      disabled={props.disabled ?? field?.disabled()}
-      required={props.required ?? field?.required()}
-      aria-describedby={
-        [field?.describedBy(), props['aria-describedby']]
-          .filter(Boolean)
-          .join(' ') || undefined
-      }
-      aria-invalid={
-        props['aria-invalid'] ??
-        ((props.invalid ?? field?.invalid()) ? 'true' : undefined)
-      }
-      class={styledClasses('ui-native-select', props.class)}
-      ref={[props.ref, events]}
-    />
+    <ControlFrame
+      decoration={props.decoration}
+      frameClass={props.frameClass}
+      frameStyle={props.frameStyle}
+      hidden={Boolean(props.hidden && props.hidden !== 'until-found')}
+    >
+      <select
+        {...attributes}
+        id={id()}
+        disabled={props.disabled ?? field?.disabled()}
+        required={props.required ?? field?.required()}
+        aria-describedby={
+          [field?.describedBy(), props['aria-describedby']]
+            .filter(Boolean)
+            .join(' ') || undefined
+        }
+        aria-invalid={
+          props['aria-invalid'] ??
+          ((props.invalid ?? field?.invalid()) ? 'true' : undefined)
+        }
+        class={styledClasses('ui-native-select', props.class)}
+        ref={[props.ref, events]}
+      />
+    </ControlFrame>
   ))
 }
 

@@ -86,3 +86,17 @@
 :where([data-ui]) .choice-control > button.choice-toggle {
   padding-inline: max(0px, calc((var(--ui-control-height, 26px) - 17px) / 2));
 }
+
+/* Frames keep native control references and form behavior on the inner element. */
+:where([data-ui]) .ui-control-frame {
+  display: grid;
+  min-inline-size: 0;
+  inline-size: 100%;
+  max-inline-size: var(--ui-field-max-width, 30rem);
+}
+:where([data-ui]) .ui-control-frame[hidden] {
+  display: none;
+}
+:where([data-ui]) .ui-input-group > .ui-control-frame {
+  flex: 1;
+}

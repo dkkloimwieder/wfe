@@ -34,7 +34,9 @@ export async function reviewTabs(page, api) {
   await configure({ value: 'notes' })
   await expect(notes).toBeFocused()
   await expect(input).not.toBeVisible()
-  await expect(input.locator('..')).toHaveAttribute('inert', '')
+  await expect(
+    root.getByRole('tabpanel', { includeHidden: true }).filter({ has: input }),
+  ).toHaveAttribute('inert', '')
   await configure({ value: 'details' })
   await expect(input).toHaveValue('Retained value')
   await configure({ accept: false })

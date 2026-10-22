@@ -1,3 +1,5 @@
+import { CompoundControl } from '../internal/controlDecoration'
+import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/combobox'
@@ -181,15 +183,22 @@ export function ComboboxInput<T extends ValidComponent = 'input'>(
 export function ComboboxControl<Option, T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.ComboboxControlProps<Option, T> & { class?: ClassValue }
+    Core.ComboboxControlProps<Option, T> &
+      ControlDecorationProps & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Control as Component<typeof props>
   return (
-    <Primitive
-      {...props}
-      class={styledClasses('choice-control', props.class)}
-    />
+    <CompoundControl value={true}>
+      <Primitive
+        {...(omit(props, 'decoration') as typeof props)}
+        data-ui-control-surface=""
+        data-ui-control-decoration={
+          props.decoration === false ? 'none' : props.decoration
+        }
+        class={styledClasses('choice-control', props.class)}
+      />
+    </CompoundControl>
   )
 }
 

@@ -410,7 +410,8 @@
     .ui-button,
     .ui-dashboard-navigation a[href],
     .ui-dashboard-menu a[href],
-    .ui-entry-panel-surface
+    .ui-entry-panel-surface,
+    [data-ui-control-surface]
   )::before {
   transform: var(
     --ui-action-decoration-transform,
@@ -439,4 +440,92 @@
   padding: 0 var(--ui-cell-padding-x, 8px);
   border: 1px solid var(--ui-border);
   background: var(--ui-surface);
+}
+
+/* Every input uses the same backing, theme roles, and action geometry. */
+.ui-theme [data-ui-control-decoration='none'] {
+  --ui-input-decoration-display: none;
+}
+.ui-theme [data-ui-control-decoration='neutral'] {
+  --ui-input-decoration-display: block;
+  --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
+  --ui-input-decoration-border-color: var(--ui-neutral-border-color);
+}
+.ui-theme [data-ui-control-decoration='primary'] {
+  --ui-input-decoration-display: block;
+  --ui-input-decoration-dot-color: var(--ui-accent);
+  --ui-input-decoration-border-color: var(--ui-accent);
+}
+.ui-theme [data-ui-control-decoration='secondary'] {
+  --ui-input-decoration-display: block;
+  --ui-input-decoration-dot-color: var(--ui-secondary-accent);
+  --ui-input-decoration-border-color: var(--ui-secondary-accent);
+}
+.ui-theme :has(> [data-ui-control-surface]) {
+  isolation: isolate;
+}
+.ui-theme [data-ui-control-surface] {
+  position: relative;
+}
+.ui-theme [data-ui-control-surface]::before {
+  content: '';
+  display: var(--ui-input-decoration-display, block);
+  position: absolute;
+  inset: -4px;
+  z-index: -1;
+  pointer-events: none;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--ui-input-decoration-border-color, var(--ui-neutral-border-color))
+        var(--ui-decoration-border-opacity, 50%),
+      transparent
+    );
+  background-color: var(--ui-canvas-surface);
+  background-image: radial-gradient(
+    circle,
+    color-mix(
+        in srgb,
+        var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color))
+          var(--ui-decoration-dot-opacity, 50%),
+        transparent
+      )
+      0.75px,
+    transparent 0.75px
+  );
+  background-size: var(--ui-canvas-pattern-size);
+  opacity: 0;
+}
+.ui-theme [data-ui-control-surface]:is(:hover, :focus-within)::before,
+.ui-theme
+  :is(.ui-toggle, .ui-radio-item):focus-within
+  [data-ui-control-surface]::before {
+  opacity: 1;
+}
+.ui-theme
+  [data-ui-control-surface]:is(
+    :disabled,
+    [aria-disabled='true'],
+    [data-disabled],
+    [data-readonly]
+  )::before,
+.ui-theme
+  [data-ui-control-surface]:has(
+    :is(input, textarea, select):is(:disabled, [readonly])
+  )::before {
+  display: none;
+}
+@media (forced-colors: active) {
+  .ui-theme [data-ui-control-surface]::before {
+    display: none;
+  }
+}
+
+/* A compound face owns the backing; nested controls keep their focus outline. */
+.ui-theme [data-ui-control-surface] [data-ui-control-surface]::before,
+.ui-theme [data-ui-control-surface] .ui-button::before,
+.ui-theme
+  :is(.ui-toggle, .ui-radio-item):has(input:disabled)
+  [data-ui-control-surface]::before {
+  display: none;
 }

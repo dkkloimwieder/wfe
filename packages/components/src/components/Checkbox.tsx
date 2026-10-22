@@ -1,3 +1,5 @@
+import { omit } from 'solid-js'
+import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/checkbox'
@@ -8,14 +10,17 @@ import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 export function CheckboxRoot<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.CheckboxRootProps<T> & { class?: ClassValue }
+    Core.CheckboxRootProps<T> & ControlDecorationProps & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Root as Component<typeof props>
   return (
     <Primitive
-      {...props}
+      {...(omit(props, 'decoration') as typeof props)}
       data-ui=""
+      data-ui-control-decoration={
+        props.decoration === false ? 'none' : props.decoration
+      }
       class={styledClasses('ui-toggle ui-checkbox', props.class)}
     />
   )
@@ -46,6 +51,7 @@ export function CheckboxControl<T extends ValidComponent = 'div'>(
   return (
     <Primitive
       {...props}
+      data-ui-control-surface=""
       class={styledClasses('ui-check-control', props.class)}
     />
   )

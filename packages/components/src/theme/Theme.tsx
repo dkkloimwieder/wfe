@@ -1,3 +1,4 @@
+import type { ControlDecoration } from '../internal/controlDecoration'
 import { onCleanup } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { styledClasses, type ClassValue } from '../internal/classes'
@@ -34,6 +35,7 @@ export type ThemeAccent =
 export type ThemeSecondaryAccent =
   ThemeAccent | 'yellow' | 'light-blue' | 'dark-blue'
 export type ThemeOptions = {
+  inputDecoration?: ControlDecoration
   mode?: ThemeMode
   accent?: ThemeAccent
   secondaryAccent?: ThemeSecondaryAccent
@@ -98,6 +100,20 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
           secondary >= 0 && secondary < secondaryAccents.length ? secondary : 1,
       },
     ),
+    '--ui-input-decoration-display':
+      options.inputDecoration === false ? 'none' : 'block',
+    '--ui-input-decoration-dot-color':
+      options.inputDecoration === 'primary'
+        ? 'var(--ui-accent)'
+        : options.inputDecoration === 'secondary'
+          ? 'var(--ui-secondary-accent)'
+          : 'var(--ui-neutral-dot-color)',
+    '--ui-input-decoration-border-color':
+      options.inputDecoration === 'primary'
+        ? 'var(--ui-accent)'
+        : options.inputDecoration === 'secondary'
+          ? 'var(--ui-secondary-accent)'
+          : 'var(--ui-neutral-border-color)',
     '--ui-button-color': 'var(--ui-accent)',
     '--ui-button-on-color': 'var(--ui-on-accent)',
   }

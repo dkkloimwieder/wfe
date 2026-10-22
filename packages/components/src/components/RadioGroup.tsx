@@ -1,3 +1,5 @@
+import { omit } from 'solid-js'
+import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/radio-group'
 import type { Component } from 'solid-js'
@@ -7,14 +9,18 @@ import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 export function RadioGroupRoot<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<
     T,
-    Core.RadioGroupRootProps<T> & { class?: ClassValue }
+    Core.RadioGroupRootProps<T> &
+      ControlDecorationProps & { class?: ClassValue }
   >,
 ) {
   const Primitive = Core.Root as Component<typeof props>
   return (
     <Primitive
-      {...props}
+      {...(omit(props, 'decoration') as typeof props)}
       data-ui=""
+      data-ui-control-decoration={
+        props.decoration === false ? 'none' : props.decoration
+      }
       class={styledClasses('ui-radio-group', props.class)}
     />
   )
@@ -57,6 +63,7 @@ export function RadioGroupItemControl<T extends ValidComponent = 'div'>(
   return (
     <Primitive
       {...props}
+      data-ui-control-surface=""
       class={styledClasses('ui-radio-control', props.class)}
     />
   )

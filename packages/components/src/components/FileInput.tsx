@@ -1,3 +1,4 @@
+import type { ControlDecorationProps } from '../internal/controlDecoration'
 import {
   For,
   Show,
@@ -37,24 +38,25 @@ export type FileInputProps = Omit<
   | 'onDrop'
   | 'onDragOver'
   | 'onDragLeave'
-> & {
-  onDrop?: JSX.HTMLAttributes<HTMLDivElement>['onDrop']
-  onDragOver?: JSX.HTMLAttributes<HTMLDivElement>['onDragOver']
-  onDragLeave?: JSX.HTMLAttributes<HTMLDivElement>['onDragLeave']
-  accept?: string
-  type?: never
-  value?: never
-  defaultValue?: never
-  name?: never
-  label: string
-  files: readonly File[]
-  onFilesChange: (files: File[]) => void
-  onFilesRejected?: (rejections: readonly FileRejection[]) => void
-  maxFileSize?: number
-  invalid?: boolean
-  browseLabel?: string
-  removeLabel?: (file: File) => string
-}
+> &
+  ControlDecorationProps & {
+    onDrop?: JSX.HTMLAttributes<HTMLDivElement>['onDrop']
+    onDragOver?: JSX.HTMLAttributes<HTMLDivElement>['onDragOver']
+    onDragLeave?: JSX.HTMLAttributes<HTMLDivElement>['onDragLeave']
+    accept?: string
+    type?: never
+    value?: never
+    defaultValue?: never
+    name?: never
+    label: string
+    files: readonly File[]
+    onFilesChange: (files: File[]) => void
+    onFilesRejected?: (rejections: readonly FileRejection[]) => void
+    maxFileSize?: number
+    invalid?: boolean
+    browseLabel?: string
+    removeLabel?: (file: File) => string
+  }
 
 /** Controlled file selection. Applications own file contents and submission. */
 export function FileInput(props: FileInputProps) {
@@ -247,6 +249,7 @@ export function FileInput(props: FileInputProps) {
     'onFilesRejected',
     'maxFileSize',
     'invalid',
+    'decoration',
     'browseLabel',
     'removeLabel',
     'disabled',
@@ -266,6 +269,10 @@ export function FileInput(props: FileInputProps) {
   return (
     <div
       data-ui=""
+      data-ui-control-surface=""
+      data-ui-control-decoration={
+        props.decoration === false ? 'none' : props.decoration
+      }
       class={styledClasses('ui-file-input', props.class)}
       style={props.style}
       role="group"

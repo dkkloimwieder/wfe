@@ -1,3 +1,4 @@
+import { InputDecorationExample } from './InputDecorationExample'
 import { ColumnControlsApp } from '../../generator/ColumnControlsApp'
 import { FormActionsExample } from './FormActionsExample'
 import { ContextControls } from '../../shared/controls/ContextControls'
@@ -45,6 +46,7 @@ import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'
 
 const views = {
+  'input-decoration': InputDecorationExample,
   'form-actions': FormActionsExample,
   'column-controls': () => (
     <div class="gallery-table">

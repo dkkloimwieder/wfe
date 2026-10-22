@@ -8,3 +8,5 @@ export type {
 } from './Theme'
 export { themeSizing } from './sizing'
 export * from './appearance'
+
+export type { ControlDecoration } from '../internal/controlDecoration'

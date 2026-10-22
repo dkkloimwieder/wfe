@@ -1043,7 +1043,7 @@
 }
 :where([data-ui]) .ui-radio-control,
 :where([data-ui]) .ui-radio-indicator {
-  border-radius: 50%;
+  border-radius: 0;
 }
 :where([data-ui]) .ui-radio-indicator {
   width: calc(var(--ui-font-size, 12px) - 4px);
@@ -1063,12 +1063,12 @@
   width: calc(var(--ui-font-size, 12px) * 2.5);
   justify-items: start;
   padding: 2px;
-  border-radius: 12px;
+  border-radius: 0;
 }
 :where([data-ui]) .ui-switch-thumb {
   width: calc(var(--ui-font-size, 12px) - 2px);
   height: calc(var(--ui-font-size, 12px) - 2px);
-  border-radius: 50%;
+  border-radius: 0;
   background: currentColor;
 }
 :where([data-ui]) .ui-switch-control[data-checked] {

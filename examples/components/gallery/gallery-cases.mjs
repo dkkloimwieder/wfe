@@ -1,9 +1,11 @@
+import { inputDecorationCases } from './input-decoration-cases.mjs'
 import { galleryActionCases } from './action-cases.mjs'
 import { galleryFormCases } from './form-cases.mjs'
 import { galleryLoadingCases } from './loading-cases.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 const catalog = [
+  ['input-decoration', 'Input decoration'],
   ['form-actions', 'Form actions'],
   ['column-controls', 'Column controls and row actions'],
   ['subtables', 'Sub-tables'],
@@ -28,6 +30,7 @@ const catalog = [
   ['pagination', 'Pagination and header actions'],
 ]
 export async function galleryCases({ page, url, record, settle }) {
+  await inputDecorationCases({ page, url, record })
   await galleryActionCases({ page, url, record })
   await record(
     'gallery: pagination and header actions remain application-owned',

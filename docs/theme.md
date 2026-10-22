@@ -59,6 +59,30 @@ Use solid content panels over the dotted main canvas to keep text readable.
 The package includes the Fira Code OFL license and Open Props attribution beside the shipped styles.
 See [the public consumer example](../examples/theme/ThemeConsumer.tsx) for nested layouts, popups, and live mode changes.
 
+## Input decoration
+
+Inputs show a dotted backing on hover and focus. Radios are square, and switches are rectangular.
+The backing uses the same random geometry and opacity controls as buttons.
+It adds no focus stops and leaves native validation and form submission unchanged.
+Disabled and read-only controls omit the backing. Forced-color mode retains the standard focus outline.
+
+Set `Theme.inputDecoration` to `false`, `"neutral"`, `"primary"`, or `"secondary"`.
+The default is `"neutral"`. A nested Theme starts with its own default.
+Set `decoration` on a `Field` to change its controls, or on an individual control to override that field.
+Use this prop on `Input`, `Textarea`, `NumberInput`, `InputGroup`, `NativeSelect`, `SelectField`, `DatePicker`, `DateTimePicker`, and `FileInput`.
+For compound APIs, use `Checkbox`, `Switch`, `RadioGroup`, `Select.Trigger`, or `Combobox.Control`.
+A date picker or combobox draws one backing around its complete control.
+
+Native text inputs, textareas, and selects have a presentation wrapper.
+Their `ref`, `id`, `name`, event handlers, and validation attributes still target the native element.
+The wrapper follows the shared field width limit and adds no tab stop.
+Use `frameStyle` or `frameClass` to set a standalone native control's outer width.
+The native control fills that wrapper. Keep text and native attributes on `style` and `class`.
+In a compound control, set outer sizing on the compound control instead.
+`Input`, `Textarea`, `NumberInput`, and `NativeSelect` accept these wrapper props.
+
+Review the choices in the gallery at `?gallery=input-decoration`.
+
 ## Consumer tests
 
 From the repository root, run `pnpm build` first.
