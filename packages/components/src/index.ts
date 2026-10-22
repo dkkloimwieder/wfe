@@ -114,3 +114,6 @@ export type {
   ControlDecorationProps,
   NativeControlFrameProps,
 } from './internal/controlDecoration'
+
+export { defaultDecorationGeometry } from './theme/decorationGeometry'
+export type { DecorationGeometry } from './theme/decorationGeometry'

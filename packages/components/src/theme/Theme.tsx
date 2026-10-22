@@ -1,5 +1,7 @@
+import { resolveDecorationGeometry } from './decorationGeometry'
+import type { DecorationGeometry } from './decorationGeometry'
 import type { ControlDecoration } from '../internal/controlDecoration'
-import { onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { uiScope } from '../styles/density'
@@ -35,6 +37,7 @@ export type ThemeAccent =
 export type ThemeSecondaryAccent =
   ThemeAccent | 'yellow' | 'light-blue' | 'dark-blue'
 export type ThemeOptions = {
+  decorationGeometry?: Partial<DecorationGeometry>
   inputDecoration?: ControlDecoration
   mode?: ThemeMode
   accent?: ThemeAccent
@@ -122,10 +125,27 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
 /** Theme and portal owner. The application owns mode and accent state. */
 export function Theme(props: ThemeProps) {
   const scope = uiScope()
-  let dispose: (() => void) | undefined
+  const [element, setElement] = createSignal<HTMLDivElement>()
+  let controller: ReturnType<typeof decorateActions> | undefined
+  let owner: HTMLDivElement | undefined
+  createEffect(
+    () => ({
+      node: element(),
+      geometry: resolveDecorationGeometry(props.decorationGeometry),
+    }),
+    ({ node, geometry }) => {
+      if (!node) return
+      if (owner !== node) {
+        controller?.dispose()
+        owner = node
+        controller = decorateActions(node)
+      }
+      controller?.configure(geometry)
+    },
+  )
   onCleanup(() => {
-    dispose?.()
-    dispose = undefined
+    controller?.dispose()
+    controller = undefined
   })
   return (
     <div
@@ -134,10 +154,7 @@ export function Theme(props: ThemeProps) {
       class={styledClasses('ui-theme', props.class)}
       data-ui-portal-root=""
       data-ui-theme-owner=""
-      ref={(node) => {
-        dispose?.()
-        dispose = decorateActions(node)
-      }}
+      ref={setElement}
       style={{ ...scope.style, ...themeStyle(props), ...props.style }}
     >
       {props.children}

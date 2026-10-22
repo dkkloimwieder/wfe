@@ -8,6 +8,12 @@ import type { Decorations } from '../../shared/appearance/appearance'
 export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
+  {
+    id: 'decoration-geometry',
+    label: 'Decoration geometry',
+    group: 'Components',
+    states: ['normal'],
+  },
   { id: 'icons', label: 'Icons', group: 'Components', states: ['normal'] },
   {
     id: 'input-decoration',

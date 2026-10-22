@@ -106,3 +106,29 @@ Disabled sections and forced-color mode suppress the decoration.
 Enabled sections use primary decoration by default, while inputs keep their neutral default.
 Section colors do not change input colors. Both remain independently configurable.
 The gallery at `?gallery=input-decoration` includes section colors and both triggers.
+
+## Decoration geometry
+
+`Theme.decorationGeometry` controls rotation and perspective taper across buttons, inputs, navigation links, entry panels, and form sections.
+Large surfaces use smaller angles. Surfaces up to 128 pixels keep the original range by default.
+Rotation starts with a maximum of 2 degrees. Each taper axis also starts with a maximum of 2 degrees.
+
+`sizeMode` accepts `"longest"`, `"axes"`, or `"none"`. The default is `"longest"`.
+Rotation uses the longest side in both adjusted modes.
+In `"axes"` mode, taper considers its own axis and the longest side together.
+This limits distortion on tall or wide surfaces.
+`"none"` restores size-independent angles, with a safety limit for extreme perspective.
+
+`referenceSize` sets the size that retains the full effect.
+`rotationFalloff` defaults to 1. `taperFalloff` defaults to 2 because perspective distortion grows more rapidly with size.
+A value of 0 disables that reduction. Larger values reduce large-surface effects more strongly.
+`rotation` and `taper` set their maximum angles. Each accepts 0 through 8 degrees.
+`randomizeOnHover` defaults to `true`. Set it to `false` to hold the random samples while comparing geometry.
+
+Each Theme uses one resize observer. Size and configuration changes reuse the current samples.
+Removed nodes stop observation. Theme disposal releases both observers and the pointer listener.
+Without ResizeObserver, the theme measures nodes on attachment and pointer entry.
+`themeStyle` alone does not install measurement or randomization.
+
+The gallery page `?gallery=decoration-geometry` provides sliders, size presets, and a new-samples action.
+Its nested Theme inherits the gallery appearance. Its geometry controls affect only the preview.

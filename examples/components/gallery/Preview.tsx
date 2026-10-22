@@ -1,3 +1,4 @@
+import { DecorationGeometryExample } from './DecorationGeometryExample'
 import { InputDecorationExample } from './InputDecorationExample'
 import { ColumnControlsApp } from '../../generator/ColumnControlsApp'
 import { FormActionsExample } from './FormActionsExample'
@@ -50,6 +51,7 @@ const IconsExample = lazy(() =>
 )
 
 const views = {
+  'decoration-geometry': DecorationGeometryExample,
   icons: IconsExample,
   'input-decoration': InputDecorationExample,
   'form-actions': FormActionsExample,

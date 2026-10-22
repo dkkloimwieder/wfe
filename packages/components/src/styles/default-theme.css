@@ -534,6 +534,13 @@
   display: none;
 }
 
+/* A fieldset positions its pseudo-element inside an anonymous content box. */
+.ui-theme fieldset[data-ui-section-decoration]::before {
+  box-sizing: border-box;
+  height: calc(var(--ui-section-decoration-height, 100%) + 8px);
+  bottom: auto;
+}
+
 /* Section roles stay on the backing so that inner controls remain independent. */
 .ui-theme [data-ui-section-decoration]::before {
   --ui-input-decoration-display: block;

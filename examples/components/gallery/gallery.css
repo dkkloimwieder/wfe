@@ -187,3 +187,29 @@ body:has(.gallery-preview) {
 .gallery-icons span {
   overflow-wrap: anywhere;
 }
+
+.geometry-preview {
+  display: grid;
+  gap: var(--ui-layout-inset);
+  min-width: 0;
+}
+.geometry-stage {
+  padding: 48px;
+  min-width: 0;
+  background: var(--ui-canvas-pattern), var(--ui-canvas-surface);
+}
+.geometry-sample {
+  box-sizing: border-box;
+  max-width: 100%;
+  margin-inline: auto;
+}
+.geometry-preview .geometry-sample::before,
+.ui-theme.geometry-preview[data-ui-theme-owner]
+  .ui-button.geometry-fixed-sample::before {
+  opacity: 1;
+}
+@media (max-width: 600px) {
+  .geometry-stage {
+    padding: 24px;
+  }
+}
