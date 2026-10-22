@@ -141,12 +141,14 @@ export function EverythingForm() {
         </p>
       </header>
       <FieldGroup
+        decoration="primary"
         title="Identity"
         help="Text, email, telephone, and URL fields. Name and email are required."
       >
         <For each={identity}>
           {(field) => (
             <Field
+              decoration="neutral"
               required={field.required}
               invalid={Boolean(errors()[field.name])}
             >
@@ -157,8 +159,8 @@ export function EverythingForm() {
           )}
         </For>
       </FieldGroup>
-      <FieldGroup title="Classification">
-        <Field>
+      <FieldGroup decoration="neutral" title="Classification">
+        <Field decoration="primary">
           <Label>Status</Label>
           <SelectField
             label="Status"
@@ -190,7 +192,7 @@ export function EverythingForm() {
           )}
         >
           <Combobox.Label>Responsible team</Combobox.Label>
-          <Combobox.Control>
+          <Combobox.Control decoration="primary">
             <Combobox.Input />
             <Combobox.Trigger aria-label="Show teams">
               <Combobox.Icon />
@@ -219,7 +221,7 @@ export function EverythingForm() {
           )}
         >
           <Select.Label>Tags</Select.Label>
-          <Select.Trigger>
+          <Select.Trigger decoration="primary">
             <Select.Value<Choice>>
               {(state) =>
                 state
@@ -237,8 +239,8 @@ export function EverythingForm() {
           </Select.Portal>
         </Select>
       </FieldGroup>
-      <FieldGroup title="Schedule">
-        <Field>
+      <FieldGroup decoration="primary" title="Schedule">
+        <Field decoration="neutral">
           <Label>Start date</Label>
           <DatePicker
             label="Start date"
@@ -247,7 +249,7 @@ export function EverythingForm() {
             dateFormat="yyyy-MM-dd"
           />
         </Field>
-        <Field>
+        <Field decoration="neutral">
           <Label>End date</Label>
           <DatePicker
             label="End date"
@@ -257,7 +259,7 @@ export function EverythingForm() {
           />
           <HelpText>Optional.</HelpText>
         </Field>
-        <Field>
+        <Field decoration="neutral">
           <Label>Appointment</Label>
           <DateTimePicker
             label="Appointment"
@@ -268,8 +270,8 @@ export function EverythingForm() {
           />
         </Field>
       </FieldGroup>
-      <FieldGroup title="Amounts">
-        <Field>
+      <FieldGroup decoration="neutral" title="Amounts">
+        <Field decoration="primary">
           <Label>Quantity</Label>
           <NumberInput
             name="quantity"
@@ -278,7 +280,7 @@ export function EverythingForm() {
             min={0}
           />
         </Field>
-        <Field>
+        <Field decoration="primary">
           <Label>Budget</Label>
           <NumberInput
             name="budget"
@@ -288,7 +290,7 @@ export function EverythingForm() {
           />
           <HelpText>Decimal values are allowed.</HelpText>
         </Field>
-        <Field>
+        <Field decoration="primary">
           <Label>Discount percent</Label>
           <NumberInput
             name="discount"
@@ -299,8 +301,13 @@ export function EverythingForm() {
           />
         </Field>
       </FieldGroup>
-      <FieldGroup title="Preferences">
-        <Checkbox checked={notify()} defaultChecked onChange={setNotify}>
+      <FieldGroup decoration="primary" title="Preferences">
+        <Checkbox
+          decoration="neutral"
+          checked={notify()}
+          defaultChecked
+          onChange={setNotify}
+        >
           <Checkbox.Input />
           <Checkbox.Control>
             <Checkbox.Indicator />
@@ -310,7 +317,12 @@ export function EverythingForm() {
             Receive an update when the record changes.
           </Checkbox.Description>
         </Checkbox>
-        <Switch checked={active()} defaultChecked onChange={setActive}>
+        <Switch
+          decoration="neutral"
+          checked={active()}
+          defaultChecked
+          onChange={setActive}
+        >
           <Switch.Input />
           <Switch.Control>
             <Switch.Thumb />
@@ -318,6 +330,7 @@ export function EverythingForm() {
           <Switch.Label>Active</Switch.Label>
         </Switch>
         <RadioGroup
+          decoration="neutral"
           value={delivery()}
           defaultValue="standard"
           onChange={setDelivery}
@@ -336,13 +349,13 @@ export function EverythingForm() {
           </For>
         </RadioGroup>
       </FieldGroup>
-      <FieldGroup title="Notes and attachments">
-        <Field>
+      <FieldGroup decoration="neutral" title="Notes and attachments">
+        <Field decoration="primary">
           <Label>Notes</Label>
           <Textarea name="notes" rows={5} />
           <HelpText>Prose keeps its original capitalization.</HelpText>
         </Field>
-        <Field>
+        <Field decoration="primary">
           <Label>Attachments</Label>
           <FileInput
             label="Attachments"
@@ -353,12 +366,12 @@ export function EverythingForm() {
           <HelpText>Files stay in this browser. Nothing is uploaded.</HelpText>
         </Field>
       </FieldGroup>
-      <FieldGroup title="Read only and unavailable fields">
-        <Field readonly>
+      <FieldGroup decoration="primary" title="Read only and unavailable fields">
+        <Field decoration="neutral" readonly>
           <Label>Reference</Label>
           <Input value="REC-0042" />
         </Field>
-        <Field readonly>
+        <Field decoration="neutral" readonly>
           <Label>Recorded date</Label>
           <FieldValue
             value="2026-10-19"
@@ -366,7 +379,7 @@ export function EverythingForm() {
             dateFormat="yyyy-MM-dd"
           />
         </Field>
-        <Field disabled>
+        <Field decoration="neutral" disabled>
           <Label>External identifier</Label>
           <Input value="Not assigned" />
           <HelpText>This field is unavailable in the example.</HelpText>
