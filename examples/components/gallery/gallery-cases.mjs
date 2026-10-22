@@ -1,8 +1,12 @@
+import { galleryActionCases } from './action-cases.mjs'
 import { galleryFormCases } from './form-cases.mjs'
 import { galleryLoadingCases } from './loading-cases.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 const catalog = [
+  ['form-actions', 'Form actions'],
+  ['column-controls', 'Column controls and row actions'],
+  ['subtables', 'Sub-tables'],
   ['everything', 'Everything form'],
   ['fields', 'Fields'],
   ['buttons', 'Buttons'],
@@ -24,6 +28,7 @@ const catalog = [
   ['pagination', 'Pagination and header actions'],
 ]
 export async function galleryCases({ page, url, record, settle }) {
+  await galleryActionCases({ page, url, record })
   await record(
     'gallery: pagination and header actions remain application-owned',
     async () => {
@@ -148,7 +153,7 @@ export async function galleryCases({ page, url, record, settle }) {
       const components = navigation
         .locator('details')
         .filter({ has: page.locator('summary', { hasText: /^Components$/ }) })
-      await expect(navigation.locator('details')).toHaveCount(4)
+      await expect(navigation.locator('details')).toHaveCount(5)
       await expect(navigation.locator('details[open]')).toHaveCount(1)
       await expect(forms).toHaveAttribute('open', '')
       await expect(
@@ -222,7 +227,7 @@ export async function galleryCases({ page, url, record, settle }) {
       await page
         .getByRole('button', { name: 'Components', exact: true })
         .click()
-      await expect(navigation.locator('details')).toHaveCount(4)
+      await expect(navigation.locator('details')).toHaveCount(5)
       await page.screenshot({ path: '/tmp/wfe-gallery-layout-phone.png' })
       await page.keyboard.press('Escape')
       await expect(

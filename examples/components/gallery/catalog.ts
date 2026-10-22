@@ -9,6 +9,18 @@ export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
   {
+    id: 'form-actions',
+    label: 'Form actions',
+    group: 'Forms',
+    states: ['normal'],
+  },
+  {
+    id: 'column-controls',
+    label: 'Column controls and row actions',
+    group: 'Tables',
+    states: ['normal'],
+  },
+  {
     id: 'contexts',
     label: 'Context switcher',
     group: 'Navigation',
@@ -94,14 +106,14 @@ export const entries = [
   {
     id: 'pagination',
     label: 'Pagination and header actions',
-    group: 'Components',
+    group: 'Tables',
     states: ['normal'],
   },
-  { id: 'table', label: 'Table', group: 'Components', states: ['normal'] },
+  { id: 'table', label: 'Table', group: 'Tables', states: ['normal'] },
   {
     id: 'subtables',
     label: 'Sub-tables',
-    group: 'Components',
+    group: 'Tables',
     states: ['normal'],
   },
 ] as const

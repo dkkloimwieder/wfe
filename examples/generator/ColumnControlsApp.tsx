@@ -1,5 +1,5 @@
 import { Show, createSignal, onCleanup } from 'solid-js'
-import { Button, FormActions } from '@wfe/components'
+import { Button, FieldGroup, FormActions } from '@wfe/components'
 import { createTable } from '@wfe/components/table'
 import { TableView } from '@wfe/generator'
 import type { CustomCellProps } from '@wfe/generator'
@@ -142,36 +142,40 @@ export function ColumnControlsApp(props: {
   }
   return (
     <>
-      <FormActions>
-        <Button onClick={() => app.selectMode('client')}>Client sorting</Button>
-        <Button onClick={() => app.selectMode('sorting')}>
-          Server sorting
-        </Button>
-        <Button onClick={() => app.selectMode('processing')}>
-          Server processing
-        </Button>
-        <Button onClick={app.toggle}>Toggle name controls</Button>
-        <Button
-          onClick={() =>
-            app.updateRow('b', { pending: !app.rows()[0]!.pending })
-          }
-        >
-          Toggle Beta pending
-        </Button>
-        <Button
-          onClick={() =>
-            app.updateRow('b', { archived: !app.rows()[0]!.archived })
-          }
-        >
-          Toggle Beta archived
-        </Button>
-        <Button onClick={app.replaceHandler}>Replace action callback</Button>
-      </FormActions>
-      <p role="status">
-        {app.calls().length
-          ? JSON.stringify(app.calls().at(-1))
-          : 'Choose a row action to see the application callback.'}
-      </p>
+      <FieldGroup title="Example controls">
+        <FormActions>
+          <Button onClick={() => app.selectMode('client')}>
+            Client sorting
+          </Button>
+          <Button onClick={() => app.selectMode('sorting')}>
+            Server sorting
+          </Button>
+          <Button onClick={() => app.selectMode('processing')}>
+            Server processing
+          </Button>
+          <Button onClick={app.toggle}>Toggle name controls</Button>
+          <Button
+            onClick={() =>
+              app.updateRow('b', { pending: !app.rows()[0]!.pending })
+            }
+          >
+            Toggle Beta pending
+          </Button>
+          <Button
+            onClick={() =>
+              app.updateRow('b', { archived: !app.rows()[0]!.archived })
+            }
+          >
+            Toggle Beta archived
+          </Button>
+          <Button onClick={app.replaceHandler}>Replace action callback</Button>
+        </FormActions>
+        <p role="status">
+          {app.calls().length
+            ? JSON.stringify(app.calls().at(-1))
+            : 'Choose a row action to see the application callback.'}
+        </p>
+      </FieldGroup>
       <TableView
         description={{
           id: 'column-controls',

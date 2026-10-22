@@ -158,7 +158,15 @@ export function Gallery() {
         navigation={(controls) => (
           <>
             <For
-              each={['Forms', 'Components', 'Navigation', 'Layout'] as const}
+              each={
+                [
+                  'Forms',
+                  'Tables',
+                  'Components',
+                  'Navigation',
+                  'Layout',
+                ] as const
+              }
             >
               {(group) => (
                 <SidebarGroup
@@ -169,6 +177,7 @@ export function Gallery() {
                         (
                           {
                             Forms: 'form',
+                            Tables: 'grid',
                             Components: 'grid',
                             Navigation: 'navigation',
                             Layout: 'layout',

@@ -45,7 +45,7 @@ They also test loading, empty results, retry, confirmation focus, both naming sc
 Cleanup aborts application requests, clears fake server timers and listeners, and removes popup portals.
 Pending promises settle during cleanup, and their callbacks cannot change disposed application state.
 These interaction tests do not measure heap retention or performance.
-Production WAMN components and generator output remain outside this fixture.
+Production application components remain outside this fixture. The gallery includes generated form and table examples.
 
 The existing popup runner includes the consumer cases in source, distribution, and development runs.
 Run only these cases with `BENCH_CASE_PATTERN='^consumer:'` and disable benchmark workloads with `BENCH_WORKLOADS=0`.
@@ -261,3 +261,13 @@ The preview uses the shared default appearance and supports RTL, vertical layout
 See [Resizable panes](../../docs/resizable.md) for the public API and application size ownership.
 
 Open `?files=1` for the styled record attachments form. It demonstrates controlled file selection, picker/drop constraints, removal, native required validity, and reset. Files stay in browser memory.
+
+## Current form and table examples
+
+Open `?gallery=form-actions` for the shared action row, application-controlled submission, optional icons, and accessible icon-only buttons.
+The Forms section includes this page and the existing Everything form.
+
+Open `?gallery=column-controls` for client/server sorting, omitted Actions controls, and row-dependent actions.
+The Tables section also includes the base table, pagination and header actions, and sub-tables.
+The gallery embeds the same column-controls example as the generator demo.
+All examples render directly in the gallery and inherit its appearance controls.

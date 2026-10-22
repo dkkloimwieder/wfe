@@ -1,3 +1,5 @@
+import { ColumnControlsApp } from '../../generator/ColumnControlsApp'
+import { FormActionsExample } from './FormActionsExample'
 import { ContextControls } from '../../shared/controls/ContextControls'
 import { PaginationExample } from './PaginationExample'
 import { EntryExample } from './EntryExample'
@@ -43,6 +45,12 @@ import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'
 
 const views = {
+  'form-actions': FormActionsExample,
+  'column-controls': () => (
+    <div class="gallery-table">
+      <ColumnControlsApp />
+    </div>
+  ),
   contexts: ContextControls,
   pagination: PaginationExample,
   entry: EntryExample,
@@ -152,6 +160,7 @@ export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
           entry.id === 'entry' ||
           entry.id === 'everything' ||
           entry.id === 'table' ||
+          entry.id === 'column-controls' ||
           entry.id === 'pagination' ||
           entry.id === 'subtables'
             ? 'gallery-example-unframed'

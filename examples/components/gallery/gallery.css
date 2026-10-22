@@ -93,7 +93,8 @@ body:has(.gallery-preview) {
 .gallery-stage:is(
   [data-example='table'],
   [data-example='subtables'],
-  [data-example='pagination']
+  [data-example='pagination'],
+  [data-example='column-controls']
 ) {
   overflow: visible;
 }
