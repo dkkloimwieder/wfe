@@ -25,16 +25,20 @@ export async function decorationGeometryCases({ page, url, record }) {
       const original = await draft.elementHandle()
       await expect(
         host.getByRole('slider', { name: 'Rotation reduction', exact: true }),
-      ).toHaveValue('0.05')
+      ).toHaveValue('0.2')
       await expect(
         host.getByRole('slider', { name: 'Taper reduction', exact: true }),
       ).toHaveValue('0.3')
       for (const name of ['Base rotation', 'Base taper X', 'Base taper Y']) {
         const angle = host.getByRole('slider', { name, exact: true })
-        await expect(angle).toHaveValue('2')
+        await expect(angle).toHaveValue(
+          name === 'Base rotation' ? '4.75' : '1.75',
+        )
         await angle.focus()
         await angle.press('ArrowRight')
-        await expect(angle).toHaveValue('2.05')
+        await expect(angle).toHaveValue(
+          name === 'Base rotation' ? '4.8' : '1.8',
+        )
         await expect(angle).toBeFocused()
       }
       for (const name of ['Taper reduction', 'Rotation reduction']) {
@@ -64,7 +68,7 @@ export async function decorationGeometryCases({ page, url, record }) {
       })
       await exponent.focus()
       await exponent.press('ArrowRight')
-      await expect(exponent).toHaveValue('2.05')
+      await expect(exponent).toHaveValue('2.8')
       await scale.click()
       await page
         .getByRole('option', { name: 'Linear (proportional)', exact: true })
@@ -106,19 +110,19 @@ export async function decorationGeometryCases({ page, url, record }) {
       await expect(draft).toHaveValue('Retained draft')
       await expect(
         host.getByRole('slider', { name: 'Rotation reduction', exact: true }),
-      ).toHaveValue('0.05')
+      ).toHaveValue('0.2')
       await expect(
         host.getByRole('slider', { name: 'Taper reduction', exact: true }),
       ).toHaveValue('0.3')
       await expect(
         host.getByRole('slider', { name: 'Exponent', exact: true }),
-      ).toHaveValue('2')
+      ).toHaveValue('2.75')
       await expect(wideInput).toHaveValue('Retained wide draft')
       await expect(wideSelect).toContainText('Second option')
       for (const name of ['Base rotation', 'Base taper X', 'Base taper Y'])
         await expect(
           host.getByRole('slider', { name, exact: true }),
-        ).toHaveValue('2')
+        ).toHaveValue(name === 'Base rotation' ? '4.75' : '1.75')
       await original.dispose()
     },
   )

@@ -9,12 +9,12 @@ export type DecorationGeometry = {
   randomizeOnHover: boolean
 }
 export const defaultDecorationGeometry: Readonly<DecorationGeometry> = {
-  rotation: 2,
-  taperX: 2,
-  taperY: 2,
+  rotation: 4.75,
+  taperX: 1.75,
+  taperY: 1.75,
   scale: 'power',
-  exponent: 2,
-  rotationReduction: 0.05,
+  exponent: 2.75,
+  rotationReduction: 0.2,
   taperReduction: 0.3,
   randomizeOnHover: true,
 }
