@@ -17,7 +17,13 @@ Cancellation stops the application from waiting. It does not undo a command that
 ## Captured inputs
 
 `snapshot/provenance.json` records the WAMN revision, source paths, and hashes.
-Captured client imports point to the copied wire module. Other source bytes stay unchanged.
+Captured client imports point to the copied wire module.
+The application policy snapshot uses the renamed `platform` SQL schema.
+Its provenance records the local replacement and retains the original source hash.
+The integrity check reverses recorded replacements before it compares that hash.
+Other source bytes stay unchanged.
+A fresh capture replaces local repairs with the source checkout contents.
+Use a source checkout that includes the schema rename when you capture it again.
 The original workspace declares Apache-2.0. The snapshot includes that license text and the original Cargo metadata.
 The control snapshot includes unused operations from seven client modules.
 `snapshot/application` separately captures application-host user, role, permission, and user-role clients.

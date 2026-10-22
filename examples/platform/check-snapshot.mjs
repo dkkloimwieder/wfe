@@ -14,7 +14,7 @@ for (const file of [...manifest.files, ...manifest.support]) {
     `Changed captured source: ${file.local}`,
   )
   if (file.sourceSha256) {
-    const original = file.local.startsWith('application/client/')
+    let original = file.local.startsWith('application/client/')
       ? bytes
           .toString('utf8')
           .replaceAll('"../../runtime/wire"', '"@wamn/web-runtime"')
@@ -23,10 +23,12 @@ for (const file of [...manifest.files, ...manifest.support]) {
             .toString('utf8')
             .replaceAll('"../runtime/wire"', '"@wamn/web-runtime"')
         : bytes
+    for (const repair of [...(file.localReplacements ?? [])].reverse())
+      original = original.toString('utf8').replaceAll(repair.to, repair.from)
     assert.equal(
       hash(original),
       file.sourceSha256,
-      `Adaptation exceeds the import-only rewrite: ${file.local}`,
+      `Adaptation exceeds the recorded rewrites: ${file.local}`,
     )
   }
 }

@@ -1,7 +1,7 @@
 {
   "revision": "bd69b4e82b005d22f8fab3842ed6bf1a0dbd1a64",
   "captured": "2026-10-21T06:04:07.044Z",
-  "changes": "Client imports point to the copied wire module. All other captured source bytes stay unchanged.",
+  "changes": "Client imports point to the copied wire module. The application policy SQL schema uses platform through a recorded local replacement. Other captured source bytes stay unchanged.",
   "files": [
     {
       "source": "apps/target/wamn/wamn_control/control/client-ts/control.ts",
@@ -613,7 +613,14 @@
       "source": "crates/identity/platform/src/application.rs",
       "local": "application/policy/application.rs",
       "sourceSha256": "47fca552781183e3ee694c745c68f4866777b2aa5a046d0f2fe9a613c25923e9",
-      "sha256": "47fca552781183e3ee694c745c68f4866777b2aa5a046d0f2fe9a613c25923e9"
+      "sha256": "07a4cf90387764d566192ef0277241af0d2a26453374d0e901b31c05536288cd",
+      "localReplacements": [
+        {
+          "from": "app_system.",
+          "to": "platform.",
+          "reason": "Consumer-requested SQL schema rename."
+        }
+      ]
     },
     {
       "source": "crates/catalog/model/src/host_route.rs",
