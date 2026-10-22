@@ -65,3 +65,11 @@ if (packageName === 'components')
   await cp(resolve(source, 'styles'), resolve(output, 'styles'), {
     recursive: true,
   })
+
+if (packageName === 'components') {
+  for (const mode of ['source', 'client', 'server']) {
+    const notice = resolve(output, '..', mode, 'vendor/icons/LICENSE')
+    await mkdir(dirname(notice), { recursive: true })
+    await cp(resolve(source, 'vendor/icons/LICENSE'), notice)
+  }
+}

@@ -6,7 +6,7 @@ import { PaginationExample } from './PaginationExample'
 import { EntryExample } from './EntryExample'
 import { SubTables } from './SubTables'
 import { EverythingForm } from './EverythingForm'
-import { createEffect, onCleanup, untrack } from 'solid-js'
+import { createEffect, lazy, onCleanup, untrack } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import {
@@ -45,7 +45,12 @@ import { entryFor, readRoute } from './catalog'
 import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'
 
+const IconsExample = lazy(() =>
+  import('./IconsExample').then((module) => ({ default: module.IconsExample })),
+)
+
 const views = {
+  icons: IconsExample,
   'input-decoration': InputDecorationExample,
   'form-actions': FormActionsExample,
   'column-controls': () => (

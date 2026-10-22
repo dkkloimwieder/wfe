@@ -1,3 +1,5 @@
+import { For, Show } from 'solid-js'
+import type { IconDefinition } from '../icons/types'
 import { trianglePath, triangleTransform } from '../internal/triangle'
 import { styledClasses, type ClassValue } from '../internal/classes'
 
@@ -34,10 +36,9 @@ const pixelAligned = new Set<IconName>([
   'controls',
   'calendar',
 ])
-export type IconProps = {
-  name: IconName
-  class?: ClassValue
-}
+export type IconProps = { class?: ClassValue } & (
+  { name: IconName; glyph?: never } | { glyph: IconDefinition; name?: never }
+)
 
 /** Decorative glyph. The surrounding control supplies its accessible name. */
 export function Icon(props: IconProps) {
@@ -54,20 +55,51 @@ export function Icon(props: IconProps) {
       class={styledClasses('ui-icon', props.class)}
       width="16"
       height="16"
-      viewBox="0 0 16 16"
+      viewBox={props.glyph?.viewBox ?? '0 0 16 16'}
       fill="none"
       stroke="currentColor"
       stroke-width="1.5"
       aria-hidden="true"
       {...{ focusable: 'false' }}
     >
-      <path
-        d={paths[props.name]}
-        class={direction() ? 'ui-direction-triangle' : undefined}
-        transform={direction() ? triangleTransform(direction()!) : undefined}
-        vector-effect={direction() ? 'non-scaling-stroke' : undefined}
-        shape-rendering={pixelAligned.has(props.name) ? 'crispEdges' : 'auto'}
-      />
+      <Show
+        when={props.glyph}
+        fallback={
+          <path
+            d={paths[props.name!]}
+            class={direction() ? 'ui-direction-triangle' : undefined}
+            transform={
+              direction() ? triangleTransform(direction()!) : undefined
+            }
+            vector-effect={direction() ? 'non-scaling-stroke' : undefined}
+            shape-rendering={
+              pixelAligned.has(props.name!) ? 'crispEdges' : 'auto'
+            }
+          />
+        }
+        keyed
+      >
+        {(glyph) => <For each={glyph.nodes}>{renderIconNode}</For>}
+      </Show>
     </svg>
   )
+}
+
+function renderIconNode(node: IconDefinition['nodes'][number]) {
+  switch (node[0]) {
+    case 'path':
+      return <path {...node[1]} vector-effect="non-scaling-stroke" />
+    case 'circle':
+      return <circle {...node[1]} vector-effect="non-scaling-stroke" />
+    case 'rect':
+      return <rect {...node[1]} vector-effect="non-scaling-stroke" />
+    case 'line':
+      return <line {...node[1]} vector-effect="non-scaling-stroke" />
+    case 'ellipse':
+      return <ellipse {...node[1]} vector-effect="non-scaling-stroke" />
+    case 'polyline':
+      return <polyline {...node[1]} vector-effect="non-scaling-stroke" />
+    case 'polygon':
+      return <polygon {...node[1]} vector-effect="non-scaling-stroke" />
+  }
 }

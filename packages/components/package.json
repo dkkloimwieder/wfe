@@ -218,6 +218,13 @@
       "solid": "./dist/source/search/index.js",
       "node": "./dist/server/search/index.js",
       "import": "./dist/client/search/index.js"
+    },
+    "./icons": {
+      "types": "./dist/client/icons/index.d.ts",
+      "wfe-source": "./src/icons/index.ts",
+      "solid": "./dist/source/icons/index.js",
+      "node": "./dist/server/icons/index.js",
+      "import": "./dist/client/icons/index.js"
     }
   },
   "sideEffects": [

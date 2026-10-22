@@ -120,7 +120,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
+      '<script>window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverGlyphNodes = [...document.querySelectorAll("#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle")]; window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -179,6 +179,25 @@ try {
         ),
     ),
     true,
+  )
+  assert.equal(
+    await page.evaluate(() => {
+      const nodes = [
+        ...document.querySelectorAll(
+          '#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle',
+        ),
+      ]
+      return (
+        nodes.length === 3 &&
+        nodes.every(
+          (node, index) =>
+            node === window.serverGlyphNodes[index] &&
+            node.namespaceURI === 'http://www.w3.org/2000/svg',
+        )
+      )
+    }),
+    true,
+    'Expanded icons retain original SVG geometry during hydration',
   )
   await page.getByLabel('Entry draft', { exact: true }).fill('Preserved entry')
   await expect(page.getByLabel('Entry draft', { exact: true })).toHaveValue(

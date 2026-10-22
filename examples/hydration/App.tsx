@@ -1,3 +1,4 @@
+import { iconSearch } from '@wfe/components/icons'
 import { ContextControls } from '../shared/controls/ContextControls'
 import {
   PagedRecords,
@@ -37,6 +38,7 @@ import {
   Dialog,
   Field,
   HelpText,
+  Icon,
   Input,
   Label,
   ValueDisplay,
@@ -163,7 +165,10 @@ export default function App() {
         <EntryPanel size="container" id="adopt-entry-panel">
           <Input id="adopt-entry-input" aria-label="Entry draft" />
           <EntryPanelActions id="adopt-entry-actions">
-            <Button>Continue entry</Button>
+            <Button>
+              <Icon glyph={iconSearch} />
+              Continue entry
+            </Button>
             <Button>Cancel entry</Button>
           </EntryPanelActions>
         </EntryPanel>
