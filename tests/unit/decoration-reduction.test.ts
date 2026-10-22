@@ -97,6 +97,30 @@ describe('decoration reduction controls', () => {
     for (const axis of [1, 2])
       expect(Math.abs(taperOnly[axis])).toBeLessThan(Math.abs(baseline[axis]))
   })
+  it('changes and disables each base angle without changing other axes', () => {
+    for (const scale of ['linear', 'power'] as const) {
+      const options = resolveDecorationGeometry({ scale })
+      const baseline = decorationAngles(300, 800, samples, options)
+      for (const [axis, key] of (
+        ['rotation', 'taperX', 'taperY'] as const
+      ).entries()) {
+        const adjusted = decorationAngles(300, 800, samples, {
+          ...options,
+          [key]: options[key] / 2,
+        })
+        adjusted.forEach((angle, index) =>
+          expect(angle).toBe(
+            index === axis ? baseline[index] / 2 : baseline[index],
+          ),
+        )
+        const disabled = decorationAngles(300, 800, samples, {
+          ...options,
+          [key]: 0,
+        })
+        expect(Math.abs(disabled[axis])).toBe(0)
+      }
+    }
+  })
   it('matches linear at exponent one and reduces more with higher exponents', () => {
     const options = { rotationReduction: 0.5, taperReduction: 0.5 }
     const linear = decorationAngles(

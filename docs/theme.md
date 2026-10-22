@@ -110,9 +110,13 @@ The gallery at `?gallery=input-decoration` includes section colors and both trig
 ## Decoration geometry
 
 `Theme.decorationGeometry` controls rotation and perspective taper across buttons, inputs, navigation links, entry panels, and form sections.
+`rotation`, `taperX`, and `taperY` set the base angle limits in degrees before randomization and size reduction.
+Each defaults to 2 and accepts 0 through 8. Set one to 0 to disable only that axis.
+The playground exposes these as Base rotation, Base taper X, and Base taper Y.
+
 `rotationReduction` and `taperReduction` control reduction, not effect strength. Both accept values from 0 through 8.
 The defaults are taper reduction 0.3 and rotation reduction 0.05.
-Zero keeps the original two-degree rotation and taper ranges at every size.
+Zero reduction keeps the selected base angle range at every size.
 Higher values reduce the corresponding effect more as size grows. Values below 1 apply gentler reduction than 1.
 The playground adjusts all numeric controls in steps of 0.05.
 
@@ -124,7 +128,7 @@ For a 100-pixel side, reduction 0 keeps the full effect, reduction 1 keeps half,
 `scale` defaults to `"power"`, which raises that multiplier to `exponent`. Set `scale="linear"` to use the multiplier directly.
 `exponent` defaults to 2 and accepts 0.1 through 4. The playground adjusts it in steps of 0.05.
 At exponent 1, both modes match. Higher exponents increase reduction; lower exponents soften it.
-Linear mode ignores the exponent. Zero reduction always keeps the full default effect in both modes.
+Linear mode ignores the exponent. Zero reduction always keeps the full selected base effect in both modes.
 
 `randomizeOnHover` defaults to `true`. Set it to `false` to hold the random samples while comparing geometry.
 

@@ -29,6 +29,14 @@ export async function decorationGeometryCases({ page, url, record }) {
       await expect(
         host.getByRole('slider', { name: 'Taper reduction', exact: true }),
       ).toHaveValue('0.3')
+      for (const name of ['Base rotation', 'Base taper X', 'Base taper Y']) {
+        const angle = host.getByRole('slider', { name, exact: true })
+        await expect(angle).toHaveValue('2')
+        await angle.focus()
+        await angle.press('ArrowRight')
+        await expect(angle).toHaveValue('2.05')
+        await expect(angle).toBeFocused()
+      }
       for (const name of ['Taper reduction', 'Rotation reduction']) {
         const knob = host.getByRole('slider', { name, exact: true })
         await knob.focus()
@@ -107,6 +115,10 @@ export async function decorationGeometryCases({ page, url, record }) {
       ).toHaveValue('2')
       await expect(wideInput).toHaveValue('Retained wide draft')
       await expect(wideSelect).toContainText('Second option')
+      for (const name of ['Base rotation', 'Base taper X', 'Base taper Y'])
+        await expect(
+          host.getByRole('slider', { name, exact: true }),
+        ).toHaveValue('2')
       await original.dispose()
     },
   )

@@ -21,8 +21,33 @@ const inheritedAppearance = Object.fromEntries(
 ) as JSX.CSSProperties
 const ranges = [
   {
+    key: 'rotation',
+    label: 'Base rotation',
+    min: 0,
+    max: 8,
+    step: 0.05,
+    unit: '°',
+  },
+  {
+    key: 'taperX',
+    label: 'Base taper X',
+    min: 0,
+    max: 8,
+    step: 0.05,
+    unit: '°',
+  },
+  {
+    key: 'taperY',
+    label: 'Base taper Y',
+    min: 0,
+    max: 8,
+    step: 0.05,
+    unit: '°',
+  },
+  {
     key: 'taperReduction',
     label: 'Taper reduction',
+    unit: '',
     min: 0,
     max: 8,
     step: 0.05,
@@ -30,6 +55,7 @@ const ranges = [
   {
     key: 'rotationReduction',
     label: 'Rotation reduction',
+    unit: '',
     min: 0,
     max: 8,
     step: 0.05,
@@ -57,7 +83,7 @@ export function DecorationGeometryExample() {
       <FieldGroup
         title="Decoration geometry"
         columns={2}
-        help="Zero keeps the full default effect. Higher values reduce it more as size grows. Taper uses each side; rotation uses the longest side."
+        help="Base angles set the maximum effect before randomization and size reduction. Zero base angle disables that axis. Zero reduction keeps the full base effect."
       >
         <For each={ranges}>
           {(range) => (
@@ -76,7 +102,10 @@ export function DecorationGeometryExample() {
                   }))
                 }
               />
-              <output>{geometry()[range.key].toFixed(2)}</output>
+              <output>
+                {geometry()[range.key].toFixed(2)}
+                {range.unit}
+              </output>
             </Field>
           )}
         </For>
