@@ -8,8 +8,8 @@ import {
   FormActions,
   Input,
   Label,
-  SelectField,
   Theme,
+  SelectField,
   defaultDecorationGeometry,
   themeStyle,
 } from '@wfe/components'
@@ -20,46 +20,8 @@ const inheritedAppearance = Object.fromEntries(
   Object.keys(themeStyle()).map((key) => [key, 'inherit']),
 ) as JSX.CSSProperties
 const ranges = [
-  {
-    key: 'referenceSize',
-    label: 'Full effect up to',
-    min: 16,
-    max: 512,
-    step: 8,
-    unit: 'px',
-  },
-  {
-    key: 'rotation',
-    label: 'Maximum rotation',
-    min: 0,
-    max: 8,
-    step: 0.25,
-    unit: '°',
-  },
-  {
-    key: 'taper',
-    label: 'Maximum taper',
-    min: 0,
-    max: 8,
-    step: 0.25,
-    unit: '°',
-  },
-  {
-    key: 'rotationFalloff',
-    label: 'Rotation reduction',
-    min: 0,
-    max: 4,
-    step: 0.25,
-    unit: '',
-  },
-  {
-    key: 'taperFalloff',
-    label: 'Taper reduction',
-    min: 0,
-    max: 4,
-    step: 0.25,
-    unit: '',
-  },
+  { key: 'taper', label: 'Taper', min: 0, max: 8, step: 0.1 },
+  { key: 'rotation', label: 'Rotation', min: 0, max: 8, step: 0.1 },
 ] as const
 export function DecorationGeometryExample() {
   const [geometry, setGeometry] = createSignal<DecorationGeometry>({
@@ -78,38 +40,8 @@ export function DecorationGeometryExample() {
       <FieldGroup
         title="Decoration geometry"
         columns={2}
-        help="Samples stay fixed while you adjust the controls. Higher reduction values soften large decorations more strongly."
+        help="Taper follows each side. Rotation follows the longest side. Linear halves the angle when size doubles; exponent 2 reduces it to one-quarter."
       >
-        <SelectField
-          label="Size adjustment"
-          value={geometry().sizeMode}
-          choices={[
-            { value: 'longest', label: 'Longest side' },
-            { value: 'axes', label: 'Both axes' },
-            { value: 'none', label: 'None (original behavior)' },
-          ]}
-          onValueChange={(value) =>
-            setGeometry((current) => ({
-              ...current,
-              sizeMode: value as DecorationGeometry['sizeMode'],
-            }))
-          }
-        />
-        <Checkbox
-          checked={!geometry().randomizeOnHover}
-          onChange={(checked) =>
-            setGeometry((current) => ({
-              ...current,
-              randomizeOnHover: !checked,
-            }))
-          }
-        >
-          <Checkbox.Input />
-          <Checkbox.Control>
-            <Checkbox.Indicator />
-          </Checkbox.Control>
-          <Checkbox.Label>Hold random samples</Checkbox.Label>
-        </Checkbox>
         <For each={ranges}>
           {(range) => (
             <Field>
@@ -127,13 +59,58 @@ export function DecorationGeometryExample() {
                   }))
                 }
               />
-              <output>
-                {geometry()[range.key]}
-                {range.unit}
-              </output>
+              <output>{geometry()[range.key].toFixed(1)}</output>
             </Field>
           )}
         </For>
+        <SelectField
+          label="Scale"
+          value={geometry().scale}
+          choices={[
+            { value: 'linear', label: 'Linear (proportional)' },
+            { value: 'power', label: 'Exponent' },
+          ]}
+          onValueChange={(scale) =>
+            setGeometry((current) => ({
+              ...current,
+              scale: scale as DecorationGeometry['scale'],
+            }))
+          }
+        />
+        <Show when={geometry().scale === 'power'}>
+          <Field>
+            <Label>Exponent</Label>
+            <Input
+              type="range"
+              min={0.1}
+              max={4}
+              step={0.1}
+              value={geometry().exponent}
+              onValueChange={(value) =>
+                setGeometry((current) => ({
+                  ...current,
+                  exponent: Number(value),
+                }))
+              }
+            />
+            <output>{geometry().exponent.toFixed(1)}</output>
+          </Field>
+        </Show>
+        <Checkbox
+          checked={!geometry().randomizeOnHover}
+          onChange={(checked) =>
+            setGeometry((current) => ({
+              ...current,
+              randomizeOnHover: !checked,
+            }))
+          }
+        >
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Hold random samples</Checkbox.Label>
+        </Checkbox>
         <Field>
           <Label>Preview width</Label>
           <Input

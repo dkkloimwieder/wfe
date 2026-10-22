@@ -110,19 +110,23 @@ The gallery at `?gallery=input-decoration` includes section colors and both trig
 ## Decoration geometry
 
 `Theme.decorationGeometry` controls rotation and perspective taper across buttons, inputs, navigation links, entry panels, and form sections.
-Large surfaces use smaller angles. Surfaces up to 128 pixels keep the original range by default.
-Rotation starts with a maximum of 2 degrees. Each taper axis also starts with a maximum of 2 degrees.
+`rotation` and `taper` are the two strength controls. Both default to 2 and accept values from 0 through 8.
+The playground adjusts both in steps of 0.1.
 
-`sizeMode` accepts `"longest"`, `"axes"`, or `"none"`. The default is `"longest"`.
-Rotation uses the longest side in both adjusted modes.
-In `"axes"` mode, taper considers its own axis and the longest side together.
-This limits distortion on tall or wide surfaces.
-`"none"` restores size-independent angles, with a safety limit for extreme perspective.
+Rotation decreases in direct proportion to the longest side.
+Taper decreases independently with each side: X-axis tilt uses height, and Y-axis tilt uses width.
+Doubling a dimension halves its corresponding angle. No threshold applies.
+Strength expresses degrees at 100 pixels before the random sample multiplier.
+The formulas are `rotation × 100 / max(width, height)`, `taper × 100 / height`, and `taper × 100 / width`.
+Each angle keeps its own independent random sample.
 
-`referenceSize` sets the size that retains the full effect.
-`rotationFalloff` defaults to 1. `taperFalloff` defaults to 2 because perspective distortion grows more rapidly with size.
-A value of 0 disables that reduction. Larger values reduce large-surface effects more strongly.
-`rotation` and `taper` set their maximum angles. Each accepts 0 through 8 degrees.
+`scale` defaults to `"linear"`, which uses the proportional formulas above.
+Set `scale="power"` to raise each size ratio to `exponent` before multiplying by strength and its random sample.
+`exponent` defaults to 2 and accepts 0.1 through 4. The playground adjusts it in steps of 0.1.
+At exponent 1, both modes match. At exponent 2, doubling a dimension reduces its angle to one-quarter.
+The exponent applies independently to width, height, and the longest side. Linear mode ignores it.
+At extreme settings, geometric limits prevent perspective inversion and rotation beyond 90 degrees. These limits add no tuning controls.
+
 `randomizeOnHover` defaults to `true`. Set it to `false` to hold the random samples while comparing geometry.
 
 Each Theme uses one resize observer. Size and configuration changes reuse the current samples.

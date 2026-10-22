@@ -54,7 +54,7 @@ describe('decoration lifecycle', () => {
     observer.emit(button)
     width = 400
     observer.emit(button)
-    owner.configure({ sizeMode: 'axes', randomizeOnHover: false })
+    owner.configure({ taper: 0.7, rotation: 1.3, randomizeOnHover: false })
     button.dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
     expect(random).toHaveBeenCalledTimes(count)
     owner.configure({ randomizeOnHover: true })
