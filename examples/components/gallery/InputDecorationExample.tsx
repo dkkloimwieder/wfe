@@ -20,6 +20,10 @@ import type { ControlDecoration } from '@wfe/components'
 
 export function InputDecorationExample() {
   const [decoration, setDecoration] = createSignal<ControlDecoration>('neutral')
+  const [section, setSection] = createSignal<ControlDecoration>('primary')
+  const [sectionHover, setSectionHover] = createSignal(true)
+  const [sectionFocus, setSectionFocus] = createSignal(true)
+  const [sectionDisabled, setSectionDisabled] = createSignal(false)
   const [name, setName] = createSignal('Example')
   const [notes, setNotes] = createSignal('Editable notes')
   const [plain, setPlain] = createSignal('Per-input override')
@@ -54,8 +58,48 @@ export function InputDecorationExample() {
             )
           }
         />
+        <SelectField
+          label="Section decoration"
+          value={section() || 'none'}
+          choices={[
+            { value: 'none', label: 'None' },
+            { value: 'neutral', label: 'Neutral' },
+            { value: 'primary', label: 'Primary' },
+            { value: 'secondary', label: 'Secondary' },
+          ]}
+          onValueChange={(value) =>
+            setSection(value === 'none' ? false : (value as ControlDecoration))
+          }
+        />
+        <Checkbox checked={sectionHover()} onChange={setSectionHover}>
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Section hover</Checkbox.Label>
+        </Checkbox>
+        <Checkbox checked={sectionFocus()} onChange={setSectionFocus}>
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Section focus inside</Checkbox.Label>
+        </Checkbox>
+        <Checkbox checked={sectionDisabled()} onChange={setSectionDisabled}>
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Disable section</Checkbox.Label>
+        </Checkbox>
       </FieldGroup>
-      <FieldGroup title="Inputs">
+      <FieldGroup
+        title="Inputs"
+        decoration={section()}
+        decorationHover={sectionHover()}
+        decorationFocusWithin={sectionFocus()}
+        disabled={sectionDisabled()}
+      >
         <form
           class="example-stack"
           onSubmit={(event) => {

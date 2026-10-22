@@ -90,3 +90,19 @@ Run `node examples/theme/run.mjs` to test source imports in a browser.
 Run `BENCH_DISTRIBUTION=1 node examples/theme/run.mjs` to test the built package.
 These tests require Playwright Chromium.
 The hydration suite also includes this consumer and makes sure that its server nodes remain in place.
+
+## Form section decoration
+
+`FieldGroup` is a native fieldset. Its decoration is off by default.
+Set `decoration={true}` for primary decoration, or choose `"neutral"`, `"primary"`, or `"secondary"`.
+Set `decoration={false}` to remove it.
+
+`decorationHover` and `decorationFocusWithin` default to `true`.
+Set either to `false` to disable that trigger.
+Focus within means that a control inside the section holds keyboard focus.
+The section adds no focus stop and keeps native fieldset behavior.
+Disabled sections and forced-color mode suppress the decoration.
+
+Enabled sections use primary decoration by default, while inputs keep their neutral default.
+Section colors do not change input colors. Both remain independently configurable.
+The gallery at `?gallery=input-decoration` includes section colors and both triggers.

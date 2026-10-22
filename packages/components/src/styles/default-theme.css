@@ -411,7 +411,8 @@
     .ui-dashboard-navigation a[href],
     .ui-dashboard-menu a[href],
     .ui-entry-panel-surface,
-    [data-ui-control-surface]
+    [data-ui-control-surface],
+    [data-ui-section-decoration]
   )::before {
   transform: var(
     --ui-action-decoration-transform,
@@ -461,13 +462,15 @@
   --ui-input-decoration-dot-color: var(--ui-secondary-accent);
   --ui-input-decoration-border-color: var(--ui-secondary-accent);
 }
-.ui-theme :has(> [data-ui-control-surface]) {
+.ui-theme :has(> :is([data-ui-control-surface], [data-ui-section-decoration])) {
   isolation: isolate;
 }
-.ui-theme [data-ui-control-surface] {
+.ui-theme [data-ui-control-surface],
+.ui-theme [data-ui-section-decoration] {
   position: relative;
 }
-.ui-theme [data-ui-control-surface]::before {
+.ui-theme [data-ui-control-surface]::before,
+.ui-theme [data-ui-section-decoration]::before {
   content: '';
   display: var(--ui-input-decoration-display, block);
   position: absolute;
@@ -516,7 +519,8 @@
   display: none;
 }
 @media (forced-colors: active) {
-  .ui-theme [data-ui-control-surface]::before {
+  .ui-theme [data-ui-control-surface]::before,
+  .ui-theme [data-ui-section-decoration]::before {
     display: none;
   }
 }
@@ -527,5 +531,29 @@
 .ui-theme
   :is(.ui-toggle, .ui-radio-item):has(input:disabled)
   [data-ui-control-surface]::before {
+  display: none;
+}
+
+/* Section roles stay on the backing so that inner controls remain independent. */
+.ui-theme [data-ui-section-decoration]::before {
+  --ui-input-decoration-display: block;
+  --ui-input-decoration-dot-color: var(--ui-accent);
+  --ui-input-decoration-border-color: var(--ui-accent);
+}
+.ui-theme [data-ui-section-decoration='neutral']::before {
+  --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
+  --ui-input-decoration-border-color: var(--ui-neutral-border-color);
+}
+.ui-theme [data-ui-section-decoration='secondary']::before {
+  --ui-input-decoration-dot-color: var(--ui-secondary-accent);
+  --ui-input-decoration-border-color: var(--ui-secondary-accent);
+}
+.ui-theme [data-ui-section-decoration][data-ui-section-hover]:hover::before,
+.ui-theme
+  [data-ui-section-decoration][data-ui-section-focus]:focus-within::before {
+  opacity: 1;
+}
+.ui-theme [data-ui-section-decoration='none']::before,
+.ui-theme [data-ui-section-decoration]:disabled::before {
   display: none;
 }

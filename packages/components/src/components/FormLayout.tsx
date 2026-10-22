@@ -1,5 +1,6 @@
 import { createUniqueId, omit, Show } from 'solid-js'
 import type { JSX } from '@solidjs/web'
+import type { DecorationColor } from '../theme/appearance'
 import { styledClasses } from '../internal/classes'
 import { nativeEventProps, ownedElementEvents } from '../internal/events'
 
@@ -41,6 +42,9 @@ export type FieldGroupProps = Omit<
   help?: string
   columns?: FormColumns
   span?: FormSpan
+  decoration?: boolean | DecorationColor
+  decorationHover?: boolean
+  decorationFocusWithin?: boolean
 }
 
 /** A named native fieldset with a responsive field grid. */
@@ -52,6 +56,9 @@ export function FieldGroup(props: FieldGroupProps) {
     'help',
     'columns',
     'span',
+    'decoration',
+    'decorationHover',
+    'decorationFocusWithin',
     'children',
     'ref',
     ...nativeEventProps,
@@ -62,6 +69,13 @@ export function FieldGroup(props: FieldGroupProps) {
       {...attributes}
       data-ui=""
       data-form-span={props.span ?? 1}
+      data-ui-section-decoration={
+        props.decoration === true ? 'primary' : props.decoration || 'none'
+      }
+      data-ui-section-hover={props.decorationHover !== false ? '' : undefined}
+      data-ui-section-focus={
+        props.decorationFocusWithin !== false ? '' : undefined
+      }
       aria-describedby={
         [props['aria-describedby'], props.help ? helpId : undefined]
           .filter(Boolean)

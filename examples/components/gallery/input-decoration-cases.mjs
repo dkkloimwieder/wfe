@@ -27,6 +27,38 @@ export async function inputDecorationCases({ page, url, record }) {
         )
         await expect(name).toHaveValue('Draft')
       }
+      const section = host.getByRole('group', { name: 'Inputs', exact: true })
+      const sectionMode = choiceControl(host, {
+        name: 'Section decoration',
+        exact: true,
+      })
+      for (const label of ['Neutral', 'Secondary', 'None', 'Primary']) {
+        await sectionMode.click()
+        await page.getByRole('option', { name: label, exact: true }).click()
+        await expect(section).toBeVisible()
+        assert.equal(
+          await name.evaluate(
+            (current, original) => current === original,
+            node,
+          ),
+          true,
+        )
+        await expect(name).toHaveValue('Draft')
+      }
+      for (const label of ['Section hover', 'Section focus inside']) {
+        await host.getByText(label, { exact: true }).click()
+        await name.focus()
+        await expect(name).toBeFocused()
+        await host.getByText(label, { exact: true }).click()
+      }
+      await host.getByText('Disable section', { exact: true }).click()
+      await expect(name).toBeDisabled()
+      await expect(
+        section.getByRole('button', { name: 'Save', exact: true }),
+      ).toBeDisabled()
+      await host.getByText('Disable section', { exact: true }).click()
+      await expect(name).toBeEnabled()
+      await expect(name).toHaveValue('Draft')
       await name.press('Enter')
       await expect(
         host.getByRole('status', { name: 'Submission result' }),
