@@ -114,7 +114,7 @@ The gallery at `?gallery=input-decoration` includes section colors and both trig
 The defaults are taper reduction 0.3 and rotation reduction 0.05.
 Zero keeps the original two-degree rotation and taper ranges at every size.
 Higher values reduce the corresponding effect more as size grows. Values below 1 apply gentler reduction than 1.
-The playground adjusts taper reduction in steps of 0.1 and rotation reduction in steps of 0.05.
+The playground adjusts all numeric controls in steps of 0.05.
 
 Rotation uses the longest side. Taper uses height for X-axis tilt and width for Y-axis tilt.
 Each angle keeps its own independent random sample.
@@ -122,7 +122,7 @@ Linear mode multiplies the default angle by `1 / (1 + reduction × size / 100)`.
 For a 100-pixel side, reduction 0 keeps the full effect, reduction 1 keeps half, and reduction 3 keeps one-quarter.
 
 `scale` defaults to `"power"`, which raises that multiplier to `exponent`. Set `scale="linear"` to use the multiplier directly.
-`exponent` defaults to 2 and accepts 0.1 through 4. The playground adjusts it in steps of 0.1.
+`exponent` defaults to 2 and accepts 0.1 through 4. The playground adjusts it in steps of 0.05.
 At exponent 1, both modes match. Higher exponents increase reduction; lower exponents soften it.
 Linear mode ignores the exponent. Zero reduction always keeps the full default effect in both modes.
 
@@ -135,3 +135,6 @@ Without ResizeObserver, the theme measures nodes on attachment and pointer entry
 
 The gallery page `?gallery=decoration-geometry` provides sliders, size presets, and a new-samples action.
 Its nested Theme inherits the gallery appearance. Its geometry controls affect only the preview.
+
+Wide input and select previews compare 480-pixel and 800-pixel controls, constrained to the available width.
+Their decorations stay visible while tuning. Their entered values survive size changes and new random samples.

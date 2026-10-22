@@ -9,6 +9,19 @@ export async function decorationGeometryCases({ page, url, record }) {
       const host = page.locator('.gallery-example-host')
       const draft = host.getByRole('textbox', { name: 'Preview draft' })
       await draft.fill('Retained draft')
+      const wideInput = host.getByRole('textbox', {
+        name: 'Wide input 800px',
+        exact: true,
+      })
+      await wideInput.fill('Retained wide draft')
+      const wideSelect = choiceControl(host, {
+        name: 'Wide select 800px',
+        exact: true,
+      })
+      await wideSelect.click()
+      await page
+        .getByRole('option', { name: 'Second option', exact: true })
+        .click()
       const original = await draft.elementHandle()
       await expect(
         host.getByRole('slider', { name: 'Rotation reduction', exact: true }),
@@ -21,13 +34,18 @@ export async function decorationGeometryCases({ page, url, record }) {
         await knob.focus()
         await knob.press('Home')
         await knob.press('ArrowRight')
-        await expect(knob).toHaveValue(
-          name === 'Rotation reduction' ? '0.05' : '0.1',
-        )
+        await expect(knob).toHaveValue('0.05')
         await expect(knob).toBeFocused()
         await knob.press('Home')
         await expect(knob).toHaveValue('0')
         await expect(draft).toHaveValue('Retained draft')
+      }
+      for (const name of ['Preview width', 'Preview height']) {
+        const dimension = host.getByRole('slider', { name, exact: true })
+        const before = Number(await dimension.inputValue())
+        await dimension.focus()
+        await dimension.press('ArrowRight')
+        await expect(dimension).toHaveValue(String(before + 0.05))
       }
       const scale = choiceControl(host, { name: 'Scale', exact: true })
       await scale.click()
@@ -38,7 +56,7 @@ export async function decorationGeometryCases({ page, url, record }) {
       })
       await exponent.focus()
       await exponent.press('ArrowRight')
-      await expect(exponent).toHaveValue('2.1')
+      await expect(exponent).toHaveValue('2.05')
       await scale.click()
       await page
         .getByRole('option', { name: 'Linear (proportional)', exact: true })
@@ -87,6 +105,8 @@ export async function decorationGeometryCases({ page, url, record }) {
       await expect(
         host.getByRole('slider', { name: 'Exponent', exact: true }),
       ).toHaveValue('2')
+      await expect(wideInput).toHaveValue('Retained wide draft')
+      await expect(wideSelect).toContainText('Second option')
       await original.dispose()
     },
   )

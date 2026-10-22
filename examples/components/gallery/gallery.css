@@ -213,3 +213,16 @@ body:has(.gallery-preview) {
     padding: 24px;
   }
 }
+
+.geometry-wide-controls {
+  --ui-field-max-width: none;
+}
+.geometry-wide-row {
+  display: grid;
+  gap: var(--ui-field-gap);
+  max-width: 100%;
+  min-width: 0;
+}
+.geometry-preview .geometry-wide-controls [data-ui-control-surface]::before {
+  opacity: 1;
+}

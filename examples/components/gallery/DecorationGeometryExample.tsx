@@ -25,7 +25,7 @@ const ranges = [
     label: 'Taper reduction',
     min: 0,
     max: 8,
-    step: 0.1,
+    step: 0.05,
   },
   {
     key: 'rotationReduction',
@@ -45,6 +45,11 @@ export function DecorationGeometryExample() {
   const [draft, setDraft] = createSignal(
     'Keep this draft while adjusting the shape',
   )
+  const wideControls = [480, 800].map((width) => {
+    const [text, setText] = createSignal('Type here while tuning decoration')
+    const [choice, setChoice] = createSignal('first')
+    return { width, text, setText, choice, setChoice }
+  })
   const [revision, setRevision] = createSignal(1)
   const [clicks, setClicks] = createSignal(0)
   return (
@@ -71,11 +76,7 @@ export function DecorationGeometryExample() {
                   }))
                 }
               />
-              <output>
-                {geometry()[range.key].toFixed(
-                  range.key === 'rotationReduction' ? 2 : 1,
-                )}
-              </output>
+              <output>{geometry()[range.key].toFixed(2)}</output>
             </Field>
           )}
         </For>
@@ -98,7 +99,7 @@ export function DecorationGeometryExample() {
               type="range"
               min={0.1}
               max={4}
-              step={0.1}
+              step={0.05}
               value={geometry().exponent}
               onValueChange={(value) =>
                 setGeometry((current) => ({
@@ -107,7 +108,7 @@ export function DecorationGeometryExample() {
                 }))
               }
             />
-            <output>{geometry().exponent.toFixed(1)}</output>
+            <output>{geometry().exponent.toFixed(2)}</output>
           </Field>
         </Show>
         <Checkbox
@@ -131,11 +132,11 @@ export function DecorationGeometryExample() {
             type="range"
             min="240"
             max="1000"
-            step="10"
+            step="0.05"
             value={width()}
             onValueChange={(value) => setWidth(Number(value))}
           />
-          <output>{width()}px maximum</output>
+          <output>{width().toFixed(2)}px maximum</output>
         </Field>
         <Field>
           <Label>Preview height</Label>
@@ -143,11 +144,11 @@ export function DecorationGeometryExample() {
             type="range"
             min="240"
             max="1000"
-            step="10"
+            step="0.05"
             value={height()}
             onValueChange={(value) => setHeight(Number(value))}
           />
-          <output>{height()}px</output>
+          <output>{height().toFixed(2)}px</output>
         </Field>
         <FormActions>
           <Button
@@ -208,12 +209,49 @@ export function DecorationGeometryExample() {
                 {clicks()} actions
               </output>
             </FormActions>
+            <FieldGroup
+              title="Wide inputs and selects"
+              class="geometry-wide-controls"
+            >
+              <For each={wideControls}>
+                {(control) => (
+                  <div
+                    class="geometry-wide-row"
+                    style={{ width: `${control.width}px` }}
+                  >
+                    <Field>
+                      <Label>Wide input {control.width}px</Label>
+                      <Input
+                        value={control.text()}
+                        onValueChange={control.setText}
+                      />
+                    </Field>
+                    <Field>
+                      <Label>Wide select {control.width}px</Label>
+                      <SelectField
+                        label={`Wide select ${control.width}px`}
+                        value={control.choice()}
+                        onValueChange={control.setChoice}
+                        choices={[
+                          { value: 'first', label: 'First option' },
+                          { value: 'second', label: 'Second option' },
+                          { value: 'third', label: 'Third option' },
+                        ]}
+                      />
+                    </Field>
+                  </div>
+                )}
+              </For>
+            </FieldGroup>
             <div class="geometry-stage">
               <FieldGroup
                 title="Preview section"
                 decoration
                 class="geometry-sample"
-                style={{ width: `${width()}px`, 'min-height': `${height()}px` }}
+                style={{
+                  width: `${width()}px`,
+                  'min-height': `${height().toFixed(2)}px`,
+                }}
               >
                 <Field>
                   <Label>Preview draft</Label>
