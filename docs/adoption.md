@@ -1,8 +1,23 @@
 # Adopt the components
 
+## v0.0.7
+
+Use Git tag `v0.0.7` for the current components and Default theme.
+FormView places submit and described actions in one final row at natural button widths.
+The public `FormActions` component provides the same layout for handwritten forms.
+Applications can disable FormView submission through `submitDisabled` without disabling fields or other actions.
+Generated actions accept application icon components and accessible icon-only presentation.
+
+TableView columns support independent `sortable` and `filterable` boolean flags.
+Set both flags to `false` on an Actions column to omit its sort button and filter input.
+Direct ReadOnlyTable consumers supply `sortable(column)` and `filterable(column)` predicates.
+Manual sorting keeps sort controls active and delegates requests and row order to the application.
+The theme and dependency pins remain the same as `v0.0.6`.
+See [the generator contract](generator-contract.md) and [form layout](form-layout.md) for usage.
+
 ## v0.0.6
 
-Use Git tag `v0.0.6` for the current components and Default theme.
+Git tag `v0.0.6` records the preceding components and Default theme.
 This release adds `SidebarContextSwitcher` with searchable context choices, an optional parent action, and compact navigation.
 Applications supply the current context, available choices, parent, selection callback, and menu.
 Existing `SidebarGroup` controls provide expandable items below the switcher.

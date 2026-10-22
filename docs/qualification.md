@@ -136,3 +136,18 @@ The existing native-tab timeout (`wfe-x6o`) recurred and then passed unchanged.
 Its cause remains open; this upgrade does not claim to fix it.
 
 The [action disposal investigation](action-disposal-investigation.md) preserves the runtime-only heap reproduction and the current removal decision.
+
+## v0.0.7 release
+
+The release includes runtime changes through commit `0a0d1309de9839f92570b71abeade5d48d53ca16`.
+The release commit also updates documentation.
+
+The form action and icon suites passed 39 browser cases and 45 hydration cases against both source and built packages.
+The final column-control and form-row suites passed 24 browser cases and 28 hydration cases in both modes.
+These suites reported no browser errors, warnings, or reactive diagnostics.
+Tests cover accessible action names, disabled submission, icon cleanup, retained focus, shared action rows, per-column controls, and client/server sorting.
+The contract suite compiled 28 documentation examples and the generator contracts.
+Separate review approved the runtime changes. Browser captures covered action buttons and the column-controls example.
+
+The release check uses `pnpm check` for formatting, lint, vendor integrity, builds, types, example types, and 43 repository tests.
+This release uses focused browser suites. It does not claim a new run of the complete qualification matrix.

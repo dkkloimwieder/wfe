@@ -11,9 +11,9 @@ Application records, routing, permissions, validation rules, requests, and persi
 
 ## Current release
 
-Use Git tag [`v0.0.6`](https://github.com/dkkloimwieder/wfe/tree/v0.0.6).
-The [adoption guide](docs/adoption.md#v006) describes the release and its application-controlled sidebar context switcher.
-The [release verification record](docs/qualification.md#v006-release) identifies the tested commit and test scope.
+Use Git tag [`v0.0.7`](https://github.com/dkkloimwieder/wfe/tree/v0.0.7).
+The [adoption guide](docs/adoption.md#v007) describes shared form actions, application icons, and per-column table controls.
+The [release verification record](docs/qualification.md#v007-release) identifies the tested commit and test scope.
 
 ## Documentation
 
