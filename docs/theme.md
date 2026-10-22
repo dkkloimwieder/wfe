@@ -110,22 +110,21 @@ The gallery at `?gallery=input-decoration` includes section colors and both trig
 ## Decoration geometry
 
 `Theme.decorationGeometry` controls rotation and perspective taper across buttons, inputs, navigation links, entry panels, and form sections.
-`rotation` and `taper` are the two strength controls. Both default to 2 and accept values from 0 through 8.
-The playground adjusts both in steps of 0.1.
+`rotationReduction` and `taperReduction` control reduction, not effect strength. Both accept values from 0 through 8.
+The defaults are taper reduction 0.3 and rotation reduction 0.05.
+Zero keeps the original two-degree rotation and taper ranges at every size.
+Higher values reduce the corresponding effect more as size grows. Values below 1 apply gentler reduction than 1.
+The playground adjusts taper reduction in steps of 0.1 and rotation reduction in steps of 0.05.
 
-Rotation decreases in direct proportion to the longest side.
-Taper decreases independently with each side: X-axis tilt uses height, and Y-axis tilt uses width.
-Doubling a dimension halves its corresponding angle. No threshold applies.
-Strength expresses degrees at 100 pixels before the random sample multiplier.
-The formulas are `rotation × 100 / max(width, height)`, `taper × 100 / height`, and `taper × 100 / width`.
+Rotation uses the longest side. Taper uses height for X-axis tilt and width for Y-axis tilt.
 Each angle keeps its own independent random sample.
+Linear mode multiplies the default angle by `1 / (1 + reduction × size / 100)`.
+For a 100-pixel side, reduction 0 keeps the full effect, reduction 1 keeps half, and reduction 3 keeps one-quarter.
 
-`scale` defaults to `"linear"`, which uses the proportional formulas above.
-Set `scale="power"` to raise each size ratio to `exponent` before multiplying by strength and its random sample.
+`scale` defaults to `"power"`, which raises that multiplier to `exponent`. Set `scale="linear"` to use the multiplier directly.
 `exponent` defaults to 2 and accepts 0.1 through 4. The playground adjusts it in steps of 0.1.
-At exponent 1, both modes match. At exponent 2, doubling a dimension reduces its angle to one-quarter.
-The exponent applies independently to width, height, and the longest side. Linear mode ignores it.
-At extreme settings, geometric limits prevent perspective inversion and rotation beyond 90 degrees. These limits add no tuning controls.
+At exponent 1, both modes match. Higher exponents increase reduction; lower exponents soften it.
+Linear mode ignores the exponent. Zero reduction always keeps the full default effect in both modes.
 
 `randomizeOnHover` defaults to `true`. Set it to `false` to hold the random samples while comparing geometry.
 

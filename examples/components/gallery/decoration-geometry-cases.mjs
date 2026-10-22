@@ -10,12 +10,23 @@ export async function decorationGeometryCases({ page, url, record }) {
       const draft = host.getByRole('textbox', { name: 'Preview draft' })
       await draft.fill('Retained draft')
       const original = await draft.elementHandle()
-      for (const name of ['Taper', 'Rotation']) {
+      await expect(
+        host.getByRole('slider', { name: 'Rotation reduction', exact: true }),
+      ).toHaveValue('0.05')
+      await expect(
+        host.getByRole('slider', { name: 'Taper reduction', exact: true }),
+      ).toHaveValue('0.3')
+      for (const name of ['Taper reduction', 'Rotation reduction']) {
         const knob = host.getByRole('slider', { name, exact: true })
         await knob.focus()
+        await knob.press('Home')
         await knob.press('ArrowRight')
-        await expect(knob).toHaveValue('2.1')
+        await expect(knob).toHaveValue(
+          name === 'Rotation reduction' ? '0.05' : '0.1',
+        )
         await expect(knob).toBeFocused()
+        await knob.press('Home')
+        await expect(knob).toHaveValue('0')
         await expect(draft).toHaveValue('Retained draft')
       }
       const scale = choiceControl(host, { name: 'Scale', exact: true })
@@ -37,7 +48,7 @@ export async function decorationGeometryCases({ page, url, record }) {
       for (const name of ['Wide', 'Square', 'Tall'])
         await host.getByRole('button', { name, exact: true }).click()
       const slider = host.getByRole('slider', {
-        name: 'Rotation',
+        name: 'Rotation reduction',
         exact: true,
       })
       await slider.focus()
@@ -67,6 +78,15 @@ export async function decorationGeometryCases({ page, url, record }) {
         .getByRole('button', { name: 'Reset geometry', exact: true })
         .click()
       await expect(draft).toHaveValue('Retained draft')
+      await expect(
+        host.getByRole('slider', { name: 'Rotation reduction', exact: true }),
+      ).toHaveValue('0.05')
+      await expect(
+        host.getByRole('slider', { name: 'Taper reduction', exact: true }),
+      ).toHaveValue('0.3')
+      await expect(
+        host.getByRole('slider', { name: 'Exponent', exact: true }),
+      ).toHaveValue('2')
       await original.dispose()
     },
   )

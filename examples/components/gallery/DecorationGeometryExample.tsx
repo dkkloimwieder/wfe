@@ -20,8 +20,20 @@ const inheritedAppearance = Object.fromEntries(
   Object.keys(themeStyle()).map((key) => [key, 'inherit']),
 ) as JSX.CSSProperties
 const ranges = [
-  { key: 'taper', label: 'Taper', min: 0, max: 8, step: 0.1 },
-  { key: 'rotation', label: 'Rotation', min: 0, max: 8, step: 0.1 },
+  {
+    key: 'taperReduction',
+    label: 'Taper reduction',
+    min: 0,
+    max: 8,
+    step: 0.1,
+  },
+  {
+    key: 'rotationReduction',
+    label: 'Rotation reduction',
+    min: 0,
+    max: 8,
+    step: 0.05,
+  },
 ] as const
 export function DecorationGeometryExample() {
   const [geometry, setGeometry] = createSignal<DecorationGeometry>({
@@ -40,7 +52,7 @@ export function DecorationGeometryExample() {
       <FieldGroup
         title="Decoration geometry"
         columns={2}
-        help="Taper follows each side. Rotation follows the longest side. Linear halves the angle when size doubles; exponent 2 reduces it to one-quarter."
+        help="Zero keeps the full default effect. Higher values reduce it more as size grows. Taper uses each side; rotation uses the longest side."
       >
         <For each={ranges}>
           {(range) => (
@@ -59,7 +71,11 @@ export function DecorationGeometryExample() {
                   }))
                 }
               />
-              <output>{geometry()[range.key].toFixed(1)}</output>
+              <output>
+                {geometry()[range.key].toFixed(
+                  range.key === 'rotationReduction' ? 2 : 1,
+                )}
+              </output>
             </Field>
           )}
         </For>
@@ -70,12 +86,10 @@ export function DecorationGeometryExample() {
             { value: 'linear', label: 'Linear (proportional)' },
             { value: 'power', label: 'Exponent' },
           ]}
-          onValueChange={(scale) =>
-            setGeometry((current) => ({
-              ...current,
-              scale: scale as DecorationGeometry['scale'],
-            }))
-          }
+          onValueChange={(scale) => {
+            if (scale === 'linear' || scale === 'power')
+              setGeometry((current) => ({ ...current, scale }))
+          }}
         />
         <Show when={geometry().scale === 'power'}>
           <Field>

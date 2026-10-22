@@ -54,7 +54,11 @@ describe('decoration lifecycle', () => {
     observer.emit(button)
     width = 400
     observer.emit(button)
-    owner.configure({ taper: 0.7, rotation: 1.3, randomizeOnHover: false })
+    owner.configure({
+      taperReduction: 0.7,
+      rotationReduction: 1.3,
+      randomizeOnHover: false,
+    })
     button.dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
     expect(random).toHaveBeenCalledTimes(count)
     owner.configure({ randomizeOnHover: true })
@@ -84,7 +88,7 @@ describe('decoration lifecycle', () => {
     const count = random.mock.calls.length
     outer.button.dispatchEvent(new MouseEvent('pointerover', { bubbles: true }))
     outer.observer.emit(outer.button)
-    outer.owner.configure({ rotation: 4 })
+    outer.owner.configure({ rotationReduction: 4 })
     const extra = document.createElement('button')
     extra.className = 'ui-button'
     outer.root.append(extra)
