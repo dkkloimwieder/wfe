@@ -2,6 +2,18 @@ import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
 async function initial(page) {
+  await expect(
+    page.getByRole('button', { name: 'Edit Beta', exact: true }),
+  ).toBeEnabled()
+  await expect(
+    page.getByRole('button', { name: 'Archive Beta', exact: true }),
+  ).toBeEnabled()
+  await expect(
+    page.getByRole('button', { name: 'View Alpha', exact: true }),
+  ).toBeDisabled()
+  await expect(
+    page.getByRole('button', { name: 'Archive Alpha', exact: true }),
+  ).toHaveCount(0)
   const view = page.locator('[data-generator-view="column-controls"]')
   await expect(
     view.getByRole('columnheader', { name: 'Actions', exact: true }),
@@ -66,6 +78,98 @@ export const columnControlChecks = {
       )
     }
     await record(
+      'row actions follow live records and retain focus and current callbacks',
+      async () => {
+        const edit = page.getByRole('button', {
+          name: 'Edit Beta',
+          exact: true,
+        })
+        await edit.click()
+        assert.deepEqual(
+          (await page.evaluate(() => window.generatorFixture.snapshot())).calls,
+          [{ handler: 'initial', action: 'open', id: 'b', name: 'Beta' }],
+        )
+        await edit.evaluate((node) => {
+          node.focus()
+          window.rowActionButton = node
+        })
+        await page.evaluate(() =>
+          window.generatorFixture.rowActionState('b', {
+            name: 'Beta revised',
+            archived: true,
+          }),
+        )
+        const viewAction = page.getByRole('button', {
+          name: 'View Beta revised',
+          exact: true,
+        })
+        await expect(viewAction).toBeFocused()
+        await expect(viewAction).toHaveText('View')
+        assert.equal(
+          await viewAction.evaluate((node) => node === window.rowActionButton),
+          true,
+        )
+        await expect(
+          page.getByRole('button', {
+            name: 'Archive Beta revised',
+            exact: true,
+          }),
+        ).toHaveCount(0)
+        await page.evaluate(() =>
+          window.generatorFixture.replaceRowActionHandler(),
+        )
+        await expect(viewAction).toBeFocused()
+        await viewAction.press('Enter')
+        let snapshot = await page.evaluate(() =>
+          window.generatorFixture.snapshot(),
+        )
+        assert.deepEqual(snapshot.calls.at(-1), {
+          handler: 'replacement',
+          action: 'open',
+          id: 'b',
+          name: 'Beta revised',
+        })
+        assert.equal(snapshot.calls.length, 2)
+        await page.evaluate(() =>
+          window.generatorFixture.rowActionState('b', { pending: true }),
+        )
+        await expect(viewAction).toBeDisabled()
+        await viewAction.evaluate((node) => node.click())
+        assert.equal(
+          (await page.evaluate(() => window.generatorFixture.snapshot())).calls
+            .length,
+          2,
+        )
+        await page.evaluate(() =>
+          window.generatorFixture.rowActionState('b', {
+            name: 'Beta',
+            pending: false,
+            archived: false,
+          }),
+        )
+        await expect(edit).toBeEnabled()
+        assert.equal(
+          await edit.evaluate((node) => node === window.rowActionButton),
+          true,
+        )
+        await page
+          .getByRole('button', { name: 'Archive Beta', exact: true })
+          .click()
+        snapshot = await page.evaluate(() => window.generatorFixture.snapshot())
+        assert.deepEqual(snapshot.calls.at(-1), {
+          handler: 'replacement',
+          action: 'archive',
+          id: 'b',
+          name: 'Beta',
+        })
+        assert.equal(snapshot.lifecycle.mounts, 2)
+        assert.equal(snapshot.lifecycle.disposals, 0)
+        await expect(
+          page.getByRole('button', { name: 'View Alpha', exact: true }),
+        ).toBeDisabled()
+      },
+    )
+    await record(
       'column controls: live flags omit controls and retain cells and application state',
       async () => {
         await names.first().evaluate((node) => {
@@ -93,6 +197,10 @@ export const columnControlChecks = {
         )
         await page.evaluate(() => window.generatorFixture.stop())
         await expect(page.locator('#root table')).toHaveCount(0)
+        const lifecycle = (
+          await page.evaluate(() => window.generatorFixture.snapshot())
+        ).lifecycle
+        assert.equal(lifecycle.disposals, lifecycle.mounts)
       },
     )
   },

@@ -232,6 +232,21 @@ export function createFixture(
       app.remove()
       flush()
     },
+    rowActionState(
+      id: string,
+      patch: { name?: string; archived?: boolean; pending?: boolean },
+    ) {
+      if (app?.kind !== 'column-controls')
+        throw new Error('This operation needs the column controls example')
+      app.updateRow(id, patch)
+      flush()
+    },
+    replaceRowActionHandler() {
+      if (app?.kind !== 'column-controls')
+        throw new Error('This operation needs the column controls example')
+      app.replaceHandler()
+      flush()
+    },
     snapshot: () => app!.snapshot(),
     diagnostics: () => {
       events.push(...(capture?.stop() ?? []))

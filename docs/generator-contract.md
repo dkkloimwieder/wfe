@@ -128,6 +128,11 @@ It must also report unknown alias keys, duplicate field, action, and panel ident
 The renderers report these errors with a `Generator:` prefix.
 An application can use Solid `Errored` to present a rejected description.
 
+## Row-dependent actions
+
+Custom cells can show, disable, or relabel actions from the current row record.
+See [row-dependent actions](table-row-actions.md) for a typed example and the application ownership rules.
+
 ## Layout and identity
 
 `LayoutView.style` forwards CSS properties to its dashboard shell.

@@ -1,8 +1,17 @@
-import { createSignal } from 'solid-js'
-import { Button } from '@wfe/components'
+import { Show, createSignal, onCleanup } from 'solid-js'
+import { Button, FormActions } from '@wfe/components'
 import { createTable } from '@wfe/components/table'
 import { TableView } from '@wfe/generator'
+import type { CustomCellProps } from '@wfe/generator'
 import type { NativeTableState } from '@wfe/components/table'
+
+type ActionRow = {
+  id: string
+  name: string
+  archived: boolean
+  pending: boolean
+}
+type RowAction = 'open' | 'archive'
 
 export function createColumnControlsApplication() {
   const [mode, setMode] = createSignal<'client' | 'sorting' | 'processing'>(
@@ -11,14 +20,36 @@ export function createColumnControlsApplication() {
   const [enabled, setEnabled] = createSignal(true)
   const [sorting, setSorting] = createSignal<NativeTableState['sorting']>([])
   const [requests, setRequests] = createSignal(0)
-  const rows = [
-    { id: 'b', name: 'Beta' },
-    { id: 'a', name: 'Alpha' },
-  ]
+  const [rows, setRows] = createSignal<ActionRow[]>([
+    { id: 'b', name: 'Beta', archived: false, pending: false },
+    { id: 'a', name: 'Alpha', archived: true, pending: true },
+  ])
+  const [calls, setCalls] = createSignal<
+    { handler: string; action: RowAction; id: string; name: string }[]
+  >([])
+  const recordCall = (handler: string, action: RowAction, row: ActionRow) =>
+    setCalls((previous) => [
+      ...previous,
+      { handler, action, id: row.id, name: row.name },
+    ])
+  const [handler, setHandler] = createSignal(
+    () => (action: RowAction, row: ActionRow) => {
+      recordCall('initial', action, row)
+    },
+  )
+  const lifecycle = { mounts: 0, disposals: 0 }
+  const updateRow = (id: string, patch: Partial<ActionRow>) =>
+    setRows((previous) =>
+      previous.map((row) => (row.id === id ? { ...row, ...patch, id } : row)),
+    )
+  const replaceHandler = () =>
+    setHandler(() => (action: RowAction, row: ActionRow) => {
+      recordCall('replacement', action, row)
+    })
   const table = createTable({
     source: {
-      ids: () => rows.map((row) => row.id),
-      get: (id) => rows.find((row) => row.id === id)!,
+      ids: () => rows().map((row) => row.id),
+      get: (id) => rows().find((row) => row.id === id)!,
     },
     get columns() {
       return [
@@ -54,6 +85,12 @@ export function createColumnControlsApplication() {
   return {
     kind: 'column-controls' as const,
     table,
+    rows,
+    calls,
+    handler,
+    lifecycle,
+    updateRow,
+    replaceHandler,
     mode,
     enabled,
     toggle: () => setEnabled((value) => !value),
@@ -61,7 +98,12 @@ export function createColumnControlsApplication() {
       setSorting([])
       setMode(next)
     },
-    snapshot: () => ({ sorting: sorting(), requests: requests() }),
+    snapshot: () => ({
+      sorting: sorting(),
+      requests: requests(),
+      calls: calls(),
+      lifecycle: { ...lifecycle },
+    }),
   }
 }
 
@@ -70,10 +112,37 @@ export function ColumnControlsApp(props: {
 }) {
   const app = createColumnControlsApplication()
   props.ready?.(app)
-  const Actions = () => <Button onClick={() => undefined}>View</Button>
+  const Actions = (props: CustomCellProps<ActionRow, unknown>) => {
+    app.lifecycle.mounts++
+    onCleanup(() => app.lifecycle.disposals++)
+    return (
+      <Show when={props.row.original}>
+        {(row) => (
+          <FormActions>
+            <Button
+              disabled={row().pending}
+              aria-label={`${row().archived ? 'View' : 'Edit'} ${row().name}`}
+              onClick={() => app.handler()('open', row())}
+            >
+              {row().archived ? 'View' : 'Edit'}
+            </Button>
+            <Show when={!row().archived}>
+              <Button
+                disabled={row().pending}
+                aria-label={`Archive ${row().name}`}
+                onClick={() => app.handler()('archive', row())}
+              >
+                Archive
+              </Button>
+            </Show>
+          </FormActions>
+        )}
+      </Show>
+    )
+  }
   return (
     <>
-      <div class="ui-form-actions">
+      <FormActions>
         <Button onClick={() => app.selectMode('client')}>Client sorting</Button>
         <Button onClick={() => app.selectMode('sorting')}>
           Server sorting
@@ -82,7 +151,27 @@ export function ColumnControlsApp(props: {
           Server processing
         </Button>
         <Button onClick={app.toggle}>Toggle name controls</Button>
-      </div>
+        <Button
+          onClick={() =>
+            app.updateRow('b', { pending: !app.rows()[0]!.pending })
+          }
+        >
+          Toggle Beta pending
+        </Button>
+        <Button
+          onClick={() =>
+            app.updateRow('b', { archived: !app.rows()[0]!.archived })
+          }
+        >
+          Toggle Beta archived
+        </Button>
+        <Button onClick={app.replaceHandler}>Replace action callback</Button>
+      </FormActions>
+      <p role="status">
+        {app.calls().length
+          ? JSON.stringify(app.calls().at(-1))
+          : 'Choose a row action to see the application callback.'}
+      </p>
       <TableView
         description={{
           id: 'column-controls',

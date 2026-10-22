@@ -62,3 +62,5 @@ Package guides stay beside their source when they describe implementation mainte
 Vendor licenses, source hashes, and repair records stay beside each captured source tree.
 Historical inventories keep their recorded paths and hashes.
 Build outputs and qualification reports remain outside the documentation index.
+
+See [row-dependent table actions](table-row-actions.md) for live row state, disabled buttons, and application callbacks.
