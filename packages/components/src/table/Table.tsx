@@ -106,6 +106,7 @@ export function Table<T, M>(props: {
         )}
       </Show>
       <table
+        class="ui-table"
         ref={(node) => {
           setElement(node)
           elementRef?.(node)

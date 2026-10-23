@@ -122,6 +122,7 @@ export function GridView<const D extends GridDescription>(
         style={{ flex: 1, 'min-height': 0 }}
       >
         <table
+          class="ui-table"
           style={{
             width: '100%',
             'min-width': `${Math.max(1, columnIds().length + 1) * 7}rem`,

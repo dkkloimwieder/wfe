@@ -1,6 +1,6 @@
 import { Button } from '@wfe/components/fields'
 import { SelectField } from '@wfe/components/select'
-import './style.css'
+import './controls.css'
 import { uiScope } from '@wfe/components'
 import { For, Show, createSignal, flush, onSettled, untrack } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
@@ -239,7 +239,7 @@ export function App(props: {
               <For each={children.entries()}>
                 {(entry) => (
                   <Show when={entry.draftCount()}>
-                    <aside class="child-drafts">
+                    <aside class="child-drafts fixture-warning">
                       Sub-table for {entry.parentId}: {entry.draftCount()}{' '}
                       drafts.{' '}
                       <Button

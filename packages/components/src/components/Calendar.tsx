@@ -259,6 +259,7 @@ export function Calendar(props: CalendarProps) {
         }
       >
         <table
+          class="ui-table"
           role="grid"
           aria-label={props.label}
           aria-describedby={help}

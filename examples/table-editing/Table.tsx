@@ -1015,7 +1015,7 @@ export function Table(props: {
         </p>
       </Show>
       <Show when={!isGrouped() && hiddenDrafts().length > 0}>
-        <aside aria-label="Hidden drafts">
+        <aside class="fixture-warning" aria-label="Hidden drafts">
           <p>Drafts outside the current view are preserved.</p>
           <For each={hiddenDrafts()}>
             {(id) => (

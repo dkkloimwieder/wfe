@@ -69,3 +69,10 @@ h2 {
 .table-component .table-scroll > table {
   min-width: 72rem;
 }
+
+.dashboard-record-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  flex-wrap: wrap;
+}

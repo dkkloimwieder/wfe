@@ -38,7 +38,7 @@
   }
 }
 
-:where([data-ui]) summary {
+:where([data-ui]) summary:where(.ui-disclosure-trigger) {
   cursor: pointer;
 }
 
@@ -168,9 +168,7 @@
   }
 }
 
-:where([data-ui]) .toolbar,
-:where([data-ui]) .buttons,
-:where([data-ui]) .hidden-draft {
+:where([data-ui]) .toolbar {
   display: flex;
   align-items: center;
   gap: var(--ui-gap, 6px);
@@ -191,7 +189,7 @@
   border: 1px solid var(--ui-border, #ccc);
   background: var(--ui-surface, white);
 }
-:where([data-ui]) table {
+:where([data-ui]) table:where(.ui-table) {
   --ui-table-header-size: calc(
     var(--ui-header-height, 22px) + 2 * var(--ui-table-cell-padding-y, 1px) +
       0.5px
@@ -199,26 +197,34 @@
   border-collapse: collapse;
   table-layout: fixed;
 }
-:where([data-ui]) caption {
+:where([data-ui]) :where(.ui-table) > caption {
   background: transparent;
   text-align: left;
   padding: 8px 10px;
   font-weight: 650;
 }
-:where([data-ui]) th {
+:where([data-ui]) :where(.ui-table > :is(thead, tbody, tfoot) > tr) > th {
   font-weight: var(--ui-heading-weight, 500);
 }
-:where([data-ui]) th,
-:where([data-ui]) td {
+:where([data-ui]) :where(.ui-table > :is(thead, tbody, tfoot) > tr) > th,
+:where([data-ui]) :where(.ui-table > :is(thead, tbody, tfoot) > tr) > td {
   padding: var(--ui-table-cell-padding-y, 1px) var(--ui-cell-padding-x, 8px);
   border-top: 1px solid var(--ui-table-row-divider, var(--ui-divider, #ddd));
   text-align: left;
   vertical-align: middle;
 }
-:where([data-ui]) :is(td, tbody th) {
+:where([data-ui])
+  :where(.ui-table)
+  > :is(thead, tbody, tfoot)
+  > :where(tr)
+  > td,
+:where([data-ui]) :where(.ui-table) > tbody > :where(tr) > th {
   border-bottom: 1px solid var(--ui-table-row-divider, var(--ui-divider, #ddd));
 }
-:where([data-ui]) tr > :is(th, td):not(:last-child) {
+:where([data-ui])
+  :where(.ui-table > :is(thead, tbody, tfoot))
+  > tr
+  > :is(th, td):not(:last-child) {
   border-inline-end: 1px solid
     var(--ui-table-column-divider, var(--ui-divider, #ddd));
 }
@@ -234,7 +240,9 @@
   --ui-column-alignment: right;
   --ui-column-justify: flex-end;
 }
-:where([data-ui]) :is(th, td)[data-column-alignment] {
+:where([data-ui])
+  :where(.ui-table > :is(thead, tbody, tfoot) > tr)
+  > :is(th, td)[data-column-alignment] {
   text-align: var(--ui-column-alignment);
 }
 :where([data-ui]) [data-column-alignment] :is(.column-move, .column-title) {
@@ -247,26 +255,31 @@
 :where([data-ui]) [data-column-alignment] .group-heading {
   justify-content: var(--ui-column-justify);
 }
-:where([data-ui]) .table-scroll > table > thead > tr:first-child > :is(th, td) {
+:where([data-ui])
+  .table-scroll
+  > table:where(.ui-table)
+  > thead
+  > tr:first-child
+  > :is(th, td) {
   border-top: 0;
 }
-:where([data-ui]) thead {
+:where([data-ui]) :where(.ui-table) > thead {
   background: transparent;
   color: var(--ui-text, #000);
   font-size: var(--ui-small-font-size, 11px);
 }
 /* Keep all header rows together within the shared scrolling viewport. */
-:where([data-ui]) .table-scroll > table > thead {
+:where([data-ui]) .table-scroll > table:where(.ui-table) > thead {
   position: sticky;
   top: 0;
   z-index: 1;
   background: var(--ui-surface, white);
   box-shadow: 0 1px var(--ui-table-row-divider, var(--ui-divider, #ddd));
 }
-:where([data-ui]) tbody tr[data-row] {
+:where([data-ui]) :where(.ui-table) > tbody > tr[data-row] {
   height: var(--ui-row-height, 32px);
 }
-:where([data-ui]) tbody tr[data-row]:hover {
+:where([data-ui]) :where(.ui-table) > tbody > tr[data-row]:hover {
   background: var(--ui-hover, #f6f6f6);
 }
 :where([data-ui]) .column-sort {
@@ -359,62 +372,8 @@
   width: calc(var(--ui-font-size, 12px) * 10);
   max-width: 100%;
 }
-:where([data-ui]) .row-actions .buttons {
-  display: inline-flex;
-}
-:where([data-ui]) .row-actions .muted {
-  white-space: nowrap;
-}
-:where([data-ui]) tbody th {
+:where([data-ui]) :where(.ui-table) > tbody > :where(tr) > th {
   font-weight: 500;
-}
-:where([data-ui]) .cell-value {
-  text-align: left;
-  width: 100%;
-  border-color: transparent;
-  background: transparent;
-  min-height: var(--ui-control-height, 26px);
-  overflow-wrap: anywhere;
-}
-:where([data-ui]) .cell-value:hover {
-  border-color: var(--ui-control-border, #999);
-}
-:where([data-ui]) .cell-value[data-edited='true'] {
-  background: var(--ui-warning-surface, #fff7d9);
-}
-:where([data-ui]) .edited-marker {
-  display: inline-block;
-  margin-left: 6px;
-  color: var(--ui-warning-text, #765200);
-  font-size: 10px;
-}
-:where([data-ui]) .message {
-  color: var(--ui-error, #9d251e);
-  margin: 6px 0 0;
-  font-size: var(--ui-small-font-size, 11px);
-}
-:where([data-ui]) .message:empty {
-  display: none;
-}
-:where([data-ui]) .muted {
-  color: var(--ui-muted-text, #666);
-  display: inline-block;
-  padding-top: 0;
-}
-:where([data-ui]) .notice:empty,
-:where([data-ui]) .view-status:empty {
-  display: none;
-}
-:where([data-ui]) aside {
-  padding: 8px 10px;
-  background: var(--ui-warning-surface, #fff7d9);
-  border: 1px solid var(--ui-warning-border, #ddc777);
-}
-:where([data-ui]) .hidden-draft {
-  margin-top: 8px;
-}
-:where([data-ui]) .after-table {
-  margin-top: 10px;
 }
 :where([data-ui]) .table-filter {
   display: grid;
@@ -441,10 +400,6 @@
   border-radius: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 8px);
 }
-:where([data-ui]) .global-search {
-  width: 260px;
-  max-width: 100%;
-}
 :where([data-ui]) .column-title {
   display: block;
   margin-bottom: 6px;
@@ -458,43 +413,6 @@
   border: 1px solid var(--ui-border, #ccc);
   border-radius: 0;
   background: var(--ui-surface, white);
-}
-:where([data-ui]) .display-options {
-  margin: 8px 0;
-}
-:where([data-ui]) .table-views fieldset {
-  margin: 0;
-  min-width: 0;
-  border: 1px solid var(--ui-border, #ccc);
-  border-radius: 0;
-  padding: 8px 10px;
-}
-:where([data-ui]) .view-controls {
-  display: flex;
-  align-items: end;
-  flex-wrap: wrap;
-  gap: var(--ui-gap, 6px);
-}
-:where([data-ui]) .view-controls label {
-  display: grid;
-  gap: 4px;
-  max-width: 100%;
-}
-:where([data-ui]) .view-controls input,
-:where([data-ui]) .view-controls select,
-:where([data-ui]) .view-controls .ui-select-field {
-  width: 170px;
-  max-width: 100%;
-}
-:where([data-ui]) .view-status {
-  margin: 6px 0;
-}
-:where([data-ui]) .view-status[role='alert'] {
-  color: var(--ui-error, #9d251e);
-}
-:where([data-ui]) .display-options summary {
-  cursor: pointer;
-  color: var(--ui-muted-text, #666);
 }
 :where([data-ui]) .display-fields {
   display: flex;
@@ -534,14 +452,6 @@
   :where([data-ui]) .column-filters {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-:where([data-ui]) .result-count {
-  color: var(--ui-muted-text, #666);
-  font-size: var(--ui-small-font-size, 11px);
-}
-:where([data-ui]) .empty-state {
-  padding: 24px;
-  text-align: center;
 }
 :where([data-ui]) .grouping-controls {
   container-type: inline-size;
@@ -672,14 +582,6 @@
 :where([data-ui]) .sub-table-toggle:hover {
   border-color: var(--ui-border, #ccc);
 }
-:where([data-ui]) .child-dataset {
-  display: grid;
-  gap: var(--ui-gap, 6px);
-  max-width: 240px;
-}
-:where([data-ui]) .child-drafts {
-  margin: 8px 0;
-}
 :where([data-ui]) .summary-controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -691,11 +593,6 @@
   color: var(--ui-muted-text, #666);
   font-size: var(--ui-small-font-size, 11px);
   margin-bottom: 0;
-}
-:where([data-ui]) .column-layout {
-  margin: 6px 0;
-  font-size: var(--ui-small-font-size, 11px);
-  color: var(--ui-muted-text, #666);
 }
 :where([data-ui]) .column-resize {
   position: absolute;
@@ -742,9 +639,6 @@
 :where([data-ui]) .column-resize[aria-disabled='true'] {
   cursor: default;
   opacity: 1;
-}
-:where([data-ui]) .editing-lock {
-  color: var(--ui-warning-text, #734b00);
 }
 :where([data-ui]) .header-filter {
   display: inline-flex;

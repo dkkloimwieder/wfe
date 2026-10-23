@@ -4,6 +4,10 @@ Applications explicitly import `@wfe/components/styles.css`.
 All selectors stay inside a `data-ui` scope. The stylesheet leaves unrelated content unchanged.
 Table editors and standalone controls share fonts, spacing, borders, colors, focus, and disabled states.
 Application fixture page styles stay outside this package.
+Generic `aside` and `table` elements do not opt into table or warning presentation.
+Table and GridView add `ui-table`; hand-written tables can use that class explicitly.
+The editing fixture owns its warning and editing-status classes in `examples/table-editing/controls.css`.
+Its standalone entry imports the document baseline; embedding the fixture does not import it.
 Generic dashboard styles live in `layout.css`.
 Rectangular surfaces use square corners by default.
 Dashboard panels use one inset and remove default margins from direct headings and paragraphs.

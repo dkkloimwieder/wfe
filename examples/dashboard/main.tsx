@@ -346,7 +346,7 @@ function TablePage() {
 }
 function RecordActions() {
   return (
-    <div class="buttons" aria-label="Example data">
+    <div class="dashboard-record-actions" aria-label="Example data">
       <Button onClick={() => replaceRows?.(0)}>Empty results</Button>
       <Button onClick={() => replaceRows?.(2)}>Two records</Button>
       <Button onClick={() => replaceRows?.(8)}>Eight records</Button>

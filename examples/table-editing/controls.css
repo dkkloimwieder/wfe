@@ -1,0 +1,129 @@
+/* Editing-fixture presentation. The reusable import has no document baseline. */
+@import '@wfe/components/styles.css';
+
+:where([data-ui]) .buttons,
+:where([data-ui]) .hidden-draft {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  flex-wrap: wrap;
+}
+:where([data-ui]) .row-actions .buttons {
+  display: inline-flex;
+}
+:where([data-ui]) .row-actions .muted {
+  white-space: nowrap;
+}
+:where([data-ui]) .cell-value {
+  text-align: left;
+  width: 100%;
+  border-color: transparent;
+  background: transparent;
+  min-height: var(--ui-control-height, 26px);
+  overflow-wrap: anywhere;
+}
+:where([data-ui]) .cell-value:hover {
+  border-color: var(--ui-control-border, #999);
+}
+:where([data-ui]) .cell-value[data-edited='true'] {
+  background: var(--ui-warning-surface, #fff7d9);
+}
+:where([data-ui]) .edited-marker {
+  display: inline-block;
+  margin-left: 6px;
+  color: var(--ui-warning-text, #765200);
+  font-size: 10px;
+}
+:where([data-ui]) .message {
+  color: var(--ui-error, #9d251e);
+  margin: 6px 0 0;
+  font-size: var(--ui-small-font-size, 11px);
+}
+:where([data-ui]) .message:empty {
+  display: none;
+}
+:where([data-ui]) .muted {
+  color: var(--ui-muted-text, #666);
+  display: inline-block;
+  padding-top: 0;
+}
+:where([data-ui]) .notice:empty,
+:where([data-ui]) .view-status:empty {
+  display: none;
+}
+:where([data-ui]) .hidden-draft {
+  margin-top: 8px;
+}
+:where([data-ui]) .after-table {
+  margin-top: 10px;
+}
+:where([data-ui]) .global-search {
+  width: 260px;
+  max-width: 100%;
+}
+:where([data-ui]) .display-options {
+  margin: 8px 0;
+}
+:where([data-ui]) .table-views fieldset {
+  margin: 0;
+  min-width: 0;
+  border: 1px solid var(--ui-border, #ccc);
+  border-radius: 0;
+  padding: 8px 10px;
+}
+:where([data-ui]) .view-controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .view-controls label {
+  display: grid;
+  gap: 4px;
+  max-width: 100%;
+}
+:where([data-ui]) .view-controls input,
+:where([data-ui]) .view-controls select,
+:where([data-ui]) .view-controls .ui-select-field {
+  width: 170px;
+  max-width: 100%;
+}
+:where([data-ui]) .view-status {
+  margin: 6px 0;
+}
+:where([data-ui]) .view-status[role='alert'] {
+  color: var(--ui-error, #9d251e);
+}
+:where([data-ui]) .display-options summary {
+  cursor: pointer;
+  color: var(--ui-muted-text, #666);
+}
+:where([data-ui]) .result-count {
+  color: var(--ui-muted-text, #666);
+  font-size: var(--ui-small-font-size, 11px);
+}
+:where([data-ui]) .empty-state {
+  padding: 24px;
+  text-align: center;
+}
+:where([data-ui]) .child-dataset {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  max-width: 240px;
+}
+:where([data-ui]) .child-drafts {
+  margin: 8px 0;
+}
+:where([data-ui]) .column-layout {
+  margin: 6px 0;
+  font-size: var(--ui-small-font-size, 11px);
+  color: var(--ui-muted-text, #666);
+}
+:where([data-ui]) .editing-lock {
+  color: var(--ui-warning-text, #734b00);
+}
+:where([data-ui]) .fixture-warning {
+  padding: 8px 10px;
+  background: var(--ui-warning-surface, #fff7d9);
+  border: 1px solid var(--ui-warning-border, #ddc777);
+}

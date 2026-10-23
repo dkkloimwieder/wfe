@@ -77,11 +77,11 @@ if (!externalUrl) {
   )
   assert.ok(
     ownedControlModules.every((path) =>
-      /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
+      /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|popover|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
         path,
       ),
     ),
-    'editing retains only shared checkbox and select behavior with their support modules',
+    'editing retains shared checkbox, select, and date-picker popover behavior with their support modules',
   )
   assert.ok(modules.some((path) => /zod\/v4\/mini\//.test(path)))
   assert.ok(!modules.some((path) => /zod\/v4\/classic\//.test(path)))
