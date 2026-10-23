@@ -1,6 +1,6 @@
 import { parseAbsolute, parseDateTime, toZoned } from '@internationalized/date'
 import { dateFormatter } from './intlFormat'
-import { parseDate } from './date'
+import { parseDate, isSupportedDateYear } from './date'
 
 export type TimeInputFormat = 'HH:mm' | 'HH:mm:ss' | 'hh:mm a' | 'hh:mm:ss a'
 export type DateTimeDisambiguation = 'reject' | 'earlier' | 'later'
@@ -36,14 +36,14 @@ export function normalizeInstant(value: string): string {
   // Native ISO parsing handles signed minute offsets correctly. Date 3.12.4 does not.
   const canonical = new Date(value).toISOString()
   const parsed = parseAbsolute(canonical, 'UTC')
-  if (parsed.era !== 'AD' || parsed.year < 1 || parsed.year > 9999)
+  if (parsed.era !== 'AD' || !isSupportedDateYear(parsed.year))
     throw new RangeError('Datetime year must be between 0001 and 9999')
   return parsed.toAbsoluteString()
 }
 
 export function dateTimeParts(value: string, zone: string): DateTimeParts {
   const parsed = parseAbsolute(normalizeInstant(value), zone)
-  if (parsed.era !== 'AD' || parsed.year < 1 || parsed.year > 9999)
+  if (parsed.era !== 'AD' || !isSupportedDateYear(parsed.year))
     throw new RangeError(
       'Displayed datetime year must be between 0001 and 9999',
     )

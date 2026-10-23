@@ -11,7 +11,13 @@ import {
 } from 'solid-js'
 import { Button, Input } from './NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
-import { parseDate, dateValue } from '../utils/date'
+import {
+  parseDate,
+  dateValue,
+  isSupportedDateYear,
+  isDateWithinBounds,
+} from '../utils/date'
+import { dateFormatter } from '../utils/intlFormat'
 import { utcDate, modifyDate } from '../vendor/corvu-calendar/utils'
 import { navigateDay } from '../vendor/corvu-calendar/navigation'
 
@@ -53,22 +59,20 @@ export function Calendar(props: CalendarProps) {
     const value = dateValue(day)
     return Boolean(
       props.disabled ||
-      day.getUTCFullYear() < 1 ||
-      day.getUTCFullYear() > 9999 ||
-      (props.min && value < props.min) ||
-      (props.max && value > props.max) ||
+      !isSupportedDateYear(day.getUTCFullYear()) ||
+      !isDateWithinBounds(value, props.min, props.max) ||
       props.isDateDisabled?.(value),
     )
   }
   const formatter = () =>
-    new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+    dateFormatter(props.locale ?? 'en-US', {
       calendar: 'gregory',
       month: 'long',
       year: 'numeric',
       timeZone: 'UTC',
     })
   const label = (day: Date) =>
-    new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+    dateFormatter(props.locale ?? 'en-US', {
       calendar: 'gregory',
       dateStyle: 'full',
       timeZone: 'UTC',
@@ -102,7 +106,7 @@ export function Calendar(props: CalendarProps) {
     },
   )
   function move(day: Date, focus = true) {
-    if (day.getUTCFullYear() < 1 || day.getUTCFullYear() > 9999) return
+    if (!isSupportedDateYear(day.getUTCFullYear())) return
     const value = dateValue(day)
     setMonth(value.slice(0, 7) + '-01')
     setFocused(value)
@@ -218,7 +222,7 @@ export function Calendar(props: CalendarProps) {
                 disabled={props.disabled}
                 onValueChange={(value) => {
                   const year = Number(value)
-                  if (/^\d{1,4}$/.test(value) && year >= 1 && year <= 9999)
+                  if (/^\d{1,4}$/.test(value) && isSupportedDateYear(year))
                     move(
                       utcDate(year, Number(month().slice(5, 7)) - 1, 1),
                       false,
@@ -246,7 +250,7 @@ export function Calendar(props: CalendarProps) {
                       })
                     }}
                   >
-                    {new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+                    {dateFormatter(props.locale ?? 'en-US', {
                       calendar: 'gregory',
                       month: 'long',
                       timeZone: 'UTC',
@@ -270,7 +274,7 @@ export function Calendar(props: CalendarProps) {
               <For each={Array.from({ length: 7 }, (_, index) => index)}>
                 {(index) => (
                   <th scope="col">
-                    {new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+                    {dateFormatter(props.locale ?? 'en-US', {
                       calendar: 'gregory',
                       weekday: 'short',
                       timeZone: 'UTC',

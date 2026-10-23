@@ -26,7 +26,7 @@ import {
   parseDateInput,
 } from '../utils/dateFormat'
 import type { DateInputFormat } from '../utils/dateFormat'
-import { parseDate } from '../utils/date'
+import { isDateWithinBounds, parseDate } from '../utils/date'
 import type { CalendarProps } from './Calendar'
 
 export type DatePickerProps = Pick<
@@ -132,8 +132,7 @@ export function DatePickerControl(
   function accepted(value: string) {
     return Boolean(
       parseDate(value) &&
-      (!props.min || value >= props.min) &&
-      (!props.max || value <= props.max) &&
+      isDateWithinBounds(value, props.min, props.max) &&
       !props.isDateDisabled?.(value),
     )
   }

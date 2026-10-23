@@ -107,3 +107,16 @@ Read-only datetime output defaults to UTC.
 Pass the same explicit application zone when input and output must match.
 The component also supports the browser timezone after hydration.
 Read [shared value formatting](table-formatting.md) for formats, examples, and raw-value ownership.
+
+## Shared validation and formatting
+
+Date-only Calendar and DatePicker bounds share an inclusive comparison after
+parsing. Either bound can be omitted. Their values remain Gregorian YYYY-MM-DD
+coordinates; they are not converted through the browser timezone. Datetime
+normalization and instant bounds remain separate, including era validation and
+conversion to the selected display timezone.
+
+Calendar labels use the existing bounded Intl formatter cache shared by date
+formatting. The cache holds formatting machinery keyed by locale and options,
+not record values. Locale changes update labels without replacing date buttons
+or publishing a new selection. No additional cache or date value model is added.
