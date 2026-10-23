@@ -7,7 +7,7 @@ It covers every Low paragraph in sections 5.1–5.6 of the
 The source review used commit `5683e57` and the isolated phase 4/7 candidates on October 23, 2026.
 No new runtime tests, dependency delivery audit, or performance measurements ran for this record.
 This record follows the completion of phase 4 and issues 7.1–7.5. Their issue records contain the implementation and qualification evidence.
-Issue 7.8 records the native multiple-selection repair and its regression evidence. Issue 7.9 remains pending.
+Issues 7.8 and 7.9 record the native multiple-selection and nested dialog-scope repairs with their regression evidence.
 The user deferred phases 5 and 6 until after the component checkpoint.
 
 Issue numbers below use the `wfe-wmm.` prefix unless stated otherwise.
@@ -20,7 +20,7 @@ The original audit retains its historical counts and observations.
 - KEEP ThemeOptions.depth compatibility even though shadows are disabled by approved appearance. Do not restore shadows or remove this accepted prop. Phase 4.3 owns palette/density consistency. data-date-invalid is a useful emitted state hook without a bundled CSS consumer, not a broken feature.
 - Literal token fallback differences and owned-class naming map to phase 4.1/4.2/4.3. Do not rename all legacy classes merely to add a prefix. Cascade and ownership, not spelling, are the acceptance criteria.
 - TabsTrigger data-tone=default: KEEP. internal/buttonPresentation.ts explicitly accepts and emits this internal sentinel, and styles/buttons.css:46/50/54 implements it. ButtonTone intentionally permits only explicit neutral/accent choices. Changing it to neutral would alter the approved default appearance. The [button variant documentation](button-variants.md) now distinguishes omitted tone from explicit neutral tone. This corrects the contract wording without changing the API or appearance.
-- DialogTrigger missing data-ui: TRACK in `wfe-wmm.7.9` before the component checkpoint. The reproduction and repair remain separate from this source review. Dialog.tsx omits the marker present on PopoverTrigger. portalMount.ts skips the nearest data-ui scope to reach its owner. Under nested data-ui hosts without data-ui-portal-root, Dialog therefore selects the outer host. Test portal containment, explicit mount override, close focus and inner-host lifetime. Do not globally rewrite portalMount or infer a style fix from screenshots.
+- DialogTrigger scope boundary: repaired in `wfe-wmm.7.9`. The baseline reproduced automatic portals outside the inner UI scope for Dialog, AlertDialog, and Sheet. Their shared trigger now supplies the control boundary that automatic placement expects. Explicit mounts, close focus, and disposal retain regression coverage. The repair does not change the shared portal placement algorithm.
 - Missing PURE annotations and long FileInput/Calendar/ResizeHandle functions: DEFER without bundle measurements or independently useful boundaries. Preserve side effects and initialization. Issue 7.4 consolidates date bounds and reuses the existing bounded formatter cache.
 - KEEP @types/d3-scale in dependencies: emitted dist/client/chart/index.d.ts imports d3-scale. Moving declaration dependencies to dev-only could break consumer type resolution. Preserve pinned runtime d3-scale: chart/index.ts exports scaleTime/scaleUtc and vendor/charts/charts-core/src/bar.ts imports scaleBand. Vendored other scale implementations do not replace these contracts.
 
@@ -91,5 +91,5 @@ The CI policy is in `.github/workflows/check.yml`. Historical migration and heap
 Vendor inventory, notice delivery and repair replay remain deferred phase 6 work. They are not certified by this disposition review.
 
 The new Dialog scope finding is tracked by `wfe-wmm.7.9`. Unlocked native multiple selection is tracked by `wfe-wmm.7.8`.
-Issue 7.8 repairs external native changes that dropped selected values and records its baseline and qualification. Issue 7.9 still needs separate regression evidence. Issues 7.1–7.5 record the completed shared-helper changes and their qualification.
+Issues 7.8 and 7.9 record separate failing baselines and qualification for their repairs. Issues 7.1–7.5 record the completed shared-helper changes and their qualification.
 The phase 7 checkpoint must review those results. This document does not authorize a release or report unrun checks as passing.

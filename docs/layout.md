@@ -86,6 +86,10 @@ Compact density remains the default.
 Pass `density="comfortable"` for larger controls and spacing.
 Pass `theme="dark"` for the shared dark colors.
 The shell marks its scope as a portal root for shared popup controls.
+Dialog, AlertDialog, and Sheet retain the nearest containing UI scope when no explicit portal root exists.
+Their shared trigger supplies its own control boundary.
+Without a containing scope, the dialog uses the document body rather than its trigger.
+A portal `mount` prop overrides this automatic placement.
 Use the same density for a child virtual table and its geometry.
 Applications can override CSS variables through the shell's `style` prop.
 `--ui-navigation-width` defaults to 15rem.

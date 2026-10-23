@@ -41,6 +41,7 @@ export function DialogTrigger<T extends ValidComponent = 'button'>(
   return (
     <Primitive
       {...attributes}
+      data-ui=""
       ref={[scope.setTrigger, untrack(() => props.ref)]}
     />
   )

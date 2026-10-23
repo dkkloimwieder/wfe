@@ -28,7 +28,11 @@ export function createDialogScope() {
       event.preventDefault()
       ;(cancel ?? content)?.focus({ preventScroll: true })
     },
-    mount: () => portalMount(trigger ?? origin),
+    mount: () => {
+      const mount = portalMount(trigger ?? origin)
+      // A control boundary without a containing scope keeps the body fallback.
+      return mount === trigger ? undefined : mount
+    },
   }
 }
 export const DialogScope = createContext<ReturnType<
