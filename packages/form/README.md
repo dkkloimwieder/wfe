@@ -6,7 +6,9 @@ The package owns errors, submission phases, cancellation, and late-response guar
 It supports flat scalar records and application-defined field names.
 
 Import `createForm` and its types from `@wfe/form`.
-Create each form inside a Solid owner.
+Create each form inside a Solid owner. The form relies on that owner for disposal and creates no implicit lifetime.
+`cancel()` clears pending or settled feedback without changing accepted values.
+Unequal value updates during submission cancel that attempt, including updates from the application submit callback.
 The package imports external Solid and has no component or style dependency.
 Read [the form contract](../../docs/form-contract.md) for usage and lifecycle rules.
 The [example](../../examples/form-contract/README.md) uses existing controls without a duplicate form implementation.

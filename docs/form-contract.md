@@ -9,6 +9,9 @@ The package owns no controls, styles, transport, or record schema.
 The implementation and public types live in `packages/form/src`.
 The example imports that package and contains no separate form implementation.
 Create the form inside a Solid component or another Solid owner so that disposal cancels its work.
+An owner defines the lifetime of effects and cleanup callbacks.
+`createForm` does not create an implicit owner or expose an independent disposal method.
+Creation without an owner is unsupported, even if a submission completes.
 
 ## Values and defaults
 
@@ -125,9 +128,17 @@ The phases are `idle`, `validating`, `submitting`, `success`, `invalid`, `reject
 
 ## Cancellation and late responses
 
-`cancel()` aborts the current context, settles its outcome as `cancelled`, and clears pending feedback.
+`cancel()` aborts a pending context and settles its outcome as `cancelled`.
+While the owner remains active, it returns the phase to `idle` and clears errors and failure feedback.
+This includes feedback from a completed attempt.
+It does not change accepted values or rewrite an outcome that already settled.
 Accepted edits, external value replacements, and reset also cancel current work.
 The application can still reject an edit without cancelling the unchanged submission.
+
+The same rules apply when `onSubmit` publishes accepted values before its reply resolves.
+Unequal values cancel that attempt, and its later success or error reply cannot replace the new form state.
+Equivalent values preserve the attempt. Changes to defaults alone also preserve it.
+These rules protect attempt identity. They do not decide when an application publishes saved values.
 
 Callbacks must use the supplied signal to stop application work when possible.
 Cancellation cannot undo a save that a service already accepted.
