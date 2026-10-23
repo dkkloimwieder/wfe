@@ -11,10 +11,12 @@ import {
   uiScope,
 } from '@wfe/components'
 import '@wfe/components/styles.css'
+import type { DatePickerMessages } from '@wfe/components'
 import type { DateTimePickerProps } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
 
 type State = {
+  messages?: Partial<DatePickerMessages>
   value?: string
   disabled: boolean
   readonly?: boolean
@@ -32,6 +34,7 @@ type State = {
 type DateTimeState = Pick<
   DateTimePickerProps,
   | 'value'
+  | 'messages'
   | 'timeZone'
   | 'dateFormat'
   | 'timeFormat'
@@ -119,6 +122,7 @@ function App() {
         >
           <Label>Review date</Label>
           <DatePicker
+            messages={state().messages}
             invalid={state().invalidOverride}
             name="reviewDate"
             onValidityChange={(valid) => {
@@ -169,6 +173,7 @@ function App() {
         >
           <Label>Appointment</Label>
           <DateTimePicker
+            messages={datetime().messages}
             {...datetime()}
             label="Appointment"
             name="appointment"

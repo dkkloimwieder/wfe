@@ -1,3 +1,4 @@
+import { resolveCalendarMessages, type CalendarMessages } from './dateMessages'
 import { Icon } from './Icon'
 import {
   For,
@@ -15,6 +16,7 @@ import { utcDate, modifyDate } from '../vendor/corvu-calendar/utils'
 import { navigateDay } from '../vendor/corvu-calendar/navigation'
 
 export type CalendarProps = {
+  messages?: Partial<CalendarMessages>
   value?: string
   onValueChange: (value: string) => void
   initialMonth?: string
@@ -31,6 +33,7 @@ export type CalendarProps = {
 
 /** A single-date calendar. Values contain a date, without a time or timezone. */
 export function Calendar(props: CalendarProps) {
+  const messages = resolveCalendarMessages(() => props.messages)
   const initial = untrack(
     () => props.value ?? props.initialMonth ?? '1970-01-01',
   )
@@ -135,7 +138,9 @@ export function Calendar(props: CalendarProps) {
       <div class="ui-calendar-navigation">
         <Button
           type="button"
-          aria-label={choosing() ? 'Previous year' : 'Previous month'}
+          aria-label={
+            choosing() ? messages.previousYear : messages.previousMonth
+          }
           disabled={
             props.disabled ||
             (choosing()
@@ -159,7 +164,7 @@ export function Calendar(props: CalendarProps) {
         <Button
           class="ui-calendar-heading ui-label"
           aria-describedby={title}
-          aria-label="Choose month and year"
+          aria-label={messages.chooseMonthYear}
           aria-expanded={choosing() ? 'true' : 'false'}
           disabled={props.disabled}
           ref={(node) => {
@@ -173,7 +178,7 @@ export function Calendar(props: CalendarProps) {
         </Button>
         <Button
           type="button"
-          aria-label={choosing() ? 'Next year' : 'Next month'}
+          aria-label={choosing() ? messages.nextYear : messages.nextMonth}
           disabled={
             props.disabled ||
             (choosing()
@@ -196,15 +201,14 @@ export function Calendar(props: CalendarProps) {
         </Button>
       </div>
       <p id={help} class="sr-only">
-        Use arrow keys for days, Home and End for the week, and Page Up or Page
-        Down for months. Hold Shift for years.
+        {messages.keyboardHelp}
       </p>
       <Show
         when={!choosing()}
         fallback={
           <div class="ui-calendar-months">
             <label>
-              Year
+              {messages.year}
               <Input
                 type="number"
                 min="1"

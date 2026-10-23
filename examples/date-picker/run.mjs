@@ -1,3 +1,4 @@
+import { dateMessageCases } from './message-cases.mjs'
 import { dateTodayCase, localDayBoundaries } from './today-cases.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
@@ -78,6 +79,7 @@ try {
     report.cases.push({ name, status: 'passed' })
     console.log('PASS ' + name)
   }
+  await dateMessageCases({ page, test })
   for (const boundary of localDayBoundaries) {
     await test(`Empty date picker uses the local day in ${boundary.timezoneId}`, () =>
       dateTodayCase({ browser, url: page.url(), report }, boundary))

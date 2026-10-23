@@ -99,6 +99,9 @@ try {
     await expect(initial.locator('[data-date-display="browser"]')).toHaveText(
       '',
     )
+    await expect(
+      initial.getByRole('button', { name: 'Abrir System date', exact: true }),
+    ).toBeVisible()
     report.cases.push(
       'Explicit timezone renders on the server and browser timezone stays pending',
     )
@@ -155,6 +158,34 @@ try {
   )
   report.cases.push(
     'Hydration preserves server inputs and resolves browser timezone without requests',
+  )
+  await page
+    .getByRole('button', { name: 'Abrir System date', exact: true })
+    .click()
+  const selectedDay = page.locator('[data-date="2024-02-28"]')
+  await expect(selectedDay).toBeFocused()
+  const dayLabel = await selectedDay.getAttribute('aria-label')
+  await page
+    .getByRole('button', { name: 'Use English messages', exact: true })
+    .evaluate((node) => node.click())
+  await expect(selectedDay).toBeFocused()
+  assert.equal(await selectedDay.getAttribute('aria-label'), dayLabel)
+  await expect(
+    page.getByRole('button', { name: 'Next month', exact: true }),
+  ).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(
+    page.getByRole('button', {
+      name: 'Open System date calendar',
+      exact: true,
+    }),
+  ).toBeFocused()
+  assert.equal(
+    (await page.evaluate(() => window.dateHydration.snapshot())).requests,
+    0,
+  )
+  report.cases.push(
+    'Translated server controls hydrate and change language without replacing focused calendar days',
   )
   await page.getByLabel('Browser time', { exact: true }).fill('09:00')
   assert.equal(

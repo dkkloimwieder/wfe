@@ -1,6 +1,8 @@
+import type { DateTimePickerMessages } from '@wfe/components'
 import { createSignal, untrack } from 'solid-js'
 import {
   DateTimePicker,
+  Button,
   Field,
   Label,
   ValueDisplay,
@@ -9,6 +11,9 @@ import {
 export function HydrationApp(props: {
   ready?: (snapshot: () => unknown) => void
 }) {
+  const [messages, setMessages] = createSignal<
+    Partial<DateTimePickerMessages> | undefined
+  >({ openCalendar: (label) => `Abrir ${label}`, nextMonth: 'Mes siguiente' })
   const [value, setValue] = createSignal('2024-02-29T02:15:16.123Z')
   let requests = 0
   props.ready?.(() => untrack(() => ({ value: value(), requests })))
@@ -18,9 +23,13 @@ export function HydrationApp(props: {
   }
   return (
     <main {...uiScope()} data-ui-portal-root="">
+      <Button onClick={() => setMessages(undefined)}>
+        Use English messages
+      </Button>
       <Field controlId="system-date">
         <Label>System date</Label>
         <DateTimePicker
+          messages={messages()}
           label="System date"
           timeLabel="System time"
           value={value() || undefined}

@@ -1,3 +1,8 @@
+import {
+  resolveDatePickerMessages,
+  datePickerMessages,
+  type DatePickerMessages,
+} from './dateMessages'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { ControlSurface } from '../internal/controlDecoration'
 import { Icon } from './Icon'
@@ -35,6 +40,7 @@ export type DatePickerProps = Pick<
   | 'initialMonth'
 > &
   ControlDecorationProps & {
+    messages?: Partial<DatePickerMessages>
     label: string
     id?: string
     name?: string
@@ -63,6 +69,7 @@ export function DatePickerControl(
     onPopupFocusOut?: (event: FocusEvent) => void
   },
 ) {
+  const messages = resolveDatePickerMessages(() => props.messages)
   const field = useContext(FieldContext)
   const generated = createUniqueId()
   const id = () => props.id ?? field?.baseControlId() ?? generated
@@ -100,15 +107,19 @@ export function DatePickerControl(
   createEffect(presentation, ([value]) => {
     setDraft(value)
   })
+  const displayPattern = () =>
+    pattern().replace(/yyyy|dd/g, (token) => token.toUpperCase())
+  const errorMessage = () => messages.invalidDate(displayPattern())
   createEffect(
-    () => ({
-      message: invalid()
-        ? `Enter an available date as ${pattern().replace(/yyyy|dd/g, (token) => token.toUpperCase())}.`
+    () =>
+      invalid()
+        ? errorMessage() || datePickerMessages.invalidDate(displayPattern())
         : '',
-      valid: Boolean(disabled() || readonly() || !invalid()),
-    }),
-    ({ message, valid }) => {
-      input?.setCustomValidity(message)
+    (message) => input?.setCustomValidity(message),
+  )
+  createEffect(
+    () => Boolean(disabled() || readonly() || !invalid()),
+    (valid) => {
       untrack(() => props.onValidityChange?.(valid))
     },
   )
@@ -199,14 +210,14 @@ export function DatePickerControl(
             type="button"
             disabled={disabled() || readonly()}
             class="ui-date-trigger"
-            aria-label={`Open ${props.label} calendar`}
+            aria-label={messages.openCalendar(props.label)}
           >
             <Icon name="calendar" />
           </Popover.Trigger>
           <Button
             type="button"
             class="clear-input"
-            aria-label={props.clearLabel ?? `Clear ${props.label}`}
+            aria-label={props.clearLabel ?? messages.clearDate(props.label)}
             disabled={disabled() || readonly() || (!draft() && !props.value)}
             onClick={() => {
               if (disabled() || readonly()) return
@@ -234,9 +245,10 @@ export function DatePickerControl(
             }}
           >
             <Popover.Title class="sr-only">
-              {props.label} calendar
+              {messages.calendarTitle(props.label)}
             </Popover.Title>
             <Calendar
+              messages={props.messages}
               value={props.value}
               initialMonth={initialMonth()}
               min={props.min}
@@ -287,8 +299,7 @@ export function DatePickerControl(
         />
       </Show>
       <span id={errorId} class="ui-field-error" hidden={!invalid()}>
-        Enter an available date as{' '}
-        {pattern().replace(/yyyy|dd/g, (token) => token.toUpperCase())}.
+        {errorMessage()}
       </span>
     </div>
   )

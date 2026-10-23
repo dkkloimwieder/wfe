@@ -212,3 +212,14 @@ export type {
 } from './components/Tooltip'
 
 export type { ClassValue } from './internal/classes'
+
+export {
+  calendarMessages,
+  datePickerMessages,
+  dateTimePickerMessages,
+} from './components/dateMessages'
+export type {
+  CalendarMessages,
+  DatePickerMessages,
+  DateTimePickerMessages,
+} from './components/dateMessages'

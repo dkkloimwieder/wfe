@@ -1,3 +1,8 @@
+import {
+  resolveDateTimePickerMessages,
+  dateTimePickerMessages,
+  type DateTimePickerMessages,
+} from './dateMessages'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import {
   createEffect,
@@ -24,6 +29,7 @@ import type { DateInputFormat } from '../utils/dateFormat'
 import type { TimeInputFormat, DateTimeDisambiguation } from '../utils/dateTime'
 
 export type DateTimePickerProps = ControlDecorationProps & {
+  messages?: Partial<DateTimePickerMessages>
   label: string
   timeLabel?: string
   id?: string
@@ -47,6 +53,7 @@ export type DateTimePickerProps = ControlDecorationProps & {
 }
 
 export function DateTimePicker(props: DateTimePickerProps) {
+  const messages = resolveDateTimePickerMessages(() => props.messages)
   const field = useContext(FieldContext)
   const generated = createUniqueId()
   const errorId = createUniqueId()
@@ -126,17 +133,16 @@ export function DateTimePicker(props: DateTimePickerProps) {
   })
   let timeInput: HTMLInputElement | undefined
   createEffect(
-    () => ({
-      invalid: invalid(),
-      valid: Boolean(disabled() || readonly() || !invalid()),
-    }),
-    (state) => {
-      timeInput?.setCustomValidity(
-        state.invalid
-          ? 'Enter an available date and time in the displayed timezone.'
-          : '',
-      )
-      untrack(() => props.onValidityChange?.(state.valid))
+    () =>
+      invalid()
+        ? messages.invalidDateTime || dateTimePickerMessages.invalidDateTime
+        : '',
+    (message) => timeInput?.setCustomValidity(message),
+  )
+  createEffect(
+    () => Boolean(disabled() || readonly() || !invalid()),
+    (valid) => {
+      untrack(() => props.onValidityChange?.(valid))
     },
   )
   function request(nextDate: string | undefined, nextTime: string) {
@@ -185,6 +191,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
       }}
     >
       <DatePicker
+        messages={props.messages}
         id={id()}
         label={props.label}
         resetVersion={resetVersion()}
@@ -224,7 +231,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
       <FieldContext value={null}>
         <div class="ui-date-picker">
           <label for={`${id()}-time`} class={field ? 'sr-only' : 'ui-label'}>
-            {props.timeLabel ?? 'Time'}
+            {props.timeLabel ?? messages.time}
           </label>
           <Input
             ref={(node) => {
@@ -259,10 +266,10 @@ export function DateTimePicker(props: DateTimePickerProps) {
         </div>
       </FieldContext>
       <span class="ui-help ui-datetime-zone">
-        {zone() ?? 'Browser timezone pending'}
+        {zone() ?? messages.pendingTimezone}
       </span>
       <span id={errorId} class="ui-field-error" hidden={!invalid()}>
-        Enter an available date and time in the displayed timezone.
+        {messages.invalidDateTime}
       </span>
       <Show when={props.name}>
         <input
