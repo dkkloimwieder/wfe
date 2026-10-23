@@ -1,7 +1,27 @@
 # Qualification
 
 Run these commands from the wfe repository root.
-Use Node 22.12 or newer and pnpm 12.4.1.
+Use Node 22.22.2 or newer in the 22.x line, or 24.15.0 or newer in the 24.x line.
+Node 26 and newer are also supported.
+Use pnpm 12.4.1.
+The root engine range describes repository development and checks: `^22.22.2 || ^24.15.0 || >=26.0.0`.
+The pinned jsdom 30.0.1 requires that range.
+Other pinned tools also exclude Node 22.12.
+Within 22.x, tsdown 0.23.0 requires Node 22.18 or newer, and ESLint 10 requires Node 22.13 or newer.
+The package manager pin remains pnpm 12.4.1. Dependency versions and the lockfile remain unchanged.
+
+The four library packages retain their existing `>=22.12.0` consumer engine declarations.
+Those declarations do not promise that repository development tools run on Node 22.12.
+This change does not establish new consumer-runtime coverage for that version.
+
+CI runs `pnpm check` and the direct source test on each declared boundary: Node 22.22.2, 24.15.0, and 26.0.0.
+Each matrix job uses the frozen lockfile. Boundary jobs run one at a time; the existing Node 24 browser qualification job remains in place.
+The direct source test imports an erasable TypeScript file without a custom loader.
+Local verification on October 22, 2026 used the official Node 22.22.2 Linux x64 archive after SHA-256 verification.
+That binary passed the direct source test without a custom loader and the full `pnpm check` gate.
+The gate passed 819 unit tests, 59 Node tests, server rendering, and 33 documentation examples.
+The other CI boundaries were not run locally.
+
 Install dependencies and Chromium before the suite:
 
 ```sh

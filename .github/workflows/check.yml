@@ -24,3 +24,23 @@ jobs:
           name: qualification-reports
           path: test-results/qualification
           if-no-files-found: ignore
+
+  node-boundaries:
+    name: Node ${{ matrix.node }} development boundary
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        node: ['22.22.2', '24.15.0', '26.0.0']
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install --global pnpm@12.4.1
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+      - run: pnpm exec node --test --test-concurrency=1 tests/source/source.test.mjs

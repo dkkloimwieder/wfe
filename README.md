@@ -23,7 +23,9 @@ The [plans directory](docs/plan/README.md) keeps proposed work separate from cur
 
 ## Development
 
-Use Node 22.12 or newer and pnpm 12.4.1.
+Use Node 22.22.2 or newer in the 22.x line, or 24.15.0 or newer in the 24.x line.
+Node 26 and newer are also supported.
+Use pnpm 12.4.1.
 From the repository root, install dependencies and run the checks:
 
 ```sh

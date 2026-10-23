@@ -19,7 +19,9 @@ Read the [chart guide](../../docs/charts.md) for API boundaries and maintenance.
 
 ## Browser tests
 
-Use Node 22.12 or newer and pnpm 12.4.1.
+Use Node 22.22.2 or newer in the 22.x line, or 24.15.0 or newer in the 24.x line.
+Node 26 and newer are also supported.
+Use pnpm 12.4.1.
 Install dependencies and Chromium before the browser suite.
 Run package builds before testing built exports.
 Run heavy commands serially.
