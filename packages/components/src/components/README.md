@@ -47,6 +47,20 @@ The application accepts or rejects value changes through its controlled value.
 Normal interfaces use `SelectField` or `Select`.
 Native interoperability fixtures and style-isolation fixtures can use native controls explicitly.
 
+## Shared choice content
+
+Select and Combobox share their owned content callback composition and optional
+status/footer markup through `choiceContent.tsx`. The helper reads current
+caller callbacks and preserves cancellation before choice-scope handling. It
+adds no provider, portal, component root, or selection state.
+
+Each family keeps its public polymorphic Content type, primitive, direct ref
+array, root, and portal wrapper. `choiceScope.ts` still owns choice Tab and focus
+restoration policy; the primitives keep their distinct focus and dismissal
+behavior. Field inheritance, hidden native values and callback aliases remain
+in the family wrappers. Dialog, Popover, Tooltip and menu triggers are not
+changed by this extraction. No application API migration is required.
+
 ## Overlay buttons
 
 Dialog, AlertDialog, Sheet, Popover, DropdownMenu, and Tooltip buttons share Button presentation.
@@ -60,6 +74,14 @@ Shared presentation adds no wrapper element or event handler.
 Custom elements through `as`, including `as={Button}`, retain the selected presentation.
 A default Tooltip trigger uses `type="button"` to avoid accidental form submission.
 Custom links keep their link behavior, and an explicit `type` takes precedence.
+
+Popover, Tooltip and DropdownMenu also share the identical popup scope and
+portal frame through `popupPresentation.tsx`. Each named wrapper still creates
+its own typed primitive and applies the explicit `mount` override before its
+scope fallback. The helpers add no component owner or dynamic primitive factory.
+Dialog scopes retain their content/cancel/origin focus metadata, and choice
+scopes retain their selection and Tab policies; neither is merged into the
+popup scope. Dialog trigger behavior is unchanged.
 
 ## Icons
 

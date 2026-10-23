@@ -3,19 +3,15 @@ import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/tooltip'
 import { untrack } from 'solid-js'
-import { PopupScope, createPopupScope, usePopupScope } from './popupScope'
+import { usePopupScope } from './popupScope'
+import { popupPortalFrame, popupRoot } from './popupPresentation'
 import type { Component } from 'solid-js'
 import type { ValidComponent } from '@solidjs/web'
 import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
 export type TooltipRootProps = Core.TooltipRootProps
 export function TooltipRoot(props: TooltipRootProps) {
-  const scope = createPopupScope()
-  return (
-    <PopupScope value={scope}>
-      <Core.Root {...props} />
-    </PopupScope>
-  )
+  return popupRoot(() => <Core.Root {...props} />)
 }
 export type TooltipTriggerProps<
   T extends ValidComponent | HTMLElement = HTMLElement,
@@ -58,9 +54,7 @@ export function TooltipPortal(props: TooltipPortalProps) {
   const scope = usePopupScope()
   return (
     <Core.Portal {...props} mount={props.mount ?? scope.mount()}>
-      <div data-ui="" class="ui-popup-portal" style={{ display: 'contents' }}>
-        {props.children}
-      </div>
+      {popupPortalFrame(props)}
     </Core.Portal>
   )
 }

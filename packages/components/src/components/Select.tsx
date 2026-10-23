@@ -1,3 +1,4 @@
+import { choiceContentHandlers, choiceContentSlots } from './choiceContent'
 import { renderCompoundFieldRoot } from '../internal/fieldRendering'
 import {
   createHiddenSelectChange,
@@ -20,7 +21,6 @@ import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { FieldContext } from '../internal/fieldContext'
 import * as Core from '../internal/controls/select'
-import { callHandler } from '../internal/events'
 import {
   Show,
   createMemo,
@@ -130,39 +130,16 @@ export function SelectContent<T extends ValidComponent = 'div'>(
   const Primitive = Core.Content as Component<typeof props>
   const scope = useChoiceScope()
   const rest = omit(props, 'footer', 'status') as typeof props
+  const handlers = choiceContentHandlers<ElementOf<T>>(props, scope)
   return (
     <Primitive
       {...rest}
       class={styledClasses('popup-content', props.class)}
       ref={[scope.setContent, untrack(() => props.ref)]}
-      onPointerDownOutside={(event) => {
-        props.onPointerDownOutside?.(event)
-        if (!event.defaultPrevented) scope.outside()
-      }}
-      onFocusOutside={(event) => {
-        props.onFocusOutside?.(event)
-        if (!event.defaultPrevented) scope.outside()
-      }}
-      onKeyDown={(
-        event: KeyboardEvent & { currentTarget: ElementOf<T>; target: Element },
-      ) => {
-        callHandler(event, props.onKeyDown)
-        scope.tab(event)
-      }}
-      onCloseAutoFocus={(event) => {
-        props.onCloseAutoFocus?.(event)
-        scope.closeAutoFocus(event)
-      }}
+      {...handlers}
     >
       {props.children}
-      <Show when={props.status}>
-        <div class="choice-status" role="status">
-          {props.status}
-        </div>
-      </Show>
-      <Show when={props.footer}>
-        <div class="choice-footer">{props.footer}</div>
-      </Show>
+      {choiceContentSlots(props)}
     </Primitive>
   )
 }
