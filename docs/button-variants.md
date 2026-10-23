@@ -2,7 +2,10 @@
 
 `Button` and `IconButton` accept `variant="outline"`, `"filled"`, `"inverted"`, or `"ghost"`.
 `tone="neutral"` or `tone="accent"` selects color independently of the variant.
-Outline and neutral remain the defaults. Variants preserve dimensions, square corners, focus, disabled behavior, events, and the default `type="button"`.
+Outline is the default variant. Omitting `tone` uses the theme's button color roles, including `--ui-button-color` and `--ui-button-on-color`.
+This differs from explicit `tone="neutral"`, which uses the neutral text and surface roles.
+The internal `data-tone="default"` marker represents the omitted-tone behavior. `"default"` is not a supported `ButtonTone` prop value.
+Variants preserve dimensions, square corners, focus, disabled behavior, events, and the default `type="button"`.
 The application chooses the variant for each action. Variants do not imply permissions, submission, or confirmation.
 
 Neutral outline uses the existing surface, text, and button border.
