@@ -346,6 +346,37 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     },
   )
   await record(
+    'fields: owned and fixed listeners preserve trusted and synthetic native events',
+    async () => {
+      await open()
+      const action = page.getByRole('button', {
+        name: 'Local action',
+        exact: true,
+      })
+      await action.click()
+      assert.equal((await read()).actionTrusted, true)
+      await action.evaluate((node) =>
+        node.dispatchEvent(new MouseEvent('click', { bubbles: true })),
+      )
+      assert.equal((await read()).actions, 2)
+      assert.equal((await read()).actionTrusted, false)
+      const accepted = await page
+        .locator('form')
+        .first()
+        .evaluate((node) =>
+          node.dispatchEvent(
+            new Event('submit', { bubbles: true, cancelable: true }),
+          ),
+        )
+      assert.equal(accepted, false)
+      assert.equal((await read()).submits, 1)
+      assert.equal((await read()).submitTrusted, false)
+      await input().press('Enter')
+      assert.equal((await read()).submits, 2)
+      assert.equal((await read()).submitTrusted, true)
+    },
+  )
+  await record(
     'fields: disabled fieldsets and readonly fields retain native semantics',
     async () => {
       await open()

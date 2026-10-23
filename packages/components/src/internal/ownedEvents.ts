@@ -1,4 +1,5 @@
-import { getOwner, onSettled, untrack } from 'solid-js'
+import { untrack } from 'solid-js'
+import { createNativeListenerRef } from './nativeListenerLifetime'
 import type { JSX } from '@solidjs/web'
 
 // Keep event ownership independent of a fixture or application model.
@@ -73,32 +74,19 @@ export function ownedElementEvents(source: object) {
 
 function ownedEvents(source: object, eventProps: ReadonlyArray<string>) {
   const props = source as Record<string, unknown>
-  if (!getOwner())
-    throw new Error('Create native listeners inside a Solid owner')
-  const keys = untrack(() => eventProps.filter((key) => key in props))
-  const handlers: Array<[string, EventListener]> = keys.map((key) => [
-    key.slice(2).toLowerCase(),
-    (event) =>
-      untrack(() => {
-        const handler = props[key]
-        if (typeof handler === 'function') handler(event)
-        else if (Array.isArray(handler)) handler[0](handler[1], event)
-      }),
-  ])
-  let element: HTMLElement | undefined
-  onSettled(() => {
-    const node = element
-    if (!node) return
-    for (const [name, handler] of handlers) node.addEventListener(name, handler)
-    return () => {
-      for (const [name, handler] of handlers)
-        node.removeEventListener(name, handler)
-      element = undefined
-    }
+  return createNativeListenerRef<HTMLElement>(() => {
+    const keys = untrack(() => eventProps.filter((key) => key in props))
+    const handlers: Array<[string, EventListener]> = keys.map((key) => [
+      key.slice(2).toLowerCase(),
+      (event) =>
+        untrack(() => {
+          const handler = props[key]
+          if (typeof handler === 'function') handler(event)
+          else if (Array.isArray(handler)) handler[0](handler[1], event)
+        }),
+    ])
+    return () => handlers
   })
-  return (node: HTMLElement) => {
-    element = node
-  }
 }
 
 /** Call a JSX.EventHandlerUnion with the event. */

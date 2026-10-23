@@ -11,6 +11,7 @@ Beads records task status and dependencies.
 - [Adoption and controlled state](adoption.md)
 - [UI ownership boundaries](contracts/UI-BOUNDARIES.md)
 - [Control state and callback vocabulary](control-contract.md)
+- [Native event listener ownership](native-events.md)
 - [Styled component props and shared values](styled-component-types.md)
 - [Form contract](form-contract.md)
 - [Generator contract](generator-contract.md)

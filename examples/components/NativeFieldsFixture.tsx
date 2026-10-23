@@ -34,6 +34,8 @@ export function NativeFieldsFixture() {
   const [id, setId] = createSignal('account-name')
   let submits = 0
   let actions = 0
+  let actionTrusted: boolean | undefined
+  let submitTrusted: boolean | undefined
   let refs = 0
   let cleanups = 0
   let keyups = 0
@@ -66,6 +68,8 @@ export function NativeFieldsFixture() {
       blurText: blurText(),
       submits,
       actions,
+      actionTrusted,
+      submitTrusted,
       refs,
       cleanups,
       keyups,
@@ -87,6 +91,7 @@ export function NativeFieldsFixture() {
         ref={nativeEvents<HTMLFormElement>({
           submit: (event) => {
             event.preventDefault()
+            submitTrusted = event.isTrusted
             submits++
           },
         })}
@@ -180,7 +185,8 @@ export function NativeFieldsFixture() {
             }}
           />
           <Button
-            onClick={() => {
+            onClick={(event) => {
+              actionTrusted = event.isTrusted
               actions++
             }}
           >
@@ -277,6 +283,8 @@ declare global {
         blurText: string
         submits: number
         actions: number
+        actionTrusted: boolean | undefined
+        submitTrusted: boolean | undefined
         refs: number
         cleanups: number
         keyups: number
