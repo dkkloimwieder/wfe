@@ -178,8 +178,8 @@ export function Table<T, M>(props: {
                         label={label(column)}
                         sorted={column.getIsSorted()}
                         disabled={
-                          table.options.manualProcessing ||
-                          table.options.manualSorting ||
+                          !table.options.manualProcessing &&
+                          !table.options.manualSorting &&
                           !column.columnDef?.sortFn
                         }
                         onSort={(multi) =>

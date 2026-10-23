@@ -87,6 +87,24 @@ Set `--ui-table-controls-height` to limit the top pane height.
 The top pane uses at most 40% of the workspace height.
 Interactive resizing remains separate work.
 
+## Manual processing and sort requests
+
+`Table` and `ReadOnlyTable` keep sorting available with `manualSorting` or `manualProcessing`.
+The application supplies accepted sort state and the resulting row order.
+The controls send `onSortingChange` requests through the engine.
+They do not fetch or reorder remote results.
+Without manual sorting, a column needs `sortFn` to enable its default sort button.
+
+Set `ReadOnlyTable.sortable(column)` to `false` for a plain heading.
+Generated tables expose the same choice through the column's `sortable` flag.
+The lower-level `Table.header` callback supplies custom headings, including plain action headings.
+
+Sorting does not imply support for every manual processing control.
+`ReadOnlyTable` disables grouping controls and grouped rendering with `manualGrouping` or `manualProcessing`.
+Its filter controls remain available when the application supplies `onApplyFilters`.
+Without that callback, manual filtering or manual processing disables filter interaction.
+Applications own filter criteria, group data, requests, and accepted results.
+
 ## Placement and collapse
 
 Set `controlsPlacement="left"`, `controlsPlacement="top"`, or `controlsPlacement="right"` on `ReadOnlyTable` or `TableWorkspace`.
