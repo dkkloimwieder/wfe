@@ -32,7 +32,8 @@ export function createNativeFiltering<T, TMeta>(
       const columns = Array.from(definitions().values()).filter(
         (column) =>
           column.enableGlobalFilter !== false &&
-          state.columnVisibility[column.id] !== false &&
+          (options.globalFilterScope === 'all' ||
+            state.columnVisibility[column.id] !== false) &&
           (column.accessorFn !== undefined || column.accessorKey !== undefined),
       )
       return {

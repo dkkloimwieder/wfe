@@ -38,6 +38,7 @@ Beads records task status and dependencies.
 
 ## Tables
 
+- [Engine capabilities and search policy](table-engine.md)
 - [Table workspace](table-workspace.md)
 - [Filters and explicit apply](table-filters.md)
 - [Display formatting](table-formatting.md)

@@ -57,3 +57,19 @@ Equivalent ID sequences, width changes, and record value changes preserve the ra
 If a controlled application rejects clearing, the component still hides the obsolete range and prevents copying it.
 The application can supply `onReveal` to scroll a virtual row into view after the accepted focus changes.
 The controller paints only mounted cells and creates no extra row or cell owners.
+
+## Record actions and cell copying
+
+The engine also exposes `state.rowSelection`, `setRowSelection`, and each row's `getIsSelected` and `toggleSelected` methods.
+This model records selected IDs. The table does not automatically render checkboxes or execute bulk actions for it.
+An application can render a selection checkbox and use accepted IDs for its own command.
+The application decides whether hidden, filtered, or unloaded records remain eligible for that command.
+
+For example, selecting record B for an application action can coexist with a copied cell range from record A.
+Clearing the copied range leaves B selected. Clearing `rowSelection` leaves A's copied range intact.
+`createTableSelection.selectRow()` selects cells for copying. It does not call a row's `toggleSelected()` method.
+
+The read-only table example demonstrates rectangular copying.
+The editing example demonstrates application-supplied record actions.
+These examples do not infer bulk-action eligibility from the copied rectangle.
+See [engine capabilities](table-engine.md) for state ownership and processing policies.

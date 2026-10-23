@@ -97,6 +97,8 @@ export interface NativeTableOptions<
   manualAggregating?: boolean
   /** Keep pinned source records through filtering. Collapsed groups still hide them. */
   keepPinnedRows?: boolean
+  /** Search visible columns by default, or all eligible columns regardless of visibility. */
+  globalFilterScope?: 'visible' | 'all'
   globalFilterFn?: (
     value: unknown,
     query: string,

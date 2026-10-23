@@ -17,6 +17,7 @@ Create the native Table in application code and pass it through the `table` prop
 Remount the presentation to replace it.
 See [controller lifetime](../../../../docs/table-workspace.md#controller-lifetime).
 The native engine belongs to the same package and table export.
+See [engine capabilities](../../../../docs/table-engine.md) for processing, search, state, and selection policies.
 
 `Table` accepts header, row, body, formatting, and edge callbacks.
 The application can supply editors and action controls through these callbacks.

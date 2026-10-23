@@ -85,3 +85,11 @@ With `onApplyFilters`, pressing it also sends unchanged criteria so the applicat
 Without that callback, the action applies local criteria and stays inactive when criteria match.
 For custom layouts, `draft.apply({ refresh: true })` also sends unchanged criteria to `onApply`.
 Calling `draft.apply()` preserves the existing behavior and skips unchanged criteria.
+
+## Global search and hidden columns
+
+Local global search defaults to visible columns.
+Hiding a searchable column can therefore remove matching records from the results.
+Set the engine's `globalFilterScope` to `'all'` to keep matching hidden columns.
+`enableGlobalFilter: false` still excludes individual columns in either mode.
+See [engine capabilities](table-engine.md#global-search-policy) for callbacks, supported values, and manual filtering.
