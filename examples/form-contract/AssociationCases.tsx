@@ -13,17 +13,15 @@ import {
   SelectField,
   Switch,
   Textarea,
-  uiScope,
 } from '@wfe/components'
 import { App } from './App'
 
 /** Additional public API cases used only by the hydration entry. */
 export function HydrationApp(props: Parameters<typeof App>[0]) {
   return (
-    <>
-      <App {...props} />
+    <App {...props}>
       <AssociationCases />
-    </>
+    </App>
   )
 }
 function AssociationCases() {
@@ -33,7 +31,7 @@ function AssociationCases() {
   const [checked, setChecked] = createSignal(false)
   const [switched, setSwitched] = createSignal(false)
   return (
-    <section {...uiScope()} aria-label="Association cases">
+    <section data-ui="" aria-label="Association cases">
       <span id="external-description">Caller description.</span>
       <Field invalid={invalid()}>
         <Label>Custom text</Label>

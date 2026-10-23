@@ -1,3 +1,4 @@
+import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import { choiceControl } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
@@ -60,6 +61,7 @@ try {
   })
   await page.goto(`http://127.0.0.1:${server.address().port}/`)
   await page.waitForFunction(() => Boolean(window.layoutFixture))
+  await reviewThemeHost(page)
   const test = async (name, run) => {
     await run()
     report.cases.push(name)

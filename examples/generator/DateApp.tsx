@@ -1,5 +1,4 @@
 import { NestedMessagesReview } from './NestedMessagesReview'
-import { exampleSizing } from '../shared/appearance/sizing'
 import { createMemo, createSignal, untrack } from 'solid-js'
 import {
   Button,
@@ -336,7 +335,6 @@ export function DateApp(props: {
   >
   return (
     <LayoutView
-      style={exampleSizing}
       description={layout}
       bindings={{
         views: {

@@ -1,7 +1,7 @@
+import { Theme } from '@wfe/components/theme'
 import { Button } from '@wfe/components/fields'
 import { SelectField } from '@wfe/components/select'
 import './controls.css'
-import { uiScope } from '@wfe/components'
 import { For, Show, createSignal, flush, onSettled, untrack } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
 import { Table } from './Table'
@@ -179,85 +179,87 @@ export function App(props: {
     )
   }
   return (
-    <main data-ui-portal-root="" {...uiScope()}>
-      <h1>Table</h1>
-      <Show when={inspectedRow()}>
-        <p role="status" data-row-action-result>
-          Inspected row {inspectedRow()}.
-        </p>
-      </Show>
-      <Table
-        model={model}
-        rowActions={rowActions}
-        priorityEditor={props.priorityEditor}
-        controls={controls()}
-        ready={() =>
-          props.ready(model, configure, children, changeScope, views, viewFor)
-        }
-        details={{
-          expanded: (id) => children.get(id)?.expanded() ?? false,
-          draftCount: (id) => children.get(id)?.draftCount() ?? 0,
-          toggle: children.toggle,
-          render: (id) => (
-            <ChildTable
-              parentId={id}
-              children={children}
-              viewFor={viewFor}
-              priorityEditor={props.priorityEditor}
-            />
-          ),
-        }}
-        settings={
-          <>
-            <TableViews views={views} locked={model.locked()} />
-            <TableOptions
-              controls={controls()}
-              configure={configure}
-              disabled={model.locked()}
-            />
-            <Show when={!model.isGrouped()}>
-              <label class="child-dataset">
-                Sub-table dataset
-                <SelectField
-                  label="Sub-table dataset"
-                  data-ui-text="system"
-                  value={scope()}
-                  disabled={model.locked()}
-                  choices={[
-                    { value: 'current', label: 'Current period' },
-                    { value: 'previous', label: 'Previous period' },
-                  ]}
-                  onValueChange={(value) => {
-                    changeScope(value)
-                  }}
-                />
-              </label>
-              <p class="column-layout">
-                Expand a row to load its sub-table. Each table saves its own
-                edits. Save or cancel edits before collapsing a sub-table.
-              </p>
-              <For each={children.entries()}>
-                {(entry) => (
-                  <Show when={entry.draftCount()}>
-                    <aside class="child-drafts fixture-warning">
-                      Sub-table for {entry.parentId}: {entry.draftCount()}{' '}
-                      drafts.{' '}
-                      <Button
-                        ref={nativeEvents({
-                          click: () => revealChild(entry.parentId),
-                        })}
-                      >
-                        Show sub-table {entry.parentId}
-                      </Button>
-                    </aside>
-                  </Show>
-                )}
-              </For>
-            </Show>
-            <p role="alert">{scopeNotice() || children.notice()}</p>
-          </>
-        }
-      />
-    </main>
+    <Theme style={{ 'min-height': '100dvh', display: 'flow-root' }}>
+      <main class="example-page" data-ui-portal-root="" data-ui="">
+        <h1>Table</h1>
+        <Show when={inspectedRow()}>
+          <p role="status" data-row-action-result>
+            Inspected row {inspectedRow()}.
+          </p>
+        </Show>
+        <Table
+          model={model}
+          rowActions={rowActions}
+          priorityEditor={props.priorityEditor}
+          controls={controls()}
+          ready={() =>
+            props.ready(model, configure, children, changeScope, views, viewFor)
+          }
+          details={{
+            expanded: (id) => children.get(id)?.expanded() ?? false,
+            draftCount: (id) => children.get(id)?.draftCount() ?? 0,
+            toggle: children.toggle,
+            render: (id) => (
+              <ChildTable
+                parentId={id}
+                children={children}
+                viewFor={viewFor}
+                priorityEditor={props.priorityEditor}
+              />
+            ),
+          }}
+          settings={
+            <>
+              <TableViews views={views} locked={model.locked()} />
+              <TableOptions
+                controls={controls()}
+                configure={configure}
+                disabled={model.locked()}
+              />
+              <Show when={!model.isGrouped()}>
+                <label class="child-dataset">
+                  Sub-table dataset
+                  <SelectField
+                    label="Sub-table dataset"
+                    data-ui-text="system"
+                    value={scope()}
+                    disabled={model.locked()}
+                    choices={[
+                      { value: 'current', label: 'Current period' },
+                      { value: 'previous', label: 'Previous period' },
+                    ]}
+                    onValueChange={(value) => {
+                      changeScope(value)
+                    }}
+                  />
+                </label>
+                <p class="column-layout">
+                  Expand a row to load its sub-table. Each table saves its own
+                  edits. Save or cancel edits before collapsing a sub-table.
+                </p>
+                <For each={children.entries()}>
+                  {(entry) => (
+                    <Show when={entry.draftCount()}>
+                      <aside class="child-drafts fixture-warning">
+                        Sub-table for {entry.parentId}: {entry.draftCount()}{' '}
+                        drafts.{' '}
+                        <Button
+                          ref={nativeEvents({
+                            click: () => revealChild(entry.parentId),
+                          })}
+                        >
+                          Show sub-table {entry.parentId}
+                        </Button>
+                      </aside>
+                    </Show>
+                  )}
+                </For>
+              </Show>
+              <p role="alert">{scopeNotice() || children.notice()}</p>
+            </>
+          }
+        />
+      </main>
+    </Theme>
   )
 }

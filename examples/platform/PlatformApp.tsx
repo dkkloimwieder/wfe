@@ -1,7 +1,6 @@
 import { ApplicationAccessViews } from './ApplicationAccessViews'
 import { isApplicationAccessRoute } from './route'
 import { InvitationView } from './InvitationView'
-import { exampleSizing } from '../shared/appearance/sizing'
 import { createPlatformTableSelection } from './table-selection'
 import { AccessViews } from './AccessViews'
 import {
@@ -387,7 +386,6 @@ export function PlatformApp(props: {
               : 'main'
           }
           style={{
-            ...exampleSizing,
             '--ui-navigation-width': '11rem',
             '--ui-context-width': '13rem',
           }}

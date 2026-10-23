@@ -1,4 +1,3 @@
-import { exampleSizing } from '../shared/appearance/sizing'
 import { onCleanup } from 'solid-js'
 import { Field, Label, SelectField, Button } from '@wfe/components'
 import { FormView, TableView, LayoutView } from '@wfe/generator'
@@ -104,7 +103,6 @@ export function DispatchApp(props: {
   }
   return (
     <LayoutView
-      style={exampleSizing}
       description={app.layoutDescription()}
       bindings={{
         views: {

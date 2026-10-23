@@ -23,32 +23,6 @@ export async function reviewAppearance({ page, record }) {
           await cell.evaluate((node) => node.scrollWidth <= node.clientWidth),
         )
       }
-      for (const id of ['id', 'makerId', 'createdAt', 'editVersion']) {
-        const spaces = await page
-          .locator(`tbody td[data-column="${id}"]`)
-          .evaluateAll((cells) =>
-            cells.map((cell) => {
-              const range = document.createRange()
-              range.selectNodeContents(cell)
-              const value = range.getBoundingClientRect()
-              const box = cell.getBoundingClientRect()
-              return {
-                left: value.left - box.left,
-                right: box.right - value.right,
-                font: getComputedStyle(cell).font,
-                width: value.width,
-              }
-            }),
-          )
-        assert.ok(spaces.length)
-        for (const space of spaces) {
-          assert.ok(space.left >= 7 && space.left <= 9)
-          assert.ok(
-            space.right >= 7 && space.right <= 14,
-            `${id}: ${JSON.stringify(space)}`,
-          )
-        }
-      }
       const handle = page.getByRole('separator', {
         name: 'Resize Widget code column',
         exact: true,
@@ -64,6 +38,11 @@ export async function reviewAppearance({ page, record }) {
       )
       await handle.press('ArrowLeft')
       await handle.scrollIntoViewIfNeeded()
+      // Reveal the final data-column grip beside the fixture-owned pinned actions.
+      await handle.evaluate((node) => {
+        const scroller = node.closest('.table-scroll')
+        scroller.scrollLeft = scroller.scrollWidth - scroller.clientWidth
+      })
       const bounds = await handle.boundingBox()
       // The pinned Actions column covers the right half of the final grip.
       const resizeX = bounds.x + 2

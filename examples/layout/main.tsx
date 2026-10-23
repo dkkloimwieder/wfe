@@ -1,3 +1,4 @@
+import { Theme } from '@wfe/components/theme'
 import { render } from '@solidjs/web'
 import { OBSERVE, action, createSignal, flush, onCleanup } from 'solid-js'
 import {
@@ -226,43 +227,48 @@ function start(withNavigation = true) {
       if (value.footer !== undefined) setHasFooter(value.footer)
     }
     return (
-      <DashboardShell
-        id="shell"
-        context={
-          hasContext()
-            ? (controls) => <Context close={controls.close} />
-            : undefined
-        }
-        footer={hasFooter() ? null : undefined}
-        footerLabel="Workspace footer"
-        header={
-          <>
-            <h1>Workspace</h1>
-            <WorkspaceDialog />
-          </>
-        }
+      <Theme
         density={density()}
-        theme={theme()}
-        scroll={scroll()}
-        mainLabel="Records"
-        navigation={
-          hasNavigation()
-            ? (controls) => {
-                closeNavigation = controls.close
-                return <Navigation close={controls.close} />
-              }
-            : undefined
-        }
+        mode={theme() === 'dark' ? 'dark' : 'light'}
+        style={{ height: '100%' }}
       >
-        <DashboardPanel fill id="results-panel">
-          <h2 id="records">Records</h2>
-          <Results count={count()} density={density()} />
-        </DashboardPanel>
-        <DashboardGrid id="grid">
-          <DashboardPanel>First panel</DashboardPanel>
-          <DashboardPanel>Second panel</DashboardPanel>
-        </DashboardGrid>
-      </DashboardShell>
+        <DashboardShell
+          id="shell"
+          context={
+            hasContext()
+              ? (controls) => <Context close={controls.close} />
+              : undefined
+          }
+          footer={hasFooter() ? null : undefined}
+          footerLabel="Workspace footer"
+          header={
+            <>
+              <h1>Workspace</h1>
+              <WorkspaceDialog />
+            </>
+          }
+          density={density()}
+          scroll={scroll()}
+          mainLabel="Records"
+          navigation={
+            hasNavigation()
+              ? (controls) => {
+                  closeNavigation = controls.close
+                  return <Navigation close={controls.close} />
+                }
+              : undefined
+          }
+        >
+          <DashboardPanel fill id="results-panel">
+            <h2 id="records">Records</h2>
+            <Results count={count()} density={density()} />
+          </DashboardPanel>
+          <DashboardGrid id="grid">
+            <DashboardPanel>First panel</DashboardPanel>
+            <DashboardPanel>Second panel</DashboardPanel>
+          </DashboardGrid>
+        </DashboardShell>
+      </Theme>
     )
   }, document.getElementById('root')!)
   flush()

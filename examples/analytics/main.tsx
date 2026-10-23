@@ -1,5 +1,5 @@
+import { Theme } from '@wfe/components/theme'
 import { Button, SelectField } from '@wfe/components'
-import { uiScope } from '@wfe/components'
 import { render } from '@solidjs/web'
 import {
   OBSERVE,
@@ -281,128 +281,135 @@ function start(
       flush()
     }
     return (
-      <main data-ui-portal-root="" {...uiScope(density())}>
-        <h1>Query analytics</h1>
-        <p>
-          The application supplies the result. Display changes affect this table
-          only.
-        </p>
-        <label>
-          Example query
-          <SelectField
-            label="Example query"
-            value={choice()}
-            choices={[
-              { value: 'sales', label: 'Sales' },
-              { value: 'inventory', label: 'Inventory' },
-              { value: 'large', label: 'Large result' },
-            ]}
-            onValueChange={(value) => {
-              setChoice(value)
-              runQuery(value)
+      <Theme density={density()}>
+        <main class="example-page" data-ui-portal-root="" data-ui="">
+          <h1>Query analytics</h1>
+          <p>
+            The application supplies the result. Display changes affect this
+            table only.
+          </p>
+          <label>
+            Example query
+            <SelectField
+              label="Example query"
+              value={choice()}
+              choices={[
+                { value: 'sales', label: 'Sales' },
+                { value: 'inventory', label: 'Inventory' },
+                { value: 'large', label: 'Large result' },
+              ]}
+              onValueChange={(value) => {
+                setChoice(value)
+                runQuery(value)
+              }}
+            />
+          </label>
+          <Button
+            type="button"
+            ref={nativeEvents({ click: () => runQuery(choice()) })}
+          >
+            Run query
+          </Button>
+          <Table
+            density={density()}
+            query={query()}
+            retry={() =>
+              exportConfiguration().server
+                ? void queryServer(choice())
+                : load(choice())
+            }
+            onExport={
+              exportConfiguration().mode === 'none' ? undefined : exportResult
+            }
+            exportLabel={
+              exportConfiguration().mode === 'capture' ? 'Export' : 'Export CSV'
+            }
+            exportDisabled={exportConfiguration().disabled || exporting()}
+            sorting={sorting()}
+            onLoadAll={
+              exportConfiguration().server
+                ? () => {
+                    setBrowsing(true)
+                    flush()
+                  }
+                : undefined
+            }
+            onShowPreview={(description) => {
+              setBrowsing(false)
+              void queryServer(
+                description.queryKey,
+                description.sorting,
+                0,
+                false,
+                true,
+              )
+            }}
+            window={
+              browsing() && latest()?.totalRows !== undefined
+                ? {
+                    offset: offset(),
+                    totalRows: latest()!.totalRows!,
+                    loading: pageBusy(),
+                    onRangeChange: (nextOffset, end) => {
+                      const result = latest()
+                      if (
+                        result &&
+                        nextOffset < (result.totalRows ?? 0) &&
+                        !pageBusy() &&
+                        !pageError()
+                      )
+                        void queryServer(
+                          result.key,
+                          sorting(),
+                          Math.floor(nextOffset / cache.pageSize) *
+                            cache.pageSize,
+                          true,
+                          false,
+                          end,
+                        )
+                    },
+                  }
+                : undefined
+            }
+            onSortingChange={(description) => {
+              setSorting(description.sorting)
+              if (exportConfiguration().server)
+                void queryServer(description.queryKey, description.sorting)
+              else if (supplied) {
+                setQuery({
+                  status: 'ready',
+                  result: sortResult(supplied, description.sorting),
+                })
+                flush()
+              }
             }}
           />
-        </label>
-        <Button
-          type="button"
-          ref={nativeEvents({ click: () => runQuery(choice()) })}
-        >
-          Run query
-        </Button>
-        <Table
-          density={density()}
-          query={query()}
-          retry={() =>
-            exportConfiguration().server
-              ? void queryServer(choice())
-              : load(choice())
-          }
-          onExport={
-            exportConfiguration().mode === 'none' ? undefined : exportResult
-          }
-          exportLabel={
-            exportConfiguration().mode === 'capture' ? 'Export' : 'Export CSV'
-          }
-          exportDisabled={exportConfiguration().disabled || exporting()}
-          sorting={sorting()}
-          onLoadAll={
-            exportConfiguration().server
-              ? () => {
-                  setBrowsing(true)
-                  flush()
-                }
-              : undefined
-          }
-          onShowPreview={(description) => {
-            setBrowsing(false)
-            void queryServer(
-              description.queryKey,
-              description.sorting,
-              0,
-              false,
-              true,
-            )
-          }}
-          window={
-            browsing() && latest()?.totalRows !== undefined
-              ? {
-                  offset: offset(),
-                  totalRows: latest()!.totalRows!,
-                  loading: pageBusy(),
-                  onRangeChange: (nextOffset, end) => {
+          {exportError() && <p role="alert">{exportError()}</p>}
+          {pageBusy() && <p role="status">Loading rows…</p>}
+          {pageError() && (
+            <p role="alert">
+              {pageError()}{' '}
+              <Button
+                type="button"
+                ref={nativeEvents({
+                  click: () => {
                     const result = latest()
-                    if (
-                      result &&
-                      nextOffset < (result.totalRows ?? 0) &&
-                      !pageBusy() &&
-                      !pageError()
-                    )
+                    if (result)
                       void queryServer(
                         result.key,
                         sorting(),
-                        Math.floor(nextOffset / cache.pageSize) *
-                          cache.pageSize,
+                        failedOffset,
                         true,
-                        false,
-                        end,
                       )
                   },
-                }
-              : undefined
-          }
-          onSortingChange={(description) => {
-            setSorting(description.sorting)
-            if (exportConfiguration().server)
-              void queryServer(description.queryKey, description.sorting)
-            else if (supplied) {
-              setQuery({
-                status: 'ready',
-                result: sortResult(supplied, description.sorting),
-              })
-              flush()
-            }
-          }}
-        />
-        {exportError() && <p role="alert">{exportError()}</p>}
-        {pageBusy() && <p role="status">Loading rows…</p>}
-        {pageError() && (
-          <p role="alert">
-            {pageError()}{' '}
-            <Button
-              type="button"
-              ref={nativeEvents({
-                click: () => {
-                  const result = latest()
-                  if (result)
-                    void queryServer(result.key, sorting(), failedOffset, true)
-                },
-              })}
-            >
-              Retry rows
-            </Button>
-          </p>
-        )}
-      </main>
+                })}
+              >
+                Retry rows
+              </Button>
+            </p>
+          )}
+        </main>
+      </Theme>
     )
   }, document.getElementById('root')!)
   flush()

@@ -1,4 +1,3 @@
-import { exampleSizing } from '../shared/appearance/sizing'
 import { createSignal, Show, untrack } from 'solid-js'
 import { Button } from '@wfe/components'
 import { DetailView, DeleteView, LayoutView } from '@wfe/generator'
@@ -101,7 +100,6 @@ export function DetailsApp(props: {
     <Show when={app.visible()}>
       <div class="generated-details">
         <LayoutView
-          style={exampleSizing}
           description={
             {
               id: 'detail-layout',

@@ -1,4 +1,3 @@
-import { exampleSizing } from '../shared/appearance/sizing'
 import { createMemo, createSignal, Show, untrack } from 'solid-js'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
@@ -179,7 +178,6 @@ export function FormatsApp(props: {
     <Show when={app.visible()}>
       <div class="generated-formats">
         <LayoutView
-          style={exampleSizing}
           description={
             {
               id: 'format-layout',

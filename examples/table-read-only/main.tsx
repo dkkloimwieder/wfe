@@ -1,9 +1,9 @@
+import { Theme } from '@wfe/components/theme'
 import { MessagesExample } from './MessagesExample'
 import {
   PagedRecords,
   paginationLifecycle,
 } from '../shared/controls/PagedRecords'
-import { uiScope } from '@wfe/components'
 import { render } from '@solidjs/web'
 import {
   OBSERVE,
@@ -22,7 +22,7 @@ import {
 import { VirtualRows, createTableVirtualizer } from '@wfe/components/virtual'
 import type { TableSelection, TableSelectionCell } from '@wfe/components/table'
 import '@wfe/components/styles.css'
-import '../fixture-page.css'
+import '../shared/page-layout.css'
 
 type RecordData = { category: string; name: string; amount: number }
 const textColumn = {
@@ -154,45 +154,47 @@ function start(virtual = false, width?: number) {
     })
     currentSelection = selection
     return (
-      <main data-ui-portal-root="" {...uiScope()}>
-        <h1>Read-only table</h1>
-        {virtualizer ? (
-          <div
-            class="table-scroll"
-            ref={(node) => {
-              viewport = node
-            }}
-            style={{ height: '360px' }}
-          >
-            <Table
-              table={table}
-              selection={selection}
-              accessibleLabel="Virtual selection"
-              width={900}
-              renderBody={() => (
-                <VirtualRows
-                  window={virtualizer}
-                  layout="table"
-                  columns={() => 3}
-                  renderRow={(id) => {
-                    counts.mounts++
-                    onCleanup(() => counts.unmounts++)
-                    return (
-                      <TableRow
-                        table={table}
-                        id={id}
-                        onCell={() => counts.cells++}
-                      />
-                    )
-                  }}
-                />
-              )}
-            />
-          </div>
-        ) : (
-          <ReadOnlyTable table={table} selection={selection} width={width} />
-        )}
-      </main>
+      <Theme style={{ 'min-height': '100dvh', display: 'flow-root' }}>
+        <main class="example-page" data-ui-portal-root="" data-ui="">
+          <h1>Read-only table</h1>
+          {virtualizer ? (
+            <div
+              class="table-scroll"
+              ref={(node) => {
+                viewport = node
+              }}
+              style={{ height: '360px' }}
+            >
+              <Table
+                table={table}
+                selection={selection}
+                accessibleLabel="Virtual selection"
+                width={900}
+                renderBody={() => (
+                  <VirtualRows
+                    window={virtualizer}
+                    layout="table"
+                    columns={() => 3}
+                    renderRow={(id) => {
+                      counts.mounts++
+                      onCleanup(() => counts.unmounts++)
+                      return (
+                        <TableRow
+                          table={table}
+                          id={id}
+                          onCell={() => counts.cells++}
+                        />
+                      )
+                    }}
+                  />
+                )}
+              />
+            </div>
+          ) : (
+            <ReadOnlyTable table={table} selection={selection} width={width} />
+          )}
+        </main>
+      </Theme>
     )
   }, document.getElementById('root')!)
   flush()
@@ -201,9 +203,11 @@ function startPaged() {
   stop()
   dispose = render(
     () => (
-      <main {...uiScope()}>
-        <PagedRecords />
-      </main>
+      <Theme style={{ 'min-height': '100dvh', display: 'flow-root' }}>
+        <main class="example-page" data-ui="">
+          <PagedRecords />
+        </main>
+      </Theme>
     ),
     document.getElementById('root')!,
   )
@@ -241,9 +245,11 @@ if (new URLSearchParams(location.search).has('messages')) {
   capture = OBSERVE?.diagnostics.capture()
   dispose = render(
     () => (
-      <main {...uiScope()}>
-        <MessagesExample />
-      </main>
+      <Theme style={{ 'min-height': '100dvh', display: 'flow-root' }}>
+        <main class="example-page" data-ui="">
+          <MessagesExample />
+        </main>
+      </Theme>
     ),
     document.getElementById('root')!,
   )

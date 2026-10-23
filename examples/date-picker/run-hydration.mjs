@@ -1,3 +1,4 @@
+import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { createServer } from 'node:http'
@@ -96,6 +97,7 @@ try {
     await expect(initial.locator('[data-date-display="system"]')).toHaveText(
       '28/02/2024 21:15',
     )
+    await reviewThemeHost(initial)
     await expect(initial.locator('[data-date-display="browser"]')).toHaveText(
       '',
     )
@@ -117,6 +119,7 @@ try {
   })
   await page.goto(url)
   await expect(page.locator('html')).toHaveAttribute('data-hydrated', 'true')
+  await reviewThemeHost(page)
   await expect(
     page.getByRole('textbox', { name: 'System date', exact: true }),
   ).toHaveValue('28/02/2024')

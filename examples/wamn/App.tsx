@@ -1,4 +1,5 @@
-import { Button, Checkbox, Input, SelectField, uiScope } from '@wfe/components'
+import { Theme } from '@wfe/components/theme'
+import { Button, Checkbox, Input, SelectField } from '@wfe/components'
 import '@wfe/components/styles.css'
 import {
   For,
@@ -175,135 +176,140 @@ export function App(props: {
   }
   onSettled(() => props.ready({ model, virtualizer, viewport, counts }))
   return (
-    <main {...uiScope()} data-ui-portal-root="">
-      <h1>Find widgets</h1>
-      <p>WAMN integration fixture</p>
-      <div class="toolbar">
-        <Button onClick={() => model.read()}>Read</Button>
-        <Button onClick={() => model.read()}>Refresh</Button>
-        <Button
-          disabled={
-            model.load.mode !== 'browse' ||
-            model.page().busy ||
-            model.page().cursor === null ||
-            model.page().rows.length >= model.load.cap
-          }
-          onClick={() => model.read(true)}
-        >
-          Next page
-        </Button>
-        <label>
-          Mode{' '}
-          <SelectField
-            label="Mode"
-            data-ui-text="system"
-            value={model.load.mode}
-            choices={[
-              { value: 'load', label: 'Load' },
-              { value: 'browse', label: 'Browse' },
-            ]}
-            onValueChange={(value) => {
-              void model.configure({ mode: value as 'load' | 'browse' })
-            }}
-          />
-        </label>
-        <label>
-          Cap{' '}
-          <Input
-            type="number"
-            min="1"
-            value={model.load.cap}
-            ref={nativeEvents<HTMLInputElement>({
-              change: (event) =>
-                model.configure({ cap: Number(event.currentTarget.value) }),
-            })}
-          />
-        </label>
-        <label>
-          Scope code{' '}
-          <Input
-            ref={nativeEvents<HTMLInputElement>({
-              change: (event) =>
-                model.configure({ code: event.currentTarget.value }),
-            })}
-          />
-        </label>
-        <label>
-          Refine note{' '}
-          <Input
+    <Theme
+      density="compact"
+      style={{ 'min-height': '100dvh', display: 'flow-root' }}
+    >
+      <main class="wamn-example" data-ui="" data-ui-portal-root="">
+        <h1>Find widgets</h1>
+        <p>WAMN integration fixture</p>
+        <div class="toolbar">
+          <Button onClick={() => model.read()}>Read</Button>
+          <Button onClick={() => model.read()}>Refresh</Button>
+          <Button
+            disabled={
+              model.load.mode !== 'browse' ||
+              model.page().busy ||
+              model.page().cursor === null ||
+              model.page().rows.length >= model.load.cap
+            }
+            onClick={() => model.read(true)}
+          >
+            Next page
+          </Button>
+          <label>
+            Mode{' '}
+            <SelectField
+              label="Mode"
+              data-ui-text="system"
+              value={model.load.mode}
+              choices={[
+                { value: 'load', label: 'Load' },
+                { value: 'browse', label: 'Browse' },
+              ]}
+              onValueChange={(value) => {
+                void model.configure({ mode: value as 'load' | 'browse' })
+              }}
+            />
+          </label>
+          <label>
+            Cap{' '}
+            <Input
+              type="number"
+              min="1"
+              value={model.load.cap}
+              ref={nativeEvents<HTMLInputElement>({
+                change: (event) =>
+                  model.configure({ cap: Number(event.currentTarget.value) }),
+              })}
+            />
+          </label>
+          <label>
+            Scope code{' '}
+            <Input
+              ref={nativeEvents<HTMLInputElement>({
+                change: (event) =>
+                  model.configure({ code: event.currentTarget.value }),
+              })}
+            />
+          </label>
+          <label>
+            Refine note{' '}
+            <Input
+              disabled={!model.local()}
+              ref={nativeEvents<HTMLInputElement>({
+                input: (event) =>
+                  table.setColumnFilters(
+                    event.currentTarget.value
+                      ? [{ id: 'note', value: event.currentTarget.value }]
+                      : [],
+                  ),
+              })}
+            />
+          </label>
+          <Button
             disabled={!model.local()}
-            ref={nativeEvents<HTMLInputElement>({
-              input: (event) =>
-                table.setColumnFilters(
-                  event.currentTarget.value
-                    ? [{ id: 'note', value: event.currentTarget.value }]
-                    : [],
-                ),
-            })}
-          />
-        </label>
-        <Button
-          disabled={!model.local()}
-          onClick={() =>
-            table.setSorting(
-              table.state.sorting.length ? [] : [{ id: 'note', desc: true }],
-            )
-          }
-        >
-          Sort note
-        </Button>
-      </div>
-      <p role="status">
-        {model.page().busy
-          ? 'Loading'
-          : (model.page().refusal ??
-            (model.load.fullyRead
-              ? 'Complete set'
-              : model.page().cursor
-                ? 'Full dataset cannot be loaded'
-                : 'Ready'))}{' '}
-        · {model.page().rows.length} loaded · Total:{' '}
-        {String(table.getTotalValue('id') ?? 'unavailable')}
-      </p>
-      <p role="alert">{model.load.message}</p>
-      <For each={Object.keys(model.drafts)}>
-        {(id) => <p data-draft={id}>{model.drafts[id]?.message}</p>}
-      </For>
-      <p data-action>{action()}</p>
-      <div
-        class="viewport"
-        ref={viewport}
-        tabindex="0"
-        role="grid"
-        aria-label="Widgets"
-        aria-rowcount={table.getRowIds().length + 1}
-      >
-        <div style={{ width: `${width()}px` }}>
-          <div role="row" class="row header">
-            <For each={table.getVisibleColumns()}>
-              {(column) => (
-                <div
-                  role="columnheader"
-                  style={{ width: `${column.getSize()}px` }}
-                >
-                  {String(column.columnDef?.header)}
-                </div>
-              )}
-            </For>
-            <div role="columnheader" class="actions">
-              Actions
-            </div>
-          </div>
-          <VirtualRows
-            window={virtualizer}
-            layout="block"
-            bodyClass="spacer"
-            windowClass="window"
-            renderRow={(id) => <Row id={id} />}
-          />
+            onClick={() =>
+              table.setSorting(
+                table.state.sorting.length ? [] : [{ id: 'note', desc: true }],
+              )
+            }
+          >
+            Sort note
+          </Button>
         </div>
-      </div>
-    </main>
+        <p role="status">
+          {model.page().busy
+            ? 'Loading'
+            : (model.page().refusal ??
+              (model.load.fullyRead
+                ? 'Complete set'
+                : model.page().cursor
+                  ? 'Full dataset cannot be loaded'
+                  : 'Ready'))}{' '}
+          · {model.page().rows.length} loaded · Total:{' '}
+          {String(table.getTotalValue('id') ?? 'unavailable')}
+        </p>
+        <p role="alert">{model.load.message}</p>
+        <For each={Object.keys(model.drafts)}>
+          {(id) => <p data-draft={id}>{model.drafts[id]?.message}</p>}
+        </For>
+        <p data-action>{action()}</p>
+        <div
+          class="viewport"
+          ref={viewport}
+          tabindex="0"
+          role="grid"
+          aria-label="Widgets"
+          aria-rowcount={table.getRowIds().length + 1}
+        >
+          <div style={{ width: `${width()}px` }}>
+            <div role="row" class="row header">
+              <For each={table.getVisibleColumns()}>
+                {(column) => (
+                  <div
+                    role="columnheader"
+                    style={{ width: `${column.getSize()}px` }}
+                  >
+                    {String(column.columnDef?.header)}
+                  </div>
+                )}
+              </For>
+              <div role="columnheader" class="actions">
+                Actions
+              </div>
+            </div>
+            <VirtualRows
+              window={virtualizer}
+              layout="block"
+              bodyClass="spacer"
+              windowClass="window"
+              renderRow={(id) => <Row id={id} />}
+            />
+          </div>
+        </div>
+      </main>
+    </Theme>
   )
 }
 export interface FixtureController {

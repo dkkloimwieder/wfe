@@ -1,3 +1,3 @@
 @import '@wfe/components/styles.css';
-@import '../fixture-page.css';
+@import '../shared/page-layout.css';
 @import './controls.css';

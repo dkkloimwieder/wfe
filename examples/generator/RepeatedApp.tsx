@@ -1,4 +1,3 @@
-import { exampleSizing } from '../shared/appearance/sizing'
 import { createSignal, Show, untrack } from 'solid-js'
 import { createForm } from '@wfe/form'
 import type { FormErrors, FormSnapshot } from '@wfe/form'
@@ -161,7 +160,6 @@ export function RepeatedApp(props: {
     <Show when={app.visible()}>
       <div class="generated-repeated">
         <LayoutView
-          style={exampleSizing}
           description={
             {
               id: 'repeated-layout',

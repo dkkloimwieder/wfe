@@ -1,12 +1,6 @@
+import { Theme } from '@wfe/components/theme'
 import { createMemo, createSignal, Show, untrack } from 'solid-js'
-import {
-  Button,
-  Input,
-  Card,
-  EmptyState,
-  InlineAlert,
-  uiScope,
-} from '@wfe/components'
+import { Button, Input, Card, EmptyState, InlineAlert } from '@wfe/components'
 import {
   Chart,
   ChartLegend,
@@ -27,11 +21,12 @@ import type { ChartDescription } from '@wfe/generator/chart'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
   appearanceStyle,
+  defaultLayers,
   schemes,
   accents,
 } from '../shared/appearance/appearance'
 import type { Depth, SurfaceLayers } from '../shared/appearance/appearance'
-import '../shared/appearance/default-appearance.css'
+import '@wfe/components/styles.css'
 import '../shared/appearance/style.css'
 import './style.css'
 
@@ -61,15 +56,10 @@ export function App(props: {
         />
       </div>
     )
-  const scope = uiScope()
   const [scheme, setScheme] = createSignal(schemes[1]!)
   const [accent, setAccent] = createSignal(accents[1]!)
   const [depth, setDepth] = createSignal<Depth>(2)
-  const [layers, setLayers] = createSignal<SurfaceLayers>({
-    canvas: 1,
-    pane: 0,
-    content: 0,
-  })
+  const [layers, setLayers] = createSignal<SurfaceLayers>(defaultLayers)
   const [series, setSeries] = createSignal({ requests: true, capacity: true })
   const [rejectSeries, setRejectSeries] = createSignal(false)
   const [reverseLegend, setReverseLegend] = createSignal(false)
@@ -148,16 +138,9 @@ export function App(props: {
   )
   untrack(() => props.ready?.({ context: () => context }))
   return (
-    <div
-      {...scope}
-      data-ui-portal-root=""
-      class="chart-preview ui-theme"
-      style={{
-        ...scope.style,
-        ...appearanceStyle(scheme(), accent(), depth(), layers()),
-        '--ui-button-color': 'var(--ui-accent)',
-        '--ui-button-on-color': 'var(--ui-on-accent)',
-      }}
+    <Theme
+      class="chart-preview"
+      style={appearanceStyle(scheme(), accent(), depth(), layers())}
     >
       <header>
         <h1>CHARTS</h1>
@@ -239,7 +222,7 @@ export function App(props: {
         </section>
         <ForCharts revision={revision()} />
       </main>
-    </div>
+    </Theme>
   )
 }
 

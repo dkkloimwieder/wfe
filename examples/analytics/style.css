@@ -1,5 +1,5 @@
 @import '@wfe/components/styles.css';
-@import '../fixture-page.css';
+@import '../shared/page-layout.css';
 main {
   height: 100dvh;
   display: flex;
@@ -23,7 +23,7 @@ main > p[role='status'] {
   position: absolute;
   bottom: 16px;
   right: 16px;
-  background: white;
+  background: var(--ui-surface);
   padding: 4px;
 }
 main > label {

@@ -1,3 +1,4 @@
+import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import { reviewMessages } from './review-messages.mjs'
 import { reviewPagination } from '../shared/controls/pagination-review.mjs'
 import { reviewSelection } from './review-selection.mjs'
@@ -130,6 +131,7 @@ try {
   })
   await page.goto(`http://127.0.0.1:${server.address().port}`)
   await page.waitForFunction(() => Boolean(window.readOnlyFixture))
+  await reviewThemeHost(page)
   const rows = () =>
     page
       .locator('tr[data-row]')

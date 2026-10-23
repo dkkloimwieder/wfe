@@ -11,16 +11,7 @@ body,
   padding: var(--ui-gap, 6px);
   background: var(--ui-canvas-surface);
 }
-.wamn-page .ui-dashboard {
-  gap: var(--ui-gap, 6px);
-  background: var(--ui-canvas-surface);
-}
-.wamn-page .ui-dashboard-header {
-  flex-wrap: wrap;
-  border: 1px solid var(--ui-border);
-  background: var(--ui-surface);
-  box-shadow: var(--ui-panel-shadow);
-}
+
 .wamn-page .ui-dashboard-header > [data-ui-text='system'] {
   flex: 1 1 12rem;
   min-width: 0;
@@ -29,21 +20,11 @@ body,
 .wamn-page .ui-dashboard-header > .ui-button {
   flex: none;
 }
-.wamn-page .ui-dashboard-main {
-  padding: 0;
-}
-.wamn-page .ui-dashboard-panel {
-  background: var(--ui-pane-surface);
-  box-shadow: var(--ui-panel-shadow);
-}
+
 .wamn-page .ui-dashboard-panel:not([data-fill]) {
   overflow: auto;
 }
-.wamn-page form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-field-gap, 20px);
-}
+
 .wamn-page h2 {
   font-size: inherit;
   margin: 0;

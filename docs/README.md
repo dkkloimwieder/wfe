@@ -54,6 +54,7 @@ Beads records task status and dependencies.
 - [Component gallery](component-gallery.md)
 - [Combobox matching](combobox-matching.md)
 - [Appearance review](appearance-review.md)
+- [Theme ownership in examples](example-themes.md)
 - [Qualification commands and reports](qualification.md)
 - [Native tab investigation](native-tab-investigation.md)
 - [Action disposal investigation](action-disposal-investigation.md)

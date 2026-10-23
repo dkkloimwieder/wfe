@@ -1,4 +1,4 @@
-import { exampleSizing } from '../shared/appearance/sizing'
+import { Theme } from '@wfe/components/theme'
 import {
   createSignal,
   onCleanup,
@@ -7,12 +7,7 @@ import {
   For,
   Show,
 } from 'solid-js'
-import { Button, SelectField, uiScope } from '@wfe/components'
-import {
-  accents,
-  appearanceStyle,
-  schemes,
-} from '../shared/appearance/appearance'
+import { Button, SelectField } from '@wfe/components'
 import { FormView, TableView, LayoutView } from '@wfe/generator'
 import type { CustomCellProps } from '@wfe/generator'
 import { nativeEvents } from '@wfe/components/events'
@@ -28,12 +23,6 @@ export function App(props: {
   name: string
   ready?: (application: ReturnType<typeof createApplication>) => void
 }) {
-  const scope = uiScope()
-  const appearance = appearanceStyle(schemes[1]!, accents[1]!, 1, {
-    canvas: 1,
-    pane: 0,
-    content: 0,
-  })
   const app = createApplication(props.name)
   props.ready?.(app)
   const [screen, setScreen] = createSignal<Screen>('records')
@@ -395,17 +384,7 @@ export function App(props: {
     </>
   )
   return (
-    <div
-      {...scope}
-      class="wamn-page ui-theme"
-      style={{
-        ...scope.style,
-        ...exampleSizing,
-        ...appearance,
-        '--ui-button-color': 'var(--ui-accent)',
-        '--ui-button-on-color': 'var(--ui-on-accent)',
-      }}
-    >
+    <Theme class="wamn-page">
       <div
         class="wamn-screen"
         data-wamn-screen="records"
@@ -416,7 +395,6 @@ export function App(props: {
         }}
       >
         <LayoutView
-          style={exampleSizing}
           description={app.description().layout}
           bindings={{ views: { records: Records }, actions: reads }}
         />
@@ -431,7 +409,6 @@ export function App(props: {
         }}
       >
         <LayoutView
-          style={exampleSizing}
           description={app.description().editorLayout}
           bindings={{
             views: { editor: Editor },
@@ -452,7 +429,6 @@ export function App(props: {
         }}
       >
         <LayoutView
-          style={exampleSizing}
           description={app.description().detailsLayout}
           bindings={{
             views: { details: Details },
@@ -472,6 +448,6 @@ export function App(props: {
           }}
         />
       </div>
-    </div>
+    </Theme>
   )
 }

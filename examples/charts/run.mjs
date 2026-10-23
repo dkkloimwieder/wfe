@@ -1,3 +1,4 @@
+import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
@@ -113,6 +114,7 @@ try {
   )
   const svg = page.locator('[aria-label="Line chart panel"] svg.ts-chart')
   await expect(svg).toHaveAttribute('aria-label', 'Requests')
+  await reviewThemeHost(page)
   await settle()
   await run('mount and server adoption', async () => {
     assert.ok(

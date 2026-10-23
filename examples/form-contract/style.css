@@ -31,11 +31,7 @@ h2 {
   background: var(--ui-surface);
   border-top: 1px solid var(--ui-border);
 }
-.buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+
 p {
   margin: 0 0 12px;
 }

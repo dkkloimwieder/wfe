@@ -1,3 +1,4 @@
+import { Theme } from '@wfe/components/theme'
 import { render } from '@solidjs/web'
 import { OBSERVE, action, createSignal, createStore, flush } from 'solid-js'
 import {
@@ -8,7 +9,6 @@ import {
   Input,
   Label,
   SelectField,
-  uiScope,
   ValueDisplay,
 } from '@wfe/components'
 import {
@@ -39,8 +39,8 @@ import type {
 } from '../shared/appearance/appearance'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
-  monochrome,
-  neutralAccent,
+  schemes,
+  accents,
   appearanceStyle,
   defaultLayers,
   defaultDividers,
@@ -279,8 +279,8 @@ function createFormatting() {
   }
 }
 function TablePage() {
-  const [scheme, setScheme] = createSignal(monochrome)
-  const [accent, setAccent] = createSignal(neutralAccent)
+  const [scheme, setScheme] = createSignal(schemes[1]!)
+  const [accent, setAccent] = createSignal(accents[1]!)
   const [placement, setPlacement] = createSignal<'left' | 'top' | 'right'>(
     'left',
   )
@@ -289,7 +289,6 @@ function TablePage() {
   const [depth, setDepth] = createSignal<Depth>(1)
   const [layers, setLayers] = createSignal<SurfaceLayers>(defaultLayers)
   const [dividers, setDividers] = createSignal<TableDividers>(defaultDividers)
-  const scope = uiScope()
   const rows = createRecordsData()
   replaceRows = rows.replace
   const table = createRecordsTable(rows)
@@ -303,45 +302,43 @@ function TablePage() {
     })
   updateColumnAlignment = changeAlignment
   return (
-    <main
-      {...scope}
+    <Theme
       style={{
-        ...scope.style,
         ...appearanceStyle(scheme(), accent(), depth(), layers(), dividers()),
+        height: '100%',
       }}
-      data-ui-portal-root=""
-      class="table-page ui-theme"
-      aria-label="Records workspace"
     >
-      <AppearanceReview
-        scheme={scheme()}
-        accent={accent()}
-        placement={placement()}
-        onPlacementChange={setPlacement}
-        depth={depth()}
-        dividers={dividers()}
-        onDividersChange={setDividers}
-        layers={layers()}
-        onLayersChange={setLayers}
-        onSchemeChange={setScheme}
-        onAccentChange={setAccent}
-        onDepthChange={setDepth}
-      />
-      <ReadOnlyTable
-        controlsPlacement={placement()}
-        controlsCollapsed={collapsed()}
-        onControlsCollapsedChange={setCollapsed}
-        table={table}
-        columnAlignment={alignment}
-        onColumnAlignmentChange={changeAlignment}
-        title="Records"
-        filter={(column) => filterConfigurations[column.id]}
-        formatValue={formatting.formatValue}
-        formatSummary={formatting.formatValue}
-        formatting={formatting.controls}
-        actions={<RecordActions />}
-      />
-    </main>
+      <main class="table-page" aria-label="Records workspace">
+        <AppearanceReview
+          scheme={scheme()}
+          accent={accent()}
+          placement={placement()}
+          onPlacementChange={setPlacement}
+          depth={depth()}
+          dividers={dividers()}
+          onDividersChange={setDividers}
+          layers={layers()}
+          onLayersChange={setLayers}
+          onSchemeChange={setScheme}
+          onAccentChange={setAccent}
+          onDepthChange={setDepth}
+        />
+        <ReadOnlyTable
+          controlsPlacement={placement()}
+          controlsCollapsed={collapsed()}
+          onControlsCollapsedChange={setCollapsed}
+          table={table}
+          columnAlignment={alignment}
+          onColumnAlignmentChange={changeAlignment}
+          title="Records"
+          filter={(column) => filterConfigurations[column.id]}
+          formatValue={formatting.formatValue}
+          formatSummary={formatting.formatValue}
+          formatting={formatting.controls}
+          actions={<RecordActions />}
+        />
+      </main>
+    </Theme>
   )
 }
 function RecordActions() {
@@ -400,95 +397,97 @@ function Dashboard() {
     setName('')
   }
   return (
-    <DashboardShell
-      header={<h1>Workspace</h1>}
-      mainLabel="Records workspace"
-      scroll="content"
-      navigation={({ close }) => (
-        <div class="dashboard-navigation">
-          <Button
-            aria-current={section() === 'Records' ? 'page' : undefined}
-            onClick={() => {
-              setSection('Records')
-              setStatus('Records selected.')
-              close()
-            }}
-          >
-            Records
-          </Button>
-          <Button
-            aria-current={section() === 'Activity' ? 'page' : undefined}
-            onClick={() => {
-              setSection('Activity')
-              setStatus(
-                'Activity selected. This example keeps the records view open.',
-              )
-              close()
-            }}
-          >
-            Activity
-          </Button>
-        </div>
-      )}
-    >
-      <DashboardGrid class="dashboard-workspace">
-        <DashboardPanel fill id="records-panel">
-          <ReadOnlyTable
-            table={table}
-            columnAlignment={alignment}
-            onColumnAlignmentChange={changeAlignment}
-            title="Records"
-            filter={(column) => filterConfigurations[column.id]}
-            formatValue={formatting.formatValue}
-            formatSummary={formatting.formatValue}
-            formatting={formatting.controls}
-            actions={<RecordActions />}
-          />
-        </DashboardPanel>
-        <div class="dashboard-sidebar">
-          <DashboardPanel>
-            <h2>Add record</h2>
-            <form
-              novalidate
-              ref={nativeEvents<HTMLFormElement>({ submit: save })}
+    <Theme style={{ height: '100%' }}>
+      <DashboardShell
+        header={<h1>Workspace</h1>}
+        mainLabel="Records workspace"
+        scroll="content"
+        navigation={({ close }) => (
+          <div class="dashboard-navigation">
+            <Button
+              aria-current={section() === 'Records' ? 'page' : undefined}
+              onClick={() => {
+                setSection('Records')
+                setStatus('Records selected.')
+                close()
+              }}
             >
-              <Field required invalid={invalid()}>
-                <Label>Record name</Label>
-                <Input value={name()} onValueChange={setName} />
-                <FieldError>Enter a record name.</FieldError>
-              </Field>
-              <Field>
-                <Label>Region</Label>
-                <SelectField
-                  label="Region"
-                  value={region()}
-                  onValueChange={setRegion}
-                  choices={[
-                    { value: 'West', label: 'West' },
-                    { value: 'East', label: 'East' },
-                  ]}
-                />
-              </Field>
-              <Checkbox checked={active()} onChange={setActive}>
-                <Checkbox.Input />
-                <Checkbox.Control>
-                  <Checkbox.Indicator />
-                </Checkbox.Control>
-                <Checkbox.Label>Active record</Checkbox.Label>
-              </Checkbox>
-              <Button type="submit">Save record</Button>
-            </form>
+              Records
+            </Button>
+            <Button
+              aria-current={section() === 'Activity' ? 'page' : undefined}
+              onClick={() => {
+                setSection('Activity')
+                setStatus(
+                  'Activity selected. This example keeps the records view open.',
+                )
+                close()
+              }}
+            >
+              Activity
+            </Button>
+          </div>
+        )}
+      >
+        <DashboardGrid class="dashboard-workspace">
+          <DashboardPanel fill id="records-panel">
+            <ReadOnlyTable
+              table={table}
+              columnAlignment={alignment}
+              onColumnAlignmentChange={changeAlignment}
+              title="Records"
+              filter={(column) => filterConfigurations[column.id]}
+              formatValue={formatting.formatValue}
+              formatSummary={formatting.formatValue}
+              formatting={formatting.controls}
+              actions={<RecordActions />}
+            />
           </DashboardPanel>
-          <DashboardPanel>
-            <h2>Activity</h2>
-            <p role="status" id="application-status">
-              {status()}
-            </p>
-            <p>{rows.ids().length} records in application memory.</p>
-          </DashboardPanel>
-        </div>
-      </DashboardGrid>
-    </DashboardShell>
+          <div class="dashboard-sidebar">
+            <DashboardPanel>
+              <h2>Add record</h2>
+              <form
+                novalidate
+                ref={nativeEvents<HTMLFormElement>({ submit: save })}
+              >
+                <Field required invalid={invalid()}>
+                  <Label>Record name</Label>
+                  <Input value={name()} onValueChange={setName} />
+                  <FieldError>Enter a record name.</FieldError>
+                </Field>
+                <Field>
+                  <Label>Region</Label>
+                  <SelectField
+                    label="Region"
+                    value={region()}
+                    onValueChange={setRegion}
+                    choices={[
+                      { value: 'West', label: 'West' },
+                      { value: 'East', label: 'East' },
+                    ]}
+                  />
+                </Field>
+                <Checkbox checked={active()} onChange={setActive}>
+                  <Checkbox.Input />
+                  <Checkbox.Control>
+                    <Checkbox.Indicator />
+                  </Checkbox.Control>
+                  <Checkbox.Label>Active record</Checkbox.Label>
+                </Checkbox>
+                <Button type="submit">Save record</Button>
+              </form>
+            </DashboardPanel>
+            <DashboardPanel>
+              <h2>Activity</h2>
+              <p role="status" id="application-status">
+                {status()}
+              </p>
+              <p>{rows.ids().length} records in application memory.</p>
+            </DashboardPanel>
+          </div>
+        </DashboardGrid>
+      </DashboardShell>
+    </Theme>
   )
 }
 function start() {

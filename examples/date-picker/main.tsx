@@ -1,3 +1,4 @@
+import { Theme } from '@wfe/components/theme'
 import { render } from '@solidjs/web'
 import { OBSERVE, action, createSignal, flush, untrack } from 'solid-js'
 import {
@@ -8,7 +9,6 @@ import {
   Label,
   HelpText,
   FieldError,
-  uiScope,
 } from '@wfe/components'
 import '@wfe/components/styles.css'
 import type { DatePickerMessages } from '@wfe/components'
@@ -100,97 +100,99 @@ function App() {
       datetimeValid,
     }))
   return (
-    <main
-      {...uiScope()}
-      data-ui-portal-root=""
-      style={{ padding: '12px', width: '22rem' }}
-    >
-      <form
-        id="date-test-form"
-        ref={nativeEvents<HTMLFormElement>({
-          submit: (event) => {
-            event.preventDefault()
-            submits++
-          },
-        })}
+    <Theme style={{ 'min-height': '100dvh', display: 'flow-root' }}>
+      <main
+        data-ui=""
+        data-ui-portal-root=""
+        style={{ padding: '12px', width: '22rem' }}
       >
-        <Field
-          controlId="review-date"
-          readonly={state().readonly}
-          required={state().required}
-          invalid={state().invalid}
+        <form
+          id="date-test-form"
+          ref={nativeEvents<HTMLFormElement>({
+            submit: (event) => {
+              event.preventDefault()
+              submits++
+            },
+          })}
         >
-          <Label>Review date</Label>
-          <DatePicker
-            messages={state().messages}
-            invalid={state().invalidOverride}
-            name="reviewDate"
-            onValidityChange={(valid) => {
-              intrinsicValid = valid
-            }}
-            label="Review date"
-            dateFormat={state().dateFormat}
-            locale={state().locale}
-            clearLabel="Clear review date"
-            value={state().value}
-            disabled={state().disabled}
-            min={state().min}
-            max={state().max}
-            isDateDisabled={(value) => state().excluded.includes(value)}
-            onValueChange={(value) => {
-              changes++
-              if (state().accept) update({ value })
-              if (state().focusOnChange) outside?.focus()
-            }}
-          />
-          <HelpText>Date entry help</HelpText>
-          <FieldError>Application date validation</FieldError>
-        </Field>
-      </form>
-      <Button
-        type="button"
-        ref={(node) => {
-          outside = node
-        }}
-      >
-        Outside date target
-      </Button>
-      <form
-        id="datetime-test-form"
-        ref={nativeEvents<HTMLFormElement>({
-          submit(event) {
-            event.preventDefault()
-            datetimeSubmits++
-          },
-        })}
-      >
-        <Field
-          controlId="appointment"
-          disabled={datetime().disabled}
-          readonly={datetime().readonly}
-          required={datetime().required}
-          invalid={datetime().invalid}
+          <Field
+            controlId="review-date"
+            readonly={state().readonly}
+            required={state().required}
+            invalid={state().invalid}
+          >
+            <Label>Review date</Label>
+            <DatePicker
+              messages={state().messages}
+              invalid={state().invalidOverride}
+              name="reviewDate"
+              onValidityChange={(valid) => {
+                intrinsicValid = valid
+              }}
+              label="Review date"
+              dateFormat={state().dateFormat}
+              locale={state().locale}
+              clearLabel="Clear review date"
+              value={state().value}
+              disabled={state().disabled}
+              min={state().min}
+              max={state().max}
+              isDateDisabled={(value) => state().excluded.includes(value)}
+              onValueChange={(value) => {
+                changes++
+                if (state().accept) update({ value })
+                if (state().focusOnChange) outside?.focus()
+              }}
+            />
+            <HelpText>Date entry help</HelpText>
+            <FieldError>Application date validation</FieldError>
+          </Field>
+        </form>
+        <Button
+          type="button"
+          ref={(node) => {
+            outside = node
+          }}
         >
-          <Label>Appointment</Label>
-          <DateTimePicker
-            messages={datetime().messages}
-            {...datetime()}
-            label="Appointment"
-            name="appointment"
-            onValueChange={(value) => {
-              datetimeChanges++
-              if (datetime().accept) updateDateTime({ value })
-            }}
-            onValidityChange={(valid) => {
-              datetimeValid = valid
-            }}
-          />
-          <HelpText>Appointment help</HelpText>
-          <FieldError>Application appointment error</FieldError>
-        </Field>
-      </form>
-      <Button type="button">After picker</Button>
-    </main>
+          Outside date target
+        </Button>
+        <form
+          id="datetime-test-form"
+          ref={nativeEvents<HTMLFormElement>({
+            submit(event) {
+              event.preventDefault()
+              datetimeSubmits++
+            },
+          })}
+        >
+          <Field
+            controlId="appointment"
+            disabled={datetime().disabled}
+            readonly={datetime().readonly}
+            required={datetime().required}
+            invalid={datetime().invalid}
+          >
+            <Label>Appointment</Label>
+            <DateTimePicker
+              messages={datetime().messages}
+              {...datetime()}
+              label="Appointment"
+              name="appointment"
+              onValueChange={(value) => {
+                datetimeChanges++
+                if (datetime().accept) updateDateTime({ value })
+              }}
+              onValidityChange={(valid) => {
+                datetimeValid = valid
+              }}
+            />
+            <HelpText>Appointment help</HelpText>
+            <FieldError>Application appointment error</FieldError>
+          </Field>
+        </form>
+        <Button type="button">After picker</Button>
+      </main>
+    </Theme>
   )
 }
 function start() {

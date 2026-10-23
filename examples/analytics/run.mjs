@@ -1,3 +1,4 @@
+import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import {
   selectValue,
   choiceControl,
@@ -140,6 +141,7 @@ try {
   })
   await page.goto(`http://127.0.0.1:${server.address().port}`)
   await page.waitForFunction(() => Boolean(window.analyticsFixture))
+  await reviewThemeHost(page)
   const start = (state) =>
     page.evaluate(
       (state) =>

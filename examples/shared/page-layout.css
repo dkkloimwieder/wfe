@@ -1,0 +1,23 @@
+/* Standalone example layout only. Theme owns control typography and palette. */
+body {
+  margin: 0;
+}
+:where(.example-page) {
+  max-width: 1440px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+:where(.example-page) > h1 {
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+:where(.example-page) > p {
+  margin: 6px 0;
+  line-height: 1.45;
+}
+@media (max-width: 700px) {
+  :where(.example-page) {
+    margin: 12px auto;
+    padding: 0 12px;
+  }
+}

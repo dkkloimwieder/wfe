@@ -1,3 +1,4 @@
+import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import { dateMessageCases } from './message-cases.mjs'
 import { dateTodayCase, localDayBoundaries } from './today-cases.mjs'
 import assert from 'node:assert/strict'
@@ -60,6 +61,7 @@ try {
   })
   await page.goto(`http://127.0.0.1:${server.address().port}/`)
   await page.waitForFunction(() => Boolean(window.datePickerFixture))
+  await reviewThemeHost(page)
   const input = page.getByLabel('Review date', { exact: true })
   const trigger = page.getByRole('button', {
     name: 'Open Review date calendar',

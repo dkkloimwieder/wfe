@@ -1,3 +1,4 @@
+import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import {
   choiceControl,
   selectValue,
@@ -72,6 +73,7 @@ try {
   })
   await page.goto(`http://127.0.0.1:${server.address().port}/`)
   await page.waitForFunction(() => Boolean(window.formContractFixture))
+  await reviewThemeHost(page)
   const name = page.getByRole('textbox', { name: 'Name', exact: true })
   const category = choiceControl(page, { name: 'Category', exact: true })
   const enabled = page.getByRole('checkbox', { name: 'Enabled', exact: true })

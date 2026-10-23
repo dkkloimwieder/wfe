@@ -24,6 +24,8 @@ Generic consumers use public exports from the components, form, generator, or sh
 Applications own records, transport, validation, query paging, cache policy, and export requests.
 The optional WAMN example requires its separate input preparation.
 
+Normal pages use the shared public Theme. See [theme ownership and deliberate raw-fixture exceptions](../docs/example-themes.md).
+
 ## Fixture inventory
 
 Generic controls and layout consumers:
