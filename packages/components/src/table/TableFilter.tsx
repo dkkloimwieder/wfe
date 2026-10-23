@@ -54,7 +54,7 @@ export function TableFilter(props: TableFilterProps) {
       <label for={id} class={props.hideLabel ? 'sr-only' : 'ui-label'}>
         {props.label}
       </label>
-      <ControlSurface class="filter-input">
+      <ControlSurface class="ui-input-affix">
         <Show
           when={props.kind !== 'boolean'}
           fallback={
@@ -160,7 +160,7 @@ export function TableFilter(props: TableFilterProps) {
         <Show when={props.kind !== 'boolean'}>
           <Button
             type="button"
-            class="clear-input"
+            class="ui-input-clear"
             aria-label={props.clearLabel ?? messages.clearFilter(props.label)}
             title={props.clearLabel ?? messages.clearFilter(props.label)}
             disabled={props.disabled || !props.value}

@@ -65,7 +65,7 @@ try {
   for (const id of ['light', 'dark', 'comfortable']) {
     const search = page.locator(`#${id}-search`)
     const clear = page.locator(`#${id}-clear`)
-    const group = page.locator(`#${id} .filter-input`)
+    const group = page.locator(`#${id} :is(.ui-input-affix, .filter-input)`)
     await search.focus()
     await expect(search).toBeFocused()
     const bounds = await group.boundingBox()

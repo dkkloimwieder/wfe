@@ -167,7 +167,7 @@ export function DatePickerControl(
           setOpen(value)
         }}
       >
-        <ControlSurface class="filter-input" decoration={props.decoration}>
+        <ControlSurface class="ui-input-affix" decoration={props.decoration}>
           <Input
             id={id()}
             type="text"
@@ -216,7 +216,7 @@ export function DatePickerControl(
           </Popover.Trigger>
           <Button
             type="button"
-            class="clear-input"
+            class="ui-input-clear"
             aria-label={props.clearLabel ?? messages.clearDate(props.label)}
             disabled={disabled() || readonly() || (!draft() && !props.value)}
             onClick={() => {

@@ -517,3 +517,19 @@
 :where([data-ui]) .table-page-action {
   --ui-triangle-color: color-mix(in srgb, currentColor 85%, black);
 }
+
+/* Boolean filter layout follows the generic toggle and shared focus rules. */
+
+:where([data-ui]) .table-boolean-filter {
+  grid-template-columns: max-content;
+  gap: 0;
+}
+:where([data-ui])
+  :is(.ui-input-affix, .filter-input):has(.table-boolean-filter) {
+  width: fit-content;
+}
+
+:where([data-ui])
+  :is(.ui-input-affix, .filter-input):has(.table-boolean-filter) {
+  outline: none;
+}

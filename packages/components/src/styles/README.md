@@ -73,7 +73,12 @@ Use `data-ui-text="prose"` for custom prose inside a system label.
 `theme.css` owns library colors, scope typography, and box sizing.
 `buttons.css` owns button variants and tones.
 `fields.css` owns common field borders and surfaces.
-`components.css` owns component layout, shapes, and selection states.
+`components.css` owns non-table component layout, shapes, and selection states.
+`table.css` owns table primitives, cell selection, header controls, and filter/grouping layout.
+It loads immediately before `components.css`; `table-workspace.css` retains its later import position and owns workspace layout.
+Boolean filter layout stays in the later workspace file so it follows generic toggle and focus defaults.
+`fields.css` owns shared affixed inputs, used by DatePicker and table filters through `ui-input-affix` and `ui-input-clear`.
+The older `filter-input` and `clear-input` CSS hooks remain supported aliases.
 `surfaces.css` owns floating borders, backgrounds, text, and shadows.
 `states.css` owns common focus, invalid, disabled, read-only, and field hover rules.
 The remaining files own layout, table workspace, calendar, and text presentation.

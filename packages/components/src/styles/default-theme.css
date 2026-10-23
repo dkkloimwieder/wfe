@@ -39,7 +39,7 @@
     .ui-dashboard-menu a[href]
   ):not(
     .ui-date-trigger,
-    .clear-input,
+    :is(.ui-input-clear, .clear-input),
     .column-sort,
     .column-move,
     .header-rename,
@@ -68,7 +68,7 @@
     [data-disabled],
     [data-readonly],
     .ui-date-trigger,
-    .clear-input,
+    :is(.ui-input-clear, .clear-input),
     .column-sort,
     .column-move,
     .header-rename,
@@ -138,7 +138,7 @@
       [data-disabled],
       [data-readonly],
       .ui-date-trigger,
-      .clear-input,
+      :is(.ui-input-clear, .clear-input),
       .column-sort,
       .column-move,
       .header-rename,
