@@ -40,6 +40,14 @@ export async function galleryLoadingCases({ page, url, record }) {
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=dialogs`)
+      const tables = page
+        .getByRole('navigation', { name: 'Component catalog', exact: true })
+        .locator('summary')
+        .filter({ hasText: /^Tables$/ })
+      await tables.click()
+      await expect(
+        page.getByRole('link', { name: 'Table', exact: true }),
+      ).toBeVisible()
       const trigger = page.getByRole('button', {
         name: 'Open dialog',
         exact: true,

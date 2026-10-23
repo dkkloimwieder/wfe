@@ -135,7 +135,10 @@ export async function galleryCases({ page, url, record, settle }) {
           await page.goto(`${url}?gallery=${id}&scheme=${scheme}`)
           await expect(preview().locator('.gallery-preview')).toBeVisible()
           await expect(page.getByRole('main')).toHaveCount(1)
-          await expect(page.locator('[data-ui-theme-owner]')).toHaveCount(1)
+          const themeOwners = id === 'decoration-geometry' ? 2 : 1
+          await expect(page.locator('[data-ui-theme-owner]')).toHaveCount(
+            themeOwners,
+          )
           await expect(page.locator('iframe')).toHaveCount(0)
           assert.equal(
             await page.evaluate(
