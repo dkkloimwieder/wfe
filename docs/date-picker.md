@@ -31,7 +31,9 @@ The standalone calendar also accepts `direction` for left-to-right or right-to-l
 
 Provide `initialMonth` for a deterministic initial view of an empty standalone calendar.
 The standalone calendar defaults to January 1970 when no initial date exists.
-An empty picker opens at the current UTC date unless the application supplies `initialMonth`.
+An empty picker opens at the current browser-local calendar date unless the application supplies `initialMonth`.
+An accepted `value` takes precedence over both defaults.
+This default does not convert stored `YYYY-MM-DD` values into instants or change date bounds.
 It chooses that default on opening, so server and client markup stay consistent.
 
 ## Table use

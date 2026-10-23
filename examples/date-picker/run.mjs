@@ -1,3 +1,4 @@
+import { dateTodayCase, localDayBoundaries } from './today-cases.mjs'
 import assert from 'node:assert/strict'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { createServer } from 'node:http'
@@ -76,6 +77,10 @@ try {
     await run()
     report.cases.push({ name, status: 'passed' })
     console.log('PASS ' + name)
+  }
+  for (const boundary of localDayBoundaries) {
+    await test(`Empty date picker uses the local day in ${boundary.timezoneId}`, () =>
+      dateTodayCase({ browser, url: page.url(), report }, boundary))
   }
   await test('Typing validates dates without discarding invalid drafts or changing the accepted value', async () => {
     await input.fill('2024-02-30')

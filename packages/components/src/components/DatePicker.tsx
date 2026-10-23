@@ -144,12 +144,14 @@ export function DatePickerControl(
         open={open()}
         onOpenChange={(value) => {
           if (disabled() || readonly()) return
-          if (value)
+          if (value) {
+            const today = new Date()
             setInitialMonth(
               props.value ??
                 props.initialMonth ??
-                new Date().toISOString().slice(0, 10),
+                `${String(today.getFullYear()).padStart(4, '0')}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`,
             )
+          }
           setOpen(value)
         }}
       >
