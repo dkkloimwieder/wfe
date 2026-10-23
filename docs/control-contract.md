@@ -11,7 +11,8 @@ Neither a callback nor an accessibility attribute supplies application validatio
 
 ## Current APIs
 
-Use the current names until the corresponding migration lands.
+Use the preferred callback names below for new consumers.
+The listed legacy aliases remain supported.
 The compound controls expose separate root, input, label, and other parts.
 A callback on a compound root can carry a value rather than a DOM event.
 
@@ -112,8 +113,10 @@ This fallback does not apply to a deferred RadioGroup, which uses an accessible 
 
 Existing consumer props and exports remain supported.
 New adapter-only props stay out of native DOM attributes.
-The migration changes owned wrappers without changing captured vendor sources or adding application rules.
-Documentation will name implemented aliases as each family migration lands.
+The migration changes owned wrappers and includes documented local vendor repairs.
+Upstream revisions, original hashes, and licenses remain unchanged.
+Application rules remain outside the controls.
+The table above names the implemented aliases.
 
 Each implementation must cover callback precedence, current callback replacement, explicit false, and rejected controlled requests.
 It must preserve native events, keyboard interaction, form submission, reset, accessible associations, and owner cleanup.
