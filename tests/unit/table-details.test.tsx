@@ -119,12 +119,16 @@ test('detail IDs are unique between tables and programmatic collapse restores ow
     canExpand: (id: string) => id !== 'empty',
     render: () => <Input aria-label="Child" />,
   }
-  const view = render(() => (
-    <>
-      <ReadOnlyTable table={model()} rowDetails={details} />
-      <ReadOnlyTable table={model()} rowDetails={details} />
-    </>
-  ))
+  const view = render(() => {
+    const firstTable = model()
+    const secondTable = model()
+    return (
+      <>
+        <ReadOnlyTable table={firstTable} rowDetails={details} />
+        <ReadOnlyTable table={secondTable} rowDetails={details} />
+      </>
+    )
+  })
   const inputs = view.getAllByRole('textbox', { name: 'Child' })
   expect(new Set(inputs.map((input) => input.closest('tr')?.id)).size).toBe(2)
   inputs[0]!.focus()
@@ -141,26 +145,31 @@ test.each(['disabled', 'hidden', 'css-hidden', 'outside', 'disposed'] as const)(
     const [expanded, setExpanded] = createSignal(true)
     const [disabled, setDisabled] = createSignal(false)
     const [hidden, setHidden] = createSignal(false)
-    const view = render(() => (
-      <div
-        hidden={hidden()}
-        style={
-          mode === 'css-hidden' && !expanded() ? { display: 'none' } : undefined
-        }
-      >
-        <button type="button">Outside</button>
-        <ReadOnlyTable
-          table={model()}
-          rowDetails={{
-            expanded: () => expanded(),
-            onExpandedChange: (_, next) => setExpanded(next),
-            canExpand: (id) => id !== 'empty',
-            disabled: () => disabled(),
-            render: () => <Input aria-label="Owned input" />,
-          }}
-        />
-      </div>
-    ))
+    const view = render(() => {
+      const table = model()
+      return (
+        <div
+          hidden={hidden()}
+          style={
+            mode === 'css-hidden' && !expanded()
+              ? { display: 'none' }
+              : undefined
+          }
+        >
+          <button type="button">Outside</button>
+          <ReadOnlyTable
+            table={table}
+            rowDetails={{
+              expanded: () => expanded(),
+              onExpandedChange: (_, next) => setExpanded(next),
+              canExpand: (id) => id !== 'empty',
+              disabled: () => disabled(),
+              render: () => <Input aria-label="Owned input" />,
+            }}
+          />
+        </div>
+      )
+    })
     const toggle = view.getByRole('button', {
       name: 'Collapse details for row a"/b',
     })
@@ -181,20 +190,26 @@ test.each(['disabled', 'hidden', 'css-hidden', 'outside', 'disposed'] as const)(
 test('nested tables retain their title and columns without controls, refresh or footer', () => {
   const load = vi.fn()
   const [expanded, setExpanded] = createSignal(false)
-  const view = render(() => (
-    <ReadOnlyTable
-      table={model()}
-      rowDetails={{
-        expanded: (id) => id !== 'empty' && expanded(),
-        onExpandedChange: (_, next) => {
-          load(next)
-          setExpanded(next)
-        },
-        canExpand: (id) => id !== 'empty',
-        render: () => <ReadOnlyTable table={model()} title="Child records" />,
-      }}
-    />
-  ))
+  const view = render(() => {
+    const table = model()
+    return (
+      <ReadOnlyTable
+        table={table}
+        rowDetails={{
+          expanded: (id) => id !== 'empty' && expanded(),
+          onExpandedChange: (_, next) => {
+            load(next)
+            setExpanded(next)
+          },
+          canExpand: (id) => id !== 'empty',
+          render: () => {
+            const childTable = model()
+            return <ReadOnlyTable table={childTable} title="Child records" />
+          },
+        }}
+      />
+    )
+  })
   expect(load).not.toHaveBeenCalled()
   fireEvent.click(
     view.getByRole('button', { name: 'Expand details for row a"/b' }),
@@ -216,24 +231,30 @@ test('nested tables retain their title and columns without controls, refresh or 
 
 test('nested tables can opt into controls, footer and application-owned refresh', () => {
   const refresh = vi.fn()
-  const view = render(() => (
-    <ReadOnlyTable
-      table={model()}
-      rowDetails={{
-        expanded: (id) => id !== 'empty',
-        onExpandedChange: () => {},
-        render: () => (
-          <ReadOnlyTable
-            table={model()}
-            controlsEnabled
-            refreshEnabled
-            footerEnabled
-            onApplyFilters={refresh}
-          />
-        ),
-      }}
-    />
-  ))
+  const view = render(() => {
+    const table = model()
+    return (
+      <ReadOnlyTable
+        table={table}
+        rowDetails={{
+          expanded: (id) => id !== 'empty',
+          onExpandedChange: () => {},
+          render: () => {
+            const childTable = model()
+            return (
+              <ReadOnlyTable
+                table={childTable}
+                controlsEnabled
+                refreshEnabled
+                footerEnabled
+                onApplyFilters={refresh}
+              />
+            )
+          },
+        }}
+      />
+    )
+  })
   const child = view.container.querySelector('.sub-table-row') as HTMLElement
   const nested = within(child)
   expect(nested.getByRole('button', { name: 'Table controls' })).toBeTruthy()

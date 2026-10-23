@@ -5,6 +5,7 @@ import {
   For,
   Show,
   createMemo,
+  createEffect,
   createStore,
   createUniqueId,
   onCleanup,
@@ -178,7 +179,16 @@ export function ReadOnlyTable<T, M>(
       />
     )
   }
-  const table = props.table
+  const table = untrack(() => props.table)
+  createEffect(
+    () => props.table,
+    (next) => {
+      if (next !== table)
+        throw new Error(
+          'ReadOnlyTable: remount the table presentation to replace its table controller',
+        )
+    },
+  )
   const filters = createTableFilterDraft(table, {
     get onApply() {
       return props.onApplyFilters

@@ -10,6 +10,18 @@ Expanded filters and grouping levels cannot consume the results height.
 Sorting, grouping, filtering, visibility, and column movement use the existing Table engine and renderer.
 The application still owns records, processing callbacks, requests, permissions, and persistence.
 
+## Controller lifetime
+
+`Table` and `ReadOnlyTable` keep one application-owned table controller for each mounted presentation.
+Update records and accepted state through that same controller.
+Run controller factories once inside the owning component or render callback, before returning JSX.
+Do not call a controller factory inside a JSX prop expression, which can be read more than once.
+Updates that keep row and column identities can retain cells, selection, filter drafts, and focus.
+Replacing the `table` prop on a retained presentation reports an error instead of mixing the old controller's state with new callbacks.
+To replace a controller, remount its presentation explicitly, for example with a keyed `Show` keyed by the controller object.
+The fresh presentation starts with the new controller's accepted state. The application owns any state migration.
+`TableView` follows the same fixed-controller contract.
+
 ## Assigned height
 
 Give the workspace a parent with an explicit height.

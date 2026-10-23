@@ -57,7 +57,16 @@ export function Table<T, M>(props: {
   onGroupCleanup?: () => void
   onGroupCell?: () => void
 }) {
-  const table = props.table
+  const table = untrack(() => props.table)
+  createEffect(
+    () => props.table,
+    (next) => {
+      if (next !== table)
+        throw new Error(
+          'Table: remount the table presentation to replace its table controller',
+        )
+    },
+  )
   const selection = createMemo(() => props.selection)
   const elementRef = untrack(() => props.elementRef)
   const [element, setElement] = createSignal<HTMLTableElement>()

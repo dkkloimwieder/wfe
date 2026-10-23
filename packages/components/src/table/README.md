@@ -13,6 +13,9 @@ Types contain `TableEdge`, `TableFilterProps`, and `ColumnDestination`.
 
 Import `@wfe/components/styles.css` explicitly and apply `uiScope()` to the owning wrapper.
 Create the native Table in application code and pass it through the `table` prop.
+`Table` and `ReadOnlyTable` require the same controller for their mounted lifetime.
+Remount the presentation to replace it.
+See [controller lifetime](../../../../docs/table-workspace.md#controller-lifetime).
 The native engine belongs to the same package and table export.
 
 `Table` accepts header, row, body, formatting, and edge callbacks.
