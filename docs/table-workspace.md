@@ -169,6 +169,9 @@ starts the drag. The separate sort arrow has padding and does not start a drag.
 Activate a heading to open its move menu. Use Left, Right, Home, or End to move
 a focused heading with the keyboard. Press Escape to cancel a drag.
 
+A custom `TableColumnMove` pointer drag requires a `[data-column-header]` ancestor inside `.table-scroll`.
+Without that structure, the control skips pointer dragging and retains its menu and keyboard movement.
+
 The optional `controlsHeader` slot supplies actions in the shared header.
 ReadOnlyTable uses it for APPLY and its pending-change message.
 The optional `resultsHeader` slot supplies the centered title.

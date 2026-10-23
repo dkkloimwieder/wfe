@@ -131,14 +131,15 @@ export function TableColumnMove(props: {
       !event.isPrimary
     )
       return
+    const header = handle.closest<HTMLElement>('[data-column-header]')
+    const scroll = header?.closest<HTMLElement>('.table-scroll')
+    if (!header?.parentElement || !scroll) return
     event.preventDefault()
     event.stopPropagation()
     suppressClick = false
     menu.hidePopover()
     handle.focus({ preventScroll: true })
     handle.setPointerCapture(event.pointerId)
-    const header = handle.closest<HTMLElement>('[data-column-header]')!
-    const scroll = header.closest<HTMLElement>('.table-scroll')!
     drag = {
       pointerId: event.pointerId,
       x: event.clientX,
