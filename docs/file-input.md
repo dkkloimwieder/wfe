@@ -85,3 +85,15 @@ Server rendering supports an empty selection. Applications supply browser files 
 The browser attaches picker and drop behavior to retained server fields during hydration.
 
 The native behavior follows the [file input documentation](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/file) and [file drop API](https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/files).
+
+## UI messages
+
+FileInput accepts `messages?: Partial<FileInputMessages>` for its owned actions, empty state, byte counts, required hint, and validation or rejection feedback.
+Import `FileInputMessages` and the English `fileInputMessages` defaults from `@wfe/components`.
+Explicit `label`, `aria-label`, `browseLabel`, and `removeLabel` props retain precedence for their existing targets.
+Filenames remain file values. The `fileSize(bytes)` callback controls the displayed size text; it does not change byte limits.
+Changing messages retains selected File objects, focused controls, and rejection reasons without issuing selection or rejection callbacks.
+
+Overrides resolve per property and remain reactive; omitted properties use the English defaults.
+Validation reasons are independent of translated text. An empty translated error retains native invalidity by falling back to the English error for native validation.
+Use matching initial messages for server rendering and hydration. No translation service or application policy is added.

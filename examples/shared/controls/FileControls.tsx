@@ -1,3 +1,4 @@
+import type { FileInputMessages } from '@wfe/components'
 import { createSignal, flush } from 'solid-js'
 import {
   Button,
@@ -11,6 +12,7 @@ import { nativeEvents } from '@wfe/components/events'
 
 export const fileLifecycle = {
   configure: (_next: {
+    messages?: Partial<FileInputMessages>
     accept?: boolean
     multiple?: boolean
     required?: boolean
@@ -32,6 +34,7 @@ export const fileLifecycle = {
 }
 /** A record form keeps binary attachments outside its scalar record values. */
 export function FileControls() {
+  const [messages, setMessages] = createSignal<Partial<FileInputMessages>>()
   const [files, setFiles] = createSignal<readonly File[]>([])
   const [name, setName] = createSignal('Sample record')
   const [multiple, setMultiple] = createSignal(true)
@@ -49,6 +52,7 @@ export function FileControls() {
   const requests: string[][] = []
   const rejected: string[] = []
   fileLifecycle.configure = (next) => {
+    if (Object.hasOwn(next, 'messages')) setMessages(next.messages)
     if (next.accept !== undefined) accept = next.accept
     if (next.cancelDrop !== undefined) cancelDrop = next.cancelDrop
     if (next.cancelReset !== undefined) cancelReset = next.cancelReset
@@ -96,6 +100,7 @@ export function FileControls() {
       >
         <Label>Attachments</Label>
         <FileInput
+          messages={messages()}
           label="Attachments"
           onDrop={(event) => {
             if (cancelDrop) event.preventDefault()

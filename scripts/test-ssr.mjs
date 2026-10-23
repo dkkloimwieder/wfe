@@ -1,6 +1,6 @@
 import { Show } from 'solid-js'
 import { EntryPanel, DashboardShell } from '@wfe/components/layout'
-import { Theme, StatusTile, TileRow } from '@wfe/components'
+import { Theme, StatusTile, TileRow, NumberInput } from '@wfe/components'
 import { GridView } from '@wfe/generator'
 import { FileInput } from '@wfe/components/file-input'
 import assert from 'node:assert/strict'
@@ -313,6 +313,33 @@ assert.match(fileOutput, /Choose file/)
 assert.equal(fileCallbacks, 0)
 console.log(
   'File selection server rendering stays empty and does not request changes.',
+)
+
+const translatedFile = await renderToString(() =>
+  createComponent(FileInput, {
+    label: 'Attachment',
+    files: [],
+    messages: { noFiles: 'Sin archivos', chooseFile: 'Elegir archivo' },
+    onFilesChange: () => fileCallbacks++,
+  }),
+)
+assert.match(translatedFile, /Sin archivos/)
+assert.match(translatedFile, /Elegir archivo/)
+let numberCallbacks = 0
+const translatedNumber = await renderToString(() =>
+  createComponent(NumberInput, {
+    'aria-label': 'Amount',
+    allowEmpty: false,
+    messages: { requiredError: 'Número obligatorio' },
+    onValueChange: () => numberCallbacks++,
+    onValidityChange: () => numberCallbacks++,
+  }),
+)
+assert.match(translatedNumber, /Número obligatorio/)
+assert.equal(fileCallbacks, 0)
+assert.equal(numberCallbacks, 0)
+console.log(
+  'File and number message overrides render without application callbacks.',
 )
 
 let contextViews = 0,

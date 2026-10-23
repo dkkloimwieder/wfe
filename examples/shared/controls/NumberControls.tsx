@@ -1,8 +1,10 @@
+import type { NumberInputMessages } from '@wfe/components'
 import { createSignal, flush } from 'solid-js'
 import { NumberInput, Button, Field, Label, HelpText } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
 
 type Configuration = {
+  messages?: Partial<NumberInputMessages>
   value: number | undefined
   min: number | undefined
   max: number | undefined
@@ -71,6 +73,7 @@ export function NumberControls() {
       >
         <Label>Numeric amount</Label>
         <NumberInput
+          messages={state().messages}
           name="amount"
           value={state().value}
           min={state().min}

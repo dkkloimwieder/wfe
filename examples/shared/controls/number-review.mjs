@@ -151,4 +151,22 @@ export async function reviewNumber(page, api) {
     ),
     true,
   )
+  await input.fill('unfinished')
+  await input.focus()
+  const beforeMessages = await read()
+  await configure({ messages: { invalidError: 'Número inválido' } })
+  await expect(input).toBeFocused()
+  await expect(input).toHaveValue('unfinished')
+  assert.equal(
+    await input.evaluate((node) => node.validationMessage),
+    'Número inválido',
+  )
+  assert.deepEqual(await read(), beforeMessages)
+  await configure({ messages: undefined })
+  assert.equal(
+    await input.evaluate((node) => node.validationMessage),
+    'Enter a complete, finite number.',
+  )
+  await input.press('Escape')
+  await expect(input).toHaveValue('2')
 }

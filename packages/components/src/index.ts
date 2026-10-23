@@ -223,3 +223,12 @@ export type {
   DatePickerMessages,
   DateTimePickerMessages,
 } from './components/dateMessages'
+
+export {
+  fileInputMessages,
+  numberInputMessages,
+} from './components/inputMessages'
+export type {
+  FileInputMessages,
+  NumberInputMessages,
+} from './components/inputMessages'

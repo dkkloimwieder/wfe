@@ -87,3 +87,15 @@ The form coordinator and its request behavior remain unchanged.
 
 The records example keeps its custom Quantity field as a thin wrapper around `NumberInput` to demonstrate extension and cleanup.
 The dispatch example uses a generated nullable number for Declared value.
+
+## UI messages
+
+NumberInput accepts `messages?: Partial<NumberInputMessages>` for required, invalid, minimum, and maximum errors.
+Import `NumberInputMessages` and the English `numberInputMessages` defaults from `@wfe/components`.
+Minimum and maximum message callbacks receive the numeric limit.
+Messages do not change the numeric parser, accepted values, hidden form value, or input format.
+Changing messages retains incomplete drafts and focus, updates native validation text, and does not repeat an unchanged validity callback or request a new value.
+
+Overrides resolve per property and remain reactive; omitted properties use the English defaults.
+Validation reasons are independent of translated text. An empty translated error retains native invalidity by falling back to the English error for native validation.
+Use matching initial messages for server rendering and hydration. No translation service or application policy is added.

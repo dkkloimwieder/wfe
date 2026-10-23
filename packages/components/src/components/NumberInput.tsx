@@ -1,4 +1,9 @@
 import {
+  resolveNumberInputMessages,
+  numberInputMessages,
+  type NumberInputMessages,
+} from './inputMessages'
+import {
   createEffect,
   createMemo,
   createSignal,
@@ -20,6 +25,7 @@ export type NumberInputProps = Omit<
   InputProps,
   'value' | 'defaultValue' | 'onValueChange' | 'type' | 'min' | 'max' | 'step'
 > & {
+  messages?: Partial<NumberInputMessages>
   value?: number
   defaultValue?: never
   type?: never
@@ -33,6 +39,7 @@ export type NumberInputProps = Omit<
 
 /** A controlled numeric value with a local text draft. */
 export function NumberInput(props: NumberInputProps) {
+  const messages = resolveNumberInputMessages(() => props.messages)
   const field = useContext(FieldContext)
   const canonical = createMemo(() => {
     const value = props.value
@@ -58,19 +65,33 @@ export function NumberInput(props: NumberInputProps) {
       throw new Error('NumberInput bounds must be finite numbers')
     return { min, max }
   })
-  function draftMessage(raw: string) {
+  type Issue =
+    | { kind: 'requiredError' | 'invalidError' }
+    | { kind: 'minimumError' | 'maximumError'; limit: number }
+  function draftIssue(raw: string): Issue | undefined {
     const text = raw.trim()
-    if (!text) return props.allowEmpty === false ? 'Enter a number.' : ''
+    if (!text)
+      return props.allowEmpty === false ? { kind: 'requiredError' } : undefined
     const value = parseNumberInput(text)
-    if (value === undefined) return 'Enter a complete, finite number.'
+    if (value === undefined) return { kind: 'invalidError' }
     const { min, max } = bounds()
     if (min !== undefined && value < min)
-      return `Enter a number greater than or equal to ${min}.`
+      return { kind: 'minimumError', limit: min }
     if (max !== undefined && value > max)
-      return `Enter a number less than or equal to ${max}.`
-    return ''
+      return { kind: 'maximumError', limit: max }
+    return undefined
   }
-  const message = createMemo(() => draftMessage(draft()))
+  const issue = createMemo(() => draftIssue(draft()))
+  function describe(
+    value: Issue | undefined,
+    catalog: Readonly<NumberInputMessages>,
+  ): string {
+    if (!value) return ''
+    return 'limit' in value
+      ? catalog[value.kind](value.limit)
+      : catalog[value.kind]
+  }
+  const message = () => describe(issue(), messages)
   createEffect(canonical, (value) => {
     const echo =
       requested &&
@@ -80,12 +101,16 @@ export function NumberInput(props: NumberInputProps) {
     requested = undefined
   })
   createEffect(
-    () => ({ message: message(), locked: Boolean(disabled() || readonly()) }),
-    ({ message, locked }) => {
-      input?.setCustomValidity(locked ? '' : message)
-      untrack(() => props.onValidityChange?.(locked || !message))
-    },
+    () =>
+      disabled() || readonly()
+        ? ''
+        : message() || describe(issue(), numberInputMessages),
+    (text) => input?.setCustomValidity(text),
   )
+  const valid = createMemo(() => Boolean(disabled() || readonly() || !issue()))
+  createEffect(valid, (value) => {
+    untrack(() => props.onValidityChange?.(value))
+  })
   function reset() {
     requested = undefined
     setDraft(String(canonical() ?? ''))
@@ -95,13 +120,14 @@ export function NumberInput(props: NumberInputProps) {
     const empty = !text.trim()
     const local = empty ? '' : text
     setDraft(local)
-    if (empty ? props.allowEmpty === false : Boolean(draftMessage(text))) return
+    if (empty ? props.allowEmpty === false : Boolean(draftIssue(text))) return
     const value = empty ? undefined : parseNumberInput(text)
     requested = { value, text: local }
     props.onValueChange(value, event)
   }
   const attributes = omit(
     props,
+    'messages',
     'value',
     'defaultValue',
     'type',
@@ -130,11 +156,11 @@ export function NumberInput(props: NumberInputProps) {
         disabled={disabled()}
         readonly={readonly()}
         required={required()}
-        data-ui-invalid-input={message() ? '' : undefined}
-        invalid={Boolean(message()) || (props.invalid ?? field?.invalid())}
-        aria-invalid={message() ? 'true' : props['aria-invalid']}
+        data-ui-invalid-input={issue() ? '' : undefined}
+        invalid={Boolean(issue()) || (props.invalid ?? field?.invalid())}
+        aria-invalid={issue() ? 'true' : props['aria-invalid']}
         aria-describedby={
-          [props['aria-describedby'], message() ? errorId : undefined]
+          [props['aria-describedby'], issue() ? errorId : undefined]
             .filter(Boolean)
             .join(' ') || undefined
         }
@@ -164,7 +190,7 @@ export function NumberInput(props: NumberInputProps) {
                 input !== node ||
                 !node.isConnected ||
                 node.ownerDocument.activeElement === node ||
-                message()
+                issue()
               )
                 return
               reset()
@@ -180,7 +206,7 @@ export function NumberInput(props: NumberInputProps) {
           }
         }}
       />
-      <span id={errorId} class="ui-field-error" hidden={!message()}>
+      <span id={errorId} class="ui-field-error" hidden={!issue()}>
         {message()}
       </span>
       <Show when={props.name}>
@@ -195,3 +221,5 @@ export function NumberInput(props: NumberInputProps) {
     </>
   )
 }
+
+export type { NumberInputMessages } from './inputMessages'

@@ -230,4 +230,31 @@ export async function reviewFiles(page, api = 'client') {
   await expect(
     root.getByRole('textbox', { name: 'Record name', exact: true }),
   ).toHaveValue('Retained record draft')
+  const removeForMessages = root.locator('.ui-file-list button').first()
+  await removeForMessages.focus()
+  const beforeMessages = await read()
+  await page.evaluate(
+    (api) =>
+      (api === 'hydration'
+        ? window.hydrationFixture.lifecycle.files
+        : window.fileFixture
+      ).configure({
+        messages: {
+          remove: 'Quitar',
+          removeFile: (file) => `Quitar ${file.name}`,
+          chooseFiles: 'Elegir archivos',
+          fileSize: (size) => `${size} octetos`,
+        },
+      }),
+    api,
+  )
+  await expect(removeForMessages).toBeFocused()
+  await expect(removeForMessages).toHaveText('Quitar')
+  await expect(
+    root.getByRole('button', { name: 'Elegir archivos', exact: true }),
+  ).toBeVisible()
+  assert.deepEqual(await read(), beforeMessages)
+  await configure({ messages: undefined })
+  await expect(removeForMessages).toHaveText('Remove')
+  assert.deepEqual(await read(), beforeMessages)
 }

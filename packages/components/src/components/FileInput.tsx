@@ -1,3 +1,8 @@
+import {
+  resolveFileInputMessages,
+  fileInputMessages,
+  type FileInputMessages,
+} from './inputMessages'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import {
   For,
@@ -48,6 +53,7 @@ export type FileInputProps = Omit<
     value?: never
     defaultValue?: never
     name?: never
+    messages?: Partial<FileInputMessages>
     label: string
     files: readonly File[]
     onFilesChange: (files: File[]) => void
@@ -60,6 +66,7 @@ export type FileInputProps = Omit<
 
 /** Controlled file selection. Applications own file contents and submission. */
 export function FileInput(props: FileInputProps) {
+  const messages = resolveFileInputMessages(() => props.messages)
   const field = useContext(FieldContext)
   const generated = `file-input-${createUniqueId()}`
   const id = () => props.id || field?.baseControlId() || generated
@@ -110,17 +117,21 @@ export function FileInput(props: FileInputProps) {
         ? 'size'
         : undefined
   }
-  const validityMessage = createMemo(() => {
+  const validityIssue = createMemo(() => {
     configuration()
-    if (locked()) return ''
-    if (required() && props.files.length === 0) return 'Choose a file.'
-    if (!props.multiple && props.files.length > 1) return 'Select one file.'
+    if (locked()) return undefined
+    if (required() && props.files.length === 0) return 'requiredError' as const
+    if (!props.multiple && props.files.length > 1) return 'singleError' as const
     if (props.files.some((file) => reason(file)))
-      return 'The selected files do not meet the type or size limits.'
-    return ''
+      return 'selectionError' as const
+    return undefined
   })
+  const validityMessage = () => {
+    const issue = validityIssue()
+    return issue ? messages[issue] : ''
+  }
   const showValidity = () =>
-    Boolean(validityMessage() && (attempted() || props.files.length))
+    Boolean(validityIssue() && (attempted() || props.files.length))
   const invalidState = () => invalid() || showValidity()
   const validityId = `${generated}-validity`
   const interactionLocked = () =>
@@ -163,9 +174,15 @@ export function FileInput(props: FileInputProps) {
     if (!interactionLocked()) props.onFilesChange([])
   }
   createNativeFormResetListener(resetTarget, reset)
-  createEffect(validityMessage, (message) => {
-    input?.setCustomValidity(message)
-  })
+  createEffect(
+    () => {
+      const issue = validityIssue()
+      return issue ? messages[issue] || fileInputMessages[issue] : ''
+    },
+    (message) => {
+      input?.setCustomValidity(message)
+    },
+  )
   createEffect(locked, (locked) => {
     if (locked) setDragging(false)
   })
@@ -239,6 +256,7 @@ export function FileInput(props: FileInputProps) {
   )
   const attributes = omit(
     props,
+    'messages',
     'id',
     'ref',
     'class',
@@ -308,7 +326,7 @@ export function FileInput(props: FileInputProps) {
       />
       <Show when={required()}>
         <span id={`${generated}-required`} class="ui-help">
-          Required
+          {messages.required}
         </span>
       </Show>
       <div class="ui-file-actions">
@@ -324,15 +342,15 @@ export function FileInput(props: FileInputProps) {
           }}
         >
           {props.browseLabel ??
-            (props.multiple ? 'Choose files' : 'Choose file')}
+            (props.multiple ? messages.chooseFiles : messages.chooseFile)}
         </Button>
         <span class="ui-help">
-          Or drop {props.multiple ? 'files' : 'a file'} here
+          {messages.dropHelp(Boolean(props.multiple))}
         </span>
       </div>
       <Show
         when={props.files.length}
-        fallback={<p class="ui-help">No files selected</p>}
+        fallback={<p class="ui-help">{messages.noFiles}</p>}
       >
         <ul class="ui-file-list">
           <For
@@ -345,13 +363,13 @@ export function FileInput(props: FileInputProps) {
                   {entry().file.name}
                 </span>
                 <span class="ui-file-size" data-ui-text="value">
-                  {entry().file.size} bytes
+                  {messages.fileSize(entry().file.size)}
                 </span>
                 <Button
                   disabled={locked()}
                   aria-label={
                     props.removeLabel?.(entry().file) ??
-                    `Remove ${entry().file.name}`
+                    messages.removeFile(entry().file)
                   }
                   onClick={() => {
                     if (!alive || interactionLocked()) return
@@ -362,7 +380,7 @@ export function FileInput(props: FileInputProps) {
                     )
                   }}
                 >
-                  Remove
+                  {messages.remove}
                 </Button>
               </li>
             )}
@@ -385,10 +403,10 @@ export function FileInput(props: FileInputProps) {
             <p>
               <span data-ui-text="value">{entry.name}</span>:{' '}
               {entry.reason === 'multiple'
-                ? 'Select one file.'
+                ? messages.singleError
                 : entry.reason === 'type'
-                  ? 'File type is not allowed.'
-                  : 'File exceeds the size limit.'}
+                  ? messages.typeError
+                  : messages.sizeError}
             </p>
           )}
         </For>
@@ -396,3 +414,5 @@ export function FileInput(props: FileInputProps) {
     </div>
   )
 }
+
+export type { FileInputMessages } from './inputMessages'
