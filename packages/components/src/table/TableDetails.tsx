@@ -1,3 +1,4 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { Show, createContext, useContext, onCleanup, untrack } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { Button } from '../components/NativeFields'
@@ -18,6 +19,7 @@ export type TableRowDetails = {
 }
 
 export function TableDetailToggle(props: {
+  messages?: Partial<TableMessages>
   rowId: string
   contentId: string
   expanded: boolean
@@ -28,13 +30,13 @@ export function TableDetailToggle(props: {
   children?: JSX.Element
   ref?: (element: HTMLButtonElement) => void
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   return (
     <Button
       class="sub-table-toggle ui-disclosure-trigger"
       data-subtable-toggle={props.rowId}
       aria-label={
-        props.label ??
-        `${props.expanded ? 'Collapse' : 'Expand'} details for row ${props.rowId}`
+        props.label ?? messages.rowDetails(props.rowId, props.expanded)
       }
       aria-describedby={props.describedBy}
       aria-expanded={props.expanded ? 'true' : 'false'}

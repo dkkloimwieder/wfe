@@ -36,3 +36,8 @@ The mock application owns the accepted page, page size, request state, and total
 It supplies one page to `ReadOnlyTable` and handles callbacks from the pinned footer.
 The mock slices its local data to simulate a server response. The library does not slice records.
 The browser and hydration cases also exercise held responses, rejection, unknown totals, empty pages, keyboard actions, and narrow screens.
+
+Open `?messages` for the complete Spanish table messages example.
+Use English / Español to change language while keeping the table and filter drafts mounted.
+`messages.es.ts` satisfies every member of the public `TableMessages` contract.
+The browser runner checks message forwarding and retained draft controls in source and built-package modes.

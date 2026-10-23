@@ -1,8 +1,10 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { createEffect, createMemo, createUniqueId, onSettled } from 'solid-js'
 import { nativeEvents } from '../utils/nativeEvents'
 
 /** Controlled width input. Pointer movement updates the rendered column. */
 export function TableColumnResize(props: {
+  messages?: Partial<TableMessages>
   disabled?: boolean
   label: string
   size: number
@@ -14,6 +16,7 @@ export function TableColumnResize(props: {
     listeners: number,
   ) => void
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   const helpId = createUniqueId()
   let handle!: HTMLDivElement
   let disposed = false
@@ -165,12 +168,12 @@ export function TableColumnResize(props: {
         tabindex={props.disabled ? -1 : 0}
         aria-disabled={props.disabled ? 'true' : undefined}
         aria-orientation="vertical"
-        aria-label={`Resize ${props.label} column`}
+        aria-label={messages.resizeColumn(props.label)}
         aria-describedby={helpId}
         aria-valuemin={props.min}
         aria-valuemax={props.max}
         aria-valuenow={props.size}
-        aria-valuetext={`${props.size} pixels`}
+        aria-valuetext={messages.pixelSize(props.size)}
         ref={[
           (node) => {
             handle = node
@@ -215,9 +218,7 @@ export function TableColumnResize(props: {
         <span class="resize-grip" aria-hidden="true" />
       </div>
       <span id={helpId} class="sr-only">
-        Drag to resize the column. Left and Right change width by 10 pixels, or
-        50 with Shift. Home and End select the limits. Escape ends a drag at the
-        current width.
+        {messages.resizeHelp}
       </span>
     </>
   )

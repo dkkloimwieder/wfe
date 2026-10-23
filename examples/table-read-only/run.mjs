@@ -1,3 +1,4 @@
+import { reviewMessages } from './review-messages.mjs'
 import { reviewPagination } from '../shared/controls/pagination-review.mjs'
 import { reviewSelection } from './review-selection.mjs'
 import { collapsedGroupLabel } from '../shared/controls/icon-review.mjs'
@@ -409,9 +410,18 @@ try {
       requests,
     )
   })
+  const earlierDiagnostics = await page.evaluate(() =>
+    window.readOnlyFixture.diagnostics(),
+  )
+  await reviewMessages(page, `http://127.0.0.1:${server.address().port}`)
+  report.cases.push({
+    name: 'Table messages switch language without replacing draft controls',
+    status: 'passed',
+  })
   report.diagnostics = await page.evaluate(() =>
     window.readOnlyFixture.diagnostics(),
   )
+  report.diagnostics.unshift(...earlierDiagnostics)
   // Host load affects duration, not correctness.
   report.timingDiagnostics = report.diagnostics.filter(
     (event) => event.code === 'HOT_SCOPE_TIME',

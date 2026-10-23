@@ -1,3 +1,4 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { ControlSurface } from '../internal/controlDecoration'
 import { Icon } from '../components/Icon'
 import { restoreTextValue } from '../internal/controlledText'
@@ -8,8 +9,9 @@ import { Checkbox } from '../components/Checkbox'
 import { nativeEvents } from '../utils/nativeEvents'
 
 export type TableFilterProps = {
+  messages?: Partial<TableMessages>
   label: string
-  clearLabel: string
+  clearLabel?: string
   value: string
   onValueChange: (value: string) => void
   disabled?: boolean
@@ -24,10 +26,15 @@ export type TableFilterProps = {
 }
 
 export function TableFilter(props: TableFilterProps) {
+  const messages = resolveTableMessages(() => props.messages)
   const id = createUniqueId()
   const choices = () => props.choices
   const stateLabel = () =>
-    props.value === 'true' ? 'Yes' : props.value === 'false' ? 'No' : 'Either'
+    props.value === 'true'
+      ? messages.yes
+      : props.value === 'false'
+        ? messages.no
+        : messages.either
   const stateHelp = createUniqueId()
   let control!: HTMLInputElement | HTMLButtonElement
   function commitText(element: HTMLInputElement) {
@@ -86,7 +93,7 @@ export function TableFilter(props: TableFilterProps) {
                 <Checkbox.Indicator />
               </Checkbox.Control>
               <span id={stateHelp} class="sr-only">
-                {stateLabel()}. Press Space to cycle Yes, No, and Either.
+                {messages.booleanHelp(stateLabel())}
               </span>
             </Checkbox>
           }
@@ -99,7 +106,9 @@ export function TableFilter(props: TableFilterProps) {
                 type={props.search ? 'search' : 'text'}
                 placeholder={
                   props.placeholder ??
-                  (props.search ? 'Search values…' : 'Contains…')
+                  (props.search
+                    ? messages.searchValues
+                    : messages.containsPlaceholder)
                 }
                 value={props.value}
                 disabled={props.disabled}
@@ -135,7 +144,7 @@ export function TableFilter(props: TableFilterProps) {
                 label={props.label}
                 value={props.value}
                 choices={[
-                  { value: '', label: 'All' },
+                  { value: '', label: messages.allValues },
                   ...choices().filter((choice) => choice.value !== ''),
                 ]}
                 disabled={props.disabled}
@@ -152,8 +161,8 @@ export function TableFilter(props: TableFilterProps) {
           <Button
             type="button"
             class="clear-input"
-            aria-label={props.clearLabel}
-            title={props.clearLabel}
+            aria-label={props.clearLabel ?? messages.clearFilter(props.label)}
+            title={props.clearLabel ?? messages.clearFilter(props.label)}
             disabled={props.disabled || !props.value}
             ref={nativeEvents({ click: clear })}
           >

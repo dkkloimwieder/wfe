@@ -1,15 +1,18 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { Show, createSignal, onSettled } from 'solid-js'
 import { Button, Input } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 import { TableSort } from './TableSort'
 
 export function TableHeaderName(props: {
+  messages?: Partial<TableMessages>
   label: string
   sorted: 'asc' | 'desc' | false
   onSort: () => void
   onRename: (label: string) => void
   sortingDisabled?: boolean
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   const [editing, setEditing] = createSignal(false)
   let rename!: HTMLButtonElement
   return (
@@ -18,16 +21,18 @@ export function TableHeaderName(props: {
         when={editing()}
         fallback={
           <TableSort
+            messages={props.messages}
             label={props.label}
             sorted={props.sorted}
             class="header-sort"
-            accessibleLabel={'Sort ' + props.label}
+            accessibleLabel={messages.sortHeader(props.label)}
             onSort={props.onSort}
             disabled={props.sortingDisabled}
           />
         }
       >
         <HeaderEditor
+          messages={props.messages}
           label={props.label}
           done={(value, restoreFocus) => {
             if (value !== undefined) props.onRename(value)
@@ -41,8 +46,8 @@ export function TableHeaderName(props: {
         type="button"
         class="header-rename"
         hidden={editing()}
-        aria-label={'Rename ' + props.label + ' header'}
-        title="Rename header"
+        aria-label={messages.renameColumnHeader(props.label)}
+        title={messages.renameHeader}
         ref={[
           (node) => {
             rename = node
@@ -57,9 +62,11 @@ export function TableHeaderName(props: {
 }
 
 function HeaderEditor(props: {
+  messages?: Partial<TableMessages>
   label: string
   done: (value: string | undefined, restoreFocus: boolean) => void
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   let input!: HTMLInputElement
   let finished = false
   function finish(value: string | undefined, restoreFocus = false) {
@@ -75,7 +82,7 @@ function HeaderEditor(props: {
     <Input
       class="header-name"
       type="text"
-      aria-label={'Header name for ' + props.label}
+      aria-label={messages.headerName(props.label)}
       defaultValue={props.label}
       ref={[
         (node) => {

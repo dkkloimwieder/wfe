@@ -1,8 +1,10 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { type ClassValue } from '../internal/classes'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 
 export function TableSort(props: {
+  messages?: Partial<TableMessages>
   label: string
   sorted: 'asc' | 'desc' | false
   onSort: (multi: boolean) => void
@@ -11,12 +13,13 @@ export function TableSort(props: {
   accessibleLabel?: string
   unsortedMark?: string
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   return (
     <Button
       tone="neutral"
       type="button"
       class={props.class ?? 'column-sort'}
-      aria-label={props.accessibleLabel ?? `Sort by ${props.label}`}
+      aria-label={props.accessibleLabel ?? messages.sortBy(props.label)}
       disabled={props.disabled}
       ref={nativeEvents<HTMLElement>({
         click: (event) => props.onSort(event.shiftKey),

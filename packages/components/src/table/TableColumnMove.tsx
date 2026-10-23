@@ -1,3 +1,4 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { createEffect, createUniqueId, onSettled } from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
@@ -18,6 +19,7 @@ export function moveColumn(
 }
 
 export function TableColumnMove(props: {
+  messages?: Partial<TableMessages>
   id: string
   disabled?: boolean
   label: string
@@ -28,6 +30,7 @@ export function TableColumnMove(props: {
     listeners: number,
   ) => void
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   const helpId = createUniqueId()
   const menuId = createUniqueId()
   let handle!: HTMLButtonElement
@@ -216,7 +219,7 @@ export function TableColumnMove(props: {
         tone="neutral"
         type="button"
         class="column-move"
-        aria-label={`Move ${props.label} column`}
+        aria-label={messages.moveColumn(props.label)}
         aria-describedby={helpId}
         aria-controls={menuId}
         aria-expanded="false"
@@ -265,16 +268,14 @@ export function TableColumnMove(props: {
         {props.label}
       </Button>
       <span id={helpId} class="sr-only">
-        Drag to move the column. Left and Right move one place. Home and End
-        move to the first and last available places. Escape cancels a drag.
-        Activate for move buttons.
+        {messages.moveHelp}
       </span>
       <div
         id={menuId}
         popover="auto"
         class="column-move-menu"
         role="group"
-        aria-label={`Move ${props.label} column`}
+        aria-label={messages.moveColumn(props.label)}
         ref={[
           (node) => {
             menu = node
@@ -293,25 +294,25 @@ export function TableColumnMove(props: {
           disabled={props.disabled || first()}
           ref={nativeEvents({ click: () => keyboardMove('Home') })}
         >
-          Move first
+          {messages.moveFirst}
         </Button>
         <Button
           disabled={props.disabled || first()}
           ref={nativeEvents({ click: () => keyboardMove('ArrowLeft') })}
         >
-          Move left
+          {messages.moveLeft}
         </Button>
         <Button
           disabled={props.disabled || last()}
           ref={nativeEvents({ click: () => keyboardMove('ArrowRight') })}
         >
-          Move right
+          {messages.moveRight}
         </Button>
         <Button
           disabled={props.disabled || last()}
           ref={nativeEvents({ click: () => keyboardMove('End') })}
         >
-          Move last
+          {messages.moveLast}
         </Button>
       </div>
     </>

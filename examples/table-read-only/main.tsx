@@ -1,3 +1,4 @@
+import { MessagesExample } from './MessagesExample'
 import {
   PagedRecords,
   paginationLifecycle,
@@ -236,5 +237,16 @@ declare global {
   }
 }
 window.readOnlyFixture = api
-if (new URLSearchParams(location.search).has('pagination')) startPaged()
+if (new URLSearchParams(location.search).has('messages')) {
+  capture = OBSERVE?.diagnostics.capture()
+  dispose = render(
+    () => (
+      <main {...uiScope()}>
+        <MessagesExample />
+      </main>
+    ),
+    document.getElementById('root')!,
+  )
+  flush()
+} else if (new URLSearchParams(location.search).has('pagination')) startPaged()
 else start()

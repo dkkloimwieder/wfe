@@ -1,3 +1,5 @@
+import { resolveMessages } from '../internal/messages'
+import { resolveTableMessages, type TableMessages } from './messages'
 import { TablePagination } from './TablePagination'
 import type { TablePaginationProps } from './TablePagination'
 import { Icon } from '../components/Icon'
@@ -47,6 +49,7 @@ export type TableFilterConfig =
 /** Full display features over an application-owned table, without editing state. */
 export function ReadOnlyTable<T, M>(
   props: {
+    messages?: Partial<TableMessages>
     table: NativeTable<T, M>
     pagination?: TablePaginationProps
     selection?: TableSelection
@@ -101,6 +104,11 @@ export function ReadOnlyTable<T, M>(
     formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   } & Pick<Parameters<typeof Table<T, M>>[0], 'width' | 'headerEnd'>,
 ) {
+  const messages = resolveTableMessages(() => props.messages)
+  const paginationMessages = resolveMessages(
+    messages,
+    () => props.pagination?.messages,
+  )
   const isDetail = useTableDetail()
   const [localAlignment, setLocalAlignment] = createStore<
     Record<string, TableColumnAlignment | undefined>
@@ -147,6 +155,7 @@ export function ReadOnlyTable<T, M>(
             <td class="sub-table-control">
               <Show when={available()}>
                 <TableDetailToggle
+                  messages={props.messages}
                   rowId={id}
                   contentId={contentId}
                   expanded={expanded()}
@@ -219,8 +228,8 @@ export function ReadOnlyTable<T, M>(
   function FilterApplyControl() {
     return (
       <Button
-        aria-label="Refresh results"
-        title="Apply filters and refresh results"
+        aria-label={messages.refresh}
+        title={messages.refreshHelp}
         class="table-refresh"
         onClick={() => {
           const invalid = filterControls?.querySelector<HTMLElement>(
@@ -236,6 +245,7 @@ export function ReadOnlyTable<T, M>(
   }
   return (
     <TableWorkspace
+      messages={props.messages}
       class="table-component"
       controlsRef={(handle) => {
         workspaceControls = handle
@@ -251,26 +261,40 @@ export function ReadOnlyTable<T, M>(
       controlsCollapsed={props.controlsCollapsed}
       defaultControlsCollapsed={props.defaultControlsCollapsed}
       onControlsCollapsedChange={props.onControlsCollapsedChange}
-      label={props.title ?? 'Read-only table'}
+      label={props.title ?? messages.readOnlyTable}
       footer={
         <>
           {props.pagination
-            ? `${table.getFilteredRowIds().length}${props.pagination.totalRows === undefined ? '' : `/${props.pagination.totalRows}`}`
-            : `${table.getFilteredRowIds().length}/${table.getSourceIds().length} records`}
+            ? paginationMessages.pageRecordCount(
+                table.getFilteredRowIds().length,
+                props.pagination.totalRows,
+              )
+            : messages.recordCount(
+                table.getFilteredRowIds().length,
+                table.getSourceIds().length,
+              )}
           <Show when={props.selection?.range}>
             {' '}
-            · {props.selection!.rowCount} × {props.selection!.columnCount}{' '}
-            selected
+            ·{' '}
+            {messages.selectionSummary(
+              props.selection!.rowCount,
+              props.selection!.columnCount,
+            )}
           </Show>
         </>
       }
       footerActions={
         <Show when={props.pagination !== undefined}>
-          <TablePagination {...props.pagination!} />
+          <TablePagination
+            {...props.pagination!}
+            messages={paginationMessages}
+          />
         </Show>
       }
       resultsHeader={
-        <span data-ui-text="system">{props.title ?? 'Read-only records'}</span>
+        <span data-ui-text="system">
+          {props.title ?? messages.readOnlyRecords}
+        </span>
       }
       controlsHeader={
         <>
@@ -279,7 +303,7 @@ export function ReadOnlyTable<T, M>(
               <FilterApplyControl />
             </Show>
             <Show when={filters.changed}>
-              <span data-ui-text="system">Unapplied changes</span>
+              <span data-ui-text="system">{messages.unappliedChanges}</span>
             </Show>
           </div>
           <Show when={props.toolbarActions} keyed>
@@ -296,9 +320,12 @@ export function ReadOnlyTable<T, M>(
             }
           >
             <TableControlSection
-              title="Filters"
+              title={messages.filters}
               defaultOpen
-              summary={`${table.state.columnFilters.length + (table.state.globalFilter ? 1 : 0)} active`}
+              summary={messages.activeFilters(
+                table.state.columnFilters.length +
+                  (table.state.globalFilter ? 1 : 0),
+              )}
             >
               <Show when={props.controls?.filtering !== false}>
                 <div
@@ -307,7 +334,7 @@ export function ReadOnlyTable<T, M>(
                     filterControls = node
                   }}
                   role="region"
-                  aria-label="Column filters"
+                  aria-label={messages.columnFilters}
                 >
                   <For
                     each={table
@@ -337,11 +364,14 @@ export function ReadOnlyTable<T, M>(
                               when={kind() === 'date-range'}
                               fallback={
                                 <TableFilter
+                                  messages={props.messages}
                                   kind={
                                     kind() === 'boolean' ? 'boolean' : 'text'
                                   }
                                   label={label(column)}
-                                  clearLabel={`Clear ${label(column)} filter`}
+                                  clearLabel={messages.clearFilter(
+                                    label(column),
+                                  )}
                                   value={String(
                                     filters.getValue(column.id) ?? '',
                                   )}
@@ -360,11 +390,16 @@ export function ReadOnlyTable<T, M>(
                               }
                             >
                               <TableDateFilter
+                                messages={props.messages}
                                 label={label(column)}
-                                startLabel={`${label(column)} start`}
-                                endLabel={`${label(column)} end`}
-                                clearStartLabel={`Clear ${label(column)} start`}
-                                clearEndLabel={`Clear ${label(column)} end`}
+                                startLabel={messages.dateStart(label(column))}
+                                endLabel={messages.dateEnd(label(column))}
+                                clearStartLabel={messages.clearDateStart(
+                                  label(column),
+                                )}
+                                clearEndLabel={messages.clearDateEnd(
+                                  label(column),
+                                )}
                                 value={
                                   filters.getValue(column.id) as
                                     TableDateRange | undefined
@@ -379,8 +414,9 @@ export function ReadOnlyTable<T, M>(
                         >
                           {(config) => (
                             <TableColumnFilter
+                              messages={props.messages}
                               label={label(column)}
-                              clearLabel={`Clear ${label(column)} filter`}
+                              clearLabel={messages.clearFilter(label(column))}
                               config={config()}
                               value={
                                 filters.getValue(column.id) as
@@ -401,8 +437,9 @@ export function ReadOnlyTable<T, M>(
               <Show when={props.controls?.search !== false}>
                 <div class="toolbar">
                   <TableFilter
-                    label="Search all columns"
-                    clearLabel="Clear search"
+                    messages={props.messages}
+                    label={messages.search}
+                    clearLabel={messages.clearSearch}
                     search
                     value={filters.globalFilter}
                     disabled={!filtering()}
@@ -414,11 +451,12 @@ export function ReadOnlyTable<T, M>(
           </Show>
           <Show when={props.controls?.grouping !== false}>
             <TableControlSection
-              title="Grouping"
+              title={messages.grouping}
               defaultOpen
-              summary={`${table.state.grouping.length} levels`}
+              summary={messages.groupingCount(table.state.grouping.length)}
             >
               <TableGrouping
+                messages={props.messages}
                 table={table}
                 disabled={!processing() || table.options.manualGrouping}
                 label={(id) => label(table.getColumn(id)!)}
@@ -427,11 +465,11 @@ export function ReadOnlyTable<T, M>(
             </TableControlSection>
           </Show>
           <TableControlSection
-            title="Display columns"
-            summary={`${table.getVisibleColumns().length} visible`}
+            title={messages.displayColumns}
+            summary={messages.visibleCount(table.getVisibleColumns().length)}
           >
             <fieldset class="display-fields">
-              <legend>Visible columns</legend>
+              <legend>{messages.visibleColumns}</legend>
               <For each={table.getColumns()}>
                 {(column) => (
                   <div class="column-display-option">
@@ -449,11 +487,11 @@ export function ReadOnlyTable<T, M>(
                     </Checkbox>
                     <SelectField
                       data-ui-text="system"
-                      label={`${label(column)} alignment`}
+                      label={messages.alignment(label(column))}
                       choices={[
-                        { value: 'left', label: 'Left' },
-                        { value: 'center', label: 'Center' },
-                        { value: 'right', label: 'Right' },
+                        { value: 'left', label: messages.alignLeft },
+                        { value: 'center', label: messages.alignCenter },
+                        { value: 'right', label: messages.alignRight },
                       ]}
                       value={alignment()[column.id] ?? 'left'}
                       onValueChange={(value) =>
@@ -467,25 +505,22 @@ export function ReadOnlyTable<T, M>(
           </TableControlSection>
           <Show when={props.selection} keyed>
             {(selection) => (
-              <TableControlSection title="Selection">
-                <p>
-                  Drag cells or use Shift and arrow keys to extend the
-                  selection.
-                </p>
+              <TableControlSection title={messages.selection}>
+                <p>{messages.selectionHelp}</p>
                 <div class="table-selection-actions">
                   <Button onClick={() => selectAndFocus(selection.selectRow)}>
-                    Select rows
+                    {messages.selectRows}
                   </Button>
                   <Button
                     onClick={() => selectAndFocus(selection.selectColumn)}
                   >
-                    Select columns
+                    {messages.selectColumns}
                   </Button>
                   <Button onClick={() => selectAndFocus(selection.selectAll)}>
-                    Select all
+                    {messages.selectAll}
                   </Button>
                   <Button onClick={() => selectAndFocus(selection.clear)}>
-                    Clear selection
+                    {messages.clearSelection}
                   </Button>
                 </div>
               </TableControlSection>
@@ -493,21 +528,21 @@ export function ReadOnlyTable<T, M>(
           </Show>
           <Show when={props.formatting} keyed>
             {(formatting) => (
-              <TableControlSection title="Formatting" defaultOpen>
+              <TableControlSection title={messages.formatting} defaultOpen>
                 {formatting}
               </TableControlSection>
             )}
           </Show>
           <Show when={props.actions} keyed>
             {(actions) => (
-              <TableControlSection title="Actions" defaultOpen>
+              <TableControlSection title={messages.actions} defaultOpen>
                 {actions}
               </TableControlSection>
             )}
           </Show>
           <Show when={props.configuration} keyed>
             {(configuration) => (
-              <TableControlSection title="Configuration">
+              <TableControlSection title={messages.configuration}>
                 {configuration}
               </TableControlSection>
             )}
@@ -519,9 +554,10 @@ export function ReadOnlyTable<T, M>(
         class="table-scroll"
         tabindex={props.selection ? -1 : 0}
         role="region"
-        aria-label={`${props.title ?? 'Read-only records'} results`}
+        aria-label={messages.results(props.title ?? messages.readOnlyRecords)}
       >
         <Table
+          messages={props.messages}
           table={table}
           leading={
             details()
@@ -529,7 +565,7 @@ export function ReadOnlyTable<T, M>(
                   width: 'var(--ui-table-header-size, 24.5px)',
                   header: () => (
                     <th scope="col" class="sub-table-control">
-                      <span class="sr-only">Details</span>
+                      <span class="sr-only">{messages.details}</span>
                     </th>
                   ),
                   group: () => <td class="sub-table-control" />,
@@ -546,7 +582,7 @@ export function ReadOnlyTable<T, M>(
           width={props.width}
           headerEnd={props.headerEnd}
           columnAlignment={alignment()}
-          accessibleLabel={props.title ?? 'Read-only records'}
+          accessibleLabel={props.title ?? messages.readOnlyRecords}
           grouped={
             processing() &&
             !table.options.manualGrouping &&
@@ -566,6 +602,7 @@ export function ReadOnlyTable<T, M>(
                 }
               >
                 <TableColumnMove
+                  messages={props.messages}
                   id={column.id}
                   label={label(column)}
                   ids={movable()}
@@ -593,6 +630,7 @@ export function ReadOnlyTable<T, M>(
                 fallback={<span class="column-title">{label(column)}</span>}
               >
                 <TableSort
+                  messages={props.messages}
                   label={label(column)}
                   sorted={column.getIsSorted()}
                   disabled={
@@ -609,8 +647,8 @@ export function ReadOnlyTable<T, M>(
         <Show when={!table.getFilteredRowIds().length}>
           <p>
             {table.getSourceIds().length
-              ? 'No records match your search or filters.'
-              : 'No records yet.'}
+              ? messages.noMatches
+              : messages.noRecords}
           </p>
         </Show>
       </div>

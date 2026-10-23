@@ -1,3 +1,4 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { ownsFocus } from '../internal/ownedFocus'
 import { ResizeHandle } from '../components/Resizable'
 import { Collapsible } from '../components/Collapsible'
@@ -23,6 +24,7 @@ export type TableControlsHandle = {
 }
 
 export type TableWorkspaceProps = {
+  messages?: Partial<TableMessages>
   /** Omit the title/actions bar and configuration pane, retaining column headings. */
   headerEnabled?: boolean
   /** Omit the summary and pagination without constructing their slots. */
@@ -54,6 +56,7 @@ export type TableWorkspaceProps = {
 
 /** Independent controls and results. The application assigns the workspace height. */
 export function TableWorkspace(props: TableWorkspaceProps) {
+  const messages = resolveTableMessages(() => props.messages)
   const headerEnabled = createMemo(() => props.headerEnabled !== false)
   const footerEnabled = createMemo(() => props.footerEnabled !== false)
   const controlsEnabled = createMemo(
@@ -391,7 +394,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         controlsEnabled() && props.controlsResizable === true ? '' : undefined
       }
       data-controls-sized={size() !== undefined ? '' : undefined}
-      aria-label={props.label ?? 'Table workspace'}
+      aria-label={props.label ?? messages.workspace}
       data-controls-open={open() ? '' : undefined}
       data-controls-collapsed={collapsed() ? '' : undefined}
       data-controls-placement={props.controlsPlacement ?? 'left'}
@@ -448,7 +451,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
                         : 'SHOW CONTROLS'
                     }
                     aria-controls={panelId}
-                    aria-label={props.toggleLabel ?? 'Table controls'}
+                    aria-label={props.toggleLabel ?? messages.controls}
                     aria-expanded={
                       (narrow() ? open() : !collapsed()) ? 'true' : 'false'
                     }
@@ -476,7 +479,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
             <aside
               id={panelId}
               class="table-workspace-controls"
-              aria-label={props.controlsLabel ?? 'Table controls'}
+              aria-label={props.controlsLabel ?? messages.controls}
               tabindex={-1}
               ref={(node) => {
                 panel = node
@@ -491,7 +494,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
               }}
             >
               <Button class="table-controls-close" onClick={close}>
-                {props.closeLabel ?? 'Close table controls'}
+                {props.closeLabel ?? messages.closeControls}
               </Button>
               <div class="table-workspace-controls-body">{controls()}</div>
             </aside>
@@ -500,7 +503,7 @@ export function TableWorkspace(props: TableWorkspaceProps) {
               ref={(node) => {
                 separator = node
               }}
-              aria-label={props.controlsLabel ?? 'Table controls'}
+              aria-label={props.controlsLabel ?? messages.controls}
               aria-controls={panelId}
               value={collapsed() ? 0 : (size() ?? measuredSize())}
               collapsed={collapsed()}

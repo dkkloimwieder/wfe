@@ -1,3 +1,4 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { Show } from 'solid-js'
 import { IconButton } from '../components/NativeFields'
 import { DisclosureIndicator } from '../components/DisclosureIndicator'
@@ -11,6 +12,7 @@ export type TablePageSize = {
 
 /** Applications own accepted pages, requests, totals, and page-size policy. */
 export type TablePaginationProps = {
+  messages?: Partial<TableMessages>
   hasPrevious: boolean
   hasNext: boolean
   onPrevious: () => void
@@ -25,6 +27,7 @@ export type TablePaginationProps = {
 
 /** Navigation requests never change rows or calculate pages. */
 export function TablePagination(props: TablePaginationProps) {
+  const messages = resolveTableMessages(() => props.messages)
   const choices = () => {
     const size = props.pageSize
     if (!size) return []
@@ -49,7 +52,7 @@ export function TablePagination(props: TablePaginationProps) {
   return (
     <nav
       class="table-pagination"
-      aria-label={props.label ?? 'Table pages'}
+      aria-label={props.label ?? messages.pages}
       aria-busy={props.pending ? 'true' : undefined}
     >
       <span class="table-pagination-status" role="status">
@@ -57,7 +60,7 @@ export function TablePagination(props: TablePaginationProps) {
       </span>
       <Show when={props.pageSize !== undefined}>
         <SelectField
-          label="Page size"
+          label={messages.pageSize}
           class="ui-button table-page-size"
           choices={choices()}
           value={String(props.pageSize!.value)}
@@ -77,7 +80,7 @@ export function TablePagination(props: TablePaginationProps) {
       </Show>
       <IconButton
         class="table-page-action ui-disclosure-trigger"
-        aria-label="Previous page"
+        aria-label={messages.previousPage}
         disabled={props.pending || !props.hasPrevious}
         onClick={() => {
           if (!props.pending && props.hasPrevious) props.onPrevious()
@@ -87,7 +90,7 @@ export function TablePagination(props: TablePaginationProps) {
       </IconButton>
       <IconButton
         class="table-page-action ui-disclosure-trigger"
-        aria-label="Next page"
+        aria-label={messages.nextPage}
         disabled={props.pending || !props.hasNext}
         onClick={() => {
           if (!props.pending && props.hasNext) props.onNext()

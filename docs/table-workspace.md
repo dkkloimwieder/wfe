@@ -238,3 +238,26 @@ The dashboard review starts both at Surface 1 and offers four surface levels ind
 Black/white uses the Light neutral surfaces for these lines.
 Light and Dark use their own neutral surfaces.
 Pane borders keep their existing color.
+
+## Application-supplied messages
+
+Table components accept `messages?: Partial<TableMessages>` from `@wfe/components/table`.
+The exported `tableMessages` object contains the current English defaults.
+Supply strings for fixed text and typed functions for column names, row IDs, counts, and expanded states.
+A missing or undefined property uses its English default. An empty string remains an explicit value.
+Messages are read reactively, so replacing a messages object updates visible and accessible text without replacing the controller, controls, or filter drafts.
+The application owns translation files and language selection. No translation service is required.
+Formatting locale and time zone remain separate inputs to value formatters.
+Record values, column labels, custom actions, and supplied content remain application-owned.
+
+`ReadOnlyTable` forwards messages to its workspace, filters, grouping controls, column actions, detail toggles, table presentation, and pagination.
+Pagination-specific messages override the table messages per property.
+Pass messages explicitly to components created in application slots, such as `TableFormatting` or custom headers.
+Standalone table controls accept the same messages object.
+Existing explicit labels, titles, placeholders, and summary help retain precedence over messages.
+Date boundary labels are table-owned; the calendar's internal messages belong to the date component contract.
+
+The read-only example at `?messages` supplies a complete Spanish `TableMessages` object.
+Its language button updates the mounted table. Enter a filter draft before switching languages to check that the draft stays intact.
+The example also includes formatting, header editing, header filtering, column resizing, and pagination.
+The exhaustive translation type checks new message keys as the contract grows.

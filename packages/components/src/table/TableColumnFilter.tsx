@@ -1,3 +1,4 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { Icon } from '../components/Icon'
 import {
   For,
@@ -32,8 +33,9 @@ export type TableColumnFilterConfig =
     }
 
 export type TableColumnFilterProps = {
+  messages?: Partial<TableMessages>
   label: string
-  clearLabel: string
+  clearLabel?: string
   config: TableColumnFilterConfig
   value: TableColumnFilterValue | undefined
   onValueChange: (value: TableColumnFilterValue | undefined) => void
@@ -42,6 +44,7 @@ export type TableColumnFilterProps = {
 
 /** Presentation of filter state. The caller owns choices and matching rules. */
 export function TableColumnFilter(props: TableColumnFilterProps) {
+  const messages = resolveTableMessages(() => props.messages)
   const defaultOperator = () =>
     props.config.kind === 'text'
       ? 'contains'
@@ -71,26 +74,29 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
     const options =
       props.config.kind === 'text'
         ? [
-            ['contains', 'Contains'],
-            ['equals', 'Equals'],
-            ['starts-with', 'Starts with'],
-            ['not-contains', 'Does not contain'],
+            ['contains', messages.contains],
+            ['equals', messages.equals],
+            ['starts-with', messages.startsWith],
+            ['not-contains', messages.notContains],
           ]
         : props.config.kind === 'number-range'
-          ? [['between', 'Between']]
+          ? [['between', messages.between]]
           : props.config.kind === 'tags'
             ? [
-                ['any', 'Has any'],
-                ['all', 'Has all'],
+                ['any', messages.hasAny],
+                ['all', messages.hasAll],
               ]
-            : [['in', 'Is']]
+            : [['in', messages.is]]
     if ('exclude' in props.config && props.config.exclude)
       options.push([
         'not-in',
-        props.config.kind === 'tags' ? 'Has none' : 'Is not',
+        props.config.kind === 'tags' ? messages.hasNone : messages.isNot,
       ])
     if (props.config.empty)
-      options.push(['empty', 'Is empty'], ['not-empty', 'Is not empty'])
+      options.push(
+        ['empty', messages.isEmpty],
+        ['not-empty', messages.isNotEmpty],
+      )
     return options
   }
   const emit = (value: TableColumnFilterValue | undefined) => {
@@ -166,7 +172,7 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
         <span class="ui-label">{props.label}</span>
         <Button
           type="button"
-          aria-label={props.clearLabel}
+          aria-label={props.clearLabel ?? messages.clearFilter(props.label)}
           disabled={props.disabled || !props.value}
           onClick={clear}
         >
@@ -174,7 +180,7 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
         </Button>
       </div>
       <SelectField
-        label={`${props.label} match`}
+        label={messages.filterMatch(props.label)}
         data-ui-text="system"
         value={operator()}
         disabled={props.disabled}
@@ -196,7 +202,7 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
             ref={(node) => {
               valueControl = node
             }}
-            placeholder="Enter text…"
+            placeholder={messages.enterText}
             value={textValue()}
             disabled={props.disabled}
             onValueChange={(value) =>
@@ -223,6 +229,7 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
         </Show>
         <Show when={props.config.kind === 'number-range'}>
           <NumberBounds
+            messages={props.messages}
             label={props.label}
             value={rangeValue()}
             disabled={props.disabled}
@@ -262,7 +269,7 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
                 optionValue="value"
                 optionTextValue="label"
                 optionDisabled="disabled"
-                placeholder="Any"
+                placeholder={messages.anyValue}
                 disabled={props.disabled}
                 {...selectionProps}
                 itemComponent={(item) => (
@@ -306,12 +313,14 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
 }
 
 function NumberBounds(props: {
+  messages?: Partial<TableMessages>
   label: string
   value: Extract<TableColumnFilterValue, { operator: 'between' }> | undefined
   disabled?: boolean
   onValueChange: (value: TableColumnFilterValue | undefined) => void
   controlRef?: (node: HTMLInputElement) => void
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   const [invalid, setInvalid] = createSignal({ min: false, max: false })
   const errorId = createUniqueId()
   const inputs: Partial<Record<'min' | 'max', HTMLInputElement>> = {}
@@ -348,12 +357,16 @@ function NumberBounds(props: {
         {(boundary) => (
           <label>
             <span class="ui-label">
-              {boundary === 'min' ? 'Minimum' : 'Maximum'}
+              {boundary === 'min' ? messages.minimum : messages.maximum}
             </span>
             <Input
               type="number"
               step="any"
-              aria-label={`${props.label} ${boundary === 'min' ? 'minimum' : 'maximum'}`}
+              aria-label={
+                boundary === 'min'
+                  ? messages.numberMinimum(props.label)
+                  : messages.numberMaximum(props.label)
+              }
               aria-invalid={invalid()[boundary] ? 'true' : undefined}
               aria-describedby={invalid()[boundary] ? errorId : undefined}
               value={props.value?.[boundary] ?? ''}
@@ -383,7 +396,7 @@ function NumberBounds(props: {
       </For>
       <Show when={invalid().min || invalid().max}>
         <span id={errorId} class="ui-field-error">
-          Enter a valid number.
+          {messages.invalidNumber}
         </span>
       </Show>
     </div>

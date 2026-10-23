@@ -52,3 +52,6 @@ export type { TableRowDetails } from './TableDetails'
 
 export { TablePagination } from './TablePagination'
 export type { TablePaginationProps, TablePageSize } from './TablePagination'
+
+export { tableMessages } from './messages'
+export type { TableMessages } from './messages'

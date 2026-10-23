@@ -1,3 +1,4 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { For, Show, onSettled } from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { SelectField } from '../components/Select'
@@ -6,6 +7,7 @@ import type { JSX } from '@solidjs/web'
 import type { NativeTable } from './engine'
 
 export function TableGrouping<T, M>(props: {
+  messages?: Partial<TableMessages>
   table: NativeTable<T, M>
   disabled?: boolean
   label: (id: string) => string
@@ -18,6 +20,7 @@ export function TableGrouping<T, M>(props: {
   summaryHelp?: JSX.Element
   setSummary?: (id: string, value: string) => void
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   const table = props.table
   function configureGrouping(next: Array<string>) {
     if (props.configureGrouping) return props.configureGrouping(next)
@@ -65,20 +68,20 @@ export function TableGrouping<T, M>(props: {
   }
   return (
     <fieldset class="grouping-controls" disabled={props.disabled}>
-      <legend>Group records</legend>
+      <legend>{messages.groupRecords}</legend>
       <div class="grouping-toolbar">
         <label>
-          <span class="ui-label">Add grouping</span>
+          <span class="ui-label">{messages.addGrouping}</span>
           <SelectField
             data-ui-text="system"
-            label="Add grouping"
+            label={messages.addGrouping}
             value=""
             disabled={props.disabled}
             ref={(node) => {
               addControl = node
             }}
             choices={[
-              { value: '', label: 'Choose a column' },
+              { value: '', label: messages.chooseColumn },
               ...table
                 .getColumns()
                 .filter((column) => props.groupable(column.id))
@@ -100,14 +103,14 @@ export function TableGrouping<T, M>(props: {
               click: () => table.toggleAllGroupsExpanded(true),
             })}
           >
-            Expand all groups
+            {messages.expandAllGroups}
           </Button>
           <Button
             ref={nativeEvents({
               click: () => table.toggleAllGroupsExpanded(false),
             })}
           >
-            Collapse all groups
+            {messages.collapseAllGroups}
           </Button>
           <Button
             ref={nativeEvents({
@@ -117,23 +120,23 @@ export function TableGrouping<T, M>(props: {
               },
             })}
           >
-            Clear grouping
+            {messages.clearGrouping}
           </Button>
         </Show>
       </div>
       <Show when={table.state.grouping.length > 0}>
-        <ol class="grouping-levels" aria-label="Grouping levels">
+        <ol class="grouping-levels" aria-label={messages.groupingLevels}>
           <For each={table.state.grouping}>
             {(id, index) => {
               let orderControl!: HTMLButtonElement
               return (
                 <li data-group-level={id}>
                   <span class="grouping-level-label">
-                    {index() + 1}. {label(id)}
+                    {messages.groupLevel(index() + 1, label(id))}
                   </span>
                   <div class="grouping-level-move">
                     <Button
-                      aria-label={`Move ${label(id)} up`}
+                      aria-label={messages.moveGroupUp(label(id))}
                       disabled={index() === 0}
                       ref={nativeEvents({
                         click: () => {
@@ -146,7 +149,7 @@ export function TableGrouping<T, M>(props: {
                       ↑
                     </Button>
                     <Button
-                      aria-label={`Move ${label(id)} down`}
+                      aria-label={messages.moveGroupDown(label(id))}
                       disabled={index() === table.state.grouping.length - 1}
                       ref={nativeEvents({
                         click: () => {
@@ -160,10 +163,12 @@ export function TableGrouping<T, M>(props: {
                     </Button>
                   </div>
                   <label>
-                    <span class="ui-label">Order {label(id)} groups</span>
+                    <span class="ui-label">
+                      {messages.orderGroups(label(id))}
+                    </span>
                     <SelectField
                       data-ui-text="system"
-                      label={`Order ${label(id)} groups`}
+                      label={messages.orderGroups(label(id))}
                       value={orderValue(index(), id)}
                       disabled={props.disabled}
                       ref={(node) => {
@@ -171,11 +176,11 @@ export function TableGrouping<T, M>(props: {
                       }}
                       onValueChange={(value) => setOrder(index(), id, value)}
                       choices={[
-                        { value: '', label: 'Record order' },
-                        { value: 'value:asc', label: 'Group value: ascending' },
+                        { value: '', label: messages.recordOrder },
+                        { value: 'value:asc', label: messages.groupAscending },
                         {
                           value: 'value:desc',
-                          label: 'Group value: descending',
+                          label: messages.groupDescending,
                         },
                         ...table
                           .getColumns()
@@ -185,9 +190,12 @@ export function TableGrouping<T, M>(props: {
                               props.summaryChoices?.(column.id),
                           )
                           .flatMap((column) =>
-                            ['asc', 'desc'].map((direction) => ({
+                            (['asc', 'desc'] as const).map((direction) => ({
                               value: `${column.id}:${direction}`,
-                              label: `${label(column.id)} summary: ${direction === 'asc' ? 'ascending' : 'descending'}`,
+                              label: messages.summaryOrder(
+                                label(column.id),
+                                direction,
+                              ),
                               disabled: props.summary?.(column.id) === 'none',
                             })),
                           ),
@@ -196,25 +204,25 @@ export function TableGrouping<T, M>(props: {
                   </label>
                   <div class="grouping-level-actions">
                     <Button
-                      aria-label={`Expand ${label(id)} level`}
+                      aria-label={messages.expandLevel(label(id))}
                       ref={nativeEvents({
                         click: () =>
                           table.toggleAllGroupsExpanded(true, index()),
                       })}
                     >
-                      Expand
+                      {messages.expand}
                     </Button>
                     <Button
-                      aria-label={`Collapse ${label(id)} level`}
+                      aria-label={messages.collapseLevel(label(id))}
                       ref={nativeEvents({
                         click: () =>
                           table.toggleAllGroupsExpanded(false, index()),
                       })}
                     >
-                      Collapse
+                      {messages.collapse}
                     </Button>
                     <Button
-                      aria-label={`Remove ${label(id)} grouping`}
+                      aria-label={messages.removeGrouping(label(id))}
                       ref={nativeEvents({
                         click: () => {
                           addControl.focus()
@@ -226,7 +234,7 @@ export function TableGrouping<T, M>(props: {
                         },
                       })}
                     >
-                      Remove
+                      {messages.remove}
                     </Button>
                   </div>
                 </li>
@@ -238,15 +246,17 @@ export function TableGrouping<T, M>(props: {
           <div
             class="summary-controls"
             role="group"
-            aria-label="Column summaries"
+            aria-label={messages.columnSummaries}
           >
             <For each={table.getColumns()}>
               {(column) => (
                 <label>
-                  <span class="ui-label">{label(column.id)} summary</span>
+                  <span class="ui-label">
+                    {messages.columnSummary(label(column.id))}
+                  </span>
                   <SelectField
                     data-ui-text="system"
-                    label={`${label(column.id)} summary`}
+                    label={messages.columnSummary(label(column.id))}
                     value={props.summary?.(column.id)}
                     disabled={props.disabled}
                     choices={props.summaryChoices?.(column.id) ?? []}
@@ -259,13 +269,7 @@ export function TableGrouping<T, M>(props: {
             </For>
           </div>
           <p class="summary-help">
-            {props.summaryHelp ?? (
-              <>
-                Summaries use filtered records, including collapsed rows. First
-                and last follow the table sort order. Range shows both
-                endpoints. Span shows their difference.
-              </>
-            )}
+            {props.summaryHelp ?? <>{messages.summaryHelp}</>}
           </p>
         </Show>
       </Show>

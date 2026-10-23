@@ -1,3 +1,4 @@
+import { resolveTableMessages } from './messages'
 import { Icon } from '../components/Icon'
 import {
   Show,
@@ -19,6 +20,7 @@ export function TableHeaderFilter(
     onRemovalFocus?: () => void
   },
 ) {
+  const messages = resolveTableMessages(() => props.messages)
   const popupId = createUniqueId()
   const statusId = createUniqueId()
   const [open, setOpen] = createSignal(false)
@@ -82,12 +84,12 @@ export function TableHeaderFilter(
         class="header-filter-trigger"
         data-header-filter={props.columnId}
         data-filtered={props.value ? 'true' : undefined}
-        aria-label={`Filter ${props.columnLabel}`}
+        aria-label={messages.filter(props.columnLabel)}
         aria-describedby={props.value ? statusId : undefined}
         aria-haspopup="dialog"
         aria-expanded={open() ? 'true' : 'false'}
         aria-controls={popupId}
-        title={`Filter ${props.columnLabel}${props.value ? ' (active)' : ''}`}
+        title={messages.filterTitle(props.columnLabel, Boolean(props.value))}
         disabled={props.disabled}
         ref={[
           (node) => {
@@ -101,7 +103,7 @@ export function TableHeaderFilter(
       </Button>
       <Show when={props.value}>
         <span id={statusId} class="sr-only">
-          Filter active
+          {messages.filterActive}
         </span>
       </Show>
       <div
@@ -152,18 +154,19 @@ export function TableHeaderFilter(
         class="header-filter-popup"
         popover="auto"
         role="dialog"
-        aria-label={`Filter ${props.columnLabel}`}
+        aria-label={messages.filter(props.columnLabel)}
       >
         <Button
           type="button"
           class="header-filter-close"
-          aria-label={`Close ${props.columnLabel} filter`}
+          aria-label={messages.closeFilter(props.columnLabel)}
           ref={nativeEvents({ click: () => close(true) })}
         >
           <span aria-hidden="true">×</span>
         </Button>
         <div class="header-filter-popup-body">
           <TableFilter
+            messages={props.messages}
             label={props.label}
             clearLabel={props.clearLabel}
             value={props.value}

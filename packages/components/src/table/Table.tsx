@@ -1,3 +1,4 @@
+import { resolveTableMessages, type TableMessages } from './messages'
 import { Icon } from '../components/Icon'
 import {
   For,
@@ -30,6 +31,7 @@ export type TableEdge = {
 
 /** Shared presentation. Applications own data, processing and editing policy. */
 export function Table<T, M>(props: {
+  messages?: Partial<TableMessages>
   table: NativeTable<T, M>
   selection?: TableSelection
   columnAlignment?: TableColumnAlignments
@@ -57,6 +59,7 @@ export function Table<T, M>(props: {
   onGroupCleanup?: () => void
   onGroupCell?: () => void
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   const table = untrack(() => props.table)
   createEffect(
     () => props.table,
@@ -95,8 +98,10 @@ export function Table<T, M>(props: {
       <Show when={selection()} keyed>
         {(controller) => (
           <output class="sr-only" aria-live="polite" data-ui-text="system">
-            {controller.rowCount} rows by {controller.columnCount} columns
-            selected
+            {messages.selectionCount(
+              controller.rowCount,
+              controller.columnCount,
+            )}
           </output>
         )}
       </Show>
@@ -108,9 +113,7 @@ export function Table<T, M>(props: {
         tabindex={props.selection ? 0 : -1}
         aria-label={props.accessibleLabel}
         aria-description={
-          props.selection
-            ? 'Drag cells or use Shift with arrow keys. Shift Space selects rows. Control or Command Space selects columns. Copy uses the normal shortcut.'
-            : undefined
+          props.selection ? messages.selectionKeyboardHelp : undefined
         }
         style={{
           width: props.width === undefined ? '100%' : `${props.width}px`,
@@ -184,6 +187,7 @@ export function Table<T, M>(props: {
                       props.header(column)
                     ) : (
                       <TableSort
+                        messages={props.messages}
                         label={label(column)}
                         sorted={column.getIsSorted()}
                         disabled={
@@ -266,6 +270,7 @@ export function Table<T, M>(props: {
                     )
                   ) : (
                     <TableGroup
+                      messages={props.messages}
                       table={table}
                       groupKey={item.key}
                       columnAlignment={props.columnAlignment}
@@ -339,6 +344,7 @@ export function TableRow<T, M>(props: {
 }
 
 function TableGroup<T, M>(props: {
+  messages?: Partial<TableMessages>
   table: NativeTable<T, M>
   columnAlignment?: TableColumnAlignments
   groupKey: string
@@ -352,6 +358,7 @@ function TableGroup<T, M>(props: {
   onCleanup?: () => void
   onCell?: () => void
 }) {
+  const messages = resolveTableMessages(() => props.messages)
   const group = props.table.createGroupView(props.groupKey)
   props.onMount?.()
   onCleanup(() => props.onCleanup?.())
@@ -359,13 +366,13 @@ function TableGroup<T, M>(props: {
     group.path
       ?.map(
         (entry) =>
-          `${props.label?.(entry.columnId) ?? entry.columnId}: ${entry.value == null || entry.value === '' ? '(none)' : String(entry.value)}`,
+          `${props.label?.(entry.columnId) ?? entry.columnId}: ${entry.value == null || entry.value === '' ? messages.emptyGroup : String(entry.value)}`,
       )
       .join(' / ') ?? ''
   const valueLabel = () => {
     const entry = group.path?.at(-1)
     const value = entry?.value
-    if (value == null || value === '') return '(none)'
+    if (value == null || value === '') return messages.emptyGroup
     const column = entry && props.table.getColumn(entry.columnId)
     return (column && props.formatValue?.(value, column)) ?? String(value)
   }
@@ -402,7 +409,10 @@ function TableGroup<T, M>(props: {
                     <Button
                       data-group-toggle={props.groupKey}
                       aria-expanded={group.getIsExpanded() ? 'true' : 'false'}
-                      aria-label={`${group.getIsExpanded() ? 'Collapse' : 'Expand'} ${label()}`}
+                      aria-label={messages.groupToggle(
+                        label(),
+                        group.getIsExpanded(),
+                      )}
                       ref={nativeEvents({
                         click: () => {
                           if (props.canToggle?.() !== false)
@@ -424,7 +434,7 @@ function TableGroup<T, M>(props: {
                       </span>
                     </Button>
                     <span class="group-count">
-                      {group.count} {group.count === 1 ? 'record' : 'records'}
+                      {messages.groupRecordsCount(group.count)}
                     </span>
                   </div>
                 </Show>
