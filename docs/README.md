@@ -54,6 +54,7 @@ Beads records task status and dependencies.
 
 - [Implementation plans](plan/README.md)
 - [October 16 consistency audit](consistency-audit.md), a dated assessment rather than current API status
+- [October 22 structure audit](structure-audit-2026-10-22.md), a dated review of cohesiveness, code quality, and modularity
 - [Repository extraction](../migration/README.md) and [standalone acceptance](../migration/standalone.md)
 - [Core source origin](origins/core/README.md)
 - [Performance tools and historical findings](../bench/README.md)
