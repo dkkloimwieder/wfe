@@ -83,10 +83,13 @@
   min-width: 0;
 }
 @media (width < 48rem) {
-  :where(.ui-dashboard[data-ui][data-has-navigation]) {
+  :where(
+    .ui-dashboard:not([data-ui-responsive-ready])[data-ui][data-has-navigation]
+  ) {
     grid-template-columns: minmax(0, 1fr);
   }
-  :where([data-ui]) .ui-dashboard-navigation {
+  :where(.ui-dashboard[data-ui]:not([data-ui-responsive-ready]))
+    > .ui-dashboard-navigation {
     position: absolute;
     inset-inline-start: 0;
     grid-row: 2 / 3;
@@ -100,13 +103,52 @@
     display: none;
     border-inline-end: 1px solid var(--ui-border, #bbb);
   }
-  :where(.ui-dashboard[data-ui][data-navigation-open])
+  :where(
+      .ui-dashboard:not(
+          [data-ui-responsive-ready]
+        )[data-ui][data-navigation-open]
+    )
     > .ui-dashboard-navigation {
     display: block;
   }
-  :where([data-ui]) :is(.ui-dashboard-toggle, .ui-dashboard-close) {
+  :where(.ui-dashboard[data-ui]:not([data-ui-responsive-ready]))
+    > :is(.ui-dashboard-header, .ui-dashboard-navigation, .ui-dashboard-context)
+    > :is(.ui-dashboard-toggle, .ui-dashboard-close) {
     display: inline-block;
   }
+}
+
+/* The owning component applies the same layout at narrow container widths. */
+:where(
+  .ui-dashboard[data-ui-responsive-ready][data-navigation-drawer][data-ui][data-has-navigation]
+) {
+  grid-template-columns: minmax(0, 1fr);
+}
+:where(.ui-dashboard[data-ui][data-ui-responsive-ready][data-navigation-drawer])
+  > .ui-dashboard-navigation {
+  position: absolute;
+  inset-inline-start: 0;
+  grid-row: 2 / 3;
+  grid-column: 1 / -1;
+  inset-block: 0;
+  z-index: 10;
+  width: min(
+    var(--_ui-navigation-width, var(--ui-navigation-width, 15rem)),
+    100%
+  );
+  display: none;
+  border-inline-end: 1px solid var(--ui-border, #bbb);
+}
+:where(
+    .ui-dashboard[data-ui-responsive-ready][data-navigation-drawer][data-ui][data-navigation-open]
+  )
+  > .ui-dashboard-navigation {
+  display: block;
+}
+:where(.ui-dashboard[data-ui][data-ui-responsive-ready][data-navigation-drawer])
+  > :is(.ui-dashboard-header, .ui-dashboard-navigation, .ui-dashboard-context)
+  > :is(.ui-dashboard-toggle, .ui-dashboard-close) {
+  display: inline-block;
 }
 
 :where(.ui-dashboard[data-ui][data-has-footer]) {
@@ -185,15 +227,22 @@
   outline-offset: -2px;
 }
 @media (width < 64rem) {
-  :where(.ui-dashboard[data-ui][data-has-context]) {
+  :where(
+    .ui-dashboard:not([data-ui-responsive-ready])[data-ui][data-has-context]
+  ) {
     grid-template-columns: minmax(0, 1fr);
   }
-  :where(.ui-dashboard[data-ui][data-has-navigation][data-has-context]) {
+  :where(
+    .ui-dashboard:not(
+        [data-ui-responsive-ready]
+      )[data-ui][data-has-navigation][data-has-context]
+  ) {
     grid-template-columns:
       var(--_ui-navigation-width, var(--ui-navigation-width, 15rem))
       minmax(0, 1fr);
   }
-  :where([data-ui]) .ui-dashboard-context {
+  :where(.ui-dashboard[data-ui]:not([data-ui-responsive-ready]))
+    > .ui-dashboard-context {
     position: absolute;
     grid-column: 1 / -1;
     inset-block: 0;
@@ -202,29 +251,111 @@
     display: none;
     z-index: 10;
   }
-  :where(.ui-dashboard[data-ui][data-has-navigation]) > .ui-dashboard-context {
+  :where(
+      .ui-dashboard:not(
+          [data-ui-responsive-ready]
+        )[data-ui][data-has-navigation]
+    )
+    > .ui-dashboard-context {
     grid-column: 1 / -1;
     inset-inline-start: var(
       --_ui-navigation-width,
       var(--ui-navigation-width, 15rem)
     );
   }
-  :where(.ui-dashboard[data-ui][data-context-open]) > .ui-dashboard-context {
+  :where(
+      .ui-dashboard:not([data-ui-responsive-ready])[data-ui][data-context-open]
+    )
+    > .ui-dashboard-context {
     display: block;
   }
-  :where([data-ui])
-    :is(.ui-dashboard-context-toggle, .ui-dashboard-context-close) {
+  :where(.ui-dashboard[data-ui]:not([data-ui-responsive-ready]))
+    > :is(.ui-dashboard-header, .ui-dashboard-navigation, .ui-dashboard-context)
+    > :is(.ui-dashboard-context-toggle, .ui-dashboard-context-close) {
     display: inline-flex;
   }
 }
+
+/* The owning component applies the same layout at narrow container widths. */
+:where(
+  .ui-dashboard[data-ui-responsive-ready][data-context-drawer][data-ui][data-has-context]
+) {
+  grid-template-columns: minmax(0, 1fr);
+}
+:where(
+  .ui-dashboard[data-ui-responsive-ready][data-context-drawer][data-ui][data-has-navigation][data-has-context]
+) {
+  grid-template-columns:
+    var(--_ui-navigation-width, var(--ui-navigation-width, 15rem))
+    minmax(0, 1fr);
+}
+:where(.ui-dashboard[data-ui][data-ui-responsive-ready][data-context-drawer])
+  > .ui-dashboard-context {
+  position: absolute;
+  grid-column: 1 / -1;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: min(var(--ui-context-width, 14rem), 100%);
+  display: none;
+  z-index: 10;
+}
+:where(
+    .ui-dashboard[data-ui-responsive-ready][data-context-drawer][data-ui][data-has-navigation]
+  )
+  > .ui-dashboard-context {
+  grid-column: 1 / -1;
+  inset-inline-start: var(
+    --_ui-navigation-width,
+    var(--ui-navigation-width, 15rem)
+  );
+}
+:where(
+    .ui-dashboard[data-ui-responsive-ready][data-context-drawer][data-ui][data-context-open]
+  )
+  > .ui-dashboard-context {
+  display: block;
+}
+:where(.ui-dashboard[data-ui][data-ui-responsive-ready][data-context-drawer])
+  > :is(.ui-dashboard-header, .ui-dashboard-navigation, .ui-dashboard-context)
+  > :is(.ui-dashboard-context-toggle, .ui-dashboard-context-close) {
+  display: inline-flex;
+}
+
 @media (width < 48rem) {
-  :where(.ui-dashboard[data-ui][data-has-context]),
-  :where(.ui-dashboard[data-ui][data-has-navigation][data-has-context]) {
+  :where(
+    .ui-dashboard:not([data-ui-responsive-ready])[data-ui][data-has-context]
+  ),
+  :where(
+    .ui-dashboard:not(
+        [data-ui-responsive-ready]
+      )[data-ui][data-has-navigation][data-has-context]
+  ) {
     grid-template-columns: minmax(0, 1fr);
   }
-  :where(.ui-dashboard[data-ui][data-has-navigation]) > .ui-dashboard-context {
+  :where(
+      .ui-dashboard:not(
+          [data-ui-responsive-ready]
+        )[data-ui][data-has-navigation]
+    )
+    > .ui-dashboard-context {
     inset-inline-start: 0;
   }
+}
+
+/* The owning component applies the same layout at narrow container widths. */
+:where(
+  .ui-dashboard[data-ui-responsive-ready][data-navigation-drawer][data-ui][data-has-context]
+),
+:where(
+  .ui-dashboard[data-ui-responsive-ready][data-navigation-drawer][data-ui][data-has-navigation][data-has-context]
+) {
+  grid-template-columns: minmax(0, 1fr);
+}
+:where(
+    .ui-dashboard[data-ui-responsive-ready][data-navigation-drawer][data-ui][data-has-navigation]
+  )
+  > .ui-dashboard-context {
+  inset-inline-start: 0;
 }
 
 :where([data-ui]) .ui-dashboard-region-panel {
@@ -245,14 +376,40 @@
 }
 
 @media (width >= 48rem) {
-  :where(.ui-dashboard[data-ui][data-navigation-collapsed]) {
+  :where(
+    .ui-dashboard:not(
+        [data-ui-responsive-ready]
+      )[data-ui][data-navigation-collapsed]
+  ) {
     --_ui-navigation-width: var(--ui-navigation-rail-width, 3.5rem);
   }
-  :where(.ui-dashboard[data-ui][data-navigation-collapsed])
+  :where(
+      .ui-dashboard:not(
+          [data-ui-responsive-ready]
+        )[data-ui][data-navigation-collapsed]
+    )
     > .ui-dashboard-navigation {
     padding-inline: 0;
   }
 }
+
+/* The owning component applies the same layout at narrow container widths. */
+:where(
+  .ui-dashboard[data-ui-responsive-ready]:not(
+      [data-navigation-drawer]
+    )[data-ui][data-navigation-collapsed]
+) {
+  --_ui-navigation-width: var(--ui-navigation-rail-width, 3.5rem);
+}
+:where(
+    .ui-dashboard[data-ui-responsive-ready]:not(
+        [data-navigation-drawer]
+      )[data-ui][data-navigation-collapsed]
+  )
+  > .ui-dashboard-navigation {
+  padding-inline: 0;
+}
+
 :where([data-ui]) .ui-dashboard-navigation,
 :where([data-ui]) .ui-sidebar-group {
   --_ui-sidebar-inset: calc(
@@ -407,10 +564,18 @@
   outline-offset: 0;
 }
 @media (width < 48rem) {
-  :where([data-ui]) .ui-dashboard-navigation-divider {
+  :where(.ui-dashboard[data-ui]:not([data-ui-responsive-ready]))
+    > .ui-dashboard-navigation-divider {
     display: none;
   }
 }
+
+/* The owning component applies the same layout at narrow container widths. */
+:where(.ui-dashboard[data-ui][data-ui-responsive-ready][data-navigation-drawer])
+  > .ui-dashboard-navigation-divider {
+  display: none;
+}
+
 @media (forced-colors: active) {
   :where([data-ui]) .ui-dashboard-divider-toggle {
     color: ButtonText;

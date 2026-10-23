@@ -1,3 +1,4 @@
+import { reviewContainerLayout } from '../shared/container-layout-review.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
@@ -70,4 +71,5 @@ export async function reviewTheme(page, { hydrated = false } = {}) {
   await root.getByRole('button', { name: 'Theme popup', exact: true }).click()
   await page.keyboard.press('Escape')
   await root.locator('#theme-mode').click()
+  await reviewContainerLayout(page, { hydrated })
 }

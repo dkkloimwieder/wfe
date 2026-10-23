@@ -1,3 +1,4 @@
+import { ContainerLayoutReview } from '../shared/ContainerLayoutReview'
 import { createSignal } from 'solid-js'
 import type { ThemeDensity } from '@wfe/components/theme'
 import {
@@ -85,6 +86,7 @@ export function ThemeConsumer() {
           </DashboardPanel>
         </DashboardShell>
       </DashboardShell>
+      <ContainerLayoutReview />
     </Theme>
   )
 }

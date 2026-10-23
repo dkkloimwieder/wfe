@@ -218,3 +218,26 @@ It accepts application-owned content and supports viewport or container sizing.
 [SidebarContextSwitcher](sidebar-context-switcher.md) presents the current context, searchable sibling choices, and an optional parent action.
 Place it before the existing SidebarGroup menu in the navigation callback.
 Applications supply accepted contexts, available choices, and menu content.
+
+## Embedded responsive workspaces
+
+DashboardShell and TableWorkspace choose drawer placement from the width available
+to their own root, as well as the viewport. A narrow host inside a wide page gets
+the same reachable controls as a narrow page. Navigation and table controls keep
+the existing 48rem threshold; context navigation keeps 64rem. These units use the
+browser's initial font size, just like the existing viewport media queries, rather
+than the Theme font size.
+
+The navigation callback's `mobile()` reports drawer mode, including a narrow
+embedded host. It does not identify a device type. `compact()` remains false in
+drawer mode. Applications still own host width, height, navigation and records.
+Changing placement keeps the pane owners, input values and scroll state. Escape
+and focus return continue to use the existing toggle behavior.
+
+Server rendering and hydration begin with the existing viewport layout. After
+mounting, DashboardShell observes one root for both rails. TableWorkspace reuses
+its existing observer. Hidden roots with no measurable width use viewport rules
+until visible. Browsers without ResizeObserver keep viewport-only behavior;
+parent-only resizes require ResizeObserver. Disposal disconnects observers and
+removes media and window listeners. No polling or document-wide resize observer
+is installed.

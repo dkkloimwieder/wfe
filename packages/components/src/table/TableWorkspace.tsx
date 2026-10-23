@@ -1,3 +1,4 @@
+import { createContainerLayout } from '../internal/containerLayout'
 import { resolveTableMessages, type TableMessages } from './messages'
 import { ownsFocus } from '../internal/ownedFocus'
 import { ResizeHandle } from '../components/Resizable'
@@ -270,9 +271,29 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     },
   })
   onSettled(() => {
+    if (!workspace) return
+    const layout = createContainerLayout(
+      workspace,
+      ['controls'],
+      typeof ResizeObserver !== 'undefined',
+      (state) => {
+        if (!alive) return
+        setNarrow(Boolean(state.controls))
+        const hidden = Boolean(state.controls)
+          ? !untrack(open)
+          : untrack(collapsed)
+        if (
+          hidden &&
+          (controlsOwnFocus() ||
+            (panelFocused && document.activeElement === document.body))
+        )
+          toggle?.focus({ preventScroll: true })
+      },
+    )
     const measure = () =>
       untrack(() => {
         if (!alive || !workspace?.isConnected) return
+        layout.measure()
         setHeaderHeight(header?.getBoundingClientRect().height ?? 0)
         const available = availableSize()
         if (
@@ -301,19 +322,6 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     for (const node of [workspace, header, panel])
       if (node) observer?.observe(node)
     measure()
-    const query = window.matchMedia('(width < 48rem)')
-    const changed = () => {
-      if (!alive) return
-      setNarrow(query.matches)
-      const hidden = query.matches ? !untrack(open) : untrack(collapsed)
-      if (
-        hidden &&
-        (controlsOwnFocus() ||
-          (panelFocused && document.activeElement === document.body))
-      )
-        toggle?.focus({ preventScroll: true })
-    }
-    changed()
     props.controlsRef?.({ focus: focusControls })
     const doc = panel?.ownerDocument ?? document
     // A popup can finish autofocus after its owning pane collapses.
@@ -336,13 +344,12 @@ export function TableWorkspace(props: TableWorkspaceProps) {
           toggle?.focus({ preventScroll: true })
       })
     }
-    query.addEventListener('change', changed)
     doc.addEventListener('focusin', guardHiddenFocus)
     return () => {
       observer?.disconnect()
       panelObserver = undefined
       measurePanel = undefined
-      query.removeEventListener('change', changed)
+      layout.dispose()
       doc.removeEventListener('focusin', guardHiddenFocus)
     }
   })

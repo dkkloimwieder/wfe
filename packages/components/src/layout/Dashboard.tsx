@@ -1,3 +1,4 @@
+import { createContainerLayout } from '../internal/containerLayout'
 import { ownsFocus } from '../internal/ownedFocus'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import {
@@ -111,32 +112,23 @@ function createRail(options: RailOptions) {
       close()
     },
   })
-  onSettled(() => {
-    if (typeof window === 'undefined') return
-    const query = window.matchMedia(
-      options.kind === 'navigation' ? '(width < 48rem)' : '(width < 64rem)',
+  const setResponsive = (value: boolean) => {
+    if (!alive || value === untrack(mobile)) return
+    setMobile(value)
+    if (
+      value &&
+      !untrack(options.open) &&
+      (ownsFocus(navigation) ||
+        (navigationFocused && document.activeElement === document.body))
     )
-    const changed = () => {
-      if (!alive) return
-      setMobile(query.matches)
-      if (
-        query.matches &&
-        !untrack(options.open) &&
-        (ownsFocus(navigation) ||
-          (navigationFocused && document.activeElement === document.body))
-      )
-        toggle?.focus({ preventScroll: true })
-      else if (
-        !query.matches &&
-        (document.activeElement === toggle ||
-          (toggleFocused && document.activeElement === document.body))
-      )
-        navigation?.focus({ preventScroll: true })
-    }
-    changed()
-    query.addEventListener('change', changed)
-    return () => query.removeEventListener('change', changed)
-  })
+      toggle?.focus({ preventScroll: true })
+    else if (
+      !value &&
+      (document.activeElement === toggle ||
+        (toggleFocused && document.activeElement === document.body))
+    )
+      navigation?.focus({ preventScroll: true })
+  }
   onCleanup(() => {
     alive = false
     toggle = undefined
@@ -243,6 +235,7 @@ function createRail(options: RailOptions) {
     events,
     compact,
     mobile,
+    setResponsive,
     id: navigationId,
     focusToggle: () => toggle?.focus({ preventScroll: true }),
   }
@@ -274,6 +267,29 @@ export function DashboardShell(props: DashboardShellProps) {
   const footer = createMemo(() => props.footer)
   const navigation = rail('navigation')
   const context = rail('context')
+  let root: HTMLDivElement | undefined
+  onSettled(() => {
+    if (!root) return
+    const layout = createContainerLayout(
+      root,
+      ['navigation', 'context'],
+      typeof ResizeObserver !== 'undefined',
+      (state) => {
+        navigation.setResponsive(Boolean(state.navigation))
+        context.setResponsive(Boolean(state.context))
+      },
+    )
+    const observer =
+      typeof ResizeObserver === 'undefined'
+        ? undefined
+        : new ResizeObserver(layout.measure)
+    observer?.observe(root)
+    layout.measure()
+    return () => {
+      observer?.disconnect()
+      layout.dispose()
+    }
+  })
   function NavigationDivider() {
     let button: HTMLButtonElement | undefined
     let focused = false
@@ -361,7 +377,13 @@ export function DashboardShell(props: DashboardShellProps) {
       data-has-footer={footer() !== undefined ? '' : undefined}
       data-has-navigation={props.navigation ? '' : undefined}
       data-scroll={props.scroll ?? 'main'}
-      ref={[navigation.events, context.events]}
+      ref={[
+        (node) => {
+          root = node
+        },
+        navigation.events,
+        context.events,
+      ]}
     >
       <header class="ui-dashboard-header">
         <Show when={props.navigation}>

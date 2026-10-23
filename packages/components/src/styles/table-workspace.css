@@ -225,49 +225,151 @@
 }
 @media (width >= 48rem) {
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     :is(.column-filters, .table-formatting) {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
     align-items: start;
   }
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     .display-fields {
     flex-direction: row;
     align-items: center;
   }
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     .grouping-toolbar {
     display: flex;
   }
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     .grouping-toolbar
     > label {
     flex: 0 1 14rem;
     min-width: 0;
   }
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     .grouping-levels
     li {
     display: flex;
     flex-wrap: wrap;
   }
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     .grouping-levels
     li
     > label {
     flex: 1 1 14rem;
   }
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     .grouping-level-label {
     flex: 1 1 7rem;
   }
 }
+
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  :is(.column-filters, .table-formatting) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  align-items: start;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  .display-fields {
+  flex-direction: row;
+  align-items: center;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  .grouping-toolbar {
+  display: flex;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  .grouping-toolbar
+  > label {
+  flex: 0 1 14rem;
+  min-width: 0;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  .grouping-levels
+  li {
+  display: flex;
+  flex-wrap: wrap;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  .grouping-levels
+  li
+  > label {
+  flex: 1 1 14rem;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  .grouping-level-label {
+  flex: 1 1 7rem;
+}
+
 :where([data-ui]) .table-workspace[data-controls-collapsed] {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
@@ -279,21 +381,26 @@
   display: none;
 }
 @media (width < 48rem) {
-  :where([data-ui]) .table-workspace,
-  :where([data-ui]) .table-workspace[data-controls-placement],
-  :where([data-ui]) .table-workspace[data-controls-collapsed] {
+  :where([data-ui]) .table-workspace:not([data-ui-responsive-ready]),
+  :where([data-ui])
+    .table-workspace:not([data-ui-responsive-ready])[data-controls-placement],
+  :where([data-ui])
+    .table-workspace:not([data-ui-responsive-ready])[data-controls-collapsed] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas: 'header' 'results';
   }
-  :where([data-ui]) .table-controls-close {
+  :where([data-ui])
+    .table-workspace:not([data-ui-responsive-ready])
+    > .table-workspace-controls
+    > .table-controls-close {
     display: inline-flex;
     flex: none;
     align-self: start;
     margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
   }
   :where([data-ui])
-    .table-workspace[data-controls-placement]
+    .table-workspace:not([data-ui-responsive-ready])[data-controls-placement]
     > .table-workspace-controls {
     grid-area: results;
     border: 1px solid var(--ui-border, #ccc);
@@ -306,19 +413,75 @@
     width: min(var(--ui-table-controls-width, 18rem), 100%);
   }
   :where([data-ui])
-    .table-workspace[data-controls-open][data-controls-placement]
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-open][data-controls-placement]
     > .table-workspace-controls {
     display: flex;
   }
   :where([data-ui])
-    .table-workspace[data-controls-placement='right']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='right']
     > .table-workspace-controls {
     inset-inline-start: auto;
     inset-inline-end: 0;
   }
-  :where([data-ui]) .table-workspace-results {
+  :where([data-ui])
+    .table-workspace:not([data-ui-responsive-ready])
+    > .table-workspace-results {
     padding-inline-start: 0;
   }
+}
+
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer],
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer][data-controls-placement],
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer][data-controls-collapsed] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: 'header' 'results';
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer]
+  > .table-workspace-controls
+  > .table-controls-close {
+  display: inline-flex;
+  flex: none;
+  align-self: start;
+  margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer][data-controls-placement]
+  > .table-workspace-controls {
+  grid-area: results;
+  border: 1px solid var(--ui-border, #ccc);
+  box-shadow: var(--ui-panel-shadow, none);
+  display: none;
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 10;
+  width: min(var(--ui-table-controls-width, 18rem), 100%);
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer][data-controls-open][data-controls-placement]
+  > .table-workspace-controls {
+  display: flex;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer][data-controls-placement='right']
+  > .table-workspace-controls {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer]
+  > .table-workspace-results {
+  padding-inline-start: 0;
 }
 
 :where([data-ui]) .table-filter-heading {
@@ -350,15 +513,32 @@
 
 @media (min-width: 48rem) {
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     .column-display-option {
     flex: 0 1 18rem;
   }
 }
 
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  .column-display-option {
+  flex: 0 1 18rem;
+}
+
 @media (width < 48rem) {
   :where([data-ui])
-    .table-workspace-header-actions
+    .table-workspace:not([data-ui-responsive-ready])
+    > .table-workspace-header
+    > .table-workspace-header-actions
     .table-filter-actions
     > span {
     max-width: min-content;
@@ -366,11 +546,44 @@
     line-height: 1.1;
   }
 }
+
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer]
+  > .table-workspace-header
+  > .table-workspace-header-actions
+  .table-filter-actions
+  > span {
+  max-width: min-content;
+  font-size: var(--ui-small-font-size, 11px);
+  line-height: 1.1;
+}
+
 @media (width < 48rem) {
-  :where([data-ui]) .table-workspace-header-actions,
-  :where([data-ui]) .table-workspace-header-actions .table-filter-actions {
+  :where([data-ui])
+    .table-workspace:not([data-ui-responsive-ready])
+    > .table-workspace-header
+    > .table-workspace-header-actions,
+  :where([data-ui])
+    .table-workspace:not([data-ui-responsive-ready])
+    > .table-workspace-header
+    > .table-workspace-header-actions
+    .table-filter-actions {
     gap: var(--ui-control-padding-y, 4px);
   }
+}
+
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer]
+  > .table-workspace-header
+  > .table-workspace-header-actions,
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready][data-controls-drawer]
+  > .table-workspace-header
+  > .table-workspace-header-actions
+  .table-filter-actions {
+  gap: var(--ui-control-padding-y, 4px);
 }
 
 :where([data-ui]) .table-workspace-resize {
@@ -378,7 +591,9 @@
 }
 @media (width >= 48rem) {
   :where([data-ui])
-    .table-workspace[data-controls-resizable]:not([data-controls-collapsed]) {
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-resizable]:not([data-controls-collapsed]) {
     grid-template-columns:
       var(
         --ui-table-controls-resized-width,
@@ -389,18 +604,22 @@
     grid-template-areas: 'header header header' 'controls resize results';
   }
   :where([data-ui])
-    .table-workspace[data-controls-resizable]
+    .table-workspace:not([data-ui-responsive-ready])[data-controls-resizable]
     > .table-workspace-resize {
     display: block;
     grid-area: resize;
   }
   :where([data-ui])
-    .table-workspace[data-controls-resizable]:not([data-controls-collapsed])
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-resizable]:not([data-controls-collapsed])
     > .table-workspace-controls {
     border: 0;
   }
   :where([data-ui])
-    .table-workspace[data-controls-resizable][data-controls-placement='right']:not(
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-resizable][data-controls-placement='right']:not(
       [data-controls-collapsed]
     ) {
     grid-template-columns: minmax(0, 1fr) var(--ui-resize-handle-size, 6px) var(
@@ -410,7 +629,9 @@
     grid-template-areas: 'header header header' 'results resize controls';
   }
   :where([data-ui])
-    .table-workspace[data-controls-resizable][data-controls-placement='top']:not(
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-resizable][data-controls-placement='top']:not(
       [data-controls-collapsed]
     ) {
     grid-template-columns: minmax(0, 1fr);
@@ -420,7 +641,9 @@
     grid-template-areas: 'header' 'controls' 'resize' 'results';
   }
   :where([data-ui])
-    .table-workspace[data-controls-resizable][data-controls-placement='top'][data-controls-sized]:not(
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-resizable][data-controls-placement='top'][data-controls-sized]:not(
       [data-controls-collapsed]
     ) {
     grid-template-rows:
@@ -432,9 +655,78 @@
   }
 }
 
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable]:not([data-controls-collapsed]) {
+  grid-template-columns:
+    var(
+      --ui-table-controls-resized-width,
+      var(--ui-table-controls-width, 18rem)
+    )
+    var(--ui-resize-handle-size, 6px)
+    minmax(0, 1fr);
+  grid-template-areas: 'header header header' 'controls resize results';
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable]
+  > .table-workspace-resize {
+  display: block;
+  grid-area: resize;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable]:not([data-controls-collapsed])
+  > .table-workspace-controls {
+  border: 0;
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable][data-controls-placement='right']:not(
+    [data-controls-collapsed]
+  ) {
+  grid-template-columns: minmax(0, 1fr) var(--ui-resize-handle-size, 6px) var(
+      --ui-table-controls-resized-width,
+      var(--ui-table-controls-width, 18rem)
+    );
+  grid-template-areas: 'header header header' 'results resize controls';
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable][data-controls-placement='top']:not(
+    [data-controls-collapsed]
+  ) {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows:
+    auto fit-content(min(var(--ui-table-controls-height, 18rem), 40%))
+    var(--ui-resize-handle-size, 6px) minmax(0, 1fr);
+  grid-template-areas: 'header' 'controls' 'resize' 'results';
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable][data-controls-placement='top'][data-controls-sized]:not(
+    [data-controls-collapsed]
+  ) {
+  grid-template-rows:
+    auto minmax(0, var(--ui-table-controls-resized-height)) var(
+      --ui-resize-handle-size,
+      6px
+    )
+    minmax(0, 1fr);
+}
+
 @media (width >= 48rem) {
   :where([data-ui])
-    .table-workspace[data-controls-sized][data-controls-placement='top']:not(
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-sized][data-controls-placement='top']:not(
       [data-controls-resizable]
     ):not([data-controls-collapsed]) {
     grid-template-rows:
@@ -443,23 +735,65 @@
   }
 }
 
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-sized][data-controls-placement='top']:not(
+    [data-controls-resizable]
+  ):not([data-controls-collapsed]) {
+  grid-template-rows:
+    auto minmax(0, var(--ui-table-controls-resized-height))
+    minmax(0, 1fr);
+}
+
 @media (width >= 48rem) {
   :where([data-ui])
-    .table-workspace[data-controls-resizable][data-controls-collapsed] {
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-resizable][data-controls-collapsed] {
     grid-template-columns: var(--ui-resize-handle-size, 6px) minmax(0, 1fr);
     grid-template-areas: 'header header' 'resize results';
   }
   :where([data-ui])
-    .table-workspace[data-controls-resizable][data-controls-collapsed][data-controls-placement='right'] {
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-resizable][data-controls-collapsed][data-controls-placement='right'] {
     grid-template-columns: minmax(0, 1fr) var(--ui-resize-handle-size, 6px);
     grid-template-areas: 'header header' 'results resize';
   }
   :where([data-ui])
-    .table-workspace[data-controls-resizable][data-controls-collapsed][data-controls-placement='top'] {
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-resizable][data-controls-collapsed][data-controls-placement='top'] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto var(--ui-resize-handle-size, 6px) minmax(0, 1fr);
     grid-template-areas: 'header' 'resize' 'results';
   }
+}
+
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable][data-controls-collapsed] {
+  grid-template-columns: var(--ui-resize-handle-size, 6px) minmax(0, 1fr);
+  grid-template-areas: 'header header' 'resize results';
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable][data-controls-collapsed][data-controls-placement='right'] {
+  grid-template-columns: minmax(0, 1fr) var(--ui-resize-handle-size, 6px);
+  grid-template-areas: 'header header' 'results resize';
+}
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-resizable][data-controls-collapsed][data-controls-placement='top'] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto var(--ui-resize-handle-size, 6px) minmax(0, 1fr);
+  grid-template-areas: 'header' 'resize' 'results';
 }
 
 /* Table controls use the same fixed section rhythm in every placement. */
@@ -479,11 +813,27 @@
 
 @media (width >= 48rem) {
   :where([data-ui])
-    .table-workspace[data-controls-placement='top']
+    .table-workspace:not(
+      [data-ui-responsive-ready]
+    )[data-controls-placement='top']
+    > .table-workspace-controls
+    > .table-workspace-controls-body
     .table-control-content
     > .display-fields {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   }
+}
+
+/* The owning component applies the same layout at narrow container widths. */
+:where([data-ui])
+  .table-workspace[data-ui-responsive-ready]:not(
+    [data-controls-drawer]
+  )[data-controls-placement='top']
+  > .table-workspace-controls
+  > .table-workspace-controls-body
+  .table-control-content
+  > .display-fields {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
 }
 
 :where([data-ui]) .sub-table-row .table-workspace {

@@ -829,6 +829,8 @@ const embeddedShell = await renderToString(() =>
   }),
 )
 assert.ok(!embeddedShell.includes('data-ui-density='))
+assert.ok(!embeddedShell.includes('data-ui-responsive-ready'))
+assert.ok(!embeddedShell.includes('data-navigation-drawer'))
 assert.match(
   embeddedShell,
   /<section[^>]*class="ui-dashboard-main"[^>]*aria-label="Embedded content"/,
