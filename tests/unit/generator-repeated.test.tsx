@@ -145,6 +145,15 @@ test('repeated records reuse named scalar controls and row fieldsets without ini
 })
 test('add, row edit and remove use the existing accepted-value request path', async () => {
   const h = mount()
+  const add = h.getByRole('button', { name: 'Add row' }) as HTMLButtonElement
+  const remove = within(h.row('a')).getByRole('button', {
+    name: /Remove entries row/,
+  }) as HTMLButtonElement
+  expect(add.type).toBe('button')
+  expect(remove.type).toBe('button')
+  expect(add.parentElement?.classList.contains('ui-form-actions')).toBe(true)
+  expect(remove.parentElement?.classList.contains('ui-form-actions')).toBe(true)
+  expect(remove.parentElement?.getAttribute('data-form-span')).toBe('full')
   fireEvent.click(h.getByRole('button', { name: 'Add row' }))
   await settle()
   expect(h.factory).toHaveBeenCalledTimes(1)

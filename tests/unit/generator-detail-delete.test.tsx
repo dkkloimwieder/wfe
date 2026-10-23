@@ -152,6 +152,16 @@ test('delete cancel uses the shared alert dialog and never calls the callback', 
   const h = mountDelete()
   await h.open()
   expect(screen.getByRole('alertdialog')).toBeTruthy()
+  const cancel = screen.getByRole('button', {
+    name: 'Cancel',
+  }) as HTMLButtonElement
+  const confirm = screen.getByRole('button', {
+    name: 'Confirm',
+  }) as HTMLButtonElement
+  expect(cancel.parentElement).toBe(confirm.parentElement)
+  expect(Array.from(cancel.parentElement!.children)).toEqual([cancel, confirm])
+  expect(cancel.type).toBe('button')
+  expect(confirm.type).toBe('button')
   await waitFor(() =>
     expect(screen.getByRole('button', { name: 'Cancel' })).toBe(
       document.activeElement,

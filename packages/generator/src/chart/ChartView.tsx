@@ -1,3 +1,8 @@
+import {
+  requireObject as object,
+  requireKeys as keys,
+  isNonEmptyText,
+} from '../guards'
 import type { GeneratorMessageProps } from '../messages'
 import { createMemo, Show, untrack } from 'solid-js'
 import {
@@ -18,26 +23,9 @@ import type { ChartValue } from '@wfe/components/chart'
 import { requireValue, uniqueIds, StatusView } from '../shared'
 import type { ChartDescription, ChartViewBindings } from './types'
 
-function object(
-  value: unknown,
-  label: string,
-): asserts value is Record<string, unknown> {
-  requireValue(
-    value !== null && typeof value === 'object' && !Array.isArray(value),
-    `invalid ${label}`,
-  )
-}
-function keys(value: object, allowed: readonly string[], label: string) {
-  for (const key of Object.keys(value))
-    requireValue(
-      allowed.includes(key),
-      `unsupported ${label} property "${key}"`,
-    )
-}
 function text(value: unknown, label: string, optional = false) {
   requireValue(
-    (optional && value === undefined) ||
-      (typeof value === 'string' && Boolean(value.trim())),
+    (optional && value === undefined) || isNonEmptyText(value),
     `invalid ${label}`,
   )
 }

@@ -1,8 +1,9 @@
+import { isFormColumnCount, isFormSpan } from './guards'
 import type { GeneratorControlMessageProps } from './controlMessages'
 import { resolveGeneratorMessages } from './messages'
 import type { GeneratorMessageProps } from './messages'
 import { For, Show, createMemo, onCleanup, untrack } from 'solid-js'
-import { Button, FieldError, FieldGroup } from '@wfe/components'
+import { Button, FieldError, FieldGroup, FormActions } from '@wfe/components'
 import type { Accessor } from 'solid-js'
 import type { FormScalar, FormRowErrors } from '@wfe/form'
 import type { FormChoice, RepeatedFieldDescription } from './types'
@@ -43,7 +44,7 @@ export type RepeatedFieldAdapter = {
 export function validateRepeatedDescription(field: RuntimeRepeatedField) {
   descriptionLabel(field.label, field.field)
   requireValue(
-    field.columns === undefined || [1, 2, 3].includes(field.columns),
+    field.columns === undefined || isFormColumnCount(field.columns),
     `unsupported repeated column count "${field.field}"`,
   )
   uniqueIds(
@@ -53,11 +54,7 @@ export function validateRepeatedDescription(field: RuntimeRepeatedField) {
   for (const child of field.fields) {
     validateScalarDescription(child)
     requireValue(
-      child.span === undefined ||
-        child.span === 'full' ||
-        (Number.isInteger(child.span) &&
-          child.span >= 1 &&
-          child.span <= (field.columns ?? 1)),
+      isFormSpan(child.span, field.columns ?? 1),
       `unsupported span for field "${child.field}"`,
     )
   }
@@ -292,7 +289,7 @@ export function RepeatedField(
                   {errors()?.row}
                 </FieldError>
               </Show>
-              <div class="ui-form-actions" data-form-span="full">
+              <FormActions data-form-span="full">
                 <Button
                   aria-label={messages.removeRowLabel(label(), index() + 1)}
                   disabled={locked()}
@@ -300,7 +297,7 @@ export function RepeatedField(
                 >
                   {messages.removeRow}
                 </Button>
-              </div>
+              </FormActions>
             </FieldGroup>
           )
         }}
@@ -308,7 +305,7 @@ export function RepeatedField(
       <Show when={props.adapter.error()}>
         <FieldError id={groupErrorId()}>{props.adapter.error()}</FieldError>
       </Show>
-      <div class="ui-form-actions">
+      <FormActions>
         <Button
           ref={(node) => {
             addButton = node
@@ -318,7 +315,7 @@ export function RepeatedField(
         >
           {messages.addRow}
         </Button>
-      </div>
+      </FormActions>
     </FieldGroup>
   )
 }

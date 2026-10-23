@@ -1,3 +1,4 @@
+import { isFormColumnCount, isFormSpan } from './guards'
 import type { GeneratorControlMessageProps } from './controlMessages'
 import { RepeatedField, validateRepeatedDescription } from './repeatedField'
 import { resolveGeneratorMessages } from './messages'
@@ -85,16 +86,7 @@ export function FormView<
       'field',
     )
     const columns = value.layout?.columns ?? 1
-    const validColumns = (count: unknown) =>
-      count === 1 || count === 2 || count === 3
-    const validSpan = (span: unknown, count: number) =>
-      span === undefined ||
-      span === 'full' ||
-      (typeof span === 'number' &&
-        Number.isInteger(span) &&
-        span >= 1 &&
-        span <= count)
-    requireValue(validColumns(columns), 'unsupported form column count')
+    requireValue(isFormColumnCount(columns), 'unsupported form column count')
     const groups = value.layout?.groups
     const nextRegions = new Map<string, string | undefined>()
     if (groups !== undefined) {
@@ -117,11 +109,11 @@ export function FormView<
           'form groups require a title',
         )
         requireValue(
-          validColumns(group.columns ?? 1),
+          isFormColumnCount(group.columns ?? 1),
           'unsupported group column count',
         )
         requireValue(
-          validSpan(group.span, columns),
+          isFormSpan(group.span, columns),
           'unsupported form group span',
         )
         for (const key of group.fields) nextRegions.set(key, group.id)
@@ -140,7 +132,7 @@ export function FormView<
           ? columns
           : (groups.find((group) => group.id === groupId)?.columns ?? 1)
       requireValue(
-        validSpan(field.span, groupColumns),
+        isFormSpan(field.span, groupColumns),
         `unsupported span for field "${field.field}"`,
       )
       requireValue(

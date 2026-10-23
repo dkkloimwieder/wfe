@@ -8,7 +8,7 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js'
-import { AlertDialog } from '@wfe/components'
+import { AlertDialog, FormActions } from '@wfe/components'
 import type { DeleteDescription, DeleteViewBindings, RecordKey } from './types'
 import { StatusView, descriptionLabel, requireValue, uniqueIds } from './shared'
 
@@ -106,7 +106,7 @@ export function DeleteView<Key extends RecordKey>(
             <AlertDialog.Description>
               {description().confirmation}
             </AlertDialog.Description>
-            <div class="ui-form-actions">
+            <FormActions>
               <AlertDialog.Cancel>
                 {descriptionLabel(description().cancelLabel, messages.cancel)}
               </AlertDialog.Cancel>
@@ -116,7 +116,7 @@ export function DeleteView<Key extends RecordKey>(
               >
                 {descriptionLabel(description().confirmLabel, messages.delete)}
               </AlertDialog.Action>
-            </div>
+            </FormActions>
           </AlertDialog.Content>
         </AlertDialog.Portal>
       </AlertDialog>

@@ -1,27 +1,17 @@
-import { requireValue } from './shared'
+import { requireValue, requireObject, requireText, requireKeys } from './guards'
 import type { GridDescription } from './gridTypes'
 
 function object(
   value: unknown,
   label: string,
 ): asserts value is Record<string, unknown> {
-  requireValue(
-    value !== null && typeof value === 'object' && !Array.isArray(value),
-    `invalid grid ${label}`,
-  )
+  requireObject(value, `grid ${label}`)
 }
 function text(value: unknown, label: string): asserts value is string {
-  requireValue(
-    typeof value === 'string' && Boolean(value.trim()),
-    `invalid grid ${label}`,
-  )
+  requireText(value, `grid ${label}`)
 }
 function keys(value: object, allowed: readonly string[], label: string) {
-  for (const key of Object.keys(value))
-    requireValue(
-      allowed.includes(key),
-      `unsupported grid ${label} property "${key}"`,
-    )
+  requireKeys(value, allowed, `grid ${label}`)
 }
 function array(value: unknown, label: string) {
   requireValue(Array.isArray(value), `invalid grid ${label}`)

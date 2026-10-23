@@ -1,7 +1,15 @@
+import { isFormColumnCount, isFormSpan } from './guards'
 import type { GeneratorControlMessageProps } from './controlMessages'
 import type { GeneratorMessageProps } from './messages'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
-import { Field, Label, HelpText, FieldValue, FormGrid } from '@wfe/components'
+import {
+  Field,
+  Label,
+  HelpText,
+  FieldValue,
+  FormGrid,
+  FormActions,
+} from '@wfe/components'
 import type { DetailDescription, DetailViewBindings } from './types'
 import {
   ActionsView,
@@ -37,19 +45,12 @@ export function DetailView<T extends object, D extends DetailDescription<T>>(
     )
     descriptionLabel(value.title, value.id)
     const columns = value.columns ?? 1
-    requireValue(
-      columns === 1 || columns === 2 || columns === 3,
-      'unsupported detail column count',
-    )
+    requireValue(isFormColumnCount(columns), 'unsupported detail column count')
     for (const field of value.fields) {
       descriptionLabel(field.label, field.field)
       validatePresentation(field, `detail field "${field.field}"`)
       requireValue(
-        field.span === undefined ||
-          field.span === 'full' ||
-          (Number.isInteger(field.span) &&
-            Number(field.span) >= 1 &&
-            Number(field.span) <= columns),
+        isFormSpan(field.span, columns),
         'unsupported detail field span',
       )
     }
@@ -110,12 +111,12 @@ export function DetailView<T extends object, D extends DetailDescription<T>>(
           )}
         </For>
       </FormGrid>
-      <div class="ui-form-actions">
+      <FormActions>
         <ActionsView
           descriptions={description().actions ?? []}
           bindings={(props.bindings as { actions?: Actions }).actions}
         />
-      </div>
+      </FormActions>
     </section>
   )
 }

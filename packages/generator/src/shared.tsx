@@ -1,3 +1,5 @@
+import { requireValue } from './guards'
+export { requireValue } from './guards'
 import { resolveGeneratorMessages } from './messages'
 import type { GeneratorMessageProps } from './messages'
 import { For, Show, createMemo } from 'solid-js'
@@ -15,13 +17,6 @@ import type {
   ColumnPresentation,
   ViewStatus,
 } from './types'
-
-export function requireValue(
-  condition: unknown,
-  message: string,
-): asserts condition {
-  if (!condition) throw new Error(`Generator: ${message}`)
-}
 
 export function uniqueIds(ids: readonly string[], kind: string) {
   const seen = new Set<string>()
