@@ -3,6 +3,7 @@
 This directory contains the shared form, overlay, and display components.
 Table editors and application forms use these components and the styles in `../styles`.
 Application adapters own validation, requests, permissions, and persistence.
+The [control contract](../../../../docs/control-contract.md) distinguishes current APIs from planned compatible names and Field inheritance.
 
 Applications import these controls from `@wfe/components` or its public component subpaths.
 They explicitly import `@wfe/components/styles.css` and supply a `data-ui` scope through `uiScope()`.
