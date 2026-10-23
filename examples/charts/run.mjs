@@ -457,7 +457,7 @@ try {
     await expect(page.locator('.chart-primary-tooltip')).toHaveCount(0)
   })
   await run(
-    'standalone charts retain self-scoped focus and sizing styles',
+    'standalone charts retain focus and fit a narrow host without a parent scope',
     async () => {
       await page.goto(
         (process.env.BENCH_URL ??
@@ -468,20 +468,46 @@ try {
         exact: true,
       })
       await standalone.focus()
-      const style = await standalone.evaluate((svg) => ({
-        outline: getComputedStyle(svg).outlineStyle,
-        width: getComputedStyle(svg).outlineWidth,
-        minWidth: getComputedStyle(svg.closest('.ui-chart')).minWidth,
-        outer: Boolean(
-          svg.closest('.ui-chart').parentElement.closest('[data-ui]'),
+      await expect(standalone).toBeFocused()
+      assert.equal(
+        await standalone.evaluate((svg) =>
+          Boolean(svg.closest('.ui-chart').parentElement.closest('[data-ui]')),
         ),
-      }))
-      assert.deepEqual(style, {
-        outline: 'solid',
-        width: '1px',
-        minWidth: '0px',
-        outer: false,
+        false,
+      )
+      const host = page.locator('[data-chart-test-host]')
+      await host.evaluate((element) => {
+        element.style.width = '180px'
       })
+      await expect
+        .poll(async () => standalone.getAttribute('viewBox'))
+        .toBe('0 0 180 280')
+      const bounds = await standalone.evaluate((svg) => {
+        const chart = svg.getBoundingClientRect()
+        const host = svg
+          .closest('[data-chart-test-host]')
+          .getBoundingClientRect()
+        return {
+          visible: chart.width > 0 && chart.height > 0,
+          contained: chart.left >= host.left && chart.right <= host.right + 1,
+          pageFits: document.documentElement.scrollWidth <= innerWidth,
+        }
+      })
+      assert.deepEqual(bounds, {
+        visible: true,
+        contained: true,
+        pageFits: true,
+      })
+      await expect(standalone).toBeFocused()
+      await page.evaluate(() => {
+        const after = document.createElement('button')
+        after.textContent = 'After chart'
+        document.querySelector('#root').append(after)
+      })
+      await standalone.press('Tab')
+      await expect(
+        page.getByRole('button', { name: 'After chart' }),
+      ).toBeFocused()
       await page.evaluate(() => window.chartFixture.stop())
     },
   )

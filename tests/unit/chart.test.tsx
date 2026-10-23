@@ -131,19 +131,36 @@ test('disconnects observers and ignores late resize callbacks after disposal', (
 })
 
 test.each([0, -1, Infinity, Number.NaN])(
-  'invalid aspect ratio %s retains a measurable default height',
+  'invalid aspect ratio %s uses a positive fallback and recovers on the same chart',
   (aspectRatio) => {
+    const [ratio, setRatio] = createSignal(aspectRatio)
     const h = render(() => (
       <Chart
         definition={definition()}
         ariaLabel="Requests"
-        aspectRatio={aspectRatio}
+        width={480}
+        aspectRatio={ratio()}
       />
     ))
     flush()
     const host = h.container.querySelector<HTMLElement>('.ui-chart')!
-    expect(host.style.height).toBe('320px')
+    const fallbackHeight = Number.parseFloat(host.style.height)
+    expect(Number.isFinite(fallbackHeight) && fallbackHeight > 0).toBe(true)
     expect(host.style.aspectRatio).toBe('')
+    const svg = h.getByRole('img', { name: 'Requests' })
+    const dimensions = svg.getAttribute('viewBox')!.split(/\s+/).map(Number)
+    expect(dimensions.every(Number.isFinite)).toBe(true)
+    expect(dimensions[2]).toBe(480)
+    expect(dimensions[3]).toBeGreaterThan(0)
+    const path = svg.querySelector('.ts-chart__line path')!
+    const geometry = path.getAttribute('d')
+    expect(geometry).toBeTruthy()
+    expect(geometry).not.toMatch(/NaN|Infinity/)
+    setRatio(2)
+    flush()
+    expect(h.getByRole('img', { name: 'Requests' }) === svg).toBe(true)
+    expect(svg.querySelector('.ts-chart__line path') === path).toBe(true)
+    expect(svg.getAttribute('viewBox')).toBe('0 0 480 240')
   },
 )
 

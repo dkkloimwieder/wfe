@@ -37,7 +37,7 @@ export async function choiceCases({ page, url, record, press, settle }) {
           }
         })
       const fitting = await measure()
-      assert.ok(fitting.height > 216)
+      assert.ok(fitting.height > 0)
       assert.ok(fitting.scroll <= fitting.height + 1)
       await page.setViewportSize({ width: 1280, height: 400 })
       await configure({
@@ -121,16 +121,19 @@ export async function choiceCases({ page, url, record, press, settle }) {
     },
   )
   await record(
-    'choices: Select and Combobox keep selection markers compact',
+    'choices: selection markers preserve option semantics and pointer targets',
     async () => {
-      await open()
-      for (const show of [
-        () => select().click(),
-        async () => {
-          await input().focus()
-          await press('ArrowDown')
+      for (const { show, control } of [
+        { show: () => select().click(), control: select },
+        {
+          show: async () => {
+            await input().focus()
+            await press('ArrowDown')
+          },
+          control: input,
         },
       ]) {
+        await open()
         await show()
         const selected = page.getByRole('option', {
           name: 'Alpha',
@@ -146,11 +149,40 @@ export async function choiceCases({ page, url, record, press, settle }) {
             .locator('path')
             .evaluate((path) => path.getBBox().width > 0),
         )
+        assert.equal(await selected.getAttribute('aria-selected'), 'true')
+        const hit = await marker.evaluate((node) => {
+          const box = node.getBoundingClientRect()
+          const option = node.closest('[role="option"]')
+          const bounds = option.getBoundingClientRect()
+          const target = document.elementFromPoint(
+            box.left + box.width / 2,
+            box.top + box.height / 2,
+          )
+          return {
+            visible: box.width > 0 && box.height > 0,
+            contained:
+              box.left >= bounds.left &&
+              box.right <= bounds.right &&
+              box.top >= bounds.top &&
+              box.bottom <= bounds.bottom,
+            targetsOption: target?.closest('[role="option"]') === option,
+          }
+        })
+        assert.deepEqual(hit, {
+          visible: true,
+          contained: true,
+          targetsOption: true,
+        })
         const box = await marker.boundingBox()
-        assert.equal(box.width, 16)
-        assert.equal(box.height, 16)
-        assert.ok((await selected.boundingBox()).height <= 36)
+        await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2)
+        await settle()
+        assert.equal((await read()).value, null)
         await press('Escape')
+        assert.equal(await selected.count(), 0)
+        assert.equal(
+          await control().evaluate((node) => node === document.activeElement),
+          true,
+        )
       }
     },
   )

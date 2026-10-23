@@ -48,6 +48,9 @@ Grid cases cover 150 controlled checkboxes, read-only columns, disabled rows, re
 Grid hydration retains all 150 server inputs and the initial focus.
 Status tile cases cover controlled values and states, raw formats, full text, shared themes, shadows, narrow wrapping, and forced colors.
 Tile hydration retains server nodes and initial heading focus.
+Choice cases test selected option semantics, marker hit targets, containment, and focus after selection.
+Chart fallback cases test usable geometry and recovery from invalid aspect ratios.
+Server theme cases test ownership markers and caller-selected mode without fixing a control size.
 The bundle guard rejects modules outside the wfe checkout.
 
 The runner executes stages serially and stops at the first failure.

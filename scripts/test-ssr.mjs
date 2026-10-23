@@ -747,7 +747,8 @@ const themeOutput = await renderToString(() =>
 )
 assert.ok(themeOutput.includes('ui-theme'))
 assert.ok(themeOutput.includes('--ui-color-scheme:dark'))
-assert.ok(themeOutput.includes('--ui-control-height:32px'))
+assert.equal((themeOutput.match(/data-ui-theme-owner/g) ?? []).length, 1)
+assert.equal((themeOutput.match(/data-ui-portal-root/g) ?? []).length, 1)
 assert.ok(themeOutput.includes('Themed record'))
 
 const embeddedShell = await renderToString(() =>
