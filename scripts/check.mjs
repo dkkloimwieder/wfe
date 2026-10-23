@@ -5,6 +5,7 @@ for (const script of [
   'test:integrity',
   'build',
   'types',
+  'types:unit',
   'types:examples',
   'test:unit',
   'test',

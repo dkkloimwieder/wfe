@@ -279,7 +279,7 @@ test('table format changes preserve raw data, aliases and custom cell precedence
 })
 test('unsupported generator formats fail as description errors', () => {
   const h = render(() => {
-    const form = createForm({
+    const form = createForm<{ code: string }>({
       values: () => ({ code: 'x' }),
       defaults: () => ({ code: 'x' }),
       onValuesChange() {},

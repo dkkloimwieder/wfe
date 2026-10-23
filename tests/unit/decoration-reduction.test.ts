@@ -20,7 +20,7 @@ describe('decoration reduction controls', () => {
           [20, 30],
           [300, 800],
           [1000, 240],
-        ])
+        ] as const)
           expect(
             decorationAngles(
               width,
@@ -49,10 +49,11 @@ describe('decoration reduction controls', () => {
             taperReduction: amount,
           }),
         )
-        next.forEach((angle, axis) => {
+        for (const axis of [0, 1, 2] as const) {
+          const angle = next[axis]
           expect(Math.abs(angle)).toBeLessThan(Math.abs(previous[axis]))
           expect(Math.sign(angle)).toBe(Math.sign(previous[axis]))
-        })
+        }
         previous = next
       }
     }
@@ -94,25 +95,26 @@ describe('decoration reduction controls', () => {
       resolveDecorationGeometry({ ...zero, taperReduction: 1 }),
     )
     expect(taperOnly[0]).toBe(baseline[0])
-    for (const axis of [1, 2])
+    for (const axis of [1, 2] as const)
       expect(Math.abs(taperOnly[axis])).toBeLessThan(Math.abs(baseline[axis]))
   })
   it('changes and disables each base angle without changing other axes', () => {
     for (const scale of ['linear', 'power'] as const) {
       const options = resolveDecorationGeometry({ scale })
       const baseline = decorationAngles(300, 800, samples, options)
-      for (const [axis, key] of (
-        ['rotation', 'taperX', 'taperY'] as const
-      ).entries()) {
+      for (const [axis, key] of [
+        [0, 'rotation'],
+        [1, 'taperX'],
+        [2, 'taperY'],
+      ] as const) {
         const adjusted = decorationAngles(300, 800, samples, {
           ...options,
           [key]: options[key] / 2,
         })
-        adjusted.forEach((angle, index) =>
-          expect(angle).toBe(
+        for (const index of [0, 1, 2] as const)
+          expect(adjusted[index]).toBe(
             index === axis ? baseline[index] / 2 : baseline[index],
-          ),
-        )
+          )
         const disabled = decorationAngles(300, 800, samples, {
           ...options,
           [key]: 0,
@@ -142,8 +144,7 @@ describe('decoration reduction controls', () => {
       samples,
       resolveDecorationGeometry({ ...options, scale: 'power', exponent: 3 }),
     )
-    stronger.forEach((angle, axis) =>
-      expect(Math.abs(angle)).toBeLessThan(Math.abs(power[axis])),
-    )
+    for (const axis of [0, 1, 2] as const)
+      expect(Math.abs(stronger[axis])).toBeLessThan(Math.abs(power[axis]))
   })
 })

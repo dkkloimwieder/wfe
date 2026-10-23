@@ -176,7 +176,10 @@ test('wire validation preserves original outcomes and method receivers before ge
 })
 test('unknown operations and unsupported result classes fail before transport invocation', async () => {
   const source: Transport = {
-    invoke: vi.fn(async () => ({ status: 'completed', value: {} })),
+    invoke: vi.fn<Transport['invoke']>(async () => ({
+      status: 'completed',
+      value: {},
+    })),
   }
   const client = createMetadataInvoke(source, controlResultSchemas)
   expect(

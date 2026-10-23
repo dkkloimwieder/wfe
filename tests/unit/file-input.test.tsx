@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
@@ -26,6 +27,7 @@ test('controlled picker requests append objects without mutating or deduplicatin
   ))
   const input = h.container.querySelector('input')!
   pick(input, [second])
+  assert(change.mock.calls[0])
   expect(change.mock.calls[0][0]).toEqual([first, second])
   expect(change.mock.calls[0][0][1]).toBe(second)
   expect(original.length).toBe(1)
@@ -55,6 +57,7 @@ test('single selection replaces, mixed batches retain accepted objects, and mult
     wrong = text('wrong.bin', '1', 'application/octet-stream')
   pick(input, [valid, big, wrong])
   expect(files()).toEqual([expect.any(File), valid])
+  assert(reject.mock.calls[0])
   expect(
     reject.mock.calls[0][0].map((r: { reason: string }) => r.reason),
   ).toEqual(['size', 'type'])
@@ -64,6 +67,7 @@ test('single selection replaces, mixed batches retain accepted objects, and mult
   flush()
   pick(input, [valid, text('other.txt')])
   expect(files()).toEqual([])
+  assert(reject.mock.calls[1])
   expect(
     reject.mock.calls[1][0].map((r: { reason: string }) => r.reason),
   ).toEqual(['multiple', 'multiple'])

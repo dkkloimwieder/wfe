@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { createSignal, Errored, flush, onCleanup } from 'solid-js'
@@ -81,6 +82,7 @@ test('uncontrolled multiple sections retain owners and native handlers until gro
     </Accordion>
   ))
   const [a, b] = Array.from(h.container.querySelectorAll('details'))
+  assert(a && b)
   b.querySelector('summary')!.click()
   flush()
   expect(a.open && b.open).toBe(true)
@@ -120,6 +122,7 @@ test('nested groups and removed items keep their own selected values', () => {
     </Accordion>
   ))
   let [outer, inner] = Array.from(h.container.querySelectorAll('details'))
+  assert(outer && inner)
   inner.querySelector('summary')!.click()
   flush()
   expect(outer.open).toBe(true)
@@ -129,6 +132,7 @@ test('nested groups and removed items keep their own selected values', () => {
   setShow(true)
   flush()
   ;[outer, inner] = Array.from(h.container.querySelectorAll('details'))
+  assert(outer && inner)
   expect(outer.open).toBe(true)
   expect(inner.open).toBe(true)
 })
@@ -238,6 +242,7 @@ test('uncontrolled multiple requests accumulate before a flush and callback arra
     </Accordion>
   ))
   const [a, b] = Array.from(h.container.querySelectorAll('details'))
+  assert(a && b)
   a.querySelector('summary')!.click()
   b.querySelector('summary')!.click()
   flush()

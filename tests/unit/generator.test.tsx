@@ -34,9 +34,7 @@ test('form descriptions preserve controls, accepted values, labels and actions a
     category: 'a',
     count: 2,
   })
-  const [description, setDescription] = createSignal<
-    FormDescription<ReturnType<typeof values>>
-  >({
+  const [description, setDescription] = createSignal({
     id: 'editor',
     title: 'Editor',
     fields: [
@@ -47,7 +45,7 @@ test('form descriptions preserve controls, accepted values, labels and actions a
     ],
     submit: { id: 'save', label: 'Save' },
     actions: [{ id: 'extra', label: 'Extra' }],
-  })
+  } satisfies FormDescription<ReturnType<typeof values>>)
   const calls: number[] = []
   const [callback, setCallback] = createSignal(() => () => {
     calls.push(1)
@@ -158,15 +156,16 @@ test('table uses the original engine and keeps custom cells on label and alias c
       </>
     )
   }
-  const description = (): TableDescription => ({
-    id: 'records',
-    title: 'Records',
-    columns: {
-      name: { label: 'Name' },
-      amount: { label: label(), renderer: 'number' },
-    },
-    controls: { filtering: false, search: false, grouping: false },
-  })
+  const description = () =>
+    ({
+      id: 'records',
+      title: 'Records',
+      columns: {
+        name: { label: 'Name' },
+        amount: { label: label(), renderer: 'number' },
+      },
+      controls: { filtering: false, search: false, grouping: false },
+    }) satisfies TableDescription
   let table!: ReturnType<
     typeof createTable<{ name: string; amount: number }, never>
   >
@@ -354,6 +353,7 @@ for (const mode of [
         validate: () => ({}),
         onSubmit: () => ({ ok: true }),
       })
+      // Deliberately pass invalid metadata through the valid text-field boundary.
       const description = () =>
         ({
           id: 'invalid',
@@ -381,7 +381,10 @@ for (const mode of [
           ...(mode === 'action'
             ? { actions: [{ id: 'missing', label: 'Missing' }] }
             : {}),
-        }) as FormDescription<{ name: string }>
+        }) as {
+          id: string
+          fields: readonly { field: 'name'; label: string; control: 'text' }[]
+        }
       return (
         <Errored fallback={(error) => <p role="alert">{String(error())}</p>}>
           <FormView description={description()} bindings={{ form }} />
@@ -412,19 +415,24 @@ for (const mode of [
       })
       const A = (props: { value: unknown }) => String(props.value)
       const B = (props: { value: unknown }) => String(props.value)
-      const description = (): TableDescription => ({
-        id: 'table',
-        columns: {
-          [mode === 'column' ? 'missing' : 'name']: {
-            label: 'Name',
-            ...(mode === 'renderer'
-              ? { renderer: 'missing' }
-              : mode === 'replace-renderer'
-                ? { renderer: changed() ? 'b' : 'a' }
-                : {}),
+      // Deliberately pass missing or replaced renderer IDs through the fixture boundary.
+      const description = () =>
+        ({
+          id: 'table',
+          columns: {
+            [mode === 'column' ? 'missing' : 'name']: {
+              label: 'Name',
+              ...(mode === 'renderer'
+                ? { renderer: 'missing' }
+                : mode === 'replace-renderer'
+                  ? { renderer: changed() ? 'b' : 'a' }
+                  : {}),
+            },
           },
-        },
-      })
+        }) as {
+          id: string
+          columns: Record<string, { label: string; renderer: 'a' | 'b' }>
+        }
       return (
         <Errored fallback={(error) => <p role="alert">{String(error())}</p>}>
           <TableView
@@ -765,15 +773,15 @@ test('generated row context preserves identity and live records across sorting, 
       />
     )
   })
-  const ada = mounted.getByRole('button', { name: 'Ada', exact: true })
-  const bob = mounted.getByRole('button', { name: 'Bob', exact: true })
+  const ada = mounted.getByRole('button', { name: 'Ada' })
+  const bob = mounted.getByRole('button', { name: 'Bob' })
   table.setSorting([{ id: 'name', desc: true }])
   flush()
   expect(table.getRowIds()).toEqual(['b', 'a'])
   fireEvent.click(bob)
   table.setColumnOrder(['value', 'name'])
   flush()
-  expect(mounted.getByRole('button', { name: 'Ada', exact: true })).toBe(ada)
+  expect(mounted.getByRole('button', { name: 'Ada' })).toBe(ada)
   fireEvent.click(ada)
   setRows({ a: { name: 'Zoe', value: 3 }, b: { name: 'Bob', value: 2 } })
   flush()
@@ -787,7 +795,7 @@ test('generated row context preserves identity and live records across sorting, 
   expect(removed).toEqual(['a'])
   fireEvent.click(ada)
   expect(chosen).toEqual(['b', 'a', 'a'])
-  expect(mounted.getByRole('button', { name: 'Bob', exact: true })).toBe(bob)
+  expect(mounted.getByRole('button', { name: 'Bob' })).toBe(bob)
 })
 
 test('generated tables forward application-controlled pane size without replacing record nodes', () => {

@@ -130,7 +130,7 @@ function mount() {
 }
 test('repeated records reuse named scalar controls and row fieldsets without initial requests', () => {
   const h = mount()
-  expect(h.getByRole('group', { name: 'entries', exact: true })).toBeTruthy()
+  expect(h.getByRole('group', { name: 'entries' })).toBeTruthy()
   expect(
     within(h.row('a')).getByRole('textbox', { name: 'name' }),
   ).toHaveProperty('value', 'First')
@@ -403,12 +403,17 @@ test('nested choices and custom fields use their repeated binding and current ro
           repeated: {
             entries: {
               rowKey: (row) => row.key,
-              createRow: () => ({ key: 'new', mode: 'alpha', amount: 0 }),
+              createRow: () => ({
+                key: 'new',
+                mode: 'alpha' as const,
+                amount: 0,
+              }),
               choices: {
-                mode: () => [
-                  { value: 'alpha', label: 'Alpha' },
-                  { value: 'beta', label: 'Beta' },
-                ],
+                mode: () =>
+                  [
+                    { value: 'alpha', label: 'Alpha' },
+                    { value: 'beta', label: 'Beta' },
+                  ] as const,
               },
               fields: { amount: Custom },
             },

@@ -1,3 +1,4 @@
+import assert from 'node:assert/strict'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
@@ -69,6 +70,7 @@ test('table sections retain native reveal and detached listeners stop callbacks'
     </>
   ))
   const [table, generic] = Array.from(h.container.querySelectorAll('details'))
+  assert(table && generic)
   table.open = true
   expect(table.open).toBe(true)
   generic.open = true

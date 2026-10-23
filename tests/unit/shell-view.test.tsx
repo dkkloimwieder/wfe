@@ -148,7 +148,7 @@ test('renders configured navigation, breadcrumbs and a page without initial focu
 test('rejected navigation sends one request without changing the page or focus', async () => {
   const h = mount()
   await settle()
-  fireEvent.click(h.getByRole('button', { name: 'Navigation', exact: true }))
+  fireEvent.click(h.getByRole('button', { name: 'Navigation' }))
   await settle()
   const queue = h.menu().getByRole('link', { name: 'Queue' })
   queue.focus()
@@ -172,7 +172,7 @@ test('accepted navigation replaces the old page owner and focuses the new headin
   const h = mount()
   await settle()
   h.accept()
-  fireEvent.click(h.getByRole('button', { name: 'Navigation', exact: true }))
+  fireEvent.click(h.getByRole('button', { name: 'Navigation' }))
   await settle()
   fireEvent.click(h.menu().getByRole('link', { name: 'Queue' }))
   await settle()
@@ -322,7 +322,7 @@ test('rejects replacement shell identity and releases the page when its boundary
 test('activating the already-current route closes navigation and focuses its heading without replacing the page', async () => {
   const h = mount()
   await settle()
-  fireEvent.click(h.getByRole('button', { name: 'Navigation', exact: true }))
+  fireEvent.click(h.getByRole('button', { name: 'Navigation' }))
   await settle()
   const home = h.menu().getByRole('link', { name: 'Home' })
   home.focus()

@@ -92,3 +92,13 @@ test('an earlier required failure prevents unit and Node suites from starting', 
       false,
     )
   }))
+
+test('unit test types are required before runtime tests and stop the gate on failure', () =>
+  withFakePnpm('types:unit', async (result, calls) => {
+    assert.equal(result.status, 7, result.stderr)
+    assert.deepEqual(calls.at(-1).args, ['types:unit'])
+    assert.equal(
+      calls.some(({ args }) => args.includes('test:unit')),
+      false,
+    )
+  }))

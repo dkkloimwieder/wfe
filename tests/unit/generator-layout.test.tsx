@@ -10,10 +10,26 @@ afterEach(cleanup)
 type Values = { name: string; amount: number; notes: string }
 const fields = [
   { field: 'name', label: 'Name', control: 'text', span: 'full' },
-  { field: 'amount', label: 'Amount', control: 'custom' },
+  { field: 'amount', label: 'Amount', control: 'custom', span: undefined },
   { field: 'notes', label: 'Notes', control: 'textarea', span: 2 },
 ] as const
-const grouped: FormDescription<Values> = {
+type Description = Omit<FormDescription<Values>, 'fields'> & {
+  fields: readonly (
+    | Extract<
+        FormDescription<Values>['fields'][number],
+        { field: 'name'; control: 'text' | 'textarea' }
+      >
+    | Extract<
+        FormDescription<Values>['fields'][number],
+        { field: 'amount'; control: 'custom' }
+      >
+    | Extract<
+        FormDescription<Values>['fields'][number],
+        { field: 'notes'; control: 'text' | 'textarea' }
+      >
+  )[]
+}
+const grouped: Description = {
   id: 'layout',
   fields,
   layout: {
@@ -87,7 +103,7 @@ function mount(initial = grouped) {
     counts: () => ({ mounts, disposals, submissions }),
   }
 }
-function update(h: ReturnType<typeof mount>, next: FormDescription<Values>) {
+function update(h: ReturnType<typeof mount>, next: Description) {
   h.setDescription(next)
   flush()
 }
@@ -248,7 +264,7 @@ for (const [name, layout, message] of [
     const h = mount({
       ...grouped,
       layout,
-    } as unknown as FormDescription<Values>)
+    } as unknown as Description)
     expect(h.getByRole('alert').textContent).toContain(message)
   })
 

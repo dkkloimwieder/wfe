@@ -108,7 +108,7 @@ async function submit(h: ReturnType<typeof mount>) {
   flush()
 }
 function edit(h: ReturnType<typeof mount>, label: string, text: string) {
-  const input = h.getByRole('textbox', { name: label, exact: true })
+  const input = h.getByRole('textbox', { name: label })
   fireEvent.input(input, { target: { value: text } })
   flush()
   return input
@@ -178,7 +178,7 @@ test('native disabled fieldsets and foreign form associations do not block this 
 
 test('runtime descriptions reject null policies even when the accepted value is finite', () => {
   const h = render(() => {
-    const form = createForm({
+    const form = createForm<{ count: number }>({
       values: () => ({ count: 2 }),
       defaults: () => ({ count: 2 }),
       onValuesChange: () => {},
@@ -188,9 +188,14 @@ test('runtime descriptions reject null policies even when the accepted value is 
     const description = {
       id: 'invalid',
       fields: [
-        { field: 'count', label: 'Count', control: 'number', empty: null },
+        {
+          field: 'count',
+          label: 'Count',
+          control: 'number',
+          empty: null as unknown as 'reject',
+        },
       ],
-    } as unknown as FormDescription<{ count: number }>
+    } as const satisfies FormDescription<{ count: number }>
     return (
       <Errored fallback={(error) => <p role="alert">{String(error())}</p>}>
         <FormView description={description} bindings={{ form }} />

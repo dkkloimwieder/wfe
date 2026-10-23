@@ -236,7 +236,9 @@ test('lifecycle confirmations capture identities, refresh sample status, and ign
     expect(app.lifecycle.target()).toBeUndefined()
     const request = app.mock
       .sent()
-      .findLast((request) => request.operation.includes('user/deactivate'))!
+      .slice()
+      .reverse()
+      .find((request) => request.operation.includes('user/deactivate'))!
     expect(request.items).toEqual([
       { request_id: expect.any(String), value: { principal_id: ANN } },
     ])

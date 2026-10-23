@@ -109,15 +109,15 @@ function mountForm() {
 
 test('omitted labels name native, choice, boolean, date and numeric controls from field keys', () => {
   const h = mountForm()
-  expect(h.getByRole('textbox', { name: 'name', exact: true })).toBeTruthy()
-  expect(h.getByRole('textbox', { name: 'notes', exact: true })).toBeTruthy()
-  expect(h.getByRole('checkbox', { name: 'active', exact: true })).toBeTruthy()
-  expect(h.getByRole('switch', { name: 'enabled', exact: true })).toBeTruthy()
+  expect(h.getByRole('textbox', { name: 'name' })).toBeTruthy()
+  expect(h.getByRole('textbox', { name: 'notes' })).toBeTruthy()
+  expect(h.getByRole('checkbox', { name: 'active' })).toBeTruthy()
+  expect(h.getByRole('switch', { name: 'enabled' })).toBeTruthy()
   expect(h.container.querySelector('button[aria-label="kind"]')).not.toBeNull()
   for (const key of ['joined', 'started', 'quantity'])
     expect(h.getByText(key, { exact: true })).toBeTruthy()
-  expect(h.getByRole('button', { name: 'save', exact: true })).toBeTruthy()
-  expect(h.getByRole('button', { name: 'clear', exact: true })).toBeTruthy()
+  expect(h.getByRole('button', { name: 'save' })).toBeTruthy()
+  expect(h.getByRole('button', { name: 'clear' })).toBeTruthy()
   expect(h.changes).not.toHaveBeenCalled()
   expect(h.submit).not.toHaveBeenCalled()
   expect(h.extra).not.toHaveBeenCalled()
@@ -126,31 +126,26 @@ test('label changes preserve inputs, focus, accepted values and application call
   const h = mountForm()
   const input = h.getByRole('textbox', {
     name: 'name',
-    exact: true,
   }) as HTMLInputElement
   input.focus()
   h.form.setValue('name', 'Edited')
   await settle()
   h.setRenamed(true)
   await settle()
-  expect(h.getByRole('textbox', { name: 'Label name', exact: true })).toBe(
-    input,
-  )
+  expect(h.getByRole('textbox', { name: 'Label name' })).toBe(input)
   expect(input.value).toBe('Edited')
   expect(document.activeElement).toBe(input)
   expect(h.changes).toHaveBeenCalledTimes(1)
   expect(h.values().name).toBe('Edited')
-  expect(
-    h.getByRole('button', { name: 'Save changes', exact: true }),
-  ).toBeTruthy()
+  expect(h.getByRole('button', { name: 'Save changes' })).toBeTruthy()
   h.setRenamed(false)
   await settle()
-  expect(h.getByRole('textbox', { name: 'name', exact: true })).toBe(input)
+  expect(h.getByRole('textbox', { name: 'name' })).toBe(input)
   expect(h.changes).toHaveBeenCalledTimes(1)
 })
 test('fallback submit and action names keep their existing operations', async () => {
   const h = mountForm()
-  fireEvent.click(h.getByRole('button', { name: 'clear', exact: true }))
+  fireEvent.click(h.getByRole('button', { name: 'clear' }))
   expect(h.extra).toHaveBeenCalledTimes(1)
   expect(h.submit).not.toHaveBeenCalled()
   await h.form.submit()
@@ -187,7 +182,7 @@ test('table action labels default to operation IDs without changing column label
       />
     )
   })
-  fireEvent.click(h.getByRole('button', { name: 'export', exact: true }))
+  fireEvent.click(h.getByRole('button', { name: 'export' }))
   expect(run).toHaveBeenCalledTimes(1)
   expect(h.getByRole('columnheader')).toHaveProperty(
     'textContent',
@@ -211,6 +206,6 @@ test('layout action labels use the same operation ID fallback', () => {
       }}
     />
   ))
-  fireEvent.click(h.getByRole('button', { name: 'refresh', exact: true }))
+  fireEvent.click(h.getByRole('button', { name: 'refresh' }))
   expect(run).toHaveBeenCalledTimes(1)
 })

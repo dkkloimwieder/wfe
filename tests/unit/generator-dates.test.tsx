@@ -83,7 +83,7 @@ async function submit(view: ReturnType<typeof mount>) {
 }
 test('invalid date drafts block application validation and reset restores submission', async () => {
   const view = mount()
-  const date = view.getByRole('textbox', { name: 'Date', exact: true })
+  const date = view.getByRole('textbox', { name: 'Date' })
   fireEvent.input(date, { target: { value: '30/02/2024' } })
   flush()
   await submit(view)
@@ -97,7 +97,7 @@ test('invalid date drafts block application validation and reset restores submis
 })
 test('invalid datetime drafts block application validation and preserve the accepted instant', async () => {
   const view = mount()
-  const time = view.getByRole('textbox', { name: 'Time', exact: true })
+  const time = view.getByRole('textbox', { name: 'Time' })
   fireEvent.input(time, { target: { value: '25:00' } })
   flush()
   await submit(view)
@@ -111,7 +111,7 @@ test('invalid datetime drafts block application validation and preserve the acce
 })
 test('locked and removed fields release draft blocks while application errors permit retry', async () => {
   const view = mount()
-  const date = view.getByRole('textbox', { name: 'Date', exact: true })
+  const date = view.getByRole('textbox', { name: 'Date' })
   fireEvent.input(date, { target: { value: '30/02/2024' } })
   flush()
   view.setState({

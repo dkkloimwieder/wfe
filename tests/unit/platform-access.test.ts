@@ -210,7 +210,7 @@ test('access model validates actual choices and does not send invalid commands',
   await settle()
   await app.access.form.submit()
   await settle()
-  expect(app.access.form.errors.fields.project).toBeTruthy()
+  expect(app.access.form.errors.fields?.project).toBeTruthy()
   expect(app.mock.sent().filter((row) => row.method === 'POST')).toHaveLength(0)
   app.access.form.setValue('project', 'billing')
   flush()
@@ -368,7 +368,7 @@ test('late environment choices cannot cross projects or refetch for unrelated va
   flush()
   await app.access.form.submit()
   await settle()
-  expect(app.access.form.errors.fields.env).toBeTruthy()
+  expect(app.access.form.errors.fields?.env).toBeTruthy()
   expect(app.mock.sent().filter((row) => row.method === 'POST')).toHaveLength(0)
   stop()
 })
@@ -573,7 +573,10 @@ test('a refused command marks an interrupted summary stale until explicit refres
     if (
       !held &&
       request.operation.includes(':member/list') &&
-      request.items[0]?.project === 'billing'
+      typeof request.items[0] === 'object' &&
+      request.items[0] !== null &&
+      'project' in request.items[0] &&
+      request.items[0].project === 'billing'
     ) {
       held = true
       await new Promise<void>((resolve) => {

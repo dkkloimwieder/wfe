@@ -65,7 +65,7 @@ test('maintains one custom tooltip owner through focused point updates and dispo
           <div data-custom-tooltip>
             <input aria-label="Tooltip note" />
             {context.defaultBody}
-            <span>{context.primaryPoint.yValue}</span>
+            <span>{context.primaryPoint?.yValue}</span>
           </div>
         )
       }}

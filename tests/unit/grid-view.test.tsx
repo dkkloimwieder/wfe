@@ -60,7 +60,7 @@ function mount() {
       accepting = true
     },
     cell: (name: string) =>
-      h.getByRole('checkbox', { name, exact: true }) as HTMLInputElement,
+      h.getByRole('checkbox', { name }) as HTMLInputElement,
   }
 }
 
