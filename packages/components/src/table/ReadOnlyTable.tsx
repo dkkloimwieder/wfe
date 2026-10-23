@@ -1,3 +1,4 @@
+import type { DatePickerMessages } from '../components/dateMessages'
 import { resolveMessages } from '../internal/messages'
 import { resolveTableMessages, type TableMessages } from './messages'
 import { TablePagination } from './TablePagination'
@@ -49,6 +50,7 @@ export type TableFilterConfig = TableColumnFilterConfig
 export function ReadOnlyTable<T, M>(
   props: {
     messages?: Partial<TableMessages>
+    datePickerMessages?: Partial<DatePickerMessages>
     table: NativeTable<T, M>
     pagination?: TablePaginationProps
     selection?: TableSelection
@@ -381,6 +383,7 @@ export function ReadOnlyTable<T, M>(
                               }
                             >
                               <TableDateFilter
+                                datePickerMessages={props.datePickerMessages}
                                 messages={props.messages}
                                 label={label(column)}
                                 startLabel={messages.dateStart(label(column))}
@@ -405,6 +408,7 @@ export function ReadOnlyTable<T, M>(
                         >
                           {(config) => (
                             <TableColumnFilter
+                              datePickerMessages={props.datePickerMessages}
                               messages={props.messages}
                               label={label(column)}
                               clearLabel={messages.clearFilter(label(column))}

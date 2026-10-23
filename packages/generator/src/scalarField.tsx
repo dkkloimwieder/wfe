@@ -1,3 +1,4 @@
+import type { GeneratorControlMessageProps } from './controlMessages'
 import { Show, createMemo, untrack, onCleanup } from 'solid-js'
 import {
   FieldValue,
@@ -110,11 +111,13 @@ export function validateScalarField(
     )
 }
 
-export function ScalarField(props: {
-  field: RuntimeScalarField
-  id: string
-  adapter: ScalarFieldAdapter
-}) {
+export function ScalarField(
+  props: GeneratorControlMessageProps & {
+    field: RuntimeScalarField
+    id: string
+    adapter: ScalarFieldAdapter
+  },
+) {
   const field = () => props.field
   const key = untrack(() => field().field)
   const control = untrack(() => field().control)
@@ -205,6 +208,7 @@ export function ScalarField(props: {
             />
           ) : control === 'number' ? (
             <NumberInput
+              messages={props.controlMessages?.numberInput}
               value={
                 (props.adapter.value() as number | null | undefined) ??
                 undefined
@@ -224,6 +228,7 @@ export function ScalarField(props: {
             />
           ) : control === 'date' ? (
             <DatePicker
+              messages={props.controlMessages?.datePicker}
               label={label()}
               value={String(props.adapter.value()) || undefined}
               dateFormat={dateDescription().dateFormat}
@@ -235,6 +240,7 @@ export function ScalarField(props: {
             />
           ) : control === 'datetime' ? (
             <DateTimePicker
+              messages={props.controlMessages?.dateTimePicker}
               label={label()}
               value={String(props.adapter.value()) || undefined}
               dateFormat={datetimeDescription().dateFormat}
@@ -318,6 +324,7 @@ export function ScalarField(props: {
         }
       >
         <FieldValue
+          messages={props.controlMessages?.valueDisplay}
           value={props.adapter.value()}
           format={checkedField().format}
           locale={checkedField().formatOptions?.locale}

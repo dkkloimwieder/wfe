@@ -1,3 +1,4 @@
+import type { GeneratorControlMessageProps } from './controlMessages'
 import { RepeatedField, validateRepeatedDescription } from './repeatedField'
 import { resolveGeneratorMessages } from './messages'
 import type { GeneratorMessageProps } from './messages'
@@ -58,10 +59,11 @@ export function FormView<
   T extends object & FormShape<T>,
   D extends FormDescription<T>,
 >(
-  props: GeneratorMessageProps & {
-    description: D
-    bindings: FormViewBindings<T, D>
-  },
+  props: GeneratorMessageProps &
+    GeneratorControlMessageProps & {
+      description: D
+      bindings: FormViewBindings<T, D>
+    },
 ) {
   // Runtime dispatch erases each field's value type. Descriptions and guards select its control.
   const messages = resolveGeneratorMessages(() => props.messages)
@@ -171,6 +173,7 @@ export function FormView<
     const readOnly = () => Boolean(bindings().readOnly?.(key))
     return control === 'repeat' ? (
       <RepeatedField
+        controlMessages={props.controlMessages}
         messages={props.messages}
         field={checked() as RuntimeRepeatedField}
         id={id}
@@ -196,6 +199,7 @@ export function FormView<
       />
     ) : (
       <ScalarField
+        controlMessages={props.controlMessages}
         field={checked() as RuntimeScalarField}
         id={id}
         adapter={{

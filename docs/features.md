@@ -171,3 +171,5 @@ The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the
 Owned styled component props are available from the package root and existing component subpaths. See [styled component props](styled-component-types.md) for compatible type exports and the shared button variant, tone, and value-format contracts.
 
 Status and display components accept [application-supplied messages](display-messages.md) for owned labels and empty values. Message updates preserve existing controls; formatting locale remains separate.
+
+Generated forms, repeated rows, details, and tables forward [nested control messages](view-messages.md#nested-standard-controls) without replacing their standard controls. Date-filter boundary labels retain their own explicit precedence.

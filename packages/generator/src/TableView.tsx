@@ -1,3 +1,4 @@
+import type { GeneratorControlMessageProps } from './controlMessages'
 import type { GeneratorMessageProps } from './messages'
 import { createMemo, untrack } from 'solid-js'
 import { ValueDisplay } from '@wfe/components'
@@ -22,10 +23,11 @@ import {
 import type { Actions } from './shared'
 
 export function TableView<Row, Meta, D extends TableDescription>(
-  props: GeneratorMessageProps & {
-    description: D
-    bindings: TableViewBindings<Row, Meta, D>
-  },
+  props: GeneratorMessageProps &
+    GeneratorControlMessageProps & {
+      description: D
+      bindings: TableViewBindings<Row, Meta, D>
+    },
 ) {
   const table = untrack(() => props.bindings.table)
   const ToolbarActions = untrack(() => props.bindings.toolbarActions)
@@ -141,6 +143,7 @@ export function TableView<Row, Meta, D extends TableDescription>(
       >
         {(format) => (
           <ValueDisplay
+            messages={props.controlMessages?.valueDisplay}
             value={cellProps.cell.getValue()}
             format={format}
             locale={
@@ -177,6 +180,7 @@ export function TableView<Row, Meta, D extends TableDescription>(
     >
       <StatusView messages={props.messages} status={props.bindings.status} />
       <ReadOnlyTable
+        datePickerMessages={props.controlMessages?.datePicker}
         messages={props.bindings.messages}
         table={table}
         toolbarActions={ToolbarActions ? <ToolbarActions /> : undefined}

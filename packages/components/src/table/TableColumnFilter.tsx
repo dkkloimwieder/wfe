@@ -1,3 +1,4 @@
+import type { DatePickerMessages } from '../components/dateMessages'
 import { resolveTableMessages, type TableMessages } from './messages'
 import { restoreTextValue } from '../internal/controlledText'
 import { TableFilter } from './TableFilter'
@@ -41,6 +42,7 @@ export type TableColumnFilterConfig =
 
 type ColumnFilterControlProps = {
   messages?: Partial<TableMessages>
+  datePickerMessages?: Partial<DatePickerMessages>
   label: string
   clearLabel?: string
   config: TableColumnFilterConfig
@@ -105,6 +107,7 @@ export function TableColumnFilter<const C extends TableColumnFilterConfig>(
         when={props.config.kind !== 'date-range'}
         fallback={
           <TableDateFilter
+            datePickerMessages={props.datePickerMessages}
             messages={props.messages}
             label={props.label}
             value={

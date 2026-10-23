@@ -1,3 +1,4 @@
+import type { DatePickerMessages } from '../components/dateMessages'
 import { resolveTableMessages } from './messages'
 import { ownsFocus } from '../internal/ownedFocus'
 import { Icon } from '../components/Icon'
@@ -27,6 +28,7 @@ export type TableHeaderFilterProps = (
   | TableColumnFilterProps<TableColumnFilterConfig>
   | (TableFilterProps & { config?: undefined })
 ) & {
+  datePickerMessages?: Partial<DatePickerMessages>
   columnId: string
   columnLabel: string
   triggerRef?: (node: HTMLButtonElement) => void
@@ -35,7 +37,11 @@ export type TableHeaderFilterProps = (
 
 type HeaderFilterOptions = Pick<
   TableHeaderFilterProps,
-  'columnId' | 'columnLabel' | 'triggerRef' | 'onRemovalFocus'
+  | 'columnId'
+  | 'columnLabel'
+  | 'triggerRef'
+  | 'onRemovalFocus'
+  | 'datePickerMessages'
 >
 
 // Keep overloads in a type so development compilation emits one component.

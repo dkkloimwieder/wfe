@@ -1,3 +1,7 @@
+import {
+  reviewNestedMessages,
+  reviewNestedMessagesServer,
+} from './review-nested-messages.mjs'
 import assert from 'node:assert/strict'
 import {
   choiceControl,
@@ -5,6 +9,7 @@ import {
 } from '../shared/controls/select-review.mjs'
 import { expect } from '@playwright/test'
 export async function reviewDateServer(page) {
+  await reviewNestedMessagesServer(page)
   await expect(
     page.getByRole('textbox', { name: 'Review date', exact: true }),
   ).toHaveValue('29/02/2024')
@@ -35,6 +40,7 @@ export async function reviewDateServer(page) {
   ).toHaveValue('')
 }
 export async function reviewDates({ page, record }) {
+  await reviewNestedMessages({ page, record })
   const date = page.getByRole('textbox', { name: 'Review date', exact: true })
   const system = page.getByRole('group', {
     name: 'System appointment',

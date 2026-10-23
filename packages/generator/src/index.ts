@@ -58,3 +58,8 @@ export type {
 
 export { generatorMessages } from './messages'
 export type { GeneratorMessages, GeneratorMessageProps } from './messages'
+
+export type {
+  GeneratorControlMessages,
+  GeneratorControlMessageProps,
+} from './controlMessages'

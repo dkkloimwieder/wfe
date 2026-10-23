@@ -1,3 +1,4 @@
+import type { GeneratorControlMessageProps } from './controlMessages'
 import { resolveGeneratorMessages } from './messages'
 import type { GeneratorMessageProps } from './messages'
 import { For, Show, createMemo, onCleanup, untrack } from 'solid-js'
@@ -63,11 +64,12 @@ export function validateRepeatedDescription(field: RuntimeRepeatedField) {
 }
 
 export function RepeatedField(
-  props: GeneratorMessageProps & {
-    field: RuntimeRepeatedField
-    id: string
-    adapter: RepeatedFieldAdapter
-  },
+  props: GeneratorMessageProps &
+    GeneratorControlMessageProps & {
+      field: RuntimeRepeatedField
+      id: string
+      adapter: RepeatedFieldAdapter
+    },
 ) {
   const messages = resolveGeneratorMessages(() => props.messages)
   const identity = untrack(() => props.field.field)
@@ -262,6 +264,7 @@ export function RepeatedField(
               <For each={description().fields} keyed={(field) => field.field}>
                 {(field) => (
                   <ScalarField
+                    controlMessages={props.controlMessages}
                     field={field()}
                     id={`${rowId(key)}-field-${keyPart(field().field)}`}
                     adapter={{

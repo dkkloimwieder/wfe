@@ -1,3 +1,4 @@
+import type { GeneratorControlMessageProps } from './controlMessages'
 import type { GeneratorMessageProps } from './messages'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
 import { Field, Label, HelpText, FieldValue, FormGrid } from '@wfe/components'
@@ -15,10 +16,11 @@ import {
 import type { Actions } from './shared'
 
 export function DetailView<T extends object, D extends DetailDescription<T>>(
-  props: GeneratorMessageProps & {
-    description: D
-    bindings: DetailViewBindings<T, D>
-  },
+  props: GeneratorMessageProps &
+    GeneratorControlMessageProps & {
+      description: D
+      bindings: DetailViewBindings<T, D>
+    },
 ) {
   const identity = untrack(() => props.description.id)
   const domId = `generated-detail-${createUniqueId()}`
@@ -92,6 +94,7 @@ export function DetailView<T extends object, D extends DetailDescription<T>>(
             >
               <Label>{descriptionLabel(field().label, field().field)}</Label>
               <FieldValue
+                messages={props.controlMessages?.valueDisplay}
                 id={`${domId}-${keyPart(field().field)}`}
                 value={record()[field().field]}
                 format={field().format}

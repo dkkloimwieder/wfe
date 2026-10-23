@@ -1,3 +1,4 @@
+import type { DatePickerMessages } from '../components/dateMessages'
 import { resolveTableMessages, type TableMessages } from './messages'
 import { DatePicker } from '../components/DatePicker'
 
@@ -6,6 +7,7 @@ export type TableDateRange = { start?: string; end?: string }
 
 export type TableDateFilterProps = {
   messages?: Partial<TableMessages>
+  datePickerMessages?: Partial<DatePickerMessages>
   label: string
   startLabel?: string
   endLabel?: string
@@ -26,6 +28,7 @@ export function TableDateFilter(props: TableDateFilterProps) {
   return (
     <div class="table-filter" role="group" aria-label={props.label}>
       <DatePicker
+        messages={props.datePickerMessages}
         label={props.startLabel ?? messages.dateStart(props.label)}
         clearLabel={
           props.clearStartLabel ?? messages.clearDateStart(props.label)
@@ -35,6 +38,7 @@ export function TableDateFilter(props: TableDateFilterProps) {
         onValueChange={(value) => change('start', value ?? '')}
       />
       <DatePicker
+        messages={props.datePickerMessages}
         label={props.endLabel ?? messages.dateEnd(props.label)}
         clearLabel={props.clearEndLabel ?? messages.clearDateEnd(props.label)}
         value={props.value?.end}

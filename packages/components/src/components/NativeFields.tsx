@@ -1,10 +1,12 @@
+import { resolveMessages } from '../internal/messages'
+import type { ValueDisplayMessages } from './ValueDisplay'
 import { CompoundControl, ControlFrame } from '../internal/controlDecoration'
 import type {
   ControlDecorationProps,
   NativeControlFrameProps,
 } from '../internal/controlDecoration'
 import { Show } from 'solid-js'
-import { ValueDisplay } from './ValueDisplay'
+import { ValueDisplay, valueDisplayMessages } from './ValueDisplay'
 import type { ValueFormat, ValueFormatOptions } from '../utils/valueFormat'
 import { styledClasses } from '../internal/classes'
 import { restoreTextValue } from '../internal/controlledText'
@@ -510,16 +512,22 @@ export type FieldValueProps = Omit<
   JSX.OutputHTMLAttributes<HTMLOutputElement>,
   'value' | 'children'
 > &
-  ValueFormatOptions & { value: unknown; format?: ValueFormat }
+  ValueFormatOptions & {
+    value: unknown
+    format?: ValueFormat
+    messages?: Partial<ValueDisplayMessages>
+  }
 
 /** A named read-only value that shares the surrounding Field associations. */
 export function FieldValue(props: FieldValueProps) {
+  const messages = resolveMessages(valueDisplayMessages, () => props.messages)
   const field = useContext(FieldContext)
   const generated = `field-value-${createUniqueId()}`
   const id = () => props.id || field?.baseControlId() || generated
   field?.registerControl(id)
   const rest = omit(
     props,
+    'messages',
     'value',
     'format',
     'locale',
@@ -546,9 +554,18 @@ export function FieldValue(props: FieldValueProps) {
       class={styledClasses('ui-field-value', props.class)}
       ref={[props.ref, events]}
     >
-      <Show when={props.format} keyed fallback={String(props.value ?? '')}>
+      <Show
+        when={props.format}
+        keyed
+        fallback={
+          props.value == null || props.value === ''
+            ? messages.emptyValue
+            : String(props.value)
+        }
+      >
         {(format) => (
           <ValueDisplay
+            messages={props.messages}
             value={props.value}
             format={format}
             locale={props.locale}

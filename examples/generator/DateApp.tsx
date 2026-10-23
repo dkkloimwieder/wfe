@@ -1,3 +1,4 @@
+import { NestedMessagesReview } from './NestedMessagesReview'
 import { exampleSizing } from '../shared/appearance/sizing'
 import { createMemo, createSignal, untrack } from 'solid-js'
 import {
@@ -178,6 +179,10 @@ export function createDateApplication() {
       })),
   }
 }
+function NestedMessagesPanel() {
+  return <NestedMessagesReview />
+}
+
 export function DateApp(props: {
   ready?: (app: ReturnType<typeof createDateApplication>) => void
 }) {
@@ -316,12 +321,19 @@ export function DateApp(props: {
     title: 'Date input review',
     panels: [
       { id: 'date-editor', view: 'editor' },
+      {
+        id: 'nested-messages',
+        view: 'messages',
+        title: 'Nested control messages',
+      },
       { id: 'date-records', view: 'records', title: 'Read-only dates' },
     ],
     navigation: [
       { id: 'date-configuration', view: 'configuration', title: 'Display' },
     ],
-  } as const satisfies LayoutDescription<'editor' | 'records' | 'configuration'>
+  } as const satisfies LayoutDescription<
+    'editor' | 'records' | 'configuration' | 'messages'
+  >
   return (
     <LayoutView
       style={exampleSizing}
@@ -329,6 +341,7 @@ export function DateApp(props: {
       bindings={{
         views: {
           editor: Editor,
+          messages: NestedMessagesPanel,
           records: Records,
           configuration: Configuration,
         },
