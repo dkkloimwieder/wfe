@@ -1,3 +1,4 @@
+import { Show } from 'solid-js'
 import { EntryPanel, DashboardShell } from '@wfe/components/layout'
 import { Theme, StatusTile, TileRow } from '@wfe/components'
 import { GridView } from '@wfe/generator'
@@ -843,3 +844,203 @@ const omittedFrames = await renderToString(() =>
 )
 assert.ok(omittedFrames.includes('Table results without frames'))
 assert.doesNotMatch(omittedFrames, /<header|<footer|<aside/)
+
+// Shared Field associations must exist in server markup before hydration.
+const {
+  Field,
+  Label,
+  HelpText,
+  FieldError,
+  Checkbox,
+  Switch,
+  RadioGroup,
+  Select,
+  Combobox,
+} = await import('@wfe/components')
+for (const family of ['checkbox', 'switch', 'radio', 'select', 'combobox']) {
+  const target = `compound-ssr-${family}`
+  const label = `${target}-label`
+  const help = `${target}-help`
+  const error = `${target}-error`
+  let constructions = 0
+  let changes = 0
+  const changed = () => {
+    changes++
+  }
+  function CountedTarget(props) {
+    constructions++
+    return createComponent(props.component, props.attributes)
+  }
+  const targetControl = (component, attributes) =>
+    createComponent(CountedTarget, { component, attributes })
+  const output = await renderToString(() =>
+    createComponent(Field, {
+      disabled: true,
+      readonly: true,
+      required: true,
+      invalid: true,
+      get children() {
+        const control =
+          family === 'checkbox'
+            ? createComponent(Checkbox, {
+                checked: true,
+                onChange: changed,
+                get children() {
+                  return targetControl(Checkbox.Input, { id: target })
+                },
+              })
+            : family === 'switch'
+              ? createComponent(Switch, {
+                  checked: true,
+                  onChange: changed,
+                  get children() {
+                    return targetControl(Switch.Input, { id: target })
+                  },
+                })
+              : family === 'radio'
+                ? createComponent(RadioGroup, {
+                    id: target,
+                    value: 'Alpha',
+                    onChange: changed,
+                    get children() {
+                      return createComponent(RadioGroup.Item, {
+                        value: 'Alpha',
+                        get children() {
+                          return targetControl(RadioGroup.ItemInput, {})
+                        },
+                      })
+                    },
+                  })
+                : family === 'select'
+                  ? createComponent(Select, {
+                      options: ['Alpha'],
+                      value: 'Alpha',
+                      onChange: changed,
+                      get children() {
+                        return targetControl(Select.Trigger, {
+                          id: target,
+                          children: 'Alpha',
+                        })
+                      },
+                    })
+                  : createComponent(Combobox, {
+                      options: ['Alpha'],
+                      value: 'Alpha',
+                      onChange: changed,
+                      get children() {
+                        return targetControl(Combobox.Input, { id: target })
+                      },
+                    })
+        return [
+          createComponent(Label, { id: label, children: 'Compound label' }),
+          control,
+          createComponent(HelpText, { id: help, children: 'Compound help' }),
+          createComponent(FieldError, {
+            id: error,
+            children: 'Compound error',
+          }),
+        ]
+      },
+    }),
+  )
+  assert.equal(
+    constructions,
+    1,
+    `${family} constructs its native target component once`,
+  )
+  assert.equal(
+    changes,
+    0,
+    `${family} does not request a change during server rendering`,
+  )
+  const tag = output.match(new RegExp(`<[^>]* id="${target}"[^>]*>`))?.[0]
+  assert.ok(tag, `${family} renders its target`)
+  assert.match(tag, /aria-invalid="true"/)
+  assert.ok(
+    tag.includes(help) && tag.includes(error),
+    `${family} renders both description associations`,
+  )
+  assert.ok(tag.includes(label), `${family} includes the Field label`)
+  if (family !== 'radio')
+    assert.ok(
+      output.includes(`for="${target}"`),
+      `${family} labels its actual control`,
+    )
+  else
+    assert.ok(
+      !output.includes(`for="${target}"`),
+      'Radio group uses its accessible group name',
+    )
+}
+
+for (const customId of [undefined, 'deferred-custom-input']) {
+  let constructions = 0
+  let changes = 0
+  const fieldId = customId ? 'deferred-custom-field' : 'deferred-default-field'
+  const target = customId ?? `${fieldId}-control`
+  function CountedInput() {
+    constructions++
+    return createComponent(Checkbox.Input, {})
+  }
+  function DeferredChoice() {
+    return createComponent(Checkbox, {
+      checked: true,
+      onChange: () => {
+        changes++
+      },
+      get children() {
+        return createComponent(CountedInput, {})
+      },
+    })
+  }
+  const output = await renderToString(() =>
+    createComponent(Field, {
+      id: fieldId,
+      controlId: customId,
+      invalid: true,
+      get children() {
+        return [
+          createComponent(Label, { children: 'Deferred choice' }),
+          createComponent(Show, {
+            when: true,
+            get children() {
+              return createComponent(DeferredChoice, {})
+            },
+          }),
+          createComponent(HelpText, {
+            id: `${fieldId}-help`,
+            children: 'Help',
+          }),
+          createComponent(FieldError, {
+            id: `${fieldId}-error`,
+            children: 'Error',
+          }),
+        ]
+      },
+    }),
+  )
+  const input = output.match(
+    new RegExp(`<input[^>]* id="${target}"[^>]*>`),
+  )?.[0]
+  assert.ok(input, 'Deferred target inherits the Field target ID')
+  assert.ok(
+    output.includes(`for="${target}"`),
+    'Deferred control has an associated Field label',
+  )
+  assert.ok(
+    input.includes(`${fieldId}-help`) && input.includes(`${fieldId}-error`),
+    'Deferred control retains description associations',
+  )
+  const ids = [...output.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1])
+  assert.equal(
+    new Set(ids).size,
+    ids.length,
+    'Deferred composition emits unique IDs',
+  )
+  assert.equal(constructions, 1, 'Deferred native target is constructed once')
+  assert.equal(
+    changes,
+    0,
+    'Deferred construction does not emit change requests',
+  )
+}

@@ -6,6 +6,7 @@ import {
   merge,
   omit,
   Show,
+  untrack,
 } from 'solid-js'
 
 import {
@@ -67,7 +68,7 @@ export function SelectValue<Option, T extends ValidComponent = 'span'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('value'),
+      id: untrack(() => context.generateId('value')),
     },
     props as SelectValueProps<Option>,
   )

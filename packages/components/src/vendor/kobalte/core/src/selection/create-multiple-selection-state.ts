@@ -7,7 +7,13 @@
  */
 
 import { access, type MaybeAccessor } from '@solid-primitives/utils'
-import { createEffect, createMemo, createSignal, merge } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  merge,
+  untrack,
+} from 'solid-js'
 
 import { createControllableSelectionSignal } from './create-controllable-selection-signal.ts'
 import {
@@ -70,7 +76,9 @@ export function createMultipleSelectionState(
   })
 
   const [selectionBehavior, setSelectionBehavior] =
-    createSignal<SelectionBehavior>(access(mergedProps.selectionBehavior)!)
+    createSignal<SelectionBehavior>(
+      untrack(() => access(mergedProps.selectionBehavior)!),
+    )
 
   const selectionMode = () => access(mergedProps.selectionMode)!
   const disallowEmptySelection = () =>

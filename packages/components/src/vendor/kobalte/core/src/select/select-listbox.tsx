@@ -1,6 +1,6 @@
 import { callHandler } from '../../../utils/src/index.ts'
 import type { JSX, ValidComponent } from '@solidjs/web'
-import { type Component, createEffect, merge, omit } from 'solid-js'
+import { type Component, createEffect, merge, omit, untrack } from 'solid-js'
 import type {
   ListboxRootCommonProps,
   ListboxRootRenderProps,
@@ -42,7 +42,7 @@ export function SelectListbox<
 
   const mergedProps = merge(
     {
-      id: context.generateId('listbox'),
+      id: untrack(() => context.generateId('listbox')),
     },
     props as SelectListboxProps<Option, OptGroup>,
   )

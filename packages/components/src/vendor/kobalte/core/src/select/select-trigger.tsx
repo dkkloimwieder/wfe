@@ -65,7 +65,7 @@ export function SelectTrigger<T extends ValidComponent = 'button'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('trigger'),
+      id: untrack(() => context.generateId('trigger')),
     },
     props as SelectTriggerProps,
   )

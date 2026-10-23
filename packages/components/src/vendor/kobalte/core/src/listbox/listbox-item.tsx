@@ -17,6 +17,7 @@ import {
   merge,
   omit,
   type Ref,
+  untrack,
 } from 'solid-js'
 
 import {
@@ -84,7 +85,7 @@ export function ListboxItem<T extends ValidComponent = 'li'>(
 
   const listBoxContext = useListboxContext()
 
-  const defaultId = `${listBoxContext.generateId('item')}-${createUniqueId()}`
+  const defaultId = `${untrack(() => listBoxContext.generateId('item'))}-${createUniqueId()}`
 
   const mergedProps = merge({ id: defaultId }, props as ListboxItemProps)
 

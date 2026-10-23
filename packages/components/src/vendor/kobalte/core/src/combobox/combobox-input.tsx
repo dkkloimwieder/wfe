@@ -79,7 +79,7 @@ export function ComboboxInput<T extends ValidComponent = 'input'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('input'),
+      id: untrack(() => context.generateId('input')),
     },
     props as ComboboxInputProps,
   )

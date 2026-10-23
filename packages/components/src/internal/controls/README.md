@@ -4,6 +4,7 @@ This directory exposes the owned behavior for Select, Combobox, Checkbox, Switch
 Control entry points import the single [Kobalte subset](../../vendor/kobalte/README.md).
 The modal helper composes external Solid Primitives interaction behavior with Solid state and effects.
 Owned Kobalte dialogs consume that helper.
+The shared hidden-select entry point exposes the native-form bridge used by Select and Combobox.
 These modules contain no duplicate control implementation or presentation CSS.
 
 The [component wrappers](../../components/README.md) add shared styles, icons, and generic composition.

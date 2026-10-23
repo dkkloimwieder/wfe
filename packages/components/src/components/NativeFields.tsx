@@ -26,6 +26,7 @@ import {
   ownedElementEvents,
 } from '../internal/events'
 import {
+  createMemo,
   createSignal,
   createUniqueId,
   merge,
@@ -54,6 +55,19 @@ export function Field(props: FieldProps) {
   const [descriptions, setDescriptions] = createSignal<
     Array<{ id: () => string; error: boolean }>
   >([], { ownedWrite: true })
+  const [labels, setLabels] = createSignal<Array<() => string>>([], {
+    ownedWrite: true,
+  })
+  const [labelable, setLabelable] = createSignal(true, { ownedWrite: true })
+  const compoundRoots: Array<() => unknown> = []
+  let preparedRoots = 0
+  const prepareCompoundRoots = () => {
+    if (!isServer) return
+    while (preparedRoots < compoundRoots.length)
+      compoundRoots[preparedRoots++]!()
+  }
+  const serverLabels: Array<() => string> = []
+  let serverLabelable = true
   let serverControl: (() => string) | undefined
   const serverDescriptions: Array<{ id: () => string; error: boolean }> = []
   const baseId = () => props.controlId ?? `${props.id || generated}-control`
@@ -64,20 +78,40 @@ export function Field(props: FieldProps) {
     readonly: () => props.readonly,
     required: () => props.required,
     invalid: () => props.invalid,
+    labelledBy: () =>
+      (isServer ? serverLabels : labels()).map((id) => id()).join(' ') ||
+      undefined,
+    labelable: () => (isServer ? serverLabelable : labelable()),
+    registerCompoundRoot(resolve) {
+      if (isServer) compoundRoots.push(resolve)
+    },
+    registerLabel(id) {
+      if (isServer) {
+        serverLabels.push(id)
+        return
+      }
+      setLabels((old) => [...old, id])
+      onCleanup(() => setLabels((old) => old.filter((entry) => entry !== id)))
+    },
     describedBy: () =>
       (isServer ? serverDescriptions : descriptions())
         .filter((entry) => !entry.error || props.invalid)
         .map((entry) => entry.id())
         .join(' ') || undefined,
-    registerControl(id) {
+    registerControl(id, acceptsLabel = true) {
       // Server field metadata is collected once without reactive writes.
       if (isServer) {
         serverControl = id
+        serverLabelable = acceptsLabel
         return
       }
       setControl(() => id)
+      setLabelable(acceptsLabel)
       onCleanup(() => {
-        if (untrack(control) === id) setControl(undefined)
+        if (untrack(control) === id) {
+          setControl(undefined)
+          setLabelable(true)
+        }
       })
     },
     registerDescription(id, error) {
@@ -94,6 +128,7 @@ export function Field(props: FieldProps) {
   }
   const attributes = omit(
     props,
+    'children',
     'controlId',
     'disabled',
     'readonly',
@@ -116,20 +151,41 @@ export function Field(props: FieldProps) {
         data-invalid={props.invalid ? '' : undefined}
         class={styledClasses('ui-field', props.class)}
         ref={[props.ref, events]}
-      />
+      >
+        <RegisteredFieldChildren prepare={prepareCompoundRoots}>
+          {props.children}
+        </RegisteredFieldChildren>
+      </div>
     </FieldContext>
   )
+}
+
+function RegisteredFieldChildren(props: {
+  children?: JSX.Element
+  prepare: () => void
+}) {
+  // Read the original children once without flattening their deferred views.
+  const body = createMemo(() => props.children)
+  return renderAfterRegistration(() => {
+    const value = body()
+    props.prepare()
+    return value
+  })
 }
 
 export type LabelProps = JSX.LabelHTMLAttributes<HTMLLabelElement>
 export function Label(props: LabelProps) {
   const field = useContext(FieldContext)
+  const generated = `label-${createUniqueId()}`
+  const id = () => props.id || generated
+  field?.registerLabel(id)
   const attributes = omit(props, 'ref', ...nativeEventProps)
   const events = ownedElementEvents(props)
   return renderAfterRegistration(() => (
     <label
       {...attributes}
-      for={props.for ?? field?.controlId()}
+      id={field ? id() : props.id}
+      for={props.for ?? (field?.labelable() ? field.controlId() : undefined)}
       class={styledClasses('ui-label', props.class)}
       ref={[props.ref, events]}
     />

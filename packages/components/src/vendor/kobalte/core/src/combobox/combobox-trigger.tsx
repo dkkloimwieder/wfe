@@ -9,7 +9,7 @@
 
 import { callHandler } from '../../../utils/src/index.ts'
 import type { JSX, ValidComponent } from '@solidjs/web'
-import { type Component, merge, omit, type Ref } from 'solid-js'
+import { type Component, merge, omit, type Ref, untrack } from 'solid-js'
 
 import * as Button from '../button/index.tsx'
 import { useFormControlContext } from '../form-control/index.ts'
@@ -54,7 +54,7 @@ export function ComboboxTrigger<T extends ValidComponent = 'button'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('trigger'),
+      id: untrack(() => context.generateId('trigger')),
     },
     props as ComboboxTriggerProps,
   )

@@ -1,3 +1,7 @@
+import {
+  CompoundFieldControls,
+  compoundFieldLifecycle,
+} from '../shared/controls/CompoundFieldControls'
 import { iconSearch } from '@wfe/components/icons'
 import { ContextControls } from '../shared/controls/ContextControls'
 import {
@@ -64,6 +68,7 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  compound: compoundFieldLifecycle,
   pagination: paginationLifecycle,
   files: fileLifecycle,
   resizable: resizableLifecycle,
@@ -177,6 +182,7 @@ export default function App() {
         <MatchingCombobox mode="fuzzy" />
       </div>
       <ThemeConsumer />
+      <CompoundFieldControls />
       <ButtonLinkControls />
       <FileControls />
       <ResizableControls />

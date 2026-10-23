@@ -1,3 +1,9 @@
+import { renderCompoundFieldRoot } from '../internal/fieldRendering'
+import {
+  createCompoundField,
+  createCompoundFieldTarget,
+} from '../internal/compoundField'
+import type { CompoundFieldProps } from '../internal/compoundField'
 import { omit } from 'solid-js'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { Icon } from './Icon'
@@ -9,21 +15,36 @@ import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
 export type CheckboxRootProps<
   T extends ValidComponent | HTMLElement = HTMLElement,
-> = Core.CheckboxRootProps<T> & ControlDecorationProps & { class?: ClassValue }
+> = Core.CheckboxRootProps<T> &
+  CompoundFieldProps & {
+    onCheckedChange?: (checked: boolean) => void
+  } & ControlDecorationProps & { class?: ClassValue }
 export function CheckboxRoot<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, CheckboxRootProps<T>>,
 ) {
   const Primitive = Core.Root as Component<typeof props>
-  return (
+  const state = createCompoundField(props)
+  return renderCompoundFieldRoot(() => (
     <Primitive
-      {...(omit(props, 'decoration') as typeof props)}
+      {...(omit(
+        props,
+        'decoration',
+        'readonly',
+        'invalid',
+        'onCheckedChange',
+      ) as typeof props)}
+      disabled={state.disabled()}
+      required={state.required()}
+      readOnly={state.readonly()}
+      validationState={state.validationState()}
+      onChange={(value) => (props.onCheckedChange ?? props.onChange)?.(value)}
       data-ui=""
       data-ui-control-decoration={
         props.decoration === false ? 'none' : props.decoration
       }
       class={styledClasses('ui-toggle ui-checkbox', props.class)}
     />
-  )
+  ))
 }
 
 export type CheckboxInputProps<
@@ -33,9 +54,11 @@ export function CheckboxInput<T extends ValidComponent = 'input'>(
   props: PolymorphicProps<T, CheckboxInputProps<T>>,
 ) {
   const Primitive = Core.Input as Component<typeof props>
+  const target = createCompoundFieldTarget(props)
   return (
     <Primitive
       {...props}
+      {...target}
       class={styledClasses('ui-toggle-input', props.class)}
     />
   )

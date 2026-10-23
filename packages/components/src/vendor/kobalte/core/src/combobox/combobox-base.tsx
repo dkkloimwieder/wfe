@@ -273,7 +273,9 @@ export function ComboboxBase<
       allowsEmptyCollection: false,
       disallowEmptySelection: false,
       allowDuplicateSelectionEvents: true,
-      closeOnSelection: props.selectionMode === 'single',
+      get closeOnSelection() {
+        return props.selectionMode === 'single'
+      },
       removeOnBackspace: true,
       gutter: 8,
       sameWidth: true,
@@ -855,8 +857,9 @@ export function ComboboxBase<
         isOpen &&
         (didOpenWithoutFocusedItem || optionCount !== lastOptionCount)
       ) {
-        const announcement =
-          mergedProps.translations?.countAnnouncement(optionCount) ?? ''
+        const announcement = untrack(
+          () => mergedProps.translations?.countAnnouncement(optionCount) ?? '',
+        )
         announce(announcement)
       }
 

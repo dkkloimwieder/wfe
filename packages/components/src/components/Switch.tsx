@@ -1,3 +1,9 @@
+import { renderCompoundFieldRoot } from '../internal/fieldRendering'
+import {
+  createCompoundField,
+  createCompoundFieldTarget,
+} from '../internal/compoundField'
+import type { CompoundFieldProps } from '../internal/compoundField'
 import { omit } from 'solid-js'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { styledClasses, type ClassValue } from '../internal/classes'
@@ -8,21 +14,36 @@ import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
 export type SwitchRootProps<
   T extends ValidComponent | HTMLElement = HTMLElement,
-> = Core.SwitchRootProps<T> & ControlDecorationProps & { class?: ClassValue }
+> = Core.SwitchRootProps<T> &
+  CompoundFieldProps & {
+    onCheckedChange?: (checked: boolean) => void
+  } & ControlDecorationProps & { class?: ClassValue }
 export function SwitchRoot<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, SwitchRootProps<T>>,
 ) {
   const Primitive = Core.Root as Component<typeof props>
-  return (
+  const state = createCompoundField(props)
+  return renderCompoundFieldRoot(() => (
     <Primitive
-      {...(omit(props, 'decoration') as typeof props)}
+      {...(omit(
+        props,
+        'decoration',
+        'readonly',
+        'invalid',
+        'onCheckedChange',
+      ) as typeof props)}
+      disabled={state.disabled()}
+      required={state.required()}
+      readOnly={state.readonly()}
+      validationState={state.validationState()}
+      onChange={(value) => (props.onCheckedChange ?? props.onChange)?.(value)}
       data-ui=""
       data-ui-control-decoration={
         props.decoration === false ? 'none' : props.decoration
       }
       class={styledClasses('ui-toggle ui-switch', props.class)}
     />
-  )
+  ))
 }
 
 export type SwitchInputProps<
@@ -32,9 +53,11 @@ export function SwitchInput<T extends ValidComponent = 'input'>(
   props: PolymorphicProps<T, SwitchInputProps<T>>,
 ) {
   const Primitive = Core.Input as Component<typeof props>
+  const target = createCompoundFieldTarget(props)
   return (
     <Primitive
       {...props}
+      {...target}
       class={styledClasses('ui-toggle-input', props.class)}
     />
   )

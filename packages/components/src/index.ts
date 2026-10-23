@@ -131,6 +131,7 @@ export type {
   SelectListboxProps,
   SelectChoice,
   SelectFieldProps,
+  SelectHiddenSelectProps,
   SelectIconProps,
   SelectLabelProps,
   SelectDescriptionProps,
@@ -139,6 +140,7 @@ export type {
 
 export type {
   ComboboxRootProps,
+  ComboboxHiddenSelectProps,
   ComboboxTriggerProps,
   ComboboxContentProps,
   ComboboxItemProps,

@@ -1,5 +1,12 @@
 import type { ValidComponent } from '@solidjs/web'
-import { type Component, createEffect, merge, omit, type Ref } from 'solid-js'
+import {
+  type Component,
+  createEffect,
+  merge,
+  omit,
+  type Ref,
+  untrack,
+} from 'solid-js'
 
 import { useFormControlContext } from '../form-control/index.ts'
 import * as Listbox from '../listbox/index.tsx'
@@ -44,7 +51,7 @@ export function ComboboxListbox<
 
   const mergedProps = merge(
     {
-      id: context.generateId('listbox'),
+      id: untrack(() => context.generateId('listbox')),
     },
     props as ComboboxListboxProps<Option, OptGroup>,
   )

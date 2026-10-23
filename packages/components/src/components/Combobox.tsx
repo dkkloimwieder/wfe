@@ -1,10 +1,27 @@
+import { renderCompoundFieldRoot } from '../internal/fieldRendering'
+import {
+  createHiddenSelectChange,
+  guardHiddenSelection,
+} from '../internal/hiddenSelectChange'
+import {
+  HiddenSelectBase,
+  useFormControlContext,
+} from '../internal/controls/hidden-select'
+import {
+  createCompoundField,
+  createCompoundFieldTarget,
+} from '../internal/compoundField'
+import type {
+  CompoundFieldProps,
+  WithValueChange,
+} from '../internal/compoundField'
 import { CompoundControl } from '../internal/controlDecoration'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/combobox'
 import { callHandler } from '../internal/events'
-import { Show, omit, untrack } from 'solid-js'
+import { Show, createMemo, omit, untrack } from 'solid-js'
 import { ChoiceScope, createChoiceScope, useChoiceScope } from './choiceScope'
 import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
@@ -17,12 +34,14 @@ export type ComboboxRootProps<
   Option,
   OptGroup = never,
   T extends ValidComponent | HTMLElement = HTMLElement,
-> = Core.ComboboxRootProps<Option, OptGroup, T> & { class?: ClassValue }
+> = WithValueChange<Core.ComboboxRootProps<Option, OptGroup, T>> &
+  CompoundFieldProps & { class?: ClassValue }
 export function ComboboxRoot<
   Option,
   OptGroup = never,
   T extends ValidComponent = 'div',
 >(props: PolymorphicProps<T, ComboboxRootProps<Option, OptGroup, T>>) {
+  const state = createCompoundField(props)
   const scope = createChoiceScope({
     get open() {
       return props.open
@@ -31,14 +50,30 @@ export function ComboboxRoot<
       return props.defaultOpen
     },
     get disabled() {
-      return props.disabled
+      return state.disabled() || state.readonly()
     },
     onOpenChange: (value, mode) => props.onOpenChange?.(value, mode),
   })
-  return (
+  return renderCompoundFieldRoot(() => (
     <ChoiceScope value={scope}>
       <Core.Root<Option, OptGroup, T>
-        {...props}
+        {...(omit(
+          props,
+          'readonly',
+          'invalid',
+          'onValueChange',
+        ) as typeof props)}
+        disabled={state.disabled()}
+        required={state.required()}
+        readOnly={state.readonly()}
+        validationState={state.validationState()}
+        onChange={(value: Option | Option[] | null) => {
+          if (state.disabled() || state.readonly()) return
+          const change = props.onValueChange ?? props.onChange
+          ;(
+            change as ((value: Option | Option[] | null) => void) | undefined
+          )?.(value)
+        }}
         data-ui=""
         class={styledClasses('ui-field', props.class)}
         open={scope.open()}
@@ -46,7 +81,7 @@ export function ComboboxRoot<
         allowsEmptyCollection={props.allowsEmptyCollection ?? true}
       />
     </ChoiceScope>
-  )
+  ))
 }
 
 // Styled parts add HTML classes and slots at the polymorphic forwarding boundary.
@@ -171,10 +206,12 @@ export function ComboboxInput<T extends ValidComponent = 'input'>(
   props: PolymorphicProps<T, ComboboxInputProps<T>>,
 ) {
   const Primitive = Core.Input as Component<typeof props>
+  const target = createCompoundFieldTarget(props)
   const scope = useChoiceScope()
   return (
     <Primitive
       {...props}
+      {...target}
       class={styledClasses('choice-input', props.class)}
       ref={[scope.setControl, untrack(() => props.ref)]}
       onKeyDown={(
@@ -258,12 +295,38 @@ export function ComboboxErrorMessage<T extends ValidComponent = 'div'>(
   )
 }
 
+export function ComboboxHiddenSelect(props: ComboboxHiddenSelectProps) {
+  const context = Core.useComboboxContext()
+  const form = useFormControlContext()
+  const locked = () => Boolean(form.isReadOnly() || form.isDisabled())
+  const manager = createMemo(() =>
+    guardHiddenSelection(context.listState().selectionManager(), locked),
+  )
+  const change = createHiddenSelectChange(
+    props,
+    () => context.listState().selectionManager().selectedKeys(),
+    locked,
+  )
+  return (
+    <HiddenSelectBase
+      collection={context.listState().collection()}
+      selectionManager={manager()}
+      isOpen={context.isOpen()}
+      isMultiple={context.isMultiple()}
+      isVirtualized={context.isVirtualized()}
+      focusTrigger={() => context.inputRef()?.focus({ preventScroll: true })}
+      {...props}
+      onChange={change}
+    />
+  )
+}
+
 export const Combobox = /* @__PURE__ */ Object.assign(ComboboxRoot, {
   // Refresh proxies hide function keys. Copy named parts without enumerating them.
   Arrow: Core.Arrow,
   Description: ComboboxDescription,
   ErrorMessage: ComboboxErrorMessage,
-  HiddenSelect: Core.HiddenSelect,
+  HiddenSelect: ComboboxHiddenSelect,
   Icon: ComboboxIcon,
   ItemDescription: Core.ItemDescription,
   ItemIndicator: ComboboxItemIndicator,
@@ -295,7 +358,6 @@ export type {
   ComboboxErrorMessageCommonProps,
   ComboboxErrorMessageOptions,
   ComboboxErrorMessageRenderProps,
-  ComboboxHiddenSelectProps,
   ComboboxInputCommonProps,
   ComboboxInputOptions,
   ComboboxInputRenderProps,
@@ -339,7 +401,6 @@ export type {
   Control,
   Description,
   ErrorMessage,
-  HiddenSelect,
   Icon,
   Input,
   Item,
@@ -355,3 +416,6 @@ export type {
   ComboboxContextValue,
   useComboboxContext,
 } from '../internal/controls/combobox'
+
+export type ComboboxHiddenSelectProps = Core.ComboboxHiddenSelectProps
+export { ComboboxHiddenSelect as HiddenSelect }

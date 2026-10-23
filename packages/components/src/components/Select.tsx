@@ -1,10 +1,34 @@
+import { renderCompoundFieldRoot } from '../internal/fieldRendering'
+import {
+  createHiddenSelectChange,
+  guardHiddenSelection,
+} from '../internal/hiddenSelectChange'
+import {
+  HiddenSelectBase,
+  useFormControlContext,
+} from '../internal/controls/hidden-select'
+import {
+  createCompoundField,
+  createCompoundFieldTarget,
+} from '../internal/compoundField'
+import type {
+  CompoundFieldProps,
+  WithValueChange,
+} from '../internal/compoundField'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { Icon } from './Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { FieldContext } from '../internal/fieldContext'
 import * as Core from '../internal/controls/select'
 import { callHandler } from '../internal/events'
-import { Show, createUniqueId, omit, untrack, useContext } from 'solid-js'
+import {
+  Show,
+  createMemo,
+  createUniqueId,
+  omit,
+  untrack,
+  useContext,
+} from 'solid-js'
 import { ChoiceScope, createChoiceScope, useChoiceScope } from './choiceScope'
 import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
@@ -17,12 +41,14 @@ export type SelectRootProps<
   Option,
   OptGroup = never,
   T extends ValidComponent | HTMLElement = HTMLElement,
-> = Core.SelectRootProps<Option, OptGroup, T> & { class?: ClassValue }
+> = WithValueChange<Core.SelectRootProps<Option, OptGroup, T>> &
+  CompoundFieldProps & { class?: ClassValue }
 export function SelectRoot<
   Option,
   OptGroup = never,
   T extends ValidComponent = 'div',
 >(props: PolymorphicProps<T, SelectRootProps<Option, OptGroup, T>>) {
+  const state = createCompoundField(props)
   const scope = createChoiceScope({
     get open() {
       return props.open
@@ -31,21 +57,39 @@ export function SelectRoot<
       return props.defaultOpen
     },
     get disabled() {
-      return props.disabled
+      return state.disabled() || state.readonly()
     },
     onOpenChange: (value) => props.onOpenChange?.(value),
   })
-  return (
+  return renderCompoundFieldRoot(() => (
     <ChoiceScope value={scope}>
       <Core.Root<Option, OptGroup, T>
-        {...props}
+        {...(omit(
+          props,
+          'readonly',
+          'invalid',
+          'onValueChange',
+        ) as typeof props)}
+        disabled={state.disabled()}
+        required={state.required()}
+        optionDisabled={state.readonly() ? () => true : props.optionDisabled}
+        disallowTypeAhead={state.readonly() || props.disallowTypeAhead}
+        readOnly={state.readonly()}
+        validationState={state.validationState()}
+        onChange={(value: Option | Option[] | null) => {
+          if (state.disabled() || state.readonly()) return
+          const change = props.onValueChange ?? props.onChange
+          ;(
+            change as ((value: Option | Option[] | null) => void) | undefined
+          )?.(value)
+        }}
         data-ui=""
         class={styledClasses('ui-field', props.class)}
         open={scope.open()}
         onOpenChange={scope.changeOpen}
       />
     </ChoiceScope>
-  )
+  ))
 }
 
 // Styled parts add HTML classes and slots at the polymorphic forwarding boundary.
@@ -57,10 +101,12 @@ export function SelectTrigger<T extends ValidComponent = 'button'>(
   props: PolymorphicProps<T, SelectTriggerProps<T>>,
 ) {
   const Primitive = Core.Trigger as Component<typeof props>
+  const target = createCompoundFieldTarget(props)
   const scope = useChoiceScope()
   return (
     <Primitive
       {...(omit(props, 'decoration') as typeof props)}
+      {...target}
       data-ui-control-surface=""
       data-ui-control-decoration={
         props.decoration === false ? 'none' : props.decoration
@@ -200,7 +246,6 @@ export function SelectField(props: SelectFieldProps) {
   const id = () => props.id || field?.baseControlId() || generated
   const disabled = () => props.disabled ?? field?.disabled()
   const readonly = () => props.readonly ?? field?.readonly()
-  field?.registerControl(id)
   const rest = omit(
     props,
     'label',
@@ -236,9 +281,7 @@ export function SelectField(props: SelectFieldProps) {
       readOnly={readonly()}
       required={props.required ?? field?.required()}
       open={readonly() ? false : undefined}
-      validationState={
-        (props.invalid ?? field?.invalid()) ? 'invalid' : undefined
-      }
+      invalid={props.invalid}
       placeholder={props.placeholder}
       itemComponent={(item) => (
         <SelectItem
@@ -269,7 +312,7 @@ export function SelectField(props: SelectFieldProps) {
         </Core.Value>
       </SelectTrigger>
       <Show when={props.name}>
-        <Core.HiddenSelect />
+        <SelectHiddenSelect />
       </Show>
       <SelectPortal>
         <SelectContent
@@ -332,12 +375,38 @@ export function SelectErrorMessage<T extends ValidComponent = 'div'>(
   )
 }
 
+export function SelectHiddenSelect(props: SelectHiddenSelectProps) {
+  const context = Core.useSelectContext()
+  const form = useFormControlContext()
+  const locked = () => Boolean(form.isReadOnly() || form.isDisabled())
+  const manager = createMemo(() =>
+    guardHiddenSelection(context.listState().selectionManager(), locked),
+  )
+  const change = createHiddenSelectChange(
+    props,
+    () => context.listState().selectionManager().selectedKeys(),
+    locked,
+  )
+  return (
+    <HiddenSelectBase
+      collection={context.listState().collection()}
+      selectionManager={manager()}
+      isOpen={context.isOpen()}
+      isMultiple={context.isMultiple()}
+      isVirtualized={context.isVirtualized()}
+      focusTrigger={() => context.triggerRef()?.focus()}
+      {...props}
+      onChange={change}
+    />
+  )
+}
+
 export const Select = /* @__PURE__ */ Object.assign(SelectRoot, {
   // Refresh proxies hide function keys. Copy named parts without enumerating them.
   Arrow: Core.Arrow,
   Description: SelectDescription,
   ErrorMessage: SelectErrorMessage,
-  HiddenSelect: Core.HiddenSelect,
+  HiddenSelect: SelectHiddenSelect,
   Icon: SelectIcon,
   ItemDescription: Core.ItemDescription,
   ItemIndicator: SelectItemIndicator,
@@ -367,7 +436,6 @@ export type {
   SelectErrorMessageCommonProps,
   SelectErrorMessageOptions,
   SelectErrorMessageRenderProps,
-  SelectHiddenSelectProps,
   SelectIconCommonProps,
   SelectIconOptions,
   SelectIconRenderProps,
@@ -410,7 +478,6 @@ export type {
   Content,
   Description,
   ErrorMessage,
-  HiddenSelect,
   Icon,
   Item,
   ItemDescription,
@@ -426,3 +493,6 @@ export type {
   SelectContextValue,
   useSelectContext,
 } from '../internal/controls/select'
+
+export type SelectHiddenSelectProps = Core.SelectHiddenSelectProps
+export { SelectHiddenSelect as HiddenSelect }

@@ -31,7 +31,7 @@
     },
     "core/src/combobox/combobox-base.tsx": {
       "upstreamSha256": "81fd5a18f0e8c515ee6e0f3ac0fdaccbb3d332cbb80118dcc3fe017ab93f7566",
-      "localSha256": "48d306925f97e4ff9bd3d46ff5e41748fda8e0aed52b4ec890f978363c8f9eab"
+      "localSha256": "a73c538d60e4a53885c6ec94a64eb24dbc3e7b5eed80f69afe308cdfce131b63"
     },
     "core/src/combobox/combobox-content.tsx": {
       "upstreamSha256": "7545e2833b0ee4267c6636048ebf904c6a749dbce09e0ee5689908cdd69d13f2",
@@ -55,11 +55,11 @@
     },
     "core/src/combobox/combobox-input.tsx": {
       "upstreamSha256": "94ab2b1bed787051f4bbf154555c84d6d284f11d4511f913f9d46403678dffe9",
-      "localSha256": "6016f09168c2901c9c00f718687d8baa19b53b4fe1939427e7e57e78f943271c"
+      "localSha256": "e8c11a45adc2974646242d7e8783c09825f93aefb392c55e3aecd2b8417beb99"
     },
     "core/src/combobox/combobox-listbox.tsx": {
       "upstreamSha256": "79ac6fb9645d61cf3c062177685952985eefedf0094f9eee609ff49f87513fdd",
-      "localSha256": "62870c0b71d76d44a86c17583150afb7f9802c3f97e6e8d73ce4d32a46820aa4"
+      "localSha256": "40a988f1bdf566ffd1e03447dd44dbe762b615c28fb4c5d60ef9f32741c62f5f"
     },
     "core/src/combobox/combobox-portal.tsx": {
       "upstreamSha256": "738390285e6c750f729974b6df3545d54be0c1f8611cab6214e5b8f232f9b4bf",
@@ -71,7 +71,7 @@
     },
     "core/src/combobox/combobox-trigger.tsx": {
       "upstreamSha256": "a94089a88a0a964455f54b9ec439c390c69119f87cea805da22ca9285c423641",
-      "localSha256": "b20c1f13c11b2f797d56170fea9c03cea1eca72087cf300b859a23620578775b"
+      "localSha256": "436832502b014161122ebcd74d7bab652ffac1bad29ab8a601f75591d2d06f5d"
     },
     "core/src/combobox/combobox.intl.ts": {
       "upstreamSha256": "c002a1bbfd16285887452a122cf7229d287f5fc903a247b8b358a352a4f7ccd0",
@@ -211,7 +211,7 @@
     },
     "core/src/listbox/listbox-item.tsx": {
       "upstreamSha256": "2e7400eac5057bd05d58a16869db36becf08f51fb616e4b0ee549a8813857502",
-      "localSha256": "cb57240a43915ce0aab8333290730ccf67c0bca700ece5c65ed444cc8e8ea77d"
+      "localSha256": "5f5c6695565eb1ef482d80898f8844f7f86040c57b268a91ea679c5358b726ce"
     },
     "core/src/listbox/listbox-root.tsx": {
       "upstreamSha256": "045c776361a7d5d4013a90e868ca7dec9a91120ff596e1d26e623a418cdef946",
@@ -351,7 +351,7 @@
     },
     "core/src/select/select-base.tsx": {
       "upstreamSha256": "96659e93e1ebd146d4a18b8f5d986c1e088d4283956f050a060e0df1c13465e7",
-      "localSha256": "5cafff643aa3b7bd1c80626576a772c92e36c172580b76f47f16d83d17cd877c"
+      "localSha256": "7e09f4dd1a3afb6c876e3bb16cf5aa4e7d0d9d5379f730f4152e309af5b2c822"
     },
     "core/src/select/select-content.tsx": {
       "upstreamSha256": "75f9d9d9a3ac570a9805d952ea3aec8a2d87b942e1e74c7c3be8c17698a97b27",
@@ -375,7 +375,7 @@
     },
     "core/src/select/select-listbox.tsx": {
       "upstreamSha256": "987ab1568a80f854c8a61d1fb8628dcbd13f332571ac42630275b759b7efc772",
-      "localSha256": "e8648e1420ff0d1dd3747e7c869d6a46a173bea0f8b3c41b08e9dd358505b936"
+      "localSha256": "7f813f0da372b99f2f206bd96f652a9396acfd8424e14d28a97416d319a83424"
     },
     "core/src/select/select-portal.tsx": {
       "upstreamSha256": "25956142aac3a8b87313a9448c37df086dd6ae250b1b7f25c534dbbf5915c8e0",
@@ -387,11 +387,11 @@
     },
     "core/src/select/select-trigger.tsx": {
       "upstreamSha256": "faba6c23c27856dd5e37a936142f55921f6cb12860464a499c0875721e609870",
-      "localSha256": "10456d35601ce7f9c1e70e1ca1e41dfc9e6dedcb01c2d84d06c3bf724d46ceb8"
+      "localSha256": "38e5beb52fbbb0c42f9ac4a4e963358d02d5276f574222b40b363d40911cd904"
     },
     "core/src/select/select-value.tsx": {
       "upstreamSha256": "227ad55032bacd010aee6f558922a34e74031b56df84acc854d25c4e955d8d69",
-      "localSha256": "a696d394fc6bf33c0b95ad55e4ef82d040d1993f5bd4c3acddd321e6626d5a8d"
+      "localSha256": "5fdc2f25a4bdc71fd1f7462856d40e370958cad5ef9174aa4ccdad42cfce8a62"
     },
     "core/src/selection/create-controllable-selection-signal.ts": {
       "upstreamSha256": "6e35e1a9fe1b2e73edbc69bf876068d764ae8253ce5f921af88ac46d4d8a1af0",
@@ -399,7 +399,7 @@
     },
     "core/src/selection/create-multiple-selection-state.ts": {
       "upstreamSha256": "a923e491fad439ecc271eb249edcea61568477c77b6eb05b6cf89b5f01a72415",
-      "localSha256": "c6a02532f59dadb476c7e5f230fa7aab4b0ed50f5f088b0a010556da6c37ae51"
+      "localSha256": "2729d651ae5a5990e9a441252e637e2d184e441c8662d130bb85ceaf8efd15b7"
     },
     "core/src/selection/create-selectable-collection.ts": {
       "upstreamSha256": "aa2a70b459b11bf1323e94d5dc6f7ab83f3129a463b3a09bfa5ee4022fb1e8ee",

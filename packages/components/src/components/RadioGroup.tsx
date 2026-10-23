@@ -1,3 +1,12 @@
+import {
+  renderAfterRegistration,
+  renderCompoundFieldRoot,
+} from '../internal/fieldRendering'
+import {
+  createCompoundField,
+  createCompoundFieldTarget,
+} from '../internal/compoundField'
+import type { CompoundFieldProps } from '../internal/compoundField'
 import { omit } from 'solid-js'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { styledClasses, type ClassValue } from '../internal/classes'
@@ -9,20 +18,38 @@ import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 export type RadioGroupRootProps<
   T extends ValidComponent | HTMLElement = HTMLElement,
 > = Core.RadioGroupRootProps<T> &
-  ControlDecorationProps & { class?: ClassValue }
+  CompoundFieldProps & {
+    onValueChange?: (value: string) => void
+  } & ControlDecorationProps & { class?: ClassValue }
 export function RadioGroupRoot<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, RadioGroupRootProps<T>>,
 ) {
   const Primitive = Core.Root as Component<typeof props>
-  return (
-    <Primitive
-      {...(omit(props, 'decoration') as typeof props)}
-      data-ui=""
-      data-ui-control-decoration={
-        props.decoration === false ? 'none' : props.decoration
-      }
-      class={styledClasses('ui-radio-group', props.class)}
-    />
+  const state = createCompoundField(props)
+  const target = createCompoundFieldTarget(props, false)
+  return renderCompoundFieldRoot(() =>
+    renderAfterRegistration(() => (
+      <Primitive
+        {...(omit(
+          props,
+          'decoration',
+          'readonly',
+          'invalid',
+          'onValueChange',
+        ) as typeof props)}
+        disabled={state.disabled()}
+        required={state.required()}
+        readOnly={state.readonly()}
+        validationState={state.validationState()}
+        onChange={(value) => (props.onValueChange ?? props.onChange)?.(value)}
+        {...target}
+        data-ui=""
+        data-ui-control-decoration={
+          props.decoration === false ? 'none' : props.decoration
+        }
+        class={styledClasses('ui-radio-group', props.class)}
+      />
+    )),
   )
 }
 

@@ -3,7 +3,7 @@
 This directory contains the shared form, overlay, and display components.
 Table editors and application forms use these components and the styles in `../styles`.
 Application adapters own validation, requests, permissions, and persistence.
-The [control contract](../../../../docs/control-contract.md) distinguishes current APIs from planned compatible names and Field inheritance.
+The [control contract](../../../../docs/control-contract.md) documents callback aliases, state precedence, and compound Field inheritance.
 
 Applications import these controls from `@wfe/components` or its public component subpaths.
 They explicitly import `@wfe/components/styles.css` and supply a `data-ui` scope through `uiScope()`.
@@ -35,6 +35,9 @@ Use `Combobox` when users need editable search text.
 
 `Field` supplies the label association, descriptions, and required, disabled, read-only, and invalid states.
 An explicit control prop takes precedence over the corresponding Field state.
+The raw Checkbox, Switch, RadioGroup, Select, and Combobox roots also inherit these states.
+Their native inputs, Select trigger, and RadioGroup group receive the appropriate Field associations.
+Canonical `readonly` and `invalid` props take precedence over existing `readOnly` and `validationState` aliases, including explicit false.
 `SelectField` submits its accepted value through a hidden native select when it has a name.
 A read-only choice retains its submitted value and blocks edits.
 A disabled choice control is excluded from form submission.

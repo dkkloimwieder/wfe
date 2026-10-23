@@ -218,7 +218,9 @@ export function SelectBase<
       id: defaultId,
       selectionMode: 'single',
       disallowEmptySelection: false,
-      closeOnSelection: props.selectionMode === 'single',
+      get closeOnSelection() {
+        return props.selectionMode === 'single'
+      },
       allowDuplicateSelectionEvents: true,
       gutter: 8,
       sameWidth: true,

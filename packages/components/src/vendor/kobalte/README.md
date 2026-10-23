@@ -328,3 +328,34 @@ Native anchors retain their destinations, keyboard behavior, and application-sup
 Current-page text stays noninteractive and exposes `aria-current`.
 No router, history handler, or application request enters the component.
 The [Breadcrumbs contract](../../../../../docs/breadcrumbs.md) records the reviewed upstream sources.
+
+## Compound Field mount reads
+
+Combobox derives its default close-on-selection behavior through a getter.
+The default follows changes to selection mode.
+Its generated input ID is an explicit initialization snapshot.
+Explicit input IDs remain reactive.
+
+Selection behavior also takes an explicit initialization snapshot for local state.
+The existing effect still responds to later behavior changes.
+These repairs address untracked mount reads exposed by inherited Field state.
+They preserve diagnostics and upstream source hashes.
+
+Select uses the same reactive close-on-selection default.
+Its trigger and value parts snapshot their generated fallback IDs during initialization.
+Explicit IDs remain reactive.
+The generated-form retention tests exposed these three initialization reads.
+
+Combobox listbox IDs use the same explicit initialization snapshot for generated fallbacks.
+Suggestion-count announcements sample the latest translation inside the existing open/count-change event condition.
+This preserves the formatter receiver and call timing without adding translation reads to the effect dependencies.
+The delayed-reference and collection-key tests exposed these reads.
+
+Development hydration also exposed generated fallback ID reads in the Combobox trigger and Select listbox.
+Both use explicit initialization snapshots.
+Explicit listbox IDs still update registration through the existing effect.
+
+Listbox item fallback IDs snapshot the parent-generated prefix before adding their unique suffix.
+Changing an explicit listbox ID retains mounted option identities.
+Explicit item IDs continue to override the fallback.
+The dynamic listbox-ID regression exposed this initialization read.
