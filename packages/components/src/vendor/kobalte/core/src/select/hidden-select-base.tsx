@@ -155,7 +155,13 @@ export function HiddenSelectBase(props: HiddenSelectBaseProps) {
           // which would result in an infinite loop.
           if (!isInternalChangeEvent) {
             // enable form autofill
-            props.selectionManager.setSelectedKeys(new Set([e.target.value]))
+            const keys = props.isMultiple
+              ? Array.from(
+                  e.currentTarget.selectedOptions,
+                  (option) => option.value,
+                )
+              : [e.currentTarget.value]
+            props.selectionManager.setSelectedKeys(new Set(keys))
           }
 
           isInternalChangeEvent = false

@@ -343,7 +343,7 @@
     },
     "core/src/select/hidden-select-base.tsx": {
       "upstreamSha256": "fcf912ecb16f145fe2ea4a0746a07798c787e5ea71da35bf7773586c530ae52c",
-      "localSha256": "0496f18aa2894a7b2635d7a8fcf2c168aed943a12f4c50693bfedf9f77be6f42"
+      "localSha256": "1a90b46ea07ddc09b16abfbea9208fd49c9c651e130dc27350070dc5249cb8dd"
     },
     "core/src/select/index.tsx": {
       "upstreamSha256": "703640b1f494fdfc0dcc5f5c261651c54c0609fb94ce33c07338cf2000d2d4ba",

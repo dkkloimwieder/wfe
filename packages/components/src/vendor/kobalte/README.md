@@ -359,3 +359,16 @@ Listbox item fallback IDs snapshot the parent-generated prefix before adding the
 Changing an explicit listbox ID retains mounted option identities.
 Explicit item IDs continue to override the fallback.
 The dynamic listbox-ID regression exposed this initialization read.
+
+## Native multiple selection
+
+HiddenSelectBase reads every selected native option when a multiple select receives an external change event.
+Single selection still reads the native value.
+Internal change events retain their existing suppression and do not request selection again.
+The existing selection manager remains authoritative.
+Owned wrappers still block locked changes and restore rejected controlled requests.
+
+This repair uses the options already present in the hidden select.
+It does not expand filtered Combobox collections or change virtualized option rendering.
+The native multiple-selection regression supplies all candidate options explicitly.
+Original source hashes and licenses remain unchanged.

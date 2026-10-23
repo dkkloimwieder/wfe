@@ -7,7 +7,7 @@ It covers every Low paragraph in sections 5.1–5.6 of the
 The source review used commit `5683e57` and the isolated phase 4/7 candidates on October 23, 2026.
 No new runtime tests, dependency delivery audit, or performance measurements ran for this record.
 This record follows the completion of phase 4 and issues 7.1–7.5. Their issue records contain the implementation and qualification evidence.
-Issues 7.8 and 7.9 remain pending and require separate regression evidence.
+Issue 7.8 records the native multiple-selection repair and its regression evidence. Issue 7.9 remains pending.
 The user deferred phases 5 and 6 until after the component checkpoint.
 
 Issue numbers below use the `wfe-wmm.` prefix unless stated otherwise.
@@ -91,5 +91,5 @@ The CI policy is in `.github/workflows/check.yml`. Historical migration and heap
 Vendor inventory, notice delivery and repair replay remain deferred phase 6 work. They are not certified by this disposition review.
 
 The new Dialog scope finding is tracked by `wfe-wmm.7.9`. Unlocked native multiple selection is tracked by `wfe-wmm.7.8`.
-Both remain pending and need their own regression evidence before closure. Issues 7.1–7.5 record the completed shared-helper changes and their qualification.
+Issue 7.8 repairs external native changes that dropped selected values and records its baseline and qualification. Issue 7.9 still needs separate regression evidence. Issues 7.1–7.5 record the completed shared-helper changes and their qualification.
 The phase 7 checkpoint must review those results. This document does not authorize a release or report unrun checks as passing.
