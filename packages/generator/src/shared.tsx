@@ -1,5 +1,11 @@
 import { For, Show, createMemo } from 'solid-js'
-import { Button, InlineAlert, isValueFormat } from '@wfe/components'
+import {
+  Button,
+  InlineAlert,
+  isValueFormat,
+  isButtonVariant,
+  isButtonTone,
+} from '@wfe/components'
 import type { Accessor, Component } from 'solid-js'
 import type {
   ActionBinding,
@@ -84,12 +90,11 @@ export function validateActions(
   for (const action of [...descriptions, ...(submit ? [submit] : [])]) {
     descriptionLabel(action.label, action.id)
     requireValue(
-      action.variant === undefined ||
-        ['outline', 'filled', 'inverted', 'ghost'].includes(action.variant),
+      action.variant === undefined || isButtonVariant(action.variant),
       `unsupported variant for action "${action.id}"`,
     )
     requireValue(
-      action.tone === undefined || ['neutral', 'accent'].includes(action.tone),
+      action.tone === undefined || isButtonTone(action.tone),
       `unsupported tone for action "${action.id}"`,
     )
     requireValue(

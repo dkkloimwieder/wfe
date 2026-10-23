@@ -18,7 +18,7 @@ export type ValueFormatOptions = {
   timeZone?: string
 }
 
-const formats = [
+export const VALUE_FORMATS = [
   'boolean-symbol',
   'boolean-text',
   'date',
@@ -32,9 +32,12 @@ const formats = [
   'number-decimal',
   'short-hash',
 ] as const
-export type ValueFormat = (typeof formats)[number]
+export type ValueFormat = (typeof VALUE_FORMATS)[number]
 export function isValueFormat(value: unknown): value is ValueFormat {
-  return typeof value === 'string' && formats.some((format) => format === value)
+  return (
+    typeof value === 'string' &&
+    VALUE_FORMATS.some((format) => format === value)
+  )
 }
 
 /** Format display text without changing the original value. */

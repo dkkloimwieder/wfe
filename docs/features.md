@@ -167,3 +167,5 @@ DeleteView confirms one record key and invokes one application callback.
 The [detail and delete example](../examples/generator/DetailsApp.tsx) covers both views and their focus, hydration, and cleanup behavior.
 The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable foundations.
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.
+
+Owned styled component props are available from the package root and existing component subpaths. See [styled component props](styled-component-types.md) for compatible type exports and the shared button variant, tone, and value-format contracts.

@@ -14,11 +14,11 @@ export type AlertDialogRootProps = Omit<Core.AlertDialogRootProps, 'modal'>
 export function AlertDialogRoot(props: AlertDialogRootProps) {
   return <DialogRoot {...props} modal />
 }
+export type AlertDialogContentProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.AlertDialogContentProps<T> & { class?: ClassValue }
 export function AlertDialogContent<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.AlertDialogContentProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, AlertDialogContentProps<T>>,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   const scope = useDialogScope()
@@ -71,9 +71,45 @@ export const AlertDialog = /* @__PURE__ */ Object.assign(AlertDialogRoot, {
   Cancel: AlertDialogCancel,
   Action: Button,
 })
-export type * from '../internal/controls/alert-dialog'
+// Explicit compatibility exports retain the previously available primitive types.
+export type {
+  AlertDialogCloseButtonCommonProps,
+  AlertDialogCloseButtonOptions,
+  AlertDialogCloseButtonRenderProps,
+  AlertDialogContentCommonProps,
+  AlertDialogContentOptions,
+  AlertDialogContentRenderProps,
+  AlertDialogDescriptionCommonProps,
+  AlertDialogDescriptionOptions,
+  AlertDialogDescriptionRenderProps,
+  AlertDialogOverlayCommonProps,
+  AlertDialogOverlayOptions,
+  AlertDialogOverlayRenderProps,
+  AlertDialogRootOptions,
+  AlertDialogTitleCommonProps,
+  AlertDialogTitleOptions,
+  AlertDialogTitleRenderProps,
+  AlertDialogTriggerCommonProps,
+  AlertDialogTriggerOptions,
+  AlertDialogTriggerRenderProps,
+  CloseButton,
+  Content,
+  Description,
+  Overlay,
+  Portal,
+  Root,
+  Title,
+  Trigger,
+} from '../internal/controls/alert-dialog'
 
 export type {
   DialogTriggerProps as AlertDialogTriggerProps,
   DialogCloseButtonProps as AlertDialogCloseButtonProps,
+} from './Dialog'
+
+export type {
+  DialogPortalProps as AlertDialogPortalProps,
+  DialogOverlayProps as AlertDialogOverlayProps,
+  DialogTitleProps as AlertDialogTitleProps,
+  DialogDescriptionProps as AlertDialogDescriptionProps,
 } from './Dialog'

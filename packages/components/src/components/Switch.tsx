@@ -6,11 +6,11 @@ import type { Component } from 'solid-js'
 import type { ValidComponent } from '@solidjs/web'
 import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
+export type SwitchRootProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SwitchRootProps<T> & ControlDecorationProps & { class?: ClassValue }
 export function SwitchRoot<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.SwitchRootProps<T> & ControlDecorationProps & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, SwitchRootProps<T>>,
 ) {
   const Primitive = Core.Root as Component<typeof props>
   return (
@@ -25,8 +25,11 @@ export function SwitchRoot<T extends ValidComponent = 'div'>(
   )
 }
 
+export type SwitchInputProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SwitchInputProps<T> & { class?: ClassValue }
 export function SwitchInput<T extends ValidComponent = 'input'>(
-  props: PolymorphicProps<T, Core.SwitchInputProps<T> & { class?: ClassValue }>,
+  props: PolymorphicProps<T, SwitchInputProps<T>>,
 ) {
   const Primitive = Core.Input as Component<typeof props>
   return (
@@ -37,11 +40,11 @@ export function SwitchInput<T extends ValidComponent = 'input'>(
   )
 }
 
+export type SwitchControlProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SwitchControlProps<T> & { class?: ClassValue }
 export function SwitchControl<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.SwitchControlProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, SwitchControlProps<T>>,
 ) {
   const Primitive = Core.Control as Component<typeof props>
   return (
@@ -53,8 +56,11 @@ export function SwitchControl<T extends ValidComponent = 'div'>(
   )
 }
 
+export type SwitchThumbProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SwitchThumbProps<T> & { class?: ClassValue }
 export function SwitchThumb<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<T, Core.SwitchThumbProps<T> & { class?: ClassValue }>,
+  props: PolymorphicProps<T, SwitchThumbProps<T>>,
 ) {
   const Primitive = Core.Thumb as Component<typeof props>
   return (
@@ -65,28 +71,31 @@ export function SwitchThumb<T extends ValidComponent = 'div'>(
   )
 }
 
+export type SwitchLabelProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SwitchLabelProps<T> & { class?: ClassValue }
 export function SwitchLabel<T extends ValidComponent = 'label'>(
-  props: PolymorphicProps<T, Core.SwitchLabelProps<T> & { class?: ClassValue }>,
+  props: PolymorphicProps<T, SwitchLabelProps<T>>,
 ) {
   const Primitive = Core.Label as Component<typeof props>
   return <Primitive {...props} class={styledClasses('ui-label', props.class)} />
 }
 
+export type SwitchDescriptionProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SwitchDescriptionProps<T> & { class?: ClassValue }
 export function SwitchDescription<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.SwitchDescriptionProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, SwitchDescriptionProps<T>>,
 ) {
   const Primitive = Core.Description as Component<typeof props>
   return <Primitive {...props} class={styledClasses('ui-help', props.class)} />
 }
 
+export type SwitchErrorMessageProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SwitchErrorMessageProps<T> & { class?: ClassValue }
 export function SwitchErrorMessage<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.SwitchErrorMessageProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, SwitchErrorMessageProps<T>>,
 ) {
   const Primitive = Core.ErrorMessage as Component<typeof props>
   return (

@@ -13,11 +13,16 @@ import type {
   PolymorphicProps,
 } from '../vendor/kobalte/core/src/polymorphic'
 
+export type SelectRootProps<
+  Option,
+  OptGroup = never,
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectRootProps<Option, OptGroup, T> & { class?: ClassValue }
 export function SelectRoot<
   Option,
   OptGroup = never,
   T extends ValidComponent = 'div',
->(props: PolymorphicProps<T, Core.SelectRootProps<Option, OptGroup, T>>) {
+>(props: PolymorphicProps<T, SelectRootProps<Option, OptGroup, T>>) {
   const scope = createChoiceScope({
     get open() {
       return props.open
@@ -45,11 +50,11 @@ export function SelectRoot<
 
 // Styled parts add HTML classes and slots at the polymorphic forwarding boundary.
 // Keep JSX reference arrays direct. The compiler drops callbacks behind outer assertions.
+export type SelectTriggerProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectTriggerProps<T> & ControlDecorationProps & { class?: ClassValue }
 export function SelectTrigger<T extends ValidComponent = 'button'>(
-  props: PolymorphicProps<
-    T,
-    Core.SelectTriggerProps<T> & ControlDecorationProps & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, SelectTriggerProps<T>>,
 ) {
   const Primitive = Core.Trigger as Component<typeof props>
   const scope = useChoiceScope()
@@ -65,16 +70,16 @@ export function SelectTrigger<T extends ValidComponent = 'button'>(
     />
   )
 }
+export type SelectContentProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectContentProps<T> & {
+  class?: ClassValue
+  children?: JSX.Element
+  footer?: JSX.Element
+  status?: JSX.Element
+}
 export function SelectContent<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.SelectContentProps<T> & {
-      class?: ClassValue
-      children?: JSX.Element
-      footer?: JSX.Element
-      status?: JSX.Element
-    }
-  >,
+  props: PolymorphicProps<T, SelectContentProps<T>>,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   const scope = useChoiceScope()
@@ -115,8 +120,11 @@ export function SelectContent<T extends ValidComponent = 'div'>(
     </Primitive>
   )
 }
+export type SelectItemProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectItemProps<T> & { class?: ClassValue }
 export function SelectItem<T extends ValidComponent = 'li'>(
-  props: PolymorphicProps<T, Core.SelectItemProps<T> & { class?: ClassValue }>,
+  props: PolymorphicProps<T, SelectItemProps<T>>,
 ) {
   const Primitive = Core.Item as Component<typeof props>
   return (
@@ -124,14 +132,14 @@ export function SelectItem<T extends ValidComponent = 'li'>(
   )
 }
 /** Fixed-size selection marker shared by every choice popup. */
+export type SelectItemIndicatorProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectItemIndicatorProps<T> & {
+  class?: ClassValue
+  children?: JSX.Element
+}
 export function SelectItemIndicator<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.SelectItemIndicatorProps<T> & {
-      class?: ClassValue
-      children?: JSX.Element
-    }
-  >,
+  props: PolymorphicProps<T, SelectItemIndicatorProps<T>>,
 ) {
   const Primitive = Core.ItemIndicator as Component<typeof props>
   return (
@@ -142,21 +150,22 @@ export function SelectItemIndicator<T extends ValidComponent = 'div'>(
   )
 }
 
-export function SelectPortal(props: Core.SelectPortalProps) {
+export type SelectPortalProps = Core.SelectPortalProps
+export function SelectPortal(props: SelectPortalProps) {
   const scope = useChoiceScope()
   return <Core.Portal {...props} mount={props.mount ?? scope.mount()} />
 }
 
+export type SelectListboxProps<
+  Option = unknown,
+  OptGroup = never,
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectListboxProps<Option, OptGroup, T> & { class?: ClassValue }
 export function SelectListbox<
   Option = unknown,
   OptGroup = never,
   T extends ValidComponent = 'ul',
->(
-  props: PolymorphicProps<
-    T,
-    Core.SelectListboxProps<Option, OptGroup, T> & { class?: ClassValue }
-  >,
-) {
+>(props: PolymorphicProps<T, SelectListboxProps<Option, OptGroup, T>>) {
   const Primitive = Core.Listbox as Component<typeof props>
   return (
     <Primitive {...props} class={styledClasses('popup-listbox', props.class)} />
@@ -274,8 +283,11 @@ export function SelectField(props: SelectFieldProps) {
   )
 }
 
+export type SelectIconProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectIconProps<T> & { class?: ClassValue }
 export function SelectIcon<T extends ValidComponent = 'span'>(
-  props: PolymorphicProps<T, Core.SelectIconProps<T> & { class?: ClassValue }>,
+  props: PolymorphicProps<T, SelectIconProps<T>>,
 ) {
   const Primitive = Core.Icon as Component<typeof props>
   return (
@@ -285,28 +297,31 @@ export function SelectIcon<T extends ValidComponent = 'span'>(
   )
 }
 
+export type SelectLabelProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectLabelProps<T> & { class?: ClassValue }
 export function SelectLabel<T extends ValidComponent = 'span'>(
-  props: PolymorphicProps<T, Core.SelectLabelProps<T> & { class?: ClassValue }>,
+  props: PolymorphicProps<T, SelectLabelProps<T>>,
 ) {
   const Primitive = Core.Label as Component<typeof props>
   return <Primitive {...props} class={styledClasses('ui-label', props.class)} />
 }
 
+export type SelectDescriptionProps = Core.SelectDescriptionProps & {
+  class?: ClassValue
+}
 export function SelectDescription<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.SelectDescriptionProps & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, SelectDescriptionProps>,
 ) {
   const Primitive = Core.Description as Component<typeof props>
   return <Primitive {...props} class={styledClasses('ui-help', props.class)} />
 }
 
+export type SelectErrorMessageProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.SelectErrorMessageProps<T> & { class?: ClassValue }
 export function SelectErrorMessage<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.SelectErrorMessageProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, SelectErrorMessageProps<T>>,
 ) {
   const Primitive = Core.ErrorMessage as Component<typeof props>
   return (
@@ -337,4 +352,77 @@ export const Select = /* @__PURE__ */ Object.assign(SelectRoot, {
   Listbox: SelectListbox,
   Portal: SelectPortal,
 })
-export type * from '../internal/controls/select'
+// Explicit compatibility exports retain the previously available primitive types.
+export type {
+  SelectArrowCommonProps,
+  SelectArrowOptions,
+  SelectArrowProps,
+  SelectArrowRenderProps,
+  SelectContentCommonProps,
+  SelectContentOptions,
+  SelectContentRenderProps,
+  SelectDescriptionCommonProps,
+  SelectDescriptionOptions,
+  SelectDescriptionRenderProps,
+  SelectErrorMessageCommonProps,
+  SelectErrorMessageOptions,
+  SelectErrorMessageRenderProps,
+  SelectHiddenSelectProps,
+  SelectIconCommonProps,
+  SelectIconOptions,
+  SelectIconRenderProps,
+  SelectItemCommonProps,
+  SelectItemDescriptionCommonProps,
+  SelectItemDescriptionOptions,
+  SelectItemDescriptionProps,
+  SelectItemDescriptionRenderProps,
+  SelectItemIndicatorCommonProps,
+  SelectItemIndicatorOptions,
+  SelectItemIndicatorRenderProps,
+  SelectItemLabelCommonProps,
+  SelectItemLabelOptions,
+  SelectItemLabelProps,
+  SelectItemLabelRenderProps,
+  SelectItemOptions,
+  SelectItemRenderProps,
+  SelectLabelCommonProps,
+  SelectLabelOptions,
+  SelectLabelRenderProps,
+  SelectListboxCommonProps,
+  SelectListboxOptions,
+  SelectListboxRenderProps,
+  SelectMultipleSelectionOptions,
+  SelectRootCommonProps,
+  SelectRootItemComponentProps,
+  SelectRootOptions,
+  SelectRootRenderProps,
+  SelectRootSectionComponentProps,
+  SelectSectionProps,
+  SelectSingleSelectionOptions,
+  SelectTriggerCommonProps,
+  SelectTriggerOptions,
+  SelectTriggerRenderProps,
+  SelectValueCommonProps,
+  SelectValueOptions,
+  SelectValueProps,
+  SelectValueRenderProps,
+  Arrow,
+  Content,
+  Description,
+  ErrorMessage,
+  HiddenSelect,
+  Icon,
+  Item,
+  ItemDescription,
+  ItemIndicator,
+  ItemLabel,
+  Label,
+  Listbox,
+  Portal,
+  Root,
+  Section,
+  Trigger,
+  Value,
+  SelectContextValue,
+  useSelectContext,
+} from '../internal/controls/select'

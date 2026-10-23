@@ -7,11 +7,11 @@ import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
 import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
+export type CheckboxRootProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.CheckboxRootProps<T> & ControlDecorationProps & { class?: ClassValue }
 export function CheckboxRoot<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.CheckboxRootProps<T> & ControlDecorationProps & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, CheckboxRootProps<T>>,
 ) {
   const Primitive = Core.Root as Component<typeof props>
   return (
@@ -26,11 +26,11 @@ export function CheckboxRoot<T extends ValidComponent = 'div'>(
   )
 }
 
+export type CheckboxInputProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.CheckboxInputProps<T> & { class?: ClassValue }
 export function CheckboxInput<T extends ValidComponent = 'input'>(
-  props: PolymorphicProps<
-    T,
-    Core.CheckboxInputProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, CheckboxInputProps<T>>,
 ) {
   const Primitive = Core.Input as Component<typeof props>
   return (
@@ -41,11 +41,11 @@ export function CheckboxInput<T extends ValidComponent = 'input'>(
   )
 }
 
+export type CheckboxControlProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.CheckboxControlProps<T> & { class?: ClassValue }
 export function CheckboxControl<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.CheckboxControlProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, CheckboxControlProps<T>>,
 ) {
   const Primitive = Core.Control as Component<typeof props>
   return (
@@ -57,14 +57,14 @@ export function CheckboxControl<T extends ValidComponent = 'div'>(
   )
 }
 
+export type CheckboxIndicatorProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.CheckboxIndicatorProps<T> & {
+  class?: ClassValue
+  children?: JSX.Element
+}
 export function CheckboxIndicator<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.CheckboxIndicatorProps<T> & {
-      class?: ClassValue
-      children?: JSX.Element
-    }
-  >,
+  props: PolymorphicProps<T, CheckboxIndicatorProps<T>>,
 ) {
   const Primitive = Core.Indicator as Component<typeof props>
   const context = Core.useCheckboxContext()
@@ -83,31 +83,31 @@ export function CheckboxIndicator<T extends ValidComponent = 'div'>(
   )
 }
 
+export type CheckboxLabelProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.CheckboxLabelProps<T> & { class?: ClassValue }
 export function CheckboxLabel<T extends ValidComponent = 'label'>(
-  props: PolymorphicProps<
-    T,
-    Core.CheckboxLabelProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, CheckboxLabelProps<T>>,
 ) {
   const Primitive = Core.Label as Component<typeof props>
   return <Primitive {...props} class={styledClasses('ui-label', props.class)} />
 }
 
+export type CheckboxDescriptionProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.CheckboxDescriptionProps<T> & { class?: ClassValue }
 export function CheckboxDescription<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.CheckboxDescriptionProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, CheckboxDescriptionProps<T>>,
 ) {
   const Primitive = Core.Description as Component<typeof props>
   return <Primitive {...props} class={styledClasses('ui-help', props.class)} />
 }
 
+export type CheckboxErrorMessageProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.CheckboxErrorMessageProps<T> & { class?: ClassValue }
 export function CheckboxErrorMessage<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.CheckboxErrorMessageProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, CheckboxErrorMessageProps<T>>,
 ) {
   const Primitive = Core.ErrorMessage as Component<typeof props>
   return (

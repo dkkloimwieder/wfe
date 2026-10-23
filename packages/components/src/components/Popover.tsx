@@ -8,7 +8,8 @@ import type { Component } from 'solid-js'
 import type { ValidComponent } from '@solidjs/web'
 import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
-export function PopoverRoot(props: Core.PopoverRootProps) {
+export type PopoverRootProps = Core.PopoverRootProps
+export function PopoverRoot(props: PopoverRootProps) {
   const scope = createPopupScope()
   return (
     <PopupScope value={scope}>
@@ -33,11 +34,11 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
     />
   )
 }
+export type PopoverContentProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.PopoverContentProps<T> & { class?: ClassValue }
 export function PopoverContent<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.PopoverContentProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, PopoverContentProps<T>>,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   return (
@@ -58,11 +59,11 @@ export function PopoverCloseButton<T extends ValidComponent = 'button'>(
   const Primitive = Core.CloseButton as Component<typeof props>
   return <Primitive {...attributes} data-ui="" />
 }
+export type PopoverTitleProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.PopoverTitleProps<T> & { class?: ClassValue }
 export function PopoverTitle<T extends ValidComponent = 'h2'>(
-  props: PolymorphicProps<
-    T,
-    Core.PopoverTitleProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, PopoverTitleProps<T>>,
 ) {
   const Primitive = Core.Title as Component<typeof props>
   return (
@@ -73,11 +74,11 @@ export function PopoverTitle<T extends ValidComponent = 'h2'>(
     />
   )
 }
+export type PopoverDescriptionProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.PopoverDescriptionProps<T> & { class?: ClassValue }
 export function PopoverDescription<T extends ValidComponent = 'p'>(
-  props: PolymorphicProps<
-    T,
-    Core.PopoverDescriptionProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, PopoverDescriptionProps<T>>,
 ) {
   const Primitive = Core.Description as Component<typeof props>
   return (
@@ -88,7 +89,8 @@ export function PopoverDescription<T extends ValidComponent = 'p'>(
     />
   )
 }
-export function PopoverPortal(props: Core.PopoverPortalProps) {
+export type PopoverPortalProps = Core.PopoverPortalProps
+export function PopoverPortal(props: PopoverPortalProps) {
   const scope = usePopupScope()
   return (
     <Core.Portal {...props} mount={props.mount ?? scope.mount()}>
@@ -110,4 +112,41 @@ export const Popover = /* @__PURE__ */ Object.assign(PopoverRoot, {
   Title: PopoverTitle,
   Description: PopoverDescription,
 })
-export type * from '../internal/controls/popover'
+// Explicit compatibility exports retain the previously available primitive types.
+export type {
+  PopoverAnchorCommonProps,
+  PopoverAnchorOptions,
+  PopoverAnchorProps,
+  PopoverAnchorRenderProps,
+  PopoverArrowCommonProps,
+  PopoverArrowOptions,
+  PopoverArrowProps,
+  PopoverArrowRenderProps,
+  PopoverCloseButtonCommonProps,
+  PopoverCloseButtonOptions,
+  PopoverCloseButtonRenderProps,
+  PopoverContentCommonProps,
+  PopoverContentOptions,
+  PopoverContentRenderProps,
+  PopoverDescriptionCommonProps,
+  PopoverDescriptionOptions,
+  PopoverDescriptionRenderProps,
+  PopoverRootOptions,
+  PopoverTitleCommonProps,
+  PopoverTitleOptions,
+  PopoverTitleRenderProps,
+  PopoverTriggerCommonProps,
+  PopoverTriggerOptions,
+  PopoverTriggerRenderProps,
+  Anchor,
+  Arrow,
+  CloseButton,
+  Content,
+  Description,
+  Portal,
+  Root,
+  Title,
+  Trigger,
+  PopoverContextValue,
+  usePopoverContext,
+} from '../internal/controls/popover'

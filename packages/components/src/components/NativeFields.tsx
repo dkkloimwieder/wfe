@@ -10,6 +10,12 @@ import { styledClasses } from '../internal/classes'
 import { restoreTextValue } from '../internal/controlledText'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
+export {
+  BUTTON_TONES,
+  BUTTON_VARIANTS,
+  isButtonTone,
+  isButtonVariant,
+} from '../internal/buttonPresentation'
 export type { ButtonTone, ButtonVariant } from '../internal/buttonPresentation'
 import { FieldContext } from '../internal/fieldContext'
 import type { FieldState } from '../internal/fieldContext'

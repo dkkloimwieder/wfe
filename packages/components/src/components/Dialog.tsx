@@ -17,7 +17,8 @@ export function DialogRoot(props: DialogRootProps) {
     </DialogScope>
   )
 }
-export function DialogPortal(props: Core.DialogPortalProps) {
+export type DialogPortalProps = Core.DialogPortalProps
+export function DialogPortal(props: DialogPortalProps) {
   const scope = useDialogScope()
   return (
     <Core.Portal {...props} mount={props.mount ?? scope.mount()}>
@@ -56,11 +57,11 @@ export function DialogCloseButton<T extends ValidComponent = 'button'>(
   return <Primitive {...attributes} />
 }
 
+export type DialogOverlayProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.DialogOverlayProps<T> & { class?: ClassValue }
 export function DialogOverlay<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.DialogOverlayProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, DialogOverlayProps<T>>,
 ) {
   const Primitive = Core.Overlay as Component<typeof props>
   return (
@@ -71,11 +72,11 @@ export function DialogOverlay<T extends ValidComponent = 'div'>(
   )
 }
 
+export type DialogContentProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.DialogContentProps<T> & { class?: ClassValue }
 export function DialogContent<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.DialogContentProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, DialogContentProps<T>>,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   const scope = useDialogScope()
@@ -89,8 +90,11 @@ export function DialogContent<T extends ValidComponent = 'div'>(
   )
 }
 
+export type DialogTitleProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.DialogTitleProps<T> & { class?: ClassValue }
 export function DialogTitle<T extends ValidComponent = 'h2'>(
-  props: PolymorphicProps<T, Core.DialogTitleProps<T> & { class?: ClassValue }>,
+  props: PolymorphicProps<T, DialogTitleProps<T>>,
 ) {
   const Primitive = Core.Title as Component<typeof props>
   return (
@@ -101,11 +105,11 @@ export function DialogTitle<T extends ValidComponent = 'h2'>(
   )
 }
 
+export type DialogDescriptionProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.DialogDescriptionProps<T> & { class?: ClassValue }
 export function DialogDescription<T extends ValidComponent = 'p'>(
-  props: PolymorphicProps<
-    T,
-    Core.DialogDescriptionProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, DialogDescriptionProps<T>>,
 ) {
   const Primitive = Core.Description as Component<typeof props>
   return (
@@ -126,4 +130,35 @@ export const Dialog = /* @__PURE__ */ Object.assign(DialogRoot, {
   Title: DialogTitle,
   Description: DialogDescription,
 })
-export type * from '../internal/controls/dialog'
+// Explicit compatibility exports retain the previously available primitive types.
+export type {
+  DialogCloseButtonCommonProps,
+  DialogCloseButtonOptions,
+  DialogCloseButtonRenderProps,
+  DialogContentCommonProps,
+  DialogContentOptions,
+  DialogContentRenderProps,
+  DialogDescriptionCommonProps,
+  DialogDescriptionOptions,
+  DialogDescriptionRenderProps,
+  DialogOverlayCommonProps,
+  DialogOverlayOptions,
+  DialogOverlayRenderProps,
+  DialogRootOptions,
+  DialogTitleCommonProps,
+  DialogTitleOptions,
+  DialogTitleRenderProps,
+  DialogTriggerCommonProps,
+  DialogTriggerOptions,
+  DialogTriggerRenderProps,
+  CloseButton,
+  Content,
+  Description,
+  Overlay,
+  Portal,
+  Root,
+  Title,
+  Trigger,
+  DialogContextValue,
+  useDialogContext,
+} from '../internal/controls/dialog'

@@ -8,7 +8,8 @@ import type { Component } from 'solid-js'
 import type { ValidComponent } from '@solidjs/web'
 import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
-export function TooltipRoot(props: Core.TooltipRootProps) {
+export type TooltipRootProps = Core.TooltipRootProps
+export function TooltipRoot(props: TooltipRootProps) {
   const scope = createPopupScope()
   return (
     <PopupScope value={scope}>
@@ -37,11 +38,11 @@ export function TooltipTrigger<T extends ValidComponent = 'button'>(
     />
   )
 }
+export type TooltipContentProps<
+  T extends ValidComponent | HTMLElement = HTMLElement,
+> = Core.TooltipContentProps<T> & { class?: ClassValue }
 export function TooltipContent<T extends ValidComponent = 'div'>(
-  props: PolymorphicProps<
-    T,
-    Core.TooltipContentProps<T> & { class?: ClassValue }
-  >,
+  props: PolymorphicProps<T, TooltipContentProps<T>>,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   return (
@@ -52,7 +53,8 @@ export function TooltipContent<T extends ValidComponent = 'div'>(
     />
   )
 }
-export function TooltipPortal(props: Core.TooltipPortalProps) {
+export type TooltipPortalProps = Core.TooltipPortalProps
+export function TooltipPortal(props: TooltipPortalProps) {
   const scope = usePopupScope()
   return (
     <Core.Portal {...props} mount={props.mount ?? scope.mount()}>
@@ -70,4 +72,24 @@ export const Tooltip = /* @__PURE__ */ Object.assign(TooltipRoot, {
   Trigger: TooltipTrigger,
   Content: TooltipContent,
 })
-export type * from '../internal/controls/tooltip'
+// Explicit compatibility exports retain the previously available primitive types.
+export type {
+  TooltipArrowCommonProps,
+  TooltipArrowOptions,
+  TooltipArrowProps,
+  TooltipArrowRenderProps,
+  TooltipContentCommonProps,
+  TooltipContentOptions,
+  TooltipContentRenderProps,
+  TooltipRootOptions,
+  TooltipTriggerCommonProps,
+  TooltipTriggerOptions,
+  TooltipTriggerRenderProps,
+  Arrow,
+  Content,
+  Portal,
+  Root,
+  Trigger,
+  TooltipContextValue,
+  useTooltipContext,
+} from '../internal/controls/tooltip'
