@@ -19,6 +19,8 @@ Beads records task status and dependencies.
 
 ## Component guides
 
+- [Default theme](theme.md)
+- [Owned icon catalog](icons.md)
 - [Button variants and tones](button-variants.md)
 - [Date picker and calendar](date-picker.md)
 - [Date and datetime fields](date-inputs.md)
@@ -48,6 +50,8 @@ Beads records task status and dependencies.
 - [Combobox matching](combobox-matching.md)
 - [Appearance review](appearance-review.md)
 - [Qualification commands and reports](qualification.md)
+- [Native tab investigation](native-tab-investigation.md)
+- [Action disposal investigation](action-disposal-investigation.md)
 - [Shared style ownership](../packages/components/src/styles/README.md)
 
 ## Plans and historical records

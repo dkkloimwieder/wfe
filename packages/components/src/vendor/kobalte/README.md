@@ -158,8 +158,9 @@ The virtual engine imports no external runtime package.
 Solid and `@solidjs/web` remain external peers.
 External runtime imports also include Floating UI, internationalized number formatting, and the declared Solid Primitives packages.
 Their exact declarations remain in [the component manifest](../../../package.json).
-The UI package imports its owned Core package through workspace entry points.
-The native Table peer supplies types to the UI source.
+Kobalte Core and Utils live in `packages/components/src/vendor/kobalte`.
+Component wrappers import this owned source through relative paths.
+The native Table engine and presentation share `packages/components/src/table`.
 Applications create the native engine and pass it to Table presentation.
 
 ## Repair locations
@@ -193,7 +194,7 @@ pnpm audit:vendor
 ```
 
 The report is `test-results/vendor-audit/audit.json`.
-The command tests both vendor inventories before it generates the source graph.
+The command runs matching, chart, calendar, Kobalte, and virtual integrity guards before it generates the source graph.
 It builds the read-only, editing, analytics, and popup fixtures serially without writing their build directories.
 Clear `BENCH_DEVELOPMENT`, `BENCH_DISTRIBUTION`, and `BENCH_PROFILE` before this production audit.
 Use `--output` to retain a separate report for a candidate update.
@@ -213,9 +214,11 @@ Do not remove an optional part solely because its source contains many lines.
 
 ### Baseline measured on October 14, 2026
 
-The audit inventories 260 TypeScript and CSS sources across both UI packages.
-It finds 19 imported package names, including the owned Core workspace and the native Table type peer.
-The remaining 17 names supply external runtime imports.
+This historical measurement predates the single components package.
+At that time, the audit inventoried 260 TypeScript and CSS sources across two UI packages.
+It found 19 imported package names, including the former Core workspace and native Table type peer.
+The remaining 17 names supplied external runtime imports.
+Those counts do not describe the current package graph.
 Each vendor comparison reproduces its checked-in sources and unchanged licenses exactly.
 
 | Fixture   | JavaScript bytes | Gzip JavaScript bytes | Kobalte modules with code | Kobalte rendered characters | Virtual rendered characters |

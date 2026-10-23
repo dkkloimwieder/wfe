@@ -11,9 +11,9 @@ Application records, routing, permissions, validation rules, requests, and persi
 
 ## Current release
 
-Use Git tag [`v0.0.7`](https://github.com/dkkloimwieder/wfe/tree/v0.0.7).
-The [adoption guide](docs/adoption.md#v007) describes shared form actions, application icons, and per-column table controls.
-The [release verification record](docs/qualification.md#v007-release) identifies the tested commit and test scope.
+Use Git tag [`v0.0.8`](https://github.com/dkkloimwieder/wfe/tree/v0.0.8).
+The [adoption guide](docs/adoption.md#v008) describes shell overrides, optional field decoration, and the owned icon catalog.
+The [release verification record](docs/qualification.md#v008-release) identifies the tested commit and test scope.
 
 ## Documentation
 
@@ -44,7 +44,9 @@ See [the example instructions](examples/README.md) for previews and browser comm
 Unit tools, rendering, hydration, vendor audits, and live checks now run from wfe.
 The [adoption guide](docs/adoption.md) describes public imports, controlled values, state ownership, and hydration.
 The standalone migration is complete.
-The migration acceptance run passes 47 stages in a fresh checkout with both original repositories hidden.
+The historical migration acceptance run passed 47 stages with both original repositories hidden.
+That count describes the migration record, not the current qualification plan.
+Use `node scripts/qualify.mjs --plan` to inspect the current stages.
 Review previews now run from wfe.
 The [standalone record](migration/standalone.md) describes the proof and cutover.
 
@@ -59,7 +61,7 @@ The dashboard shell, panels, and grid live under `src/layout`.
 The [layout guide](docs/layout.md) describes slots, navigation, scrolling, and available height.
 `src/chart` contains the owned chart adapter and controlled legend.
 The [chart guide](docs/charts.md) describes imports, data boundaries, generated views, and supported plots.
-`src/vendor` contains the owned Kobalte, virtual, calendar, and chart subsets with their attribution and provenance.
+`src/vendor` contains the owned Kobalte, virtual, calendar, chart, match-sorter, and icon subsets with their attribution and provenance.
 `packages/form/src` contains the generic form implementation and its public types.
 The [form guide](docs/form-contract.md) describes controlled values, callbacks, reset, and cancellation.
 `packages/generator/src` contains typed contracts and rendering compositions.

@@ -29,11 +29,11 @@ Browser workloads cover paging, wrapped text, expansion, resizing, pinning, anch
 
 The engine has no external runtime package dependencies.
 Workspace examples use this owned engine through `@wfe/components/virtual`.
-The optional integration fixture currently supplies its own row layout around the same binding.
+The optional integration fixture also uses `VirtualRows` around the same binding.
 
 ## Maintenance
 
 The [shared vendor procedure](../kobalte/README.md#update-a-vendor-revision) covers source inventories, original comparison, patch replay, and build contributions.
-From the repository root, run `pnpm audit:vendor` to include both owned vendor subsets.
+From the repository root, run `pnpm audit:vendor` to inspect the current owned vendor sources and their bundle contributions.
 Supply `--virtual-upstream` with the exact pinned package directory to test original hashes and generate its local repair patch.
 The replay test requires every resulting source and license hash to match the checked-in copy.

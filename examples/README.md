@@ -19,10 +19,36 @@ Editing uses port 7777, components use 7782, analytics uses 7783, and the read-o
 Use `examples/table-editing/vite.config.ts`, `examples/analytics/vite.config.ts`, or `examples/table-read-only/vite.config.ts` for those examples.
 If a review server already occupies the port, use an unused port for another instance.
 
-The generic examples are components, table-editing, table-read-only, analytics, styles, layout, dashboard, and virtualization.
-Each example imports public exports from `@wfe/components`.
+The inventory below distinguishes generic consumers, integration examples, and manual performance tools.
+Generic consumers use public exports from the components, form, generator, or shell packages.
 Applications own records, transport, validation, query paging, cache policy, and export requests.
 The optional WAMN example requires its separate input preparation.
+
+## Fixture inventory
+
+Generic controls and layout consumers:
+
+- [Component gallery](components/README.md), [shared styles](styles/README.md), and [Default theme](theme/README.md).
+- [Dashboard composition](dashboard/README.md), [layout](layout/README.md), and [described shell](shell/README.md).
+- [Date picker](date-picker/README.md), [form contract](form-contract/README.md), and [generator](generator/README.md).
+- [Charts](charts/README.md), [boolean grid](grid/README.md), and [status tiles](status-tiles/README.md).
+- [Table editing](table-editing/README.md), [read-only tables](table-read-only/README.md), [analytics](analytics/README.md), and [virtualization](virtualization/README.md).
+- [Shared hydration](hydration/README.md) and [shared fixture support](shared/README.md).
+
+Application integration examples:
+
+- [Platform mock](platform/README.md), which uses a prepared platform schema.
+- [WAMN fixture](wamn/README.md), which requires optional prepared inputs.
+- [WAMN generator adapter](wamn-generator/README.md), which reuses those inputs.
+
+Manual performance tools:
+
+- [Accessor profiling](accessor-profile/README.md).
+- [Editing overhead](editing-overhead/README.md).
+- [Performance tools](../bench/README.md) document additional workloads and evidence limits.
+
+The inventory lists available fixtures, not a successful qualification result.
+Use `node scripts/qualify.mjs --plan` to inspect current automated coverage.
 
 ## Browser cases
 

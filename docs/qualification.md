@@ -66,7 +66,7 @@ Shell hydration preserves server nodes and initial focus, including direct links
 Narrow drawer cases cover heading focus, Escape, rejected navigation, and disposal of history listeners.
 Grid cases cover 150 controlled checkboxes, read-only columns, disabled rows, retained focus, and narrow scrolling.
 Grid hydration retains all 150 server inputs and the initial focus.
-Status tile cases cover controlled values and states, raw formats, full text, shared themes, shadows, narrow wrapping, and forced colors.
+Status tile cases cover controlled values and states, raw formats, full text, shared themes, narrow wrapping, and forced colors.
 Tile hydration retains server nodes and initial heading focus.
 Choice cases test selected option semantics, marker hit targets, containment, and focus after selection.
 Chart fallback cases test usable geometry and recovery from invalid aspect ratios.
@@ -91,6 +91,44 @@ node scripts/qualify.mjs --plan
 The optional `--wamn` extension tests prepared integration inputs.
 It never runs the external WAMN generator.
 Prepare those inputs through the [fixture instructions](../examples/wamn/README.md).
+
+## v0.0.8 release
+
+Git tag `v0.0.8` points to commit `e4f8a6aaa3b52b669ba51e89a9e61398eed9fbbc`.
+The tag adds adoption documentation after runtime commit `7c75de6`.
+It includes shell overrides, optional field and section decoration, gallery geometry controls, and the owned icon catalog.
+
+The shell override record covers 13 browser cases against source and built packages, plus 13 hydration cases in each mode.
+Those four final reports contain no errors or warnings.
+The source and built-package unit runs each passed 25 shell tests.
+These cases cover supplied headers, navigation omission, accepted route changes, retained focus, lazy content ownership, and cleanup.
+
+The shell change passed `pnpm check` with 44 repository tests before its final small lifecycle correction.
+Targeted formatting, lint, types, unit, and browser runs followed that correction.
+The earlier icon record contains two focused browser cases and 45 hydration cases in each of source and built-package modes.
+These records do not establish a fresh complete qualification run for the release tag.
+The native-tab investigation remained unresolved. The release does not claim that the full component hydration matrix passed.
+
+The reviewed local records are `wfe-shell-overrides-{source-2,package,hydration,package-hydration}.json`,
+`wfe-shell-overrides-unit-{final,package}.log`, and `wfe-shell-overrides-check.log` under `/tmp`.
+Icon records are `wfe-icons-{source,package}-final.json` and `wfe-icons-{source,package}-hydration.json` under `/tmp`.
+These files are temporary local evidence, not durable release artifacts.
+This summary records their inspected results without a new test run or a claim about unrecorded stages.
+
+## v0.0.7 release
+
+The release includes runtime changes through commit `0a0d1309de9839f92570b71abeade5d48d53ca16`.
+The release commit also updates documentation.
+
+The form action and icon suites passed 39 browser cases and 45 hydration cases against both source and built packages.
+The final column-control and form-row suites passed 24 browser cases and 28 hydration cases in both modes.
+These suites reported no browser errors, warnings, or reactive diagnostics.
+Tests cover accessible action names, disabled submission, icon cleanup, retained focus, shared action rows, per-column controls, and client/server sorting.
+The contract suite compiled 28 documentation examples and the generator contracts.
+Separate review approved the runtime changes. Browser captures covered action buttons and the column-controls example.
+
+The release check uses `pnpm check` for formatting, lint, vendor integrity, builds, types, example types, and 43 repository tests.
+This release uses focused browser suites. It does not claim a new run of the complete qualification matrix.
 
 ## v0.0.6 release
 
@@ -182,18 +220,3 @@ The existing native-tab timeout (`wfe-x6o`) recurred and then passed unchanged.
 Its cause remains open; this upgrade does not claim to fix it.
 
 The [action disposal investigation](action-disposal-investigation.md) preserves the runtime-only heap reproduction and the current removal decision.
-
-## v0.0.7 release
-
-The release includes runtime changes through commit `0a0d1309de9839f92570b71abeade5d48d53ca16`.
-The release commit also updates documentation.
-
-The form action and icon suites passed 39 browser cases and 45 hydration cases against both source and built packages.
-The final column-control and form-row suites passed 24 browser cases and 28 hydration cases in both modes.
-These suites reported no browser errors, warnings, or reactive diagnostics.
-Tests cover accessible action names, disabled submission, icon cleanup, retained focus, shared action rows, per-column controls, and client/server sorting.
-The contract suite compiled 28 documentation examples and the generator contracts.
-Separate review approved the runtime changes. Browser captures covered action buttons and the column-controls example.
-
-The release check uses `pnpm check` for formatting, lint, vendor integrity, builds, types, example types, and 43 repository tests.
-This release uses focused browser suites. It does not claim a new run of the complete qualification matrix.

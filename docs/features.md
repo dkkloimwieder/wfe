@@ -143,7 +143,7 @@ They do not add WAMN names, session logic, authorization, or backend operations 
 ## Ownership and maintenance
 
 Solid, Solid Primitives, and D3 remain external dependencies.
-The owned vendor subsets are Kobalte, the virtual engine, calendar helpers, and the chart engine.
+The owned vendor subsets are Kobalte, the virtual engine, calendar helpers, the chart engine, match-sorter, and icons.
 Their source directories retain exact licenses, upstream references, hashes, and local repairs.
 The [adoption guide](adoption.md) and [vendor procedure](../packages/components/src/vendor/kobalte/README.md) describe these boundaries.
 The [qualification guide](qualification.md) documents serial checks, browser delivery modes, hydration, cleanup, and vendor audits.

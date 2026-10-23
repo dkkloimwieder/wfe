@@ -138,16 +138,19 @@ Negative tests use real Vite builds with deliberately wrong or stale inputs.
 
 ## P2: the optional WAMN fixture repeats virtual window layout
 
-Follow-up: `wfe-w2y.18`.
+Historical follow-up: `wfe-w2y.18`, now closed.
+
+October 22 status: the fixture uses shared `VirtualRows` for its window layout.
+The findings below describe the earlier audit state.
 
 [The WAMN fixture](../examples/wamn/App.tsx) uses the shared createTableVirtualizer.
 It still renders its own total-height container, translated window, and row loop.
 Other consumers use [VirtualRows](../packages/components/src/virtual/VirtualRows.tsx) for that layout.
 This is duplicate presentation around one shared engine, not another virtualization engine.
 
-Use the shared block layout when integration work resumes.
-Preserve the application row adapter, measurements, focus, and transport boundary.
-This audit does not authorize changes to external WAMN inputs or optional integration preparation.
+The audit recommended the shared block layout while preserving the application row adapter, measurements, focus, and transport boundary.
+The completed repair follows that recommendation.
+External WAMN inputs and optional integration preparation remain separate application work.
 
 ## Fixed: structured class values remain native
 
@@ -177,7 +180,8 @@ A dialog owns modal focus behavior. A tooltip does not.
 The form package coordinates application-owned values and callbacks without implementing another set of fields.
 Table stays inside components and uses one native engine.
 Analytics and measured native rows use the same VirtualRows and createTableVirtualizer exports.
-The optional WAMN fixture uses that virtualizer but still supplies its own window layout.
+At the original audit, the optional WAMN fixture supplied its own window layout.
+The closed `wfe-w2y.18` repair replaced it with shared `VirtualRows`.
 The editing example imports shared Table presentation rather than a second renderer.
 Solid and Solid Primitives remain external imports.
 Package source contains no application request or persistence implementation.
@@ -219,7 +223,7 @@ Repeated icons and current ownership documentation now use the shared implementa
 The original control, style, icon, and ownership documentation repairs are complete.
 Choice metadata now shares field presentation in `wfe-w2y.25`.
 Live stylesheet saves now have regression coverage in `wfe-w2y.24`.
-Optional WAMN row presentation remains separate work in `wfe-w2y.18`.
+Optional WAMN row presentation was tracked separately in `wfe-w2y.18` and is now complete.
 Cross-browser appearance remains an additional qualification task.
 
 ## Live gallery review, October 19, 2026
