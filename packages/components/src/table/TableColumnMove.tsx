@@ -1,5 +1,6 @@
+import { createColumnPointer } from '../internal/columnPointer'
 import { resolveTableMessages, type TableMessages } from './messages'
-import { createEffect, createUniqueId, onSettled } from 'solid-js'
+import { createEffect, createUniqueId } from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 
@@ -35,22 +36,31 @@ export function TableColumnMove(props: {
   const menuId = createUniqueId()
   let handle!: HTMLButtonElement
   let menu!: HTMLDivElement
-  let disposed = false
   let suppressClick = false
   let frame = 0
   let marker: HTMLElement | undefined
-  let drag:
-    | {
-        pointerId: number
-        x: number
-        lastX: number
-        moved: boolean
-        ids: ReadonlyArray<string>
-        scroll: HTMLElement
-        header: HTMLElement
-        destination?: ColumnDestination
-      }
-    | undefined
+  type Drag = {
+    pointerId: number
+    x: number
+    lastX: number
+    moved: boolean
+    ids: ReadonlyArray<string>
+    scroll: HTMLElement
+    header: HTMLElement
+    destination?: ColumnDestination
+  }
+  const pointer = createColumnPointer<Drag>({
+    disabled: () => Boolean(props.disabled),
+    cleanup: (current) => {
+      cancelAnimationFrame(frame)
+      clearMarker()
+      current.header.removeAttribute('data-column-moving')
+    },
+    escape: () => {
+      suppressClick = true
+    },
+    activity: (event, listeners) => props.onActivity?.(event, listeners),
+  })
   const index = () => props.ids.indexOf(props.id)
   const first = () => index() <= 0
   const last = () => index() >= props.ids.length - 1
@@ -58,40 +68,12 @@ export function TableColumnMove(props: {
     marker?.removeAttribute('data-column-drop')
     marker = undefined
   }
-  function removeDrag() {
-    const current = drag
-    if (!current) return
-    drag = undefined
-    cancelAnimationFrame(frame)
-    clearMarker()
-    current.header.removeAttribute('data-column-moving')
-    window.removeEventListener('blur', cancel)
-    document.removeEventListener('visibilitychange', visibility)
-    document.removeEventListener('keydown', escape, true)
-    current.scroll.removeEventListener('scroll', updateTarget)
-    if (handle.hasPointerCapture(current.pointerId))
-      handle.releasePointerCapture(current.pointerId)
-    return current
-  }
-  function cancel() {
-    if (removeDrag()) props.onActivity?.('cancel', -4)
-  }
-  function visibility() {
-    if (document.hidden) cancel()
-  }
-  function escape(event: KeyboardEvent) {
-    if (event.key !== 'Escape' || event.isComposing || !drag) return
-    event.preventDefault()
-    event.stopPropagation()
-    suppressClick = true
-    cancel()
-  }
   function updateTarget() {
-    if (!drag?.moved) return
+    if (!pointer.current?.moved) return
     clearMarker()
-    drag.destination = undefined
+    pointer.current.destination = undefined
     const headers = Array.from(
-      drag.header.parentElement!.querySelectorAll<HTMLElement>(
+      pointer.current.header.parentElement!.querySelectorAll<HTMLElement>(
         '[data-column-header]',
       ),
     ).filter((node) => props.ids.includes(node.dataset.columnHeader!))
@@ -99,84 +81,79 @@ export function TableColumnMove(props: {
     const target = headers.find((node, position) =>
       position === headers.length - 1
         ? true
-        : drag!.lastX < node.getBoundingClientRect().right,
+        : pointer.current!.lastX < node.getBoundingClientRect().right,
     )
     if (!target) return
     const box = target.getBoundingClientRect()
     const destination: ColumnDestination = {
       id: target.dataset.columnHeader!,
-      side: drag.lastX < box.left + box.width / 2 ? 'before' : 'after',
+      side:
+        pointer.current.lastX < box.left + box.width / 2 ? 'before' : 'after',
     }
     if (moveColumn(props.ids, props.id, destination) === props.ids) return
-    drag.destination = destination
+    pointer.current.destination = destination
     marker = target
     marker.dataset.columnDrop = destination.side
   }
   function autoScroll() {
-    if (!drag?.moved) return
-    const box = drag.scroll.getBoundingClientRect()
+    if (!pointer.current?.moved) return
+    const box = pointer.current.scroll.getBoundingClientRect()
     const direction =
-      drag.lastX < box.left + 28 ? -1 : drag.lastX > box.right - 28 ? 1 : 0
+      pointer.current.lastX < box.left + 28
+        ? -1
+        : pointer.current.lastX > box.right - 28
+          ? 1
+          : 0
     if (!direction) return
-    const previous = drag.scroll.scrollLeft
-    drag.scroll.scrollLeft += direction * 12
+    const previous = pointer.current.scroll.scrollLeft
+    pointer.current.scroll.scrollLeft += direction * 12
     updateTarget()
-    if (drag.scroll.scrollLeft !== previous)
+    if (pointer.current.scroll.scrollLeft !== previous)
       frame = requestAnimationFrame(autoScroll)
   }
   function start(event: PointerEvent) {
-    if (
-      props.disabled ||
-      disposed ||
-      drag ||
-      props.ids.length < 2 ||
-      event.button !== 0 ||
-      !event.isPrimary
-    )
-      return
+    if (!pointer.canStart(event) || props.ids.length < 2) return
     const header = handle.closest<HTMLElement>('[data-column-header]')
     const scroll = header?.closest<HTMLElement>('.table-scroll')
     if (!header?.parentElement || !scroll) return
-    event.preventDefault()
-    event.stopPropagation()
     suppressClick = false
     menu.hidePopover()
-    handle.focus({ preventScroll: true })
-    handle.setPointerCapture(event.pointerId)
-    drag = {
-      pointerId: event.pointerId,
-      x: event.clientX,
-      lastX: event.clientX,
-      moved: false,
-      ids: props.ids,
-      scroll,
-      header,
-    }
-    window.addEventListener('blur', cancel)
-    document.addEventListener('visibilitychange', visibility)
-    document.addEventListener('keydown', escape, true)
-    scroll.addEventListener('scroll', updateTarget)
-    props.onActivity?.('start', 4)
+    pointer.start(
+      event,
+      handle,
+      () => ({
+        pointerId: event.pointerId,
+        x: event.clientX,
+        lastX: event.clientX,
+        moved: false,
+        ids: props.ids,
+        scroll,
+        header,
+      }),
+      () => ({ target: scroll, changed: updateTarget }),
+    )
   }
   function move(event: PointerEvent) {
-    if (!drag || event.pointerId !== drag.pointerId) return
-    if (props.disabled || props.ids !== drag.ids) return cancel()
-    drag.lastX = event.clientX
-    drag.moved ||= Math.abs(event.clientX - drag.x) >= 5
-    if (!drag.moved) return
+    if (!pointer.current || event.pointerId !== pointer.current.pointerId)
+      return
+    if (props.disabled || props.ids !== pointer.current.ids)
+      return pointer.cancel()
+    pointer.current.lastX = event.clientX
+    pointer.current.moved ||= Math.abs(event.clientX - pointer.current.x) >= 5
+    if (!pointer.current.moved) return
     suppressClick = true
-    drag.header.dataset.columnMoving = 'true'
+    pointer.current.header.dataset.columnMoving = 'true'
     updateTarget()
     cancelAnimationFrame(frame)
     autoScroll()
     props.onActivity?.('move', 0)
   }
   function finish(event: PointerEvent) {
-    if (!drag || event.pointerId !== drag.pointerId) return
+    if (!pointer.current || event.pointerId !== pointer.current.pointerId)
+      return
     move(event)
-    const current = removeDrag()
+    const current = pointer.finish()
     if (!current) return
-    props.onActivity?.('end', -4)
     if (current.destination)
       if (!props.disabled) props.onMove(current.destination)
   }
@@ -200,19 +177,9 @@ export function TableColumnMove(props: {
   createEffect(
     () => props.ids,
     (ids) => {
-      if (drag && ids !== drag.ids) cancel()
+      if (pointer.current && ids !== pointer.current.ids) pointer.cancel()
     },
   )
-  createEffect(
-    () => Boolean(props.disabled),
-    (disabled) => {
-      if (disabled) cancel()
-    },
-  )
-  onSettled(() => () => {
-    disposed = true
-    cancel()
-  })
   return (
     <>
       <Button
@@ -232,12 +199,8 @@ export function TableColumnMove(props: {
             pointerdown: start,
             pointermove: move,
             pointerup: finish,
-            pointercancel: (event) => {
-              if (event.pointerId === drag?.pointerId) cancel()
-            },
-            lostpointercapture: (event) => {
-              if (event.pointerId === drag?.pointerId) cancel()
-            },
+            pointercancel: pointer.cancelPointer,
+            lostpointercapture: pointer.cancelPointer,
             click: (event) => {
               event.stopPropagation()
               if (props.disabled || (suppressClick && event.detail !== 0))
@@ -254,7 +217,7 @@ export function TableColumnMove(props: {
             keydown: (event) => {
               if (
                 event.isComposing ||
-                drag ||
+                pointer.current ||
                 !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)
               )
                 return

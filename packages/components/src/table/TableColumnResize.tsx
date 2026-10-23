@@ -1,5 +1,6 @@
+import { createColumnPointer } from '../internal/columnPointer'
 import { resolveTableMessages, type TableMessages } from './messages'
-import { createEffect, createMemo, createUniqueId, onSettled } from 'solid-js'
+import { createEffect, createMemo, createUniqueId } from 'solid-js'
 import { nativeEvents } from '../utils/nativeEvents'
 
 /** Controlled width input. Pointer movement updates the rendered column. */
@@ -19,20 +20,22 @@ export function TableColumnResize(props: {
   const messages = resolveTableMessages(() => props.messages)
   const helpId = createUniqueId()
   let handle!: HTMLDivElement
-  let disposed = false
-  let drag:
-    | {
-        pointerId: number
-        x: number
-        width: number
-        min: number
-        max: number
-        scroll: HTMLElement | null
-        scrollLeft: number
-        lastX: number
-        next: number
-      }
-    | undefined
+  type Drag = {
+    pointerId: number
+    x: number
+    width: number
+    min: number
+    max: number
+    scroll: HTMLElement | null
+    scrollLeft: number
+    lastX: number
+    next: number
+  }
+  const pointer = createColumnPointer<Drag>({
+    disabled: () => Boolean(props.disabled),
+    cleanup: () => {},
+    activity: (event, listeners) => props.onActivity?.(event, listeners),
+  })
   const configuration = createMemo(
     () => [props.size, props.min, props.max] as const,
     {
@@ -42,91 +45,56 @@ export function TableColumnResize(props: {
   )
   const clamp = (value: number) =>
     Math.min(props.max, Math.max(props.min, Math.round(value)))
-  function removeDrag() {
-    const current = drag
-    if (!current) return
-    drag = undefined
-    window.removeEventListener('blur', cancel)
-    document.removeEventListener('visibilitychange', visibility)
-    document.removeEventListener('keydown', escape, true)
-    current.scroll?.removeEventListener('scroll', scroll)
-    if (handle.hasPointerCapture(current.pointerId))
-      handle.releasePointerCapture(current.pointerId)
-    return current
-  }
-  function cancel() {
-    const current = removeDrag()
-    if (current) {
-      props.onActivity?.('cancel', -(3 + Number(Boolean(current.scroll))))
-    }
-  }
-  function visibility() {
-    if (document.hidden) cancel()
-  }
-  function escape(event: KeyboardEvent) {
-    if (event.key !== 'Escape' || event.isComposing || !drag) return
-    event.preventDefault()
-    event.stopPropagation()
-    cancel()
-  }
   function update(x: number) {
-    if (!drag) return
+    if (!pointer.current) return
     if (props.disabled) {
-      cancel()
+      pointer.cancel()
       return
     }
     if (
-      props.size !== drag.next ||
-      props.min !== drag.min ||
-      props.max !== drag.max
+      props.size !== pointer.current.next ||
+      props.min !== pointer.current.min ||
+      props.max !== pointer.current.max
     ) {
-      cancel()
+      pointer.cancel()
       return
     }
-    drag.lastX = x
+    pointer.current.lastX = x
     const next = clamp(
-      drag.width +
+      pointer.current.width +
         x -
-        drag.x +
-        (drag.scroll?.scrollLeft ?? 0) -
-        drag.scrollLeft,
+        pointer.current.x +
+        (pointer.current.scroll?.scrollLeft ?? 0) -
+        pointer.current.scrollLeft,
     )
-    drag.next = next
+    pointer.current.next = next
     change(next)
   }
   function scroll() {
-    if (drag) update(drag.lastX)
+    if (pointer.current) update(pointer.current.lastX)
   }
   function start(event: PointerEvent) {
-    if (
-      props.disabled ||
-      disposed ||
-      drag ||
-      event.button !== 0 ||
-      !event.isPrimary
+    if (!pointer.canStart(event)) return
+    pointer.start(
+      event,
+      handle,
+      () => {
+        const scroller = handle.closest<HTMLElement>('.table-scroll')
+        return {
+          pointerId: event.pointerId,
+          x: event.clientX,
+          lastX: event.clientX,
+          width: props.size,
+          min: props.min,
+          max: props.max,
+          next: props.size,
+          scroll: scroller,
+          scrollLeft: scroller?.scrollLeft ?? 0,
+        }
+      },
+      (value) =>
+        value.scroll ? { target: value.scroll, changed: scroll } : undefined,
     )
-      return
-    event.preventDefault()
-    event.stopPropagation()
-    handle.focus({ preventScroll: true })
-    handle.setPointerCapture(event.pointerId)
-    const scroller = handle.closest<HTMLElement>('.table-scroll')
-    drag = {
-      pointerId: event.pointerId,
-      x: event.clientX,
-      lastX: event.clientX,
-      width: props.size,
-      min: props.min,
-      max: props.max,
-      next: props.size,
-      scroll: scroller,
-      scrollLeft: scroller?.scrollLeft ?? 0,
-    }
-    window.addEventListener('blur', cancel)
-    document.addEventListener('visibilitychange', visibility)
-    document.addEventListener('keydown', escape, true)
-    scroller?.addEventListener('scroll', scroll)
-    props.onActivity?.('start', 3 + Number(Boolean(scroller)))
   }
   function change(size: number) {
     if (props.disabled) return
@@ -136,29 +104,21 @@ export function TableColumnResize(props: {
     props.onActivity?.('change', 0)
   }
   function finish(event: PointerEvent) {
-    if (!drag || drag.pointerId !== event.pointerId) return
+    if (!pointer.current || pointer.current.pointerId !== event.pointerId)
+      return
     update(event.clientX)
-    const current = removeDrag()
-    if (current) {
-      props.onActivity?.('end', -(3 + Number(Boolean(current.scroll))))
-    }
+    pointer.finish()
   }
   // Observe caller changes and release a gesture whose width or bounds changed.
   createEffect(configuration, ([size, min, max]) => {
-    if (drag && (size !== drag.next || min !== drag.min || max !== drag.max)) {
-      const current = removeDrag()!
-      props.onActivity?.('cancel', -(3 + Number(Boolean(current.scroll))))
+    if (
+      pointer.current &&
+      (size !== pointer.current.next ||
+        min !== pointer.current.min ||
+        max !== pointer.current.max)
+    ) {
+      pointer.cancel()
     }
-  })
-  createEffect(
-    () => Boolean(props.disabled),
-    (disabled) => {
-      if (disabled) cancel()
-    },
-  )
-  onSettled(() => () => {
-    disposed = true
-    cancel()
   })
   return (
     <>
@@ -181,20 +141,20 @@ export function TableColumnResize(props: {
           nativeEvents<HTMLDivElement>({
             pointerdown: start,
             pointermove: (event) => {
-              if (!drag || event.pointerId !== drag.pointerId) return
+              if (
+                !pointer.current ||
+                event.pointerId !== pointer.current.pointerId
+              )
+                return
               update(event.clientX)
               props.onActivity?.('move', 0)
             },
             pointerup: finish,
-            pointercancel: (event) => {
-              if (event.pointerId === drag?.pointerId) cancel()
-            },
-            lostpointercapture: (event) => {
-              if (event.pointerId === drag?.pointerId) cancel()
-            },
+            pointercancel: pointer.cancelPointer,
+            lostpointercapture: pointer.cancelPointer,
             click: (event) => event.stopPropagation(),
             keydown: (event) => {
-              if (props.disabled || drag || event.isComposing) return
+              if (props.disabled || pointer.current || event.isComposing) return
               const step = event.shiftKey ? 50 : 10
               const value =
                 event.key === 'ArrowLeft'

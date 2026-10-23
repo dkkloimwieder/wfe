@@ -58,3 +58,11 @@ BENCH_DEVELOPMENT=1 NODE_ENV=development BENCH_WORKLOADS=1 BENCH_SIZES=1000 node
 
 Run these workloads serially.
 Set `BENCH_OUTPUT` to a different report path for each run.
+
+Column resize and reorder share one internal pointer lifetime.
+Each gesture registers blur, visibility, and Escape listeners, plus a scroll listener when its host has a scroll container.
+Activity callbacks report the number of listeners actually registered or removed.
+Pointer cancellation, lost capture, disabled changes, and disposal release those resources once.
+Resize keeps its width and scroll calculations.
+Reorder keeps its header hit testing, drag threshold, markers, and automatic scrolling.
+Configuration changes still cancel the affected gesture before it can commit stale geometry.
