@@ -13,6 +13,7 @@ import {
   ActionsView,
   StatusView,
   requireValue,
+  descriptionLabel,
   validateActions,
   validatePresentation,
   uniqueIds,
@@ -42,7 +43,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
       ]),
     ),
   )
-  const description = createMemo(() => {
+  const configuration = createMemo(() => {
     const value = props.description
     requireValue(
       value.id === identity && props.bindings.table === table,
@@ -76,6 +77,7 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
     }
     for (const [id, column] of Object.entries(value.columns)) {
       requireValue(table.getColumn(id), `unknown table column "${id}"`)
+      descriptionLabel(column.label, id)
       validatePresentation(column, `column "${id}"`)
       for (const key of ['sortable', 'filterable'] as const) {
         requireValue(
@@ -96,20 +98,28 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
         )
       }
     }
-    return value
-  })
-  const aliases = createMemo(() => {
-    const value = props.bindings.headerAliases?.() ?? {}
-    for (const id of Object.keys(value))
+    const headerAliases = props.bindings.headerAliases?.() ?? {}
+    for (const id of Object.keys(headerAliases)) {
       requireValue(
-        Object.hasOwn(description().columns, id),
+        Object.hasOwn(value.columns, id),
         `unknown header alias "${id}"`,
       )
-    return value as Readonly<Record<string, string | undefined>>
+      descriptionLabel(headerAliases[id as keyof typeof headerAliases], id)
+    }
+    return {
+      description: value,
+      aliases: headerAliases as Readonly<Record<string, string | undefined>>,
+    }
   })
+  const description = createMemo(() => configuration().description)
+  const aliases = createMemo(() => configuration().aliases)
+  // Validate before JSX can construct application toolbar or cell components.
+  untrack(configuration)
   function Cell(cellProps: { cell: NativeCell<Row, Meta> }) {
     const renderer = untrack(() => {
-      const columns = description().columns
+      // Demand the validator itself before invoking application code. A cached
+      // description projection can retain its prior value during an error update.
+      const columns = configuration().description.columns
       const id = cellProps.cell.column.id
       return Object.hasOwn(columns, id) ? columns[id]?.renderer : undefined
     })

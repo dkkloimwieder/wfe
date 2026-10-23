@@ -11,6 +11,8 @@ It does not define a serialized metadata format, a source emitter, or a service 
 Applications keep their data, validation rules, requests, and persistence.
 The generator supplies composition over the existing components and their styles.
 
+See the [descriptor validation matrix](descriptor-validation.md) for deliberate differences between views, runtime guard scope, and compatibility rules.
+
 ## Descriptions and bindings
 
 Descriptions contain stable identities, text, control choices, actions, and layout references.

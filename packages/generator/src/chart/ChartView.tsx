@@ -47,10 +47,10 @@ function date(value: unknown): value is Date {
   return value instanceof Date && Number.isFinite(+value)
 }
 
-export function ChartView<Row extends object>(props: {
-  description: ChartDescription<Row>
-  bindings: ChartViewBindings<Row>
-}) {
+export function ChartView<
+  Row extends object,
+  D extends ChartDescription<Row> = ChartDescription<Row>,
+>(props: { description: D; bindings: ChartViewBindings<Row, NoInfer<D>> }) {
   const identity = untrack(() => {
     object(props.description, 'chart description')
     return props.description.id
@@ -160,7 +160,9 @@ export function ChartView<Row extends object>(props: {
       )
     const format = (axis: { formatter?: string }) => {
       if (!axis.formatter) return undefined
-      const supplied = props.bindings.formatters
+      const supplied:
+        Readonly<Record<string, (value: ChartValue) => string>> | undefined =
+        props.bindings.formatters
       const value =
         supplied && Object.hasOwn(supplied, axis.formatter)
           ? supplied[axis.formatter]

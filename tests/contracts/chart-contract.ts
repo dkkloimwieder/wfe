@@ -64,3 +64,38 @@ type BarAxis = Extract<ChartDescription<Row>, { kind: 'bar' }>['x']
 // @ts-expect-error Generated bar charts require a band scale.
 const badBar: BarAxis = { field: 'count', scale: 'linear' }
 void badBar
+
+const namedDescription = {
+  id: 'named-formatters',
+  kind: 'line',
+  ariaLabel: 'Named formatters',
+  x: { field: 'at', scale: 'utc', formatter: 'day' },
+  y: { field: 'count', formatter: 'amount' },
+} as const satisfies ChartDescription<Row>
+const namedBindings: ChartViewBindings<Row, typeof namedDescription> = {
+  rows: () => rows,
+  formatters: { day: String, amount: String },
+}
+// @ts-expect-error Literal descriptions require their formatter bindings.
+const missingFormatters: ChartViewBindings<Row, typeof namedDescription> = {
+  rows: () => rows,
+}
+const missingFormatter: ChartViewBindings<Row, typeof namedDescription> = {
+  rows: () => rows,
+  // @ts-expect-error Both axes' named formatters are required.
+  formatters: { day: String },
+}
+const misspelledFormatter: ChartViewBindings<Row, typeof namedDescription> = {
+  rows: () => rows,
+  // @ts-expect-error Named formatter bindings reject misspelled keys.
+  formatters: { day: String, amonut: String },
+}
+const broadLegacyBindings: ChartViewBindings<Row> = { rows: () => rows }
+void [
+  namedDescription,
+  namedBindings,
+  missingFormatters,
+  missingFormatter,
+  misspelledFormatter,
+  broadLegacyBindings,
+]

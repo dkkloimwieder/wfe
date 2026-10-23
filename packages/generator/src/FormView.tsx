@@ -1,10 +1,10 @@
-import { RepeatedField } from './repeatedField'
+import { RepeatedField, validateRepeatedDescription } from './repeatedField'
 import type {
   RuntimeRow,
   RuntimeRepeatedField,
   RuntimeRepeatedBinding,
 } from './repeatedField'
-import { ScalarField } from './scalarField'
+import { ScalarField, validateScalarDescription } from './scalarField'
 import type { RuntimeCustomField, RuntimeScalarField } from './scalarField'
 import { preserveReorderFocus } from './reorderFocus'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
@@ -119,6 +119,11 @@ export function FormView<
     } else
       for (const field of value.fields) nextRegions.set(field.field, undefined)
     for (const field of value.fields) {
+      // Validate all metadata before any custom component or repeated-row callback runs.
+      const runtime = field as unknown as
+        RuntimeScalarField | RuntimeRepeatedField
+      if (runtime.control === 'repeat') validateRepeatedDescription(runtime)
+      else validateScalarDescription(runtime)
       const groupId = nextRegions.get(field.field)
       const groupColumns =
         groups === undefined

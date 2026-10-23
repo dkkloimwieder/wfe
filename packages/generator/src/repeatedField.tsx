@@ -37,6 +37,29 @@ export type RepeatedFieldAdapter = {
   disabled: Accessor<boolean>
   readOnly: Accessor<boolean>
 }
+export function validateRepeatedDescription(field: RuntimeRepeatedField) {
+  descriptionLabel(field.label, field.field)
+  requireValue(
+    field.columns === undefined || [1, 2, 3].includes(field.columns),
+    `unsupported repeated column count "${field.field}"`,
+  )
+  uniqueIds(
+    field.fields.map((child) => child.field),
+    'repeated field',
+  )
+  for (const child of field.fields) {
+    validateScalarDescription(child)
+    requireValue(
+      child.span === undefined ||
+        child.span === 'full' ||
+        (Number.isInteger(child.span) &&
+          child.span >= 1 &&
+          child.span <= (field.columns ?? 1)),
+      `unsupported span for field "${child.field}"`,
+    )
+  }
+}
+
 export function RepeatedField(props: {
   field: RuntimeRepeatedField
   id: string
@@ -66,17 +89,8 @@ export function RepeatedField(props: {
       field.field === identity && field.control === 'repeat',
       `remount field "${identity}" to replace its control`,
     )
-    descriptionLabel(field.label, identity)
-    requireValue(
-      field.columns === undefined || [1, 2, 3].includes(field.columns),
-      `unsupported repeated column count "${identity}"`,
-    )
-    uniqueIds(
-      field.fields.map((child) => child.field),
-      'repeated field',
-    )
+    validateRepeatedDescription(field)
     for (const child of field.fields) {
-      validateScalarDescription(child)
       if (child.control === 'custom')
         requireValue(
           Object.hasOwn(binding().fields ?? {}, child.field) &&
@@ -89,14 +103,6 @@ export function RepeatedField(props: {
             typeof binding().choices?.[child.field] === 'function',
           `missing choices for field "${child.field}"`,
         )
-      requireValue(
-        child.span === undefined ||
-          child.span === 'full' ||
-          (Number.isInteger(child.span) &&
-            child.span >= 1 &&
-            child.span <= (field.columns ?? 1)),
-        `unsupported span for field "${child.field}"`,
-      )
     }
     return field
   })

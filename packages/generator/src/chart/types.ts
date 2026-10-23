@@ -43,11 +43,28 @@ export type ChartDescription<Row extends object = Record<string, unknown>> =
                 Readonly<{ scale: 'band' | 'point' }>)
         }>
     )
-export type ChartViewBindings<Row extends object> = Readonly<{
+type AxisFormatter<Axis> = Axis extends { formatter?: infer Name }
+  ? Extract<Name, string>
+  : never
+type FormatterNames<D> = D extends { x: infer X; y: infer Y }
+  ? AxisFormatter<X> | AxisFormatter<Y>
+  : never
+type Formatter = (value: ChartValue) => string
+type FormatterBindings<D> =
+  string extends FormatterNames<D>
+    ? { formatters?: Readonly<Record<string, Formatter>> }
+    : [FormatterNames<D>] extends [never]
+      ? { formatters?: Readonly<Record<string, Formatter>> }
+      : { formatters: Readonly<Record<FormatterNames<D>, Formatter>> }
+
+export type ChartViewBindings<
+  Row extends object,
+  D extends ChartDescription<Row> = ChartDescription<Row>,
+> = Readonly<{
   rows: Accessor<readonly Row[]>
-  formatters?: Readonly<Record<string, (value: ChartValue) => string>>
   theme?: Accessor<Partial<ChartTheme>>
   status?: Accessor<ViewStatus>
   onSelect?: ChartProps<Row>['onSelect']
   onFocusChange?: ChartProps<Row>['onFocusChange']
-}>
+}> &
+  Readonly<FormatterBindings<D>>
