@@ -56,7 +56,14 @@ export function App(props: {
   const initialUrl = untrack(() => props.initialUrl)
   const [address, setAddress] = createSignal(initialUrl.split('#')[0]!)
   const [current, setCurrent] = createSignal(readLocation(initialUrl))
-  const [metadata, setMetadata] = createSignal(description)
+  const duplicateShells = new URL(
+    initialUrl,
+    'http://shell.example',
+  ).searchParams.has('duplicate-shells')
+  const [metadata, setMetadata] = createSignal({
+    ...description,
+    id: duplicateShells ? 'shared shell metadata' : description.id,
+  })
   const customChrome = new URL(
     initialUrl,
     'http://shell.example',
@@ -280,6 +287,9 @@ export function App(props: {
               : undefined
         }
       />
+      {duplicateShells && (
+        <ShellView description={metadata()} bindings={bindings} footer={null} />
+      )}
     </DefaultAppearance>
   )
 }

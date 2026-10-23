@@ -3,6 +3,9 @@
 `@wfe/shell` describes application navigation through stable audience, route, and view IDs.
 Its metadata is serializable. Application bindings supply accepted IDs, hrefs, page components, and change requests.
 `defineShell` checks metadata and returns the original description without creating application state.
+The description ID identifies the model, not a DOM element. Spaces remain valid in this metadata.
+Each mounted `ShellView` generates its own DOM identity, so multiple views can share one description.
+Server rendering and hydration retain those identities. Replace the mounted view to change its description ID.
 
 An audience controls menu placement. It does not represent permission or authorization.
 Routes without an audience appear in every audience menu.

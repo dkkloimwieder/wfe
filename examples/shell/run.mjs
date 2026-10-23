@@ -63,7 +63,7 @@ const server = createServer(async (request, response) => {
       response.end(
         template.replace(
           '<div id="root"></div>',
-          `<div id="root" data-ssr="true">${await render(url.href)}</div><script>window.shellServerNodes={heading:document.querySelector('h1'),input:document.querySelector('[data-generator-field="name"] input')};if(new URLSearchParams(location.search).has('prefocus'))window.shellServerNodes.input?.focus()</script>`,
+          `<div id="root" data-ssr="true">${await render(url.href)}</div><script>window.shellServerNodes={shells:Array.from(document.querySelectorAll('.ui-dashboard'),node=>({node,id:node.id,heading:node.querySelector('h1'),headingId:node.querySelector('h1')?.id,navigationId:node.querySelector('.ui-dashboard-navigation')?.id})),heading:document.querySelector('h1'),input:document.querySelector('[data-generator-field="name"] input')};if(new URLSearchParams(location.search).has('prefocus'))window.shellServerNodes.input?.focus()</script>`,
         ),
       )
     } else
@@ -513,6 +513,71 @@ try {
         () => window.shellFixture.chromeLifecycle,
       )
       assert.equal(lifecycle.navigationMounts, lifecycle.navigationDisposals)
+    },
+  )
+  await run(
+    'reused shell descriptions retain unique DOM identities through hydration and metadata updates',
+    async () => {
+      await page.setViewportSize({ width: 1100, height: 800 })
+      await page.goto(base + '?qualification=1&duplicate-shells=1&page=record')
+      await expect(page.locator('.ui-dashboard')).toHaveCount(2)
+      await settle()
+      const initial = await page.evaluate(() => {
+        const shells = [...document.querySelectorAll('.ui-dashboard')]
+        const ids = [...document.querySelectorAll('#root [id]')].map(
+          (node) => node.id,
+        )
+        return {
+          unique: new Set(ids).size === ids.length,
+          valid: ids.every((id) => id.length > 0 && !/\s/.test(id)),
+          identities: shells.map((node) => ({
+            id: node.id,
+            heading: node.querySelector('h1').id,
+            navigation: node.querySelector('.ui-dashboard-navigation').id,
+          })),
+          navigationOwned: shells.every((node) => {
+            const toggle = node.querySelector('.ui-dashboard-toggle')
+            return node.contains(
+              document.getElementById(toggle.getAttribute('aria-controls')),
+            )
+          }),
+        }
+      })
+      assert.equal(initial.unique, true)
+      assert.equal(initial.valid, true)
+      assert.equal(initial.navigationOwned, true)
+      if (hydration)
+        assert.ok(
+          await page.evaluate(
+            () =>
+              window.shellServerNodes.shells.length === 2 &&
+              window.shellServerNodes.shells.every((entry, index) => {
+                const node = document.querySelectorAll('.ui-dashboard')[index]
+                return (
+                  entry.node === node &&
+                  entry.id === node.id &&
+                  entry.heading === node.querySelector('h1') &&
+                  entry.headingId === node.querySelector('h1').id &&
+                  entry.navigationId ===
+                    node.querySelector('.ui-dashboard-navigation').id
+                )
+              }),
+          ),
+        )
+      await page.evaluate(() => window.shellFixture.refreshMetadata())
+      await settle()
+      assert.deepEqual(
+        await page.locator('.ui-dashboard').evaluateAll((nodes) =>
+          nodes.map((node) => ({
+            id: node.id,
+            heading: node.querySelector('h1').id,
+            navigation: node.querySelector('.ui-dashboard-navigation').id,
+          })),
+        ),
+        initial.identities,
+      )
+      await page.evaluate(() => window.shellFixture.stop())
+      await expect(page.locator('#root')).toBeEmpty()
     },
   )
   assert.deepEqual(report.errors, [])

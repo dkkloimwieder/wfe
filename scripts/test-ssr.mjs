@@ -431,6 +431,41 @@ console.log(
   'Described shell renders public metadata and page content without navigation requests.',
 )
 
+const reusedShellDescription = defineShell({
+  ...shellDescription,
+  id: 'shared shell metadata',
+})
+const reusedShellOutput = await renderToString(() =>
+  [0, 1].map(() =>
+    createComponent(ShellView, {
+      description: reusedShellDescription,
+      bindings: {
+        audience: () => 'work',
+        route: () => 'records',
+        href: () => '#records',
+        views: { records: () => 'Repeated page' },
+        onNavigate() {
+          shellRequests++
+        },
+        onAudienceChange() {
+          shellRequests++
+        },
+      },
+    }),
+  ),
+)
+const reusedIds = [...reusedShellOutput.matchAll(/\sid="([^"]*)"/g)].map(
+  (match) => match[1],
+)
+assert.ok(reusedIds.length > 0)
+assert.equal(new Set(reusedIds).size, reusedIds.length)
+assert.ok(reusedIds.every((id) => id.length > 0 && !/\s/.test(id)))
+assert.equal((reusedShellOutput.match(/Repeated page/g) ?? []).length, 2)
+for (const [, target] of reusedShellOutput.matchAll(/aria-controls="([^"]+)"/g))
+  for (const id of target.split(/\s+/)) assert.ok(reusedIds.includes(id))
+assert.equal(reusedShellDescription.id, 'shared shell metadata')
+assert.equal(shellRequests, 0)
+
 let gridRequests = 0
 const gridOutput = await renderToString(() =>
   createComponent(GridView, {

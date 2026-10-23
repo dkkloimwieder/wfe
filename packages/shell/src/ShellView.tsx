@@ -31,6 +31,7 @@ export function ShellView<const D extends ShellDescription>(
   const identity = untrack(() => model().id)
   const header = createMemo(() => props.header)
   const titleId = `shell-heading-${createUniqueId()}`
+  const domId = `shell-${createUniqueId()}`
   const state = createMemo(() => {
     const bindings = props.bindings
     requireValue(
@@ -271,7 +272,7 @@ export function ShellView<const D extends ShellDescription>(
   }
   return (
     <DashboardShell
-      id={identity}
+      id={domId}
       class={props.class}
       style={props.style}
       density={props.density}
