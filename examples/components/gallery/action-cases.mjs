@@ -5,6 +5,7 @@ export async function galleryActionCases({ page, url, record }) {
   await record(
     'gallery: new form actions support submission control and icons',
     async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=form-actions`)
       const host = page.locator('.gallery-example-host')
       const form = host.locator('form')
@@ -59,6 +60,7 @@ export async function galleryActionCases({ page, url, record }) {
   await record(
     'gallery: new table controls and row actions are reachable and reactive',
     async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=column-controls`)
       const host = page.locator('.gallery-example-host')
       const table = host.locator('table')
