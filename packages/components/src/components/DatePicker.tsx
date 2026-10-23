@@ -83,6 +83,7 @@ export function DatePickerControl(
     untrack(() => props.value ?? props.initialMonth ?? '1970-01-01'),
   )
   let input: HTMLInputElement | undefined
+  let trigger: HTMLButtonElement | undefined
   let alive = true
   onCleanup(() => {
     alive = false
@@ -192,6 +193,9 @@ export function DatePickerControl(
             }}
           />
           <Popover.Trigger
+            ref={(node) => {
+              trigger = node
+            }}
             type="button"
             disabled={disabled() || readonly()}
             class="ui-date-trigger"
@@ -248,7 +252,24 @@ export function DatePickerControl(
               onValueChange={(value) => {
                 if (disabled() || readonly()) return
                 if (!accepted(value)) return
+                const previousFocus = calendar?.ownerDocument.activeElement
+                const ownedFocus = Boolean(
+                  previousFocus && calendar?.contains(previousFocus),
+                )
                 props.onValueChange(value)
+                // Keep owned focus inside the parent before the selected day disappears.
+                // A caller that focuses another control keeps that explicit choice.
+                const active = trigger?.ownerDocument.activeElement
+                if (
+                  alive &&
+                  trigger?.isConnected &&
+                  !trigger.disabled &&
+                  ownedFocus &&
+                  (calendar?.contains(active ?? null) ||
+                    (active === trigger.ownerDocument.body &&
+                      !previousFocus?.isConnected))
+                )
+                  trigger.focus({ preventScroll: true })
                 props.onCalendarSelect?.()
                 setDraft(display())
                 setOpen(false)

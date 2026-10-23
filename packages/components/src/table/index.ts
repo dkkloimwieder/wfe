@@ -12,6 +12,12 @@ export type { ColumnDestination } from './TableColumnMove'
 export { TableSort } from './TableSort'
 export { TableHeaderName } from './TableHeaderName'
 export { TableHeaderFilter } from './TableHeaderFilter'
+export type { TableHeaderFilterProps } from './TableHeaderFilter'
+export {
+  fromLegacyTableFilterValue,
+  toLegacyTableFilterValue,
+} from './filterValue'
+export type { LegacyTableFilterKind } from './filterValue'
 export { TableFilter } from './TableFilter'
 export { TableDateFilter } from './TableDateFilter'
 export type { TableDateRange, TableDateFilterProps } from './TableDateFilter'
@@ -27,7 +33,9 @@ export { TableColumnFilter } from './TableColumnFilter'
 export type {
   TableColumnFilterConfig,
   TableColumnFilterValue,
+  TableFilterValue,
   TableColumnFilterProps,
+  ConfiguredTableColumnFilterProps,
 } from './TableColumnFilter'
 
 export type { TableFilterConfig } from './ReadOnlyTable'

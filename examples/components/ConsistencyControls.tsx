@@ -1,3 +1,4 @@
+import { FilterContractControls } from './FilterContractControls'
 import {
   Button,
   Checkbox,
@@ -124,6 +125,9 @@ export function ConsistencyControls() {
       data-ui-portal-root=""
     >
       <h1>Control consistency</h1>
+      <Show when={params.has('filter-contract')}>
+        <FilterContractControls />
+      </Show>
       <Button id="consistency-outside">Outside action</Button>
       <Show when={mounted()}>
         <div style={{ display: 'flex', 'align-items': 'start', gap: '24px' }}>

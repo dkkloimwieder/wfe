@@ -31,7 +31,8 @@ Numeric filters emit `{ operator: 'between', min, max }` with optional boundarie
 Empty-value filters emit `{ operator: 'empty' }` or `{ operator: 'not-empty' }`.
 Clearing a filter emits `undefined`.
 
-Boolean filters keep boolean values, and date ranges keep optional `start` and `end` strings.
+The shared `TableFilterValue` union includes boolean values and date ranges with optional `start` and `end` strings.
+False remains an active criterion. A numeric boundary of zero remains a real boundary.
 The previous `filterKind` callback remains available for existing simple consumers.
 The `filter` callback takes precedence when both callbacks describe a column.
 
@@ -60,13 +61,41 @@ The controls scroll independently while the results keep their assigned height.
 
 ## Reuse
 
-`TableColumnFilter` is public for custom control layouts.
-Its configuration and value types are `TableColumnFilterConfig` and `TableColumnFilterValue`.
+`TableColumnFilter` is public for custom control layouts and supports every configured filter kind.
+`TableHeaderFilter` accepts the same `config`, `value`, and `onValueChange` props.
+With `config` supplied, the header hosts the same control as the panel and emits the same criterion shape.
+Changing placement does not translate criteria or choose server query syntax.
+Text composition stays local until composition ends.
+A matching trailing input marked `insertCompositionText` or `insertFromComposition` does not repeat that request.
+Ordinary text input and paste remain separate requests, even when their text matches the completed composition.
+The event-sequence regressions simulate these input types. They do not qualify every browser or operating-system IME.
+Its configuration and value types are `TableColumnFilterConfig` and `TableFilterValue`.
 The component reuses the shared Select for both choice modes.
 Calendar popups and date entry use the shared DatePicker.
 Nested condition groups remain outside this first implementation.
 
 Boolean filters use a three-state checkbox. A check means Yes, an empty box means No, and a dash means Either. Click the box or press Space to cycle through Yes, No, and Either. The checkbox has no visible state text or clear button. A screen reader announces the state and cycle guidance.
+
+## Legacy simple controls
+
+Without `config`, `TableHeaderFilter` retains the string-based `TableFilterProps` API.
+`TableFilter` remains the simple string control for global search and existing consumers.
+Its empty sentinel is `''`. Its boolean mode uses `'true'`, `'false'`, and `''`.
+The `ReadOnlyTable.filterKind` fallback likewise retains simple string text, boolean values, and date ranges.
+To adopt the shared criterion contract, supply `filter` on ReadOnlyTable or `config` on TableHeaderFilter and TableColumnFilter.
+An explicit configuration takes precedence over the legacy kind.
+
+For existing string state, `fromLegacyTableFilterValue(value, kind)` converts the empty sentinel to `undefined`.
+The kind defaults to `text`, which produces a Contains criterion.
+Use `boolean` for boolean values or `select` for a single selected value with the In operator.
+`toLegacyTableFilterValue(criterion, kind)` converts only criteria the simple control can represent.
+It throws for lossy conversions, including multiple selections, date ranges, numeric ranges, and other text operators.
+These adapters do not interpret records or create query expressions.
+The existing `TableColumnFilterValue` type remains the structured operator union.
+Existing structured-control callbacks retain their narrow argument type.
+The named `TableColumnFilterProps` type keeps its original structured default.
+Supply its configuration type parameter for boolean, date, or dynamic criteria.
+Use `TableFilterValue` for layouts that accept every kind, including boolean and date-range values.
 
 ## Apply criteria
 

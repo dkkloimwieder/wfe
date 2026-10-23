@@ -1,4 +1,5 @@
 import { resolveTableMessages } from './messages'
+import { ownsFocus } from '../internal/ownedFocus'
 import { Icon } from '../components/Icon'
 import {
   Show,
@@ -9,18 +10,54 @@ import {
 } from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
+import { TableColumnFilter } from './TableColumnFilter'
+import type {
+  TableColumnFilterProps,
+  TableColumnFilterConfig,
+  ConfiguredTableColumnFilterProps,
+} from './TableColumnFilter'
+import type { JSX } from '@solidjs/web'
 import { TableFilter } from './TableFilter'
 import type { TableFilterProps } from './TableFilter'
 
-export function TableHeaderFilter(
-  props: TableFilterProps & {
-    columnId: string
-    columnLabel: string
-    triggerRef?: (node: HTMLButtonElement) => void
-    onRemovalFocus?: () => void
-  },
-) {
+export type TableHeaderFilterProps = (
+  | TableColumnFilterProps
+  | TableColumnFilterProps<{ kind: 'boolean' }>
+  | TableColumnFilterProps<{ kind: 'date-range' }>
+  | TableColumnFilterProps<TableColumnFilterConfig>
+  | (TableFilterProps & { config?: undefined })
+) & {
+  columnId: string
+  columnLabel: string
+  triggerRef?: (node: HTMLButtonElement) => void
+  onRemovalFocus?: () => void
+}
+
+type HeaderFilterOptions = Pick<
+  TableHeaderFilterProps,
+  'columnId' | 'columnLabel' | 'triggerRef' | 'onRemovalFocus'
+>
+
+// Keep overloads in a type so development compilation emits one component.
+type TableHeaderFilterComponent = {
+  (
+    props: TableFilterProps & { config?: undefined } & HeaderFilterOptions,
+  ): JSX.Element
+  <const C extends TableColumnFilterConfig>(
+    props: ConfiguredTableColumnFilterProps<C> & HeaderFilterOptions,
+  ): JSX.Element
+}
+
+export const TableHeaderFilter: TableHeaderFilterComponent = (
+  props: TableHeaderFilterProps,
+) => {
   const messages = resolveTableMessages(() => props.messages)
+  const canonical = () => props.config !== undefined
+  const active = () =>
+    canonical() ? props.value !== undefined : Boolean(props.value)
+  const columnProps = () =>
+    props as ConfiguredTableColumnFilterProps<TableColumnFilterConfig>
+  const legacyProps = () => props as TableFilterProps
   const popupId = createUniqueId()
   const statusId = createUniqueId()
   const [open, setOpen] = createSignal(false)
@@ -46,12 +83,20 @@ export function TableHeaderFilter(
       trigger.focus({ preventScroll: true })
   }
   function toggle() {
-    if (props.disabled || !popup || !control) return
+    if (props.disabled || !popup) return
     if (popup.matches(':popover-open')) close(true)
     else {
       popup.showPopover()
       position()
-      control.focus({ preventScroll: true })
+      const target =
+        (control?.isConnected ? control : undefined) ??
+        popup.querySelector<HTMLElement>(
+          '.header-filter-popup-body input:not(:disabled)',
+        ) ??
+        popup.querySelector<HTMLElement>(
+          '.header-filter-popup-body [role=combobox]:not(:disabled), .header-filter-popup-body button:not(:disabled)',
+        )
+      target?.focus({ preventScroll: true })
     }
   }
   createEffect(
@@ -71,10 +116,7 @@ export function TableHeaderFilter(
   })
   onCleanup(() => {
     if (!popup || !trigger) return
-    if (
-      popup.contains(document.activeElement) ||
-      document.activeElement === trigger
-    )
+    if (ownsFocus(popup) || document.activeElement === trigger)
       props.onRemovalFocus?.()
   })
   return (
@@ -83,13 +125,13 @@ export function TableHeaderFilter(
         type="button"
         class="header-filter-trigger"
         data-header-filter={props.columnId}
-        data-filtered={props.value ? 'true' : undefined}
+        data-filtered={active() ? 'true' : undefined}
         aria-label={messages.filter(props.columnLabel)}
-        aria-describedby={props.value ? statusId : undefined}
+        aria-describedby={active() ? statusId : undefined}
         aria-haspopup="dialog"
         aria-expanded={open() ? 'true' : 'false'}
         aria-controls={popupId}
-        title={messages.filterTitle(props.columnLabel, Boolean(props.value))}
+        title={messages.filterTitle(props.columnLabel, active())}
         disabled={props.disabled}
         ref={[
           (node) => {
@@ -101,7 +143,7 @@ export function TableHeaderFilter(
       >
         <Icon name="filter" />
       </Button>
-      <Show when={props.value}>
+      <Show when={active()}>
         <span id={statusId} class="sr-only">
           {messages.filterActive}
         </span>
@@ -136,14 +178,11 @@ export function TableHeaderFilter(
               const node = event.currentTarget
               if (
                 event.relatedTarget instanceof Node &&
-                node.contains(event.relatedTarget)
+                ownsFocus(node, event.relatedTarget)
               )
                 return
               queueMicrotask(() => {
-                if (
-                  !node.contains(document.activeElement) &&
-                  document.activeElement !== trigger
-                )
+                if (!ownsFocus(node) && document.activeElement !== trigger)
                   close()
               })
             },
@@ -165,20 +204,24 @@ export function TableHeaderFilter(
           <span aria-hidden="true">×</span>
         </Button>
         <div class="header-filter-popup-body">
-          <TableFilter
-            messages={props.messages}
-            label={props.label}
-            clearLabel={props.clearLabel}
-            value={props.value}
-            onValueChange={props.onValueChange}
-            disabled={props.disabled}
-            choices={props.choices}
-            kind={props.kind}
-            controlRef={(node) => {
-              control = node
-            }}
-            onEscape={() => close(true)}
-          />
+          <Show
+            when={canonical()}
+            fallback={
+              <TableFilter
+                {...legacyProps()}
+                controlRef={(node) => {
+                  control = node
+                  legacyProps().controlRef?.(node)
+                }}
+                onEscape={() => close(true)}
+              />
+            }
+          >
+            <TableColumnFilter
+              {...columnProps()}
+              onEscape={() => close(true)}
+            />
+          </Show>
         </div>
       </div>
     </span>

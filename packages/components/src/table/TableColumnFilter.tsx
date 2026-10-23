@@ -1,4 +1,8 @@
 import { resolveTableMessages, type TableMessages } from './messages'
+import { restoreTextValue } from '../internal/controlledText'
+import { TableFilter } from './TableFilter'
+import { TableDateFilter } from './TableDateFilter'
+import type { TableDateRange } from './TableDateFilter'
 import { Icon } from '../components/Icon'
 import {
   For,
@@ -23,7 +27,10 @@ export type TableColumnFilterValue =
   | { operator: 'between'; min?: number; max?: number }
   | { operator: 'empty' | 'not-empty' }
 
+export type TableFilterValue = TableColumnFilterValue | boolean | TableDateRange
+
 export type TableColumnFilterConfig =
+  | { kind: 'boolean' | 'date-range' }
   | { kind: 'text' | 'number-range'; empty?: boolean }
   | {
       kind: 'select' | 'multi-select' | 'tags'
@@ -32,18 +39,102 @@ export type TableColumnFilterConfig =
       exclude?: boolean
     }
 
-export type TableColumnFilterProps = {
+type ColumnFilterControlProps = {
   messages?: Partial<TableMessages>
   label: string
   clearLabel?: string
   config: TableColumnFilterConfig
-  value: TableColumnFilterValue | undefined
-  onValueChange: (value: TableColumnFilterValue | undefined) => void
+  value: TableFilterValue | undefined
+  onValueChange: (value: TableFilterValue | undefined) => void
   disabled?: boolean
+  onEscape?: () => void
+}
+
+type BaseFilterProps = Omit<
+  ColumnFilterControlProps,
+  'config' | 'value' | 'onValueChange'
+>
+/** The default retains the original structured criterion contract. */
+export type TableColumnFilterProps<
+  C extends TableColumnFilterConfig = Exclude<
+    TableColumnFilterConfig,
+    { kind: 'boolean' | 'date-range' }
+  >,
+> = ConfiguredTableColumnFilterProps<C>
+
+type FilterValueForKind<K> = K extends 'boolean'
+  ? boolean
+  : K extends 'date-range'
+    ? TableDateRange
+    : TableColumnFilterValue
+
+/** Infer callback payloads from configuration, never from the callback itself. */
+export type ConfiguredTableColumnFilterProps<
+  C extends TableColumnFilterConfig,
+> = BaseFilterProps & {
+  config: C
+  value: FilterValueForKind<NoInfer<C['kind']>> | undefined
+  onValueChange: (
+    value: FilterValueForKind<NoInfer<C['kind']>> | undefined,
+  ) => void
 }
 
 /** Presentation of filter state. The caller owns choices and matching rules. */
-export function TableColumnFilter(props: TableColumnFilterProps) {
+export function TableColumnFilter<const C extends TableColumnFilterConfig>(
+  input: ConfiguredTableColumnFilterProps<C>,
+) {
+  const props = input as ColumnFilterControlProps
+  return (
+    <Show
+      when={props.config.kind !== 'boolean'}
+      fallback={
+        <TableFilter
+          messages={props.messages}
+          label={props.label}
+          clearLabel={props.clearLabel}
+          kind="boolean"
+          value={typeof props.value === 'boolean' ? String(props.value) : ''}
+          disabled={props.disabled}
+          onValueChange={(value) =>
+            props.onValueChange(value === '' ? undefined : value === 'true')
+          }
+        />
+      }
+    >
+      <Show
+        when={props.config.kind !== 'date-range'}
+        fallback={
+          <TableDateFilter
+            messages={props.messages}
+            label={props.label}
+            value={
+              typeof props.value === 'object' && !('operator' in props.value)
+                ? props.value
+                : undefined
+            }
+            disabled={props.disabled}
+            onValueChange={props.onValueChange}
+          />
+        }
+      >
+        <OperatorFilter
+          {...props}
+          value={
+            typeof props.value === 'object' && 'operator' in props.value
+              ? props.value
+              : undefined
+          }
+        />
+      </Show>
+    </Show>
+  )
+}
+
+function OperatorFilter(
+  props: Omit<ColumnFilterControlProps, 'value'> & {
+    value: TableColumnFilterValue | undefined
+  },
+) {
   const messages = resolveTableMessages(() => props.messages)
   const defaultOperator = () =>
     props.config.kind === 'text'
@@ -92,7 +183,7 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
         'not-in',
         props.config.kind === 'tags' ? messages.hasNone : messages.isNot,
       ])
-    if (props.config.empty)
+    if ('empty' in props.config && props.config.empty)
       options.push(
         ['empty', messages.isEmpty],
         ['not-empty', messages.isNotEmpty],
@@ -154,6 +245,22 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
         values,
       })
   }
+  let completedComposition: { value: string } | undefined
+  function commitText(element: HTMLInputElement) {
+    const value = element.value
+    emit(
+      value
+        ? {
+            operator: untrack(operator) as Extract<
+              TableColumnFilterValue,
+              { value: string }
+            >['operator'],
+            value,
+          }
+        : undefined,
+    )
+    restoreTextValue(element, untrack(textValue))
+  }
   function clear() {
     if (props.disabled) return
     ;(valueControl?.isConnected ? valueControl : control)?.focus({
@@ -199,30 +306,45 @@ export function TableColumnFilter(props: TableColumnFilterProps) {
         <Show when={props.config.kind === 'text'}>
           <Input
             aria-label={props.label}
-            ref={(node) => {
-              valueControl = node
-            }}
+            ref={[
+              (node) => {
+                valueControl = node
+              },
+              nativeEvents<HTMLInputElement>({
+                input: (event) => {
+                  if (event.isComposing) return
+                  const compositionInput =
+                    event.inputType === 'insertCompositionText' ||
+                    event.inputType === 'insertFromComposition'
+                  const duplicate =
+                    compositionInput &&
+                    completedComposition?.value === event.currentTarget.value
+                  completedComposition = undefined
+                  if (duplicate)
+                    restoreTextValue(event.currentTarget, untrack(textValue))
+                  else commitText(event.currentTarget)
+                },
+                compositionstart: () => {
+                  completedComposition = undefined
+                },
+                compositionend: (event) => {
+                  const completed = { value: event.currentTarget.value }
+                  completedComposition = completed
+                  // A browser can deliver the marked final input after a microtask.
+                  // Plain input and paste remain separate requests, even for equal text.
+                  commitText(event.currentTarget)
+                },
+              }),
+            ]}
             placeholder={messages.enterText}
             value={textValue()}
             disabled={props.disabled}
-            onValueChange={(value) =>
-              emit(
-                value
-                  ? {
-                      operator: operator() as Extract<
-                        TableColumnFilterValue,
-                        { value: string }
-                      >['operator'],
-                      value,
-                    }
-                  : undefined,
-              )
-            }
             onKeyDown={(event) => {
               if (event.key === 'Escape' && !event.isComposing) {
                 event.preventDefault()
                 event.stopPropagation()
-                clear()
+                if (props.onEscape) props.onEscape()
+                else clear()
               }
             }}
           />

@@ -1,3 +1,4 @@
+import { filterContractCases } from './filter-contract-cases.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 import {
@@ -271,4 +272,5 @@ export async function consistencyCases({ page, url, record, settle }) {
       await stale.dispose()
     },
   )
+  await filterContractCases({ page, url, record })
 }

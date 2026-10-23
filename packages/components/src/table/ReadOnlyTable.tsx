@@ -35,7 +35,7 @@ import { TableDateFilter } from './TableDateFilter'
 import { TableColumnFilter } from './TableColumnFilter'
 import type {
   TableColumnFilterConfig,
-  TableColumnFilterValue,
+  TableFilterValue,
 } from './TableColumnFilter'
 import type { TableDateRange } from './TableDateFilter'
 import { TableGrouping } from './TableGrouping'
@@ -43,8 +43,7 @@ import { TableColumnMove, moveColumn } from './TableColumnMove'
 import type { JSX } from '@solidjs/web'
 import type { NativeCell, NativeColumn, NativeTable } from './engine'
 
-export type TableFilterConfig =
-  TableColumnFilterConfig | { kind: 'boolean' | 'date-range' }
+export type TableFilterConfig = TableColumnFilterConfig
 
 /** Full display features over an application-owned table, without editing state. */
 export function ReadOnlyTable<T, M>(
@@ -345,20 +344,12 @@ export function ReadOnlyTable<T, M>(
                       const configuration = () => props.filter?.(column)
                       const kind = () =>
                         configuration()?.kind ?? props.filterKind?.(column)
-                      const advanced = () => {
-                        const value = configuration()
-                        return value &&
-                          value.kind !== 'boolean' &&
-                          value.kind !== 'date-range'
-                          ? (value as TableColumnFilterConfig)
-                          : undefined
-                      }
                       const disabled = () =>
                         !filtering() ||
                         (!props.onApplyFilters && !column.columnDef?.filterFn)
                       return (
                         <Show
-                          when={advanced()}
+                          when={configuration()}
                           fallback={
                             <Show
                               when={kind() === 'date-range'}
@@ -420,12 +411,12 @@ export function ReadOnlyTable<T, M>(
                               config={config()}
                               value={
                                 filters.getValue(column.id) as
-                                  TableColumnFilterValue | undefined
+                                  TableFilterValue | undefined
                               }
                               disabled={disabled()}
-                              onValueChange={(value) =>
-                                filters.setValue(column.id, value)
-                              }
+                              onValueChange={(
+                                value: TableFilterValue | undefined,
+                              ) => filters.setValue(column.id, value)}
                             />
                           )}
                         </Show>

@@ -27,6 +27,7 @@ type State = {
   max?: string
   excluded: string[]
   accept: boolean
+  focusOnChange?: boolean
 }
 type DateTimeState = Pick<
   DateTimePickerProps,
@@ -66,6 +67,7 @@ function stop() {
   release = undefined
 }
 function App() {
+  let outside: HTMLButtonElement | undefined
   const [state, setState] = createSignal<State>({
     value: '2024-02-29',
     min: '2024-01-01',
@@ -134,12 +136,21 @@ function App() {
             onValueChange={(value) => {
               changes++
               if (state().accept) update({ value })
+              if (state().focusOnChange) outside?.focus()
             }}
           />
           <HelpText>Date entry help</HelpText>
           <FieldError>Application date validation</FieldError>
         </Field>
       </form>
+      <Button
+        type="button"
+        ref={(node) => {
+          outside = node
+        }}
+      >
+        Outside date target
+      </Button>
       <form
         id="datetime-test-form"
         ref={nativeEvents<HTMLFormElement>({

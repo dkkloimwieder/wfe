@@ -102,6 +102,27 @@ try {
     await expect(input).toHaveValue('')
     assert.equal((await state()).value, undefined)
   })
+  await test('Calendar selection preserves application-directed outside focus while the picker stays mounted', async () => {
+    await set({ focusOnChange: true })
+    const original = await input.elementHandle()
+    await trigger.click()
+    const selected = day('2024-02-29')
+    await expect(selected).toBeFocused()
+    const target = day('2024-02-28')
+    await target.focus()
+    const immediate = await target.evaluate((node) => {
+      node.click()
+      return document.activeElement?.textContent
+    })
+    assert.equal(immediate, 'Outside date target')
+    await expect(
+      page.getByRole('button', { name: 'Outside date target', exact: true }),
+    ).toBeFocused()
+    await expect(input).toHaveValue('2024-02-28')
+    assert.equal(await original.evaluate((node) => node.isConnected), true)
+    assert.equal((await state()).changes, 1)
+    await original.dispose()
+  })
   await test('The shared popup focuses the selected date, handles leap-year keyboard movement, and returns focus', async () => {
     await trigger.click()
     await expect(day('2024-02-29')).toBeFocused()
