@@ -1,15 +1,31 @@
+import { resolveMessages } from '../internal/messages'
 import { createMemo, createUniqueId, omit, Show } from 'solid-js'
 import { Badge, Card } from './Display'
 import type { CardProps } from './Display'
-import { ValueDisplay } from './ValueDisplay'
+import { ValueDisplay, valueDisplayMessages } from './ValueDisplay'
 import { DashboardGrid } from '../layout/Dashboard'
 import type { DashboardGridProps } from '../layout/Dashboard'
 import { styledClasses } from '../internal/classes'
 import type { ValueFormat, ValueFormatOptions } from '../utils/valueFormat'
 
+import type { ValueDisplayMessages } from './ValueDisplay'
+
+export interface StatusTileMessages extends ValueDisplayMessages {
+  ok: string
+  warning: string
+  unknown: string
+}
+export const statusTileMessages: Readonly<StatusTileMessages> = {
+  ...valueDisplayMessages,
+  ok: 'OK',
+  warning: 'Warning',
+  unknown: 'Unknown',
+}
+
 export type StatusTileState = 'ok' | 'warning' | 'unknown'
 export type StatusTileProps = Omit<CardProps, 'children'> &
   ValueFormatOptions & {
+    messages?: Partial<StatusTileMessages>
     label: string
     value: unknown
     detail?: string
@@ -20,13 +36,14 @@ export type TileRowProps = DashboardGridProps
 /** The existing responsive grid, named for a row of status tiles. */
 export const TileRow = DashboardGrid
 const states = {
-  ok: { label: 'OK', tone: 'success' },
-  warning: { label: 'Warning', tone: 'warning' },
-  unknown: { label: 'Unknown', tone: 'neutral' },
+  ok: { tone: 'success' },
+  warning: { tone: 'warning' },
+  unknown: { tone: 'neutral' },
 } as const
 
 /** Read-only presentation. The application supplies each state and raw value. */
 export function StatusTile(props: StatusTileProps) {
+  const messages = resolveMessages(statusTileMessages, () => props.messages)
   const labelId = `status-tile-label-${createUniqueId()}`
   const state = createMemo(() => {
     if (!Object.hasOwn(states, props.state))
@@ -40,6 +57,7 @@ export function StatusTile(props: StatusTileProps) {
   })
   const rest = omit(
     props,
+    'messages',
     'label',
     'value',
     'detail',
@@ -73,13 +91,22 @@ export function StatusTile(props: StatusTileProps) {
           {label()}
         </span>
         <Badge tone={state().tone} data-ui-text="system">
-          {state().label}
+          {messages[props.state]}
         </Badge>
       </div>
       <div class="ui-status-tile-value" data-ui-text="value">
-        <Show when={props.format} keyed fallback={String(props.value ?? '')}>
+        <Show
+          when={props.format}
+          keyed
+          fallback={
+            props.value == null || props.value === ''
+              ? messages.emptyValue
+              : String(props.value)
+          }
+        >
           {(format) => (
             <ValueDisplay
+              messages={messages}
               value={props.value}
               format={format}
               locale={props.locale}

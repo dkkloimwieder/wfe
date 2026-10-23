@@ -1,3 +1,4 @@
+import { resolveMessages } from '../internal/messages'
 import { styledClasses } from '../internal/classes'
 import { createToastState } from '../internal/controls/toast'
 import {
@@ -19,21 +20,42 @@ import type { ToastOptions } from '../internal/controls/toast'
 import { isServer, type JSX } from '@solidjs/web'
 import type { ButtonProps } from './NativeFields'
 
+export interface ToastMessages {
+  regionLabel: string
+  dismissLabel: string
+  close: string
+}
+export const toastMessages: Readonly<ToastMessages> = {
+  regionLabel: 'Notifications',
+  dismissLabel: 'Dismiss notification',
+  close: 'Close',
+}
+const ToastMessagesContext =
+  createContext<Readonly<ToastMessages>>(toastMessages)
 const ToastContext = createContext<ReturnType<typeof createToastState> | null>(
   null,
 )
 export type ToastRootProps = JSX.HTMLAttributes<HTMLDivElement> &
-  ToastOptions & { priority?: 'polite' | 'assertive' }
+  ToastOptions & {
+    priority?: 'polite' | 'assertive'
+    messages?: Partial<ToastMessages>
+  }
 export function ToastRoot(props: ToastRootProps) {
+  const messages = resolveMessages(
+    useContext(ToastMessagesContext),
+    () => props.messages,
+  )
   const [node, setNode] = createSignal<HTMLElement | undefined>(undefined, {
     ownedWrite: true,
   })
   const state = createToastState(props, node)
   return (
     <Show when={state.open()}>
-      <ToastContext value={state}>
-        <ToastSurface {...props} state={state} setNode={setNode} />
-      </ToastContext>
+      <ToastMessagesContext value={messages}>
+        <ToastContext value={state}>
+          <ToastSurface {...props} state={state} setNode={setNode} />
+        </ToastContext>
+      </ToastMessagesContext>
     </Show>
   )
 }
@@ -85,6 +107,7 @@ function ToastSurface(
   }
   const attributes = omit(
     props,
+    'messages',
     'open',
     'defaultOpen',
     'duration',
@@ -111,19 +134,24 @@ function ToastSurface(
     />
   )
 }
-export type ToastRegionProps = JSX.HTMLAttributes<HTMLDivElement>
+export type ToastRegionProps = JSX.HTMLAttributes<HTMLDivElement> & {
+  messages?: Partial<ToastMessages>
+}
 export function ToastRegion(props: ToastRegionProps) {
-  const attributes = omit(props, 'ref', ...nativeEventProps)
+  const messages = resolveMessages(toastMessages, () => props.messages)
+  const attributes = omit(props, 'messages', 'ref', ...nativeEventProps)
   const events = ownedElementEvents(props)
   return (
-    <div
-      {...attributes}
-      data-ui=""
-      role="region"
-      aria-label={props['aria-label'] ?? 'Notifications'}
-      class={styledClasses('ui-toast-region', props.class)}
-      ref={[props.ref, events]}
-    />
+    <ToastMessagesContext value={messages}>
+      <div
+        {...attributes}
+        data-ui=""
+        role="region"
+        aria-label={props['aria-label'] ?? messages.regionLabel}
+        class={styledClasses('ui-toast-region', props.class)}
+        ref={[props.ref, events]}
+      />
+    </ToastMessagesContext>
   )
 }
 export function ToastTitle(props: JSX.HTMLAttributes<HTMLHeadingElement>) {
@@ -150,18 +178,26 @@ export function ToastDescription(
     />
   )
 }
-export function ToastCloseButton(props: ButtonProps) {
+export type ToastCloseButtonProps = ButtonProps & {
+  messages?: Partial<ToastMessages>
+}
+export function ToastCloseButton(props: ToastCloseButtonProps) {
+  const messages = resolveMessages(
+    useContext(ToastMessagesContext),
+    () => props.messages,
+  )
+  const attributes = omit(props, 'messages')
   const state = useContext(ToastContext)
   if (!state) throw new Error('Use Toast.CloseButton inside Toast.Root')
   return (
     <Button
-      {...props}
-      aria-label={props['aria-label'] ?? 'Dismiss notification'}
+      {...attributes}
+      aria-label={props['aria-label'] ?? messages.dismissLabel}
       onClick={(event) => {
         if (!callHandler(event, props.onClick)) state.dismiss('close')
       }}
     >
-      {props.children ?? 'Close'}
+      {props.children ?? messages.close}
     </Button>
   )
 }

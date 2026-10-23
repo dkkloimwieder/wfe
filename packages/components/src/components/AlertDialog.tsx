@@ -1,8 +1,9 @@
+import { resolveMessages } from '../internal/messages'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/alert-dialog'
-import { untrack } from 'solid-js'
+import { untrack, createContext, useContext, omit } from 'solid-js'
 import { Dialog, DialogRoot } from './Dialog'
 import { useDialogScope } from './dialogScope'
 import { Button } from './NativeFields'
@@ -10,9 +11,25 @@ import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
 import type { PolymorphicProps } from '../vendor/kobalte/core/src/polymorphic'
 
-export type AlertDialogRootProps = Omit<Core.AlertDialogRootProps, 'modal'>
+export interface AlertDialogMessages {
+  cancel: string
+}
+export const alertDialogMessages: Readonly<AlertDialogMessages> = {
+  cancel: 'Cancel',
+}
+const AlertMessagesContext =
+  createContext<Readonly<AlertDialogMessages>>(alertDialogMessages)
+export type AlertDialogRootProps = Omit<Core.AlertDialogRootProps, 'modal'> & {
+  messages?: Partial<AlertDialogMessages>
+}
 export function AlertDialogRoot(props: AlertDialogRootProps) {
-  return <DialogRoot {...props} modal />
+  const messages = resolveMessages(alertDialogMessages, () => props.messages)
+  const attributes = omit(props, 'messages')
+  return (
+    <AlertMessagesContext value={messages}>
+      <DialogRoot {...attributes} modal />
+    </AlertMessagesContext>
+  )
 }
 export type AlertDialogContentProps<
   T extends ValidComponent | HTMLElement = HTMLElement,
@@ -38,11 +55,18 @@ export function AlertDialogContent<T extends ValidComponent = 'div'>(
 export type AlertDialogCancelProps<
   T extends ValidComponent | HTMLElement = HTMLElement,
 > = Core.AlertDialogCloseButtonProps<T> &
-  ButtonAppearanceProps & { children?: JSX.Element }
+  ButtonAppearanceProps & {
+    children?: JSX.Element
+    messages?: Partial<AlertDialogMessages>
+  }
 export function AlertDialogCancel<T extends ValidComponent = 'button'>(
   props: PolymorphicProps<T, AlertDialogCancelProps<T>>,
 ) {
-  const attributes = buttonAttributes(props) as typeof props
+  const messages = resolveMessages(
+    useContext(AlertMessagesContext),
+    () => props.messages,
+  )
+  const attributes = buttonAttributes(omit(props, 'messages')) as typeof props
   const Primitive = Core.CloseButton as Component<typeof props>
   const scope = useDialogScope()
   return (
@@ -50,11 +74,11 @@ export function AlertDialogCancel<T extends ValidComponent = 'button'>(
       {...attributes}
       aria-label={
         props['aria-label'] ??
-        (typeof props.children === 'string' ? props.children : 'Cancel')
+        (typeof props.children === 'string' ? props.children : messages.cancel)
       }
       ref={[scope.setCancel, untrack(() => props.ref)]}
     >
-      {props.children ?? 'Cancel'}
+      {props.children ?? messages.cancel}
     </Primitive>
   )
 }

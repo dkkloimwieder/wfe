@@ -169,3 +169,5 @@ The existing layout, Checkbox, Card, and ValueDisplay APIs supply their reusable
 The [execution strategy](plan/wfe-shell-execution.md) records that reuse and the remaining decisions.
 
 Owned styled component props are available from the package root and existing component subpaths. See [styled component props](styled-component-types.md) for compatible type exports and the shared button variant, tone, and value-format contracts.
+
+Status and display components accept [application-supplied messages](display-messages.md) for owned labels and empty values. Message updates preserve existing controls; formatting locale remains separate.

@@ -121,7 +121,7 @@ try {
     assets + 'index.html',
     html.replace(
       '</body>',
-      '<script>window.serverCompoundNodes = [...document.querySelectorAll("#compound-field-review input, #compound-field-review [id^=compound-], #compound-field-review label")]; window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverGlyphNodes = [...document.querySelectorAll("#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle")]; window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
+      '<script>window.serverDisplayMessageNodes = [...document.querySelectorAll("#display-messages-review [role=img], #display-messages-review [role=group], #display-messages-review [role=region], #display-messages-review [role=status], #display-messages-review button")]; window.serverCompoundNodes = [...document.querySelectorAll("#compound-field-review input, #compound-field-review [id^=compound-], #compound-field-review label")]; window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverGlyphNodes = [...document.querySelectorAll("#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle")]; window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
     ),
   )
   await new Promise((done, reject) => {
@@ -172,6 +172,36 @@ try {
   await reviewCompoundFields(page)
   report.assertions.push(
     'Compound fields inherit state, retain SSR targets, preserve named values and release native handlers',
+  )
+  assert.match(markup, /Desconocido/)
+  assert.match(markup, /Cerrar aviso/)
+  assert.equal(
+    await page.evaluate(
+      () =>
+        window.serverDisplayMessageNodes.length === 6 &&
+        window.serverDisplayMessageNodes.every(
+          (node, index) =>
+            node ===
+            document.querySelectorAll(
+              '#display-messages-review [role=img], #display-messages-review [role=group], #display-messages-review [role=region], #display-messages-review [role=status], #display-messages-review button',
+            )[index],
+        ),
+    ),
+    true,
+  )
+  const messages = page.locator('#display-messages-review')
+  await messages
+    .getByRole('button', { name: 'Translate display messages' })
+    .click()
+  await expect(messages.getByRole('img', { name: 'Oui' })).toBeVisible()
+  await expect(
+    messages.getByRole('group', { name: 'Caller label' }),
+  ).toContainText('InconnuVide')
+  await messages.getByRole('button', { name: 'Fermer avis' }).focus()
+  await page.keyboard.press('Escape')
+  await expect(messages.getByRole('status')).toHaveCount(0)
+  report.assertions.push(
+    'Display messages preserve server nodes and localized dismissal after hydration',
   )
   await reviewPagination(page, 'hydration')
   report.assertions.push(

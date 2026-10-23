@@ -38,6 +38,8 @@ import '@wfe/components/styles.css'
 import { createSignal, onCleanup } from 'solid-js'
 import {
   Button,
+  Toast,
+  StatusTile,
   Checkbox,
   Dialog,
   Field,
@@ -334,6 +336,7 @@ export default function App() {
           {JSON.stringify([textMatch(), statusMatch(), numberMatch()])}
         </output>
       </section>
+      <DisplayMessagesReview />
       <BreadcrumbControls />
       <TabsControls />
       <NumberControls />
@@ -370,5 +373,42 @@ export default function App() {
         </Dialog.Portal>
       </Dialog>
     </DashboardShell>
+  )
+}
+
+function DisplayMessagesReview() {
+  const [french, setFrench] = createSignal(false)
+  return (
+    <section id="display-messages-review">
+      <ValueDisplay
+        value={true}
+        format="boolean-symbol"
+        messages={{ yes: french() ? 'Oui' : 'Sí' }}
+      />
+      <StatusTile
+        label="Caller label"
+        value={null}
+        state="unknown"
+        messages={{
+          unknown: french() ? 'Inconnu' : 'Desconocido',
+          emptyValue: french() ? 'Vide' : 'Vacío',
+        }}
+      />
+      <Toast.Region
+        messages={{
+          regionLabel: french() ? 'Avis français' : 'Avisos',
+          close: french() ? 'Fermer' : 'Cerrar',
+          dismissLabel: french() ? 'Fermer avis' : 'Cerrar aviso',
+        }}
+      >
+        <Toast defaultOpen persistent>
+          <Toast.Title>Caller notification</Toast.Title>
+          <Toast.CloseButton />
+        </Toast>
+      </Toast.Region>
+      <Button onClick={() => setFrench(true)}>
+        Translate display messages
+      </Button>
+    </section>
   )
 }
