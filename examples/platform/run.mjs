@@ -1,11 +1,21 @@
+import {
+  attachDiagnostics,
+  captureDiagnostic,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+  withCleanup,
+} from '../shared/browser/runner.mjs'
+import { buildHydrationPair } from '../shared/browser/hydration-build.mjs'
 import { applicationAccessCases } from './application-access-cases.mjs'
 import { invitationCases } from './invitation-cases.mjs'
 import { reviewExampleSizing } from '../shared/appearance/sizing-review.mjs'
 import assert from 'node:assert/strict'
-import { createServer } from 'node:http'
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { execFileSync } from 'node:child_process'
 import { chromium, expect } from '@playwright/test'
 import {
   choiceControl,
@@ -21,120 +31,97 @@ const suffix = process.env.BENCH_DEVELOPMENT
     : ''
 const directory = `.dist${hydration ? '-hydration' : ''}${suffix}`
 const assets = fileURLToPath(new URL(`${directory}/`, import.meta.url))
-let render
-if (hydration) {
-  for (const server of [true, false])
-    execFileSync(
-      'pnpm',
-      [
-        'exec',
-        'vite',
-        'build',
-        '--config',
-        'examples/platform/vite.hydration.config.ts',
-      ],
-      {
-        stdio: 'inherit',
-        env: { ...process.env, HYDRATION_SERVER: server ? '1' : '' },
-      },
-    )
-  const module = await import(
-    pathToFileURL(
-      `${assets.replace(`.dist-hydration${suffix}`, `.dist-hydration-server${suffix}`)}/server.js`,
-    ).href
-  )
-  render = module.render
-}
 const report = { directory, hydration, cases: [], errors: [], warnings: [] }
-const server = createServer(async (request, response) => {
-  try {
-    const url = new URL(request.url, 'http://platform.example')
-    if (url.pathname === '/favicon.ico') {
-      response.writeHead(204).end()
+const output = process.env.BENCH_OUTPUT ?? '/tmp/wfe-platform-browser.json'
+let render
+let server
+let browser
+let page
+let accessibility
+let detachDiagnostics
+try {
+  report.groups = selectGroups({ platform: true })
+  const pattern = process.env.BENCH_CASE_PATTERN
+  const casePattern = pattern ? new RegExp(pattern) : undefined
+  report.caseSelection = { pattern: pattern ?? null, selected: [], skipped: [] }
+  if (hydration) {
+    buildHydrationPair('examples/platform/vite.hydration.config.ts')
+    const module = await import(
+      pathToFileURL(
+        `${assets.replace(`.dist-hydration${suffix}`, `.dist-hydration-server${suffix}`)}/server.js`,
+      ).href
+    )
+    render = module.render
+  }
+  if (!process.env.BENCH_URL)
+    server = await startStaticServer({
+      assets,
+      renderIndex: render
+        ? async (url) => {
+            const html = await render(
+              new URL(url.pathname + url.search, 'http://platform.example')
+                .href,
+            )
+            const template = await readFile(`${assets}/hydration.html`, 'utf8')
+            return template.replace(
+              '<div id="root"></div>',
+              `<div id="root" data-ssr="true">${html}</div><script>window.platformServerNodes={main:document.querySelector('main'),heading:document.querySelector('[data-platform-heading]'),table:document.querySelector('table'),invite:document.querySelector('[data-platform-invite]')}</script>`,
+            )
+          }
+        : undefined,
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+    })
+  const url = process.env.BENCH_URL ?? server.url + '/'
+  browser = await launchBrowser({ chromium })
+  page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  page.setDefaultTimeout(7000)
+  accessibility = await page.context().newCDPSession(page)
+  await accessibility.send('Accessibility.enable')
+  detachDiagnostics = attachDiagnostics(page, report, {
+    console: ({ type, text }) =>
+      ['error', 'warning'].includes(type) &&
+      !text.startsWith('[HOT_SCOPE_TIME]')
+        ? 'reject'
+        : 'observe',
+  })
+  const settle = () =>
+    page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    )
+  const projects = () =>
+    page.getByRole('table', { name: 'Projects', exact: true })
+  const openProject = (name) =>
+    page.getByRole('button', { name: `Open project ${name}`, exact: true })
+  const openEnvironment = (name) =>
+    page.getByRole('button', { name: `View environment ${name}`, exact: true })
+  const go = (query = '') => page.goto(url + query)
+  const initialize = async (query = '') => {
+    await go(query)
+    await page.waitForFunction(
+      () =>
+        Boolean(window.platformFixture) &&
+        !window.platformFixture.app().session().loading,
+    )
+  }
+  async function record(name, work) {
+    if (casePattern && !casePattern.test(name)) {
+      report.caseSelection.skipped.push(name)
       return
     }
-    response.setHeader(
-      'Content-Type',
-      url.pathname.endsWith('.js')
-        ? 'text/javascript'
-        : url.pathname.endsWith('.css')
-          ? 'text/css'
-          : url.pathname.endsWith('.json')
-            ? 'application/json'
-            : 'text/html',
-    )
-    if (url.pathname === '/' && render) {
-      const html = await render(url.href)
-      const template = await readFile(`${assets}/hydration.html`, 'utf8')
-      response.end(
-        template.replace(
-          '<div id="root"></div>',
-          `<div id="root" data-ssr="true">${html}</div><script>window.platformServerNodes={main:document.querySelector('main'),heading:document.querySelector('[data-platform-heading]'),table:document.querySelector('table'),invite:document.querySelector('[data-platform-invite]')}</script>`,
-        ),
-      )
-    } else
-      response.end(
-        await readFile(
-          assets +
-            (url.pathname === '/' ? 'index.html' : url.pathname.slice(1)),
-        ),
-      )
-  } catch (error) {
-    response.writeHead(500).end(String(error))
+    report.caseSelection.selected.push(name)
+    await work()
+    await settle()
+    assert.deepEqual(report.errors, [])
+    assert.deepEqual(report.warnings, [])
+    report.cases.push(name)
+    console.log(`PASS ${name}`)
   }
-})
-await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-const url =
-  process.env.BENCH_URL ?? `http://127.0.0.1:${server.address().port}/`
-const browser = await chromium.launch()
-const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-page.setDefaultTimeout(7000)
-const accessibility = await page.context().newCDPSession(page)
-await accessibility.send('Accessibility.enable')
-page.on('pageerror', (error) => report.errors.push(String(error)))
-page.on('console', (message) => {
-  if (
-    ['error', 'warning'].includes(message.type()) &&
-    !message.text().startsWith('[HOT_SCOPE_TIME]')
-  )
-    report.warnings.push(message.text())
-})
-const settle = () =>
-  page.evaluate(
-    () =>
-      new Promise((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(resolve)),
-      ),
-  )
-const projects = () =>
-  page.getByRole('table', { name: 'Projects', exact: true })
-const openProject = (name) =>
-  page.getByRole('button', { name: `Open project ${name}`, exact: true })
-const openEnvironment = (name) =>
-  page.getByRole('button', { name: `View environment ${name}`, exact: true })
-const go = (query = '') => page.goto(url + query)
-const initialize = async (query = '') => {
-  await go(query)
-  await page.waitForFunction(
-    () =>
-      Boolean(window.platformFixture) &&
-      !window.platformFixture.app().session().loading,
-  )
-}
-async function record(name, work) {
-  if (
-    process.env.BENCH_CASE_PATTERN &&
-    !new RegExp(process.env.BENCH_CASE_PATTERN).test(name)
-  )
-    return
-  await work()
-  await settle()
-  assert.deepEqual(report.errors, [])
-  assert.deepEqual(report.warnings, [])
-  report.cases.push(name)
-  console.log(`PASS ${name}`)
-}
-try {
   await record(
     'platform: list states display supplied values without changing navigation or scope',
     async () => {
@@ -188,16 +175,23 @@ try {
         }
         document.addEventListener('click', window.platformObserveModified)
       })
-      try {
+      await withCleanup(async () => {
         await page
           .getByRole('navigation', { name: 'Platform navigation' })
           .getByRole('link', { name: 'Users', exact: true })
           .click({ modifiers: ['Control'] })
-      } finally {
-        await page.evaluate(() =>
-          document.removeEventListener('click', window.platformObserveModified),
-        )
-      }
+      }, [
+        {
+          name: 'modified-navigation instrumentation',
+          close: () =>
+            page.evaluate(() =>
+              document.removeEventListener(
+                'click',
+                window.platformObserveModified,
+              ),
+            ),
+        },
+      ])
       const modified = await page.evaluate(() => window.platformModified)
       assert.equal(modified.trusted, true)
       assert.equal(page.url(), beforeModified)
@@ -1307,20 +1301,29 @@ try {
       )
     },
   )
+  if (casePattern && !report.caseSelection.selected.length)
+    throw new Error(`No platform cases match ${pattern}`)
 } catch (error) {
-  report.failure = String(error)
-  try {
-    await page.screenshot({ path: '/tmp/wfe-platform-first-failure.png' })
-    report.snapshot = await page.locator('body').ariaSnapshot()
-  } catch {
-    /* The browser can already be closed. */
-  }
-  throw error
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
+  if (page)
+    await captureDiagnostic(report, 'first failure screenshot', () =>
+      page.screenshot({ path: '/tmp/wfe-platform-first-failure.png' }),
+    )
+  if (page)
+    await captureDiagnostic(report, 'first failure DOM', async () => {
+      report.snapshot = await page.locator('body').ariaSnapshot()
+    })
 } finally {
-  await writeFile(
-    process.env.BENCH_OUTPUT ?? '/tmp/wfe-platform-browser.json',
-    JSON.stringify(report, null, 2),
-  )
-  await browser.close()
-  await new Promise((resolve) => server.close(resolve))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'accessibility session', close: () => accessibility?.detach() },
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

@@ -1,11 +1,17 @@
+import {
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  startStaticServer,
+  withCleanup,
+} from '../shared/browser/runner.mjs'
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { createWriteStream } from 'node:fs'
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
-import { createServer } from 'node:http'
+import { mkdir, readFile, readdir } from 'node:fs/promises'
 import { cpus, freemem, loadavg, totalmem } from 'node:os'
-import { resolve, sep } from 'node:path'
 import { finished } from 'node:stream/promises'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
@@ -18,84 +24,67 @@ const heaps = process.env.BENCH_HEAPS
 const sizes = (process.env.BENCH_SIZES ?? '25,250,999,10000,50000')
   .split(',')
   .map(Number)
-const repeats = Number(process.env.BENCH_REPEATS ?? 3)
-const warmups = Number(process.env.BENCH_WARMUPS ?? 1)
-assert.ok(repeats > 0 && Number.isInteger(repeats))
-assert.ok(warmups >= 0 && Number.isInteger(warmups))
-assert.ok(sizes.every((size) => Number.isInteger(size) && size >= 10))
 const host = () => ({
   time: new Date().toISOString(),
   load: loadavg(),
   freeBytes: freemem(),
   cpus: cpus().map(({ times }) => times),
 })
-const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
-const files = await readdir(assets, { recursive: true })
-const hashes = Object.fromEntries(
-  await Promise.all(
-    files
-      .filter((file) => /\.(js|css|html|json)$/.test(file))
-      .map(async (file) => [file, hash(await readFile(assets + file))]),
-  ),
-)
-const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
-assert.ok(
-  !modules.some((path) =>
-    /table-core|@tanstack\/store|virtual-core|solid-form|kobalte/.test(path),
-  ),
-)
-assert.ok(
-  modules.some((path) => /table-editing\/createEditing\.ts$/.test(path)),
-)
-assert.ok(modules.some((path) => /table-editing\/Table\.tsx$/.test(path)))
-assert.ok(
-  modules.some((path) =>
-    directory === '.dist'
-      ? /src\/table\/engine\/table\.ts$/.test(path)
-      : /dist\/source\/table\/engine\/table\.js$/.test(path),
-  ),
-)
-const report = {
-  directory,
-  hashes,
-  modules,
-  repeats,
-  warmups,
-  hostStart: host(),
-  cpuCount: cpus().length,
-  totalBytes: totalmem(),
-  samples: [],
-  failures: [],
-}
-const server = createServer(async (request, response) => {
-  try {
-    const pathname = new URL(request.url, 'http://localhost').pathname
-    if (pathname === '/favicon.ico') return void response.writeHead(204).end()
-    const filename = resolve(
-      assets,
-      pathname === '/' ? 'index.html' : '.' + pathname,
-    )
-    if (!filename.startsWith(resolve(assets) + sep))
-      return void response.writeHead(403).end()
-    response.setHeader(
-      'Content-Type',
-      filename.endsWith('.js')
-        ? 'text/javascript'
-        : filename.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(await readFile(filename))
-  } catch {
-    response.writeHead(404).end()
-  }
-})
-await new Promise((done) => server.listen(0, '127.0.0.1', done))
-let browser
+const report = { samples: [], failures: [] }
+let browser, server
 try {
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
+  const repeats = Number(process.env.BENCH_REPEATS ?? 3)
+  const warmups = Number(process.env.BENCH_WARMUPS ?? 1)
+  assert.ok(repeats > 0 && Number.isInteger(repeats))
+  assert.ok(warmups >= 0 && Number.isInteger(warmups))
+  assert.ok(sizes.every((size) => Number.isInteger(size) && size >= 10))
+
+  const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
+  const files = await readdir(assets, { recursive: true })
+  const hashes = Object.fromEntries(
+    await Promise.all(
+      files
+        .filter((file) => /\.(js|css|html|json)$/.test(file))
+        .map(async (file) => [file, hash(await readFile(assets + file))]),
+    ),
+  )
+  const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
+  assert.ok(
+    !modules.some((path) =>
+      /table-core|@tanstack\/store|virtual-core|solid-form|kobalte/.test(path),
+    ),
+  )
+  assert.ok(
+    modules.some((path) => /table-editing\/createEditing\.ts$/.test(path)),
+  )
+  assert.ok(modules.some((path) => /table-editing\/Table\.tsx$/.test(path)))
+  assert.ok(
+    modules.some((path) =>
+      directory === '.dist'
+        ? /src\/table\/engine\/table\.ts$/.test(path)
+        : /dist\/source\/table\/engine\/table\.js$/.test(path),
+    ),
+  )
+  Object.assign(report, {
+    directory,
+    hashes,
+    modules,
+    repeats,
+    warmups,
+    hostStart: host(),
+    cpuCount: cpus().length,
+    totalBytes: totalmem(),
+    samples: [],
+    failures: [],
   })
+  server = await startStaticServer({
+    assets,
+    onServerError: (error) => {
+      report.serverErrors ??= []
+      report.serverErrors.push(error)
+    },
+  })
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
   const contracts = new Map()
   for (const size of sizes) {
@@ -161,15 +150,26 @@ try {
           const stream = createWriteStream(filename)
           const write = ({ chunk }) => stream.write(chunk)
           cdp.on('HeapProfiler.addHeapSnapshotChunk', write)
-          try {
-            await cdp.send('HeapProfiler.takeHeapSnapshot', {
-              reportProgress: false,
-            })
-          } finally {
-            cdp.off('HeapProfiler.addHeapSnapshotChunk', write)
-            stream.end()
-            await finished(stream)
-          }
+          await withCleanup(
+            () =>
+              cdp.send('HeapProfiler.takeHeapSnapshot', {
+                reportProgress: false,
+              }),
+            [
+              {
+                name: 'diagnostic heap snapshot listener',
+                close: () =>
+                  cdp.off('HeapProfiler.addHeapSnapshotChunk', write),
+              },
+              {
+                name: 'diagnostic heap snapshot stream',
+                close: async () => {
+                  stream.end()
+                  await finished(stream)
+                },
+              },
+            ],
+          )
           await promisify(execFile)(
             process.execPath,
             [
@@ -231,7 +231,7 @@ try {
             categories,
           }
         }
-        await page.goto(`http://127.0.0.1:${server.address().port}/`)
+        await page.goto(server.url + '/')
         await (
           await page.waitForFunction(() => window.editingOverhead)
         ).dispose()
@@ -347,17 +347,25 @@ try {
     }
   }
 } catch (error) {
-  report.failures.push(error.stack)
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
+  report.failures.push(errorText(error))
   process.exitCode = 1
 } finally {
   report.hostEnd = host()
-  await mkdir(resolve(output, '..'), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  await browser?.close()
-  server.close()
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }
+
 if (report.failures.length) console.error(report.failures.join('\n'))
-else
+else if (!process.exitCode)
   console.log(
     `Passed ${report.samples.length} measured samples. Report: ${output}`,
   )

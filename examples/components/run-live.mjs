@@ -1,8 +1,14 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+} from '../shared/browser/runner.mjs'
 import { reviewImportedCssUpdates } from '../shared/controls/css-hot-update-review.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
-import { mkdir, writeFile } from 'node:fs/promises'
-import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'vite'
 import { chromium } from '@playwright/test'
@@ -122,31 +128,26 @@ const output =
     new URL('../../test-results/components-live.json', import.meta.url),
   )
 const report = { cases: [], errors: [], warnings: [] }
-const server = await createServer({
-  configFile: fileURLToPath(new URL('./vite.config.ts', import.meta.url)),
-  server: { host: '127.0.0.1', port: 0, strictPort: true },
-})
-let browser
-const cleanupErrors = []
-let primaryFailure
-let failed = false
+let browser, server, accessibility, detachDiagnostics
 try {
+  report.groups = selectGroups({ 'components-live': true })
+  server = await createServer({
+    configFile: fileURLToPath(new URL('./vite.config.ts', import.meta.url)),
+    server: { host: '127.0.0.1', port: 0, strictPort: true },
+  })
   await server.listen()
   const url = `http://127.0.0.1:${server.httpServer.address().port}/`
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  browser = await launchBrowser({ chromium })
   const page = await browser.newPage()
   page.setDefaultTimeout(10000)
-  const accessibility = await page.context().newCDPSession(page)
+  accessibility = await page.context().newCDPSession(page)
   await accessibility.send('Accessibility.enable')
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (
-      ['warning', 'error'].includes(message.type()) &&
-      !message.text().startsWith('[HOT_SCOPE_TIME]')
-    )
-      report.warnings.push(message.text())
+  detachDiagnostics = attachDiagnostics(page, report, {
+    console: ({ type, text }) =>
+      ['warning', 'error'].includes(type) &&
+      !text.startsWith('[HOT_SCOPE_TIME]')
+        ? 'reject'
+        : 'observe',
   })
   await page.goto(`${url}?consumer=1`)
   await page
@@ -207,6 +208,8 @@ try {
   await reviewImportedCssUpdates({ page, browser, server, url, output, report })
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
+  await accessibility.detach()
+  accessibility = undefined
   await browser.close()
   browser = undefined
   const result = await new Promise((resolve, reject) => {
@@ -217,6 +220,8 @@ try {
         env: {
           ...process.env,
           BENCH_URL: url,
+          // The child runs its own complete application group.
+          BENCH_APPLICATION_PATTERN: '',
           BENCH_WORKLOADS: '0',
           BENCH_WORKLOAD: '0',
           BENCH_OUTPUT: output.replace(/\.json$/, '-interactions.json'),
@@ -232,30 +237,21 @@ try {
     'Full popup interactions pass against the Vite development server',
   )
 } catch (error) {
-  primaryFailure = error
-  failed = true
-  report.failure = error?.stack ?? String(error)
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  for (const close of [() => browser?.close(), () => server.close()]) {
-    try {
-      await close()
-    } catch (error) {
-      cleanupErrors.push(error)
-    }
-  }
-  report.cleanupErrors = cleanupErrors.map(
-    (error) => error?.stack ?? String(error),
-  )
-  try {
-    await mkdir(dirname(output), { recursive: true })
-    await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  } catch (error) {
-    cleanupErrors.push(error)
-  }
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      {
+        name: 'accessibility CDP session',
+        close: () => accessibility?.detach(),
+      },
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'Vite server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }
-if (cleanupErrors.length)
-  throw new AggregateError(
-    failed ? [primaryFailure, ...cleanupErrors] : cleanupErrors,
-    'Live review cleanup failed',
-  )
-if (failed) throw primaryFailure

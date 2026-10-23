@@ -1,10 +1,17 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+  withCleanup,
+} from '../shared/browser/runner.mjs'
 import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import { dateMessageCases } from './message-cases.mjs'
 import { dateTodayCase, localDayBoundaries } from './today-cases.mjs'
 import assert from 'node:assert/strict'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { createServer } from 'node:http'
-import { dirname } from 'node:path'
 import { loadavg } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { chromium, expect } from '@playwright/test'
@@ -24,42 +31,23 @@ const report = {
   warnings: [],
   diagnostics: [],
 }
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
-let browser
+let browser, server, detachDiagnostics
 try {
-  await new Promise((done, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', done)
-  })
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  report.groups = selectGroups({ 'date-picker': true })
+  if (!process.env.BENCH_URL)
+    server = await startStaticServer({
+      assets,
+
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+    })
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (['warning', 'error'].includes(message.type()))
-      report.warnings.push(message.text())
-  })
-  await page.goto(`http://127.0.0.1:${server.address().port}/`)
+  detachDiagnostics = attachDiagnostics(page, report)
+  await page.goto(process.env.BENCH_URL ?? server.url + '/')
   await page.waitForFunction(() => Boolean(window.datePickerFixture))
   await reviewThemeHost(page)
   const input = page.getByLabel('Review date', { exact: true })
@@ -449,13 +437,10 @@ try {
     const context = await browser.newContext({
       timezoneId: 'America/Los_Angeles',
     })
-    try {
+    let detachLocal
+    await withCleanup(async () => {
       const local = await context.newPage()
-      local.on('pageerror', (error) => report.errors.push(error.stack))
-      local.on('console', (message) => {
-        if (['warning', 'error'].includes(message.type()))
-          report.warnings.push(message.text())
-      })
+      detachLocal = attachDiagnostics(local, report)
       await local.goto(page.url())
       await local.waitForFunction(() => Boolean(window.datePickerFixture))
       await local.evaluate(() =>
@@ -478,9 +463,10 @@ try {
       report.diagnostics.push(
         ...(await local.evaluate(() => window.datePickerFixture.diagnostics())),
       )
-    } finally {
-      await context.close()
-    }
+    }, [
+      { name: 'local timezone context', close: () => context.close() },
+      { name: 'local timezone diagnostics', close: () => detachLocal?.() },
+    ])
   })
   await test('Datetime disposal removes its popup and retained time listeners', async () => {
     await page
@@ -523,12 +509,17 @@ try {
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {
-  report.failure = error.stack
-  process.exitCode = 1
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser?.close()
-  await new Promise((done) => server.close(done))
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(JSON.stringify(report, null, 2))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

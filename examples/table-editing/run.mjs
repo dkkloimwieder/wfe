@@ -1,4 +1,13 @@
 import {
+  startStaticServer,
+  launchBrowser,
+  selectGroups,
+  withCleanup,
+  finalizeReport,
+  errorDetails,
+  errorText,
+} from '../shared/browser/runner.mjs'
+import {
   expectedTableBreadth as expectedFanIn,
   expectedTableBreadthMessage,
 } from '../shared/table-diagnostics.mjs'
@@ -8,9 +17,8 @@ import {
   controlValue,
 } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
-import { createServer } from 'node:http'
 import { createWriteStream } from 'node:fs'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { loadavg } from 'node:os'
 import { finished } from 'node:stream/promises'
 import { fileURLToPath } from 'node:url'
@@ -39,82 +47,9 @@ const directory = process.env.BENCH_DEVELOPMENT
 const assets = fileURLToPath(new URL(`${directory}/`, import.meta.url))
 const output = process.env.BENCH_OUTPUT ?? '/tmp/table-editing-browser.json'
 const externalUrl = process.env.BENCH_URL
-if (!externalUrl) {
-  const modules = JSON.parse(await readFile(`${assets}modules.json`, 'utf8'))
-  assert.ok(
-    modules.some((id) =>
-      id.includes(
-        process.env.BENCH_DISTRIBUTION
-          ? '/components/dist/source/table/Table.jsx'
-          : '/components/src/table/Table.tsx',
-      ),
-    ),
-    'fixture uses shared UI Table source',
-  )
-  assert.ok(
-    !modules.some(
-      (id) =>
-        id.includes('/solid-table/bench/table/') &&
-        /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
-    ),
-    'fixture has no duplicate Table source',
-  )
-  assert.ok(
-    !modules.some((path) =>
-      /table-core|@tanstack\/store|virtual-core|solid-form|node_modules\/@kobalte\/|sonner|lucide/.test(
-        path,
-      ),
-    ),
-  )
-  const ownedControlModules = modules.filter((path) =>
-    path.includes('/vendor/kobalte/'),
-  )
-  assert.ok(
-    ownedControlModules.some((path) =>
-      /\/checkbox-root\.(tsx|jsx)$/.test(path),
-    ),
-    'boolean filters use the owned shared checkbox',
-  )
-  assert.ok(
-    ownedControlModules.every((path) =>
-      /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|popover|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
-        path,
-      ),
-    ),
-    'editing retains shared checkbox, select, and date-picker popover behavior with their support modules',
-  )
-  assert.ok(modules.some((path) => /zod\/v4\/mini\//.test(path)))
-  assert.ok(!modules.some((path) => /zod\/v4\/classic\//.test(path)))
-}
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') {
-      response.writeHead(204).end()
-      return
-    }
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
-if (!externalUrl)
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-const url = externalUrl ?? `http://127.0.0.1:${server.address().port}`
-let browser
 const report = {
   directory: externalUrl ? null : directory,
-  url,
+  url: externalUrl,
   moduleAudit: !externalUrl,
   hostLoad: loadavg(),
   cases: [],
@@ -125,19 +60,89 @@ const report = {
   expectedDiagnostics: [],
   timingDiagnostics: [],
 }
+let server
+let browser
+let detachPage = () => {}
 try {
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  report.groups = selectGroups({ 'table-editing': true })
+  const casePattern =
+    process.env.BENCH_SCENARIOS !== '0' && process.env.BENCH_CASE_PATTERN
+      ? new RegExp(process.env.BENCH_CASE_PATTERN)
+      : undefined
+  report.caseSelection = {
+    selected: [],
+    skipped: [],
+    pattern: process.env.BENCH_CASE_PATTERN ?? null,
+    scenarios: process.env.BENCH_SCENARIOS !== '0',
+  }
+  if (!externalUrl) {
+    const modules = JSON.parse(await readFile(`${assets}modules.json`, 'utf8'))
+    assert.ok(
+      modules.some((id) =>
+        id.includes(
+          process.env.BENCH_DISTRIBUTION
+            ? '/components/dist/source/table/Table.jsx'
+            : '/components/src/table/Table.tsx',
+        ),
+      ),
+      'fixture uses shared UI Table source',
+    )
+    assert.ok(
+      !modules.some(
+        (id) =>
+          id.includes('/solid-table/bench/table/') &&
+          /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
+      ),
+      'fixture has no duplicate Table source',
+    )
+    assert.ok(
+      !modules.some((path) =>
+        /table-core|@tanstack\/store|virtual-core|solid-form|node_modules\/@kobalte\/|sonner|lucide/.test(
+          path,
+        ),
+      ),
+    )
+    const ownedControlModules = modules.filter((path) =>
+      path.includes('/vendor/kobalte/'),
+    )
+    assert.ok(
+      ownedControlModules.some((path) =>
+        /\/checkbox-root\.(tsx|jsx)$/.test(path),
+      ),
+      'boolean filters use the owned shared checkbox',
+    )
+    assert.ok(
+      ownedControlModules.every((path) =>
+        /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|popover|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
+          path,
+        ),
+      ),
+      'editing retains shared checkbox, select, and date-picker popover behavior with their support modules',
+    )
+    assert.ok(modules.some((path) => /zod\/v4\/mini\//.test(path)))
+    assert.ok(!modules.some((path) => /zod\/v4\/classic\//.test(path)))
+  }
+
+  server = externalUrl
+    ? undefined
+    : await startStaticServer({
+        assets,
+        onServerError: (error) => {
+          ;(report.serverErrors ??= []).push(error)
+        },
+      })
+  const url = externalUrl ?? server.url
+  report.url = url
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   if (process.env.BENCH_TIMEOUT)
     page.setDefaultTimeout(Number(process.env.BENCH_TIMEOUT))
-  page.on('pageerror', (error) => {
+  const onPageError = (error) => {
     report.errors.push(error.stack)
     console.error(error.stack)
-  })
-  page.on('console', (message) => {
+  }
+  const onConsole = (message) => {
     if (['warning', 'error'].includes(message.type())) {
       if (message.text().startsWith('[HOT_SCOPE_TIME]'))
         report.timingDiagnostics.push(message.text())
@@ -145,7 +150,13 @@ try {
         report.expectedDiagnostics.push(message.text())
       else report.errors.push(message.text())
     }
-  })
+  }
+  page.on('pageerror', onPageError)
+  page.on('console', onConsole)
+  detachPage = () => {
+    page.off('pageerror', onPageError)
+    page.off('console', onConsole)
+  }
   const cdp = await page.context().newCDPSession(page)
   await cdp.send('Performance.enable')
   await page.goto(url)
@@ -191,12 +202,14 @@ try {
     await settle()
   }
   async function record(name, test) {
-    if (process.env.BENCH_SCENARIOS === '0') return
     if (
-      process.env.BENCH_CASE_PATTERN &&
-      !new RegExp(process.env.BENCH_CASE_PATTERN).test(name)
-    )
+      process.env.BENCH_SCENARIOS === '0' ||
+      (casePattern && !casePattern.test(name))
+    ) {
+      report.caseSelection.skipped.push(name)
       return
+    }
+    report.caseSelection.selected.push(name)
     try {
       await test()
       assert.deepEqual(report.errors, [])
@@ -225,13 +238,23 @@ try {
     const stream = createWriteStream(path)
     const write = ({ chunk }) => stream.write(chunk)
     cdp.on('HeapProfiler.addHeapSnapshotChunk', write)
-    try {
-      await cdp.send('HeapProfiler.takeHeapSnapshot', { reportProgress: false })
-    } finally {
-      cdp.off('HeapProfiler.addHeapSnapshotChunk', write)
-      stream.end()
-      await finished(stream)
-    }
+    await withCleanup(
+      () =>
+        cdp.send('HeapProfiler.takeHeapSnapshot', { reportProgress: false }),
+      [
+        {
+          name: 'heap snapshot listener',
+          close: () => cdp.off('HeapProfiler.addHeapSnapshotChunk', write),
+        },
+        {
+          name: 'heap snapshot stream',
+          close: async () => {
+            stream.end()
+            await finished(stream)
+          },
+        },
+      ],
+    )
     await promisify(execFile)(process.execPath, [
       fileURLToPath(new URL('../inspect-heap.mjs', import.meta.url)),
       path,
@@ -1608,6 +1631,11 @@ try {
     assert.equal((await call('lastCounts')).aborted, 1)
     assert.equal(await page.locator('[data-row]').count(), 0)
   })
+  if (casePattern && process.env.BENCH_SCENARIOS !== '0')
+    assert.ok(
+      report.caseSelection.selected.length,
+      'No editing cases match the requested filter',
+    )
   if (process.env.BENCH_ATTRIBUTION)
     report.groupingAttribution = await groupingProfile({
       page,
@@ -2134,13 +2162,21 @@ try {
   await call('stop')
   await settle()
   assert.deepEqual(report.errors, [])
+  assert.deepEqual(report.failures, [])
+} catch (error) {
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
+  process.exitCode = 1
 } finally {
-  await writeFile(output, `${JSON.stringify(report, null, 2)}\n`)
-  await browser?.close()
-  if (server.listening)
-    await new Promise((resolve, reject) =>
-      server.close((error) => (error ? reject(error) : resolve())),
-    )
+  const failed = await finalizeReport({
+    report,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'page diagnostics', close: () => detachPage() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+    output,
+  })
+  if (failed) process.exitCode = 1
 }
 console.log(`Saved ${output}`)
-assert.deepEqual(report.failures, [])

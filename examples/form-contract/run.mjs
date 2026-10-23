@@ -1,14 +1,21 @@
 import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+} from '../shared/browser/runner.mjs'
+import {
   choiceControl,
   selectValue,
   expectValue,
 } from '../shared/controls/select-review.mjs'
 import { reviewAppearanceFocus } from '../shared/appearance/focus-review.mjs'
 import assert from 'node:assert/strict'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { createServer } from 'node:http'
-import { dirname } from 'node:path'
+import { readFile } from 'node:fs/promises'
 import { loadavg } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { chromium, expect } from '@playwright/test'
@@ -28,50 +35,31 @@ const report = {
   warnings: [],
   diagnostics: [],
 }
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
-const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
-const formDirectory = process.env.BENCH_DISTRIBUTION
-  ? '/packages/form/dist/'
-  : '/packages/form/src/'
-assert.ok(
-  modules.some((id) => id.includes(formDirectory)),
-  `Missing form modules from ${formDirectory}`,
-)
 let browser
+let server
+let detachDiagnostics
 try {
-  await new Promise((done, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', done)
+  report.groups = selectGroups({ 'form-contract': true })
+  const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
+  const formDirectory = process.env.BENCH_DISTRIBUTION
+    ? '/packages/form/dist/'
+    : '/packages/form/src/'
+  assert.ok(
+    modules.some((id) => id.includes(formDirectory)),
+    `Missing form modules from ${formDirectory}`,
+  )
+  server = await startStaticServer({
+    assets,
+    onServerError: (error) => {
+      report.serverErrors ??= []
+      report.serverErrors.push(error)
+    },
   })
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (['warning', 'error'].includes(message.type()))
-      report.warnings.push(message.text())
-  })
-  await page.goto(`http://127.0.0.1:${server.address().port}/`)
+  detachDiagnostics = attachDiagnostics(page, report)
+  await page.goto(server.url + '/')
   await page.waitForFunction(() => Boolean(window.formContractFixture))
   await reviewThemeHost(page)
   const name = page.getByRole('textbox', { name: 'Name', exact: true })
@@ -370,12 +358,17 @@ try {
   assert.deepEqual(report.warnings, [])
   assert.deepEqual(report.diagnostics, [])
 } catch (error) {
-  report.failure = error.stack
-  process.exitCode = 1
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser?.close()
-  await new Promise((done) => server.close(done))
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(JSON.stringify(report, null, 2))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

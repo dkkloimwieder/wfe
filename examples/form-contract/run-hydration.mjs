@@ -1,3 +1,12 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+} from '../shared/browser/runner.mjs'
 import { reviewCssProvenance } from '../shared/controls/css-review.mjs'
 import {
   choiceControl,
@@ -6,9 +15,7 @@ import {
 } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { dirname } from 'node:path'
-import { createServer } from 'node:http'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { chromium, expect } from '@playwright/test'
 
@@ -27,26 +34,12 @@ const report = {
   serverWarnings: [],
   diagnostics: [],
 }
-let browser
+let browser, server, detachDiagnostics
 let html
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(path === '/' ? html : await readFile(assets + path.slice(1)))
-  } catch {
-    response.writeHead(404).end()
-  }
-})
+const output = process.env.BENCH_OUTPUT ?? '/tmp/form-hydration.json'
+
 try {
+  report.groups = selectGroups({ 'form-contract-hydration': true })
   for (const ssr of [true, false]) {
     execFileSync(
       'pnpm',
@@ -114,20 +107,19 @@ try {
       '</body>',
       '<script>window.serverNodes = [...document.querySelectorAll("#root main :is(form, input, select, button, label)")];</script></body>',
     )
-  await new Promise((done, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', done)
-  })
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  if (!process.env.BENCH_URL)
+    server = await startStaticServer({
+      assets,
+      renderIndex: () => html,
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+    })
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (['warning', 'error'].includes(message.type()))
-      report.warnings.push(message.text())
-  })
+  detachDiagnostics = attachDiagnostics(page, report)
   let releaseScripts
   const scripts = new Promise((resolve) => {
     releaseScripts = resolve
@@ -136,7 +128,7 @@ try {
     await scripts
     await route.continue()
   })
-  await page.goto(`http://127.0.0.1:${server.address().port}/`, {
+  await page.goto(process.env.BENCH_URL ?? server.url + '/', {
     waitUntil: 'commit',
   })
   await page.waitForFunction(() => window.serverNodes?.length > 0)
@@ -258,7 +250,7 @@ try {
     ])
     report.cssProvenance = await reviewCssProvenance(
       page,
-      `http://127.0.0.1:${server.address().port}`,
+      process.env.BENCH_URL ?? server.url,
     )
     assert.equal(await retained(), true)
     assert.deepEqual((await snapshot()).requests, [])
@@ -526,13 +518,17 @@ try {
   assert.deepEqual(report.warnings, [])
   assert.deepEqual(report.diagnostics, [])
 } catch (error) {
-  report.failure = error.stack
-  process.exitCode = 1
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser?.close()
-  if (server.listening) await new Promise((done) => server.close(done))
-  const output = process.env.BENCH_OUTPUT ?? '/tmp/form-hydration.json'
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(JSON.stringify(report, null, 2))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

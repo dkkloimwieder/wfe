@@ -1,3 +1,4 @@
+import { attachDiagnostics, withCleanup } from '../shared/browser/runner.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
@@ -16,13 +17,10 @@ export const localDayBoundaries = [
 
 export async function dateTodayCase({ browser, url, report }, boundary) {
   const context = await browser.newContext({ timezoneId: boundary.timezoneId })
-  try {
+  let detachDiagnostics
+  await withCleanup(async () => {
     const page = await context.newPage()
-    page.on('pageerror', (error) => report.errors.push(error.stack))
-    page.on('console', (message) => {
-      if (['warning', 'error'].includes(message.type()))
-        report.warnings.push(message.text())
-    })
+    detachDiagnostics = attachDiagnostics(page, report)
     await page.clock.setFixedTime(new Date(boundary.instant))
     await page.goto(url)
     await page.waitForFunction(() => Boolean(window.datePickerFixture))
@@ -73,7 +71,8 @@ export async function dateTodayCase({ browser, url, report }, boundary) {
     report.diagnostics.push(
       ...(await page.evaluate(() => window.datePickerFixture.diagnostics())),
     )
-  } finally {
-    await context.close()
-  }
+  }, [
+    { name: 'local-day context', close: () => context.close() },
+    { name: 'local-day diagnostics', close: () => detachDiagnostics?.() },
+  ])
 }

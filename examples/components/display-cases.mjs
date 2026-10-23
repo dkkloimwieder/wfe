@@ -1,3 +1,4 @@
+import { withCleanup } from '../shared/browser/runner.mjs'
 import assert from 'node:assert/strict'
 export async function displayCases({ createPage, url, record }) {
   const page = await createPage()
@@ -12,7 +13,7 @@ export async function displayCases({ createPage, url, record }) {
     await page.keyboard.press(key)
     await settle()
   }
-  try {
+  await withCleanup(async () => {
     const open = () => page.goto(`${url}?display=1`)
     const configure = async (value) => {
       await page.evaluate(
@@ -276,7 +277,5 @@ export async function displayCases({ createPage, url, record }) {
         assert.equal(await toast().count(), 0)
       },
     )
-  } finally {
-    await page.close()
-  }
+  }, [{ name: 'display case page', close: () => page.close() }])
 }

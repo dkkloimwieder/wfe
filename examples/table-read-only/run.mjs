@@ -1,3 +1,13 @@
+import {
+  startStaticServer,
+  launchBrowser,
+  attachDiagnostics,
+  selectGroups,
+  finalizeReport,
+  captureDiagnostic,
+  errorDetails,
+  errorText,
+} from '../shared/browser/runner.mjs'
 import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import { reviewMessages } from './review-messages.mjs'
 import { reviewPagination } from '../shared/controls/pagination-review.mjs'
@@ -9,9 +19,7 @@ import {
   controlValue,
 } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { createServer } from 'node:http'
-import { dirname } from 'node:path'
+import { readFile } from 'node:fs/promises'
 import { loadavg } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
@@ -23,113 +31,107 @@ const directory = process.env.BENCH_DEVELOPMENT
     : '.dist'
 const assets = fileURLToPath(new URL(`${directory}/`, import.meta.url))
 const output = process.env.BENCH_OUTPUT ?? '/tmp/table-read-only-browser.json'
+const externalUrl = process.env.BENCH_URL
 const report = {
-  directory,
+  directory: externalUrl ? null : directory,
+  moduleAudit: false,
   hostLoad: loadavg(),
   cases: [],
   errors: [],
   warnings: [],
   diagnostics: [],
 }
-const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
-assert.ok(
-  modules.some((id) =>
-    id.includes(
-      process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/table/Table.jsx'
-        : '/components/src/table/Table.tsx',
-    ),
-  ),
-  'fixture uses shared UI Table source',
-)
-assert.ok(
-  !modules.some(
-    (id) =>
-      id.includes('/solid-table/bench/table/') &&
-      /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
-  ),
-  'fixture has no duplicate Table source',
-)
-assert.ok(
-  !modules.some((path) =>
-    /table-core|@tanstack\/store|node_modules\/[^ ]*virtual-core|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
-      path,
-    ),
-  ),
-)
-const ownedControlModules = modules.filter((path) =>
-  path.includes(
-    process.env.BENCH_DISTRIBUTION
-      ? '/components/dist/source/vendor/kobalte/'
-      : '/components/src/vendor/kobalte/',
-  ),
-)
-assert.ok(
-  ownedControlModules.some((path) => /\/checkbox-root\.(tsx|jsx)$/.test(path)),
-  'column controls use the owned shared checkbox',
-)
-assert.ok(
-  ownedControlModules.every((path) =>
-    /\/utils\/src\/|\/core\/src\/(checkbox|form-control|polymorphic|select|listbox|list|selection|i18n|popper|dismissable-layer|popover|button)\/|\/core\/src\/primitives\/(create-tag-name|create-toggle-state|create-collection|create-disclosure-state|create-register-id)\//.test(
-      path,
-    ),
-  ),
-  'read-only Table retains only its control, selection, and popup behavior',
-)
-assert.ok(
-  ownedControlModules.some((path) => /\/select-root\.(tsx|jsx)$/.test(path)),
-  'choice filters use the shared Select',
-)
-assert.ok(
-  ownedControlModules.some((path) => /\/popover-root\.(tsx|jsx)$/.test(path)),
-  'date filters use the shared Popover',
-)
-assert.ok(
-  modules.some((path) =>
-    /\/components\/(src|dist\/source)\/components\/DatePicker\.(tsx|jsx)$/.test(
-      path,
-    ),
-  ),
-  'date filters use the shared DatePicker',
-)
-report.moduleAudit = true
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
+let server
 let browser
 let page
+let detachPage = () => {}
 try {
-  await new Promise((done, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', done)
-  })
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  report.groups = selectGroups({ 'table-read-only': true })
+  if (!externalUrl) {
+    const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
+    assert.ok(
+      modules.some((id) =>
+        id.includes(
+          process.env.BENCH_DISTRIBUTION
+            ? '/components/dist/source/table/Table.jsx'
+            : '/components/src/table/Table.tsx',
+        ),
+      ),
+      'fixture uses shared UI Table source',
+    )
+    assert.ok(
+      !modules.some(
+        (id) =>
+          id.includes('/solid-table/bench/table/') &&
+          /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
+      ),
+      'fixture has no duplicate Table source',
+    )
+    assert.ok(
+      !modules.some((path) =>
+        /table-core|@tanstack\/store|node_modules\/[^ ]*virtual-core|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
+          path,
+        ),
+      ),
+    )
+    const ownedControlModules = modules.filter((path) =>
+      path.includes(
+        process.env.BENCH_DISTRIBUTION
+          ? '/components/dist/source/vendor/kobalte/'
+          : '/components/src/vendor/kobalte/',
+      ),
+    )
+    assert.ok(
+      ownedControlModules.some((path) =>
+        /\/checkbox-root\.(tsx|jsx)$/.test(path),
+      ),
+      'column controls use the owned shared checkbox',
+    )
+    assert.ok(
+      ownedControlModules.every((path) =>
+        /\/utils\/src\/|\/core\/src\/(checkbox|form-control|polymorphic|select|listbox|list|selection|i18n|popper|dismissable-layer|popover|button)\/|\/core\/src\/primitives\/(create-tag-name|create-toggle-state|create-collection|create-disclosure-state|create-register-id)\//.test(
+          path,
+        ),
+      ),
+      'read-only Table retains only its control, selection, and popup behavior',
+    )
+    assert.ok(
+      ownedControlModules.some((path) =>
+        /\/select-root\.(tsx|jsx)$/.test(path),
+      ),
+      'choice filters use the shared Select',
+    )
+    assert.ok(
+      ownedControlModules.some((path) =>
+        /\/popover-root\.(tsx|jsx)$/.test(path),
+      ),
+      'date filters use the shared Popover',
+    )
+    assert.ok(
+      modules.some((path) =>
+        /\/components\/(src|dist\/source)\/components\/DatePicker\.(tsx|jsx)$/.test(
+          path,
+        ),
+      ),
+      'date filters use the shared DatePicker',
+    )
+    report.moduleAudit = true
+  }
+  server = externalUrl
+    ? undefined
+    : await startStaticServer({
+        assets,
+        onServerError: (error) => {
+          ;(report.serverErrors ??= []).push(error)
+        },
+      })
+  const url = externalUrl ?? server.url
+  report.url = url
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
   page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (['warning', 'error'].includes(message.type()))
-      report.warnings.push(message.text())
-  })
-  await page.goto(`http://127.0.0.1:${server.address().port}`)
+  detachPage = attachDiagnostics(page, report)
+  await page.goto(url)
   await page.waitForFunction(() => Boolean(window.readOnlyFixture))
   await reviewThemeHost(page)
   const rows = () =>
@@ -415,7 +417,7 @@ try {
   const earlierDiagnostics = await page.evaluate(() =>
     window.readOnlyFixture.diagnostics(),
   )
-  await reviewMessages(page, `http://127.0.0.1:${server.address().port}`)
+  await reviewMessages(page, url)
   report.cases.push({
     name: 'Table messages switch language without replacing draft controls',
     status: 'passed',
@@ -435,29 +437,39 @@ try {
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {
-  report.failure = error.stack
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
   // Capture only after failure so diagnostics do not change scroll timing.
-  report.failureGeometry = await page
-    ?.evaluate(() => {
-      const viewport = document.querySelector('.table-scroll')
-      return {
-        scrollTop: viewport?.scrollTop,
-        scrollHeight: viewport?.scrollHeight,
-        clientHeight: viewport?.clientHeight,
-        headerHeight: viewport?.querySelector('thead')?.getBoundingClientRect()
-          .height,
-        rows: [...document.querySelectorAll('tr[data-row]')].map(
-          (row) => row.dataset.row,
-        ),
-        activeElement: document.activeElement?.outerHTML,
-      }
-    })
-    .catch(() => undefined)
+  report.failureGeometry = await captureDiagnostic(
+    report,
+    'failure geometry',
+    () =>
+      page?.evaluate(() => {
+        const viewport = document.querySelector('.table-scroll')
+        return {
+          scrollTop: viewport?.scrollTop,
+          scrollHeight: viewport?.scrollHeight,
+          clientHeight: viewport?.clientHeight,
+          headerHeight: viewport
+            ?.querySelector('thead')
+            ?.getBoundingClientRect().height,
+          rows: [...document.querySelectorAll('tr[data-row]')].map(
+            (row) => row.dataset.row,
+          ),
+          activeElement: document.activeElement?.outerHTML,
+        }
+      }),
+  )
   process.exitCode = 1
 } finally {
-  await browser?.close()
-  await new Promise((done) => server.close(done))
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(JSON.stringify(report, null, 2))
+  const failed = await finalizeReport({
+    report,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'page diagnostics', close: () => detachPage() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+    output,
+  })
+  if (failed) process.exitCode = 1
 }

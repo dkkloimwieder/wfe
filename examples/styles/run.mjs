@@ -1,7 +1,14 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+} from '../shared/browser/runner.mjs'
 import { expect } from '@playwright/test'
 import assert from 'node:assert/strict'
-import { createServer } from 'node:http'
-import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 
@@ -15,30 +22,28 @@ const root = fileURLToPath(
     import.meta.url,
   ),
 )
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    const name = path === '/' ? 'index.html' : path.slice(1)
-    response.setHeader(
-      'Content-Type',
-      name.endsWith('.js')
-        ? 'text/javascript'
-        : name.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(await readFile(root + name))
-  } catch {
-    response.writeHead(404).end()
-  }
-})
-await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-const browser = await chromium.launch()
+const output = process.env.BENCH_OUTPUT ?? '/tmp/styles-browser.json'
+const report = { cases: [], errors: [], warnings: [] }
+let server
+let browser
+let detachDiagnostics
 try {
+  report.groups = selectGroups({ styles: true })
+  server = await startStaticServer({
+    assets: root,
+    onServerError: (error) => {
+      report.serverErrors ??= []
+      report.serverErrors.push(error)
+    },
+  })
+  browser = await launchBrowser({ chromium })
   const page = await browser.newPage()
-  const errors = []
-  page.on('pageerror', (error) => errors.push(String(error)))
-  await page.goto(`http://127.0.0.1:${server.address().port}`)
+  // Preserve this raw-isolation fixture's existing page-error-only policy.
+  detachDiagnostics = attachDiagnostics(page, report, {
+    console: () => 'observe',
+  })
+  const errors = report.errors
+  await page.goto(server.url)
   await page.waitForFunction(() => window.styleFixture)
   assert.equal(
     await page.evaluate(
@@ -105,10 +110,22 @@ try {
 
   await page.emulateMedia({ forcedColors: 'none' })
   assert.deepEqual(errors, [])
-  console.log(
-    'PASS style isolation, field focus, native select interaction, and forced-color fallback',
-  )
+  const name =
+    'style isolation, field focus, native select interaction, and forced-color fallback'
+  report.cases.push(name)
+  console.log(`PASS ${name}`)
+} catch (error) {
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser.close()
-  await new Promise((resolve) => server.close(resolve))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

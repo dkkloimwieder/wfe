@@ -1,3 +1,14 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+  withCleanup,
+} from '../shared/browser/runner.mjs'
+import { buildHydrationPair } from '../shared/browser/hydration-build.mjs'
 import { reviewCompoundFields } from '../shared/controls/compound-field-review.mjs'
 import { reviewContexts } from '../shared/controls/context-review.mjs'
 import { reviewPagination } from '../shared/controls/pagination-review.mjs'
@@ -22,10 +33,7 @@ import {
   selectValue,
 } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { dirname } from 'node:path'
-import { createServer } from 'node:http'
+import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { chromium, expect } from '@playwright/test'
 
@@ -36,43 +44,11 @@ const assets = fileURLToPath(
   ),
 )
 const report = { errors: [], warnings: [], serverWarnings: [], assertions: [] }
-let browser
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
+let browser, server, detachDiagnostics
+const output = process.env.BENCH_OUTPUT ?? '/tmp/table-hydration.json'
 try {
-  for (const ssr of [true, false]) {
-    execFileSync(
-      'pnpm',
-      [
-        'exec',
-        'vite',
-        'build',
-        '--config',
-        'examples/hydration/vite.config.ts',
-      ],
-      {
-        stdio: 'inherit',
-        env: { ...process.env, HYDRATION_SERVER: ssr ? '1' : '' },
-      },
-    )
-  }
+  report.groups = selectGroups({ 'shared-hydration': true })
+  buildHydrationPair('examples/hydration/vite.config.ts')
   const { render } = await import(
     process.env.BENCH_DISTRIBUTION
       ? './.dist-server-package/server.js'
@@ -124,25 +100,37 @@ try {
       '<script>window.serverDisplayMessageNodes = [...document.querySelectorAll("#display-messages-review [role=img], #display-messages-review [role=group], #display-messages-review [role=region], #display-messages-review [role=status], #display-messages-review button")]; window.serverCompoundNodes = [...document.querySelectorAll("#compound-field-review input, #compound-field-review [id^=compound-], #compound-field-review label")]; window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverGlyphNodes = [...document.querySelectorAll("#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle")]; window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode, #container-dashboard, #container-host")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
     ),
   )
-  await new Promise((done, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', done)
-  })
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  if (!process.env.BENCH_URL)
+    server = await startStaticServer({
+      assets,
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+    })
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
   const page = await browser.newPage()
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (['warning', 'error'].includes(message.type()))
-      report.warnings.push(message.text())
-  })
-  await Promise.race([
-    page
-      .goto(`http://127.0.0.1:${server.address().port}`)
-      .then(() => page.waitForSelector('html[data-hydrated="true"]')),
-    new Promise((_, reject) => page.once('pageerror', reject)),
+  detachDiagnostics = attachDiagnostics(page, report)
+  let onAttachError
+  await withCleanup(async () => {
+    const failed = new Promise((_, reject) => {
+      onAttachError = reject
+      page.once('pageerror', onAttachError)
+    })
+    await Promise.race([
+      page
+        .goto(process.env.BENCH_URL ?? server.url)
+        .then(() => page.waitForSelector('html[data-hydrated="true"]')),
+      failed,
+    ])
+  }, [
+    {
+      name: 'attachment error listener',
+      close: () => {
+        if (onAttachError) page.off('pageerror', onAttachError)
+      },
+    },
   ])
   assert.equal(
     await page.evaluate(
@@ -278,7 +266,7 @@ try {
   )
   report.cssProvenance = await reviewCssProvenance(
     page,
-    `http://127.0.0.1:${server.address().port}`,
+    process.env.BENCH_URL ?? server.url,
   )
   assert.equal(
     await page.evaluate(() =>
@@ -928,12 +916,17 @@ try {
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {
-  report.failure = error.stack
-  throw error
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser?.close()
-  if (server.listening) await new Promise((done) => server.close(done))
-  const output = process.env.BENCH_OUTPUT ?? '/tmp/table-hydration.json'
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

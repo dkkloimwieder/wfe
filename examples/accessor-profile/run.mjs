@@ -1,9 +1,15 @@
+import {
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  startStaticServer,
+} from '../shared/browser/runner.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { createServer } from 'node:http'
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import { loadavg } from 'node:os'
-import { dirname, resolve, sep } from 'node:path'
+import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 
@@ -21,57 +27,36 @@ function list(name, fallback, minimum) {
   )
   return values
 }
-const sizes = list('BENCH_SIZES', '1000,10000,50000', 200)
-const iterations = list('BENCH_ITERATIONS', '0,64', 0)
-const repeats = list('BENCH_REPEATS', '3', 1)[0]
-const warmups = list('BENCH_WARMUPS', '1', 0)[0]
-const availableModes = [
-  'native',
-  'native-reuse',
-  'separate',
-  'matcher-cache',
-  'fused',
-]
-const modes = process.env.BENCH_MODES?.split(',') ?? availableModes
-assert.ok(
-  modes.length &&
-    new Set(modes).size === modes.length &&
-    modes.every((mode) => availableModes.includes(mode)),
-  'Invalid BENCH_MODES',
-)
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') {
-      response.writeHead(204).end()
-      return
-    }
-    const filename = resolve(
-      assets,
-      `.${decodeURIComponent(path === '/' ? '/index.html' : path)}`,
-    )
-    if (!filename.startsWith(resolve(assets) + sep)) {
-      response.writeHead(403).end()
-      return
-    }
-    response.setHeader(
-      'Content-Type',
-      filename.endsWith('.js') ? 'text/javascript' : 'text/html',
-    )
-    response.end(await readFile(filename))
-  } catch {
-    response.writeHead(404).end()
-  }
-})
-await new Promise((done) => server.listen(0, '127.0.0.1', done))
-let browser
+const report = { errors: [], warnings: [], samples: [] }
+let browser, server
 try {
-  browser = await chromium.launch(
-    process.env.BENCH_EXECUTABLE_PATH
-      ? { executablePath: process.env.BENCH_EXECUTABLE_PATH }
-      : {},
+  const sizes = list('BENCH_SIZES', '1000,10000,50000', 200)
+  const iterations = list('BENCH_ITERATIONS', '0,64', 0)
+  const repeats = list('BENCH_REPEATS', '3', 1)[0]
+  const warmups = list('BENCH_WARMUPS', '1', 0)[0]
+  const availableModes = [
+    'native',
+    'native-reuse',
+    'separate',
+    'matcher-cache',
+    'fused',
+  ]
+  const modes = process.env.BENCH_MODES?.split(',') ?? availableModes
+  assert.ok(
+    modes.length &&
+      new Set(modes).size === modes.length &&
+      modes.every((mode) => availableModes.includes(mode)),
+    'Invalid BENCH_MODES',
   )
-  const samples = []
+  server = await startStaticServer({
+    assets,
+    onServerError: (error) => {
+      report.serverErrors ??= []
+      report.serverErrors.push(error)
+    },
+  })
+  browser = await launchBrowser({ chromium })
+  const samples = report.samples
   const expectedCounts = new Map()
   for (const size of sizes)
     for (const work of iterations)
@@ -89,7 +74,7 @@ try {
             if (['warning', 'error'].includes(message.type()))
               errors.push(message.text())
           })
-          await page.goto(`http://127.0.0.1:${server.address().port}/`)
+          await page.goto(server.url + '/')
           await (
             await page.waitForFunction(() => window.accessorProfile)
           ).dispose()
@@ -261,34 +246,36 @@ try {
     assetHashes[file] = createHash('sha256')
       .update(await readFile(resolve(assets, 'assets', file)))
       .digest('hex')
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(
-    output,
-    JSON.stringify(
-      {
-        timestamp: new Date().toISOString(),
-        browser: browser.version(),
-        distribution,
-        sizes,
-        iterations,
-        repeats,
-        warmups,
-        modes,
-        assetHashes,
-        samples,
-        contention: 'Shared development host. Timings are advisory.',
-        consumer:
-          'One persistent Solid effect observes active outputs. Timed steps include mutation, flush, and observed derivation. The independent seed oracle runs outside timing and never reads the source store.',
-        sampling:
-          'Each mode/sample uses a fresh page and caller store. Warmups are discarded independent runs, not a guarantee of a warmed JIT in each later page.',
-        limits:
-          'Bench-only alternatives cover row filtering and two facets. Fused mode couples active-output dependencies. No sorting, grouping, custom accessors, or production replacement claim.',
-      },
-      null,
-      2,
-    ) + '\n',
-  )
+  Object.assign(report, {
+    timestamp: new Date().toISOString(),
+    browser: browser.version(),
+    distribution,
+    sizes,
+    iterations,
+    repeats,
+    warmups,
+    modes,
+    assetHashes,
+    samples,
+    contention: 'Shared development host. Timings are advisory.',
+    consumer:
+      'One persistent Solid effect observes active outputs. Timed steps include mutation, flush, and observed derivation. The independent seed oracle runs outside timing and never reads the source store.',
+    sampling:
+      'Each mode/sample uses a fresh page and caller store. Warmups are discarded independent runs, not a guarantee of a warmed JIT in each later page.',
+    limits:
+      'Bench-only alternatives cover row filtering and two facets. Fused mode couples active-output dependencies. No sorting, grouping, custom accessors, or production replacement claim.',
+  })
+} catch (error) {
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser?.close()
-  await new Promise((done) => server.close(done))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

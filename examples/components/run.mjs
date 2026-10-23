@@ -1,3 +1,13 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+  withCleanup,
+} from '../shared/browser/runner.mjs'
 import { contextCases } from './gallery/context-cases.mjs'
 import { matchingCases } from './gallery/matching-cases.mjs'
 import { entryPanelCases } from './gallery/entry-panel-cases.mjs'
@@ -23,8 +33,7 @@ import { displayCases } from './display-cases.mjs'
 import { overlayCases } from './overlay-cases.mjs'
 import { dialogCases } from './dialog-cases.mjs'
 import { booleanCases } from './boolean-cases.mjs'
-import { createServer } from 'node:http'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { readFile, mkdir } from 'node:fs/promises'
 import { createWriteStream } from 'node:fs'
 import { pipeline } from 'node:stream/promises'
 import { createGzip } from 'node:zlib'
@@ -54,192 +63,198 @@ const report = {
   warnings: [],
   timing: [],
 }
-const server = createServer(async (request, response) => {
-  try {
-    const name = new URL(request.url, 'http://localhost').pathname
-    if (name === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      name.endsWith('.js')
-        ? 'text/javascript'
-        : name.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (name === '/' ? 'index.html' : name.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
-if (!process.env.BENCH_URL) {
-  const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
-  assert.ok(
-    modules.some((id) =>
-      id.includes(
-        process.env.BENCH_DISTRIBUTION
-          ? '/components/dist/source/table/Table.jsx'
-          : '/components/src/table/Table.tsx',
-      ),
-    ),
-    'fixture uses shared UI Table source',
-  )
-  assert.ok(
-    !modules.some(
-      (id) =>
-        id.includes('/solid-table/bench/table/') &&
-        /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
-    ),
-    'fixture has no duplicate Table source',
-  )
-  assert.ok(
-    modules.some((id) =>
-      id.includes(
-        process.env.BENCH_DISTRIBUTION
-          ? '/components/dist/source/vendor/kobalte/core/src/select/'
-          : '/components/src/vendor/kobalte/core/src/select/',
-      ),
-    ),
-  )
-  assert.ok(
-    !modules.some((id) =>
-      /table-core|@tanstack\/store|virtual-core|solid-form|\.input\/kobalte|node_modules\/@kobalte\//.test(
-        id,
-      ),
-    ),
-  )
-  for (const name of ['solid-js', '@solidjs/web', '@solidjs/signals']) {
-    const roots = [
-      ...new Set(
-        modules
-          .filter((id) => id.includes(`/node_modules/${name}/`))
-          .map((id) => id.split(`/node_modules/${name}/`)[0]),
-      ),
-    ]
-    assert.equal(roots.length, 1, `one ${name} runtime: ${roots}`)
-  }
-  report.moduleAudit = true
-  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-}
-const url = process.env.BENCH_URL ?? `http://127.0.0.1:${server.address().port}`
-const browser = await chromium.launch({
-  executablePath: process.env.BENCH_EXECUTABLE_PATH,
-})
-report.browser = browser.version()
-async function createPage() {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  page.setDefaultTimeout(7000)
-  const accessibility = await page.context().newCDPSession(page)
-  await accessibility.send('Accessibility.enable')
-  await page.addInitScript(() => {
-    window.hiddenFocusViolations = []
-    const setAttribute = Element.prototype.setAttribute
-    Element.prototype.setAttribute = function (name, value) {
-      if (
-        name === 'aria-hidden' &&
-        value === 'true' &&
-        this.contains(document.activeElement)
-      ) {
-        window.hiddenFocusViolations.push({
-          hidden: this.id || this.tagName,
-          focused:
-            document.activeElement?.id || document.activeElement?.textContent,
-        })
-      }
-      return setAttribute.call(this, name, value)
-    }
-  })
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (!['warning', 'error'].includes(message.type())) return
-    if (message.text().startsWith('[HOT_SCOPE_TIME]'))
-      report.timing.push(message.text())
-    else report.warnings.push(message.text())
-  })
-  return page
-}
-const page = await createPage()
-const call = (name, ...args) =>
-  page.evaluate(({ name, args }) => window.editingFixture[name](...args), {
-    name,
-    args,
-  })
-const read = () => call('read')
-const settle = () =>
-  page.evaluate(
-    () =>
-      new Promise((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(resolve)),
-      ),
-  )
-const root = () => page.locator('[data-table-scope="root"]')
-const trigger = (id = 'R0001', within = root()) =>
-  within.locator(`[data-editor="${id}/priority"]`)
-const edit = (id = 'R0001', within = root()) =>
-  within.getByRole('button', { name: `Edit priority ${id}`, exact: true })
-const save = (id = 'R0001') =>
-  root().getByRole('button', { name: `Save ${id}`, exact: true })
-const cancel = (id = 'R0001') =>
-  root().getByRole('button', { name: `Cancel ${id}`, exact: true })
-const option = (name) =>
-  page.getByRole('listbox').getByRole('option', { name, exact: true })
-const press = async (key) => {
-  await page.keyboard.press(key)
-  await settle()
-}
-const focused = (locator) =>
-  locator.evaluate((node) => node === document.activeElement)
-async function start(size = 8, mode = 'row') {
-  if (!(await page.evaluate(() => Boolean(window.editingFixture))))
-    await page.goto(url)
-  await call('start', size, mode)
-  await page.waitForFunction(() => window.editingFixture.ready())
-  await settle()
-}
-async function choose(name, id = 'R0001', within = root()) {
-  await trigger(id, within).click()
-  await option(name).click()
-  await settle()
-}
-async function idle() {
-  await page.waitForFunction(
-    () =>
-      !window.editingFixture.read().savingAll &&
-      Object.values(window.editingFixture.read().drafts).every(
-        (draft) => draft.status !== 'pending',
-      ),
-  )
-  await settle()
-}
-async function record(name, work) {
-  if (
-    process.env.BENCH_SCENARIOS === '0' ||
-    (process.env.BENCH_CASE_PATTERN &&
-      !new RegExp(process.env.BENCH_CASE_PATTERN).test(name))
-  )
-    return
-  const warnings = report.warnings.length
-  const errors = report.errors.length
-  try {
-    await work()
-    await settle()
-    assert.deepEqual(
-      await page.evaluate(() => window.hiddenFocusViolations ?? []),
-      [],
-      'focus never enters a newly hidden accessibility subtree',
-    )
-    assert.deepEqual(report.errors.slice(errors), [])
-    assert.deepEqual(report.warnings.slice(warnings), [])
-    report.cases.push(name)
-    console.log(`PASS ${name}`)
-  } catch (error) {
-    report.failures.push({ name, error: String(error) })
-    console.error(`FAIL ${name}: ${error}`)
-    if (!process.env.BENCH_CONTINUE) throw error
-  }
-}
+let browser, server
+const sessions = new Set()
+const detachDiagnostics = []
+const output = process.env.BENCH_OUTPUT ?? '/tmp/table-popup-browser.json'
 try {
+  report.groups = selectGroups({ components: true })
+  const casePattern = process.env.BENCH_CASE_PATTERN
+    ? new RegExp(process.env.BENCH_CASE_PATTERN)
+    : undefined
+  report.selected = []
+  report.skipped = []
+  if (!process.env.BENCH_URL) {
+    const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
+    assert.ok(
+      modules.some((id) =>
+        id.includes(
+          process.env.BENCH_DISTRIBUTION
+            ? '/components/dist/source/table/Table.jsx'
+            : '/components/src/table/Table.tsx',
+        ),
+      ),
+      'fixture uses shared UI Table source',
+    )
+    assert.ok(
+      !modules.some(
+        (id) =>
+          id.includes('/solid-table/bench/table/') &&
+          /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
+      ),
+      'fixture has no duplicate Table source',
+    )
+    assert.ok(
+      modules.some((id) =>
+        id.includes(
+          process.env.BENCH_DISTRIBUTION
+            ? '/components/dist/source/vendor/kobalte/core/src/select/'
+            : '/components/src/vendor/kobalte/core/src/select/',
+        ),
+      ),
+    )
+    assert.ok(
+      !modules.some((id) =>
+        /table-core|@tanstack\/store|virtual-core|solid-form|\.input\/kobalte|node_modules\/@kobalte\//.test(
+          id,
+        ),
+      ),
+    )
+    for (const name of ['solid-js', '@solidjs/web', '@solidjs/signals']) {
+      const roots = [
+        ...new Set(
+          modules
+            .filter((id) => id.includes(`/node_modules/${name}/`))
+            .map((id) => id.split(`/node_modules/${name}/`)[0]),
+        ),
+      ]
+      assert.equal(roots.length, 1, `one ${name} runtime: ${roots}`)
+    }
+    report.moduleAudit = true
+    server = await startStaticServer({
+      assets,
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+    })
+  }
+  const url = process.env.BENCH_URL ?? server.url
+  browser = await launchBrowser({ chromium })
+  report.browser = browser.version()
+  async function createPage() {
+    const page = await browser.newPage({
+      viewport: { width: 1280, height: 900 },
+    })
+    page.setDefaultTimeout(7000)
+    const accessibility = await page.context().newCDPSession(page)
+    sessions.add(accessibility)
+    page.once('close', () => sessions.delete(accessibility))
+    await accessibility.send('Accessibility.enable')
+    await page.addInitScript(() => {
+      window.hiddenFocusViolations = []
+      const setAttribute = Element.prototype.setAttribute
+      Element.prototype.setAttribute = function (name, value) {
+        if (
+          name === 'aria-hidden' &&
+          value === 'true' &&
+          this.contains(document.activeElement)
+        ) {
+          window.hiddenFocusViolations.push({
+            hidden: this.id || this.tagName,
+            focused:
+              document.activeElement?.id || document.activeElement?.textContent,
+          })
+        }
+        return setAttribute.call(this, name, value)
+      }
+    })
+    detachDiagnostics.push(
+      attachDiagnostics(page, report, {
+        console: ({ type, text }) => {
+          if (!['warning', 'error'].includes(type)) return 'observe'
+          if (text.startsWith('[HOT_SCOPE_TIME]')) {
+            report.timing.push(text)
+            return 'observe'
+          }
+          return 'reject'
+        },
+      }),
+    )
+    return page
+  }
+  const page = await createPage()
+  const call = (name, ...args) =>
+    page.evaluate(({ name, args }) => window.editingFixture[name](...args), {
+      name,
+      args,
+    })
+  const read = () => call('read')
+  const settle = () =>
+    page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    )
+  const root = () => page.locator('[data-table-scope="root"]')
+  const trigger = (id = 'R0001', within = root()) =>
+    within.locator(`[data-editor="${id}/priority"]`)
+  const edit = (id = 'R0001', within = root()) =>
+    within.getByRole('button', { name: `Edit priority ${id}`, exact: true })
+  const save = (id = 'R0001') =>
+    root().getByRole('button', { name: `Save ${id}`, exact: true })
+  const cancel = (id = 'R0001') =>
+    root().getByRole('button', { name: `Cancel ${id}`, exact: true })
+  const option = (name) =>
+    page.getByRole('listbox').getByRole('option', { name, exact: true })
+  const press = async (key) => {
+    await page.keyboard.press(key)
+    await settle()
+  }
+  const focused = (locator) =>
+    locator.evaluate((node) => node === document.activeElement)
+  async function start(size = 8, mode = 'row') {
+    if (!(await page.evaluate(() => Boolean(window.editingFixture))))
+      await page.goto(url)
+    await call('start', size, mode)
+    await page.waitForFunction(() => window.editingFixture.ready())
+    await settle()
+  }
+  async function choose(name, id = 'R0001', within = root()) {
+    await trigger(id, within).click()
+    await option(name).click()
+    await settle()
+  }
+  async function idle() {
+    await page.waitForFunction(
+      () =>
+        !window.editingFixture.read().savingAll &&
+        Object.values(window.editingFixture.read().drafts).every(
+          (draft) => draft.status !== 'pending',
+        ),
+    )
+    await settle()
+  }
+  async function record(name, work) {
+    if (
+      process.env.BENCH_SCENARIOS === '0' ||
+      (casePattern && !casePattern.test(name))
+    ) {
+      report.skipped.push(name)
+      return
+    }
+    report.selected.push(name)
+    const warnings = report.warnings.length
+    const errors = report.errors.length
+    try {
+      await work()
+      await settle()
+      assert.deepEqual(
+        await page.evaluate(() => window.hiddenFocusViolations ?? []),
+        [],
+        'focus never enters a newly hidden accessibility subtree',
+      )
+      assert.deepEqual(report.errors.slice(errors), [])
+      assert.deepEqual(report.warnings.slice(warnings), [])
+      report.cases.push(name)
+      console.log(`PASS ${name}`)
+    } catch (error) {
+      report.failures.push({ name, error: String(error) })
+      console.error(`FAIL ${name}: ${error}`)
+      if (!process.env.BENCH_CONTINUE) throw error
+    }
+  }
   await contextCases({ page, url, record })
   await record(
     'theme: public defaults, nested layouts, fonts and portals',
@@ -717,7 +732,7 @@ try {
     'popup viewport placement remains inside a narrow screen',
     async () => {
       await start()
-      try {
+      await withCleanup(async () => {
         await page.setViewportSize({ width: 390, height: 844 })
         await edit().click()
         await trigger().click()
@@ -733,9 +748,12 @@ try {
           true,
         )
         await page.screenshot({ path: '/tmp/table-popup-mobile.png' })
-      } finally {
-        await page.setViewportSize({ width: 1280, height: 900 })
-      }
+      }, [
+        {
+          name: 'popup viewport',
+          close: () => page.setViewportSize({ width: 1280, height: 900 }),
+        },
+      ])
     },
   )
   await record(
@@ -760,8 +778,17 @@ try {
       assert.equal(await page.locator('.popup-content').count(), 0)
     },
   )
+  if (
+    casePattern &&
+    process.env.BENCH_SCENARIOS !== '0' &&
+    !report.selected.length
+  )
+    throw new Error(
+      `No component cases matched ${process.env.BENCH_CASE_PATTERN}`,
+    )
   if (process.env.BENCH_WORKLOAD === '1') {
     const cdp = await page.context().newCDPSession(page)
+    sessions.add(cdp)
     await cdp.send('Performance.enable')
     async function heap(name) {
       await settle()
@@ -787,16 +814,21 @@ try {
         if (!writeError) compressed.write(chunk)
       }
       cdp.on('HeapProfiler.addHeapSnapshotChunk', append)
-      try {
+      await withCleanup(async () => {
         await cdp.send('HeapProfiler.takeHeapSnapshot', {
           reportProgress: false,
         })
-      } finally {
-        cdp.off('HeapProfiler.addHeapSnapshotChunk', append)
-        compressed.end()
-        await written
-      }
-      if (writeError) throw writeError
+      }, [
+        {
+          name: 'heap snapshot stream',
+          close: async () => {
+            cdp.off('HeapProfiler.addHeapSnapshotChunk', append)
+            compressed.end()
+            await written
+            if (writeError) throw writeError
+          },
+        },
+      ])
       await promisify(execFile)(process.execPath, [
         fileURLToPath(new URL('../inspect-heap.mjs', import.meta.url)),
         path,
@@ -894,10 +926,25 @@ try {
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
   assert.deepEqual(report.failures, [])
+} catch (error) {
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser.close()
-  server.close()
-  const output = process.env.BENCH_OUTPUT ?? '/tmp/table-popup-browser.json'
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(`Saved ${output}`)
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      ...[...sessions].map((session, index) => ({
+        name: `CDP session ${index + 1}`,
+        close: () => session.detach(),
+      })),
+      { name: 'browser', close: () => browser?.close() },
+      ...detachDiagnostics.map((detach, index) => ({
+        name: `page diagnostics ${index + 1}`,
+        close: detach,
+      })),
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

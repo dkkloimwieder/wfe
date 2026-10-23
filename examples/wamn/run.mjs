@@ -1,4 +1,11 @@
 import {
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  startStaticServer,
+} from '../shared/browser/runner.mjs'
+import {
   expectedTableBreadth,
   expectedTableBreadthMessage,
 } from '../shared/table-diagnostics.mjs'
@@ -9,9 +16,8 @@ import {
 } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { execFile } from 'node:child_process'
-import { createServer } from 'node:http'
 import { createWriteStream } from 'node:fs'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile } from 'node:fs/promises'
 import { loadavg } from 'node:os'
 import { finished } from 'node:stream/promises'
 import { fileURLToPath } from 'node:url'
@@ -26,74 +32,9 @@ const directory = process.env.BENCH_DEVELOPMENT
 const assets = fileURLToPath(new URL(`${directory}/`, import.meta.url))
 const output = process.env.BENCH_OUTPUT ?? '/tmp/table-wamn-browser.json'
 const workloads = process.env.BENCH_WORKLOADS !== '0'
-const modules = JSON.parse(await readFile(`${assets}modules.json`, 'utf8'))
-assert.ok(
-  modules.some((id) =>
-    id.includes(
-      process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/vendor/virtual-core/index.js'
-        : '/components/src/vendor/virtual-core/index.ts',
-    ),
-  ),
-  'fixture uses the owned UI virtual engine',
-)
-assert.ok(
-  !modules.some((id) => id.includes('/solid-table/bench/table/')),
-  'fixture has no old shared UI source',
-)
-assert.ok(modules.some((path) => path.includes('/.input/runtime/transport.ts')))
-assert.ok(modules.some((path) => path.includes('/.input/widget.ts')))
-assert.ok(modules.some((path) => path.includes('/.input/widget_maker.ts')))
-assert.ok(
-  !modules.some((path) =>
-    /table-core|@tanstack\/store|solid-form|node_modules\/@kobalte\/|sonner|lucide|\.input\/components\//.test(
-      path,
-    ),
-  ),
-)
-const ownedControls = modules.filter((path) =>
-  path.includes('/vendor/kobalte/'),
-)
-assert.ok(
-  ownedControls.some((path) => /\/checkbox-root\.(tsx|jsx)$/.test(path)),
-)
-assert.ok(ownedControls.some((path) => /\/select-root\.(tsx|jsx)$/.test(path)))
-assert.ok(
-  ownedControls.every((path) =>
-    /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
-      path,
-    ),
-  ),
-  'WAMN controls use only the shared checkbox and select families',
-)
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') {
-      response.writeHead(204).end()
-      return
-    }
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
-await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-let browser
 const report = {
   directory,
   workloads,
-  hostLoad: loadavg(),
   cases: [],
   benchmarks: [],
   errors: [],
@@ -101,15 +42,71 @@ const report = {
   expectedDiagnostics: [],
   timingDiagnostics: [],
 }
-const definition = JSON.parse(
-  await readFile(new URL('./.input/definition.json', import.meta.url), 'utf8'),
-)
-const id = (index) =>
-  `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`
+let browser, server
 try {
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
+  const modules = JSON.parse(await readFile(`${assets}modules.json`, 'utf8'))
+  assert.ok(
+    modules.some((id) =>
+      id.includes(
+        process.env.BENCH_DISTRIBUTION
+          ? '/components/dist/source/vendor/virtual-core/index.js'
+          : '/components/src/vendor/virtual-core/index.ts',
+      ),
+    ),
+    'fixture uses the owned UI virtual engine',
+  )
+  assert.ok(
+    !modules.some((id) => id.includes('/solid-table/bench/table/')),
+    'fixture has no old shared UI source',
+  )
+  assert.ok(
+    modules.some((path) => path.includes('/.input/runtime/transport.ts')),
+  )
+  assert.ok(modules.some((path) => path.includes('/.input/widget.ts')))
+  assert.ok(modules.some((path) => path.includes('/.input/widget_maker.ts')))
+  assert.ok(
+    !modules.some((path) =>
+      /table-core|@tanstack\/store|solid-form|node_modules\/@kobalte\/|sonner|lucide|\.input\/components\//.test(
+        path,
+      ),
+    ),
+  )
+  const ownedControls = modules.filter((path) =>
+    path.includes('/vendor/kobalte/'),
+  )
+  assert.ok(
+    ownedControls.some((path) => /\/checkbox-root\.(tsx|jsx)$/.test(path)),
+  )
+  assert.ok(
+    ownedControls.some((path) => /\/select-root\.(tsx|jsx)$/.test(path)),
+  )
+  assert.ok(
+    ownedControls.every((path) =>
+      /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
+        path,
+      ),
+    ),
+    'WAMN controls use only the shared checkbox and select families',
+  )
+  server = await startStaticServer({
+    assets,
+    onServerError: (error) => {
+      report.serverErrors ??= []
+      report.serverErrors.push(error)
+    },
   })
+  report.hostLoad = loadavg()
+
+  const definition = JSON.parse(
+    await readFile(
+      new URL('./.input/definition.json', import.meta.url),
+      'utf8',
+    ),
+  )
+  const id = (index) =>
+    `00000000-0000-4000-8000-${String(index).padStart(12, '0')}`
+
+  browser = await launchBrowser({ chromium })
   const page = await browser.newPage({ viewport: { width: 1600, height: 900 } })
   page.on('pageerror', (error) => {
     report.errors.push(error.stack)
@@ -126,7 +123,7 @@ try {
   })
   const client = await page.context().newCDPSession(page)
   await client.send('Performance.enable')
-  await page.goto(`http://127.0.0.1:${server.address().port}`)
+  await page.goto(server.url)
   const settle = () =>
     page.evaluate(
       () =>
@@ -692,10 +689,16 @@ try {
     await page.screenshot({ path: process.env.BENCH_SCREENSHOT })
   await call('stop')
 } catch (error) {
-  report.failure = String(error.stack)
-  throw error
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  await browser?.close()
-  await new Promise((resolve) => server.close(resolve))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

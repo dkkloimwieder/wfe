@@ -232,3 +232,157 @@ The generator runner and its records workflow use `examples/shared/browser/runne
 Generator console warnings and errors remain failures, including console text containing `HOT_SCOPE_TIME`. Reactive diagnostic events retain their existing separate rule: only `HOT_SCOPE_TIME` is advisory. Raw console and reactive events retain their classifications in the report. Event listeners belong to the page review and are removed after page cleanup.
 
 The first operation failure remains the primary failure. Cleanup attempts continue after an earlier cleanup rejects. Reports retain diagnostic-capture failures, each cleanup failure and output failures separately, including non-Error thrown values. When writing the report fails, the console report still contains the output failure. A failed operation, diagnostic capture, resource cleanup, output or server callback produces a nonzero runner result. Successful cases keep their original names and report order.
+
+The dashboard and raw-style runners use the shared browser lifecycle helpers.
+Each runner exposes one complete application group: `dashboard` or `styles`.
+`BENCH_APPLICATION_PATTERN` selects that whole group and rejects a zero-match filter.
+Individual dashboard cases retain their existing reset and viewport setup.
+The style suite retains its raw-scope isolation checks and page-error-only policy.
+Its console events are recorded, but this migration does not make them fatal.
+Dashboard console warnings and errors remain fatal. Its reactive timing diagnostics
+remain advisory, while other reactive diagnostics fail the run.
+Both runners support the shared executable override and `BENCH_OUTPUT` report path.
+Their source, package, and development build variants remain separate runs.
+
+The status-tile and grid runners share the normal and hydration lifecycle.
+Each remains one complete filter group: `status-tiles` or `grid`.
+Hydration still builds server first, then client, with `HYDRATION_SERVER`.
+Only that identical build loop is shared. Each runner retains its template,
+server import, adoption nodes, initial focus and module audit.
+Source, package and development suffixes remain unchanged in both modes.
+An external `BENCH_URL` is caller-owned and does not start a local server.
+Existing hydration builds and module audits still run with that override.
+The existing console policy rejects warnings and errors except messages that
+start with `[HOT_SCOPE_TIME]`. Those timing messages remain observations.
+These suites do not add a server-console capture or claim one exists.
+Render and HTTP failures are reported separately from browser failures.
+DOM snapshot failures cannot prevent browser, listener or server cleanup.
+
+Shell and chart runners use the same shared lifecycle in normal and hydration modes.
+Their complete filter groups are `shell` and `charts`.
+They reuse the server-first hydration build helper introduced for tiles and grid.
+Each keeps its own server module, query handling, template and adoption checks.
+The render callback preserves the existing synthetic request origin.
+It renders each request separately, including direct shell routes and hidden charts.
+`BENCH_CHART_FALLBACK` remains a separate explicit scenario with the same setup.
+The normal chart run does not imply fallback qualification.
+Both suites retain their existing timing-message exemption and viewport timeout.
+They do not add server-console capture or claim that coverage.
+
+The platform runner keeps its application routes, mock authorization and case order.
+The shared lifecycle supports its existing normal and hydration suffixes.
+Its complete application group is `platform`. The existing `BENCH_CASE_PATTERN`
+regular-expression filter still selects platform cases. An invalid expression or
+nonempty zero-match filter now produces a failing report instead of a false pass.
+The report lists selected and skipped case names separately from completed cases.
+The SSR callback retains the platform request origin, query and adoption script.
+Hydration still builds server first and renders each request without a new cache.
+Accessibility inspection and modified-navigation instrumentation remain enabled.
+Their cleanup is attempted without hiding the original failure.
+First-failure screenshots and DOM snapshots are collected independently.
+This migration changes no platform page, mock policy or application behavior.
+
+The date runner and dedicated date and form hydration runners use the shared browser infrastructure.
+Each runner remains one complete application group with its existing case order.
+Their group names are `date-picker`, `date-picker-hydration`, and `form-contract-hydration`.
+The normal date runner still resets its fixture before each case.
+Its local-day and browser-timezone cases keep separate browser contexts.
+Context cleanup preserves the original failure if cleanup also fails.
+
+The dedicated date runner uses the shared server-first hydration build helper.
+The form hydration runner retains its build loop because it audits server modules before it builds the client.
+Both runners retain their existing server diagnostics, node adoption, native input, and disposal assertions.
+The form runner still blocks client scripts until it examines server markup.
+`BENCH_URL` replaces the owned preview server without skipping builds, server renders, or module audits.
+Browser console warnings remain failures. Only the existing reactive `HOT_SCOPE_TIME` events remain advisory.
+
+The shared hydration runner uses the common browser infrastructure and paired hydration builds.
+Its complete application group is `shared-hydration`.
+It keeps the existing server markup capture, module attachment, node adoption, and disposal checks in their original order.
+The development mode still uses `.dist` and `.dist-server`, with development imports selected by the existing build configuration.
+The package mode retains its separate artifact directories.
+Server warning capture and strict browser console failures remain unchanged.
+The native Tab checks remain required. The known `wfe-x6o` failure is not skipped or suppressed.
+A failed check still stops later checks in that run, and the report records only completed assertions.
+`BENCH_URL` replaces the owned preview server without skipping local builds or server rendering.
+The runner saves and prints its JSON report, so output-file failures remain visible.
+
+The Theme and virtualization runners retain Vite preview ownership. They share browser launch, group selection, reports, and cleanup. Theme rejects console warnings and errors. Virtualization retains its page-error-only policy and records console messages as observations.
+
+### Static runner migration
+
+The layout and normal form-contract runners use the pilot's static server,
+launch, console diagnostics and final report cleanup. Each retains its module
+provenance checks, viewport, fixture readiness, reactive diagnostic checks,
+case names, case order, and case report shape. The form runner still restarts
+its fixture before each case. Its hydration runner remains separate.
+
+Each runner is one complete group named `layout` or `form-contract` for
+`BENCH_APPLICATION_PATTERN`. The filter cannot skip prerequisites within that
+workflow. An unmatched nonempty filter fails and produces a report. These
+runners retain source, distribution and development asset selection and their
+existing `BENCH_OUTPUT` destinations. Browser executable overrides and host
+transport follow the shared launch contract. Console warnings and errors remain
+failures; reactive `HOT_SCOPE_TIME` handling stays in each original suite.
+
+Module-audit and startup failures now also reach the report. Browser closure,
+diagnostic-listener removal and static-server closure are attempted separately.
+Failures during closure or report output produce a nonzero result without
+replacing the first operation failure. This migration does not change browser
+assertions or add retries or longer timeouts.
+
+The component runner uses the shared static server, browser launch, diagnostics, and report cleanup.
+The `components` application group keeps the existing suite order and per-case fixture setup.
+`BENCH_CASE_PATTERN` retains regular-expression case selection. Invalid expressions and expressions with no matching cases fail the run.
+`BENCH_SCENARIOS=0` still disables interaction cases, and `BENCH_WORKLOAD=1` still enables the separate workload.
+`BENCH_CONTINUE` retains case failures and continues through the remaining selected cases.
+Heap capture, retained-object assertions, accessibility checks, and native keyboard checks remain required when their scenarios run.
+The runner retains its existing advisory console timing messages.
+Explicit CDP and listener cleanup preserves primary failures, including failures during heap stream cleanup or viewport restoration.
+External preview URLs retain the existing module-audit exception because their modules are not the local build.
+
+The component live runner and preview-isolation runner retain their Vite server ownership.
+They use shared browser launch, diagnostics, and failure-preserving report cleanup.
+Their application groups are `components-live` and `preview-isolation`.
+The live runner retains its compound export checks, module reloads, CSS mutations and restoration, and child interaction run.
+Its child clears the parent application-group filter because the child owns a different group.
+The child retains the existing case filter and disabled workload settings.
+The preview runner still starts four servers serially and reloads every earlier preview after each start.
+Its cache-isolation, failed-response, and interaction checks remain unchanged.
+Neither runner substitutes `BENCH_URL` for its owned Vite servers because those servers are the behavior under test.
+
+## Table runner migration
+
+Read-only, analytics, and editing use the shared browser launch, static-file server, failure capture, and report finalization helpers.
+Their fixture setup, case bodies, viewport settings, and diagnostic policies remain suite-owned.
+Analytics handles its mock API before delegating static requests to the shared server; the shared helper does not own query records or export behavior.
+Editing retains its expected table-breadth and timing diagnostic classifications, CDP operations, heap files, attribution, screenshots, and opt-in workloads.
+Heap listener and stream cleanup use the shared failure-preserving cleanup helper.
+
+`BENCH_APPLICATION_PATTERN` selects the whole `table-read-only`, `analytics`, or `table-editing` group.
+Read-only keeps all of its dependent setup and final message checks in that group.
+Analytics retains literal substring matching for `BENCH_CASE`; its optional `BENCH_CASE_PATTERN` is a regular expression, and supplying both requires both to match.
+Editing retains `BENCH_CASE_PATTERN`, `BENCH_SCENARIOS=0`, and `BENCH_CONTINUE` semantics.
+A requested case filter that selects no cases fails; editing's explicit scenarios-disabled workload mode remains valid.
+Case-selection reports list selected and skipped names without enabling any workload.
+
+`BENCH_URL` leaves the external server under its caller's ownership and reports no local module audit. Without it, every existing public-module audit still runs before browser launch.
+`BENCH_EXECUTABLE_PATH`, source/package/development suffixes, output paths, and existing workload controls remain available.
+Server and browser failures, failed diagnostic captures, and cleanup failures are recorded without replacing the first failure.
+Validate all three normal modes and compare complete ordered case inventories before accepting a migration. These runners do not add a hydration mode.
+
+### Optional integration and diagnostic runners
+
+The optional WAMN runner and the manual accessor-profile and editing-overhead
+runners use the shared static server, browser launch, and report finalization.
+Their fixture assertions, specialized console classifications, workload settings,
+mode order, warmups, measurement callbacks, and heap checks remain suite-owned.
+Setup failures now enter the report, and browser/server cleanup cannot replace
+an earlier failure. These changes do not add the diagnostic runners to required
+qualification or modify prepared external inputs.
+
+The accessor and editing-overhead diagnostics retain their existing supported
+source/package modes. They do not gain a development mode through this migration.
+Small validation runs may check work counts and cleanup; they do not establish
+performance results on a shared host. The WAMN generator already delegates to the
+shared generator runner through its explicit root/application override.

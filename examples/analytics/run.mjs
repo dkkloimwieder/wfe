@@ -1,12 +1,21 @@
+import {
+  startStaticServer,
+  launchBrowser,
+  attachDiagnostics,
+  selectGroups,
+  finalizeReport,
+  captureDiagnostic,
+  errorDetails,
+  errorText,
+} from '../shared/browser/runner.mjs'
 import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import {
   selectValue,
   choiceControl,
 } from '../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
-import { dirname } from 'node:path'
 import { loadavg } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
@@ -19,111 +28,126 @@ const directory = process.env.BENCH_DEVELOPMENT
     : '.dist'
 const assets = fileURLToPath(new URL(`${directory}/`, import.meta.url))
 const output = process.env.BENCH_OUTPUT ?? '/tmp/table-analytics-browser.json'
+const externalUrl = process.env.BENCH_URL
 const report = {
-  directory,
+  directory: externalUrl ? null : directory,
+  moduleAudit: false,
   hostLoad: loadavg(),
   cases: [],
   errors: [],
   warnings: [],
   diagnostics: [],
 }
-const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
-assert.ok(
-  !modules.some((id) => id.includes('/solid-table/bench/table/')),
-  'fixture has no old shared UI source',
-)
-assert.ok(
-  modules.some((id) =>
-    id.includes(
-      process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/table/Table.jsx'
-        : '/components/src/table/Table.tsx',
-    ),
-  ),
-  'fixture uses shared UI Table source',
-)
-assert.ok(
-  !modules.some(
-    (id) =>
-      id.includes('/solid-table/bench/table/') &&
-      /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
-  ),
-  'fixture has no duplicate Table source',
-)
-assert.ok(
-  !modules.some((path) =>
-    /table-core|@tanstack\/store|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
-      path,
-    ),
-  ),
-)
-const ownedControls = modules.filter((path) =>
-  path.includes('/vendor/kobalte/'),
-)
-assert.ok(ownedControls.some((path) => /\/select-root\.(tsx|jsx)$/.test(path)))
-assert.ok(
-  ownedControls.every((path) =>
-    /\/utils\/src\/|\/core\/src\/(button|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
-      path,
-    ),
-  ),
-  'analytics uses only the shared select family and its support modules',
-)
-assert.ok(
-  modules.some((path) =>
-    path.includes(
-      process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/vendor/virtual-core/index.js'
-        : '/components/src/vendor/virtual-core/index.ts',
-    ),
-  ),
-)
-assert.ok(
-  !modules.some((path) => /node_modules\/@tanstack\/virtual-core\//.test(path)),
-)
-assert.ok(
-  !modules.some((path) =>
-    /createFixedVirtualizer|fixedVirtualRange/.test(path),
-  ),
-)
-report.moduleAudit = true
-assert.ok(!modules.some((path) => /analytics\/csv\.ts/.test(path)))
-const server = createServer(async (request, response) => {
-  try {
-    if (await handleAnalyticsRequest(request, response)) return
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
+let server
 let browser
+let page
+let detachPage = () => {}
 try {
-  await new Promise((done, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', done)
-  })
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  report.groups = selectGroups({ analytics: true })
+  const casePattern = process.env.BENCH_CASE_PATTERN
+    ? new RegExp(process.env.BENCH_CASE_PATTERN)
+    : undefined
+  report.caseSelection = {
+    selected: [],
+    skipped: [],
+    pattern: process.env.BENCH_CASE_PATTERN ?? null,
+    substring: process.env.BENCH_CASE ?? null,
+  }
+  if (!externalUrl) {
+    const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
+    assert.ok(
+      !modules.some((id) => id.includes('/solid-table/bench/table/')),
+      'fixture has no old shared UI source',
+    )
+    assert.ok(
+      modules.some((id) =>
+        id.includes(
+          process.env.BENCH_DISTRIBUTION
+            ? '/components/dist/source/table/Table.jsx'
+            : '/components/src/table/Table.tsx',
+        ),
+      ),
+      'fixture uses shared UI Table source',
+    )
+    assert.ok(
+      !modules.some(
+        (id) =>
+          id.includes('/solid-table/bench/table/') &&
+          /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
+      ),
+      'fixture has no duplicate Table source',
+    )
+    assert.ok(
+      !modules.some((path) =>
+        /table-core|@tanstack\/store|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
+          path,
+        ),
+      ),
+    )
+    const ownedControls = modules.filter((path) =>
+      path.includes('/vendor/kobalte/'),
+    )
+    assert.ok(
+      ownedControls.some((path) => /\/select-root\.(tsx|jsx)$/.test(path)),
+    )
+    assert.ok(
+      ownedControls.every((path) =>
+        /\/utils\/src\/|\/core\/src\/(button|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
+          path,
+        ),
+      ),
+      'analytics uses only the shared select family and its support modules',
+    )
+    assert.ok(
+      modules.some((path) =>
+        path.includes(
+          process.env.BENCH_DISTRIBUTION
+            ? '/components/dist/source/vendor/virtual-core/index.js'
+            : '/components/src/vendor/virtual-core/index.ts',
+        ),
+      ),
+    )
+    assert.ok(
+      !modules.some((path) =>
+        /node_modules\/@tanstack\/virtual-core\//.test(path),
+      ),
+    )
+    assert.ok(
+      !modules.some((path) =>
+        /createFixedVirtualizer|fixedVirtualRange/.test(path),
+      ),
+    )
+    report.moduleAudit = true
+    assert.ok(!modules.some((path) => /analytics\/csv\.ts/.test(path)))
+  }
+  server = externalUrl
+    ? undefined
+    : await startStaticServer({
+        assets,
+        onServerError: (error) => {
+          ;(report.serverErrors ??= []).push(error)
+        },
+        createHttpServer: (handler) =>
+          createServer(async (request, response) => {
+            try {
+              if (await handleAnalyticsRequest(request, response)) return
+              await handler(request, response)
+            } catch (error) {
+              ;(report.serverErrors ??= []).push({
+                phase: 'analytics request',
+                error: errorDetails(error),
+              })
+              if (!response.headersSent) response.writeHead(500)
+              response.end()
+            }
+          }),
+      })
+  const url = externalUrl ?? server.url
+  report.url = url
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
-  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (['warning', 'error'].includes(message.type()))
-      report.warnings.push(message.text())
-  })
+  page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+  detachPage = attachDiagnostics(page, report)
   // Count actual Blob URLs, including release after each real download.
   await page.addInitScript(() => {
     const create = URL.createObjectURL.bind(URL)
@@ -139,7 +163,7 @@ try {
       revoke(url)
     }
   })
-  await page.goto(`http://127.0.0.1:${server.address().port}`)
+  await page.goto(url)
   await page.waitForFunction(() => Boolean(window.analyticsFixture))
   await reviewThemeHost(page)
   const start = (state) =>
@@ -204,26 +228,39 @@ try {
     return content.slice(1)
   }
   async function test(name, run) {
-    if (process.env.BENCH_CASE && !name.includes(process.env.BENCH_CASE)) return
+    if (
+      (process.env.BENCH_CASE && !name.includes(process.env.BENCH_CASE)) ||
+      (casePattern && !casePattern.test(name))
+    ) {
+      report.caseSelection.skipped.push(name)
+      return
+    }
+    report.caseSelection.selected.push(name)
     console.log(`Analytics: ${name}`)
     await start()
     try {
       await run()
     } catch (error) {
-      report.failureState = await page.evaluate(() => ({
-        rows: Array.from(document.querySelectorAll('tr[data-row]'), (node) =>
-          node.getAttribute('data-row'),
-        ),
-        viewport: Array.from(
-          document.querySelectorAll('.virtual-scroll'),
-          (node) => ({
-            top: node.scrollTop,
-            height: node.clientHeight,
-            scrollHeight: node.scrollHeight,
-          }),
-        ),
-        text: document.body.textContent.slice(-1500),
-      }))
+      report.failureState = await captureDiagnostic(
+        report,
+        'analytics failure state',
+        () =>
+          page.evaluate(() => ({
+            rows: Array.from(
+              document.querySelectorAll('tr[data-row]'),
+              (node) => node.getAttribute('data-row'),
+            ),
+            viewport: Array.from(
+              document.querySelectorAll('.virtual-scroll'),
+              (node) => ({
+                top: node.scrollTop,
+                height: node.clientHeight,
+                scrollHeight: node.scrollHeight,
+              }),
+            ),
+            text: document.body.textContent.slice(-1500),
+          })),
+      )
       throw error
     }
     report.cases.push({ name, status: 'passed' })
@@ -1104,6 +1141,10 @@ try {
     await stale.evaluate((node) => node.click())
     assert.equal(await page.evaluate(() => window.liveCsvUrls.size), 0)
   })
+  assert.ok(
+    report.caseSelection.selected.length,
+    'No analytics cases match the requested filters',
+  )
   report.diagnostics = await page.evaluate(() =>
     window.analyticsFixture.diagnostics(),
   )
@@ -1118,12 +1159,18 @@ try {
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {
-  report.failure = error.stack
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
   process.exitCode = 1
 } finally {
-  await browser?.close()
-  await new Promise((done) => server.close(done))
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(JSON.stringify(report, null, 2))
+  const failed = await finalizeReport({
+    report,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'page diagnostics', close: () => detachPage() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+    output,
+  })
+  if (failed) process.exitCode = 1
 }

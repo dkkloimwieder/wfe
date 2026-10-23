@@ -1,9 +1,17 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+} from '../shared/browser/runner.mjs'
+import { buildHydrationPair } from '../shared/browser/hydration-build.mjs'
 import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import assert from 'node:assert/strict'
-import { createServer } from 'node:http'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { execFileSync } from 'node:child_process'
 import { chromium, expect } from '@playwright/test'
 
 const hydration = process.argv.includes('--hydration')
@@ -14,104 +22,77 @@ const suffix = process.env.BENCH_DEVELOPMENT
     : ''
 const directory = `.dist${hydration ? '-hydration' : ''}${suffix}`
 const assets = fileURLToPath(new URL(`${directory}/`, import.meta.url))
-let render
-if (hydration) {
-  for (const server of [true, false])
-    execFileSync(
-      'pnpm',
-      [
-        'exec',
-        'vite',
-        'build',
-        '--config',
-        'examples/charts/vite.hydration.config.ts',
-      ],
-      {
-        stdio: 'inherit',
-        env: { ...process.env, HYDRATION_SERVER: server ? '1' : '' },
-      },
-    )
-  render = (
-    await import(
-      pathToFileURL(
-        assets.replace(
-          `.dist-hydration${suffix}/`,
-          `.dist-hydration-server${suffix}/`,
-        ) + 'server.js',
-      ).href
-    )
-  ).render
-}
 const report = { directory, hydration, cases: [], errors: [], warnings: [] }
-const server = createServer(async (request, response) => {
-  try {
-    const url = new URL(request.url, 'http://chart.example')
-    if (url.pathname === '/favicon.ico') {
-      response.writeHead(204).end()
-      return
-    }
-    response.setHeader(
-      'Content-Type',
-      url.pathname.endsWith('.js')
-        ? 'text/javascript'
-        : url.pathname.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    if (url.pathname === '/' && render) {
-      const template = await readFile(assets + 'hydration.html', 'utf8')
-      response.end(
-        template.replace(
-          '<div id="root"></div>',
-          `<div id="root" data-ssr="true">${await render(url.href)}</div><script>window.chartServerNodes={svg:document.querySelector('svg.ts-chart'),line:document.querySelector('.ts-chart__line path'),generated:document.querySelector('[data-generator-view] svg.ts-chart')}</script>`,
-        ),
-      )
-    } else
-      response.end(
-        await readFile(
-          assets +
-            (url.pathname === '/' ? 'index.html' : url.pathname.slice(1)),
-        ),
-      )
-  } catch (error) {
-    response.writeHead(500).end(String(error))
-  }
-})
-await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-const browser = await chromium.launch()
-const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
-page.setDefaultTimeout(8000)
-if (process.env.BENCH_CHART_FALLBACK)
-  await page.addInitScript(() => {
-    Object.defineProperty(HTMLElement.prototype, 'showPopover', {
-      configurable: true,
-      value: undefined,
-    })
-  })
-page.on('pageerror', (error) => report.errors.push(String(error)))
-page.on('console', (message) => {
-  if (
-    ['error', 'warning'].includes(message.type()) &&
-    !message.text().startsWith('[HOT_SCOPE_TIME]')
-  )
-    report.warnings.push(message.text())
-})
-const settle = () =>
-  page.evaluate(
-    () =>
-      new Promise((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(resolve)),
-      ),
-  )
-async function run(name, fn) {
-  await fn()
-  report.cases.push(name)
-  console.log('PASS', name)
-}
+const output =
+  process.env.BENCH_OUTPUT ?? `test-results/charts/${directory}.json`
+let render
+let browser
+let server
+let page
+let detachDiagnostics
 try {
-  await page.goto(
-    process.env.BENCH_URL ?? `http://127.0.0.1:${server.address().port}/`,
-  )
+  report.groups = selectGroups({ charts: true })
+  if (hydration) {
+    buildHydrationPair('examples/charts/vite.hydration.config.ts')
+    render = (
+      await import(
+        pathToFileURL(
+          assets.replace(
+            `.dist-hydration${suffix}/`,
+            `.dist-hydration-server${suffix}/`,
+          ) + 'server.js',
+        ).href
+      )
+    ).render
+  }
+  if (!process.env.BENCH_URL)
+    server = await startStaticServer({
+      assets,
+      renderIndex: render
+        ? async (url) => {
+            const template = await readFile(assets + 'hydration.html', 'utf8')
+            return template.replace(
+              '<div id="root"></div>',
+              `<div id="root" data-ssr="true">${await render(new URL(url.pathname + url.search, 'http://chart.example').href)}</div><script>window.chartServerNodes={svg:document.querySelector('svg.ts-chart'),line:document.querySelector('.ts-chart__line path'),generated:document.querySelector('[data-generator-view] svg.ts-chart')}</script>`,
+            )
+          }
+        : undefined,
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+    })
+  browser = await launchBrowser({ chromium })
+  page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
+  page.setDefaultTimeout(8000)
+  if (process.env.BENCH_CHART_FALLBACK)
+    await page.addInitScript(() => {
+      Object.defineProperty(HTMLElement.prototype, 'showPopover', {
+        configurable: true,
+        value: undefined,
+      })
+    })
+
+  detachDiagnostics = attachDiagnostics(page, report, {
+    console: ({ type, text }) =>
+      ['error', 'warning'].includes(type) &&
+      !text.startsWith('[HOT_SCOPE_TIME]')
+        ? 'reject'
+        : 'observe',
+  })
+  const settle = () =>
+    page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    )
+  async function run(name, fn) {
+    await fn()
+    report.cases.push(name)
+    console.log('PASS', name)
+  }
+  await page.goto(process.env.BENCH_URL ?? server.url + '/')
   const svg = page.locator('[aria-label="Line chart panel"] svg.ts-chart')
   await expect(svg).toHaveAttribute('aria-label', 'Requests')
   await reviewThemeHost(page)
@@ -462,8 +443,7 @@ try {
     'standalone charts retain focus and fit a narrow host without a parent scope',
     async () => {
       await page.goto(
-        (process.env.BENCH_URL ??
-          `http://127.0.0.1:${server.address().port}/`) + '?standalone=1',
+        (process.env.BENCH_URL ?? server.url + '/') + '?standalone=1',
       )
       const standalone = page.getByRole('img', {
         name: 'Standalone chart',
@@ -517,9 +497,7 @@ try {
     'hidden charts recover their measured width and retain SVG nodes',
     async () => {
       await page.goto(
-        (process.env.BENCH_URL ??
-          `http://127.0.0.1:${server.address().port}/`) +
-          '?standalone=1&hidden=1',
+        (process.env.BENCH_URL ?? server.url + '/') + '?standalone=1&hidden=1',
       )
       const host = page.locator('[data-chart-test-host]')
       const chart = page.getByRole('img', {
@@ -565,12 +543,18 @@ try {
   )
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
+} catch (error) {
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await mkdir('test-results/charts', { recursive: true })
-  await writeFile(
-    process.env.BENCH_OUTPUT ?? `test-results/charts/${directory}.json`,
-    JSON.stringify(report, null, 2),
-  )
-  await browser.close()
-  await new Promise((resolve) => server.close(resolve))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

@@ -1,6 +1,12 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+} from './shared/browser/runner.mjs'
 import assert from 'node:assert/strict'
-import { mkdir, writeFile } from 'node:fs/promises'
-import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'vite'
 import { chromium } from '@playwright/test'
@@ -10,9 +16,8 @@ const report = { cases: [], errors: [], warnings: [], failedResponses: [] }
 const previews = []
 let browser
 try {
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  report.groups = selectGroups({ 'preview-isolation': true })
+  browser = await launchBrowser({ chromium })
   for (const [fixture, ready, query] of [
     ['components', 'consumerFixture', '?consumer=1'],
     ['analytics', 'analyticsFixture', ''],
@@ -36,18 +41,15 @@ try {
     const preview = previews.at(-1)
     preview.url = `http://127.0.0.1:${server.httpServer.address().port}/${query}`
     preview.page = await browser.newPage()
-    preview.page.on('pageerror', (error) => report.errors.push(error.stack))
-    preview.page.on('console', (message) => {
-      if (['warning', 'error'].includes(message.type()))
-        report.warnings.push(message.text())
-    })
-    preview.page.on('response', (response) => {
+    preview.detachDiagnostics = attachDiagnostics(preview.page, report)
+    preview.onResponse = (response) => {
       if (response.status() >= 400)
         report.failedResponses.push({
           url: response.url(),
           status: response.status(),
         })
-    })
+    }
+    preview.page.on('response', preview.onResponse)
     // Warm each example serially, then reload all earlier examples.
     for (const active of previews) {
       await active.page.goto(active.url)
@@ -91,12 +93,32 @@ try {
   assert.deepEqual(report.warnings, [])
   assert.deepEqual(report.failedResponses, [])
 } catch (error) {
-  report.failure = error.stack
-  process.exitCode = 1
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser?.close()
-  for (const { server } of previews.reverse()) await server.close()
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(JSON.stringify(report, null, 2))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      ...previews.flatMap((preview) => [
+        {
+          name: `${preview.fixture} diagnostics`,
+          close: () => preview.detachDiagnostics?.(),
+        },
+        {
+          name: `${preview.fixture} response listener`,
+          close: () => {
+            if (preview.onResponse)
+              preview.page.off('response', preview.onResponse)
+          },
+        },
+      ]),
+      ...[...previews].reverse().map(({ server, fixture }) => ({
+        name: `${fixture} Vite server`,
+        close: () => server.close(),
+      })),
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

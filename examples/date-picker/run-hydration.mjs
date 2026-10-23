@@ -1,9 +1,17 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+  withCleanup,
+} from '../shared/browser/runner.mjs'
 import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
-import { createServer } from 'node:http'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { dirname } from 'node:path'
+import { buildHydrationPair } from '../shared/browser/hydration-build.mjs'
+import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { chromium, expect } from '@playwright/test'
 const suffix = process.env.BENCH_DEVELOPMENT
@@ -15,42 +23,11 @@ const root = new URL('.', import.meta.url)
 const assets = new URL(`.dist-hydration${suffix}/`, root)
 const output = process.env.BENCH_OUTPUT ?? '/tmp/date-hydration.json'
 const report = { cases: [], errors: [], warnings: [], diagnostics: [] }
-let browser, html
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      path === '/' ? html : await readFile(new URL('.' + path, assets)),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
+let browser, html, server, detachDiagnostics
+
 try {
-  for (const server of [true, false])
-    execFileSync(
-      'pnpm',
-      [
-        'exec',
-        'vite',
-        'build',
-        '--config',
-        fileURLToPath(new URL('vite.hydration.config.ts', root)),
-      ],
-      {
-        stdio: 'inherit',
-        env: { ...process.env, HYDRATION_SERVER: server ? '1' : '' },
-      },
-    )
+  report.groups = selectGroups({ 'date-picker-hydration': true })
+  buildHydrationPair(fileURLToPath(new URL('vite.hydration.config.ts', root)))
   const { render } = await import(
     new URL(`.dist-hydration-server${suffix}/server.js`, root)
   )
@@ -66,14 +43,22 @@ try {
     '<!--ssr-->',
     content,
   )
-  await new Promise((done) => server.listen(0, '127.0.0.1', done))
-  const url = `http://127.0.0.1:${server.address().port}/`
-  browser = await chromium.launch()
+  if (!process.env.BENCH_URL)
+    server = await startStaticServer({
+      assets: fileURLToPath(assets),
+      renderIndex: () => html,
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+    })
+  const url = process.env.BENCH_URL ?? server.url + '/'
+  browser = await launchBrowser({ chromium })
   const initialContext = await browser.newContext({
     javaScriptEnabled: false,
     timezoneId: 'Asia/Kathmandu',
   })
-  try {
+  await withCleanup(async () => {
     const initial = await initialContext.newPage()
     await initial.goto(url)
     await expect(
@@ -107,16 +92,12 @@ try {
     report.cases.push(
       'Explicit timezone renders on the server and browser timezone stays pending',
     )
-  } finally {
-    await initialContext.close()
-  }
+  }, [
+    { name: 'server-only date context', close: () => initialContext.close() },
+  ])
   const context = await browser.newContext({ timezoneId: 'Asia/Kathmandu' })
   const page = await context.newPage()
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (['error', 'warning'].includes(message.type()))
-      report.warnings.push(message.text())
-  })
+  detachDiagnostics = attachDiagnostics(page, report)
   await page.goto(url)
   await expect(page.locator('html')).toHaveAttribute('data-hydrated', 'true')
   await reviewThemeHost(page)
@@ -233,12 +214,17 @@ try {
     'Hydrated disposal releases popup and retained input listeners',
   )
 } catch (error) {
-  report.failure = error.stack
-  process.exitCode = 1
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser?.close()
-  if (server.listening) await new Promise((done) => server.close(done))
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(JSON.stringify(report, null, 2))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }

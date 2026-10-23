@@ -1,8 +1,17 @@
+import {
+  attachDiagnostics,
+  captureDiagnostic,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+} from '../shared/browser/runner.mjs'
+import { buildHydrationPair } from '../shared/browser/hydration-build.mjs'
 import assert from 'node:assert/strict'
-import { createServer } from 'node:http'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { execFileSync } from 'node:child_process'
 import { chromium, expect } from '@playwright/test'
 
 const hydration = process.argv.includes('--hydration')
@@ -13,108 +22,80 @@ const suffix = process.env.BENCH_DEVELOPMENT
     : ''
 const directory = `.dist${hydration ? '-hydration' : ''}${suffix}`
 const assets = fileURLToPath(new URL(`${directory}/`, import.meta.url))
-let render
-if (hydration) {
-  for (const server of [true, false])
-    execFileSync(
-      'pnpm',
-      [
-        'exec',
-        'vite',
-        'build',
-        '--config',
-        'examples/status-tiles/vite.hydration.config.ts',
-      ],
-      {
-        stdio: 'inherit',
-        env: { ...process.env, HYDRATION_SERVER: server ? '1' : '' },
-      },
-    )
-  render = (
-    await import(
-      pathToFileURL(
-        assets.replace(
-          `.dist-hydration${suffix}/`,
-          `.dist-hydration-server${suffix}/`,
-        ) + 'server.js',
-      ).href
-    )
-  ).render
-}
-const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
-assert.ok(
-  modules.some((id) =>
-    id.endsWith(
-      process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/components/StatusTile.jsx'
-        : '/components/src/components/StatusTile.tsx',
-    ),
-  ),
-)
 const report = { directory, hydration, cases: [], errors: [], warnings: [] }
-const server = createServer(async (request, response) => {
-  try {
-    const url = new URL(request.url, 'http://tiles.example')
-    if (url.pathname === '/favicon.ico') {
-      response.writeHead(204).end()
-      return
-    }
-    response.setHeader(
-      'Content-Type',
-      url.pathname.endsWith('.js')
-        ? 'text/javascript'
-        : url.pathname.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    if (url.pathname === '/' && render) {
-      const template = await readFile(assets + 'hydration.html', 'utf8')
-      response.end(
-        template.replace(
-          '<div id="root"></div>',
-          `<div id="root" data-ssr="true">${await render()}</div><script>window.tileServerNodes={tiles:[...document.querySelectorAll('[data-tile-id]')],heading:document.querySelector('h1')};window.tileServerNodes.heading.focus()</script>`,
-        ),
-      )
-    } else
-      response.end(
-        await readFile(
-          assets +
-            (url.pathname === '/' ? 'index.html' : url.pathname.slice(1)),
-        ),
-      )
-  } catch (error) {
-    response.writeHead(500).end(String(error))
-  }
-})
-await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
-const browser = await chromium.launch()
-const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
-page.setDefaultTimeout(8000)
-page.on('pageerror', (error) => report.errors.push(String(error)))
-page.on('console', (message) => {
-  if (
-    ['error', 'warning'].includes(message.type()) &&
-    !message.text().startsWith('[HOT_SCOPE_TIME]')
-  )
-    report.warnings.push(message.text())
-})
-const settle = () =>
-  page.evaluate(
-    () =>
-      new Promise((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(resolve)),
-      ),
-  )
-async function run(name, fn) {
-  await fn()
-  report.cases.push(name)
-  console.log('PASS', name)
-}
-const base =
-  process.env.BENCH_URL ?? `http://127.0.0.1:${server.address().port}/`
-const tile = (id) => page.locator(`[data-tile-id="${id}"]`)
-let failure
+const output =
+  process.env.BENCH_OUTPUT ?? `test-results/status-tiles/${directory}.json`
+let render
+let browser
+let server
+let page
+let detachDiagnostics
 try {
+  report.groups = selectGroups({ 'status-tiles': true })
+  if (hydration) {
+    buildHydrationPair('examples/status-tiles/vite.hydration.config.ts')
+    render = (
+      await import(
+        pathToFileURL(
+          assets.replace(
+            `.dist-hydration${suffix}/`,
+            `.dist-hydration-server${suffix}/`,
+          ) + 'server.js',
+        ).href
+      )
+    ).render
+  }
+  const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
+  assert.ok(
+    modules.some((id) =>
+      id.endsWith(
+        process.env.BENCH_DISTRIBUTION
+          ? '/components/dist/source/components/StatusTile.jsx'
+          : '/components/src/components/StatusTile.tsx',
+      ),
+    ),
+  )
+  if (!process.env.BENCH_URL)
+    server = await startStaticServer({
+      assets,
+      renderIndex: render
+        ? async () => {
+            const template = await readFile(assets + 'hydration.html', 'utf8')
+            return template.replace(
+              '<div id="root"></div>',
+              `<div id="root" data-ssr="true">${await render()}</div><script>window.tileServerNodes={tiles:[...document.querySelectorAll('[data-tile-id]')],heading:document.querySelector('h1')};window.tileServerNodes.heading.focus()</script>`,
+            )
+          }
+        : undefined,
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+    })
+  browser = await launchBrowser({ chromium })
+  page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
+  page.setDefaultTimeout(8000)
+  detachDiagnostics = attachDiagnostics(page, report, {
+    console: ({ type, text }) =>
+      ['error', 'warning'].includes(type) &&
+      !text.startsWith('[HOT_SCOPE_TIME]')
+        ? 'reject'
+        : 'observe',
+  })
+  const settle = () =>
+    page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    )
+  async function run(name, fn) {
+    await fn()
+    report.cases.push(name)
+    console.log('PASS', name)
+  }
+  const base = process.env.BENCH_URL ?? server.url + '/'
+  const tile = (id) => page.locator(`[data-tile-id="${id}"]`)
   await page.goto(base + '?qualification=1')
   await expect(tile('capacity')).toContainText('1,250')
   await settle()
@@ -293,30 +274,24 @@ try {
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {
-  report.failure = String(error)
-  failure = error
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  try {
-    await writeFile(
-      '/tmp/wfe-status-tiles-last-dom.txt',
-      await page.locator('body').ariaSnapshot(),
-    )
-    await mkdir('test-results/status-tiles', { recursive: true })
-    await writeFile(
-      process.env.BENCH_OUTPUT ?? `test-results/status-tiles/${directory}.json`,
-      JSON.stringify(report, null, 2),
-    )
-  } catch (error) {
-    failure ??= error
-    console.error('Tile diagnostics failed:', error)
-  } finally {
-    try {
-      await browser.close()
-    } catch (error) {
-      failure ??= error
-    } finally {
-      await new Promise((resolve) => server.close(resolve))
-    }
-  }
+  if (page)
+    await captureDiagnostic(report, 'last DOM', async () => {
+      await writeFile(
+        '/tmp/wfe-status-tiles-last-dom.txt',
+        await page.locator('body').ariaSnapshot(),
+      )
+    })
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }
-if (failure) throw failure

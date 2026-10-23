@@ -1,3 +1,13 @@
+import {
+  attachDiagnostics,
+  errorDetails,
+  errorText,
+  finalizeReport,
+  launchBrowser,
+  selectGroups,
+  startStaticServer,
+  withCleanup,
+} from '../shared/browser/runner.mjs'
 import { reviewThemeHost } from '../shared/appearance/host-review.mjs'
 import {
   choiceControl,
@@ -7,9 +17,7 @@ import {
 } from '../shared/controls/select-review.mjs'
 import { reviewAppearanceFocus } from '../shared/appearance/focus-review.mjs'
 import assert from 'node:assert/strict'
-import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { createServer } from 'node:http'
-import { dirname } from 'node:path'
+import { readFile } from 'node:fs/promises'
 import { loadavg } from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { chromium, expect } from '@playwright/test'
@@ -29,61 +37,46 @@ const report = {
   warnings: [],
   diagnostics: [],
 }
-const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
-assert.ok(
-  modules.some((id) =>
-    id.includes(
-      process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/table/Table.jsx'
-        : '/components/src/table/Table.tsx',
-    ),
-  ),
-  'fixture uses shared UI Table source',
-)
-assert.ok(
-  !modules.some(
-    (id) =>
-      id.includes('/solid-table/bench/table/') &&
-      /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
-  ),
-  'fixture has no duplicate Table source',
-)
-assert.ok(
-  !modules.some((path) =>
-    /table-core|@tanstack\/store|virtual-core|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
-      path,
-    ),
-  ),
-)
-report.moduleAudit = true
-const server = createServer(async (request, response) => {
-  try {
-    const path = new URL(request.url, 'http://localhost').pathname
-    if (path === '/favicon.ico') return void response.writeHead(204).end()
-    response.setHeader(
-      'Content-Type',
-      path.endsWith('.js')
-        ? 'text/javascript'
-        : path.endsWith('.css')
-          ? 'text/css'
-          : 'text/html',
-    )
-    response.end(
-      await readFile(assets + (path === '/' ? 'index.html' : path.slice(1))),
-    )
-  } catch {
-    response.writeHead(404).end()
-  }
-})
 let browser
+let server
+let detachDiagnostics
 try {
-  await new Promise((done, reject) => {
-    server.once('error', reject)
-    server.listen(0, '127.0.0.1', done)
+  report.groups = selectGroups({ dashboard: true })
+  const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
+  assert.ok(
+    modules.some((id) =>
+      id.includes(
+        process.env.BENCH_DISTRIBUTION
+          ? '/components/dist/source/table/Table.jsx'
+          : '/components/src/table/Table.tsx',
+      ),
+    ),
+    'fixture uses shared UI Table source',
+  )
+  assert.ok(
+    !modules.some(
+      (id) =>
+        id.includes('/solid-table/bench/table/') &&
+        /\/(Table[^/]*|ReadOnlyTable)\.tsx$/.test(id),
+    ),
+    'fixture has no duplicate Table source',
+  )
+  assert.ok(
+    !modules.some((path) =>
+      /table-core|@tanstack\/store|virtual-core|zod\/|createEditing|solid-form|node_modules\/@kobalte\//.test(
+        path,
+      ),
+    ),
+  )
+  report.moduleAudit = true
+  server = await startStaticServer({
+    assets,
+    onServerError: (error) => {
+      report.serverErrors ??= []
+      report.serverErrors.push(error)
+    },
   })
-  browser = await chromium.launch({
-    executablePath: process.env.BENCH_EXECUTABLE_PATH,
-  })
+  browser = await launchBrowser({ chromium })
   report.browser = browser.version()
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   async function resize(viewport) {
@@ -96,12 +89,8 @@ try {
         ),
     )
   }
-  page.on('pageerror', (error) => report.errors.push(error.stack))
-  page.on('console', (message) => {
-    if (['warning', 'error'].includes(message.type()))
-      report.warnings.push(message.text())
-  })
-  await page.goto(`http://127.0.0.1:${server.address().port}/?composition=1`)
+  detachDiagnostics = attachDiagnostics(page, report)
+  await page.goto(server.url + '/?composition=1')
   await page.waitForFunction(() => Boolean(window.dashboardFixture))
   await reviewThemeHost(page)
   const rows = () =>
@@ -1094,7 +1083,7 @@ try {
     report.diagnostics.push(
       ...(await page.evaluate(() => window.dashboardFixture.diagnostics())),
     )
-    await page.goto(`http://127.0.0.1:${server.address().port}/`)
+    await page.goto(server.url + '/')
     await page.waitForFunction(() => Boolean(window.dashboardFixture))
     assert.equal(await page.getByRole('navigation').count(), 0)
     assert.equal(
@@ -1698,13 +1687,9 @@ try {
       viewport: { width: 960, height: 540 },
       deviceScaleFactor: 2,
     })
-    zoomed.on('pageerror', (error) => report.errors.push(error.stack))
-    zoomed.on('console', (message) => {
-      if (['warning', 'error'].includes(message.type()))
-        report.warnings.push(message.text())
-    })
-    try {
-      await zoomed.goto(`http://127.0.0.1:${server.address().port}/`)
+    const detachZoomedDiagnostics = attachDiagnostics(zoomed, report)
+    await withCleanup(async () => {
+      await zoomed.goto(server.url + '/')
       await zoomed.waitForFunction(() => Boolean(window.dashboardFixture))
       const before = await zoomed.locator('.table-scroll').boundingBox()
       for (const id of ['name', 'region', 'active']) {
@@ -1750,15 +1735,21 @@ try {
         await zoomed.locator('.table-scroll').boundingBox(),
         narrow,
       )
-    } finally {
-      if (await zoomed.evaluate(() => Boolean(window.dashboardFixture)))
-        report.diagnostics.push(
-          ...(await zoomed.evaluate(() =>
-            window.dashboardFixture.diagnostics(),
-          )),
-        )
-      await zoomed.close()
-    }
+    }, [
+      {
+        name: 'zoomed reactive diagnostics',
+        close: async () => {
+          if (await zoomed.evaluate(() => Boolean(window.dashboardFixture)))
+            report.diagnostics.push(
+              ...(await zoomed.evaluate(() =>
+                window.dashboardFixture.diagnostics(),
+              )),
+            )
+        },
+      },
+      { name: 'zoomed page', close: () => zoomed.close() },
+      { name: 'zoomed diagnostic listeners', close: detachZoomedDiagnostics },
+    ])
   })
   report.diagnostics.push(
     ...(await page.evaluate(() => window.dashboardFixture.diagnostics())),
@@ -1774,12 +1765,17 @@ try {
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {
-  report.failure = error.stack
-  process.exitCode = 1
+  report.failure = errorText(error)
+  report.failureDetails = errorDetails(error)
 } finally {
-  await browser?.close()
-  await new Promise((done) => server.close(done))
-  await mkdir(dirname(output), { recursive: true })
-  await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-  console.log(JSON.stringify(report, null, 2))
+  const failed = await finalizeReport({
+    report,
+    output,
+    cleanup: [
+      { name: 'browser', close: () => browser?.close() },
+      { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
+      { name: 'static server', close: () => server?.close() },
+    ],
+  })
+  if (failed) process.exitCode = 1
 }
