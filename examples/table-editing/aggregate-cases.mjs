@@ -179,7 +179,7 @@ export async function aggregateCases({
       assert.equal(await value('priority'), '5')
       assert.equal(await header('priority'), 'GROUP · COUNT')
       await call('grouping', ['name'])
-      await selectValue(choice('Name'), 'first')
+      await selectValue(choice('Name initial'), 'first')
       await call('sorting', [{ id: 'name', desc: false }])
       assert.equal(
         await collapsedGroupLabel(group().locator('[data-group-toggle]')),

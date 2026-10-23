@@ -891,9 +891,13 @@ export function Table(props: {
           table={table}
           summaryHelp="Summaries use saved, filtered records, including collapsed rows. First and last follow the table sort order. Range shows both endpoints. Span shows their difference."
           disabled={!model.localProcessing() || model.locked()}
-          label={(id) =>
-            table.getColumn(id)?.columnDef?.meta?.groupingLabel ?? id
-          }
+          label={(id) => {
+            const column = table.getColumn(id)?.columnDef
+            return (
+              column?.meta?.groupingLabel ??
+              (typeof column?.header === 'string' ? column.header : id)
+            )
+          }}
           groupable={(id) =>
             Boolean(table.getColumn(id)?.columnDef?.meta?.groupingLabel)
           }

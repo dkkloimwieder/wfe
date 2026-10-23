@@ -70,6 +70,8 @@ These IDs introduce no record lookup or save behavior.
 
 TableFilter defaults to `Search values…` for search and accepts a caller `placeholder`.
 TableGrouping defaults to summaries over filtered records and accepts caller `summaryHelp` content.
+Its `label(id)` callback supplies grouping labels, summary field names, and summary ordering choices.
+Label updates retain the selected summaries and grouping order because these values use column IDs.
 Editing adapters supply any saved-record wording that their processing rules require.
 Read-only and analytics controls retain generic defaults.
 The application keeps editing locks, validation, revisions, stale responses, named views, actions, and server export descriptors.

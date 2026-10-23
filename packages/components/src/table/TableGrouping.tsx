@@ -187,7 +187,7 @@ export function TableGrouping<T, M>(props: {
                           .flatMap((column) =>
                             ['asc', 'desc'].map((direction) => ({
                               value: `${column.id}:${direction}`,
-                              label: `${String(column.columnDef?.header)} summary: ${direction === 'asc' ? 'ascending' : 'descending'}`,
+                              label: `${label(column.id)} summary: ${direction === 'asc' ? 'ascending' : 'descending'}`,
                               disabled: props.summary?.(column.id) === 'none',
                             })),
                           ),
@@ -243,12 +243,10 @@ export function TableGrouping<T, M>(props: {
             <For each={table.getColumns()}>
               {(column) => (
                 <label>
-                  <span class="ui-label">
-                    {String(column.columnDef?.header)} summary
-                  </span>
+                  <span class="ui-label">{label(column.id)} summary</span>
                   <SelectField
                     data-ui-text="system"
-                    label={`${String(column.columnDef?.header)} summary`}
+                    label={`${label(column.id)} summary`}
                     value={props.summary?.(column.id)}
                     disabled={props.disabled}
                     choices={props.summaryChoices?.(column.id) ?? []}
