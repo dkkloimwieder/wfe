@@ -44,3 +44,18 @@ The [chart type fixtures](../tests/contracts/chart-contract.ts) cover literal ke
 FormView, TableView, GridView, and ChartView use `data-generator-view`. DetailView uses `data-generator-detail`. DeleteView uses `data-generator-delete`. LayoutView composes DashboardShell and marks its panels. These attributes identify generated content for inspection. They are not a shared root-attribute forwarding API.
 
 ShellView forwards the documented DashboardShell presentation props, including structured `class` and `style`. Generated views do not accept a universal `class` or arbitrary HTML attribute bag. Use their existing component/layout contracts or an application-owned surrounding element. Do not add application behavior through DOM selectors.
+
+Form, repeated-row, and detail layouts share the same column-count and span
+predicates. They retain their existing defaults and error messages; repeated-row
+metadata still rejects an explicit null column count. Validation remains a
+preflight step before custom field renderers or row-key callbacks run.
+
+Grid and Chart share only non-array object, text and allowed-key guard machinery.
+Their allowed keys and descriptor rules remain separate. Grid still permits an
+empty row or column list; Shell keeps its own package-local guards and nonempty
+route/audience requirements. No package dependency or descriptor format changes.
+
+Generated detail, delete and repeated-row actions use the same FormActions row
+as FormView. Button order, native button types and full-span repeated-row action
+placement remain unchanged. The row wraps natural-width buttons; it does not
+choose actions, validation, confirmation policy or application requests.
