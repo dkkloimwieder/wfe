@@ -53,6 +53,24 @@ Import the public types and `themeStyle` from `@wfe/components/theme`.
 
 Nested themes can use different modes and accents.
 DashboardShell inherits theme sizing unless you pass an explicit density.
+
+`Theme.density` accepts `"default"`, `"compact"`, and `"comfortable"`.
+Omitting it preserves the approved Default profile, including its 32px controls
+and compact table rows. This profile now reports `data-ui-density="default"`.
+Previously it reported compact despite applying different control sizes.
+Update selectors that used that old metadata to identify the Default theme.
+Explicit densities use the same sizing records as `uiScope` and `uiDensity`,
+including controls inside table cells. Supply the matching `uiDensity` row height
+to fixed-row virtual tables. `themeStyle` accepts the same density option.
+An omitted DashboardShell density inherits its parent without declaring a new profile.
+Nested Theme instances start with their own default profile.
+
+Bare `uiScope()` still defaults to compact. Its optional `"dark"` argument and
+raw `data-ui-theme="dark"` attribute retain the legacy palette for compatibility.
+They do not enable the approved Theme appearance or decoration behavior.
+Use Theme for new interfaces. Migrate legacy wrappers explicitly so applications
+can review that appearance change. Both palettes have one data owner in
+`theme/palette.ts`; legacy CSS is generated and checked for drift.
 Application CSS owns page height and available table space.
 Use solid content panels over the dotted main canvas to keep text readable.
 

@@ -39,6 +39,7 @@ export function uiScope(density: UIDensity = 'compact', theme?: 'dark') {
     style: {
       '--ui-row-height': `${value.rowHeight}px`,
       '--ui-control-height': `${value.controlHeight}px`,
+      '--ui-table-control-height': `${value.controlHeight}px`,
       '--ui-header-height': `${value.headerHeight}px`,
       '--ui-font-size': `${value.fontSize}px`,
       '--ui-small-font-size': `${value.smallFontSize}px`,

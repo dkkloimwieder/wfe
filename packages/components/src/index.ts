@@ -1,5 +1,6 @@
 export { Theme, themeStyle, themeSizing } from './theme'
 export type {
+  ThemeDensity,
   ThemeProps,
   ThemeOptions,
   ThemeMode,

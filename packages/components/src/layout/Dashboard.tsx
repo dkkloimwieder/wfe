@@ -342,6 +342,7 @@ export function DashboardShell(props: DashboardShellProps) {
   return (
     <div
       {...uiScope(props.density, props.theme)}
+      data-ui-density={props.density}
       id={props.id}
       data-ui-portal-root=""
       class={styledClasses('ui-dashboard', props.class)}

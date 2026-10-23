@@ -16,7 +16,7 @@
     "test": "node --test --test-concurrency=1 tests/*.test.mjs tests/tooling/*.test.mjs",
     "test:unit": "vitest run",
     "check": "node scripts/check.mjs",
-    "test:integrity": "node scripts/icons.mjs --check && node scripts/check-matching.mjs && node scripts/check-calendar.mjs && node scripts/check-kobalte.mjs && node scripts/check-virtual.mjs && node scripts/check-imports.mjs && node scripts/check-controls.mjs && node scripts/check-charts.mjs",
+    "test:integrity": "node scripts/theme-palette.mjs --check && node scripts/icons.mjs --check && node scripts/check-matching.mjs && node scripts/check-calendar.mjs && node scripts/check-kobalte.mjs && node scripts/check-virtual.mjs && node scripts/check-imports.mjs && node scripts/check-controls.mjs && node scripts/check-charts.mjs",
     "types:unit": "tsc --project tests/unit/tsconfig.json",
     "types:examples": "node scripts/typecheck-examples.mjs",
     "test:ssr": "node scripts/test-ssr.mjs",

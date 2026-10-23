@@ -7,6 +7,7 @@ export type {
   ThemeSecondaryAccent,
 } from './Theme'
 export { themeSizing } from './sizing'
+export type { ThemeDensity } from './sizing'
 export * from './appearance'
 
 export type { ControlDecoration } from '../internal/controlDecoration'

@@ -1,4 +1,7 @@
 import type { JSX } from '@solidjs/web'
+import { uiScope, type UIDensity } from '../styles/density'
+
+export type ThemeDensity = 'default' | UIDensity
 
 /** Shared measurements for themed shells, controls, and their portals. */
 export const themeSizing: JSX.CSSProperties = {
@@ -23,4 +26,13 @@ export const themeSizing: JSX.CSSProperties = {
   '--ui-field-max-width': '30rem',
   '--ui-form-max-width': '30rem',
   '--ui-table-control-height': '26px',
+}
+
+/** Keep the approved mixed profile; explicit densities own all density tokens. */
+export function resolveThemeSizing(
+  density: ThemeDensity = 'default',
+): JSX.CSSProperties {
+  return density === 'default'
+    ? { ...uiScope().style, ...themeSizing }
+    : { ...themeSizing, ...uiScope(density).style }
 }

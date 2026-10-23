@@ -1,4 +1,5 @@
 import { createSignal } from 'solid-js'
+import type { ThemeDensity } from '@wfe/components/theme'
 import {
   Theme,
   Button,
@@ -14,6 +15,7 @@ import '@wfe/components/styles.css'
 
 /** A consumer owns state; all presentation comes from the public package. */
 export function ThemeConsumer() {
+  const [density, setDensity] = createSignal<ThemeDensity>('default')
   const [mode, setMode] = createSignal<'light' | 'dark'>('light')
   const [choice, setChoice] = createSignal<string | undefined>('first')
   const table = createTable({
@@ -21,7 +23,7 @@ export function ThemeConsumer() {
     columns: [{ id: 'name', accessorKey: 'name', header: 'Name' }],
   })
   return (
-    <Theme id="theme-consumer" mode={mode()}>
+    <Theme id="theme-consumer" mode={mode()} density={density()}>
       <DashboardShell header="Public theme" style={{ height: '28rem' }}>
         <DashboardShell
           mainAs="section"
@@ -47,6 +49,20 @@ export function ThemeConsumer() {
               onClick={() => setMode(mode() === 'light' ? 'dark' : 'light')}
             >
               Change mode
+            </Button>
+            <Button
+              id="theme-density"
+              onClick={() =>
+                setDensity(
+                  density() === 'default'
+                    ? 'comfortable'
+                    : density() === 'comfortable'
+                      ? 'compact'
+                      : 'default',
+                )
+              }
+            >
+              Change density
             </Button>
             <Popover>
               <Popover.Trigger>Theme popup</Popover.Trigger>

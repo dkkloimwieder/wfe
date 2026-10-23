@@ -6,7 +6,7 @@ import type { JSX } from '@solidjs/web'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { uiScope } from '../styles/density'
 import { decorateActions } from './decorations'
-import { themeSizing } from './sizing'
+import { resolveThemeSizing, type ThemeDensity } from './sizing'
 import {
   accents,
   secondaryAccents,
@@ -37,6 +37,7 @@ export type ThemeAccent =
 export type ThemeSecondaryAccent =
   ThemeAccent | 'yellow' | 'light-blue' | 'dark-blue'
 export type ThemeOptions = {
+  density?: ThemeDensity
   decorationGeometry?: Partial<DecorationGeometry>
   inputDecoration?: ControlDecoration
   mode?: ThemeMode
@@ -90,7 +91,7 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
     accents[accentNames.indexOf(options.accent ?? 'blue')] ?? accents[1]!
   const secondary = accentNames.indexOf(options.secondaryAccent ?? 'blue')
   return {
-    ...themeSizing,
+    ...resolveThemeSizing(options.density),
     ...appearanceStyle(
       scheme,
       accent,
@@ -150,6 +151,7 @@ export function Theme(props: ThemeProps) {
   return (
     <div
       {...scope}
+      data-ui-density={props.density ?? 'default'}
       id={props.id}
       class={styledClasses('ui-theme', props.class)}
       data-ui-portal-root=""

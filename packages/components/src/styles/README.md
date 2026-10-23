@@ -70,7 +70,7 @@ Use `data-ui-text="prose"` for custom prose inside a system label.
 
 ## Style ownership
 
-`theme.css` owns library colors, scope typography, and box sizing.
+`theme/palette.ts` owns approved and legacy palette data. Its generated `legacy-palette.css` preserves the legacy entry points. `theme.css` owns scope typography and box sizing.
 `buttons.css` owns button variants and tones.
 `fields.css` owns common field borders and surfaces.
 `components.css` owns non-table component layout, shapes, and selection states.
@@ -85,11 +85,11 @@ The remaining files own layout, table workspace, calendar, and text presentation
 
 ## Library defaults and application overrides
 
-The library default is black text on white surfaces.
+The legacy bare scope fallback is black text on white surfaces.
 Its optional dark theme uses surface `#171d27` and focus `#88baff`.
-The review examples supply their own approved palette through the shared appearance switcher.
+`Theme` is the approved default presentation and is used by the shared appearance switcher.
 For example, the review dark Surface 1 uses `#171717`.
-Those application overrides do not change the library defaults.
+Legacy entry points retain their previous appearance. Use `Theme` for new consumers. See [the theme contract](../../../../docs/theme.md). Regenerate legacy palette CSS with `node scripts/theme-palette.mjs`. The integrity gate compares it with the shared data owner.
 
 Buttons without an explicit tone inherit `--ui-button-color` and `--ui-button-on-color`.
 These roles apply to internal icon actions and delegated overlay buttons too.

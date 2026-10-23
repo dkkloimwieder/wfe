@@ -813,6 +813,13 @@ assert.ok(themeOutput.includes('--ui-color-scheme:dark'))
 assert.equal((themeOutput.match(/data-ui-theme-owner/g) ?? []).length, 1)
 assert.equal((themeOutput.match(/data-ui-portal-root/g) ?? []).length, 1)
 assert.ok(themeOutput.includes('Themed record'))
+assert.ok(themeOutput.includes('data-ui-density="default"'))
+for (const density of ['compact', 'comfortable']) {
+  const output = await renderToString(() =>
+    createComponent(Theme, { density, children: 'Explicit density' }),
+  )
+  assert.ok(output.includes(`data-ui-density="${density}"`))
+}
 
 const embeddedShell = await renderToString(() =>
   createComponent(DashboardShell, {
@@ -821,6 +828,7 @@ const embeddedShell = await renderToString(() =>
     children: 'Nested example',
   }),
 )
+assert.ok(!embeddedShell.includes('data-ui-density='))
 assert.match(
   embeddedShell,
   /<section[^>]*class="ui-dashboard-main"[^>]*aria-label="Embedded content"/,
