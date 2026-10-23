@@ -282,6 +282,22 @@ export function qualificationStages(output, { wamn = false } = {}) {
   return stages
 }
 
+export function qualificationEnvironment(environment = process.env) {
+  // Never inherit scenario selectors, external review URLs, or profiling flags.
+  const env = Object.fromEntries(
+    Object.entries(environment).filter(([key]) => !key.startsWith('BENCH_')),
+  )
+  if (environment.BENCH_EXECUTABLE_PATH)
+    env.BENCH_EXECUTABLE_PATH = environment.BENCH_EXECUTABLE_PATH
+  Object.assign(env, {
+    NODE_ENV: 'production',
+    BENCH_WORKLOADS: '0',
+    BENCH_WORKLOAD: '0',
+    BENCH_SCENARIOS: '1',
+  })
+  return env
+}
+
 async function main() {
   const args = process.argv.slice(2)
   if (args.includes('--affected')) {
@@ -312,18 +328,7 @@ async function main() {
   }
   await mkdir(output, { recursive: true })
   const report = { stages: [] }
-  // Never inherit scenario selectors, external review URLs, or profiling flags.
-  const env = Object.fromEntries(
-    Object.entries(process.env).filter(([key]) => !key.startsWith('BENCH_')),
-  )
-  if (process.env.BENCH_EXECUTABLE_PATH)
-    env.BENCH_EXECUTABLE_PATH = process.env.BENCH_EXECUTABLE_PATH
-  Object.assign(env, {
-    NODE_ENV: 'production',
-    BENCH_WORKLOADS: '0',
-    BENCH_WORKLOAD: '0',
-    BENCH_SCENARIOS: '1',
-  })
+  const env = qualificationEnvironment()
   for (const stage of stages) {
     console.log(`Qualification: ${stage.name}`)
     const log = createWriteStream(resolve(output, `${stage.name}.log`))

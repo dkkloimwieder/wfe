@@ -1,3 +1,16 @@
+import {
+  startStaticServer,
+  launchBrowser,
+  attachDiagnostics,
+  readReactiveDiagnostics,
+  createRecorder,
+  selectGroups,
+  captureDiagnostic,
+  finalizeReport,
+  errorDetails,
+  errorText,
+  withCleanup,
+} from '../shared/browser/runner.mjs'
 import { columnControlChecks } from './review-column-controls.mjs'
 import { subtableChecks } from './review-subtables.mjs'
 import { reviewExampleSizing } from '../shared/appearance/sizing-review.mjs'
@@ -5,9 +18,8 @@ import { reviewDetails, reviewDetailsServer } from './review-details.mjs'
 import { reviewRepeated, reviewRepeatedServer } from './review-repeated.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { createServer } from 'node:http'
-import { dirname, resolve, sep } from 'node:path'
+import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium, expect } from '@playwright/test'
 import { reviewFormats, reviewFormatsServer } from './review-formats.mjs'
@@ -91,53 +103,14 @@ export async function run({
   let page
   const html = {}
   let renderRoute
-  const server = createServer(async (request, response) => {
-    try {
-      const requestUrl = new URL(request.url, 'http://localhost')
-      const path = requestUrl.pathname
-      const name = requestUrl.searchParams.get('app') ?? 'records'
-      const key = `${name}:${requestUrl.searchParams.get('reviewCells') === '1'}`
-      if (path === '/favicon.ico') return void response.writeHead(204).end()
-      const file = resolve(assets, '.' + (path === '/' ? '/index.html' : path))
-      assert.ok(file.startsWith(assets.replace(/\/$/, '') + sep))
-      response.setHeader(
-        'Content-Type',
-        file.endsWith('.js')
-          ? 'text/javascript'
-          : file.endsWith('.css')
-            ? 'text/css'
-            : file.endsWith('.json')
-              ? 'application/json'
-              : 'text/html',
-      )
-      if (
-        path === '/' &&
-        renderRoute &&
-        (requestUrl.searchParams.has('screen') ||
-          requestUrl.searchParams.has('record'))
-      ) {
-        response.end(
-          await renderRoute(
-            name,
-            requestUrl.searchParams.get('reviewCells') === '1',
-            requestUrl.href,
-          ),
-        )
-      } else
-        response.end(
-          path === '/' && html[key] ? html[key] : await readFile(file),
-        )
-    } catch {
-      response.writeHead(404).end()
-    }
-  })
-  const record = async (name, fn) => {
-    console.log(`Start: ${name}`)
-    await fn()
-    report.cases.push(name)
-    console.log(`Pass: ${name}`)
-  }
+  let server
+  let detachPage = () => {}
+  const record = createRecorder(report)
   try {
+    report.groups = selectGroups(applications)
+    const selectedApplications = Object.fromEntries(
+      report.groups.selected.map((name) => [name, applications[name]]),
+    )
     if (hydration) {
       for (const server of [true, false])
         execFileSync(
@@ -176,7 +149,7 @@ export async function run({
             '<script>window.generatorServerNodes = [...document.querySelectorAll("#root input, #root textarea, #root output, #root table, #root [data-generator-panel]")];</script><script type="module"',
           )
       }
-      for (const name of Object.keys(applications))
+      for (const name of Object.keys(selectedApplications))
         for (const reviewCells of [false, true])
           html[`${name}:${reviewCells}`] = await renderRoute(name, reviewCells)
     }
@@ -201,10 +174,27 @@ export async function run({
         ),
       )
     }
-    await new Promise((done) => server.listen(0, '127.0.0.1', done))
-    const url = `http://127.0.0.1:${server.address().port}`
-    browser = await chromium.launch({ headless: true })
-    for (const [name, checks] of Object.entries(applications)) {
+    server = await startStaticServer({
+      assets,
+      onServerError: (error) => {
+        report.serverErrors ??= []
+        report.serverErrors.push(error)
+      },
+      renderIndex: async (requestUrl) => {
+        const name = requestUrl.searchParams.get('app') ?? 'records'
+        const reviewCells = requestUrl.searchParams.get('reviewCells') === '1'
+        if (
+          renderRoute &&
+          (requestUrl.searchParams.has('screen') ||
+            requestUrl.searchParams.has('record'))
+        )
+          return renderRoute(name, reviewCells, requestUrl.href)
+        return html[`${name}:${reviewCells}`]
+      },
+    })
+    const url = server.url
+    browser = await launchBrowser({ chromium })
+    for (const [name, checks] of Object.entries(selectedApplications)) {
       report.application = name
       const firstCase = report.cases.length
       const applicationUrl = `${url}/?app=${name}&reviewCells=1`
@@ -212,25 +202,24 @@ export async function run({
         await reviewRecordsWorkflow({ browser, url, hydration, report, record })
       if (hydration) {
         const context = await browser.newContext({ javaScriptEnabled: false })
-        try {
+        await withCleanup(async () => {
           const initial = await context.newPage()
           await initial.goto(applicationUrl)
           await checks.server(initial)
           report.cases.push(
             'server labels and boolean descriptions before JavaScript',
           )
-        } finally {
-          await context.close()
-        }
+        }, [
+          {
+            name: 'server-rendered page context',
+            close: () => context.close(),
+          },
+        ])
       }
       page = await browser.newPage({
         viewport: { width: 1280, height: 900 },
       })
-      page.on('pageerror', (error) => report.errors.push(error.message))
-      page.on('console', (message) => {
-        if (message.type() === 'warning' || message.type() === 'error')
-          report.warnings.push(message.text())
-      })
+      detachPage = attachDiagnostics(page, report)
       await page.goto(applicationUrl)
       if (checks.initial) await checks.initial(page)
       else
@@ -266,9 +255,10 @@ export async function run({
           reviewExampleSizing(page),
         )
       await checks.review({ page, report, record })
-      report.diagnostics = (
-        await page.evaluate(() => window.generatorFixture.diagnostics())
-      ).filter((event) => event.code !== 'HOT_SCOPE_TIME')
+      report.diagnostics = await readReactiveDiagnostics(page, report, {
+        scope: name,
+        read: () => window.generatorFixture.diagnostics(),
+      })
       assert.deepEqual(report.diagnostics, [])
       report.applications[name] = {
         cases: report.cases.slice(firstCase),
@@ -276,34 +266,34 @@ export async function run({
         cssProvenance: report.cssProvenance,
       }
       await page.close()
+      detachPage()
+      detachPage = () => {}
       page = undefined
     }
     assert.deepEqual(report.errors, [])
     assert.deepEqual(report.warnings, [])
   } catch (error) {
-    report.failure = error.stack
-    if (page) {
-      try {
-        report.dom = await page.locator('#root').innerHTML({ timeout: 2000 })
-      } catch (diagnostic) {
-        report.diagnosticFailure = diagnostic.stack
-      }
-    }
+    report.failure = errorText(error)
+    report.failureDetails = errorDetails(error)
+    if (page)
+      report.dom = await captureDiagnostic(report, 'current page DOM', () =>
+        page.locator('#root').innerHTML({ timeout: 2000 }),
+      )
     process.exitCode = 1
   } finally {
-    try {
-      await browser?.close()
-    } catch (error) {
-      report.cleanupFailure = error.stack
-      process.exitCode = 1
-    }
-    if (server.listening) await new Promise((done) => server.close(done))
-    const output =
-      process.env.BENCH_OUTPUT ??
-      `/tmp/generator${hydration ? '-hydration' : ''}.json`
-    await mkdir(dirname(output), { recursive: true })
-    await writeFile(output, JSON.stringify(report, null, 2) + '\n')
-    console.log(JSON.stringify(report, null, 2))
+    const failed = await finalizeReport({
+      report,
+      cleanup: [
+        { name: 'current page', close: () => page?.close() },
+        { name: 'page diagnostics', close: () => detachPage() },
+        { name: 'browser', close: () => browser?.close() },
+        { name: 'static server', close: () => server?.close() },
+      ],
+      output:
+        process.env.BENCH_OUTPUT ??
+        `/tmp/generator${hydration ? '-hydration' : ''}.json`,
+    })
+    if (failed) process.exitCode = 1
   }
 }
 if (

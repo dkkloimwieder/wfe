@@ -126,3 +126,17 @@ test('hydration coverage requires every declared mode and optional stage', () =>
     /Missing hydration stage: wamn-generator-development-hydration/,
   )
 })
+
+test('shared runner helpers require their required consumer stage', () => {
+  assert.throws(
+    () =>
+      assertCoverageInventory(
+        root,
+        stages.filter(
+          ({ args }) => !args.includes('examples/generator/run.mjs'),
+        ),
+        optional,
+      ),
+    /Missing shared runner consumer: examples\/shared\/browser\/runner.mjs/,
+  )
+})

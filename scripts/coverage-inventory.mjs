@@ -68,6 +68,13 @@ export const excludedModes = [
 
 // Every executable example review entry point has an explicit disposition.
 export const runners = [
+  {
+    path: 'examples/shared/browser/runner.mjs',
+    status: 'shared',
+    consumer: 'examples/generator/run.mjs',
+    reason:
+      'Generator stages exercise the shared helper; required Node tests cover its failure paths.',
+  },
   ...examples.map(({ id, status, reason }) => ({
     path: `examples/${id}/run.mjs`,
     status,
@@ -332,8 +339,19 @@ export function assertCoverageInventory(root, stages, optionalStages) {
     }
   }
   for (const runner of runners) {
-    if (!['required', 'optional', 'diagnostic'].includes(runner.status))
+    if (
+      !['required', 'optional', 'diagnostic', 'shared'].includes(runner.status)
+    )
       throw new Error(`Invalid runner status: ${runner.path}`)
+    if (runner.status === 'shared') {
+      const consumer = runners.find(({ path }) => path === runner.consumer)
+      if (
+        consumer?.status !== 'required' ||
+        !stages.some(({ args }) => args.includes(runner.consumer))
+      )
+        throw new Error(`Missing shared runner consumer: ${runner.path}`)
+      continue
+    }
     const selected = runner.status === 'optional' ? optionalStages : stages
     const present = selected.some(({ args }) => args.includes(runner.path))
     if (runner.status !== 'diagnostic' && !present)

@@ -220,3 +220,15 @@ The existing native-tab timeout (`wfe-x6o`) recurred and then passed unchanged.
 Its cause remains open; this upgrade does not claim to fix it.
 
 The [action disposal investigation](action-disposal-investigation.md) preserves the runtime-only heap reproduction and the current removal decision.
+
+## Shared browser runner pilot
+
+The generator runner and its records workflow use `examples/shared/browser/runner.mjs` for static serving, browser launch, diagnostics, serial recording, and cleanup. Suites still own their cases, build commands, SSR rendering, module provenance, and application fixture disposal. The optional WAMN generator caller keeps the same `run({ root, applications, hydration })` boundary.
+
+`BENCH_APPLICATION_PATTERN` is a regular expression over complete application names. A nonempty expression must select at least one group. The report records selected and skipped groups. Every selected group's cases run in their original order, including records-workflow prerequisites. This pilot does not support skipping individual cases with `BENCH_CASE_PATTERN`. Without a group filter, all applications run and stop on the first failure. Aggregate qualification strips inherited filters and other `BENCH_` settings, preserving only the executable override before applying its own stage settings.
+
+`BENCH_EXECUTABLE_PATH` selects the Chromium executable. The runner retains the host's `NODE_OPTIONS` transport preload and Playwright browser installation. It adds no retries or timeout changes. Static paths are decoded and checked against both the lexical asset root and the actual filesystem root. Missing files return 404; rendering, asset-read, server and response-body failures are recorded separately and fail the run.
+
+Generator console warnings and errors remain failures, including console text containing `HOT_SCOPE_TIME`. Reactive diagnostic events retain their existing separate rule: only `HOT_SCOPE_TIME` is advisory. Raw console and reactive events retain their classifications in the report. Event listeners belong to the page review and are removed after page cleanup.
+
+The first operation failure remains the primary failure. Cleanup attempts continue after an earlier cleanup rejects. Reports retain diagnostic-capture failures, each cleanup failure and output failures separately, including non-Error thrown values. When writing the report fails, the console report still contains the output failure. A failed operation, diagnostic capture, resource cleanup, output or server callback produces a nonzero runner result. Successful cases keep their original names and report order.
