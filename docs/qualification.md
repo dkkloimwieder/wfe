@@ -30,6 +30,8 @@ Tile hydration retains server nodes and initial heading focus.
 The bundle guard rejects modules outside the wfe checkout.
 
 The runner executes stages serially and stops at the first failure.
+Its initial `pnpm check` stage includes unit tests, so qualification does not repeat that suite.
+Node test files run serially inside the gate and the direct qualification stages.
 Logs, browser reports, and the stage summary remain under `test-results/qualification`.
 Set `QUALIFICATION_OUTPUT` to preserve a separate run.
 The runner clears inherited case selectors, preview URLs, and performance flags.

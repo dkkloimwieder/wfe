@@ -11,6 +11,7 @@ Preserve upstream license text, attribution, original hashes, and documented loc
 Use Node 22.12 or newer and pnpm 12.4.1.
 From the repository root, install with `pnpm install --frozen-lockfile`.
 Run `pnpm check` before committing a change.
+It includes the unit suite and runs Node test files serially.
 Run relevant unit and browser suites once those sources move into this repository.
 Test behavior, accessibility, focus, retained state, and cleanup.
 Do not assert exact colors, fonts, shadows, decoration, or cosmetic sizes in automated tests.

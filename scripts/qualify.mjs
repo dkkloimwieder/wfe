@@ -18,17 +18,18 @@ export function qualificationStages(output, { wamn = false } = {}) {
   const stage = (name, args, env = {}) => ({ name, args, env })
   const stages = [
     stage('checks', ['run', 'check']),
-    stage('unit-tests', ['run', 'test:unit'], { NODE_ENV: 'test' }),
     stage('source-tests', [
       'exec',
       'node',
       '--test',
+      '--test-concurrency=1',
       'tests/source/source.test.mjs',
     ]),
     stage('analytics-server', [
       'exec',
       'node',
       '--test',
+      '--test-concurrency=1',
       'examples/analytics/demo-server.test.mjs',
       'examples/analytics/paging.test.mjs',
     ]),

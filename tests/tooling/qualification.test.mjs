@@ -260,3 +260,19 @@ test('WAMN generator adapter stays optional and uses prepared inputs in every mo
     )
   }
 })
+
+test('qualification uses the required gate once and runs direct Node suites serially', () => {
+  const stages = qualificationStages('/tmp/solid-gates')
+  const checks = stages.filter(({ args }) => args.includes('check'))
+  assert.equal(checks.length, 1)
+  assert.equal(stages[0], checks[0])
+  assert.equal(
+    stages.some(({ args }) => args.includes('test:unit')),
+    false,
+  )
+  const nodeSuites = stages.filter(({ args }) => args.includes('--test'))
+  assert.ok(nodeSuites.length > 0)
+  for (const stage of nodeSuites) {
+    assert.ok(stage.args.includes('--test-concurrency=1'), stage.name)
+  }
+})
