@@ -1,4 +1,6 @@
 import { RepeatedField, validateRepeatedDescription } from './repeatedField'
+import { resolveGeneratorMessages } from './messages'
+import type { GeneratorMessageProps } from './messages'
 import type {
   RuntimeRow,
   RuntimeRepeatedField,
@@ -55,8 +57,14 @@ type RuntimeBindings<T extends object & FormShape<T>> = {
 export function FormView<
   T extends object & FormShape<T>,
   D extends FormDescription<T>,
->(props: { description: D; bindings: FormViewBindings<T, D> }) {
+>(
+  props: GeneratorMessageProps & {
+    description: D
+    bindings: FormViewBindings<T, D>
+  },
+) {
   // Runtime dispatch erases each field's value type. Descriptions and guards select its control.
+  const messages = resolveGeneratorMessages(() => props.messages)
   const bindings = () => props.bindings as unknown as RuntimeBindings<T>
   const form = untrack(() => bindings().form)
   const submitDisabled = () => form.pending || !!bindings().submitDisabled?.()
@@ -163,6 +171,7 @@ export function FormView<
     const readOnly = () => Boolean(bindings().readOnly?.(key))
     return control === 'repeat' ? (
       <RepeatedField
+        messages={props.messages}
         field={checked() as RuntimeRepeatedField}
         id={id}
         adapter={{
@@ -309,9 +318,9 @@ export function FormView<
         <p role="alert">{form.errors.form}</p>
       </Show>
       <Show when={form.phase === 'error'}>
-        <p role="alert">The form action failed.</p>
+        <p role="alert">{messages.formActionFailed}</p>
       </Show>
-      <StatusView status={bindings().status} />
+      <StatusView messages={props.messages} status={bindings().status} />
       <Show when={description().submit || description().actions?.length}>
         <FormActions>
           <Show when={description().submit}>

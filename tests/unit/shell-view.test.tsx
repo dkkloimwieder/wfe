@@ -3,7 +3,11 @@ import { cleanup, fireEvent, render, within } from '@solidjs/testing-library'
 import { createSignal, Errored, flush, onCleanup } from 'solid-js'
 import { Input } from '@wfe/components'
 import { ShellView } from '@wfe/shell'
-import type { ShellBindings, ShellDescription } from '@wfe/shell'
+import type {
+  ShellBindings,
+  ShellDescription,
+  ShellViewProps,
+} from '@wfe/shell'
 
 beforeEach(() =>
   vi.stubGlobal(
@@ -441,4 +445,85 @@ test('custom header content owns one lifecycle across route reads and releases i
   h.unmount()
   flush()
   expect(h.headerCounts()).toEqual({ mounts: 2, disposals: 2 })
+})
+
+test('custom navigation callback replacement owns one lifecycle and retains the page through message updates', async () => {
+  type Navigation = Exclude<ShellViewProps['navigation'], false | undefined>
+  const mounted = [0, 0]
+  const disposed = [0, 0]
+  const navigationFor =
+    (index: number): Navigation =>
+    () => {
+      mounted[index] = mounted[index]! + 1
+      onCleanup(() => {
+        disposed[index] = disposed[index]! + 1
+      })
+      return <Input aria-label={`Navigation draft ${index}`} />
+    }
+  const first = navigationFor(0)
+  const second = navigationFor(1)
+  const [navigation, setNavigation] = createSignal<Navigation>(() => first)
+  const [navigationLabel, setNavigationLabel] =
+    createSignal('Primary navigation')
+  const [route] = createSignal('home')
+  const navigate = vi.fn()
+  let pageMounts = 0
+  let pageDisposals = 0
+  const Page = () => {
+    pageMounts++
+    onCleanup(() => pageDisposals++)
+    return <Input aria-label="Retained page draft" />
+  }
+  const h = render(() => (
+    <ShellView
+      description={initial}
+      navigation={navigation()}
+      messages={{ navigationLabel: navigationLabel() }}
+      bindings={{
+        audience: () => 'operations',
+        route,
+        href: (id) => `#${id}`,
+        views: { summary: Page, records: Page },
+        onNavigate: navigate,
+        onAudienceChange: vi.fn(),
+      }}
+    />
+  ))
+  await settle()
+  const page = h.getByRole('textbox', {
+    name: 'Retained page draft',
+  }) as HTMLInputElement
+  const oldNavigation = h.getByRole('textbox', { name: 'Navigation draft 0' })
+  fireEvent.input(page, { target: { value: 'Unsaved page text' } })
+  page.focus()
+  expect(mounted).toEqual([1, 0])
+  expect(disposed).toEqual([0, 0])
+
+  setNavigation(() => second)
+  await settle()
+  const newNavigation = h.getByRole('textbox', { name: 'Navigation draft 1' })
+  expect(oldNavigation.isConnected).toBe(false)
+  expect(mounted).toEqual([1, 1])
+  expect(disposed).toEqual([1, 0])
+
+  setNavigationLabel('Application navigation')
+  await settle()
+  expect(
+    within(
+      h.getByRole('navigation', { name: 'Application navigation' }),
+    ).getByRole('textbox', { name: 'Navigation draft 1' }),
+  ).toBe(newNavigation)
+  expect(mounted).toEqual([1, 1])
+  expect(disposed).toEqual([1, 0])
+  expect(h.getByRole('textbox', { name: 'Retained page draft' })).toBe(page)
+  expect(page.value).toBe('Unsaved page text')
+  expect(document.activeElement).toBe(page)
+  expect(route()).toBe('home')
+  expect(navigate).not.toHaveBeenCalled()
+  expect(pageMounts).toBe(1)
+  expect(pageDisposals).toBe(0)
+  h.unmount()
+  await settle()
+  expect(disposed).toEqual([1, 1])
+  expect(pageDisposals).toBe(1)
 })

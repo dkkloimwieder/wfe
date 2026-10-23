@@ -1,3 +1,5 @@
+import { resolveGeneratorMessages } from './messages'
+import type { GeneratorMessageProps } from './messages'
 import { For, Show, createMemo, onCleanup, untrack } from 'solid-js'
 import { Button, FieldError, FieldGroup } from '@wfe/components'
 import type { Accessor } from 'solid-js'
@@ -60,11 +62,14 @@ export function validateRepeatedDescription(field: RuntimeRepeatedField) {
   }
 }
 
-export function RepeatedField(props: {
-  field: RuntimeRepeatedField
-  id: string
-  adapter: RepeatedFieldAdapter
-}) {
+export function RepeatedField(
+  props: GeneratorMessageProps & {
+    field: RuntimeRepeatedField
+    id: string
+    adapter: RepeatedFieldAdapter
+  },
+) {
+  const messages = resolveGeneratorMessages(() => props.messages)
   const identity = untrack(() => props.field.field)
   let alive = true,
     focusRequest = 0
@@ -241,7 +246,7 @@ export function RepeatedField(props: {
           return (
             <FieldGroup
               id={rowId(key)}
-              title={`${label()} ${index() + 1}`}
+              title={messages.repeatedRowTitle(label(), index() + 1)}
               columns={description().columns}
               data-generator-row={key}
               aria-invalid={
@@ -286,11 +291,11 @@ export function RepeatedField(props: {
               </Show>
               <div class="ui-form-actions" data-form-span="full">
                 <Button
-                  aria-label={`Remove ${label()} row ${index() + 1}`}
+                  aria-label={messages.removeRowLabel(label(), index() + 1)}
                   disabled={locked()}
                   onClick={(event) => remove(key, event.currentTarget)}
                 >
-                  Remove row
+                  {messages.removeRow}
                 </Button>
               </div>
             </FieldGroup>
@@ -308,7 +313,7 @@ export function RepeatedField(props: {
           disabled={locked()}
           onClick={add}
         >
-          Add row
+          {messages.addRow}
         </Button>
       </div>
     </FieldGroup>

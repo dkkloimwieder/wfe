@@ -1,3 +1,4 @@
+import type { GeneratorMessageProps } from './messages'
 import { createMemo, untrack } from 'solid-js'
 import { ValueDisplay } from '@wfe/components'
 import { Show } from 'solid-js'
@@ -20,10 +21,12 @@ import {
 } from './shared'
 import type { Actions } from './shared'
 
-export function TableView<Row, Meta, D extends TableDescription>(props: {
-  description: D
-  bindings: TableViewBindings<Row, Meta, D>
-}) {
+export function TableView<Row, Meta, D extends TableDescription>(
+  props: GeneratorMessageProps & {
+    description: D
+    bindings: TableViewBindings<Row, Meta, D>
+  },
+) {
   const table = untrack(() => props.bindings.table)
   const ToolbarActions = untrack(() => props.bindings.toolbarActions)
   const identity = untrack(() => props.description.id)
@@ -172,8 +175,9 @@ export function TableView<Row, Meta, D extends TableDescription>(props: {
       data-generator-view={description().id}
       aria-busy={props.bindings.status?.().loading ? 'true' : 'false'}
     >
-      <StatusView status={props.bindings.status} />
+      <StatusView messages={props.messages} status={props.bindings.status} />
       <ReadOnlyTable
+        messages={props.bindings.messages}
         table={table}
         toolbarActions={ToolbarActions ? <ToolbarActions /> : undefined}
         pagination={props.bindings.pagination}

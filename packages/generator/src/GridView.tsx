@@ -1,3 +1,4 @@
+import { resolveGeneratorMessages } from './messages'
 import { createMemo, createUniqueId, For, onCleanup, untrack } from 'solid-js'
 import { Checkbox } from '@wfe/components'
 import { createGridModel } from './gridModel'
@@ -14,6 +15,7 @@ import type {
 export function GridView<const D extends GridDescription>(
   props: GridViewProps<D>,
 ) {
+  const messages = resolveGeneratorMessages(() => props.messages)
   const model = createMemo(() => createGridModel(props.description))
   const identity = untrack(() => model().id)
   const domId = `generated-grid-${createUniqueId()}`
@@ -128,7 +130,7 @@ export function GridView<const D extends GridDescription>(
           <caption data-ui-text="system">{label()}</caption>
           <thead>
             <tr>
-              <th scope="col" aria-label="Row" />
+              <th scope="col" aria-label={messages.rowHeader} />
               <For each={columnIds()}>
                 {(id) => (
                   <th

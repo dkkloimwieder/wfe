@@ -1,3 +1,4 @@
+import type { GeneratorMessageProps } from './messages'
 export type GridRowDescription = Readonly<{
   id: string
   label: string
@@ -28,7 +29,9 @@ export type GridBindings<D extends GridDescription = GridDescription> =
     onValueChange: (requested: GridCellChange<D>) => void
   }>
 export type GridViewProps<D extends GridDescription = GridDescription> =
-  Readonly<{
-    description: D
-    bindings: GridBindings<D>
-  }>
+  Readonly<
+    GeneratorMessageProps & {
+      description: D
+      bindings: GridBindings<D>
+    }
+  >

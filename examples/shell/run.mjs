@@ -580,6 +580,68 @@ try {
       await expect(page.locator('#root')).toBeEmpty()
     },
   )
+  await run(
+    'translated shell messages hydrate and change without replacing focused drafts or routing',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      await page.goto(base + '?qualification=1&page=record&messages=1')
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+        'Record detail',
+      )
+      const input = page.getByRole('textbox', { name: 'Name', exact: true })
+      const audience = page.getByRole('button', { name: /Audiencia/ })
+      await expect(audience).toBeVisible()
+      await expect(
+        page.getByRole('navigation', { name: 'Ruta', exact: true }),
+      ).toBeVisible()
+      if (hydration)
+        assert.equal(
+          await input.evaluate(
+            (node) => node === window.shellServerNodes.input,
+          ),
+          true,
+        )
+      const original = await input.elementHandle()
+      await input.fill('Translated draft')
+      const before = await page.evaluate(() => ({
+        requests: [...window.shellFixture.requests],
+        lifecycle: { ...window.shellFixture.lifecycle },
+      }))
+      await page.evaluate(() =>
+        window.shellFixture.setMessages({
+          audience: 'Public',
+          breadcrumbs: 'Chemin',
+          navigationLabel: 'Menu traduit',
+          toggleLabel: 'Ouvrir',
+          closeLabel: 'Fermer',
+        }),
+      )
+      await expect(page.getByRole('button', { name: /Public/ })).toBeVisible()
+      await expect(input).toBeFocused()
+      await expect(input).toHaveValue('Translated draft')
+      assert.equal(await original.evaluate((node) => node.isConnected), true)
+      assert.deepEqual(
+        await page.evaluate(() => ({
+          requests: [...window.shellFixture.requests],
+          lifecycle: { ...window.shellFixture.lifecycle },
+        })),
+        before,
+      )
+      await page.setViewportSize({ width: 390, height: 844 })
+      const toggle = page.getByRole('button', { name: 'Ouvrir', exact: true })
+      await toggle.click()
+      await expect(
+        page.getByRole('navigation', { name: 'Menu traduit', exact: true }),
+      ).toBeVisible()
+      await page
+        .getByRole('link', { name: 'Overview', exact: true })
+        .press('Escape')
+      await expect(toggle).toBeFocused()
+      await page.evaluate(() => window.shellFixture.stop())
+      await expect(page.locator('#root')).toBeEmpty()
+      await original.dispose()
+    },
+  )
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {

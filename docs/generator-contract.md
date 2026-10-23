@@ -433,3 +433,5 @@ The buttons update table sort state through the existing callbacks. The applicat
 Client sorting still requires the column comparator.
 Changing presentation flags leaves application-owned sort and filter state unchanged.
 The `?app=column-controls` example demonstrates client sorting, server sorting, and omitted Actions controls.
+
+Generated views accept caller-owned reactive UI messages. See [view messages](view-messages.md) for scope, table forwarding, and explicit-label precedence.

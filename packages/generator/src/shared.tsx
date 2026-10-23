@@ -1,3 +1,5 @@
+import { resolveGeneratorMessages } from './messages'
+import type { GeneratorMessageProps } from './messages'
 import { For, Show, createMemo } from 'solid-js'
 import {
   Button,
@@ -172,12 +174,15 @@ export function ActionsView(props: {
   )
 }
 
-export function StatusView(props: { status?: Accessor<ViewStatus> }) {
+export function StatusView(
+  props: GeneratorMessageProps & { status?: Accessor<ViewStatus> },
+) {
+  const messages = resolveGeneratorMessages(() => props.messages)
   return (
     <>
       <Show when={props.status?.().loading}>
         <p role="status" data-ui-text="system">
-          Loading
+          {messages.loading}
         </p>
       </Show>
       <Show when={props.status?.().error}>

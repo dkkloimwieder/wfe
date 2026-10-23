@@ -1071,3 +1071,66 @@ for (const customId of [undefined, 'deferred-custom-input']) {
     'Deferred construction does not emit change requests',
   )
 }
+
+const translatedViews = await import('@wfe/generator')
+const detailMessagesOutput = await renderToString(() =>
+  createComponent(translatedViews.DetailView, {
+    description: {
+      id: 'translated-detail',
+      fields: [{ field: 'name', label: 'Person' }],
+    },
+    messages: { loading: 'Cargando' },
+    bindings: {
+      record: () => ({ name: 'Ada' }),
+      status: () => ({ loading: true }),
+    },
+  }),
+)
+assert.match(detailMessagesOutput, /Cargando/)
+assert.match(detailMessagesOutput, /Person/)
+const deleteMessagesOutput = await renderToString(() =>
+  createComponent(translatedViews.DeleteView, {
+    description: {
+      id: 'translated-delete',
+      title: 'Application title',
+      confirmation: 'Application confirmation',
+    },
+    messages: { delete: 'Eliminar' },
+    bindings: {
+      recordKey: () => 'a',
+      onConfirm: () => {
+        throw new Error('SSR must not confirm')
+      },
+    },
+  }),
+)
+assert.match(deleteMessagesOutput, /Eliminar/)
+const shellMessagesOutput = await renderToString(() =>
+  createComponent(ShellView, {
+    messages: {
+      audience: 'Audiencia',
+      breadcrumbs: 'Ruta',
+      navigationLabel: 'Menú',
+    },
+    description: {
+      id: 'translated-shell',
+      audiences: [{ id: 'a', label: 'Application audience' }],
+      routes: [{ id: 'home', label: 'Application home', view: 'page' }],
+    },
+    bindings: {
+      audience: () => 'a',
+      route: () => 'home',
+      href: () => '/home',
+      views: { page: () => 'Page' },
+      onAudienceChange: () => {
+        throw new Error('SSR must not change audience')
+      },
+      onNavigate: () => {
+        throw new Error('SSR must not navigate')
+      },
+    },
+  }),
+)
+assert.match(shellMessagesOutput, /Audiencia/)
+assert.match(shellMessagesOutput, /Ruta/)
+assert.match(shellMessagesOutput, /Menú/)

@@ -1,3 +1,4 @@
+import type { ShellMessages } from './messages'
 import type { Accessor, Component } from 'solid-js'
 import type { DashboardShellProps } from '@wfe/components/layout'
 
@@ -55,6 +56,7 @@ export type ShellViewProps<D extends ShellDescription = ShellDescription> =
     | 'contextToggleLabel'
     | 'contextCloseLabel'
   > & {
+    messages?: Partial<ShellMessages>
     description: D
     bindings: ShellBindings<D>
     navigation?: DashboardShellProps['navigation'] | false

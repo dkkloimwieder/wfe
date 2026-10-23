@@ -55,3 +55,6 @@ export type {
   DeleteViewBindings,
   RecordKey,
 } from './types'
+
+export { generatorMessages } from './messages'
+export type { GeneratorMessages, GeneratorMessageProps } from './messages'

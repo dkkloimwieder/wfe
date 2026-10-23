@@ -11,3 +11,6 @@ export type {
   ShellBindings,
   ShellViewProps,
 } from './types'
+
+export { shellMessages } from './messages'
+export type { ShellMessages } from './messages'

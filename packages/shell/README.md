@@ -49,3 +49,5 @@ Use the public component stylesheet once in the application.
 Read the [layout guide](../../docs/layout.md) and [adoption guide](../../docs/adoption.md) for composition.
 The [six-route example](../../examples/shell/README.md) demonstrates application-owned history and generated pages.
 Its browser cases cover source, built exports, development rendering, and hydration.
+
+ShellView supports caller-owned reactive UI messages. See [view messages](../../docs/view-messages.md) for defaults and explicit-label precedence.

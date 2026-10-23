@@ -1,3 +1,4 @@
+import type { GeneratorMessageProps } from '../messages'
 import { createMemo, Show, untrack } from 'solid-js'
 import {
   Chart,
@@ -50,7 +51,12 @@ function date(value: unknown): value is Date {
 export function ChartView<
   Row extends object,
   D extends ChartDescription<Row> = ChartDescription<Row>,
->(props: { description: D; bindings: ChartViewBindings<Row, NoInfer<D>> }) {
+>(
+  props: GeneratorMessageProps & {
+    description: D
+    bindings: ChartViewBindings<Row, NoInfer<D>>
+  },
+) {
   const identity = untrack(() => {
     object(props.description, 'chart description')
     return props.description.id
@@ -253,7 +259,7 @@ export function ChartView<
           </h2>
         )}
       </Show>
-      <StatusView status={props.bindings.status} />
+      <StatusView messages={props.messages} status={props.bindings.status} />
       <Chart
         definition={definition()}
         ariaLabel={description().ariaLabel}

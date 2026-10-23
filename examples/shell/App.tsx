@@ -13,7 +13,7 @@ import { createForm } from '@wfe/form'
 import { FormView, TableView } from '@wfe/generator'
 import type { CustomCellProps, FormDescription } from '@wfe/generator'
 import { ShellView } from '@wfe/shell'
-import type { ShellBindings, ShellPageProps } from '@wfe/shell'
+import type { ShellBindings, ShellPageProps, ShellMessages } from '@wfe/shell'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import { description, defaultRoute, readLocation, routeHref } from './routes'
 import type { AudienceId, RouteId } from './routes'
@@ -33,6 +33,7 @@ export type ShellFixture = {
   }
   reject: (value: boolean) => void
   accept: (id: RouteId) => void
+  setMessages: (messages: Partial<ShellMessages> | undefined) => void
   refreshMetadata: () => void
   setHeader: (custom: boolean) => void
   setNavigation: (mode: 'default' | 'custom' | 'none') => void
@@ -54,6 +55,23 @@ export function App(props: {
   ready?: (api: ShellFixture) => void
 }) {
   const initialUrl = untrack(() => props.initialUrl)
+  const translated = new URL(
+    initialUrl,
+    'http://shell.example',
+  ).searchParams.has('messages')
+  const [messages, setMessages] = createSignal<
+    Partial<ShellMessages> | undefined
+  >(
+    translated
+      ? {
+          audience: 'Audiencia',
+          breadcrumbs: 'Ruta',
+          navigationLabel: 'Menú',
+          toggleLabel: 'Navegar',
+          closeLabel: 'Cerrar menú',
+        }
+      : undefined,
+  )
   const [address, setAddress] = createSignal(initialUrl.split('#')[0]!)
   const [current, setCurrent] = createSignal(readLocation(initialUrl))
   const duplicateShells = new URL(
@@ -269,12 +287,16 @@ export function App(props: {
     reject: (value) => {
       rejected = value
     },
+    setMessages: (next) => {
+      if (alive) setMessages(next)
+    },
     refreshMetadata: () =>
       setMetadata((old) => ({ ...old, title: 'Workspace' })),
   })
   return (
     <DefaultAppearance class="shell-example">
       <ShellView
+        messages={messages()}
         description={metadata()}
         bindings={bindings}
         footer={null}

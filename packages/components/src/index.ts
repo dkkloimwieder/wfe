@@ -241,3 +241,5 @@ export type {
   FileInputMessages,
   NumberInputMessages,
 } from './components/inputMessages'
+
+export { resolveMessages } from './internal/messages'

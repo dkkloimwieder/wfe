@@ -1,3 +1,5 @@
+import { resolveGeneratorMessages } from './messages'
+import type { GeneratorMessageProps } from './messages'
 import { preserveReorderFocus } from './reorderFocus'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
 import {
@@ -25,11 +27,14 @@ function panelEntries(value: LayoutDescription) {
   ).flatMap(([region, panels]) => panels.map((panel) => ({ region, panel })))
 }
 
-export function LayoutView<D extends LayoutDescription>(props: {
-  description: D
-  bindings: LayoutViewBindings<D>
-  style?: DashboardShellProps['style']
-}) {
+export function LayoutView<D extends LayoutDescription>(
+  props: GeneratorMessageProps & {
+    description: D
+    bindings: LayoutViewBindings<D>
+    style?: DashboardShellProps['style']
+  },
+) {
+  const messages = resolveGeneratorMessages(() => props.messages)
   const identity = untrack(() => props.description.id)
   const domId = `generated-layout-${createUniqueId()}`
   let regions = new Map<string, string>()
@@ -154,8 +159,14 @@ export function LayoutView<D extends LayoutDescription>(props: {
     <DashboardShell
       id={domId}
       style={props.style}
-      navigationLabel={description().navigationLabel}
-      contextLabel={description().contextLabel}
+      navigationLabel={
+        description().navigationLabel ?? messages.navigationLabel
+      }
+      toggleLabel={messages.toggleLabel}
+      closeLabel={messages.closeLabel}
+      contextLabel={description().contextLabel ?? messages.contextLabel}
+      contextToggleLabel={messages.contextToggleLabel}
+      contextCloseLabel={messages.contextCloseLabel}
       footerLabel={description().footerLabel}
       context={hasContext() ? context : undefined}
       footer={hasFooter() ? <Footer /> : undefined}

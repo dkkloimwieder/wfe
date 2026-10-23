@@ -1,3 +1,4 @@
+import type { TableMessages } from '@wfe/components/table'
 import type { Accessor, Component } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import type {
@@ -266,6 +267,7 @@ export type TableViewBindings<
   Meta,
   D extends TableDescription,
 > = Readonly<{
+  messages?: Partial<TableMessages>
   table: NativeTable<Row, Meta>
   /** Stable application component; remount the view to replace it. */
   toolbarActions?: Component

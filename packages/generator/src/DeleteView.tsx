@@ -1,3 +1,5 @@
+import { resolveGeneratorMessages } from './messages'
+import type { GeneratorMessageProps } from './messages'
 import {
   createMemo,
   createEffect,
@@ -10,10 +12,13 @@ import { AlertDialog } from '@wfe/components'
 import type { DeleteDescription, DeleteViewBindings, RecordKey } from './types'
 import { StatusView, descriptionLabel, requireValue, uniqueIds } from './shared'
 
-export function DeleteView<Key extends RecordKey>(props: {
-  description: DeleteDescription
-  bindings: DeleteViewBindings<Key>
-}) {
+export function DeleteView<Key extends RecordKey>(
+  props: GeneratorMessageProps & {
+    description: DeleteDescription
+    bindings: DeleteViewBindings<Key>
+  },
+) {
+  const messages = resolveGeneratorMessages(() => props.messages)
   const identity = untrack(() => props.description.id)
   const domId = `generated-delete-${createUniqueId()}`
   const [open, setOpen] = createSignal(false, { ownedWrite: true })
@@ -89,10 +94,10 @@ export function DeleteView<Key extends RecordKey>(props: {
   }
   return (
     <div data-generator-delete={checkedId()}>
-      <StatusView status={props.bindings.status} />
+      <StatusView messages={props.messages} status={props.bindings.status} />
       <AlertDialog id={domId} open={open()} onOpenChange={changeOpen}>
         <AlertDialog.Trigger disabled={props.bindings.disabled?.()}>
-          {descriptionLabel(description().triggerLabel, 'Delete')}
+          {descriptionLabel(description().triggerLabel, messages.delete)}
         </AlertDialog.Trigger>
         <AlertDialog.Portal>
           <AlertDialog.Overlay />
@@ -103,13 +108,13 @@ export function DeleteView<Key extends RecordKey>(props: {
             </AlertDialog.Description>
             <div class="ui-form-actions">
               <AlertDialog.Cancel>
-                {descriptionLabel(description().cancelLabel, 'Cancel')}
+                {descriptionLabel(description().cancelLabel, messages.cancel)}
               </AlertDialog.Cancel>
               <AlertDialog.Action
                 disabled={props.bindings.disabled?.()}
                 onClick={confirm}
               >
-                {descriptionLabel(description().confirmLabel, 'Delete')}
+                {descriptionLabel(description().confirmLabel, messages.delete)}
               </AlertDialog.Action>
             </div>
           </AlertDialog.Content>

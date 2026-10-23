@@ -1,3 +1,4 @@
+import type { GeneratorMessageProps } from './messages'
 import { For, Show, createMemo, createUniqueId, untrack } from 'solid-js'
 import { Field, Label, HelpText, FieldValue, FormGrid } from '@wfe/components'
 import type { DetailDescription, DetailViewBindings } from './types'
@@ -13,10 +14,12 @@ import {
 } from './shared'
 import type { Actions } from './shared'
 
-export function DetailView<
-  T extends object,
-  D extends DetailDescription<T>,
->(props: { description: D; bindings: DetailViewBindings<T, D> }) {
+export function DetailView<T extends object, D extends DetailDescription<T>>(
+  props: GeneratorMessageProps & {
+    description: D
+    bindings: DetailViewBindings<T, D>
+  },
+) {
   const identity = untrack(() => props.description.id)
   const domId = `generated-detail-${createUniqueId()}`
   const description = createMemo(() => {
@@ -77,7 +80,7 @@ export function DetailView<
       <Show when={description().title}>
         <h2 data-ui-text="system">{description().title}</h2>
       </Show>
-      <StatusView status={props.bindings.status} />
+      <StatusView messages={props.messages} status={props.bindings.status} />
       <FormGrid columns={description().columns}>
         <For each={description().fields} keyed={(field) => field.field}>
           {(field) => (

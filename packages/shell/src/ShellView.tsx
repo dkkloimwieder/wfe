@@ -1,3 +1,4 @@
+import { resolveShellMessages } from './messages'
 import {
   createEffect,
   createMemo,
@@ -27,6 +28,7 @@ import type {
 export function ShellView<const D extends ShellDescription>(
   props: ShellViewProps<D>,
 ) {
+  const messages = resolveShellMessages(() => props.messages)
   const model = createMemo(() => createShellModel(props.description))
   const identity = untrack(() => model().id)
   const header = createMemo(() => props.header)
@@ -182,7 +184,7 @@ export function ShellView<const D extends ShellDescription>(
           <span data-ui-text="system">{props.description.title}</span>
         </Show>
         <SelectField
-          label={props.audienceLabel ?? 'Audience'}
+          label={props.audienceLabel ?? messages.audience}
           data-ui-text="system"
           choices={choices()}
           value={state().audience.id}
@@ -192,7 +194,7 @@ export function ShellView<const D extends ShellDescription>(
               untrack(() => props.bindings.onAudienceChange(audience.id))
           }}
         />
-        <Breadcrumbs aria-label="Breadcrumbs" data-ui-text="system">
+        <Breadcrumbs aria-label={messages.breadcrumbs} data-ui-text="system">
           <Breadcrumbs.List>
             <For each={pathIds()}>
               {(id, index) => (
@@ -265,8 +267,9 @@ export function ShellView<const D extends ShellDescription>(
           typeof props.navigation === 'function' ? props.navigation : undefined
         }
         fallback={<DefaultNavigation />}
+        keyed
       >
-        {(render) => render()(controls)}
+        {(render) => render(controls)}
       </Show>
     )
   }
@@ -280,14 +283,16 @@ export function ShellView<const D extends ShellDescription>(
       scroll={props.scroll ?? 'content'}
       footer={props.footer}
       footerLabel={props.footerLabel}
-      navigationLabel={props.navigationLabel}
-      toggleLabel={props.toggleLabel}
-      closeLabel={props.closeLabel}
+      navigationLabel={props.navigationLabel ?? messages.navigationLabel}
+      toggleLabel={props.toggleLabel ?? messages.toggleLabel}
+      closeLabel={props.closeLabel ?? messages.closeLabel}
       mainLabel={props.mainLabel ?? state().route.label}
       context={props.context}
-      contextLabel={props.contextLabel}
-      contextToggleLabel={props.contextToggleLabel}
-      contextCloseLabel={props.contextCloseLabel}
+      contextLabel={props.contextLabel ?? messages.contextLabel}
+      contextToggleLabel={
+        props.contextToggleLabel ?? messages.contextToggleLabel
+      }
+      contextCloseLabel={props.contextCloseLabel ?? messages.contextCloseLabel}
       header={
         <Show when={header() === undefined} fallback={header()}>
           <DefaultHeader />

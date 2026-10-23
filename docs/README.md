@@ -14,6 +14,7 @@ Beads records task status and dependencies.
 - [Styled component props and shared values](styled-component-types.md)
 - [Form contract](form-contract.md)
 - [Generator contract](generator-contract.md)
+- [Generated view and shell messages](view-messages.md)
 - [Dashboard layout](layout.md)
 - [EntryPanel](entry-panel.md)
 - [Described application shell](../packages/shell/README.md)
