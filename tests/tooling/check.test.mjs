@@ -102,3 +102,43 @@ test('unit test types are required before runtime tests and stop the gate on fai
       false,
     )
   }))
+
+test('SSR and documentation contracts run once after builds and types before Node tests', () =>
+  withFakePnpm(undefined, async (result, calls) => {
+    assert.equal(result.status, 0, result.stderr)
+    const position = (script) =>
+      calls.findIndex(({ args }) => args.includes(script))
+    const server = position('test:ssr')
+    const contracts = position('test:contracts')
+    const nodeTests = position('test')
+    for (const script of ['test:ssr', 'test:contracts'])
+      assert.equal(
+        calls.filter(({ args }) => args.includes(script)).length,
+        1,
+        script,
+      )
+    for (const script of ['build', 'types', 'types:examples', 'types:unit']) {
+      assert.ok(position(script) >= 0, `Missing prerequisite: ${script}`)
+      assert.ok(server > position(script), `SSR must follow ${script}`)
+      assert.ok(contracts > position(script), `Contracts must follow ${script}`)
+    }
+    assert.ok(contracts > server, 'Documentation contracts follow SSR')
+    assert.ok(nodeTests > contracts, 'Node tests follow both required gates')
+  }))
+
+for (const script of ['test:ssr', 'test:contracts'])
+  test(`a failed ${script} stops the required gate and prevents later stages`, () =>
+    withFakePnpm(script, async (result, calls) => {
+      assert.equal(result.status, 7, result.stderr)
+      assert.deepEqual(calls.at(-1).args, [script])
+      assert.equal(calls.filter(({ args }) => args.includes(script)).length, 1)
+      assert.equal(
+        calls.some(({ args }) => args.includes('test')),
+        false,
+      )
+      if (script === 'test:ssr')
+        assert.equal(
+          calls.some(({ args }) => args.includes('test:contracts')),
+          false,
+        )
+    }))

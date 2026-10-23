@@ -8,6 +8,8 @@ for (const script of [
   'types:unit',
   'types:examples',
   'test:unit',
+  'test:ssr',
+  'test:contracts',
   'test',
 ]) {
   console.log(`Check: ${script}`)

@@ -31,7 +31,7 @@ pnpm install --frozen-lockfile
 pnpm check
 ```
 
-`pnpm check` runs formatting, lint, integrity checks, package builds, package types, unit test types, example types, unit tests, and Node tooling tests serially.
+`pnpm check` runs formatting, lint, integrity checks, package builds, package types, unit test types, example types, unit tests, server rendering, documentation contracts, and Node tooling tests serially.
 The unit stage uses `NODE_ENV=test`. Node test files run one at a time.
 `pnpm test:unit` runs native engine, editing, form, event, and virtualizer unit tests.
 `pnpm test:qualification` runs the complete serial qualification suite.

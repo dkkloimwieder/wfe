@@ -10,6 +10,27 @@ pnpm exec playwright install chromium
 pnpm test:qualification
 ```
 
+The commit gate is `pnpm check`.
+It includes server rendering and documentation contracts after the package build.
+Run `pnpm test:qualification` as the required companion gate for runtime, export, rendering, hydration, and vendor changes.
+Browser modes remain separate from routine type and unit tests.
+
+The executable inventory is [coverage-inventory.mjs](../scripts/coverage-inventory.mjs).
+It lists every example runner, example type project, documentation fence, and separate type contract.
+Each entry has a required, diagnostic, optional, covered, or excluded disposition with a reason.
+The inventory test rejects missing entries, changed fence counts, and missing required stages.
+The example type runner and documentation compiler read this same inventory.
+Documentation errors name the source Markdown file and fence index.
+
+The public Theme consumer runs as a required browser stage and builds its own fixture.
+Accessor profiling, editing overhead, and grouping profiling remain diagnostic workloads.
+Their performance measurements do not run in the commit or qualification gates.
+The first two diagnostic examples still receive routine type checks.
+The WAMN adapters remain optional because they require prepared external inputs.
+The platform snapshot example remains required integration coverage.
+Virtualization runs in source and distribution production modes; its development-mode exclusion is recorded in the inventory.
+Existing hydration, live-development, and preview stages remain required.
+
 The runner tests formatting, lint, types, exports, unit behavior, mock transport, server rendering, hydration, and vendor ownership.
 It builds browser examples against source, the built package, and the development runtime.
 Component and form hydration run in all three modes and reject server warnings as well as browser diagnostics.

@@ -13,6 +13,9 @@ From the repository root, install with `pnpm install --frozen-lockfile`.
 Run `pnpm check` before committing a change.
 It type-checks every unit test with the package compiler rules.
 It includes the unit suite and runs Node test files serially.
+This gate includes server rendering and documentation contracts after the package build.
+Run `pnpm test:qualification` for runtime, export, rendering, hydration, or vendor changes.
+Classify new example runners and TypeScript documentation fences in `scripts/coverage-inventory.mjs`.
 Run relevant unit and browser suites once those sources move into this repository.
 Test behavior, accessibility, focus, retained state, and cleanup.
 Do not assert exact colors, fonts, shadows, decoration, or cosmetic sizes in automated tests.

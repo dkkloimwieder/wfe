@@ -21,9 +21,9 @@ import { uiDensity, uiScope } from '@wfe/components'
 import '@wfe/components/styles.css'
 
 const density = 'compact'
-const rowHeight = uiDensity(density).rowHeight
+export const rowHeight = uiDensity(density).rowHeight
 
-<div {...uiScope(density)}>
+;<div {...uiScope(density)}>
   <button type="button">Export</button>
 </div>
 ```

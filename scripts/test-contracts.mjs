@@ -1,44 +1,29 @@
+import {
+  documents,
+  contracts,
+  typeScriptFences,
+} from './coverage-inventory.mjs'
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const directory = resolve(packageRoot, 'docs/contracts')
-const document =
-  readFileSync(resolve(directory, 'UI-BOUNDARIES.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/adoption.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/layout.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/table-workspace.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/form-contract.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/table-formatting.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/collapsible.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/number-inputs.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/form-layout.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/tabs.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/breadcrumbs.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/accordion.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/resizable.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/file-input.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/charts.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/status-tiles.md'), 'utf8') +
-  '\n' +
-  readFileSync(resolve(packageRoot, 'docs/table-row-actions.md'), 'utf8')
+const files = new Map()
+for (const document of documents.filter(({ status }) => status === 'covered')) {
+  const fences = typeScriptFences(
+    readFileSync(resolve(packageRoot, document.path), 'utf8'),
+  )
+  for (const [index, fence] of fences.entries()) {
+    files.set(
+      resolve(
+        packageRoot,
+        `${document.path}.example-${index}.${fence.language}`,
+      ),
+      fence.code,
+    )
+  }
+}
 const configPath = resolve(packageRoot, 'packages/components/tsconfig.json')
 const config = ts.readConfigFile(configPath, ts.sys.readFile)
 if (config.error)
@@ -51,25 +36,19 @@ const parsed = ts.parseJsonConfigFileContent(
   dirname(configPath),
 )
 parsed.options.types = ['vite/client']
-const files = new Map(
-  [...document.matchAll(/^```(ts|tsx)\n([^]*?)^```/gm)].map((match, index) => [
-    resolve(directory, `ui-contract-example-${index}.${match[1]}`),
-    match[2],
-  ]),
-)
 if (!files.size) throw new Error('No UI contract examples found')
 const host = ts.createCompilerHost(parsed.options)
 const readFile = host.readFile.bind(host)
 const fileExists = host.fileExists.bind(host)
 host.readFile = (path) => files.get(path) ?? readFile(path)
 host.fileExists = (path) => files.has(path) || fileExists(path)
-const generator = resolve(packageRoot, 'tests/contracts/generator-contract.ts')
-const chart = resolve(packageRoot, 'tests/contracts/chart-contract.ts')
-const shell = resolve(packageRoot, 'tests/contracts/shell-contract.ts')
-const grid = resolve(packageRoot, 'tests/contracts/grid-contract.ts')
-const tiles = resolve(packageRoot, 'tests/contracts/status-tile-contract.ts')
 const program = ts.createProgram(
-  [...files.keys(), generator, chart, shell, grid, tiles],
+  [
+    ...files.keys(),
+    ...contracts
+      .filter(({ gate }) => gate === 'contracts')
+      .map(({ path }) => resolve(packageRoot, path)),
+  ],
   parsed.options,
   host,
 )

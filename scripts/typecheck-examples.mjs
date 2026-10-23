@@ -1,31 +1,11 @@
 import { spawnSync } from 'node:child_process'
-for (const example of [
-  'theme',
-  'status-tiles',
-  'grid',
-  'shell',
-  'charts',
-  'components',
-  'table-editing',
-  'table-read-only',
-  'analytics',
-  'styles',
-  'layout',
-  'dashboard',
-  'date-picker',
-  'form-contract',
-  'generator',
-  'platform',
-  'virtualization',
-  'hydration',
-  'accessor-profile',
-  'editing-overhead',
-]) {
+import { examples } from './coverage-inventory.mjs'
+for (const { id: example, types } of examples.filter(
+  ({ status }) => status !== 'optional',
+)) {
   console.log(`Types: ${example}`)
-  const result = spawnSync(
-    'pnpm',
-    ['exec', 'tsc', '--project', `examples/${example}/tsconfig.json`],
-    { stdio: 'inherit' },
-  )
+  const result = spawnSync('pnpm', ['exec', 'tsc', '--project', types], {
+    stdio: 'inherit',
+  })
   if (result.status !== 0) process.exit(result.status ?? 1)
 }

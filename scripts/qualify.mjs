@@ -1,3 +1,4 @@
+import { examples } from './coverage-inventory.mjs'
 import { spawn, execFileSync } from 'node:child_process'
 import { createWriteStream } from 'node:fs'
 import { appendFile, mkdir, writeFile } from 'node:fs/promises'
@@ -8,7 +9,7 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 
 export function selectsQualification(paths) {
   return paths.some((path) =>
-    /^(packages\/|patches\/|examples\/|tests\/|scripts\/|docs\/contracts\/|\.github\/workflows\/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|tsconfig\.json$|vitest\.config\.ts$|eslint\.config\.mjs$)/.test(
+    /^(packages\/|patches\/|examples\/|tests\/|scripts\/|docs\/|\.github\/workflows\/|README\.md$|CONTRIBUTING\.md$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|tsconfig\.json$|vitest\.config\.ts$|eslint\.config\.mjs$)/.test(
       path,
     ),
   )
@@ -33,8 +34,7 @@ export function qualificationStages(output, { wamn = false } = {}) {
       'examples/analytics/demo-server.test.mjs',
       'examples/analytics/paging.test.mjs',
     ]),
-    stage('server-rendering', ['run', 'test:ssr']),
-    stage('contracts', ['exec', 'node', 'scripts/test-contracts.mjs']),
+    stage('theme-browser', ['exec', 'node', 'examples/theme/run.mjs']),
     stage('chart-imports', ['exec', 'node', 'scripts/check-chart-imports.mjs']),
     stage('engine-imports', [
       'exec',
@@ -56,25 +56,10 @@ export function qualificationStages(output, { wamn = false } = {}) {
       BENCH_DISTRIBUTION: mode === 'distribution' ? '1' : '',
       BENCH_DEVELOPMENT: mode === 'development' ? '1' : '',
     }
-    for (const fixture of [
-      'status-tiles',
-      'grid',
-      'shell',
-      'charts',
-      'components',
-      'table-editing',
-      'table-read-only',
-      'analytics',
-      'styles',
-      'layout',
-      'dashboard',
-      'date-picker',
-      'form-contract',
-      'generator',
-      'platform',
-      'virtualization',
-    ]) {
-      if (mode === 'development' && fixture === 'virtualization') continue
+    for (const { id: fixture } of examples.filter(
+      ({ status, modes, build }) =>
+        status === 'required' && build && modes.includes(mode),
+    )) {
       stages.push(
         stage(
           `${fixture}-${mode}-build`,

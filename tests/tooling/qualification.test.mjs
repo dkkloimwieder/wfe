@@ -23,10 +23,7 @@ test('qualification selects shared toolchain and package changes', () => {
   ]) {
     assert.equal(selectsQualification([path]), true, path)
   }
-  assert.equal(
-    selectsQualification(['docs/guide/intro.md', 'README.md']),
-    false,
-  )
+  assert.equal(selectsQualification(['docs/guide/intro.md', 'README.md']), true)
 })
 
 test('qualification covers both browser inputs and keeps heap work separate', () => {
@@ -157,7 +154,7 @@ test('failed stages retain logs and ignore inherited review and profiling contro
       join(bin, 'pnpm'),
       `#!${process.execPath}
 require('node:fs').writeSync(1, JSON.stringify({args: process.argv.slice(2), env: Object.fromEntries(Object.entries(process.env).filter(([key]) => key.startsWith('BENCH_')))}) + '\\n')
-process.exitCode = process.argv.includes('test:ssr') ? 7 : 0
+process.exitCode = process.argv.includes('scripts/check-chart-imports.mjs') ? 7 : 0
 `,
       { mode: 0o755 },
     )
@@ -178,10 +175,10 @@ process.exitCode = process.argv.includes('test:ssr') ? 7 : 0
     const report = JSON.parse(
       await readFile(join(output, 'summary.json'), 'utf8'),
     )
-    assert.equal(report.stages.at(-1).name, 'server-rendering')
+    assert.equal(report.stages.at(-1).name, 'chart-imports')
     assert.equal(report.stages.at(-1).status, 7)
     const stage = JSON.parse(
-      await readFile(join(output, 'server-rendering.log'), 'utf8'),
+      await readFile(join(output, 'chart-imports.log'), 'utf8'),
     )
     assert.equal(stage.env.BENCH_URL, undefined)
     assert.equal(stage.env.BENCH_CASE_PATTERN, undefined)
@@ -275,4 +272,22 @@ test('qualification uses the required gate once and runs direct Node suites seri
   for (const stage of nodeSuites) {
     assert.ok(stage.args.includes('--test-concurrency=1'), stage.name)
   }
+})
+
+test('qualification delegates SSR and documentation contracts to its single required gate', () => {
+  const stages = qualificationStages('/tmp/coverage-gates')
+  const checks = stages.filter(({ args }) => args.includes('check'))
+  assert.equal(checks.length, 1)
+  assert.equal(stages[0], checks[0])
+  for (const entry of [
+    'test:ssr',
+    'test:contracts',
+    'scripts/test-ssr.mjs',
+    'scripts/test-contracts.mjs',
+  ])
+    assert.equal(
+      stages.some(({ args }) => args.includes(entry)),
+      false,
+      entry,
+    )
 })
