@@ -14,3 +14,6 @@ coverage/
 test-results/
 playwright-report/
 *.heapsnapshot
+
+# Adjacent agent checkouts are separate repositories.
+/.claude/worktrees/

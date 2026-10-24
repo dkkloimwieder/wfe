@@ -12,3 +12,6 @@ examples/platform/snapshot
 
 packages/components/src/vendor/charts/charts-core
 packages/components/src/vendor/charts/charts-scales
+
+# Adjacent agent checkouts are separate repositories.
+/.claude/worktrees/

@@ -6,6 +6,7 @@ import plugin from '@typescript-eslint/eslint-plugin'
 export default [
   {
     ignores: [
+      '.claude/worktrees/**',
       '**/node_modules/**',
       '**/dist/**',
       '**/.dist*/**',
