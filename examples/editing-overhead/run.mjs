@@ -1,3 +1,4 @@
+import { assertEditingControlModules } from '../shared/editing-module-audit.mjs'
 import {
   errorDetails,
   errorText,
@@ -49,11 +50,7 @@ try {
     ),
   )
   const modules = JSON.parse(await readFile(assets + 'modules.json', 'utf8'))
-  assert.ok(
-    !modules.some((path) =>
-      /table-core|@tanstack\/store|virtual-core|solid-form|kobalte/.test(path),
-    ),
-  )
+  assertEditingControlModules(modules)
   assert.ok(
     modules.some((path) => /table-editing\/createEditing\.ts$/.test(path)),
   )

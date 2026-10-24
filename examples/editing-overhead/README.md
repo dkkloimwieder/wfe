@@ -92,3 +92,8 @@ The summary compares exact contracts across source and distribution builds and r
 The fixture participates in `test:fixtures:types` and `test:fixtures:eslint`.
 The measurement campaign remains separate from routine qualification because host load affects timings.
 See the [heap findings](../../bench/heap-findings.md) for recorded results and the architecture recommendation.
+
+The module audit shares the editing table's exact owned control-family policy.
+It permits the vendored checkbox, select and date-picker support used by that table,
+while rejecting external Kobalte and unexpected owned families. Required editing
+controller, table and engine modules remain independently checked.

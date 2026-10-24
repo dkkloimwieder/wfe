@@ -1,3 +1,4 @@
+import { assertEditingControlModules } from '../shared/editing-module-audit.mjs'
 import {
   startStaticServer,
   launchBrowser,
@@ -95,30 +96,7 @@ try {
       ),
       'fixture has no duplicate Table source',
     )
-    assert.ok(
-      !modules.some((path) =>
-        /table-core|@tanstack\/store|virtual-core|solid-form|node_modules\/@kobalte\/|sonner|lucide/.test(
-          path,
-        ),
-      ),
-    )
-    const ownedControlModules = modules.filter((path) =>
-      path.includes('/vendor/kobalte/'),
-    )
-    assert.ok(
-      ownedControlModules.some((path) =>
-        /\/checkbox-root\.(tsx|jsx)$/.test(path),
-      ),
-      'boolean filters use the owned shared checkbox',
-    )
-    assert.ok(
-      ownedControlModules.every((path) =>
-        /\/utils\/src\/|\/core\/src\/(button|checkbox|dismissable-layer|form-control|i18n|list|listbox|polymorphic|popper|popover|select|selection)\/|\/core\/src\/primitives\/(create-collection|create-disclosure-state|create-register-id|create-tag-name|create-toggle-state)\//.test(
-          path,
-        ),
-      ),
-      'editing retains shared checkbox, select, and date-picker popover behavior with their support modules',
-    )
+    assertEditingControlModules(modules)
     assert.ok(modules.some((path) => /zod\/v4\/mini\//.test(path)))
     assert.ok(!modules.some((path) => /zod\/v4\/classic\//.test(path)))
   }

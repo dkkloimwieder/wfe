@@ -19,3 +19,7 @@ See [the example guide](../README.md) for shared browser setup and report config
 `BENCH_SIZES`, `BENCH_ITERATIONS`, `BENCH_REPEATS`, and `BENCH_WARMUPS` control the workload.
 `BENCH_OUTPUT` selects the JSON report path.
 This benchmark is separate from the required qualification suite.
+
+This data-only diagnostic declares `css: 'none'` in the shared example configuration.
+Its build rejects CSS imports and assets and emits `css-contract.json` recording that absence.
+Styled examples keep the default shared CSS provenance checks.

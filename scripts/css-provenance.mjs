@@ -149,3 +149,30 @@ export function cssProvenance(root, distribution = false) {
     },
   }
 }
+
+/** Data-only diagnostics must not silently acquire presentation dependencies. */
+export function cssAbsent() {
+  const isCss = (id) => /\.css(?:[?#]|$)/i.test(id)
+  return {
+    name: 'css-absent-contract',
+    transform(_code, id) {
+      assert.ok(!isCss(id), `CSS-free fixture imported CSS: ${id}`)
+    },
+    generateBundle(_options, bundle) {
+      for (const item of Object.values(bundle)) {
+        assert.ok(
+          !isCss(item.fileName),
+          `CSS-free fixture emitted CSS: ${item.fileName}`,
+        )
+        if (item.type === 'chunk')
+          for (const id of Object.keys(item.modules))
+            assert.ok(!isCss(id), `CSS-free fixture bundled CSS: ${id}`)
+      }
+      this.emitFile({
+        type: 'asset',
+        fileName: 'css-contract.json',
+        source: JSON.stringify({ css: 'none' }, null, 2),
+      })
+    },
+  }
+}
