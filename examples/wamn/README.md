@@ -1,11 +1,13 @@
 # WAMN integration fixture
 
-This browser fixture connects WAMN's actual runtime and generated Widget bindings to the native Solid 2 table.
+This browser fixture connects a prepared copy of WAMN's runtime and generated Widget bindings to the table engine in `@wfe/components/table`.
 It uses one Solid record store and the shared block-layout `VirtualRows` renderer.
 The existing measured virtualizer owns row geometry and scrolling.
 It tests the Table integration boundary with shared Button, Input, Checkbox, and SelectField components.
-Production WAMN grid and Form adoption are deferred in Beads phase 5 and do not block Table qualification.
-Focused component vendoring remains a later assessment after Table is stable.
+The fixture imports controls from `@wfe/components` and virtualization from `@wfe/components/virtual`.
+It is an optional integration fixture, not a production application or an adoption plan.
+Production application adoption remains an external decision.
+The shared library already contains owned vendor subsets and their provenance records.
 
 ## Inputs
 
@@ -44,8 +46,10 @@ They do not claim that WAMN serves pages above its 100-row maximum.
 
 Scope changes invalidate earlier responses before the new load starts.
 The fixture waits for Solid's microtask commit before it reads a changed configuration.
-`latest()` does not expose queued synchronous writes in rc.13.
-The [Solid cheatsheet](https://github.com/solidjs/solid/blob/next/packages/solid/CHEATSHEET.md) describes the committed-read rule.
+The earlier rc.13 investigation observed that `latest()` did not expose queued synchronous writes.
+That observation is historical.
+For the current pinned rc.18 model, read the bundled [Solid cheatsheet](../../node_modules/solid-js/CHEATSHEET.md) after installation.
+It describes committed reads and the microtask or explicit `flush()` boundary.
 
 ## Run
 
@@ -66,7 +70,7 @@ This machine uses `/tmp/table-cleanup-browsers`.
 The runner starts its own local server and closes the server and browser in `finally`.
 For manual use, run Vite with the same configuration and stop it after the session.
 
-To test the built native package, build Solid Table first.
+To test the built packages, build the wfe workspace first.
 
 ```sh
 pnpm build
@@ -118,11 +122,19 @@ With heap capture enabled, the runner also requires exactly one record collectio
 The disposed capture must contain no classified records, Solid store targets, owners, computations, row views, cells, or virtualizer.
 Timings remain advisory on this shared development host.
 
+## Historical retention findings
+
+The following rc.13 observations are retained as historical evidence on October 24, 2026.
+They do not describe a new run on the current runtime.
+
 The fixture uses native event listeners with owner cleanup, as the existing virtualized example does.
-Solid rc.13 also retains disposed computations in an unscheduled pending-node queue in this fixture.
-`main.tsx` wraps the render disposer in a generator-based `action()` and calls `flush()` after the action.
+The historical rc.13 investigation found disposed computations in an unscheduled pending-node queue in this fixture.
+The current `main.tsx` uses the shared `createFixtureDisposal` helper, which wraps the render disposer in a generator-based `action()`.
+The caller still invokes `flush()` after the action.
 This public API workaround schedules the queue drain. It changes no record state or runtime dependency files.
-Bead `table-gd3.6.5` tracks a smaller reproducer, a fixed runtime release, and removal of the workaround.
+Bead `table-gd3.6.5` records the original investigation.
+The shared helper retains the qualified disposal boundary documented under `wfe-0dj.4`.
+This guide does not claim that the rc.13 retaining path persists in rc.18 or that the workaround can be removed.
 
 The full sequence also exposed a native column getter retained through a V8 allocation template.
 Native Table now creates that live property with `Object.defineProperty`.

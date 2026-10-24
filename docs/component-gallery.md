@@ -3,7 +3,12 @@
 The gallery brings component examples into one browser interface.
 It reuses shared components, DashboardShell navigation, AppearanceReview controls, and existing examples.
 Gallery code belongs to the examples application. Public component APIs and application responsibilities stay separate.
-JavaScript routes load on demand. The components preview bundles its styles together so every route retains the existing CSS integrity tests.
+The icon catalog loads on demand.
+A local `Loading` boundary shows LOADING EXAMPLE while its import is pending.
+Its accessible status name is Example loading.
+The catalog navigation remains outside that boundary.
+The preview replaces the status with the example when the import resolves.
+The components preview bundles its styles together so routes share the same styles.
 
 ## Open the gallery
 
@@ -18,7 +23,7 @@ If that server already runs, use its existing URL.
 
 The top header shows Gallery, the current category, and the current example as breadcrumbs.
 An empty footer stays at the bottom.
-The left pane contains Forms, Components, Navigation, and Layout sections, with a small outlined triangle on the divider.
+The left pane contains Forms, Tables, Components, Navigation, and Layout sections, with a small outlined triangle on the divider.
 The current category starts open. Route and history changes reveal the selected category.
 Expand a category and choose an example from the sidebar. On a narrow screen, use Components to open the navigation pane.
 The selected link identifies the current example. Choosing a link closes narrow navigation and focuses the example title.
@@ -39,7 +44,11 @@ Changing examples starts a fresh example. Changing presentation retains the curr
 ## Review controls
 
 Appearance uses the existing surface, accent, and layer controls.
-The default is Light, Blue, no shadows, Surface 1 for components, and Surface 2 for the background.
+The default is Light with a Blue accent and no shadows.
+BASE uses Surface 1, PANES uses Surface 3, and CONTENT uses Surface 2.
+These choices come from the shared `defaultLayers` value: `{ canvas: 0, pane: 2, content: 1 }`.
+Layer numbers start at zero, so `0` selects Surface 1.
+See the [Default theme](theme.md) for the public configuration contract.
 Appearance controls stay collapsed initially so the example receives the available height.
 They scroll within their region on small screens.
 The secondary accent has its own color choice.
@@ -54,15 +63,20 @@ Readonly buttons and invalid breadcrumbs do not represent useful component state
 
 Full width fills the preview panel. The other controls limit content width to 320 or 768 pixels.
 Each limit fits within the available panel width. The gallery does not scale the example.
-These controls test content layout. Resize the browser to test viewport media queries.
+These controls test the available width of embedded content.
+Dashboard navigation and table controls also respond to their own available width.
+A narrow embedded layout can use a drawer even inside a wide browser.
+Resize the browser to test viewport behavior as well.
 
 ## Examples
 
 The Forms section includes Everything form, fields, choices, boolean controls, numbers, dates, and files.
 Everything form combines seven sections with local submission, reset, and field errors.
 Its 30rem width becomes 480 pixels with the example root size and shrinks on narrow screens.
-Components includes buttons, contextual controls, dialogs, display states, and a readonly table.
-Navigation contains tabs and breadcrumbs. Layout contains Collapsible, Accordion, and resizable panes.
+Tables contains Table, Column controls and row actions, Pagination and header actions, and Sub-tables.
+Components contains buttons, icons, decoration geometry, popovers, menus, tooltips, dialogs, and display states.
+Navigation contains Context switcher, tabs, and breadcrumbs.
+Layout contains Entry panel, Collapsible, Accordion, and resizable panes.
 The table fills its main panel, including when only two records exist.
 
 Existing fixture routes such as `?files=1`, `?tabs=1`, and `?consumer=1` remain unchanged.
@@ -71,7 +85,8 @@ Unknown example IDs fall back to Fields. Invalid presentation values fall back t
 
 ## Shared presentation
 
-The gallery and reused standalone examples share `themeSizing` from `@wfe/components/theme`.
+The gallery and reused standalone examples inherit sizing from their owning `Theme`.
+The shared `themeSizing` profile remains exported from `@wfe/components/theme`.
 The examples use Fira Code Variable with its unchanged SIL Open Font License in the shared font directory.
 Controls and labels use 12-pixel text. Controls use a 32-pixel height and 10-pixel horizontal padding.
 The root size is 16 pixels. Form fields have a configurable maximum width of 30rem.
@@ -108,12 +123,16 @@ Changing examples disposes the previous component and mounts the next one.
 Disposal also removes the gallery history listener.
 
 The width controls change the available content width, not the browser viewport.
-Resize the browser to test viewport media queries and mobile navigation.
+Dashboard and table controls use their available width to choose a drawer layout.
+Before measurement, or without `ResizeObserver`, they use the viewport as a fallback.
+A narrow viewport still activates the drawer.
+Resize the browser to test this fallback and viewport-dependent behavior.
 Standalone preview URLs remain available for focused browser tests.
 Table title decorations can extend into the existing toolbar area without extra spacing.
 The browser suites cover direct links, history, retained drafts, state changes, mobile focus, and cleanup.
 
-Generated examples pass the shared sizing profile through `LayoutView.style`.
+Generated examples inherit the shared sizing profile from their owning `Theme`.
+`LayoutView.style` remains available for application-owned layout styles.
 Form controls use 32px height, 12px text, 8px control gaps, and 20px field gaps.
 Single-column forms center within a 30rem limit.
 Declared multi-column grids retain their responsive layout.

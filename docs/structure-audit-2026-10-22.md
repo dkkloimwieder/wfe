@@ -1,5 +1,14 @@
 # wfe audit: cohesiveness, code quality, modularity
 
+> Historical audit: the findings, counts, scores, and line references below describe commit `71a99f6` on October 22, 2026.
+> They are not a current inventory or a current test report.
+> The Beads epic `wfe-wmm` tracks the follow-up work.
+> See the [remediation checkpoint](audit-remediation-2026-10-24.md) for delivered changes and retained evidence.
+> See [remaining audit findings](audit-low-dispositions.md) for decisions and evidence limits.
+> The October 24 follow-up records completed artifact and vendor work through commit `3c2f63d`.
+> Final qualification attempted all 156 stages. The checkpoint records four failures and the focused correction in `daf32b1`.
+> This note does not approve a release or report unrun checks as passing.
+
 Date: October 22, 2026. Repository: `/home/kaalin/dev/wfe` at commit `71a99f6` on `main`. This audit changed no files.
 
 ## 1. Scope and method

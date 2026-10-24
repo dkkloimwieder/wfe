@@ -79,3 +79,5 @@ Build outputs and qualification reports remain outside the documentation index.
 See [row-dependent table actions](table-row-actions.md) for live row state, disabled buttons, and application callbacks.
 
 - [Remaining audit findings](audit-low-dispositions.md): compatibility decisions and deferred work for the October 22 audit.
+
+- [Audit remediation checkpoint](audit-remediation-2026-10-24.md) records delivered work, retained evidence, and final qualification limits.

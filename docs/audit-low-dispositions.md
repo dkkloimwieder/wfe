@@ -8,7 +8,26 @@ The source review used commit `5683e57` and the isolated phase 4/7 candidates on
 No new runtime tests, dependency delivery audit, or performance measurements ran for this record.
 This record follows the completion of phase 4 and issues 7.1–7.5. Their issue records contain the implementation and qualification evidence.
 Issues 7.8 and 7.9 record the native multiple-selection and nested dialog-scope repairs with their regression evidence.
-The user deferred phases 5 and 6 until after the component checkpoint.
+The user initially deferred phases 5 and 6 until after the component checkpoint.
+Work on those phases resumed afterward.
+
+### Status update: October 24, 2026
+
+The shared runner and fixture-disposal implementations are now in the source tree.
+Commit `4c68c97` records the shared example boundaries.
+Commit `45ee64a` records the platform view extraction and retained table ownership.
+Those changes replace the earlier blanket deferral of example and tooling work.
+They do not authorize removal of the compatibility paths marked KEEP below.
+
+Issue 5.6 and phase 6 are complete through commit `3c2f63d`.
+The Beads checkpoints `wfe-wmm.5.7` and `wfe-wmm.6.6` are closed.
+The implementation commits are `c355d70` (5.6), `a7b9723` (6.1), `40b2916` (6.2), `ffb9358` (6.3), `0ec3487` (6.4), and `3c2f63d` (6.5).
+Their evidence combines the original gate, targeted follow-up checks, and sixteen focused stages.
+It is not an uninterrupted passing gate or a full runtime qualification.
+Final qualification attempted all 156 stages and recorded 152 passes and four failures.
+The [final checkpoint](audit-remediation-2026-10-24.md) records coverage limits and the focused correction under issue 9 in `daf32b1`.
+That correction passed its final gate and focused package, hydration, and vendor replay checks.
+The published adoption record still names `v0.0.8`; this update creates no release.
 
 Issue numbers below use the `wfe-wmm.` prefix unless stated otherwise.
 KEEP records an intentional compatibility or scope decision. DEFER records work that needs separate evidence or a later phase.
@@ -48,28 +67,28 @@ The original audit retains its historical counts and observations.
 - KEEP generator/shell chunking: tsdown hashed internal chunks are legitimate package implementation details. No evidence of missing published files or duplicate runtime owners. Public imports remain package exports.
 - KEEP ShellView distinct from LayoutDescription. Existing docs state separate navigation/routing and layout responsibilities. Merging them would expand this checkpoint.
 
-## 5.4 Examples, deferred
+## 5.4 Examples
 
 - Unused analytics/fixed-window, stub components/prepare, historical KOBALTE_LICENSE references and five mock naming styles: KEEP until phase 5 cleanup establishes delivery/reference needs. License copies are not deleted as dead code.
 - Normal host ownership and redundant exampleSizing overrides are handled by 4.4. Class containment belongs to 4.1/4.2. The [example theme documentation](example-themes.md) preserves deliberate raw-scope and performance fixtures.
-- Deep-import guards for all packages and cross-example guards map to 5.4. Large examples and naming cleanup map to 5.5. These do not block component behavior checkpoint.
+- Deep-import and cross-example guards are implemented under 5.4. The platform view extraction under 5.5 preserves application-owned navigation and persistent table owners. These changes do not authorize broad example renaming or removal of unused compatibility files.
 
-## 5.5 Tooling/history, deferred
+## 5.5 Tooling/history
 
 - The narrow documentation path selection was corrected by closed `wfe-wmm.1.3`: `selectsQualification` now includes all `docs/` changes. KEEP `NX_BASE` as the existing Git comparison input. Reading that environment variable does not require an Nx dependency.
 - KEEP the synthetic `.github/workflows/pr.yml` path in the qualification test. It exercises the workflow-directory selection rule and does not claim that the file exists.
-- Duplicated mode and hydration stage construction maps to deferred `wfe-wmm.5.1`/`wfe-wmm.5.2`. Preserve stage identities, failure reporting and source/package/development coverage during that work.
+- Shared runner work under `wfe-wmm.5.1`/`wfe-wmm.5.2` is now in the source tree. Stage identities, failure reporting and source/package/development coverage remain part of its contract. Each issue retains its own evidence and limitations.
 - Wall-clock unit waits: DEFER changes until a specific test demonstrates a clock-dependent failure. Fake clocks and event settlement require different ownership. Phase 5.3 owns shared fixture disposal, not a blanket timer rewrite. File naming, repeated afterEach and example unit co-location are KEEP absent isolation evidence. A global setup abstraction can change ownership and cleanup ordering.
 - KEEP migration history, dependency-integrity trustPolicyExclude evidence and old heap-findings evidence. Closed 1.6 annotates stale documentation. Do not rewrite history or delete supporting supply-chain records.
 - KEEP the three manual scripts as manual tools. Unused coverage/publint pins stay pinned until a dedicated delivery/dependency audit proves removability. KEEP current CI timeout, concurrency and cache policy for this checkpoint. A timeout or cancellation change requires observed run durations and a decision about retaining interrupted evidence. The Node boundary matrix already limits its own parallelism to one. It does not serialize every workflow job.
 - test-results retention and fixed artifact destinations map to 5.6. Preserve current failed and passing evidence; do not prune during audit.
 
-## 5.6 Vendor, deferred
+## 5.6 Vendor
 
-- Obsolete audit-vendor package aliases map to prepared 6.1. Unused entryPoints/scale barrels/repeated repair strings and dead Kobalte exports: KEEP pending 6.3 inventory and 6.5 repair attribution. Internal reachability alone does not authorize removal of public vendor-backed types.
+- The shared vendor classification registry under 6.1 replaces obsolete audit-vendor package aliases. Issues 6.3 and 6.5 add inventory checks and repair attribution. Unused entryPoints, scale barrels, repeated repair strings and dead Kobalte exports remain KEEP. Inventory or internal reachability alone does not authorize removal of public vendor-backed types.
 - @internationalized/number: KEEP dependency until complete source/generated delivery evidence establishes the unused-file claim and licenses/pins remain intact.
-- Scroll-patch missing hashes and patch replay beyond lockfile map to 6.3/6.5. Existing working repairs remain retained.
-- Hard-coded Kobalte bundle probes map to 5.2/6.1. check-kobalte extension-only inventory maps to 6.3. Neither is silently marked complete.
+- Issues 6.3 and 6.5 record original archive hashes, installed repair checks and replay evidence beyond the lockfile. Existing working repairs remain retained. Text replay does not prove runtime equivalence.
+- The shared runner and classification work under 5.2/6.1 retains bundle ownership checks. Issue 6.3 adds complete captured-file inventory checks. These results do not authorize removal of vendor-backed APIs.
 
 ## Evidence and checkpoint limits
 
@@ -88,8 +107,17 @@ The former checks computed visibility before choosing a new target. The latter a
 
 The qualification selection rule and its synthetic-path tests are in `scripts/qualify.mjs` and `tests/tooling/qualification.test.mjs`.
 The CI policy is in `.github/workflows/check.yml`. Historical migration and heap reports remain evidence, not current executable specifications.
-Vendor inventory, notice delivery and repair replay remain deferred phase 6 work. They are not certified by this disposition review.
+Vendor inventory, notice delivery and repair replay now have focused qualification evidence.
+The original gate at `/tmp/wfe-final-vendor-focused-results/run-8KRSXj` remains failed with two unit deadlines.
+The unchanged targeted cases passed at `/tmp/wfe-unit-deadlines-j7fbbs2p` under their original deadlines.
+The continuation at `/tmp/wfe-final-vendor-resume-results/run-V7VJK1` passed SSR and contracts but retained a stale qualification-test failure.
+The reviewed test correction passed its scoped checks at `/tmp/wfe-qualification-path-fix-q7clyvvf`.
+All sixteen remaining focused stages passed at `/tmp/wfe-final-vendor-completion-results/run-eMePBA` with unchanged source during that run.
+Those stages cover representative browser artifacts, vendor bundle classification, exact notice delivery, and replay from verified originals.
+The live child selection covers one cold-icon case. Its existing parent case label does not establish full popup coverage.
+These local paths are retained evidence references, not published artifacts or a guarantee of permanent storage.
+The final checkpoint records the completed qualification attempts, their failures, and the corrected selection diagnostic. No repair is retired by these results.
 
 The new Dialog scope finding is tracked by `wfe-wmm.7.9`. Unlocked native multiple selection is tracked by `wfe-wmm.7.8`.
 Issues 7.8 and 7.9 record separate failing baselines and qualification for their repairs. Issues 7.1–7.5 record the completed shared-helper changes and their qualification.
-The phase 7 checkpoint must review those results. This document does not authorize a release or report unrun checks as passing.
+The closed phase 7 checkpoint records its review of those results. This document does not authorize a release or report unrun checks as passing.
