@@ -42,7 +42,8 @@ export function ControlFrame(
   },
 ) {
   const compound = useContext(CompoundControl)
-  if (compound) return props.children
+  // Read children inside JSX: a direct read in the body is untracked.
+  if (compound) return <>{props.children}</>
   return (
     <span
       class={styledClasses('ui-control-frame', props.frameClass)}
