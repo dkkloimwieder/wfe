@@ -3,7 +3,9 @@ import type {
   Change,
   Feed,
   OperationCall,
+  OutboxEntry,
   Persistence,
+  Reply,
   Row,
   Trigger,
 } from '@wfe/sync'
@@ -122,3 +124,87 @@ export const call = (
   expect: { model: 'orders', id },
   append_only,
 })
+
+/**
+ * A fake host that holds each reply until the test answers it by hash. The
+ * write log dedupes on request_hash: `effects` counts one effect per hash.
+ */
+export function hostOf() {
+  const waiting = new Map<string, (reply: Reply) => void>()
+  const sent: string[] = []
+  const effects = new Set<string>()
+  const send = vi.fn((entry: OutboxEntry) => {
+    sent.push(entry.request_hash)
+    effects.add(entry.request_hash)
+    return new Promise<Reply>((resolve) =>
+      waiting.set(entry.request_hash, resolve),
+    )
+  })
+  const answer = (hash: string, reply: Reply = { ok: true }) => {
+    waiting.get(hash)?.(reply)
+    waiting.delete(hash)
+  }
+  return { send, sent, effects, answer }
+}
+
+/** A probe the test switches. */
+export function probeOf(up = true) {
+  const state = { up }
+  return { state, probe: vi.fn(async () => state.up) }
+}
+
+/** A refusal reply. */
+export const refused: Reply = {
+  ok: false,
+  retriable: false,
+  refusal: { code: 'stale', text: 'Stale' },
+}
+
+/**
+ * A stand-in for navigator.locks: one holder per name, the others wait in
+ * order. `install()` puts it on navigator and returns the removal.
+ */
+export function locksOf() {
+  const queues = new Map<string, (() => void)[]>()
+  const held = new Set<string>()
+  const locks = {
+    request(
+      name: string,
+      options: { signal?: AbortSignal },
+      fn: () => Promise<void>,
+    ): Promise<void> {
+      return new Promise<void>((resolve, reject) => {
+        const run = () => {
+          held.add(name)
+          fn()
+            .then(resolve, reject)
+            .finally(() => {
+              held.delete(name)
+              queues.get(name)?.shift()?.()
+            })
+        }
+        if (!held.has(name)) run()
+        else {
+          const queue = queues.get(name) ?? []
+          queues.set(name, queue)
+          queue.push(run)
+          options.signal?.addEventListener('abort', () => {
+            const at = queue.indexOf(run)
+            if (at >= 0) queue.splice(at, 1)
+            reject(options.signal?.reason)
+          })
+        }
+      })
+    },
+  }
+  const install = () => {
+    Object.defineProperty(navigator, 'locks', {
+      value: locks,
+      configurable: true,
+    })
+    return () => {
+      Reflect.deleteProperty(navigator, 'locks')
+    }
+  }
+  return { locks, install }
+}

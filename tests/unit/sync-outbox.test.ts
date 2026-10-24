@@ -3,7 +3,15 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { createRoot, flush } from 'solid-js'
 import { outbox, outboxStatus } from '@wfe/sync'
 import type { OutboxCounts, OutboxEntry, Reply } from '@wfe/sync'
-import { call, deferred, tick } from './sync-fixtures'
+import {
+  call,
+  deferred,
+  hostOf,
+  locksOf,
+  probeOf,
+  refused,
+  tick,
+} from './sync-fixtures'
 
 afterEach(() => {
   vi.useRealTimers()
@@ -140,33 +148,6 @@ test('outboxStatus follows the counts', async () => {
   o.close()
 })
 
-/** A host that holds each reply until the test answers it by hash. */
-function hostOf() {
-  const waiting = new Map<string, (reply: Reply) => void>()
-  const sent: string[] = []
-  const send = vi.fn((entry: OutboxEntry) => {
-    sent.push(entry.request_hash)
-    return new Promise<Reply>((resolve) =>
-      waiting.set(entry.request_hash, resolve),
-    )
-  })
-  const answer = (hash: string, reply: Reply = { ok: true }) => {
-    waiting.get(hash)?.(reply)
-    waiting.delete(hash)
-  }
-  return { send, sent, answer }
-}
-/** A probe the test switches. */
-function probeOf(up = true) {
-  const state = { up }
-  return { state, probe: vi.fn(async () => state.up) }
-}
-const refused: Reply = {
-  ok: false,
-  retriable: false,
-  refusal: { code: 'stale', text: 'Stale' },
-}
-
 test('replay sends one record in seq order and two records in parallel', async () => {
   const host = hostOf()
   const net = probeOf(false)
@@ -296,4 +277,61 @@ test('on open, an entry left sending by a lost tab goes back to pending', async 
   expect(b.entries()[0]?.state).toBe('pending')
   b.close()
   a.close()
+})
+
+test('a lost reply sends the same request_hash again, and the host keeps one effect', async () => {
+  const host = hostOf()
+  const o = outbox({ database: name(), send: host.send, probe })
+  await o.enqueue(call('a', 'h1'))
+  await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
+  // The effect landed, but the reply was lost on the way back.
+  host.answer('h1', { ok: false, retriable: true })
+  await vi.waitFor(() => expect(o.entries()[0]?.state).toBe('pending'))
+  const again = o.replay()
+  await vi.waitFor(() => expect(host.sent).toEqual(['h1', 'h1']))
+  host.answer('h1')
+  await again
+  expect(host.effects.size).toBe(1)
+  expect(o.entries()).toEqual([])
+  o.close()
+})
+
+test('two outboxes on one database replay one at a time under the Web Lock', async () => {
+  const uninstall = locksOf().install()
+  try {
+    const database = name()
+    const host = hostOf()
+    const busy = new Set<string>()
+    let overlap = false
+    const sendAs = (tab: string) =>
+      vi.fn(async (entry: OutboxEntry) => {
+        busy.add(tab)
+        if (busy.size > 1) overlap = true
+        try {
+          return await host.send(entry)
+        } finally {
+          busy.delete(tab)
+        }
+      })
+    const net = probeOf(false)
+    const a = outbox({ database, send: sendAs('a'), probe: net.probe })
+    const b = outbox({ database, send: sendAs('b'), probe: net.probe })
+    await a.enqueue(call('x', 'x1'))
+    await b.enqueue(call('y', 'y1'))
+    net.state.up = true
+    const first = a.replay()
+    const second = b.replay()
+    await vi.waitFor(() => expect([...host.sent].sort()).toEqual(['x1', 'y1']))
+    await tick()
+    host.answer('x1')
+    host.answer('y1')
+    await first
+    await second
+    expect([...host.sent].sort()).toEqual(['x1', 'y1'])
+    expect(overlap).toBe(false)
+    a.close()
+    b.close()
+  } finally {
+    uninstall()
+  }
 })

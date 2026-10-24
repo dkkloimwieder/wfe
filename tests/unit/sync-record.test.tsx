@@ -3,37 +3,22 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { For, flush } from 'solid-js'
 import { OutboxDiscarded, collection, outbox, recordWrite } from '@wfe/sync'
-import type { OutboxEntry, Reply } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
-import { call, changed, feedOf, order, tick } from './sync-fixtures'
+import {
+  call,
+  changed,
+  feedOf,
+  hostOf,
+  order,
+  refused,
+  tick,
+} from './sync-fixtures'
 import type { Order } from './sync-fixtures'
 
 afterEach(cleanup)
 
 let count = 0
 const name = () => `record-test-${++count}`
-const refused: Reply = {
-  ok: false,
-  retriable: false,
-  refusal: { code: 'stale', text: 'Stale' },
-}
-
-/** A host that holds each reply until the test answers it by hash. */
-function hostOf() {
-  const waiting = new Map<string, (reply: Reply) => void>()
-  const sent: string[] = []
-  const send = vi.fn((entry: OutboxEntry) => {
-    sent.push(entry.request_hash)
-    return new Promise<Reply>((resolve) =>
-      waiting.set(entry.request_hash, resolve),
-    )
-  })
-  const answer = (hash: string, reply: Reply = { ok: true }) => {
-    waiting.get(hash)?.(reply)
-    waiting.delete(hash)
-  }
-  return { send, sent, answer }
-}
 
 /** A filled collection, an outbox, and a rendered list over recordWrite. */
 async function mounted(up = true) {
