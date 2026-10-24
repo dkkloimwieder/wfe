@@ -7,7 +7,7 @@ import { PaginationExample } from './PaginationExample'
 import { EntryExample } from './EntryExample'
 import { SubTables } from './SubTables'
 import { EverythingForm } from './EverythingForm'
-import { createEffect, lazy, onCleanup, untrack } from 'solid-js'
+import { Loading, createEffect, lazy, onCleanup, untrack } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import {
@@ -52,7 +52,12 @@ const IconsExample = lazy(() =>
 
 const views = {
   'decoration-geometry': DecorationGeometryExample,
-  icons: IconsExample,
+  // The lazy module is an async read, so a Loading boundary owns its wait.
+  icons: () => (
+    <Loading>
+      <IconsExample />
+    </Loading>
+  ),
   'input-decoration': InputDecorationExample,
   'form-actions': FormActionsExample,
   'column-controls': () => (
