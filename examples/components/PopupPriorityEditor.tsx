@@ -2,7 +2,7 @@ import { Icon } from '@wfe/components'
 import { Select } from '@wfe/components/select'
 import { createMemo, untrack } from 'solid-js'
 import type { TableChoiceEditorProps } from '@wfe/components/table'
-import type { FieldChoice } from '../table-editing/fields'
+import type { FieldChoice } from '../shared/editingFields'
 
 export function PopupPriorityEditor(props: TableChoiceEditorProps) {
   const options = createMemo(() => [...props.choices])

@@ -1,4 +1,4 @@
-import { ContainerLayoutReview } from '../shared/ContainerLayoutReview'
+import { ContainerLayoutReview } from '../ContainerLayoutReview'
 import { createSignal } from 'solid-js'
 import type { ThemeDensity } from '@wfe/components/theme'
 import {

@@ -1,7 +1,7 @@
 import { action, createRoot, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 import { createModel } from '../../examples/table-editing/model'
-import { defaultFields } from '../../examples/table-editing/fields'
+import { defaultFields } from '../../examples/shared/editingFields'
 import type { SaveResult } from '../../examples/table-editing/createEditing'
 
 test('a disposed model ignores application success even when transport ignores cancellation', async () => {

@@ -55,7 +55,7 @@ Keep the cell component identity stable. Read the current application callback i
 An action that remains mounted retains its button identity and focus when its label changes.
 Removing an action removes its button. The application decides where focus moves when that happens.
 
-The [column-controls example](../examples/generator/ColumnControlsApp.tsx) demonstrates these patterns at `?app=column-controls`.
+The [column-controls example](../examples/shared/controls/ColumnControlsApp.tsx) demonstrates these patterns at `?app=column-controls`.
 Its controls change pending and archived state and replace the application callback.
 The example records callback arguments without sending requests or prescribing application rules.
 Browser tests cover live records, omitted buttons, disabled clicks, keyboard activation, retained focus, callback replacement, hydration, and disposal.

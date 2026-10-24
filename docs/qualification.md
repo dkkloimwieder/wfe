@@ -386,3 +386,11 @@ source/package modes. They do not gain a development mode through this migration
 Small validation runs may check work counts and cleanup; they do not establish
 performance results on a shared host. The WAMN generator already delegates to the
 shared generator runner through its explicit root/application override.
+
+## Example import ownership
+
+The control integrity gate also runs `scripts/check-example-boundaries.mjs`.
+Shared demonstrations live under `examples/shared`; normal example views do not import sibling application internals.
+Exact diagnostic and integration harness edges remain listed with reasons in that script, and stale entries fail the gate.
+See [shared example support](../examples/shared/README.md#example-boundaries) for the moved demonstrations and accepted harness boundaries.
+The public import guard covers components, form, generator, and shell.

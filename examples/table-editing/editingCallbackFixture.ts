@@ -1,5 +1,5 @@
 import { createEditValidator } from './validation'
-import type { EditingFields } from './fields'
+import type { EditingFields } from '../shared/editingFields'
 import type {
   EditingCallbackFactory,
   EditingCollection,

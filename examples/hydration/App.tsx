@@ -8,8 +8,8 @@ import {
   PagedRecords,
   paginationLifecycle,
 } from '../shared/controls/PagedRecords'
-import { MatchingCombobox } from '../components/gallery/MatchingChoices'
-import { ThemeConsumer } from '../theme/ThemeConsumer'
+import { MatchingCombobox } from '../shared/controls/MatchingCombobox'
+import { ThemeConsumer } from '../shared/appearance/ThemeConsumer'
 import { ButtonLinkControls } from '../shared/controls/ButtonLinkControls'
 import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
 import {

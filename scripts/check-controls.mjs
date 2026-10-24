@@ -1,3 +1,7 @@
+import {
+  checkExampleBoundaries,
+  isPrivateUIImport,
+} from './check-example-boundaries.mjs'
 import { readdir, readFile } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -84,11 +88,7 @@ export function inspectControls(path, text) {
           ? node.arguments[0]
           : undefined
     if (specifier && ts.isStringLiteral(specifier)) {
-      if (
-        /(@wfe\/components\/(?:src|dist|internal|vendor)|packages\/components\/(?:src|dist)|@kobalte\/)/.test(
-          specifier.text,
-        )
-      )
+      if (isPrivateUIImport(specifier.text))
         fail(
           node.getStart(source),
           'Import shared controls through public package exports.',
@@ -130,6 +130,7 @@ export function inspectControls(path, text) {
   return errors
 }
 export async function checkControls(root) {
+  await checkExampleBoundaries(root)
   const errors = [],
     seen = new Set()
   let count = 0

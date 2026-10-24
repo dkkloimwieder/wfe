@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
-import { reviewTheme } from './review.mjs'
+import { reviewTheme } from '../shared/appearance/theme-review.mjs'
 import {
   attachDiagnostics,
   createRecorder,

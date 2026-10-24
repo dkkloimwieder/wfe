@@ -2,7 +2,7 @@ import { Button } from '@wfe/components/fields'
 import { uiScope } from '@wfe/components'
 import { createSignal, flush } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
-import { popupFields } from '../table-editing/fields'
+import { popupFields } from '../shared/editingFields'
 import { PopupPriorityEditor } from './PopupPriorityEditor'
 
 export function Standalone() {

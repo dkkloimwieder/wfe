@@ -10,7 +10,7 @@ import {
 import { createTable, nativeAggregations } from '@wfe/components/table'
 import { createEditing } from './createEditing'
 import { createEditValidator } from './validation'
-import { defaultFields } from './fields'
+import { defaultFields } from '../shared/editingFields'
 import {
   compareValues,
   day,
@@ -19,7 +19,7 @@ import {
   sameSummary,
   summaryChoices,
 } from './aggregates'
-import type { EditingField, EditingFields } from './fields'
+import type { EditingField, EditingFields } from '../shared/editingFields'
 import type { EditingCallbacks } from './editingCallbacks'
 import type { Summary, SummaryChoice, ValueKind } from './aggregates'
 import type {

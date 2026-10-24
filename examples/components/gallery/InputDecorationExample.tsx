@@ -1,4 +1,4 @@
-import { MatchingCombobox } from './MatchingChoices'
+import { MatchingCombobox } from '../../shared/controls/MatchingCombobox'
 import { createSignal } from 'solid-js'
 import {
   Button,

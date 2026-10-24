@@ -11,7 +11,7 @@ import {
 } from 'solid-js'
 import { createModel } from './model'
 import type { EditingModel } from './model'
-import type { EditingFields } from './fields'
+import type { EditingFields } from '../shared/editingFields'
 import type { EditingCallbackFactory } from './editingCallbacks'
 import type { RecordData } from './createEditing'
 

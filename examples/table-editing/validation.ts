@@ -1,6 +1,6 @@
 import * as z from 'zod/mini'
-import { defaultFields } from './fields'
-import type { EditingFields } from './fields'
+import { defaultFields } from '../shared/editingFields'
+import type { EditingFields } from '../shared/editingFields'
 import type { EditColumn, EditValues, ValidationResult } from './createEditing'
 
 /** Application rules for this fixture, not limits imposed by Table. */

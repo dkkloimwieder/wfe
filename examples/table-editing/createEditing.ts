@@ -1,3 +1,4 @@
+import type { EditingFieldKey } from '../shared/editingFields'
 import { createMemo, createSignal, createStore, onCleanup } from 'solid-js'
 
 export type RecordData = {
@@ -9,8 +10,8 @@ export type RecordData = {
   amount?: number | null
   dueDate?: number | null
 }
-export type TextColumn = 'name' | 'note'
-export type EditColumn = TextColumn | 'priority'
+export type TextColumn = Exclude<EditingFieldKey, 'priority'>
+export type EditColumn = EditingFieldKey
 export type EditValues = Pick<RecordData, EditColumn>
 export type ValidationResult =
   | { success: true; data: EditValues }

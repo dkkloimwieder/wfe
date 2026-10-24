@@ -75,7 +75,7 @@ Application CSS owns page height and available table space.
 Use solid content panels over the dotted main canvas to keep text readable.
 
 The package includes the Fira Code OFL license and Open Props attribution beside the shipped styles.
-See [the public consumer example](../examples/theme/ThemeConsumer.tsx) for nested layouts, popups, and live mode changes.
+See [the public consumer example](../examples/shared/appearance/ThemeConsumer.tsx) for nested layouts, popups, and live mode changes.
 
 ## Input decoration
 

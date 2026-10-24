@@ -8,11 +8,11 @@ import {
   subscriptions,
 } from 'solid-js/attribution'
 import { App } from './App'
-import { defaultFields, workflowFields } from './fields'
+import { defaultFields, workflowFields } from '../shared/editingFields'
 import { createChildLoader } from './childLoader'
 import { createEditingCallbackFixture } from './editingCallbackFixture'
 import { createViewStorageFixture } from './viewStorageFixture'
-import type { EditingFields } from './fields'
+import type { EditingFields } from '../shared/editingFields'
 import type { ViewStorageFixture } from './viewStorageFixture'
 import type { TableViews } from './createTableViews'
 import type { ChildLoader } from './childLoader'

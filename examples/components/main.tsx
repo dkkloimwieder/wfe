@@ -1,6 +1,6 @@
 import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { ContextControls } from '../shared/controls/ContextControls'
-import { ThemeConsumer } from '../theme/ThemeConsumer'
+import { ThemeConsumer } from '../shared/appearance/ThemeConsumer'
 import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
 import {
   ResizableControls,
@@ -36,7 +36,7 @@ import './style.css'
 import { flush } from 'solid-js'
 import { render } from '@solidjs/web'
 import { mountEditingFixture } from '../table-editing/fixture'
-import { popupFields } from '../table-editing/fields'
+import { popupFields } from '../shared/editingFields'
 import { PopupPriorityEditor } from './PopupPriorityEditor'
 import { Standalone } from './Standalone'
 import { ChoiceControls } from './ChoiceControls'

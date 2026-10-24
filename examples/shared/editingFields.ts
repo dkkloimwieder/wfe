@@ -1,5 +1,5 @@
 import type { TableChoice } from '@wfe/components/table'
-import type { EditColumn } from './createEditing'
+export type EditingFieldKey = 'name' | 'note' | 'priority'
 
 export type FieldChoice = TableChoice
 export type EditingField = {
@@ -9,7 +9,7 @@ export type EditingField = {
   choices?: ReadonlyArray<FieldChoice>
   placeholder?: string
 }
-export type EditingFields = Record<EditColumn, EditingField> & {
+export type EditingFields = Record<EditingFieldKey, EditingField> & {
   priority: EditingField & {
     choices: ReadonlyArray<FieldChoice>
     initialValue: string

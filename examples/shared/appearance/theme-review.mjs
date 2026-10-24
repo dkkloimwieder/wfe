@@ -1,4 +1,4 @@
-import { reviewContainerLayout } from '../shared/container-layout-review.mjs'
+import { reviewContainerLayout } from '../container-layout-review.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
