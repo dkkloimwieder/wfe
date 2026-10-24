@@ -411,3 +411,13 @@ nothing. Source files in the archive do not excuse missing dist notices.
 Open Props and font notices continue to travel with the existing styles copy.
 The form, generator and shell packages retain their external component package
 boundary; this change does not inline code or change the release process.
+
+## Separate mechanical changes from repairs
+
+The [repair replay guide](../../../../../docs/vendor-repair-replay.md) separates formatting and the exact Utils import-path migration from residual repairs.
+Its tool verifies the pinned archive and every original/local hash before constructing intermediates.
+It replays all stages forward and requires final bytes to match the existing local source.
+The residual patch still includes compiler, type, extraction, and behavior changes.
+Do not count its files as behavior repairs or treat successful text replay as runtime qualification.
+Owned-helper seams and external primitive patches remain required.
+Beads `wfe-0dj.3` and `wfe-0dj.5` retain the matched-evidence gates for repair retirement.

@@ -59,6 +59,7 @@ Beads records task status and dependencies.
 - [Qualification commands and reports](qualification.md)
 - [Native tab investigation](native-tab-investigation.md)
 - [Action disposal investigation](action-disposal-investigation.md)
+- [Vendor repair attribution and replay](vendor-repair-replay.md)
 - [Shared style ownership](../packages/components/src/styles/README.md)
 
 ## Plans and historical records
