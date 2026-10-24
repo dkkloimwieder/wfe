@@ -1,5 +1,12 @@
 import { vi } from 'vitest'
-import type { Change, Feed, Persistence, Row, Trigger } from '@wfe/sync'
+import type {
+  Change,
+  Feed,
+  OperationCall,
+  Persistence,
+  Row,
+  Trigger,
+} from '@wfe/sync'
 
 /** Shared helpers for the sync unit tests. */
 export type Order = Row & { name: string; quantity: number }
@@ -102,3 +109,16 @@ export function triggerOf() {
   }
   return { trigger, unsubscribe, fire: (key: string) => fires.get(key)?.() }
 }
+
+/** An operation call on one order; the hash stands for the request. */
+export const call = (
+  id: string,
+  request_hash: string,
+  append_only = false,
+): OperationCall => ({
+  operation: 'orders.update',
+  request: { id },
+  request_hash,
+  expect: { model: 'orders', id },
+  append_only,
+})

@@ -10,6 +10,7 @@ import {
 import type { Accessor, Store } from 'solid-js'
 import { peek, source } from './writer'
 import type { AnyCollection } from './writer'
+import type { Outbox, OutboxCounts } from './outbox'
 import type { Status } from './status'
 import type { Row } from './types'
 
@@ -89,5 +90,12 @@ export function syncStatus<T extends Row>(
       next(status.get())
       return status.subscribe(next)
     }),
+  )
+}
+
+/** The outbox counts, read through a memo over `watch`. */
+export function outboxStatus(o: Outbox): Accessor<OutboxCounts> {
+  return createMemo<OutboxCounts>(() =>
+    from<OutboxCounts>((next) => o.watch(next)),
   )
 }
