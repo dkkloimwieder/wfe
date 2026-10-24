@@ -1,0 +1,65 @@
+body {
+  margin: 0;
+}
+.sync-example {
+  min-height: 100dvh;
+  padding: var(--ui-gap, 6px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+}
+.sync-title,
+.sync-shape h2 {
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+}
+.sync-controls,
+.sync-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+}
+.sync-status {
+  margin: 0;
+}
+.sync-shapes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+.sync-shape {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
+.sync-shape p {
+  margin: 0;
+}
+.sync-scroll {
+  max-height: 60dvh;
+  overflow: auto;
+  border: 1px solid var(--ui-border, currentColor);
+}
+.sync-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.sync-table th,
+.sync-table td {
+  text-align: start;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+.sync-table tbody tr {
+  content-visibility: auto;
+  contain-intrinsic-block-size: 1.5rem;
+}
+.sync-list {
+  margin: 0;
+  padding-inline-start: 3.5rem;
+}

@@ -394,3 +394,32 @@ Shared demonstrations live under `examples/shared`; normal example views do not 
 Exact diagnostic and integration harness edges remain listed with reasons in that script, and stale entries fail the gate.
 See [shared example support](../examples/shared/README.md#example-boundaries) for the moved demonstrations and accepted harness boundaries.
 The public import guard covers components, form, generator, and shell.
+
+## Solid rc.18 toolchain
+
+The 2026-10-23 upgrade uses `solid-js`, `@solidjs/web`, `@solidjs/signals`,
+`@solidjs/compiler`, and `@solidjs/babel-plugin` at `2.0.0-rc.18`.
+The Vite plugin stays at `3.0.0-next.50`. The workspace overrides pin its compiler and Babel plugin to rc.18.
+The four workspace packages now declare the peer range `>=2.0.0-rc.18 <3.0.0`.
+That range change made pnpm resolve one Solid runtime for the packages and the external primitives.
+Before it, the packages kept a second rc.16 runtime, and server rendering lost its owner.
+The npm registry identifies source commit `225014bf8757421a2ea0a9c6ddc148b965eed000`.
+Solid now pins `seroval` and `seroval-plugins` to `1.7.0`. No other dependency changed.
+
+The sync package epic requires rc.18 or later for its adapter.
+The owner approved this upgrade in that epic before the normal 24-hour release age.
+Exact rc.18 exclusions replace the rc.16 exclusions for these packages and their compiler binaries.
+Automatic upgrades retain the age rule and the existing trust policy.
+The existing interaction, scrolling, disposal, and native listener repairs remain in place.
+This upgrade does not establish that upstream fixes replace those repairs.
+
+The root check gate passed with the untracked sync plan excluded from the format stage.
+The coverage inventory stage ran with that plan held outside `docs/` and restored afterwards.
+A partial qualification run passed 103 stages, including every source and package browser stage.
+In development mode, rc.18 reported two new diagnostics, and both are repaired.
+The lazy icons gallery view now renders inside a `Loading` boundary.
+`ControlFrame` now reads compound children inside JSX, which removes `STRICT_READ_UNTRACKED`.
+Every `STRICT_READ_UNTRACKED` report in that run came from the one `ControlFrame` line.
+After the repair, the read-only table stage passed in development mode. The other affected stages did not run again.
+Two stages failed for causes outside rc.18: the known native-tab timeout `wfe-x6o` and a live-page navigation timeout.
+The full qualification runs again at the next program milestone.

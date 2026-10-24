@@ -42,6 +42,7 @@ export function ControlFrame(
   },
 ) {
   const compound = useContext(CompoundControl)
+  // Read children inside JSX: a direct read in the body is untracked.
   if (compound) return <>{props.children}</>
   return (
     <span
