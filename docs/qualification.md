@@ -485,3 +485,17 @@ still check their original license, repair, and generation contracts.
 Dependency patch evidence separately records verified original npm archives and
 exact installed repairs. The offline gate checks patch inventory, declarations,
 lockfile integrity, repaired installed targets and unchanged license bytes.
+
+Vendor guards share byte hashing, exact regular-file walking, literal import
+collection and relative resolution. Each caller supplies its own extensions and
+ownership boundary. Chart reachability and repair categories, Kobalte's declared
+external dependencies and owned helper imports, license equality, virtual map
+parity and icon generation remain separate checks.
+
+All six manifest formats remain unchanged: Kobalte records source archives and
+local repairs; virtual-core retains original/local maps and npm integrity; Corvu
+records extracted source paths; matching includes the remove-accents origin;
+charts records per-file repairs and entrypoints; icons records artwork and the
+generator/output hashes. The reporting adapter provides a common view without
+rewriting that evidence. The icon generator keeps its existing local hash function
+so this maintenance refactor does not alter its recorded generator bytes.

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
+import { hashBytes } from './lib/vendor-guards.mjs'
 import { readFile } from 'node:fs/promises'
 
 const root = new URL(
@@ -20,7 +20,7 @@ for (const name of [
 ]) {
   assert.match(provenance.upstreamSha256[name], /^[a-f0-9]{64}$/)
   const bytes = await readFile(new URL(name, root))
-  const actual = createHash('sha256').update(bytes).digest('hex')
+  const actual = hashBytes(bytes)
   assert.equal(
     actual,
     provenance.localSha256[name],

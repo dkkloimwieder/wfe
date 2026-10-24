@@ -1,41 +1,16 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
-import { readFile, readdir, lstat, realpath } from 'node:fs/promises'
-import { resolve, dirname, relative, isAbsolute } from 'node:path'
-import ts from 'typescript'
+import { readFile } from 'node:fs/promises'
+import { resolve, relative } from 'node:path'
 import { vendorInventory } from './vendor-inventory.mjs'
 
-const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
+import {
+  hashBytes as hash,
+  exactFiles,
+  collectLiteralImports,
+  resolveRelativeImport,
+} from './vendor-guards.mjs'
+export { exactFiles } from './vendor-guards.mjs'
 const source = 'packages/components/src'
-export async function exactFiles(root, expected) {
-  const names = [...expected].sort()
-  assert.equal(new Set(names).size, names.length, 'Duplicate inventory entry')
-  for (const name of names) {
-    assert.ok(
-      name &&
-        !isAbsolute(name) &&
-        !name.split(/[\\/]/).includes('..') &&
-        !name.includes('\\'),
-      `Unsafe inventory path: ${name}`,
-    )
-  }
-  const actual = []
-  async function walk(directory, prefix = '') {
-    for (const entry of await readdir(directory, { withFileTypes: true })) {
-      const name = prefix + entry.name
-      assert.ok(!entry.isSymbolicLink(), `Symlink in inventory: ${name}`)
-      if (entry.isDirectory())
-        await walk(resolve(directory, entry.name), name + '/')
-      else {
-        assert.ok(entry.isFile(), `Non-file in inventory: ${name}`)
-        actual.push(name)
-      }
-    }
-  }
-  await walk(root)
-  assert.deepEqual(actual.sort(), names, 'Exact captured file inventory')
-}
-
 export async function checkVendorIntegrity(root) {
   const inventory = await vendorInventory(root)
   assert.deepEqual(
@@ -83,70 +58,13 @@ export async function checkVendorIntegrity(root) {
         `Unchanged license: ${item.path}`,
       )
     if (!/\.tsx?$/.test(item.path) || item.kind === 'generated') continue
-    const ast = ts.createSourceFile(
-      item.path,
-      bytes.toString(),
-      ts.ScriptTarget.Latest,
-      true,
-    )
-    const imports = []
-    function inspect(node) {
-      const dynamic =
-        ts.isCallExpression(node) &&
-        (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
-          (ts.isIdentifier(node.expression) &&
-            node.expression.text === 'require'))
-      const specifier =
-        ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
-          ? node.moduleSpecifier
-          : ts.isImportEqualsDeclaration(node) &&
-              ts.isExternalModuleReference(node.moduleReference)
-            ? node.moduleReference.expression
-            : ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)
-              ? node.argument.literal
-              : dynamic
-                ? node.arguments[0]
-                : undefined
-      if (dynamic)
-        assert.ok(specifier, `Missing dynamic import target: ${item.path}`)
-      if (specifier) {
-        assert.ok(
-          ts.isStringLiteral(specifier),
-          `Nonliteral vendor import: ${item.path}`,
-        )
-        imports.push(specifier.text)
-      }
-      ts.forEachChild(node, inspect)
-    }
-    inspect(ast)
+    const imports = collectLiteralImports(bytes.toString(), item.path)
     for (const imported of imports) {
       if (imported.startsWith('.')) {
-        const target = resolve(dirname(resolve(root, item.path)), imported)
-        let found
-        for (const candidate of [
-          target,
-          target + '.ts',
-          target + '.tsx',
-          target + '/index.ts',
-          target + '/index.tsx',
-        ]) {
-          try {
-            const info = await lstat(candidate)
-            assert.ok(!info.isSymbolicLink(), `Symlink import: ${imported}`)
-            if (info.isFile()) {
-              found = candidate
-              break
-            }
-          } catch (error) {
-            if (error.code !== 'ENOENT') throw error
-          }
-        }
-        assert.ok(found, `Unresolved vendor import: ${item.path}: ${imported}`)
-        const actual = await realpath(found)
-        assert.equal(
-          actual,
-          found,
-          `Symlink in vendor import path: ${imported}`,
+        const found = await resolveRelativeImport(
+          resolve(root, item.path),
+          imported,
+          { extensions: ['.ts', '.tsx'], boundary: resolve(root, source) },
         )
         const local = relative(root, found).replaceAll('\\', '/')
         if (item.family === 'kobalte')

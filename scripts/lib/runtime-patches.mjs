@@ -1,10 +1,8 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { exactFiles } from './vendor-integrity.mjs'
-const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
+import { exactFiles, hashBytes as hash } from './vendor-guards.mjs'
 
 export async function checkRuntimePatches(root) {
   const manifest = JSON.parse(

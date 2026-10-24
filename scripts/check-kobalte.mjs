@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
-import { readFileSync, readdirSync, existsSync } from 'node:fs'
-import { dirname, resolve, relative } from 'node:path'
+import {
+  hashBytes,
+  exactFiles,
+  collectLiteralImports,
+  resolveRelativeImport,
+} from './lib/vendor-guards.mjs'
+import { readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
 
 const root = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -18,18 +22,12 @@ const dependencies = new Set([
   ...Object.keys(manifest.dependencies),
   ...Object.keys(manifest.peerDependencies),
 ])
-const paths = readdirSync(vendor, { recursive: true }).filter(
-  (path) => /\.(tsx?|md)$/.test(path) && !path.endsWith('README.md'),
-)
-assert.deepEqual(
-  paths.sort(),
-  Object.keys(provenance.sources).sort(),
-  'vendor file inventory',
-)
+const paths = Object.keys(provenance.sources).sort()
+await exactFiles(vendor, [...paths, 'README.md', 'provenance.json'])
 for (const [path, expected] of Object.entries(provenance.sources)) {
   const file = resolve(vendor, path)
   const bytes = readFileSync(file)
-  const digest = createHash('sha256').update(bytes).digest('hex')
+  const digest = hashBytes(bytes)
   assert.equal(digest, expected.localSha256, `local source hash: ${path}`)
   assert.match(
     expected.upstreamSha256,
@@ -39,22 +37,12 @@ for (const [path, expected] of Object.entries(provenance.sources)) {
   if (path.endsWith('LICENSE.md'))
     assert.equal(digest, expected.upstreamSha256, `unchanged license: ${path}`)
   if (!/\.tsx?$/.test(path)) continue
-  for (const { fileName: imported } of ts.preProcessFile(bytes.toString(), true)
-    .importedFiles) {
+  for (const imported of collectLiteralImports(bytes.toString(), path)) {
     if (imported.startsWith('.')) {
-      const base = resolve(dirname(file), imported)
-      const target = [
-        base,
-        `${base}.ts`,
-        `${base}.tsx`,
-        `${base}/index.ts`,
-        `${base}/index.tsx`,
-      ].find(existsSync)
-      assert.ok(target, `resolved relative import: ${path}: ${imported}`)
-      assert.ok(
-        !relative(resolve(root, 'src'), target).startsWith('..'),
-        `library-owned import: ${path}`,
-      )
+      await resolveRelativeImport(file, imported, {
+        extensions: ['.ts', '.tsx'],
+        boundary: resolve(root, 'src'),
+      })
     } else {
       assert.ok(
         dependencies.has(imported),
