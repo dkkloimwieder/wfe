@@ -474,3 +474,14 @@ was not expanded, and four command/descriptive references were not file checks.
 `--import=` arguments were resolved as paths, and historical `table/` paths were
 resolved against the adjacent repository. This was an existence check, not content
 or hash verification. No cited artifact was copied, deleted, or recreated.
+
+## Vendor integrity checks
+
+The vendor integrity gate compares every file in all six captured subsets with
+its manifest and explicit root support files, regardless of extension. It rejects
+symlinks, missing files, unrecorded files, mismatched local hashes, and imports
+outside each subset's allowed ownership boundary. Existing specialized guards
+still check their original license, repair, and generation contracts.
+Dependency patch evidence separately records verified original npm archives and
+exact installed repairs. The offline gate checks patch inventory, declarations,
+lockfile integrity, repaired installed targets and unchanged license bytes.

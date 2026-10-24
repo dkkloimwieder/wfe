@@ -18,3 +18,17 @@ Patched `dist/index.js` SHA-256: `2e8b7b39e46bd735244b5b4dd569478367ab89e8ff146d
 
 `solid-primitives-scroll-3.0.0-next.4.patch` creates the shared scroll registry outside a component owner.
 This preserves the registry when its first consumer closes.
+
+## Integrity evidence
+
+`provenance.json` records the exact patch bytes, original archive integrity,
+original and repaired target hashes, and unchanged license hashes.
+Both original archives were fetched from the pinned npm registry URLs and checked
+against the existing lockfile SHA-512 integrity before extraction. Replaying the
+existing patches on those original files produced the installed repaired bytes.
+These are external dependency repairs; no Solid or Solid Primitives code is vendored.
+
+The integrity gate rejects added or missing patch files, altered patch bytes,
+workspace or lockfile mismatches, and installations without the recorded repairs.
+It runs offline. Archive retrieval and repair behavior qualification remain separate
+from the installed-byte check; a passing hash check does not prove runtime behavior.

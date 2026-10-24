@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "patches": [
+    {
+      "package": "@solid-primitives/interaction",
+      "version": "1.0.0-next.4",
+      "patch": "solid-primitives-interaction-1.0.0-next.4.patch",
+      "patchSha256": "6f8e4edec2e9cd7b520e60ae1cc3c85cc5be6fa1c20631a20f9a6c024348572b",
+      "archive": {
+        "url": "https://registry.npmjs.org/@solid-primitives/interaction/-/interaction-1.0.0-next.4.tgz",
+        "integrity": "sha512-V+kos+abAkAJLNAvj3A7iitNcSvbosFsjBoXh7K8GdWoABWEfPEf3DZsN+01UQOAf+4G0XLXPN4Y/IRe2EOBZQ==",
+        "sha256": "a1d0c9881008b2a58b37139b08b6aa8aa39e738ad3cc2f9b96ce26eb93c9ce11"
+      },
+      "target": "dist/index.js",
+      "upstreamSha256": "59cab11f91108073b7c7bb3fe86888f371ed0858480d388dbd7599df8192357a",
+      "localSha256": "2e8b7b39e46bd735244b5b4dd569478367ab89e8ff146de4894b3339a47542a9",
+      "license": "LICENSE",
+      "licenseSha256": "906021a46b3afdc3f682e00a26d681a2494bb9c9fe32cecb9d57ba168b60068f",
+      "repair": "Register focus immediately while preserving deferred pointer setup and cleanup."
+    },
+    {
+      "package": "@solid-primitives/scroll",
+      "version": "3.0.0-next.4",
+      "patch": "solid-primitives-scroll-3.0.0-next.4.patch",
+      "patchSha256": "d4b3cb7094f90fee487211aa6c0688917c3c19c6783630f8838e11dddc786343",
+      "archive": {
+        "url": "https://registry.npmjs.org/@solid-primitives/scroll/-/scroll-3.0.0-next.4.tgz",
+        "integrity": "sha512-6Zod2Q2YPnkZhijVMSOhU2e1ip5hzOSQNhZIaKh7Kx7HcocYrzhn1NqYJlaUr464o1hFZweEQVkhALi9EHvt/Q==",
+        "sha256": "7092469db355e79eea18afdf437406ecf49ca97e58a24214843b245fd6fe525a"
+      },
+      "target": "dist/preventScroll.js",
+      "upstreamSha256": "32ef8eb622dd57b92da0198c06b3989a57b4c4fd0234b8fc91e759abe5c5cf53",
+      "localSha256": "3d76bdc5fdddb64d97c5649c2bb00d40632a6abb5e8b3d72e1032c3a6450ab4b",
+      "license": "LICENSE",
+      "licenseSha256": "c52982e741ac7ea4c0f8a4426a6d1adc8202b964c5abc2780f0f1242d8337b25",
+      "repair": "Create the shared scroll registry outside the first component owner."
+    }
+  ]
+}
