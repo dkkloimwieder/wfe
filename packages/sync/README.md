@@ -4,7 +4,7 @@ This private package holds a browser store for rows that a change feed keeps cur
 It wraps `@tanstack/db` collections and adds a Solid 2 adapter.
 The application supplies a `Feed`, a scope, and a key. The package never builds a URL, reads a token, or names a header.
 
-Import `collection`, `liveRows`, `liveList`, `syncStatus`, and `CursorExpired` from `@wfe/sync`.
+Import `collection`, `liveRows`, `liveList`, `syncStatus`, `shell`, and `CursorExpired` from `@wfe/sync`.
 If the host no longer holds a cursor, `feed.changes` must throw `CursorExpired`. The package inspects no other error shape.
 `collection(feed, scope, options)` returns a collection keyed by `row.id`.
 If the `persistence` option is given, the collection first loads the saved rows for the key. Saved rows land as one transaction, and the collection is ready.
@@ -83,3 +83,17 @@ The wait has no timeout, because a page can stay offline for hours. One action s
 
 `@wfe/sync/internal` exports `applyChanges(c, changes)` for tests and the gallery.
 It applies one batch of changes as one transaction with the same `row_version` rule.
+
+## Shell
+
+`shell({ persist, onUpdate, workerUrl })` prepares the page for offline use. It never imports Solid and never throws.
+
+1. If `workerUrl` is given and `navigator.serviceWorker` exists, it registers the worker at that URL.
+2. If `persist` is true, the default, and `navigator.storage.persist` exists, it asks for persistent storage once. With `persist: false`, it reads `navigator.storage.persisted()`.
+3. If `navigator.storage.estimate` exists, it reads the storage estimate.
+
+It resolves `{ worker, persisted, quota: { usage, quota } }`. A missing or failing API gives `false` or zeros.
+
+When a new worker waits behind an active one, the package calls `onUpdate(reload)`. The first install does not call it.
+`reload()` posts the skip-waiting message to the waiting worker and reloads the page once that worker controls it.
+The package never reloads on its own. The consumer chooses the time to call `reload`, for example after the outbox is empty.

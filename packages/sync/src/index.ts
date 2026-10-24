@@ -18,3 +18,5 @@ export {
   recordWrite,
 } from './solid'
 export type { KeyedCollection } from './solid'
+export { shell } from './shell'
+export type { ShellResult } from './shell'
