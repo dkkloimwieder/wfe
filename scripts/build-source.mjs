@@ -1,3 +1,7 @@
+import {
+  copyVendorNotices,
+  componentDeliveryModes,
+} from './lib/vendor-notices.mjs'
 import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
 import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -66,10 +70,8 @@ if (packageName === 'components')
     recursive: true,
   })
 
-if (packageName === 'components') {
-  for (const mode of ['source', 'client', 'server']) {
-    const notice = resolve(output, '..', mode, 'vendor/icons/LICENSE')
-    await mkdir(dirname(notice), { recursive: true })
-    await cp(resolve(source, 'vendor/icons/LICENSE'), notice)
-  }
-}
+if (packageName === 'components')
+  await copyVendorNotices(
+    source,
+    componentDeliveryModes.map((mode) => resolve(output, '..', mode)),
+  )

@@ -395,3 +395,19 @@ packages remain `external`. Existing report comparisons must use these labels.
 Classification is not complete inventory or semantic repair qualification.
 The separate integrity guards still verify captured bytes and import boundaries;
 repair replay and expanded inventory checks remain separate audit work.
+
+## Delivered notices
+
+The components build copies all nine vendor notice files into each of
+`dist/source`, `dist/client`, and `dist/server`, keeping their vendor-relative
+paths and exact bytes. The shared inventory is `scripts/lib/vendor-notices.mjs`.
+It covers Kobalte's three notices, Calendar, Virtual, Charts, both matching
+notices, and the combined ISC/Feather MIT icon notice.
+
+`tests/vendor-notices.test.mjs` verifies the source notice inventory, each built
+output, and an extracted local package archive. The archive test runs after the
+normal build; it packs locally with lifecycle scripts disabled and publishes
+nothing. Source files in the archive do not excuse missing dist notices.
+Open Props and font notices continue to travel with the existing styles copy.
+The form, generator and shell packages retain their external component package
+boundary; this change does not inline code or change the release process.
