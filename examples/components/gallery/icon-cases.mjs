@@ -5,8 +5,18 @@ export async function iconCases({ page, url, record }) {
     'gallery: a cold icon import shows pending content within its boundary',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })
-      // A new document resets the module registry. Routing disables the HTTP cache,
-      // so this also covers a run that has already visited the icon example.
+      // Reset the module registry, then let the catalog boot before holding only
+      // the lazy icon module. Core Vite startup is not part of the pending test.
+      await page.goto(`${url}?gallery=fields`)
+      const navigation = page.getByRole('navigation', {
+        name: 'Component catalog',
+        exact: true,
+      })
+      await expect(navigation).toBeVisible()
+      await navigation.locator('summary', { hasText: /^Components$/ }).click()
+      await expect(
+        page.getByRole('textbox', { name: 'Find icons', exact: true }),
+      ).toHaveCount(0)
       const matchesIconModule = (requestUrl) =>
         /\/IconsExample(?:-[^/]+\.js|\.tsx)$/.test(requestUrl.pathname)
       let release
@@ -38,21 +48,17 @@ export async function iconCases({ page, url, record }) {
       }
       await page.route(matchesIconModule, holdImport)
       await withCleanup(async () => {
-        await page.goto(`${url}?gallery=icons`, {
-          waitUntil: 'commit',
-        })
+        retainedNavigation = await navigation.elementHandle()
+        await navigation
+          .getByRole('link', { name: 'Icons', exact: true })
+          .click()
         await expect.poll(() => intercepted).toBe(true)
         const pending = page.getByRole('status', {
           name: 'Example loading',
           exact: true,
         })
         await expect(pending).toBeVisible()
-        const navigation = page.getByRole('navigation', {
-          name: 'Component catalog',
-          exact: true,
-        })
         await expect(navigation).toBeVisible()
-        retainedNavigation = await navigation.elementHandle()
         await expect(
           page.getByRole('textbox', { name: 'Find icons', exact: true }),
         ).toHaveCount(0)
