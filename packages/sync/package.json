@@ -1,0 +1,38 @@
+{
+  "name": "@wfe/sync",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "wfe-source": "./src/index.ts",
+      "import": "./dist/index.js"
+    },
+    "./internal": {
+      "types": "./dist/internal.d.ts",
+      "wfe-source": "./src/internal.ts",
+      "import": "./dist/internal.js"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "types": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@tanstack/db": "0.15.2",
+    "@tanstack/db-ivm": "0.2.0"
+  },
+  "peerDependencies": {
+    "solid-js": ">=2.0.0-rc.18 <3.0.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}
