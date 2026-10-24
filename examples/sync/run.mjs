@@ -87,6 +87,25 @@ try {
     await expectShapes(10_000)
     assert.equal(await count(rows, 'syncRows'), 10_000)
   })
+  await run('a change on the server reaches both shapes', async () => {
+    const before = await page
+      .locator('[data-sync-current-at]')
+      .getAttribute('data-sync-current-at')
+    assert.ok(before, 'current as of is set after the list')
+    await page.getByRole('button', { name: 'Change on the server' }).click()
+    await expect(page.locator('[data-sync-served]')).toHaveAttribute(
+      'data-sync-served',
+      '1',
+    )
+    await expectShapes(10_010)
+    const updated = await count(rows, 'syncUpdated')
+    assert.ok(updated >= 60, `updated rows: ${updated}`)
+    await expect(status).toHaveAttribute('data-sync-status', 'ready')
+    await expect(page.locator('[data-sync-current-at]')).not.toHaveAttribute(
+      'data-sync-current-at',
+      before,
+    )
+  })
   await run('one batch of 100 changes reaches both shapes', async () => {
     const first = await page.locator('.sync-list li').first().textContent()
     await page.getByRole('button', { name: 'Apply 100 changes' }).click()
@@ -94,9 +113,9 @@ try {
       'data-sync-applied',
       '1',
     )
-    await expectShapes(10_010)
+    await expectShapes(10_020)
     const updated = await count(rows, 'syncUpdated')
-    assert.ok(updated >= 60, `updated rows: ${updated}`)
+    assert.ok(updated >= 120, `updated rows: ${updated}`)
     assert.ok(typeof first === 'string')
   })
   await run('both shapes render 100,000 rows and accept a batch', async () => {

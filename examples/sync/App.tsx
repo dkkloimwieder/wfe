@@ -11,7 +11,7 @@ import { Button } from '@wfe/components'
 import { collection, liveList, liveRows, syncStatus } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
-import { fakeFeed, makeRows, randomChanges } from './fake'
+import { fakeServer, randomChanges } from './fake'
 import type { Order, Scope } from './fake'
 import './style.css'
 
@@ -22,22 +22,28 @@ const limit = 200
 export function App() {
   const [size, setSize] = createSignal(sizes[0]!)
   const [applied, setApplied] = createSignal(0)
-  const store = createMemo(() => {
-    const rows = makeRows(size())
+  const [served, setServed] = createSignal(0)
+  const source = createMemo(() => {
+    const server = fakeServer(size())
+    const key = `orders:${size()}`
     const c = collection(
-      fakeFeed(() => rows),
+      server.feed,
       { size: size() },
-      {
-        key: `orders:${size()}`,
-      },
+      { key, trigger: server.trigger },
     )
     onCleanup(() => queueMicrotask(() => void c.cleanup()))
-    return c
+    return { server, key, c }
   })
+  const store = () => source().c
   const apply = () => {
     const c = store()
     applyChanges(c, randomChanges(c.toArray))
     setApplied((count) => count + 1)
+  }
+  const serve = () => {
+    const { server, key } = source()
+    server.change(key)
+    setServed((count) => count + 1)
   }
   return (
     <DefaultAppearance class="sync-example">
@@ -54,6 +60,7 @@ export function App() {
                 onClick={() => {
                   setSize(count)
                   setApplied(0)
+                  setServed(0)
                 }}
               >
                 {count.toLocaleString('en-US')} rows
@@ -62,6 +69,8 @@ export function App() {
           </For>
           <Button onClick={apply}>Apply 100 changes</Button>
           <span data-sync-applied={applied()}>{applied()} batches applied</span>
+          <Button onClick={serve}>Change on the server</Button>
+          <span data-sync-served={served()}>{served()} server batches</span>
         </div>
       </header>
       <Show when={store()} keyed>
@@ -84,10 +93,21 @@ function Shapes(props: { store: Store }) {
     return untrack(() => keys.filter((id) => rows[id]!.row_version > 1).length)
   })
   const shown = createMemo(() => list.slice(0, limit))
+  // currentAt is a plain read. Each batch changes the key list, so read it
+  // again then.
+  const currentAt = createMemo(() => {
+    ids()
+    status()
+    return untrack(() => props.store.utils.currentAt()) ?? ''
+  })
   return (
     <main class="sync-shapes">
       <p class="sync-status">
         Status: <output data-sync-status={status()}>{status()}</output>
+        {' · '}Current as of{' '}
+        <output data-sync-current-at={currentAt()}>
+          {currentAt() || 'not yet'}
+        </output>
       </p>
       <section class="sync-shape" aria-labelledby="sync-rows-title">
         <h2 id="sync-rows-title" data-ui-text="system">
