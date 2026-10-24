@@ -1,5 +1,5 @@
 import { vi } from 'vitest'
-import type { Feed, Row } from '@wfe/sync'
+import type { Feed, Persistence, Row } from '@wfe/sync'
 
 /** Shared helpers for the sync unit tests. */
 export type Order = Row & { name: string; quantity: number }
@@ -40,4 +40,18 @@ export function feedOf(pages: (Order[] | Error)[]) {
     })),
   }
   return feed
+}
+
+/** A persistence whose load result the test supplies. */
+export function persistenceOf(
+  load: () => Promise<
+    { rows: unknown[]; cursor: string; saved_at: string } | undefined
+  >,
+) {
+  const persistence: Persistence = {
+    load: vi.fn(load),
+    save: vi.fn(async () => {}),
+    remove: vi.fn(async () => {}),
+  }
+  return persistence
 }

@@ -29,7 +29,7 @@ test('fill calls list once and marks the collection ready', async () => {
   }))
   const c = collection(feed, 'all', { key: 'orders:all' })
   expect(feed.list).toHaveBeenCalledTimes(1)
-  expect(feed.list).toHaveBeenCalledWith('all')
+  expect(feed.list).toHaveBeenCalledWith('all', expect.any(AbortSignal))
   expect(c.status).toBe('loading')
   expect(c.size).toBe(0)
   page.resolve([order('a', 1), order('b', 1)])
