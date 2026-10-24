@@ -74,7 +74,7 @@ If `navigator.locks` is absent, replay runs without the lock. Two tabs can then 
 3. It waits with `until` until the collection holds `expected.id` with a `row_version` greater than `expected.row_version`. If `expected.row_version` is undefined, any row with that id is enough.
 
 The wait reads the collection, never `rows`, so the guess of the action never ends it.
-If the entry is refused, the wait throws the refusal `{ code, text }`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.
+If the entry is refused, the wait throws `OutboxRefused` with the `code`, the `text` and the `seq`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.
 The action then rejects, and the guess reverts.
 The wait has no timeout, because a page can stay offline for hours. One action stays open for each unsent entry.
 

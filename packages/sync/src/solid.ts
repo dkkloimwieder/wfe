@@ -12,7 +12,7 @@ import {
   until,
 } from 'solid-js'
 import type { Accessor, Store } from 'solid-js'
-import { OutboxDiscarded } from './errors'
+import { OutboxDiscarded, OutboxRefused } from './errors'
 import { discarded } from './outbox'
 import { peek, source } from './writer'
 import type { AnyCollection } from './writer'
@@ -152,7 +152,7 @@ function confirmed<T extends Row>(
   if (discarded(o, entry.seq)) throw new OutboxDiscarded(entry.seq)
   const current = o.entries().find((e) => e.seq === entry.seq)
   if (current?.state === 'refused')
-    throw current.refusal ?? new Error('The host refused the write')
+    throw new OutboxRefused(entry.seq, current.refusal)
   const row = c.get(expected.id)
   if (row === undefined) return false
   return (

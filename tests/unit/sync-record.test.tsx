@@ -2,7 +2,13 @@ import 'fake-indexeddb/auto'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { For, flush } from 'solid-js'
-import { OutboxDiscarded, collection, outbox, recordWrite } from '@wfe/sync'
+import {
+  OutboxDiscarded,
+  OutboxRefused,
+  collection,
+  outbox,
+  recordWrite,
+} from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import {
   call,
@@ -84,8 +90,8 @@ test('the guess shows at once, and the write ends when the feed brings a newer r
   expect(record.rows.a?.row_version).toBe(2)
 })
 
-test('a refusal rejects the write and the guess reverts', async () => {
-  const { host, record, item } = await mounted()
+test('a refusal rejects the write with OutboxRefused and the guess reverts', async () => {
+  const { o, host, record, item } = await mounted()
   const write = track(
     record.write(call('a', 'h1'), { id: 'a', row_version: 1, quantity: 9 }),
   )
@@ -94,7 +100,15 @@ test('a refusal rejects the write and the guess reverts', async () => {
   await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
   host.answer('h1', refused)
   await vi.waitFor(() => expect(write.done).toBe(true))
-  expect(write.error).toEqual({ code: 'stale', text: 'Stale' })
+  expect(write.error).toBeInstanceOf(OutboxRefused)
+  const error = write.error as OutboxRefused
+  expect(error).toBeInstanceOf(Error)
+  expect([error.code, error.text, error.message]).toEqual([
+    'stale',
+    'Stale',
+    'Stale',
+  ])
+  expect(error.seq).toBe(o.entries()[0]!.seq)
   flush()
   expect(item('a')?.textContent).toBe('a:1')
 })
