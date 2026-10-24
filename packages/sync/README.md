@@ -64,5 +64,19 @@ If `navigator.locks` is absent, replay runs without the lock. Two tabs can then 
 `lastSentAt` is the ISO time of the last ok reply in this page, or undefined.
 `outboxStatus(o)` returns an accessor with the counts.
 
+## Writes
+
+`recordWrite(c, o)` returns `{ rows, write }`. `rows` is an optimistic store keyed by id: the rows of the collection with the guesses of open writes on top.
+`write(call, expected)` is a Solid action:
+
+1. It merges `expected` into `rows[expected.id]` as a guess.
+2. It enqueues `call` in the outbox.
+3. It waits with `until` until the collection holds `expected.id` with a `row_version` greater than `expected.row_version`. If `expected.row_version` is undefined, any row with that id is enough.
+
+The wait reads the collection, never `rows`, so the guess of the action never ends it.
+If the entry is refused, the wait throws the refusal `{ code, text }`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.
+The action then rejects, and the guess reverts.
+The wait has no timeout, because a page can stay offline for hours. One action stays open for each unsent entry.
+
 `@wfe/sync/internal` exports `applyChanges(c, changes)` for tests and the gallery.
 It applies one batch of changes as one transaction with the same `row_version` rule.

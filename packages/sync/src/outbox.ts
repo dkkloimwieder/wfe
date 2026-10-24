@@ -58,6 +58,13 @@ export interface Outbox {
 }
 
 const store = 'outbox'
+/** The seqs that each outbox discarded in this page, for recordWrite. */
+const discards = new WeakMap<Outbox, Set<number>>()
+
+/** True when `o` discarded the entry `seq` in this page. */
+export function discarded(o: Outbox, seq: number): boolean {
+  return discards.get(o)?.has(seq) ?? false
+}
 /** A replay runs on this interval while an entry is pending. */
 const replayEvery = 30_000
 /** The probe runs again on this interval while the last probe failed. */
@@ -108,6 +115,7 @@ export function outbox(options: {
   const memory = new Map<number, OutboxEntry>()
   const listeners = new Set<(counts: OutboxCounts) => void>()
   const abort = new AbortController()
+  const gone = new Set<number>()
   let lastSentAt: string | undefined
   let closed = false
   let running: Promise<void> | undefined
@@ -291,7 +299,7 @@ export function outbox(options: {
   // On open, lost 'sending' entries go back to pending before the first replay.
   void database.then(() => locked(reload)).then(kick, () => undefined)
 
-  return {
+  const o: Outbox = {
     async enqueue(op) {
       if (closed) throw new Error('The outbox is closed')
       const entry = {
@@ -326,6 +334,7 @@ export function outbox(options: {
       if (!memory.has(seq)) return
       await remove(seq)
       memory.delete(seq)
+      gone.add(seq)
       notify()
     },
     entries: () => ordered().map((entry) => ({ ...entry })),
@@ -359,4 +368,6 @@ export function outbox(options: {
       )
     },
   }
+  discards.set(o, gone)
+  return o
 }

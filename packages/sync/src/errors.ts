@@ -12,3 +12,13 @@ export class CursorExpired extends Error {
     this.name = 'CursorExpired'
   }
 }
+
+/** The outbox entry was discarded before the host took it. */
+export class OutboxDiscarded extends Error {
+  readonly seq: number
+  constructor(seq: number, options?: ErrorOptions) {
+    super(`The outbox entry ${seq} was discarded`, options)
+    this.name = 'OutboxDiscarded'
+    this.seq = seq
+  }
+}

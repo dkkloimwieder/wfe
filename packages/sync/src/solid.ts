@@ -1,16 +1,22 @@
 // The only module that imports solid-js. It uses createStore, createProjection,
-// from, createMemo and onCleanup, and nothing outside the adapter table.
+// createOptimisticStore, action, until, from, createMemo and onCleanup, and
+// nothing outside the adapter table.
 import {
+  action,
   createMemo,
+  createOptimisticStore,
   createProjection,
   createStore,
   from,
   onCleanup,
+  until,
 } from 'solid-js'
 import type { Accessor, Store } from 'solid-js'
+import { OutboxDiscarded } from './errors'
+import { discarded } from './outbox'
 import { peek, source } from './writer'
 import type { AnyCollection } from './writer'
-import type { Outbox, OutboxCounts } from './outbox'
+import type { OperationCall, Outbox, OutboxCounts, OutboxEntry } from './outbox'
 import type { Status } from './status'
 import type { Row } from './types'
 
@@ -98,4 +104,97 @@ export function outboxStatus(o: Outbox): Accessor<OutboxCounts> {
   return createMemo<OutboxCounts>(() =>
     from<OutboxCounts>((next) => o.watch(next)),
   )
+}
+
+/** The rows of each pushed array, keyed by id. */
+async function* keyed<T extends Row>(
+  lists: AsyncIterable<T[]>,
+): AsyncIterable<Record<string, T>> {
+  for await (const list of lists) {
+    const rows: Record<string, T> = {}
+    for (const row of list) rows[row.id] = row
+    yield rows
+  }
+}
+
+/** A counter that moves on each change of the collection or the outbox. */
+function moves<T extends Row>(
+  c: AnyCollection<T>,
+  o: Outbox,
+): Accessor<number> {
+  return createMemo<number>(() =>
+    from<number>((next) => {
+      let count = 0
+      next(count)
+      const subscription = c.subscribeChanges(() => next(++count), {
+        includeInitialState: false,
+      })
+      const stop = o.watch(() => next(++count))
+      return () => {
+        subscription.unsubscribe()
+        stop()
+      }
+    }),
+  )
+}
+
+/**
+ * True when the collection holds the written row. It reads the collection,
+ * never the optimistic store, so the guess of the action never satisfies it.
+ * It throws when the entry is refused or discarded.
+ */
+function confirmed<T extends Row>(
+  c: AnyCollection<T>,
+  o: Outbox,
+  expected: { id: string; row_version?: number },
+  entry: OutboxEntry,
+): boolean {
+  if (discarded(o, entry.seq)) throw new OutboxDiscarded(entry.seq)
+  const current = o.entries().find((e) => e.seq === entry.seq)
+  if (current?.state === 'refused')
+    throw current.refusal ?? new Error('The host refused the write')
+  const row = c.get(expected.id)
+  if (row === undefined) return false
+  return (
+    expected.row_version === undefined || row.row_version > expected.row_version
+  )
+}
+
+/**
+ * The rows of the collection with an optimistic overlay, and a write action.
+ * The write shows the expected row at once, enqueues the call, and waits
+ * until the feed brings the row back. A refusal or a discard throws at the
+ * wait, and the guess reverts. The wait has no timeout, so one action stays
+ * open for each unsent entry.
+ */
+export function recordWrite<T extends Row>(
+  c: AnyCollection<T>,
+  o: Outbox,
+): {
+  rows: Store<Record<string, T>>
+  write: (
+    op: OperationCall,
+    expected: Partial<T> & { id: string; row_version?: number },
+  ) => Promise<void>
+} {
+  const [rows, setRows] = createOptimisticStore<Record<string, T>>(
+    () => keyed(from(subscribe(c))),
+    undefined,
+    { key: 'id' },
+  )
+  const moved = moves(c, o)
+  const write = action(function* (
+    op: OperationCall,
+    expected: Partial<T> & { id: string; row_version?: number },
+  ) {
+    setRows((draft) => {
+      draft[expected.id] = { ...draft[expected.id], ...expected } as T
+    })
+    const entry = (yield o.enqueue(op)) as OutboxEntry
+    yield until(() => {
+      moved()
+      return confirmed(c, o, expected, entry)
+    })
+  })
+  return { rows, write }
 }
