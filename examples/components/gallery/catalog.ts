@@ -213,9 +213,9 @@ export function galleryUrl(base: URL, route: GalleryRoute, preview = false) {
     ['scheme', route.scheme, 1],
     ['accent', route.accent, 1],
     ['depth', route.depth, 2],
-    ['canvas', route.layers.canvas, 1],
-    ['pane', route.layers.pane, 0],
-    ['content', route.layers.content, 0],
+    ['canvas', route.layers.canvas, defaultLayers.canvas],
+    ['pane', route.layers.pane, defaultLayers.pane],
+    ['content', route.layers.content, defaultLayers.content],
     ['state', route.state, 'normal'],
     ['viewport', route.viewport, 'full'],
   ] as const)

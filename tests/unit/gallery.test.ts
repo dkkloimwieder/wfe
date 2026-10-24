@@ -96,3 +96,41 @@ test('additional secondary accents round trip without changing primary bounds', 
     defaults.accent,
   )
 })
+
+test('all supported surface choices survive direct and preview URL roundtrips', () => {
+  const levels = [0, 1, 2] as const
+  for (const canvas of levels)
+    for (const pane of levels)
+      for (const content of levels) {
+        const route = {
+          ...defaults,
+          id: 'fields' as const,
+          viewport: 'full' as const,
+          layers: { canvas, pane, content },
+        }
+        for (const preview of [false, true]) {
+          const url = galleryUrl(
+            new URL('https://example.test/'),
+            route,
+            preview,
+          )
+          expect(readRoute(url)).toEqual(route)
+          const next = galleryUrl(url, { ...route, id: 'numbers' }, preview)
+          expect(readRoute(next).layers).toEqual(route.layers)
+        }
+      }
+})
+
+test('omitted gallery surface defaults decode to the same choices', () => {
+  const route = {
+    ...defaults,
+    id: 'fields' as const,
+    viewport: 'full' as const,
+  }
+  for (const preview of [false, true]) {
+    const url = galleryUrl(new URL('https://example.test/'), route, preview)
+    for (const key of ['canvas', 'pane', 'content'])
+      expect(url.searchParams.has(key)).toBe(false)
+    expect(readRoute(url)).toEqual(route)
+  }
+})
