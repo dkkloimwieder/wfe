@@ -422,6 +422,19 @@ try {
       name: 'Workspace preferences',
       exact: true,
     })
+    const desktopReady = async () => {
+      await expect(page.locator('#shell')).toHaveAttribute(
+        'data-ui-responsive-ready',
+        '',
+      )
+      await expect(page.locator('#shell')).not.toHaveAttribute(
+        'data-navigation-drawer',
+        '',
+      )
+      await expect(navigation).toBeVisible()
+      await expect(toggle).toBeHidden()
+    }
+    await desktopReady()
     const before = await page.locator('#results').boundingBox()
     await trigger.press('Enter')
     const dialog = page.getByRole('dialog', {
@@ -471,6 +484,7 @@ try {
     await page.evaluate(() =>
       window.layoutFixture.configure({ density: 'compact' }),
     )
+    await desktopReady()
     assert.deepEqual(await page.locator('#results').boundingBox(), before)
   })
   await test('Disposal with an open dialog releases portals and page locks', async () => {

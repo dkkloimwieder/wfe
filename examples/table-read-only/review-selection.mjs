@@ -12,6 +12,10 @@ export async function reviewSelection(page, test) {
   await test('Cell rectangles use full-cell shading, native range and exact normal clipboard copy', async () => {
     await page.evaluate(() => window.readOnlyFixture.start())
     await page.setViewportSize({ width: 1280, height: 900 })
+    const workspace = page.locator('.table-workspace')
+    await expect(workspace).toHaveAttribute('data-ui-responsive-ready', '')
+    await expect(workspace).not.toHaveAttribute('data-controls-drawer', '')
+    await cell('a', 'category').hover()
     const first = await cell('a', 'category').boundingBox(),
       last = await cell('c', 'name').boundingBox()
     await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2)
