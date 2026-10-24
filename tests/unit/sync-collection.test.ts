@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest'
-import { collection } from '@wfe/sync'
+import { CursorExpired, collection } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import type { Change } from '@wfe/sync'
 import { deferred, feedOf, order, tick } from './sync-fixtures'
@@ -133,4 +133,14 @@ test('a restart after cleanup fills again and applyChanges writes through the ne
   applyChanges(c, [change('c', 1, 3)])
   expect(ids(c)).toEqual(['b', 'c'])
   subscription.unsubscribe()
+})
+
+test('CursorExpired is an Error with its own name and cause', () => {
+  const cause = new Error('gone')
+  const expired = new CursorExpired(undefined, { cause })
+  expect(expired).toBeInstanceOf(Error)
+  expect(expired).toBeInstanceOf(CursorExpired)
+  expect(expired.name).toBe('CursorExpired')
+  expect(expired.message).toBe('The host no longer holds this cursor')
+  expect(expired.cause).toBe(cause)
 })

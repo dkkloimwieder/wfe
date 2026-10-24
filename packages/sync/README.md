@@ -4,7 +4,8 @@ This private package holds a browser store for rows that a change feed keeps cur
 It wraps `@tanstack/db` collections and adds a Solid 2 adapter.
 The application supplies a `Feed`, a scope, and a key. The package never builds a URL, reads a token, or names a header.
 
-Import `collection`, `liveRows`, `liveList`, and `syncStatus` from `@wfe/sync`.
+Import `collection`, `liveRows`, `liveList`, `syncStatus`, and `CursorExpired` from `@wfe/sync`.
+If the host no longer holds a cursor, `feed.changes` must throw `CursorExpired`. The package inspects no other error shape.
 `collection(feed, scope, options)` returns a collection keyed by `row.id`.
 It calls `feed.list(scope)` once and marks the collection ready.
 `utils.refill()` reads the list again and reconciles it. Rows absent from the new page leave. Rows with a higher `row_version` land. Equal or lower versions are ignored.
