@@ -1,3 +1,4 @@
+import { artifactPath } from '../../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 export async function matchingCases({ page, url, record }) {
@@ -47,7 +48,9 @@ export async function matchingCases({ page, url, record }) {
       await fuzzy.fill('gm')
       const bounds = await page.getByRole('listbox').boundingBox()
       assert.ok(bounds.x >= 0 && bounds.x + bounds.width <= 391)
-      await page.screenshot({ path: '/tmp/wfe-matching-phone.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-matching-phone.png'),
+      })
       await fuzzy.press('Escape')
     },
   )

@@ -1,3 +1,4 @@
+import { artifactPath } from '../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 export async function reviewDetailsServer(page) {
@@ -78,7 +79,9 @@ export async function reviewDetails({ page, record }) {
         ),
         true,
       )
-      await page.screenshot({ path: '/tmp/wfe-details-phone.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-details-phone.png'),
+      })
       await page
         .getByRole('button', { name: 'Confirm deletion', exact: true })
         .click()
@@ -87,7 +90,9 @@ export async function reviewDetails({ page, record }) {
       assert.equal((await snapshot()).confirmations, 1)
       await page.getByRole('button', { name: 'Restore example' }).click()
       await page.setViewportSize({ width: 1280, height: 900 })
-      await page.screenshot({ path: '/tmp/wfe-details-wide.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-details-wide.png'),
+      })
     },
   )
   await record(

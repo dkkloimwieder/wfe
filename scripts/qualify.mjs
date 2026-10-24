@@ -1,9 +1,11 @@
+import { withArtifactRun } from './artifacts.mjs'
 import { examples } from './coverage-inventory.mjs'
 import { spawn, execFileSync } from 'node:child_process'
 import { createWriteStream } from 'node:fs'
-import { appendFile, mkdir, writeFile } from 'node:fs/promises'
+import { appendFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { finished } from 'node:stream/promises'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 
@@ -319,50 +321,92 @@ async function main() {
   }
   const output = resolve(
     root,
-    process.env.QUALIFICATION_OUTPUT ?? 'test-results/qualification',
+    process.env.QUALIFICATION_OUTPUT ?? 'test-results/runs',
   )
-  const stages = qualificationStages(output, { wamn: args.includes('--wamn') })
   if (args.includes('--plan')) {
-    console.log(JSON.stringify(stages, null, 2))
+    console.log(
+      JSON.stringify(
+        qualificationStages(resolve(output, '<unique-run>'), {
+          wamn: args.includes('--wamn'),
+        }),
+        null,
+        2,
+      ),
+    )
     return
   }
-  await mkdir(output, { recursive: true })
-  const report = { stages: [] }
-  const env = qualificationEnvironment()
-  for (const stage of stages) {
-    console.log(`Qualification: ${stage.name}`)
-    const log = createWriteStream(resolve(output, `${stage.name}.log`))
-    const result = await new Promise((done) => {
-      const child = spawn('pnpm', stage.args, {
-        cwd: root,
-        env: { ...env, ...stage.env },
-        stdio: ['ignore', 'pipe', 'pipe'],
+  return withArtifactRun(
+    {
+      suite: 'qualification',
+      mode: 'matrix',
+      base: output,
+      requestedOutput: undefined,
+      limits: [
+        'Serial qualification; every stage retains its existing mode and coverage contract.',
+      ],
+    },
+    async (artifacts) => {
+      const output = artifacts.directory
+      const stages = qualificationStages(output, {
+        wamn: args.includes('--wamn'),
       })
-      child.stdout.on('data', (bytes) => {
-        process.stdout.write(bytes)
-        log.write(bytes)
-      })
-      child.stderr.on('data', (bytes) => {
-        process.stderr.write(bytes)
-        log.write(bytes)
-      })
-      child.on('error', (error) => {
-        log.write(`${error.stack}\n`)
-        done({ status: 1, error: error.message })
-      })
-      child.on('close', (status, signal) => done({ status, signal }))
-    })
-    await new Promise((done) => log.end(done))
-    report.stages.push({ ...stage, ...result })
-    await writeFile(
-      resolve(output, 'summary.json'),
-      JSON.stringify(report, null, 2) + '\n',
-    )
-    if (result.status !== 0) {
-      process.exitCode = 1
-      break
-    }
-  }
+      const report = { stages: [] }
+      const env = qualificationEnvironment()
+      for (const stage of stages) {
+        console.log(`Qualification: ${stage.name}`)
+        const log = createWriteStream(resolve(output, `${stage.name}.log`), {
+          flags: 'wx',
+        })
+        const logFailures = []
+        const logged = finished(log).catch((error) => {
+          logFailures.push({ message: error.message, stack: error.stack })
+        })
+        const result = await new Promise((done) => {
+          const child = spawn('pnpm', stage.args, {
+            cwd: root,
+            env: {
+              ...env,
+              ...stage.env,
+              BENCH_ARTIFACT_PARENT: artifacts.directory,
+              BENCH_ARTIFACT_STAGE: stage.name,
+            },
+            stdio: ['ignore', 'pipe', 'pipe'],
+          })
+          child.stdout.on('data', (bytes) => {
+            process.stdout.write(bytes)
+            if (!log.destroyed) log.write(bytes)
+          })
+          child.stderr.on('data', (bytes) => {
+            process.stderr.write(bytes)
+            if (!log.destroyed) log.write(bytes)
+          })
+          child.on('error', (error) => {
+            if (!log.destroyed) log.write(`${error.stack}\n`)
+            done({ status: 1, error: error.message })
+          })
+          child.on('close', (status, signal) => done({ status, signal }))
+        })
+        log.end()
+        await logged
+        if (logFailures.length) {
+          result.logFailures = logFailures
+          result.processStatus = result.status
+          result.status = result.status || 1
+        }
+        report.stages.push({ ...stage, ...result })
+        if (result.status !== 0) report.firstFailure ??= stage.name
+        await artifacts.writeReport(report)
+        await writeFile(
+          resolve(output, 'summary.json'),
+          JSON.stringify(report, null, 2) + '\n',
+        )
+        if (result.status !== 0) {
+          process.exitCode = 1
+          break
+        }
+      }
+    },
+  )
 }
 
 if (

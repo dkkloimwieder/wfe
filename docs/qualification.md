@@ -76,8 +76,8 @@ The bundle guard rejects modules outside the wfe checkout.
 The runner executes stages serially and stops at the first failure.
 Its initial `pnpm check` stage includes unit tests, so qualification does not repeat that suite.
 Node test files run serially inside the gate and the direct qualification stages.
-Logs, browser reports, and the stage summary remain under `test-results/qualification`.
-Set `QUALIFICATION_OUTPUT` to preserve a separate run.
+Logs, browser reports, and the stage summary remain under a new `test-results/runs/qualification` child directory for each invocation.
+Set `QUALIFICATION_OUTPUT` to choose a different parent directory; each invocation still creates a separate run.
 The runner clears inherited case selectors, preview URLs, and performance flags.
 It preserves `BENCH_EXECUTABLE_PATH` when the host needs a specific Chromium executable.
 Set `PLAYWRIGHT_BROWSERS_PATH` when the host uses an existing browser installation.
@@ -423,3 +423,54 @@ Every `STRICT_READ_UNTRACKED` report in that run came from the one `ControlFrame
 After the repair, the read-only table stage passed in development mode. The other affected stages did not run again.
 Two stages failed for causes outside rc.18: the known native-tab timeout `wfe-x6o` and a live-page navigation timeout.
 The full qualification runs again at the next program milestone.
+
+## Durable run artifacts
+
+The migrated browser runners allocate a new directory under `test-results/runs` for every
+invocation. Suite, source/package/development mode, hydration mode, time, and a
+random suffix distinguish runs. A repeated run keeps the earlier directory.
+The aggregate qualification command also allocates a new directory there and
+passes fresh stage report destinations to its child processes.
+`QUALIFICATION_OUTPUT` selects a parent directory, not a reusable run directory.
+`--plan` prints the proposed stages without creating artifacts.
+
+The sync example keeps its existing server and report writer.
+This change does not migrate or qualify its report format.
+The aggregate plan retains its sync stages without requiring canonical artifact metadata from that runner.
+
+Each migrated run has a `manifest.json` and canonical `report.json`. The manifest records
+the revision, a hash of the dirty diff and untracked source hashes, Node and
+Playwright versions, actual launched browser/executable when applicable,
+command, selected execution settings, declared limits, and final outcome.
+Each manifest derives failure from its own operation errors and report, including
+an explicit failure value, first failed stage, or unsuccessful stage status.
+A process exit code remains caller-owned and does not mark unrelated nested or
+concurrent run manifests as failed.
+
+Unavailable revision metadata is recorded explicitly. Full environment variables
+are not copied. Child processes own separate runs. Live review reports link to their child interaction reports and artifact manifests; asynchronous review helpers
+inherit only their caller's run context.
+
+Screenshots, DOM captures, and requested heap outputs belong to that same run.
+Repeated attachment names receive a new suffix. Explicit `BENCH_OUTPUT`,
+`BENCH_SCREENSHOT`, and heap destinations keep their caller-selected paths as
+additional outputs, but must not already exist. A collision fails without
+changing the existing file. The canonical report and failure manifest remain in
+the new run directory. Choose a fresh explicit destination for a repeated run.
+No helper deletes a previous run or cleans a user-selected directory.
+
+GitHub Actions uploads `test-results/runs` even after a failed qualification.
+This upload is the configured CI retention step; remote expiry follows the
+artifact service's configured policy. Local files remain until an explicitly
+authorized cleanup. This change adds no pruning command or automatic deletion.
+The implementation does not move, recreate, or certify historical evidence.
+Old `/tmp` and `test-results` references retain their recorded meaning; a missing
+local artifact is not a passing result or proof that its contents survive elsewhere.
+
+A read-only preparation review checked the literal paths cited by this guide,
+`action-disposal-investigation.md`, and `native-tab-investigation.md` on
+October 23, 2026: 30 resolved paths were present locally; one brace-pattern reference
+was not expanded, and four command/descriptive references were not file checks.
+`--import=` arguments were resolved as paths, and historical `table/` paths were
+resolved against the adjacent repository. This was an existence check, not content
+or hash verification. No cited artifact was copied, deleted, or recreated.

@@ -1,3 +1,4 @@
+import { artifactPath } from '../../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 import { reviewContexts } from '../../shared/controls/context-review.mjs'
@@ -25,7 +26,9 @@ export async function contextCases({ page, url, record }) {
       await expect(
         page.getByRole('button', { name: /^Change context:/ }),
       ).toBeFocused()
-      await page.screenshot({ path: '/tmp/wfe-context-phone.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-context-phone.png'),
+      })
       await page.getByRole('button', { name: /^Change context:/ }).click()
       await page.evaluate(() => window.contextFixture.stop())
       await expect(page.locator('.ui-sidebar-context-popup')).toHaveCount(0)

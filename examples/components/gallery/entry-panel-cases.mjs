@@ -1,3 +1,4 @@
+import { artifactPath } from '../../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
@@ -46,7 +47,9 @@ export async function entryPanelCases({ page, url, record }) {
         await expect(page.getByRole('status')).toHaveText(
           'Example submitted. No request was sent.',
         )
-        await page.screenshot({ path: `/tmp/wfe-entry-${scheme}.png` })
+        await page.screenshot({
+          path: await artifactPath(`wfe-entry-${scheme}.png`),
+        })
         await page.setViewportSize({ width: 320, height: 220 })
         await equalActions()
         const bounds = await surface.boundingBox()

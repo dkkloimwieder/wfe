@@ -1,3 +1,4 @@
+import { artifactPath } from '../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 const row = (page, key) => page.locator(`[data-generator-row="${key}"]`)
@@ -141,9 +142,13 @@ export async function reviewRepeated({ page, record }) {
         assert.equal(target.hit, true)
         assert.ok(target.scroll > 0)
       }
-      await page.screenshot({ path: '/tmp/wfe-repeated-phone.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-repeated-phone.png'),
+      })
       await page.setViewportSize({ width: 1280, height: 900 })
-      await page.screenshot({ path: '/tmp/wfe-repeated-wide.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-repeated-wide.png'),
+      })
     },
   )
   await record(

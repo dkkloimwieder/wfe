@@ -1,3 +1,4 @@
+import { artifactPath } from '../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
@@ -102,7 +103,9 @@ export async function iconCases({ page, url, record, settle }) {
         await page
           .locator('main')
           .evaluate((node, zoom) => (node.style.zoom = String(zoom)), zoom)
-        await page.screenshot({ path: `/tmp/wfe-triangles-${zoom}.png` })
+        await page.screenshot({
+          path: await artifactPath(`wfe-triangles-${zoom}.png`),
+        })
       }
       await page.locator('main').evaluate((node) => (node.style.zoom = ''))
       await page.emulateMedia({ forcedColors: 'active' })
@@ -118,7 +121,9 @@ export async function iconCases({ page, url, record, settle }) {
           .evaluate((node) => getComputedStyle(node, '::after').content),
         'none',
       )
-      await page.screenshot({ path: '/tmp/wfe-triangles-forced.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-triangles-forced.png'),
+      })
 
       await page.emulateMedia({ forcedColors: 'none' })
     },

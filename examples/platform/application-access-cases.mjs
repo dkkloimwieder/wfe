@@ -1,3 +1,4 @@
+import { artifactPath } from '../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 import {
@@ -92,7 +93,9 @@ export async function applicationAccessCases({
       await expect(
         users().getByRole('columnheader', { name: /Email/ }),
       ).toHaveAttribute('aria-sort', 'ascending')
-      await page.screenshot({ path: '/tmp/wfe-application-users.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-application-users.png'),
+      })
       await initialize('?screen=app-users&project=billing&env=prod')
       await expect(
         users().getByText(/Application administration is not available/),
@@ -157,7 +160,9 @@ export async function applicationAccessCases({
           exact: true,
         }),
       ).toBeVisible()
-      await page.screenshot({ path: '/tmp/wfe-application-permissions.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-application-permissions.png'),
+      })
       await page.goBack()
       await page
         .getByRole('button', {
@@ -194,7 +199,9 @@ export async function applicationAccessCases({
           .filter({ hasText: 'Team / reviewer' })
         await expect(breadcrumb).toContainText('Team / reviewer')
         if (width === 390)
-          await page.screenshot({ path: '/tmp/wfe-application-mobile.png' })
+          await page.screenshot({
+            path: await artifactPath('wfe-application-mobile.png'),
+          })
         assert.equal(
           await page.evaluate(
             () => document.documentElement.scrollWidth <= window.innerWidth,

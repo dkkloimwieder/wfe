@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { spawnSync } from 'node:child_process'
-import { mkdtemp, mkdir, readFile, writeFile, rm } from 'node:fs/promises'
+import {
+  mkdtemp,
+  mkdir,
+  readFile,
+  readdir,
+  writeFile,
+  rm,
+} from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
@@ -172,13 +179,16 @@ process.exitCode = process.argv.includes('scripts/check-chart-imports.mjs') ? 7 
       },
     })
     assert.equal(result.status, 1, result.stderr)
+    const runs = await readdir(join(output, 'qualification'))
+    assert.equal(runs.length, 1)
+    const directory = join(output, 'qualification', runs[0])
     const report = JSON.parse(
-      await readFile(join(output, 'summary.json'), 'utf8'),
+      await readFile(join(directory, 'summary.json'), 'utf8'),
     )
     assert.equal(report.stages.at(-1).name, 'chart-imports')
     assert.equal(report.stages.at(-1).status, 7)
     const stage = JSON.parse(
-      await readFile(join(output, 'chart-imports.log'), 'utf8'),
+      await readFile(join(directory, 'chart-imports.log'), 'utf8'),
     )
     assert.equal(stage.env.BENCH_URL, undefined)
     assert.equal(stage.env.BENCH_CASE_PATTERN, undefined)

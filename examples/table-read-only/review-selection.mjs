@@ -1,3 +1,4 @@
+import { artifactPath } from '../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 export async function reviewSelection(page, test) {
@@ -43,7 +44,9 @@ export async function reviewSelection(page, test) {
     // A right-click inside the owned DOM range preserves normal browser Copy.
     assert.equal(await page.evaluate(() => getSelection().isCollapsed), false)
     assert.equal(await copied(), 'West\tDesk\nEast\tLamp\nWest\tChair')
-    await page.screenshot({ path: '/tmp/wfe-cell-selection-rectangle.png' })
+    await page.screenshot({
+      path: await artifactPath('wfe-cell-selection-rectangle.png'),
+    })
   })
   await test('Keyboard ranges and whole row/column selection preserve exact cell boundaries', async () => {
     await select('b', 'name')
@@ -163,7 +166,9 @@ export async function reviewSelection(page, test) {
       '',
     )
     assert.equal((await copied()).split('\n').length, 501)
-    await page.screenshot({ path: '/tmp/wfe-cell-selection-virtual.png' })
+    await page.screenshot({
+      path: await artifactPath('wfe-cell-selection-virtual.png'),
+    })
     await page.evaluate(() => window.readOnlyFixture.stop())
   })
   await test('Virtual keyboard focus reveals its row and horizontal cell after mounting', async () => {

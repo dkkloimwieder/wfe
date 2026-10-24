@@ -1,3 +1,4 @@
+import { artifactPath } from '../../../scripts/artifacts.mjs'
 import { decorationGeometryCases } from './decoration-geometry-cases.mjs'
 import { iconCases } from './icon-cases.mjs'
 import { inputDecorationCases } from './input-decoration-cases.mjs'
@@ -228,7 +229,9 @@ export async function galleryCases({ page, url, record, settle }) {
       const footer = await page.locator('.ui-dashboard-footer').boundingBox()
       assert.ok(Math.abs(footer.y + footer.height - 900) <= 1)
       await expect(preview().locator('.gallery-preview')).toBeVisible()
-      await page.screenshot({ path: '/tmp/wfe-gallery-layout-wide.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-gallery-layout-wide.png'),
+      })
       await page.setViewportSize({ width: 390, height: 844 })
       assert.equal(
         await page.evaluate(
@@ -240,7 +243,9 @@ export async function galleryCases({ page, url, record, settle }) {
         .getByRole('button', { name: 'Components', exact: true })
         .click()
       await expect(navigation.locator('details')).toHaveCount(5)
-      await page.screenshot({ path: '/tmp/wfe-gallery-layout-phone.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-gallery-layout-phone.png'),
+      })
       await page.keyboard.press('Escape')
       await expect(
         page.getByRole('button', { name: 'Components', exact: true }),

@@ -1,3 +1,4 @@
+import { currentArtifacts } from '../../../scripts/artifacts.mjs'
 import { mkdir, readFile, realpath, stat, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { dirname, extname, resolve, sep } from 'node:path'
@@ -154,11 +155,24 @@ export function launchBrowser({
   executablePath = process.env.BENCH_EXECUTABLE_PATH,
   launchOptions = {},
 }) {
-  return chromium.launch({
-    headless: true,
-    ...launchOptions,
-    ...(executablePath ? { executablePath } : {}),
-  })
+  return chromium
+    .launch({
+      headless: true,
+      ...launchOptions,
+      ...(executablePath ? { executablePath } : {}),
+    })
+    .then((browser) => {
+      const artifacts = currentArtifacts()
+      if (artifacts) {
+        artifacts.manifest.runtime.browser = browser.version()
+        artifacts.manifest.runtime.executable =
+          executablePath ??
+          launchOptions.executablePath ??
+          chromium.executablePath?.() ??
+          null
+      }
+      return browser
+    })
 }
 
 export const generatorDiagnosticPolicy = {
@@ -285,12 +299,25 @@ export async function finalizeReport({
   report,
   cleanup,
   output,
-  write = async (file, text) => {
-    await mkdir(dirname(file), { recursive: true })
-    await writeFile(file, text)
-  },
+  write,
+
   log = console.log,
 }) {
+  const artifacts = currentArtifacts()
+  if (artifacts) {
+    artifacts.report = report
+    report.artifacts = {
+      directory: artifacts.directory,
+      manifest: artifacts.manifestPath,
+      report: artifacts.reportPath,
+    }
+  }
+  write ??= artifacts
+    ? async () => artifacts.writeReport(report)
+    : async (file, text) => {
+        await mkdir(dirname(file), { recursive: true })
+        await writeFile(file, text)
+      }
   for (const { name, close } of cleanup) {
     try {
       await close()
@@ -315,7 +342,20 @@ export async function finalizeReport({
       report.outputFailure ??= errorDetails(outputError)
     }
   }
+  if (artifacts) {
+    try {
+      await artifacts.writeCanonical(report)
+    } catch (error) {
+      report.artifactFailure = errorDetails(error)
+      try {
+        log(JSON.stringify(report, null, 2))
+      } catch (error) {
+        report.logFailure ??= errorDetails(error)
+      }
+    }
+  }
   return Boolean(
+    report.artifactFailure ||
     report.failure !== undefined ||
     report.cleanupFailures?.length ||
     report.diagnosticFailures?.length ||

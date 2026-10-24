@@ -22,7 +22,7 @@ jobs:
         if: always()
         with:
           name: qualification-reports
-          path: test-results/qualification
+          path: test-results/runs
           if-no-files-found: ignore
 
   node-boundaries:

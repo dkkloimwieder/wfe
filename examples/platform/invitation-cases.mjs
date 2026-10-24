@@ -1,3 +1,4 @@
+import { artifactPath } from '../../scripts/artifacts.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
@@ -82,7 +83,9 @@ export async function invitationCases({ page, initialize, record }) {
         .click()
       await expect(target).toHaveValue('billing / dev')
       await expect(page.getByRole('listbox')).not.toBeVisible()
-      await page.screenshot({ path: '/tmp/wfe-invitation-desktop.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-invitation-desktop.png'),
+      })
       const original = await target.elementHandle()
       await memberships
         .getByRole('button', { name: 'Add row', exact: true })
@@ -238,7 +241,9 @@ export async function invitationCases({ page, initialize, record }) {
         ),
         true,
       )
-      await page.screenshot({ path: '/tmp/wfe-invitation-phone.png' })
+      await page.screenshot({
+        path: await artifactPath('wfe-invitation-phone.png'),
+      })
       // The browser Back command remains available while generated form actions are locked.
       await page.goBack()
       await page.evaluate(() => window.releaseInvitation())
