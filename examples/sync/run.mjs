@@ -2,7 +2,10 @@ import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { chromium, expect } from '@playwright/test'
+import { chromium, expect as baseExpect } from '@playwright/test'
+
+// Rendering 100,000 rows takes longer than the 5 second default of expect.
+const expect = baseExpect.configure({ timeout: 120_000 })
 
 const suffix = process.env.BENCH_DEVELOPMENT
   ? '-dev'
