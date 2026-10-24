@@ -7,7 +7,7 @@ import { PaginationExample } from './PaginationExample'
 import { EntryExample } from './EntryExample'
 import { SubTables } from './SubTables'
 import { EverythingForm } from './EverythingForm'
-import { createEffect, lazy, onCleanup, untrack } from 'solid-js'
+import { createEffect, lazy, Loading, onCleanup, untrack } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import {
@@ -177,7 +177,15 @@ export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
         }
         data-gallery-group={entry.group}
       >
-        <Dynamic component={views[entry.id]} state={props.state} embedded />
+        <Loading
+          fallback={
+            <p role="status" aria-label="Example loading">
+              LOADING EXAMPLE
+            </p>
+          }
+        >
+          <Dynamic component={views[entry.id]} state={props.state} embedded />
+        </Loading>
       </div>
     </div>
   )

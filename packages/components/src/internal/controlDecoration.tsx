@@ -42,7 +42,7 @@ export function ControlFrame(
   },
 ) {
   const compound = useContext(CompoundControl)
-  if (compound) return props.children
+  if (compound) return <>{props.children}</>
   return (
     <span
       class={styledClasses('ui-control-frame', props.frameClass)}

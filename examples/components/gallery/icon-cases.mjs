@@ -1,5 +1,98 @@
 import { expect } from '@playwright/test'
+import { withCleanup } from '../../shared/browser/runner.mjs'
 export async function iconCases({ page, url, record }) {
+  await record(
+    'gallery: a cold icon import shows pending content within its boundary',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      // A new document resets the module registry. Routing disables the HTTP cache,
+      // so this also covers a run that has already visited the icon example.
+      const matchesIconModule = (requestUrl) =>
+        /\/IconsExample(?:-[^/]+\.js|\.tsx)$/.test(requestUrl.pathname)
+      let release
+      const held = new Promise((resolve) => {
+        release = resolve
+      })
+      let intercepted = false
+      let retainedNavigation
+      const pendingImports = []
+      const importFailures = []
+      const holdImport = (route) => {
+        intercepted = true
+        const pending = held
+          .then(() => route.fallback())
+          .catch((error) => {
+            importFailures.push(error)
+          })
+        pendingImports.push(pending)
+        return pending
+      }
+      const releaseImports = async () => {
+        release()
+        await Promise.all(pendingImports)
+        if (importFailures.length)
+          throw new AggregateError(
+            importFailures,
+            'The held icon import failed',
+          )
+      }
+      await page.route(matchesIconModule, holdImport)
+      await withCleanup(async () => {
+        await page.goto(`${url}?gallery=icons`, {
+          waitUntil: 'commit',
+        })
+        await expect.poll(() => intercepted).toBe(true)
+        const pending = page.getByRole('status', {
+          name: 'Example loading',
+          exact: true,
+        })
+        await expect(pending).toBeVisible()
+        const navigation = page.getByRole('navigation', {
+          name: 'Component catalog',
+          exact: true,
+        })
+        await expect(navigation).toBeVisible()
+        retainedNavigation = await navigation.elementHandle()
+        await expect(
+          page.getByRole('textbox', { name: 'Find icons', exact: true }),
+        ).toHaveCount(0)
+        await releaseImports()
+        const search = page.getByRole('textbox', {
+          name: 'Find icons',
+          exact: true,
+        })
+        await expect(search).toBeVisible()
+        await expect(pending).toHaveCount(0)
+        await expect(navigation).toHaveJSProperty('isConnected', true)
+        await expect
+          .poll(() =>
+            retainedNavigation.evaluate(
+              (node) =>
+                node ===
+                document.querySelector('nav[aria-label="Component catalog"]'),
+            ),
+          )
+          .toBe(true)
+        await search.fill('no matching icon exists')
+        await expect(
+          page.getByRole('status', { name: 'Icon results', exact: true }),
+        ).toHaveText('0 icons')
+      }, [
+        {
+          name: 'held icon import',
+          close: releaseImports,
+        },
+        {
+          name: 'icon import route',
+          close: () => page.unroute(matchesIconModule, holdImport),
+        },
+        {
+          name: 'retained navigation handle',
+          close: () => retainedNavigation?.dispose(),
+        },
+      ])
+    },
+  )
   await record(
     'gallery: icons search and selection preserve accessible controls',
     async () => {
