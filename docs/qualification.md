@@ -220,3 +220,25 @@ The existing native-tab timeout (`wfe-x6o`) recurred and then passed unchanged.
 Its cause remains open; this upgrade does not claim to fix it.
 
 The [action disposal investigation](action-disposal-investigation.md) preserves the runtime-only heap reproduction and the current removal decision.
+
+## Solid rc.18 toolchain
+
+The 2026-10-23 upgrade uses `solid-js`, `@solidjs/web`, `@solidjs/signals`,
+`@solidjs/compiler`, and `@solidjs/babel-plugin` at `2.0.0-rc.18`.
+The Vite plugin stays at `3.0.0-next.50`. The workspace overrides pin its compiler and Babel plugin to rc.18.
+The four workspace packages now declare the peer range `>=2.0.0-rc.18 <3.0.0`.
+That range change made pnpm resolve one Solid runtime for the packages and the external primitives.
+Before it, the packages kept a second rc.16 runtime, and server rendering lost its owner.
+The npm registry identifies source commit `225014bf8757421a2ea0a9c6ddc148b965eed000`.
+Solid now pins `seroval` and `seroval-plugins` to `1.7.0`. No other dependency changed.
+
+The sync package epic requires rc.18 or later for its adapter.
+The owner approved this upgrade in that epic before the normal 24-hour release age.
+Exact rc.18 exclusions replace the rc.16 exclusions for these packages and their compiler binaries.
+Automatic upgrades retain the age rule and the existing trust policy.
+The existing interaction, scrolling, disposal, and native listener repairs remain in place.
+This upgrade does not establish that upstream fixes replace those repairs.
+
+The root check gate passed with the untracked sync plan excluded from the format stage.
+The coverage inventory stage ran with that plan held outside `docs/` and restored afterwards.
+The browser qualification suites run again at the close of the sync epic.
