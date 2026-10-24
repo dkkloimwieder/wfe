@@ -11,7 +11,11 @@ import type {
 } from '@wfe/sync'
 
 /** Shared helpers for the sync unit tests. */
-export type Order = Row & { name: string; quantity: number }
+export type Order = Row & {
+  row_version: number
+  name: string
+  quantity: number
+}
 
 export function deferred<T>() {
   let resolve!: (value: T) => void

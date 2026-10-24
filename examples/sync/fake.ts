@@ -2,6 +2,7 @@ import type { Change, Feed, Reply, Row, Send, Trigger } from '@wfe/sync'
 
 export type OrderStatus = 'open' | 'picked' | 'shipped'
 export type Order = Row & {
+  row_version: number
   name: string
   quantity: number
   status: OrderStatus

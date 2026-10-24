@@ -1,10 +1,19 @@
-/** A row has a client-generated id and an integer version. */
+/**
+ * A row has a client-generated id. Its integer version is `row_version`
+ * unless the collection reads it through `options.version`.
+ */
 export interface Row {
   id: string
-  row_version: number
+  row_version?: number
 }
 
-/** A change is deleted or carries data. */
+/** Reads the integer version of a row. */
+export type Version<T extends Row> = (row: T) => number
+
+/** The default version accessor. */
+export const rowVersion = (row: Row): number => row.row_version as number
+
+/** A change is deleted or carries data. `row_version` is the feed's field. */
 export type Change<T extends Row> =
   | { id: string; row_version: number; deleted: true }
   | { id: string; row_version: number; deleted: false; data: T }

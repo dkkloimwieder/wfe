@@ -5,7 +5,8 @@ import { CursorExpired } from './errors'
 import { createStatus } from './status'
 import { register, remove, upsert } from './writer'
 import type { AnyCollection, Batch, SyncParams, Writer } from './writer'
-import type { Feed, Persistence, Row, Trigger } from './types'
+import { rowVersion } from './types'
+import type { Feed, Persistence, Row, Trigger, Version } from './types'
 
 type Utils = {
   /** Run `list` again and reconcile the result into the collection. */
@@ -61,8 +62,11 @@ export function collection<T extends Row, S>(
     pollMs?: number
     /** Passed to `changes` as its limit; undefined means the host default. */
     pageSize?: number
+    /** Reads the version of a row; default `row => row.row_version`. */
+    version?: Version<T>
   },
 ): SyncCollection<T> {
+  const version: Version<T> = options.version ?? rowVersion
   const status = createStatus('loading')
   let error: unknown
   let cursor: string | undefined
@@ -86,7 +90,7 @@ export function collection<T extends Row, S>(
     try {
       const page = await feed.list(scope, r.abort.signal)
       if (r.stopped) return
-      reconcile(c, r.writer, page.rows)
+      reconcile(c, r.writer, page.rows, version)
       cursor = page.cursor
       currentAt = new Date().toISOString()
       ready(r)
@@ -111,7 +115,8 @@ export function collection<T extends Row, S>(
         if (saved && saved.rows.length > 0) {
           const batch: Batch = new Map()
           r.writer.begin()
-          for (const row of saved.rows as T[]) upsert(c, r.writer, row, batch)
+          for (const row of saved.rows as T[])
+            upsert(c, r.writer, row, batch, version)
           r.writer.commit()
           cursor = saved.cursor
           ready(r)
@@ -249,7 +254,12 @@ export function collection<T extends Row, S>(
       currentAt: () => currentAt,
     },
   })
-  register(c, { writer: () => run!.writer, status, error: () => error })
+  register(c, {
+    writer: () => run!.writer,
+    status,
+    error: () => error,
+    version,
+  })
   return c
 }
 
@@ -258,13 +268,14 @@ function reconcile<T extends Row>(
   c: AnyCollection<T>,
   writer: Writer<T>,
   rows: T[],
+  version: Version<T>,
 ): void {
   const batch: Batch = new Map()
   const incoming = new Set<string>()
   writer.begin()
   for (const row of rows) {
     incoming.add(row.id)
-    upsert(c, writer, row, batch)
+    upsert(c, writer, row, batch, version)
   }
   for (const key of [...c.keys()])
     if (!incoming.has(key)) remove(c, writer, key, batch)

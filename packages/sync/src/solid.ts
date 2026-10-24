@@ -18,6 +18,7 @@ import { peek, source } from './writer'
 import type { AnyCollection } from './writer'
 import type { OperationCall, Outbox, OutboxCounts, OutboxEntry } from './outbox'
 import type { Status } from './status'
+import { rowVersion } from './types'
 import type { Row } from './types'
 
 /**
@@ -141,12 +142,14 @@ function moves<T extends Row>(
 /**
  * True when the collection holds the written row. It reads the collection,
  * never the optimistic store, so the guess of the action never satisfies it.
- * It throws when the entry is refused or discarded.
+ * The versions are read through the accessor of the collection. When the
+ * expected row has no version, any row with the id confirms the write. It
+ * throws when the entry is refused or discarded.
  */
 function confirmed<T extends Row>(
   c: AnyCollection<T>,
   o: Outbox,
-  expected: { id: string; row_version?: number },
+  expected: Partial<T> & { id: string },
   entry: OutboxEntry,
 ): boolean {
   if (discarded(o, entry.seq)) throw new OutboxDiscarded(entry.seq)
@@ -155,9 +158,9 @@ function confirmed<T extends Row>(
     throw new OutboxRefused(entry.seq, current.refusal)
   const row = c.get(expected.id)
   if (row === undefined) return false
-  return (
-    expected.row_version === undefined || row.row_version > expected.row_version
-  )
+  const version = peek(c)?.version ?? rowVersion
+  const want = version(expected as T) as number | undefined
+  return want === undefined || version(row) > want
 }
 
 /**
@@ -174,7 +177,7 @@ export function recordWrite<T extends Row>(
   rows: Store<Record<string, T>>
   write: (
     op: OperationCall,
-    expected: Partial<T> & { id: string; row_version?: number },
+    expected: Partial<T> & { id: string },
   ) => Promise<void>
 } {
   const [rows, setRows] = createOptimisticStore<Record<string, T>>(
@@ -185,7 +188,7 @@ export function recordWrite<T extends Row>(
   const moved = moves(c, o)
   const write = action(function* (
     op: OperationCall,
-    expected: Partial<T> & { id: string; row_version?: number },
+    expected: Partial<T> & { id: string },
   ) {
     setRows((draft) => {
       draft[expected.id] = { ...draft[expected.id], ...expected } as T

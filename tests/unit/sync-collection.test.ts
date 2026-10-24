@@ -1,8 +1,8 @@
 import { expect, test, vi } from 'vitest'
 import { CursorExpired, collection } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
-import type { Change } from '@wfe/sync'
-import { deferred, feedOf, order, tick } from './sync-fixtures'
+import type { Change, Feed } from '@wfe/sync'
+import { deferred, feedOf, order, persistenceOf, tick } from './sync-fixtures'
 import type { Order } from './sync-fixtures'
 
 const ids = (c: { toArray: Order[] }) => c.toArray.map((row) => row.id).sort()
@@ -143,4 +143,53 @@ test('CursorExpired is an Error with its own name and cause', () => {
   expect(expired.name).toBe('CursorExpired')
   expect(expired.message).toBe('The host no longer holds this cursor')
   expect(expired.cause).toBe(cause)
+})
+
+test('a collection over rows with rowVersion applies the version rule through options.version', async () => {
+  type Camel = { id: string; rowVersion: number; quantity: number }
+  const camel = (id: string, rowVersion: number, quantity = 1): Camel => ({
+    id,
+    rowVersion,
+    quantity,
+  })
+  const pages = [
+    [camel('a', 1), camel('b', 2), camel('c', 1)],
+    [camel('a', 2, 5), camel('b', 1, 9), camel('c', 1, 9)],
+  ]
+  const feed: Feed<Camel, string> = {
+    list: vi.fn(async () => ({ rows: pages.shift() ?? [], cursor: 'end' })),
+    changes: vi.fn(async () => ({
+      rows: [],
+      next_cursor: 'end',
+      complete: true,
+    })),
+  }
+  const persistence = persistenceOf(async () => ({
+    rows: [camel('a', 1, 3), camel('s', 4)],
+    cursor: 'saved',
+    saved_at: '2026-10-24T00:00:00.000Z',
+  }))
+  const c = collection(feed, 'all', {
+    key: 'camel:all',
+    persistence,
+    version: (row) => row.rowVersion,
+  })
+  await tick()
+  // An equal version from the list leaves the saved row; absent rows leave.
+  expect(c.get('a')).toMatchObject(camel('a', 1, 3))
+  expect(c.has('s')).toBe(false)
+  await c.utils.refill()
+  expect(c.get('a')).toMatchObject(camel('a', 2, 5))
+  expect(c.get('b')).toMatchObject(camel('b', 2))
+  expect(c.get('c')).toMatchObject(camel('c', 1))
+  applyChanges(c, [
+    { id: 'a', row_version: 3, deleted: false, data: camel('a', 3, 7) },
+    { id: 'b', row_version: 2, deleted: false, data: camel('b', 2, 8) },
+    { id: 'c', row_version: 0, deleted: false, data: camel('c', 0, 8) },
+    { id: 'd', row_version: 1, deleted: false, data: camel('d', 1) },
+  ])
+  expect(c.get('a')).toMatchObject(camel('a', 3, 7))
+  expect(c.get('b')).toMatchObject(camel('b', 2))
+  expect(c.get('c')).toMatchObject(camel('c', 1))
+  expect(c.get('d')).toMatchObject(camel('d', 1))
 })

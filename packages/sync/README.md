@@ -11,6 +11,7 @@ If the `persistence` option is given, the collection first loads the saved rows 
 It then calls `feed.list(scope)` and reconciles the page. If the list fails after saved rows landed, the status stays `ready` and `utils.error()` holds the failure.
 A rejecting load counts as no saved rows. `utils.error()` holds the load error until a list succeeds.
 `utils.refill()` reads the list again and reconciles it. Rows absent from the new page leave. Rows with a higher `row_version` land. Equal or lower versions are ignored.
+The collection reads the version of a row through `options.version`. The default is `row => row.row_version`. A consumer whose rows carry `rowVersion` passes `version: r => r.rowVersion` and does not copy its rows.
 `utils.error()` returns the error of the last failed read.
 `utils.currentAt()` returns the ISO time of the last successful list or change read, or undefined before one.
 
@@ -71,7 +72,7 @@ If `navigator.locks` is absent, replay runs without the lock. Two tabs can then 
 
 1. It merges `expected` into `rows[expected.id]` as a guess.
 2. It enqueues `call` in the outbox.
-3. It waits with `until` until the collection holds `expected.id` with a `row_version` greater than `expected.row_version`. If `expected.row_version` is undefined, any row with that id is enough.
+3. It waits with `until` until the collection holds `expected.id` with a version greater than the version of `expected`. Both versions are read through `options.version` of the collection. If `expected` has no version, any row with that id is enough.
 
 The wait reads the collection, never `rows`, so the guess of the action never ends it.
 If the entry is refused, the wait throws `OutboxRefused` with the `code`, the `text` and the `seq`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.

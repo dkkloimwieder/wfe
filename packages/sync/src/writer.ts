@@ -1,5 +1,5 @@
 import type { Collection, SyncConfig, UtilsRecord } from '@tanstack/db'
-import type { Row } from './types'
+import type { Row, Version } from './types'
 import type { StatusSignal } from './status'
 
 /** The sync hooks `@tanstack/db` hands to a custom sync source. */
@@ -26,6 +26,8 @@ export interface Source<T extends Row> {
   writer(): Writer<T>
   status: StatusSignal
   error(): unknown
+  /** Reads the version of a row; `options.version` of the collection. */
+  version: Version<T>
 }
 
 const sources = new WeakMap<object, Source<Row>>()
@@ -57,25 +59,29 @@ export function source<T extends Row>(c: AnyCollection<T>): Source<T> {
  */
 export type Batch = Map<string, number | null>
 
-/** Insert or update one row; equal or lower row_version is ignored. */
+/** Insert or update one row; an equal or lower version is ignored. */
 export function upsert<T extends Row>(
   c: AnyCollection<T>,
   writer: Writer<T>,
   row: T,
   batch: Batch,
+  version: Version<T>,
 ): void {
   const pending = batch.get(row.id)
+  const held = pending === undefined ? c.get(row.id) : undefined
   const stored =
     pending === undefined
-      ? c.get(row.id)?.row_version
+      ? held === undefined
+        ? undefined
+        : version(held)
       : pending === null
         ? undefined
         : pending
+  const incoming = version(row)
   if (stored === undefined) writer.write({ type: 'insert', value: row })
-  else if (row.row_version > stored)
-    writer.write({ type: 'update', value: row })
+  else if (incoming > stored) writer.write({ type: 'update', value: row })
   else return
-  batch.set(row.id, row.row_version)
+  batch.set(row.id, incoming)
 }
 
 /** Delete one row when the collection holds it. */

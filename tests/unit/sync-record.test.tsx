@@ -181,3 +181,48 @@ test('offline, the entry waits and the guess shows; a good probe sends and the e
   expect(write.error).toBeUndefined()
   expect(o.entries()).toEqual([])
 })
+
+test('the write reads the versions through options.version', async () => {
+  type Camel = { id: string; rowVersion: number; quantity: number }
+  const camel = (id: string, rowVersion: number, quantity = 1): Camel => ({
+    id,
+    rowVersion,
+    quantity,
+  })
+  const c = collection(
+    {
+      list: async () => ({ rows: [camel('a', 1)], cursor: 'end' }),
+      changes: async () => ({ rows: [], next_cursor: 'end', complete: true }),
+    },
+    'all',
+    { key: 'camel:all', version: (row: Camel) => row.rowVersion },
+  )
+  await tick()
+  const host = hostOf()
+  const o = outbox({
+    database: name(),
+    send: host.send,
+    probe: async () => true,
+  })
+  let record!: ReturnType<typeof recordWrite<Camel>>
+  render(() => {
+    record = recordWrite(c, o)
+    return null
+  })
+  await tick()
+  const write = track(
+    record.write(call('a', 'h1'), { id: 'a', rowVersion: 1, quantity: 9 }),
+  )
+  await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
+  host.answer('h1')
+  applyChanges(c, [
+    { id: 'a', row_version: 1, deleted: false, data: camel('a', 1, 9) },
+  ])
+  await tick()
+  expect(write.done).toBe(false)
+  applyChanges(c, [
+    { id: 'a', row_version: 2, deleted: false, data: camel('a', 2, 9) },
+  ])
+  await vi.waitFor(() => expect(write.done).toBe(true))
+  expect(write.error).toBeUndefined()
+})
