@@ -30,7 +30,10 @@ The `toolbarActions` slot accepts application controls in the persistent header.
 These actions stay visible when the controls pane collapses or becomes a mobile drawer.
 The [workspace guide](../../../../docs/table-workspace.md) describes sizing and the narrow controls drawer.
 Neither component copies the application records.
-ReadOnlyTable forwards `width` and `headerEnd` to Table.
+ReadOnlyTable forwards `width`, `headerEnd` and `renderBody` to Table.
+With `renderBody`, the application renders the table body, for example `VirtualRows` from `@wfe/components/virtual` with `TableRow`.
+The body slot replaces the rows, the groups and the row details that ReadOnlyTable renders. The header, the controls and the footer stay.
+The scroll container of a virtualizer is the `.table-scroll` element inside ReadOnlyTable.
 The application can render TableColumnResize in headerEnd and pass the sum of visible column sizes as width.
 The existing engine owns accepted sizing through its state contract.
 The presentation does not scan records to calculate initial widths.

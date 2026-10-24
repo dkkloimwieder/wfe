@@ -8,6 +8,8 @@ import {
   untrack,
 } from 'solid-js'
 import { Button, Field, Input, Label } from '@wfe/components'
+import { ReadOnlyTable, TableRow, createTable } from '@wfe/components/table'
+import { VirtualRows, createTableVirtualizer } from '@wfe/components/virtual'
 import {
   collection,
   liveList,
@@ -197,7 +199,80 @@ function Shapes(props: { store: Store }) {
           </div>
         </Loading>
       </section>
+      <VirtualTable rows={rows} ids={ids} />
     </main>
+  )
+}
+
+/** Row height of the virtual table, in pixels. */
+const rowHeight = 32
+
+/**
+ * ReadOnlyTable over the liveRows store, with virtual rows through its body
+ * slot. The header and sorting stay with ReadOnlyTable; the slot renders only
+ * the rows in the scroll window.
+ */
+function VirtualTable(props: {
+  rows: Record<string, Order>
+  ids: () => string[]
+}) {
+  const table = createTable<Order>({
+    source: {
+      ids: () => props.ids(),
+      get: (id) => props.rows[id],
+    },
+    columns: [
+      { id: 'name', header: 'Name', accessorKey: 'name' },
+      { id: 'quantity', header: 'Quantity', accessorKey: 'quantity' },
+      { id: 'status', header: 'Status', accessorKey: 'status' },
+      { id: 'row_version', header: 'Version', accessorKey: 'row_version' },
+    ],
+  })
+  let frame: HTMLDivElement | undefined
+  const viewport = () =>
+    frame?.querySelector<HTMLElement>('.table-scroll') ?? null
+  const virtualizer = createTableVirtualizer<string>({
+    mode: 'fixed',
+    get count() {
+      return table.getRowIds().length
+    },
+    rowHeight,
+    getItemKey: (index) => untrack(() => table.getRowIds()[index]!),
+    getIndexForKey: (key) => untrack(() => table.getRowIds().indexOf(key)),
+    getScrollElement: viewport,
+    get scrollMargin() {
+      return viewport()?.querySelector('thead')?.offsetHeight ?? 0
+    },
+    observeElements: () =>
+      Array.from(viewport()?.querySelectorAll('thead') ?? []),
+  })
+  return (
+    <section class="sync-shape" aria-labelledby="sync-virtual-title">
+      <h2 id="sync-virtual-title" data-ui-text="system">
+        ReadOnlyTable with virtual rows
+      </h2>
+      <div
+        class="sync-virtual"
+        data-sync-virtual={table.getRowIds().length}
+        ref={(node) => {
+          frame = node
+        }}
+      >
+        <ReadOnlyTable
+          table={table}
+          title="Virtual orders"
+          controlsEnabled={false}
+          renderBody={() => (
+            <VirtualRows
+              window={virtualizer}
+              layout="table"
+              columns={() => table.getVisibleColumns().length}
+              renderRow={(id) => <TableRow table={table} id={id} />}
+            />
+          )}
+        />
+      </div>
+    </section>
   )
 }
 

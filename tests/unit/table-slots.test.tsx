@@ -2,7 +2,9 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render, fireEvent } from '@solidjs/testing-library'
 import { createSignal, flush, onCleanup } from 'solid-js'
 import { Button } from '@wfe/components'
-import { ReadOnlyTable, createTable } from '@wfe/components/table'
+import { ReadOnlyTable, TableRow, createTable } from '@wfe/components/table'
+import { VirtualRows } from '@wfe/components/virtual'
+import type { VirtualWindow } from '@wfe/components/virtual'
 afterEach(() => {
   cleanup()
   vi.unstubAllGlobals()
@@ -120,4 +122,70 @@ test('refresh stays available without filter controls and forwards unchanged cri
   expect(refresh.mock.calls[0]).toEqual(refresh.mock.calls[1])
   expect(refresh.mock.calls[0]![0].columnFilters).toEqual([])
   expect(button.disabled).toBe(false)
+})
+
+test('renderBody replaces the rows with virtual rows and keeps the header and controls', () => {
+  vi.stubGlobal('matchMedia', () => ({
+    matches: false,
+    addEventListener() {},
+    removeEventListener() {},
+  }))
+  const names = new Map(
+    Array.from({ length: 100 }, (_, index) => [`r${index}`, `Row ${index}`]),
+  )
+  const [start, setStart] = createSignal(0)
+  let mounts = 0
+  const h = render(() => {
+    const table = createTable({
+      source: { ids: () => [...names.keys()], get: (id) => names.get(id) },
+      columns: [
+        { id: 'name', header: 'Name', accessorFn: (row: string) => row },
+      ],
+    })
+    // A fixed window of ten 32px rows; the test moves it.
+    const window: VirtualWindow<string> = {
+      mode: 'fixed',
+      getKeys: () => table.getRowIds().slice(start(), start() + 10),
+      getStart: () => start() * 32,
+      getEnd: () => (start() + 10) * 32,
+      getTotalSize: () => names.size * 32,
+      scrollToIndex: () => {},
+    }
+    return (
+      <ReadOnlyTable
+        table={table}
+        title="Virtual"
+        renderBody={() => (
+          <VirtualRows
+            window={window}
+            layout="table"
+            columns={() => 1}
+            renderRow={(id) => {
+              mounts++
+              return <TableRow table={table} id={id} />
+            }}
+          />
+        )}
+      />
+    )
+  })
+  const body = () =>
+    [...h.container.querySelectorAll('tbody tr')]
+      .map((row) => row.textContent)
+      .filter(Boolean)
+  expect(h.getByRole('columnheader', { name: /Name/ })).toBeTruthy()
+  expect(h.getByRole('button', { name: 'Refresh results' })).toBeTruthy()
+  expect(body()).toEqual(
+    Array.from({ length: 10 }, (_, index) => `Row ${index}`),
+  )
+  expect(mounts).toBe(10)
+  const spacers = h.container.querySelectorAll('tbody[aria-hidden="true"] td')
+  expect((spacers[1] as HTMLElement).style.height).toBe(`${90 * 32}px`)
+  setStart(5)
+  flush()
+  expect(body()[0]).toBe('Row 5')
+  expect(body()).toHaveLength(10)
+  // Five rows stay mounted; five new rows mount.
+  expect(mounts).toBe(15)
+  expect((spacers[0] as HTMLElement).style.height).toBe(`${5 * 32}px`)
 })

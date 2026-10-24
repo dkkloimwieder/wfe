@@ -118,6 +118,34 @@ try {
     assert.ok(updated >= 120, `updated rows: ${updated}`)
     assert.ok(typeof first === 'string')
   })
+  await run(
+    'ReadOnlyTable renders a window of virtual rows through its body slot',
+    async () => {
+      const frame = page.locator('[data-sync-virtual]')
+      await expect(frame).toHaveAttribute('data-sync-virtual', '10020')
+      const scroll = frame.locator('.table-scroll')
+      const mounted = frame.locator('tr[data-row]')
+      await expect(mounted.first()).toBeVisible()
+      const before = await mounted.count()
+      assert.ok(before > 0 && before < 100, `mounted rows: ${before}`)
+      await expect(
+        frame.getByRole('columnheader', { name: /Quantity/ }),
+      ).toBeVisible()
+      const first = await mounted.first().getAttribute('data-row')
+      await scroll.evaluate((node) => {
+        node.scrollTop = 5_000 * 32
+      })
+      await expect(mounted.first()).not.toHaveAttribute('data-row', first)
+      const after = await mounted.count()
+      assert.ok(after > 0 && after < 100, `mounted rows: ${after}`)
+      const height = await scroll.evaluate((node) => node.scrollHeight)
+      assert.ok(height >= 10_020 * 32, `scroll height: ${height}`)
+      await scroll.evaluate((node) => {
+        node.scrollTop = 0
+      })
+      await expect(mounted.first()).toHaveAttribute('data-row', first)
+    },
+  )
   const counts = page.locator('[data-sync-pending]')
   const nameField = page.getByLabel('Order name')
   const written = (name) =>
@@ -206,7 +234,11 @@ try {
   )
   await run('both shapes render 100,000 rows and accept a batch', async () => {
     await page.getByRole('button', { name: '100,000 rows' }).click()
-    await expect(status).toHaveAttribute('data-sync-status', 'ready')
+    // The fill of 100,000 rows and the table over them take several seconds
+    // under load; the case checks the result, not the time.
+    await expect(status).toHaveAttribute('data-sync-status', 'ready', {
+      timeout: 30_000,
+    })
     await expectShapes(100_000)
     await page.getByRole('button', { name: 'Apply 100 changes' }).click()
     await expectShapes(100_010)

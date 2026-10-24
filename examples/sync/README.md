@@ -8,6 +8,8 @@ The server button appends 100 random changes to the log and fires the trigger. A
 Each batch holds 70 updates, 20 inserts, and 10 deletes, so the row count grows by 10.
 `liveRows` fills a plain table, and `liveList` fills a list. Each shape renders the first 200 rows.
 The page shows `syncStatus` and the current-as-of time above both shapes. It has no timing instrumentation.
+A third section shows `ReadOnlyTable` over the same `liveRows` store, with virtual rows through its `renderBody` slot.
+The slot renders `VirtualRows` with `TableRow`, so the table mounts only the rows in its scroll window. The header and the sorting stay with `ReadOnlyTable`.
 
 The recordWrite panel writes through an outbox in the IndexedDB database `wfe-sync-gallery:<size>`.
 Add row records a create with a new UUIDv7 id. The page computes the request hash as SHA-256 of the request JSON.

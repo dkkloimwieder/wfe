@@ -82,3 +82,16 @@ body {
   margin: 0;
   padding-inline-start: 3.5rem;
 }
+.sync-virtual {
+  display: flex;
+  flex-direction: column;
+  height: 26rem;
+  min-height: 0;
+}
+.sync-virtual > * {
+  flex: 1;
+  min-height: 0;
+}
+.sync-virtual tbody tr {
+  height: 32px;
+}

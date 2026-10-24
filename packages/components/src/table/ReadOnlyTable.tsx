@@ -103,7 +103,10 @@ export function ReadOnlyTable<T, M>(
     renderCell?: (cell: NativeCell<T, M>) => JSX.Element
     formatValue?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
     formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
-  } & Pick<Parameters<typeof Table<T, M>>[0], 'width' | 'headerEnd'>,
+  } & Pick<
+    Parameters<typeof Table<T, M>>[0],
+    'width' | 'headerEnd' | 'renderBody'
+  >,
 ) {
   const messages = resolveTableMessages(() => props.messages)
   const paginationMessages = resolveMessages(
@@ -576,6 +579,7 @@ export function ReadOnlyTable<T, M>(
           }}
           width={props.width}
           headerEnd={props.headerEnd}
+          renderBody={props.renderBody}
           columnAlignment={alignment()}
           accessibleLabel={props.title ?? messages.readOnlyRecords}
           grouped={
