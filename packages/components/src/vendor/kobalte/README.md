@@ -372,3 +372,26 @@ This repair uses the options already present in the hidden select.
 It does not expand filtered Combobox collections or change virtualized option rendering.
 The native multiple-selection regression supplies all candidate options explicitly.
 Original source hashes and licenses remain unchanged.
+
+## Classification registry
+
+`scripts/lib/vendor-inventory.mjs` adapts the six existing manifests for the
+source and bundle audit. It does not rewrite manifests, licenses, original
+hashes, or repair history. The report retains each raw manifest under `origins`
+and lists normalized source, license, extracted, and generated artifacts under
+`artifacts`. Source rows refer to those artifacts through `provenance`.
+
+Charts, matching, and generated icon definitions have the same family in source
+and bundle reports. Icon definitions retain their many SVG origins and generator
+hash; they are not assigned an invented single upstream source hash. The matching
+accent helper points to the separate `accentDependency` origin. Unknown vendor
+modules fail classification rather than falling through to repository ownership.
+
+The old `owned-core` and `owned-ui` package-split labels are replaced by the
+current `components` owner; source rows retain `internal` or `public` layer
+metadata. Other local application modules use `application`, and installed
+packages remain `external`. Existing report comparisons must use these labels.
+
+Classification is not complete inventory or semantic repair qualification.
+The separate integrity guards still verify captured bytes and import boundaries;
+repair replay and expanded inventory checks remain separate audit work.

@@ -1,3 +1,4 @@
+import { vendorInventory } from './lib/vendor-inventory.mjs'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
@@ -28,26 +29,19 @@ const { values } = parseArgs({
 const output = resolve(root, values.output)
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const json = async (path) => JSON.parse(await readFile(path, 'utf8'))
-const ui = resolve(root, 'packages/components')
-const core = ui
-const kobalte = resolve(core, 'src/vendor/kobalte')
-const virtual = resolve(ui, 'src/vendor/virtual-core')
-const calendar = resolve(ui, 'src/vendor/corvu-calendar')
-const charts = resolve(ui, 'src/vendor/charts')
-const matching = resolve(ui, 'src/vendor/match-sorter')
-const origins = {
-  matching: await json(resolve(matching, 'provenance.json')),
-  charts: await json(resolve(charts, 'provenance.json')),
-  calendar: await json(resolve(calendar, 'provenance.json')),
-  kobalte: await json(resolve(kobalte, 'provenance.json')),
-  virtual: await json(resolve(virtual, 'provenance.json')),
-}
-const packages = [ui]
+const components = resolve(root, 'packages/components')
+const kobalte = resolve(components, 'src/vendor/kobalte')
+const virtual = resolve(components, 'src/vendor/virtual-core')
+const calendar = resolve(components, 'src/vendor/corvu-calendar')
+const inventory = await vendorInventory(root)
+const { origins } = inventory
+const packages = [components]
 const manifests = await Promise.all(
   packages.map((path) => json(resolve(path, 'package.json'))),
 )
 const report = {
   origins,
+  artifacts: inventory.artifacts,
   sources: [],
   dependencies: {},
   comparisons: {},
@@ -56,16 +50,24 @@ const report = {
 await mkdir(output, { recursive: true })
 
 for (const script of [
+  'scripts/icons.mjs',
   'scripts/check-matching.mjs',
   'scripts/check-charts.mjs',
   'scripts/check-calendar.mjs',
   'scripts/check-kobalte.mjs',
   'scripts/check-virtual.mjs',
 ]) {
-  const result = spawnSync(process.execPath, [resolve(root, script)], {
-    cwd: root,
-    encoding: 'utf8',
-  })
+  const result = spawnSync(
+    process.execPath,
+    [
+      resolve(root, script),
+      ...(script === 'scripts/icons.mjs' ? ['--check'] : []),
+    ],
+    {
+      cwd: root,
+      encoding: 'utf8',
+    },
+  )
   assert.equal(result.status, 0, result.stderr || result.stdout)
 }
 
@@ -185,59 +187,19 @@ for (const path of sourceFiles) {
       }
     }
   }
-  const upstream = path.startsWith(kobalte + '/')
-    ? 'kobalte'
-    : path.startsWith(virtual + '/')
-      ? 'virtual'
-      : path.startsWith(calendar + '/')
-        ? 'calendar'
-        : path.startsWith(matching + '/')
-          ? 'matching'
-          : 'repository'
-  const name = relative(
-    upstream === 'kobalte'
-      ? kobalte
-      : upstream === 'virtual'
-        ? virtual
-        : upstream === 'calendar'
-          ? calendar
-          : upstream === 'matching'
-            ? matching
-            : root,
-    path,
-  )
-  const upstreamSha256 =
-    upstream === 'kobalte'
-      ? origins.kobalte.sources[name].upstreamSha256
-      : upstream === 'virtual'
-        ? origins.virtual.upstreamSha256[name]
-        : upstream === 'calendar'
-          ? origins.calendar.sources[name].upstreamSha256
-          : upstream === 'matching'
-            ? origins.matching.sources[name].upstreamSha256
-            : undefined
-  if (upstream !== 'repository') {
-    assert.match(
-      upstreamSha256,
-      /^[a-f0-9]{64}$/,
-      `${path}: recorded upstream hash`,
-    )
-  }
+  const classification = inventory.classify(path)
+  const artifact = classification.artifact
+  const original =
+    artifact?.kind === 'generated' ? undefined : artifact?.originals[0]
   report.sources.push({
     path: relative(root, path),
-    origin: upstream,
-    upstreamPath:
-      upstream === 'kobalte'
-        ? 'packages/' + name
-        : upstream === 'virtual'
-          ? 'src/' + name
-          : upstream === 'calendar'
-            ? origins.calendar.sources[name].upstreamPath
-            : upstream === 'matching'
-              ? origins.matching.sources[name].upstreamPath
-              : undefined,
+    origin: classification.origin,
+    kind: classification.kind,
+    layer: classification.layer,
+    provenance: artifact?.path,
+    upstreamPath: original?.path,
     localSha256: hash(bytes),
-    upstreamSha256,
+    upstreamSha256: original?.sha256,
     imports: imported,
   })
 }
@@ -350,16 +312,9 @@ if (values['calendar-upstream']) {
 }
 
 function group(id) {
-  if (id.includes('/components/src/vendor/charts/')) return 'charts'
-  if (id.includes('/components/src/vendor/kobalte/')) return 'kobalte'
-  if (id.includes('/components/src/vendor/virtual-core/')) return 'virtual'
-  if (id.includes('/components/src/vendor/corvu-calendar/')) return 'calendar'
-  if (id.includes('/components/src/internal/')) return 'owned-core'
-  if (id.includes('/components/src/')) return 'owned-ui'
-  return id.includes('/node_modules/')
-    ? 'external'
-    : 'application-and-native-table'
+  return inventory.classify(id).origin
 }
+
 async function externalPackages(modules) {
   const found = new Map()
   const visited = new Set()
