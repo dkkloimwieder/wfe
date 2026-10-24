@@ -118,6 +118,92 @@ try {
     assert.ok(updated >= 120, `updated rows: ${updated}`)
     assert.ok(typeof first === 'string')
   })
+  const counts = page.locator('[data-sync-pending]')
+  const nameField = page.getByLabel('Order name')
+  const written = (name) =>
+    page.locator('[data-sync-written]').filter({ hasText: name })
+  async function add(name) {
+    await nameField.fill(name)
+    await page.getByRole('button', { name: 'Add row' }).click()
+  }
+  await run(
+    'an online write shows at once and lands from the feed',
+    async () => {
+      await add('Online write')
+      await expect(written('Online write')).toHaveCount(1)
+      await expect(written('Online write')).toHaveAttribute(
+        'data-sync-version',
+        '1',
+      )
+      await expect(written('Online write')).toHaveAttribute(
+        'data-sync-state',
+        'sent',
+      )
+      await expect(counts).toHaveAttribute('data-sync-pending', '0')
+      await expect(counts).not.toHaveAttribute('data-sync-last-sent', '')
+      await expect(rows).toHaveAttribute('data-sync-rows', '10021')
+    },
+  )
+  await run('an offline write waits, and the reconnect sends it', async () => {
+    await page.getByRole('button', { name: 'Offline' }).click()
+    await add('Offline write')
+    await expect(written('Offline write')).toHaveAttribute(
+      'data-sync-state',
+      'pending',
+    )
+    await expect(written('Offline write')).toContainText(
+      'recorded, not uploaded',
+    )
+    await expect(counts).toHaveAttribute('data-sync-pending', '1')
+    await page.waitForTimeout(500)
+    await expect(counts).toHaveAttribute('data-sync-pending', '1')
+    await expect(written('Offline write')).toHaveAttribute(
+      'data-sync-version',
+      '0',
+    )
+    await page.getByRole('button', { name: 'Offline' }).click()
+    await expect(counts).toHaveAttribute('data-sync-pending', '0')
+    await expect(written('Offline write')).toHaveAttribute(
+      'data-sync-version',
+      '1',
+    )
+    await expect(written('Offline write')).toHaveAttribute(
+      'data-sync-state',
+      'sent',
+    )
+  })
+  await run(
+    'a refusal reverts the row, and resubmit or discard clear it',
+    async () => {
+      const refusedList = page.locator('[data-sync-refused-seq]')
+      await page.getByRole('button', { name: 'Refuse next send' }).click()
+      await add('Refused write')
+      await expect(counts).toHaveAttribute('data-sync-refused', '1')
+      await expect(refusedList).toHaveCount(1)
+      await expect(refusedList).toContainText('The server refused this write')
+      await expect(
+        page.locator('[data-sync-written]').filter({
+          hasText: 'Not in the collection',
+        }),
+      ).toHaveCount(1)
+      await refusedList.getByRole('button', { name: 'Resubmit' }).click()
+      await expect(counts).toHaveAttribute('data-sync-refused', '0')
+      await expect(refusedList).toHaveCount(0)
+      await expect(written('Refused write')).toHaveAttribute(
+        'data-sync-version',
+        '1',
+      )
+      await page.getByRole('button', { name: 'Refuse next send' }).click()
+      await add('Discarded write')
+      await expect(counts).toHaveAttribute('data-sync-refused', '1')
+      await refusedList.getByRole('button', { name: 'Discard' }).click()
+      await expect(counts).toHaveAttribute('data-sync-refused', '0')
+      await expect(refusedList).toHaveCount(0)
+      await expect(counts).toHaveAttribute('data-sync-pending', '0')
+      await expect(written('Discarded write')).toHaveCount(0)
+      await expect(rows).toHaveAttribute('data-sync-rows', '10023')
+    },
+  )
   await run('both shapes render 100,000 rows and accept a batch', async () => {
     await page.getByRole('button', { name: '100,000 rows' }).click()
     await expect(status).toHaveAttribute('data-sync-status', 'ready')

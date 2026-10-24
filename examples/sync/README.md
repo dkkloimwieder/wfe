@@ -9,6 +9,14 @@ Each batch holds 70 updates, 20 inserts, and 10 deletes, so the row count grows 
 `liveRows` fills a plain table, and `liveList` fills a list. Each shape renders the first 200 rows.
 The page shows `syncStatus` and the current-as-of time above both shapes. It has no timing instrumentation.
 
+The recordWrite panel writes through an outbox in the IndexedDB database `wfe-sync-gallery:<size>`.
+Add row records a create with a new UUIDv7 id. The page computes the request hash as SHA-256 of the request JSON.
+The fake server applies each request hash once, appends the row to the log, and fires the trigger, so the follow pass brings the row back.
+The Offline button makes the probe false and every send retriable. A second click goes online and asks for a replay.
+Refuse next send makes the server refuse one send. The refused entry shows under Not uploaded, with Resubmit and Discard.
+The status line shows the pending and refused counts and the last send time from `outboxStatus`.
+A written row shows "recorded, not uploaded" while its entry is pending.
+
 ## Preview
 
 From the repository root, install dependencies with `pnpm install --frozen-lockfile`.
@@ -32,5 +40,5 @@ node examples/sync/run.mjs
 
 Set `BENCH_DISTRIBUTION=1` for every command to test built exports.
 Set `BENCH_DEVELOPMENT=1` and `NODE_ENV=development` for every command to test the development runtime.
-The browser cases cover the ready status, both row counts, one server change batch, one direct change batch at each size, and disposal.
+The browser cases cover the ready status, both row counts, one server change batch, one direct change batch at each size, an online write, an offline write and the reconnect, a refusal with resubmit and discard, and disposal.
 Reports remain under `test-results/sync` unless `BENCH_OUTPUT` supplies another path.

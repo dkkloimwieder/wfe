@@ -1,4 +1,4 @@
-import type { Change, Feed, Row, Trigger } from '@wfe/sync'
+import type { Change, Feed, Reply, Row, Send, Trigger } from '@wfe/sync'
 
 export type OrderStatus = 'open' | 'picked' | 'shipped'
 export type Order = Row & {
@@ -44,10 +44,14 @@ export function makeRows(count: number): Order[] {
   return Array.from({ length: count }, (_, index) => order(index, now))
 }
 
+/** The request of the gallery create operation. */
+export type CreateRequest = { id: string; name: string; quantity: number }
+
 /**
  * A fake host for one scope: a row table, a change log, and a trigger. The
  * cursor 'cN' means the first N log entries. `changes` pages the log, 50
- * entries by default.
+ * entries by default. `send` takes create writes, and `net` switches the
+ * network off or refuses the next send.
  */
 export function fakeServer(count: number) {
   let rows = makeRows(count)
@@ -91,7 +95,41 @@ export function fakeServer(count: number) {
     rows = [...byId.values()]
     for (const fire of [...(fires.get(key) ?? [])]) fire()
   }
-  return { feed, trigger, change }
+  const net = { online: true, refuseNext: false }
+  const applied = new Set<string>()
+  const probe = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    return net.online
+  }
+  /** Apply a create once per request_hash, append it to the log, and fire. */
+  const send: Send = async (entry) => {
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    if (!net.online) return { ok: false, retriable: true }
+    if (net.refuseNext) {
+      net.refuseNext = false
+      return refusal
+    }
+    if (applied.has(entry.request_hash)) return { ok: true }
+    applied.add(entry.request_hash)
+    const request = entry.request as CreateRequest
+    const row: Order = {
+      ...request,
+      row_version: 1,
+      status: 'open',
+      updated_at: new Date().toISOString(),
+    }
+    log.push({ id: row.id, row_version: 1, deleted: false, data: row })
+    rows = [...rows, row]
+    for (const set of fires.values()) for (const fire of [...set]) fire()
+    return { ok: true }
+  }
+  return { feed, trigger, change, send, probe, net }
+}
+
+const refusal: Reply = {
+  ok: false,
+  retriable: false,
+  refusal: { code: 'refused', text: 'The server refused this write' },
 }
 
 /**

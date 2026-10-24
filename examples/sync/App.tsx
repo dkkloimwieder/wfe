@@ -7,15 +7,25 @@ import {
   onCleanup,
   untrack,
 } from 'solid-js'
-import { Button } from '@wfe/components'
-import { collection, liveList, liveRows, syncStatus } from '@wfe/sync'
+import { Button, Field, Input, Label } from '@wfe/components'
+import {
+  collection,
+  liveList,
+  liveRows,
+  outbox,
+  outboxStatus,
+  recordWrite,
+  syncStatus,
+} from '@wfe/sync'
+import type { Outbox } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
-import { fakeServer, randomChanges } from './fake'
-import type { Order, Scope } from './fake'
+import { fakeServer, randomChanges, uuidv7 } from './fake'
+import type { CreateRequest, Order, Scope } from './fake'
 import './style.css'
 
 type Store = ReturnType<typeof collection<Order, Scope>>
+type Server = ReturnType<typeof fakeServer>
 const sizes = [10_000, 100_000]
 const limit = 200
 
@@ -31,8 +41,17 @@ export function App() {
       { size: size() },
       { key, trigger: server.trigger },
     )
-    onCleanup(() => queueMicrotask(() => void c.cleanup()))
-    return { server, key, c }
+    // The gallery names the database; the package never does.
+    const o = outbox({
+      database: `wfe-sync-gallery:${size()}`,
+      send: server.send,
+      probe: server.probe,
+    })
+    onCleanup(() => {
+      o.close()
+      queueMicrotask(() => void c.cleanup())
+    })
+    return { server, key, c, o }
   })
   const store = () => source().c
   const apply = () => {
@@ -73,8 +92,17 @@ export function App() {
           <span data-sync-served={served()}>{served()} server batches</span>
         </div>
       </header>
-      <Show when={store()} keyed>
-        {(c) => <Shapes store={c} />}
+      <Show when={source()} keyed>
+        {(current) => (
+          <>
+            <Writes
+              store={current.c}
+              outbox={current.o}
+              server={current.server}
+            />
+            <Shapes store={current.c} />
+          </>
+        )}
       </Show>
     </DefaultAppearance>
   )
@@ -170,5 +198,156 @@ function Shapes(props: { store: Store }) {
         </Loading>
       </section>
     </main>
+  )
+}
+
+/** The consumer computes the request hash: SHA-256 of the request JSON. */
+async function hashOf(request: CreateRequest): Promise<string> {
+  const bytes = new TextEncoder().encode(JSON.stringify(request))
+  const digest = await crypto.subtle.digest('SHA-256', bytes)
+  return [...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('')
+}
+
+function Writes(props: { store: Store; outbox: Outbox; server: Server }) {
+  const record = recordWrite(props.store, props.outbox)
+  const counts = outboxStatus(props.outbox)
+  const [name, setName] = createSignal('')
+  const [written, setWritten] = createSignal<string[]>([])
+  const [offline, setOffline] = createSignal(false)
+  const [armed, setArmed] = createSignal(false)
+  // The entries are a plain read. Each change moves the counts, so read them
+  // again then.
+  const entries = createMemo(() => {
+    counts()
+    return untrack(() => props.outbox.entries())
+  })
+  const refused = createMemo(() =>
+    entries().filter((entry) => entry.state === 'refused'),
+  )
+  const states = createMemo(
+    () => new Map(entries().map((entry) => [entry.expect.id, entry.state])),
+  )
+  const add = async (event: SubmitEvent) => {
+    event.preventDefault()
+    const id = uuidv7()
+    const request = { id, name: name() || 'New order', quantity: 1 }
+    setName('')
+    setWritten((list) => [id, ...list])
+    const request_hash = await hashOf(request)
+    // A refusal or a discard rejects the write; the refused list shows it.
+    void record
+      .write(
+        {
+          operation: 'orders.create',
+          request,
+          request_hash,
+          expect: { model: 'orders', id },
+          append_only: true,
+        },
+        {
+          id,
+          row_version: 0,
+          name: request.name,
+          quantity: request.quantity,
+          status: 'open',
+          updated_at: new Date().toISOString(),
+        },
+      )
+      .catch(() => undefined)
+  }
+  const toggleOffline = () => {
+    const next = !offline()
+    props.server.net.online = !next
+    setOffline(next)
+    if (!next) void props.outbox.replay()
+  }
+  const armRefusal = () => {
+    props.server.net.refuseNext = true
+    setArmed(true)
+  }
+  // The server disarms itself on the next send.
+  const refuseArmed = createMemo(() => {
+    counts()
+    return armed() && untrack(() => props.server.net.refuseNext)
+  })
+  return (
+    <section class="sync-writes" aria-labelledby="sync-writes-title">
+      <h2 id="sync-writes-title" data-ui-text="system">
+        recordWrite
+      </h2>
+      <form class="sync-buttons" onSubmit={add}>
+        <Field controlId="sync-add-name">
+          <Label>Order name</Label>
+          <Input
+            id="sync-add-name"
+            value={name()}
+            onInput={(event) => setName(event.currentTarget.value)}
+          />
+        </Field>
+        <Button type="submit">Add row</Button>
+        <Button
+          variant={offline() ? 'filled' : 'outline'}
+          aria-pressed={offline() ? 'true' : 'false'}
+          onClick={toggleOffline}
+        >
+          Offline
+        </Button>
+        <Button
+          variant={refuseArmed() ? 'filled' : 'outline'}
+          aria-pressed={refuseArmed() ? 'true' : 'false'}
+          onClick={armRefusal}
+        >
+          Refuse next send
+        </Button>
+      </form>
+      <p class="sync-status">
+        <output
+          data-sync-pending={counts().pending}
+          data-sync-refused={counts().refused}
+          data-sync-last-sent={counts().lastSentAt ?? ''}
+        >
+          {counts().pending} pending · {counts().refused} refused · last sent{' '}
+          {counts().lastSentAt ?? 'never'}
+        </output>
+      </p>
+      <ul class="sync-written">
+        <For each={written()}>
+          {(id) => (
+            <li
+              data-sync-written={id}
+              data-sync-state={states().get(id) ?? 'sent'}
+              data-sync-version={record.rows[id]?.row_version ?? ''}
+            >
+              {record.rows[id]?.name ?? 'Not in the collection'}
+              {record.rows[id] ? ` · v${record.rows[id]!.row_version}` : ''}
+              {states().get(id) === 'pending'
+                ? ' · recorded, not uploaded'
+                : ''}
+            </li>
+          )}
+        </For>
+      </ul>
+      <Show when={refused().length > 0}>
+        <h3 data-ui-text="system">Not uploaded</h3>
+        <ul class="sync-refused">
+          <For each={refused()}>
+            {(entry) => (
+              <li data-sync-refused-seq={entry.seq}>
+                {entry.operation} · {entry.expect.id.slice(-4)} ·{' '}
+                {entry.refusal?.text}
+                <Button onClick={() => void props.outbox.resubmit(entry.seq)}>
+                  Resubmit
+                </Button>
+                <Button onClick={() => void props.outbox.discard(entry.seq)}>
+                  Discard
+                </Button>
+              </li>
+            )}
+          </For>
+        </ul>
+      </Show>
+    </section>
   )
 }

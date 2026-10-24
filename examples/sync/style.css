@@ -31,7 +31,8 @@ body {
   gap: var(--ui-gap, 6px);
   min-width: 0;
 }
-.sync-shape {
+.sync-shape,
+.sync-writes {
   display: flex;
   flex-direction: column;
   gap: var(--ui-gap, 6px);
@@ -39,6 +40,24 @@ body {
 }
 .sync-shape p {
   margin: 0;
+}
+.sync-writes h3 {
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+}
+.sync-written,
+.sync-refused {
+  margin: 0;
+  padding-inline-start: 1.5rem;
+  max-height: 12rem;
+  overflow: auto;
+}
+.sync-refused li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
 }
 .sync-scroll {
   max-height: 60dvh;
