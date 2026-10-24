@@ -14,6 +14,33 @@ Project creation maps a flat project field to the generated nested command.
 The application supplies the request ID. It does not retry commands automatically.
 Cancellation stops the application from waiting. It does not undo a command that the mock already accepts.
 
+## Screen ownership
+
+`PlatformApp.tsx` creates one application controller and owns browser history, native links, heading focus, and document titles.
+It also supplies the organization header, navigation, appearance controls, and session feedback to `DashboardShell`.
+The screen modules receive that same controller. They do not create another transport or authority context.
+
+`ProjectTables.tsx` owns the project and environment table presentation, selection, resizing, and collapsed controls.
+Both tables stay mounted when the route changes. Their existing hidden containers preserve state during Back and Forward navigation.
+`CreateProjectView.tsx` owns the project form description and its result presentation.
+`EnvironmentView.tsx` presents deployment status and links to the application access screens.
+`AccessViews.tsx`, `ApplicationAccessViews.tsx`, and `InvitationView.tsx` retain their existing screen boundaries.
+
+This example uses `DashboardShell` directly because its tables have a longer lifetime than the active route.
+`ShellView` changes the mounted page when its route ID changes.
+Its header and navigation overrides do not change that page lifetime.
+Using a synthetic single-route description here adds another route model without removing the application navigation logic.
+Other examples demonstrate `ShellView` for screens that follow its page lifetime.
+
+The application modules own mock permissions, requests, cancellation, and response handling.
+The provider modules adapt captured clients to the mock transport.
+`metadata-description.ts` maps captured fields to generic descriptions, and `table-selection.ts` supplies application display text for copying.
+These adapters stay inside this example. They do not define behavior for library consumers.
+
+Existing upstream work remains separate: `wfe-f81.9` tracks authority metadata, and `wfe-f81.5` tracks validation constraints.
+`wfe-f81.29` tracks stale list declarations after upstream regeneration.
+This screen split does not replace those contracts or invent missing metadata.
+
 ## Captured inputs
 
 `snapshot/provenance.json` records the WAMN revision, source paths, and hashes.

@@ -1,10 +1,12 @@
 import { ApplicationAccessViews } from './ApplicationAccessViews'
 import { isApplicationAccessRoute } from './route'
 import { InvitationView } from './InvitationView'
-import { createPlatformTableSelection } from './table-selection'
+import { ProjectTables } from './ProjectTables'
+import { CreateProjectView } from './CreateProjectView'
+import { EnvironmentView } from './EnvironmentView'
+import type { PlatformApplication } from './view-types'
 import { AccessViews } from './AccessViews'
 import {
-  For,
   Show,
   createEffect,
   createSignal,
@@ -12,28 +14,9 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
-import {
-  Breadcrumbs,
-  Button,
-  IconButton,
-  Icon,
-  InlineAlert,
-  ValueDisplay,
-} from '@wfe/components'
-import { DashboardShell, DashboardPanel } from '@wfe/components/layout'
+import { Breadcrumbs, Button, InlineAlert } from '@wfe/components'
+import { DashboardShell } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
-import { TableColumnResize } from '@wfe/components/table'
-import type {
-  TableFilterCriteria,
-  NativeTable,
-  NativeColumn,
-} from '@wfe/components/table'
-import { FormView, TableView } from '@wfe/generator'
-import type {
-  CustomCellProps,
-  FormDescription,
-  TableDescription,
-} from '@wfe/generator'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
@@ -44,34 +27,20 @@ import {
 } from '../shared/appearance/appearance'
 import type { SurfaceLayers, Depth } from '../shared/appearance/appearance'
 import { createPlatformApplication } from './application'
-import type { NameRow } from './application'
-import type { ProjectValues } from './provider'
 import { platformRoute, platformScenario, platformUrl } from './route'
 import type { PlatformRoute } from './route'
 import projectMetadata from './snapshot/metadata/project/create.operation.json'
-import projectInput from './snapshot/metadata/project/create.input.json'
-import projectResult from './snapshot/metadata/project/list.result.json'
-import environmentResult from './snapshot/metadata/environment/list.result.json'
-import {
-  metadataFormFields,
-  metadataTableColumns,
-} from './metadata-description'
 import './style.css'
 import '../shared/appearance/style.css'
 
-type Application = ReturnType<typeof createPlatformApplication>
 export function PlatformApp(props: {
   initialUrl: string
-  ready?: (app: Application) => void
+  ready?: (app: PlatformApplication) => void
 }) {
   const initialUrl = untrack(() => props.initialUrl)
   const app = createPlatformApplication(
     platformRoute(initialUrl),
     platformScenario(initialUrl),
-  )
-  const projectsSelection = createPlatformTableSelection(app.projectsTable)
-  const environmentsSelection = createPlatformTableSelection(
-    app.environmentsTable,
   )
   props.ready?.(app)
   const [base, setBase] = createSignal(
@@ -82,8 +51,6 @@ export function PlatformApp(props: {
     }),
   )
   const [appearance, setAppearance] = createSignal(false)
-  const [projectsCollapsed, setProjectsCollapsed] = createSignal(true)
-  const [environmentsCollapsed, setEnvironmentsCollapsed] = createSignal(true)
   const [scheme, setScheme] = createSignal(schemes[1]!)
   const [accent, setAccent] = createSignal(accents[1]!)
   const [depth, setDepth] = createSignal<Depth>(2)
@@ -215,146 +182,11 @@ export function PlatformApp(props: {
     const current = app.route()
     return current.screen === 'app-role' ? current.role : ''
   }
-  const projectHeader = (column: NativeColumn<NameRow, unknown>) => (
-    <TableColumnResize
-      size={column.getSize()}
-      min={40}
-      max={4000}
-      onSizeChange={column.setSize}
-      label={
-        column.id === 'name'
-          ? 'Project'
-          : column.id === 'state'
-            ? 'State'
-            : 'Actions'
-      }
-    />
-  )
-  const environmentHeader = (column: NativeColumn<NameRow, unknown>) => (
-    <TableColumnResize
-      size={column.getSize()}
-      min={40}
-      max={4000}
-      onSizeChange={column.setSize}
-      label={
-        column.id === 'name'
-          ? 'Environment'
-          : column.id === 'state'
-            ? 'State'
-            : 'Actions'
-      }
-    />
-  )
   const projectRoute = (): PlatformRoute => {
     const route = app.route()
     return 'project' in route
       ? { screen: 'project', project: route.project }
       : { screen: 'projects' }
-  }
-  const ProjectAction = (props: CustomCellProps<NameRow, unknown>) => {
-    const target = (): PlatformRoute => ({
-      screen: 'project',
-      project: props.row.id,
-    })
-    return (
-      <div class="platform-inline-actions">
-        <IconButton
-          aria-label={`Open project ${props.row.id}`}
-          title={`Open project ${props.row.id}`}
-          onClick={() => navigate(target())}
-        >
-          <Icon name="view" />
-        </IconButton>
-        <IconButton
-          aria-label={`View members of ${props.row.id}`}
-          title={`View members of ${props.row.id}`}
-          onClick={() => navigate({ screen: 'members', project: props.row.id })}
-        >
-          <Icon name="people" />
-        </IconButton>
-      </div>
-    )
-  }
-  const EnvironmentAction = (props: CustomCellProps<NameRow, unknown>) => {
-    const target = (): PlatformRoute => {
-      const route = app.route()
-      return 'project' in route
-        ? { screen: 'environment', project: route.project, env: props.row.id }
-        : { screen: 'projects' }
-    }
-    return (
-      <IconButton
-        aria-label={`View environment ${props.row.id}`}
-        title={`View environment ${props.row.id}`}
-        onClick={() => navigate(target())}
-      >
-        <Icon name="view" />
-      </IconButton>
-    )
-  }
-  const controls = {
-    filtering: false,
-    grouping: false,
-    columnReordering: false,
-  } as const
-  const projectDescription = {
-    id: 'platform-projects',
-    title: 'Projects',
-    columns: {
-      ...metadataTableColumns(projectResult, 'projects', {
-        name: { path: 'projects[].name', label: 'Project' },
-        state: { path: 'projects[].state', label: 'State' },
-      }),
-      actions: { label: 'Actions', renderer: 'openProject' },
-    },
-    controls,
-    actions: [{ id: 'create', label: 'Create a project' }],
-  } as const satisfies TableDescription
-  const environmentColumns = metadataTableColumns(
-    environmentResult,
-    'environments',
-    {
-      name: { path: 'environments[].name', label: 'Environment' },
-      state: { path: 'environments[].state', label: 'State' },
-    },
-  )
-  const environmentDescription = () =>
-    ({
-      id: 'platform-environments',
-      title: `Environments · ${routeProject()}`,
-      columns: {
-        ...environmentColumns,
-        actions: { label: 'Actions', renderer: 'openEnvironment' },
-      },
-      controls,
-      actions: [{ id: 'members', label: 'Members' }],
-    }) as const satisfies TableDescription
-  const formDescription = {
-    id: 'platform-create-project',
-    fields: metadataFormFields(
-      projectInput,
-      [
-        {
-          path: 'value.project',
-          description: {
-            field: 'project',
-            control: 'text',
-            required: true,
-            help: 'Use 1 to 40 UTF-8 bytes. Surrounding whitespace is removed by the server.',
-          },
-        },
-      ],
-      ['request_id'],
-    ),
-    submit: { id: 'create', label: projectMetadata.label },
-  } as const satisfies FormDescription<ProjectValues>
-  const apply = (
-    table: NativeTable<NameRow, unknown>,
-    criteria: TableFilterCriteria,
-  ) => {
-    table.setGlobalFilter(criteria.globalFilter)
-    table.setColumnFilters(criteria.columnFilters)
-    void app.refresh()
   }
   const accessible = () =>
     !app.session().loading &&
@@ -696,80 +528,12 @@ export function PlatformApp(props: {
           >
             <p role="status">No access has been granted.</p>
           </Show>
-          <div
-            class="platform-table-screen"
-            hidden={app.route().screen !== 'projects' || !accessible()}
-          >
-            <TableView
-              description={projectDescription}
-              bindings={{
-                table: app.projectsTable,
-                selection: projectsSelection,
-                width: app.projectsTable
-                  .getVisibleColumns()
-                  .reduce((sum, column) => sum + column.getSize(), 0),
-                cells: { openProject: ProjectAction },
-                status: app.listing,
-                controlsCollapsed: projectsCollapsed(),
-                onControlsCollapsedChange: setProjectsCollapsed,
-                actions: {
-                  create: {
-                    run: () => navigate({ screen: 'create' }),
-                    disabled: () => !app.authority()?.orgAdmin,
-                  },
-                },
-                headerEnd: projectHeader,
-                onApplyFilters: (criteria) =>
-                  apply(app.projectsTable, criteria),
-              }}
-            />
-            <Show
-              when={
-                !app.listing().loading &&
-                !app.listing().error &&
-                app.projects().length === 0
-              }
-            >
-              <p role="status">No projects exist in this organization.</p>
-            </Show>
-          </div>
-          <div
-            class="platform-table-screen"
-            hidden={app.route().screen !== 'project' || !accessible()}
-          >
-            <TableView
-              description={environmentDescription()}
-              bindings={{
-                table: app.environmentsTable,
-                selection: environmentsSelection,
-                width: app.environmentsTable
-                  .getVisibleColumns()
-                  .reduce((sum, column) => sum + column.getSize(), 0),
-                cells: { openEnvironment: EnvironmentAction },
-                actions: {
-                  members: {
-                    run: () =>
-                      navigate({ screen: 'members', project: routeProject() }),
-                  },
-                },
-                status: app.detail,
-                controlsCollapsed: environmentsCollapsed(),
-                onControlsCollapsedChange: setEnvironmentsCollapsed,
-                headerEnd: environmentHeader,
-                onApplyFilters: (criteria) =>
-                  apply(app.environmentsTable, criteria),
-              }}
-            />
-            <Show
-              when={
-                !app.detail().loading &&
-                !app.detail().error &&
-                app.environments().length === 0
-              }
-            >
-              <p role="status">No environments exist in this project.</p>
-            </Show>
-          </div>
+          <ProjectTables
+            app={app}
+            navigate={navigate}
+            accessible={accessible()}
+            routeProject={routeProject()}
+          />
           <AccessViews app={app} navigate={navigate} />
           <ApplicationAccessViews app={app} navigate={navigate} />
           <InvitationView app={app} navigate={navigate} />
@@ -779,185 +543,16 @@ export function PlatformApp(props: {
             }
           >
             <Show when={app.route().screen === 'create'}>
-              <DashboardPanel fill class="platform-details platform-form-page">
-                <h2 data-ui-text="system">{projectMetadata.label}</h2>
-                <Show
-                  when={app.authority()?.orgAdmin}
-                  fallback={
-                    <InlineAlert announce="assertive" tone="error">
-                      Access was refused for this operation.
-                    </InlineAlert>
-                  }
-                >
-                  <Show
-                    when={!app.created()}
-                    fallback={
-                      <>
-                        <p role="status">Project created: {app.created()}</p>
-                        <a
-                          data-ui-text="system"
-                          href={href({
-                            screen: 'project',
-                            project: app.created(),
-                          })}
-                          onClick={follow({
-                            screen: 'project',
-                            project: app.created(),
-                          })}
-                        >
-                          Open project
-                        </a>
-                      </>
-                    }
-                  >
-                    <FormView
-                      description={formDescription}
-                      bindings={{ form: app.form }}
-                    />
-                  </Show>
-                </Show>
-                <a
-                  data-ui-text="system"
-                  href={href({ screen: 'projects' })}
-                  onClick={follow({ screen: 'projects' })}
-                >
-                  {app.form.pending ? 'Stop waiting' : 'Back to projects'}
-                </a>
-              </DashboardPanel>
+              <CreateProjectView app={app} href={href} follow={follow} />
             </Show>
             <Show when={app.route().screen === 'environment'}>
-              <DashboardPanel class="platform-details">
-                <h2>{title()}</h2>
-                <Button onClick={() => void app.refresh()}>
-                  Refresh environment
-                </Button>
-                <div class="platform-inline-actions">
-                  <Button
-                    onClick={() =>
-                      navigate({
-                        screen: 'app-users',
-                        project: routeProject(),
-                        env: routeEnvironment(),
-                      })
-                    }
-                  >
-                    Application users
-                  </Button>
-                  <Button
-                    onClick={() =>
-                      navigate({
-                        screen: 'app-roles',
-                        project: routeProject(),
-                        env: routeEnvironment(),
-                      })
-                    }
-                  >
-                    Application roles
-                  </Button>
-                </div>
-                <Show when={app.detail().loading}>
-                  <p role="status" data-ui-text="system">
-                    Loading environment status
-                  </p>
-                </Show>
-                <Show when={app.detail().error}>
-                  <InlineAlert announce="assertive" tone="error">
-                    {app.detail().error}
-                  </InlineAlert>
-                </Show>
-                <Show when={app.status()}>
-                  {(status) => (
-                    <>
-                      <dl class="platform-values">
-                        <div>
-                          <dt data-ui-text="system">Release digest</dt>
-                          <dd>{status().digest ?? 'Unavailable'}</dd>
-                        </div>
-                        <For
-                          each={[
-                            {
-                              label: 'Replicas',
-                              value: status().rollout.replicas,
-                            },
-                            {
-                              label: 'Updated replicas',
-                              value: status().rollout.updatedReplicas,
-                            },
-                            {
-                              label: 'Ready replicas',
-                              value: status().rollout.readyReplicas,
-                            },
-                            {
-                              label: 'Available replicas',
-                              value: status().rollout.availableReplicas,
-                            },
-                          ]}
-                        >
-                          {(entry) => (
-                            <div>
-                              <dt data-ui-text="system">{entry.label}</dt>
-                              <dd>
-                                <ValueDisplay
-                                  value={entry.value}
-                                  format="number-grouped"
-                                />
-                              </dd>
-                            </div>
-                          )}
-                        </For>
-                      </dl>
-                      <h3 data-ui-text="system">Workloads</h3>
-                      <Show
-                        when={status().workloads.length}
-                        fallback={<p>No workloads were reported.</p>}
-                      >
-                        <For each={status().workloads}>
-                          {(workload) => (
-                            <section>
-                              <h4>{workload.name}</h4>
-                              <dl class="platform-values">
-                                <For each={workload.conditions}>
-                                  {(condition) => (
-                                    <div>
-                                      <dt>{condition.type}</dt>
-                                      <dd>{condition.status}</dd>
-                                    </div>
-                                  )}
-                                </For>
-                              </dl>
-                            </section>
-                          )}
-                        </For>
-                      </Show>
-                      <h3 data-ui-text="system">Live releases</h3>
-                      <Show
-                        when={status().live.length}
-                        fallback={<p>No live releases were reported.</p>}
-                      >
-                        <For each={status().live}>
-                          {(release) => (
-                            <dl class="platform-values">
-                              <div>
-                                <dt data-ui-text="system">Digest</dt>
-                                <dd>{release.digest}</dd>
-                              </div>
-                              <div>
-                                <dt data-ui-text="system">Pods</dt>
-                                <dd>
-                                  <ValueDisplay
-                                    value={release.pods}
-                                    format="number-grouped"
-                                  />
-                                </dd>
-                              </div>
-                            </dl>
-                          )}
-                        </For>
-                      </Show>
-                    </>
-                  )}
-                </Show>
-              </DashboardPanel>
+              <EnvironmentView
+                app={app}
+                navigate={navigate}
+                title={title()}
+                routeProject={routeProject()}
+                routeEnvironment={routeEnvironment()}
+              />
             </Show>
             <Show when={app.route().screen === 'missing'}>
               <InlineAlert announce="assertive" tone="error">
