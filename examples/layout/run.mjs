@@ -285,6 +285,34 @@ try {
     const sidebar = await navigation.boundingBox()
     assert.equal((await main.boundingBox()).width, 1280 - sidebar.width)
     await page.setViewportSize({ width: 390, height: 800 })
+    try {
+      await expect
+        .poll(async () => (await main.boundingBox())?.width, { timeout: 7000 })
+        .toBe(390)
+    } catch (error) {
+      report.resizeFailure = await main
+        .evaluate((node) => {
+          const shell = node.closest('.ui-dashboard')
+          return {
+            viewport: innerWidth,
+            mainWidth: node.getBoundingClientRect().width,
+            shellWidth: shell?.getBoundingClientRect().width,
+            attributes: shell
+              ? Object.fromEntries(
+                  [...shell.attributes].map(({ name, value }) => [name, value]),
+                )
+              : {},
+            columns: shell
+              ? getComputedStyle(shell).gridTemplateColumns
+              : undefined,
+            navigationWidth: shell
+              ?.querySelector('.ui-dashboard-navigation')
+              ?.getBoundingClientRect().width,
+          }
+        })
+        .catch((diagnosticError) => ({ error: String(diagnosticError) }))
+      throw error
+    }
     assert.equal((await main.boundingBox()).width, 390)
     assert.equal(await navigation.count(), 0)
   })
