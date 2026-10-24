@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@solidjs/testing-library'
-import { createSignal, flush } from 'solid-js'
+import { OBSERVE, createSignal, flush } from 'solid-js'
 import { Combobox, Select } from '@wfe/components'
 
 afterEach(cleanup)
@@ -173,3 +173,113 @@ test.each(['select', 'combobox'] as const)(
     expect(h.select.options[0]!.selected).toBe(true)
   },
 )
+
+test('filtering a controlled combobox preserves its accepted native selection without overwriting uncommitted input', async () => {
+  let capture = OBSERVE!.diagnostics.capture()
+  const checkPhase = (phase: string) => {
+    const events = capture.stop()
+    capture = OBSERVE!.diagnostics.capture()
+    expect(events, phase).toEqual([])
+  }
+  let accept = false
+  const requested = vi.fn()
+  let h: ReturnType<typeof render> | undefined
+  let diagnostics: ReturnType<typeof capture.stop> = []
+  try {
+    h = render(() => {
+      const [value, setValue] = createSignal<string | null>('Alpha')
+      return (
+        <form>
+          <Combobox<string>
+            name="filtered"
+            defaultValue="Alpha"
+            options={['Alpha', 'Beta']}
+            value={value()}
+            onValueChange={(next) => {
+              requested(next)
+              if (accept) setValue(next)
+            }}
+            itemComponent={(item) => (
+              <Combobox.Item item={item.item}>
+                <Combobox.ItemLabel>{item.item.rawValue}</Combobox.ItemLabel>
+              </Combobox.Item>
+            )}
+          >
+            <Combobox.Control>
+              <Combobox.Input aria-label="Filtered choice" />
+              <Combobox.Trigger>Open choices</Combobox.Trigger>
+            </Combobox.Control>
+            <Combobox.HiddenSelect />
+            <Combobox.Portal>
+              <Combobox.Content>
+                <Combobox.Listbox />
+              </Combobox.Content>
+            </Combobox.Portal>
+          </Combobox>
+        </form>
+      )
+    })
+    await settle()
+    const form = h.container.querySelector('form')!
+    const native = form.querySelector('select')!
+    const alpha = Array.from(native.options).find(
+      (option) => option.value === 'Alpha',
+    )!
+    const input = h.getByRole('combobox', { name: 'Filtered choice' })
+    fireEvent.input(input, { target: { value: 'Be' } })
+    await settle()
+    expect(new FormData(form).get('filtered')).toBe('Alpha')
+    expect(form.querySelector('select')).toBe(native)
+    expect(
+      Array.from(native.options).find((option) => option.value === 'Alpha'),
+    ).toBe(alpha)
+    checkPhase('filter Be while Alpha accepted')
+    expect(requested).not.toHaveBeenCalled()
+    expect(Array.from(native.options, (option) => option.value)).toContain(
+      'Beta',
+    )
+    native.value = 'Beta'
+    fireEvent.change(native)
+    await settle()
+    expect(requested).toHaveBeenCalledTimes(1)
+    expect(requested).toHaveBeenLastCalledWith('Beta')
+    expect(new FormData(form).get('filtered')).toBe('Alpha')
+    checkPhase('reject native Beta')
+    accept = true
+    fireEvent.input(input, { target: { value: 'Be' } })
+    await settle()
+    expect(Array.from(native.options, (option) => option.value)).toContain(
+      'Beta',
+    )
+    native.value = 'Beta'
+    fireEvent.change(native)
+    await settle()
+    checkPhase('accept native Beta after refilter')
+    expect(requested).toHaveBeenCalledTimes(2)
+    expect(requested).toHaveBeenLastCalledWith('Beta')
+    expect(new FormData(form).get('filtered')).toBe('Beta')
+    expect(form.querySelector('select')).toBe(native)
+    fireEvent.input(input, { target: { value: 'zz' } })
+    await settle()
+    expect(new FormData(form).get('filtered')).toBe('Beta')
+    fireEvent.input(input, { target: { value: '' } })
+    await settle()
+    expect(new FormData(form).get('filtered')).toBe('Beta')
+    checkPhase('unmatched filter and clear draft')
+    fireEvent.reset(form)
+    await settle()
+    checkPhase('reset')
+    expect(requested).toHaveBeenCalledTimes(3)
+    expect(requested).toHaveBeenLastCalledWith('Alpha')
+    expect(new FormData(form).get('filtered')).toBe('Alpha')
+    expect(form.querySelector('select')).toBe(native)
+  } finally {
+    try {
+      h?.unmount()
+      await settle()
+    } finally {
+      diagnostics = capture.stop()
+    }
+  }
+  expect(diagnostics).toEqual([])
+})

@@ -103,3 +103,10 @@ Run source and built-package behavior tests for changed contracts.
 Retain server rendering, hydration, diagnostics, owner cleanup, and actual heap evidence where those contracts require them.
 This tool changes no runtime source and removes no repair.
 Its comparison report is text evidence, separate from runtime qualification.
+
+The RC18 filtered hidden-selection repair removes a competing scalar `select.value` binding from Kobalte HiddenSelectBase.
+Its retained option bindings and collection reconciliation still use the existing selection manager.
+Native change handling also restores that accepted set immediately, before later option bindings run.
+The existing effect restores initial form values synchronously and retains its guarded queued reconciliation.
+Treat this as a semantic local repair in replay output, not a mechanical formatting difference.
+The Kobalte README records the reproduced diagnostic and the focused comparison. Full qualification evidence remains separate.

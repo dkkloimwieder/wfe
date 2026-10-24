@@ -50,6 +50,14 @@ export interface HiddenSelectBaseProps extends ComponentProps<'select'> {
   focusTrigger: () => void
 }
 
+function restoreNativeSelection(
+  select: HTMLSelectElement,
+  keys: ReadonlySet<string>,
+) {
+  for (const option of select.options) option.selected = keys.has(option.value)
+  if (!keys.size && !select.multiple) select.value = ''
+}
+
 /**
  * Renders a hidden native `<select>` element, which can be used to support browser
  * form autofill, mobile form navigation, and native form submission.
@@ -98,6 +106,7 @@ export function HiddenSelectBase(props: HiddenSelectBaseProps) {
       const select = untrack(ref)
       if (!select) return
       const changed = previous && !isSameSelection(keys, previous.keys)
+      restoreNativeSelection(select, keys)
       queueMicrotask(() => {
         if (
           disposed ||
@@ -107,9 +116,7 @@ export function HiddenSelectBase(props: HiddenSelectBaseProps) {
           )
         )
           return
-        for (const option of select.options)
-          option.selected = keys.has(option.value)
-        if (!keys.size && !select.multiple) select.value = ''
+        restoreNativeSelection(select, keys)
         if (!changed) return
         // Form listeners receive the new value. Internal events do not select it again.
         isInternalChangeEvent = true
@@ -143,7 +150,6 @@ export function HiddenSelectBase(props: HiddenSelectBaseProps) {
         name={formControlContext.name()}
         required={formControlContext.isRequired()}
         disabled={formControlContext.isDisabled()}
-        value={props.selectionManager.firstSelectedKey() ?? ''}
         onChange={(e) => {
           callHandler(
             e as Event & { currentTarget: HTMLSelectElement; target: Element },
@@ -162,6 +168,10 @@ export function HiddenSelectBase(props: HiddenSelectBaseProps) {
                 )
               : [e.currentTarget.value]
             props.selectionManager.setSelectedKeys(new Set(keys))
+            restoreNativeSelection(
+              e.currentTarget,
+              props.selectionManager.selectedKeys(),
+            )
           }
 
           isInternalChangeEvent = false

@@ -421,3 +421,21 @@ The residual patch still includes compiler, type, extraction, and behavior chang
 Do not count its files as behavior repairs or treat successful text replay as runtime qualification.
 Owned-helper seams and external primitive patches remain required.
 Beads `wfe-0dj.3` and `wfe-0dj.5` retain the matched-evidence gates for repair retirement.
+
+## RC18 filtered native selection
+
+Filtering a controlled Combobox can change its option collection while the accepted selection stays the same.
+HiddenSelectBase no longer also writes the native select's scalar value.
+That write competed with selected option bindings and the existing queued collection reconciliation.
+The selection manager remains authoritative. Option bindings retain server-rendered selected markup.
+Native changes restore the currently accepted option set before the event handler returns.
+This prevents rejected changes from reaching a later option binding before queued restoration.
+The existing effect also restores initial selection synchronously, so multiple selects do not submit an extra empty placeholder.
+Its guarded queue still reconciles committed values and replacement option nodes.
+Restoration emits no extra event and does not force a reactive flush.
+
+The RC18 development hydration failure was isolated to typing `Be` while `Alpha` remained selected.
+The unchanged focused compound review reproduced `UNCOMMITTED_INPUT_OVERWRITTEN`. Removing the competing scalar binding passed the same review with strict diagnostics.
+The native selection regression covers retained nodes, form values, rejection, and acceptance; existing multiple-selection cases remain required.
+This is a semantic repair, not formatter normalization or upstream repair retirement.
+Original hashes and license text remain unchanged.
