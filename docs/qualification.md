@@ -241,4 +241,11 @@ This upgrade does not establish that upstream fixes replace those repairs.
 
 The root check gate passed with the untracked sync plan excluded from the format stage.
 The coverage inventory stage ran with that plan held outside `docs/` and restored afterwards.
-The browser qualification suites run again at the close of the sync epic.
+A partial qualification run passed 103 stages, including every source and package browser stage.
+In development mode, rc.18 reported two new diagnostics, and both are repaired.
+The lazy icons gallery view now renders inside a `Loading` boundary.
+`ControlFrame` now reads compound children inside JSX, which removes `STRICT_READ_UNTRACKED`.
+Every `STRICT_READ_UNTRACKED` report in that run came from the one `ControlFrame` line.
+After the repair, the read-only table stage passed in development mode. The other affected stages did not run again.
+Two stages failed for causes outside rc.18: the known native-tab timeout `wfe-x6o` and a live-page navigation timeout.
+The full qualification runs again at the next program milestone.
