@@ -12,3 +12,4 @@ examples/platform/snapshot
 
 packages/components/src/vendor/charts/charts-core
 packages/components/src/vendor/charts/charts-scales
+docs/plan/wamn-sync.md

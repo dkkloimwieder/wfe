@@ -178,6 +178,13 @@ export const documents = [
     reason:
       'Composition fragment assumes application field state; choice and field unit cases cover the complete composition.',
   },
+  {
+    path: 'docs/plan/wamn-sync.md',
+    fences: 10,
+    status: 'excluded',
+    reason:
+      'Plan fragments sketch the sync surface and its consumer; the sync unit cases and gallery cover the implemented package.',
+  },
 ]
 
 export const contracts = [
