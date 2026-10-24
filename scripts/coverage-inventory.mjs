@@ -26,6 +26,7 @@ export const examples = [
   required('form-contract'),
   required('generator'),
   required('platform'),
+  required('sync'),
   required('virtualization', ['source', 'distribution']),
   { ...required('hydration'), build: false, reviewStage: 'hydration-{mode}' },
   {
