@@ -4,7 +4,7 @@ The example fills one `@wfe/sync` collection from a fake feed and reads it throu
 Synthetic rows carry a UUIDv7 id, `row_version` 1, a name, a quantity, a status, and a time.
 The buttons choose 10,000 or 100,000 rows. The apply button sends 100 random changes through `applyChanges`.
 Each batch holds 70 updates, 20 inserts, and 10 deletes, so the row count grows by 10.
-`liveRows` fills a plain table. `liveList` fills a list limited to the first 200 rows.
+`liveRows` fills a plain table, and `liveList` fills a list. Each shape renders the first 200 rows.
 The page shows `syncStatus` above both shapes. It has no timing instrumentation.
 
 ## Preview

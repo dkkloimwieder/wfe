@@ -5,6 +5,7 @@ import {
   createMemo,
   createSignal,
   onCleanup,
+  untrack,
 } from 'solid-js'
 import { Button } from '@wfe/components'
 import { collection, liveList, liveRows, syncStatus } from '@wfe/sync'
@@ -75,6 +76,13 @@ function Shapes(props: { store: Store }) {
   const list = liveList(props.store)
   const status = syncStatus(props.store)
   const ids = createMemo(() => Object.keys(rows))
+  const shownIds = createMemo(() => ids().slice(0, limit))
+  // Every batch inserts and deletes rows, so the key list changes. Count the
+  // updated rows untracked to keep this memo on one source.
+  const updated = createMemo(() => {
+    const keys = ids()
+    return untrack(() => keys.filter((id) => rows[id]!.row_version > 1).length)
+  })
   const shown = createMemo(() => list.slice(0, limit))
   return (
     <main class="sync-shapes">
@@ -86,10 +94,10 @@ function Shapes(props: { store: Store }) {
           liveRows
         </h2>
         <p>
-          <span data-sync-rows={ids().length}>
+          <span data-sync-rows={ids().length} data-sync-updated={updated()}>
             {ids().length.toLocaleString('en-US')}
           </span>{' '}
-          rows in a plain table
+          rows in a plain table, first {limit} shown
         </p>
         <div class="sync-scroll">
           <table class="sync-table">
@@ -102,7 +110,7 @@ function Shapes(props: { store: Store }) {
               </tr>
             </thead>
             <tbody>
-              <For each={ids()}>
+              <For each={shownIds()}>
                 {(id) => (
                   <tr>
                     <td>{rows[id]?.name}</td>

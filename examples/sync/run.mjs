@@ -2,10 +2,7 @@ import assert from 'node:assert/strict'
 import { createServer } from 'node:http'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
-import { chromium, expect as baseExpect } from '@playwright/test'
-
-// Rendering 100,000 rows takes longer than the 5 second default of expect.
-const expect = baseExpect.configure({ timeout: 120_000 })
+import { chromium, expect } from '@playwright/test'
 
 const suffix = process.env.BENCH_DEVELOPMENT
   ? '-dev'
@@ -77,7 +74,7 @@ async function expectShapes(size) {
   await expect(status).toHaveAttribute('data-sync-status', 'ready')
   await expect(rows).toHaveAttribute('data-sync-rows', String(size))
   await expect(list).toHaveAttribute('data-sync-list', String(size))
-  assert.equal(await tableRows(), size)
+  assert.equal(await tableRows(), Math.min(size, 200))
   assert.equal(await listRows(), Math.min(size, 200))
 }
 const base =
@@ -98,13 +95,8 @@ try {
       '1',
     )
     await expectShapes(10_010)
-    const versions = await page.evaluate(
-      () =>
-        [
-          ...document.querySelectorAll('.sync-table tbody tr td:last-child'),
-        ].filter((cell) => cell.textContent !== '1').length,
-    )
-    assert.ok(versions >= 60, `updated rows visible: ${versions}`)
+    const updated = await count(rows, 'syncUpdated')
+    assert.ok(updated >= 60, `updated rows: ${updated}`)
     assert.ok(typeof first === 'string')
   })
   await run('both shapes render 100,000 rows and accept a batch', async () => {
