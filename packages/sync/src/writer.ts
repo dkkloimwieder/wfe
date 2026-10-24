@@ -22,7 +22,8 @@ export type AnyCollection<T extends Row> = Collection<
 
 /** What `collection()` registers so other modules can write and read status. */
 export interface Source<T extends Row> {
-  writer: Writer<T>
+  /** The current sync params. A restarted sync run hands over new ones. */
+  writer(): Writer<T>
   status: StatusSignal
   error(): unknown
 }

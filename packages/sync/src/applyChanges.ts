@@ -11,7 +11,7 @@ export function applyChanges<T extends Row>(
   c: AnyCollection<T>,
   changes: Change<T>[],
 ): void {
-  const { writer } = source(c)
+  const writer = source(c).writer()
   const batch: Batch = new Map()
   writer.begin()
   for (const change of changes) {

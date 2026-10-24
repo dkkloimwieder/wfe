@@ -38,16 +38,15 @@ export function collection<T extends Row, S>(
   let writer: Writer<T> | undefined
   let c: SyncCollection<T>
   async function fill(): Promise<void> {
-    const sync = writer!
     try {
       const page = await feed.list(scope)
-      reconcile(c, sync, page.rows)
-      if (c.status !== 'ready') sync.markReady()
+      reconcile(c, writer!, page.rows)
+      if (c.status !== 'ready') writer!.markReady()
       error = undefined
       status.set('ready')
     } catch (cause) {
       error = cause
-      if (c.status !== 'error') sync.markError(cause)
+      if (c.status !== 'error') writer!.markError(cause)
       status.set('error')
     }
   }
@@ -56,6 +55,9 @@ export function collection<T extends Row, S>(
     startSync: true,
     gcTime: 0,
     sync: {
+      // TanStack DB runs this again after cleanup() when a subscriber,
+      // preload or mutation restarts the collection. Each run brings new
+      // params, so readers go through the getter below.
       sync: (params: SyncParams<T>) => {
         writer = params
         void fill()
@@ -66,7 +68,7 @@ export function collection<T extends Row, S>(
       error: () => error,
     },
   })
-  register(c, { writer: writer!, status, error: () => error })
+  register(c, { writer: () => writer!, status, error: () => error })
   return c
 }
 

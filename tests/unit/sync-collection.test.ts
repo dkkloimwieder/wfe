@@ -156,3 +156,18 @@ test('applyChanges deletes, inserts, and updates by the row_version rule', async
   expect(batches).toHaveLength(2)
   subscription.unsubscribe()
 })
+
+test('a restart after cleanup fills again and applyChanges writes through the new run', async () => {
+  const feed = feedOf([[order('a', 1)], [order('b', 1)]])
+  const c = collection(feed, 'all', { key: 'orders' })
+  await tick()
+  await c.cleanup()
+  expect(c.status).toBe('cleaned-up')
+  const subscription = c.subscribeChanges(() => {})
+  await tick()
+  expect(feed.list).toHaveBeenCalledTimes(2)
+  expect(ids(c)).toEqual(['b'])
+  applyChanges(c, [change('c', 1, 3)])
+  expect(ids(c)).toEqual(['b', 'c'])
+  subscription.unsubscribe()
+})
