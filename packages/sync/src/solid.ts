@@ -11,10 +11,11 @@ import {
   onCleanup,
   until,
 } from 'solid-js'
+import type { Collection } from '@tanstack/db'
 import type { Accessor, Store } from 'solid-js'
 import { OutboxDiscarded, OutboxRefused } from './errors'
 import { discarded } from './outbox'
-import { peek, source } from './writer'
+import { peek } from './writer'
 import type { AnyCollection } from './writer'
 import type { OperationCall, Outbox, OutboxCounts, OutboxEntry } from './outbox'
 import type { Status } from './status'
@@ -22,27 +23,44 @@ import { rowVersion } from './types'
 import type { Row } from './types'
 
 /**
- * A keyed row map kept current by one change subscription. Each batch lands
- * in one store write. The store is seeded from the collection before the
- * subscription starts, so it is complete at return.
+ * Any collection the read adapters take: one made by `collection()`, a live
+ * query result, or any other keyed collection. Rows need no id or version.
  */
-export function liveRows<T extends Row>(
-  c: AnyCollection<T>,
+export type KeyedCollection<T extends object> = Pick<
+  Collection<T, string | number>,
+  'entries' | 'subscribeChanges' | 'status' | 'on' | 'onFirstReady' | 'toArray'
+>
+
+/**
+ * A row map keyed by the collection's own key as a string, kept current by
+ * one change subscription. Each batch lands in one store write. The
+ * subscription starts first, because it starts a lazy collection: a live
+ * query can load its first rows inside `subscribeChanges`, without change
+ * events. The store is seeded after that, so it is complete at return for a
+ * ready collection. A collection that becomes ready later sends its rows as
+ * changes.
+ */
+export function liveRows<T extends object>(
+  c: KeyedCollection<T>,
 ): Store<Record<string, T>> {
-  const seed: Record<string, T> = {}
-  for (const [key, value] of c.entries()) seed[key] = value
-  const [rows, set] = createStore<Record<string, T>>(seed)
+  type Draft = Record<string, T>
+  let set: ((write: (draft: Draft) => void) => void) | undefined
   const subscription = c.subscribeChanges(
     (changes) => {
-      set((draft) => {
+      // A change before the seed is in the seed.
+      set?.((draft) => {
         for (const change of changes) {
-          if (change.type === 'delete') delete draft[change.key]
-          else draft[change.key] = change.value
+          if (change.type === 'delete') delete draft[String(change.key)]
+          else draft[String(change.key)] = change.value
         }
       })
     },
     { includeInitialState: false },
   )
+  const seed: Draft = {}
+  for (const [key, value] of c.entries()) seed[String(key)] = value
+  const [rows, setRows] = createStore<Draft>(seed)
+  set = setRows
   onCleanup(() => subscription.unsubscribe())
   return rows
 }
@@ -52,7 +70,7 @@ export function liveRows<T extends Row>(
  * collection to be ready, so `<Loading>` covers the first fill; a failed first
  * fill errors the source, so `<Errored>` covers it.
  */
-function subscribe<T extends Row>(c: AnyCollection<T>) {
+function subscribe<T extends object>(c: KeyedCollection<T>) {
   return (next: (rows: T[]) => void, error: (reason: unknown) => void) => {
     let delivered = false
     const push = () => {
@@ -82,20 +100,50 @@ function subscribe<T extends Row>(c: AnyCollection<T>) {
   }
 }
 
-/** Rows in collection key order, reconciled by id; for sets under a few hundred rows. */
-export function liveList<T extends Row>(c: AnyCollection<T>): Store<T[]> {
-  return createProjection<T[]>(() => from(subscribe(c)), [], { key: 'id' })
+/**
+ * Rows in collection order, reconciled by the collection's own key; for sets
+ * under a few hundred rows.
+ */
+export function liveList<T extends object>(c: KeyedCollection<T>): Store<T[]> {
+  // The key of each row the collection has held. A nested value has no key.
+  const keys = new WeakMap<object, string | number>()
+  const pushes = subscribe(c)
+  return createProjection<T[]>(
+    () =>
+      from<T[]>((next, error) =>
+        pushes((rows) => {
+          for (const [key, row] of c.entries()) keys.set(row, key)
+          next(rows)
+        }, error),
+      ),
+    [],
+    { key: (item: object) => keys.get(item) },
+  )
 }
 
-/** The status signal the sync source owns, read through a memo. */
-export function syncStatus<T extends Row>(
-  c: AnyCollection<T>,
+/** The collection status as the adapter reports it. */
+function statusOf(c: { status: string }): Status {
+  return c.status === 'ready' || c.status === 'error' ? c.status : 'loading'
+}
+
+/**
+ * The status of the collection, read through a memo. For a collection made by
+ * `collection()` it reads the status signal of the sync source. For any other
+ * collection it maps `c.status`: 'ready' and 'error' as they are, any other
+ * status as 'loading'.
+ */
+export function syncStatus<T extends object>(
+  c: KeyedCollection<T>,
 ): Accessor<'loading' | 'ready' | 'error'> {
-  const { status } = source(c)
+  const found = peek(c)
   return createMemo<Status>(() =>
     from<Status>((next) => {
-      next(status.get())
-      return status.subscribe(next)
+      if (found) {
+        next(found.status.get())
+        return found.status.subscribe(next)
+      }
+      next(statusOf(c))
+      return c.on('status:change', () => next(statusOf(c)))
     }),
   )
 }

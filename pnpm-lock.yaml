@@ -191,6 +191,9 @@ importers:
       '@solidjs/web':
         specifier: 2.0.0-rc.18
         version: 2.0.0-rc.18(solid-js@2.0.0-rc.18)
+      '@tanstack/db':
+        specifier: 0.15.2
+        version: 0.15.2(typescript@6.0.3)
       '@types/d3-scale':
         specifier: 4.0.9
         version: 4.0.9

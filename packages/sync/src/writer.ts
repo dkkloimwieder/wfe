@@ -40,9 +40,7 @@ export function register<T extends Row>(
 }
 
 /** The source behind a collection made by `collection()`, or undefined. */
-export function peek<T extends Row>(
-  c: AnyCollection<T>,
-): Source<T> | undefined {
+export function peek<T extends Row = Row>(c: object): Source<T> | undefined {
   return sources.get(c) as Source<T> | undefined
 }
 

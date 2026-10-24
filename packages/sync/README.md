@@ -33,9 +33,11 @@ A save waits 250 ms, and a later save in that wait replaces it. A failed save ch
 `c.cleanup()` writes a waiting save at once, stops the timer, unsubscribes the trigger, and aborts the pass in flight.
 A later subscriber restarts the collection. The restart loads, lists, and follows again.
 
-`liveRows(c)` returns a store keyed by id. Each change batch lands in one store write.
-`liveList(c)` returns a store array reconciled by id, in the key order of the collection. Use it for small sets.
-`syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`.
+The read adapters take any keyed collection: one made by `collection()`, a live query result such as a `groupBy`, or any other `@tanstack/db` collection. The rows need no id and no version.
+
+`liveRows(c)` returns a store keyed by the collection's own key, as a string. Each change batch lands in one store write.
+`liveList(c)` returns a store array reconciled by the collection's own key, in the order of the collection. Use it for small sets.
+`syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`. For a collection made by `collection()`, it reads the status of the sync source. For any other collection, it maps `c.status`: `ready` and `error` stay as they are, and every other status is `loading`.
 Create the adapters inside a Solid owner. When that owner disposes, the adapters unsubscribe.
 
 ## Outbox

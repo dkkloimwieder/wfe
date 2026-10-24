@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import {
   Errored,
@@ -8,6 +8,7 @@ import {
   createRoot,
   flush,
 } from 'solid-js'
+import { createLiveQueryCollection, sum } from '@tanstack/db'
 import { collection, liveList, liveRows, syncStatus } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import type { Change } from '@wfe/sync'
@@ -185,4 +186,91 @@ test('syncStatus follows loading, ready, and error', async () => {
     expect(status()).toBe('ready')
     dispose()
   })
+})
+
+test('liveRows, liveList and syncStatus read a grouped live query with no cast', async () => {
+  const region = (id: string, name: string, quantity: number): Order => ({
+    ...order(id, 1, quantity),
+    name,
+  })
+  const c = await filled([
+    region('a', 'North', 2),
+    region('b', 'North', 3),
+    region('c', 'South', 4),
+  ])
+  const totals = createLiveQueryCollection((q) =>
+    q
+      .from({ o: c })
+      .groupBy(({ o }) => o.name)
+      .select(({ o }) => ({ name: o.name, total: sum(o.quantity) })),
+  )
+  const { rows, list, status, dispose } = createRoot((dispose) => ({
+    rows: liveRows(totals),
+    list: liveList(totals),
+    status: syncStatus(totals),
+    dispose,
+  }))
+  await totals.preload()
+  await tick()
+  flush()
+  const byName = () =>
+    Object.fromEntries(Object.values(rows).map((row) => [row.name, row.total]))
+  expect(status()).toBe('ready')
+  expect(byName()).toEqual({ North: 5, South: 4 })
+  expect(Object.keys(rows).sort()).toEqual(
+    [...totals.keys()].map(String).sort(),
+  )
+  const north = list.find((row) => row.name === 'North')
+  applyChanges(c, [
+    {
+      id: 'c',
+      row_version: 2,
+      deleted: false,
+      data: { ...region('c', 'South', 10), row_version: 2 },
+    },
+    {
+      id: 'd',
+      row_version: 1,
+      deleted: false,
+      data: region('d', 'East', 1),
+    },
+  ])
+  await tick()
+  flush()
+  expect(byName()).toEqual({ North: 5, South: 10, East: 1 })
+  expect(list.map((row) => row.name).sort()).toEqual(['East', 'North', 'South'])
+  // The untouched group keeps its node in the projection.
+  expect(list.find((row) => row.name === 'North')).toBe(north)
+  dispose()
+})
+
+test('syncStatus and liveRows over a live query whose source is still loading', async () => {
+  const page = deferred<Order[]>()
+  const feed = feedOf([])
+  vi.mocked(feed.list).mockImplementationOnce(async () => ({
+    rows: await page.promise,
+    cursor: 'end',
+  }))
+  const c = collection(feed, 'all', { key: 'orders:all' })
+  const totals = createLiveQueryCollection((q) =>
+    q
+      .from({ o: c })
+      .groupBy(({ o }) => o.name)
+      .select(({ o }) => ({ name: o.name, total: sum(o.quantity) })),
+  )
+  const { rows, status, dispose } = createRoot((dispose) => ({
+    rows: liveRows(totals),
+    status: syncStatus(totals),
+    dispose,
+  }))
+  flush()
+  expect(status()).toBe('loading')
+  expect(Object.keys(rows)).toEqual([])
+  page.resolve([order('a', 1, 2), order('b', 1, 3)])
+  await tick()
+  await tick()
+  flush()
+  expect(status()).toBe('ready')
+  expect(Object.values(rows).map((row) => row.total)).toEqual([2, 3])
+  dispose()
 })

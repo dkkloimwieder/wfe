@@ -17,3 +17,4 @@ export {
   outboxStatus,
   recordWrite,
 } from './solid'
+export type { KeyedCollection } from './solid'
