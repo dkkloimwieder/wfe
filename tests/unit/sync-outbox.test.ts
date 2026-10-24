@@ -1,9 +1,13 @@
 import 'fake-indexeddb/auto'
-import { expect, test, vi } from 'vitest'
+import { afterEach, expect, test, vi } from 'vitest'
 import { createRoot, flush } from 'solid-js'
 import { outbox, outboxStatus } from '@wfe/sync'
-import type { OutboxCounts, Reply } from '@wfe/sync'
+import type { OutboxCounts, OutboxEntry, Reply } from '@wfe/sync'
 import { call, deferred, tick } from './sync-fixtures'
+
+afterEach(() => {
+  vi.useRealTimers()
+})
 
 let count = 0
 const name = () => `outbox-test-${++count}`
@@ -134,4 +138,162 @@ test('outboxStatus follows the counts', async () => {
   expect(status()).toMatchObject({ pending: 1, sending: 0, refused: 0 })
   dispose()
   o.close()
+})
+
+/** A host that holds each reply until the test answers it by hash. */
+function hostOf() {
+  const waiting = new Map<string, (reply: Reply) => void>()
+  const sent: string[] = []
+  const send = vi.fn((entry: OutboxEntry) => {
+    sent.push(entry.request_hash)
+    return new Promise<Reply>((resolve) =>
+      waiting.set(entry.request_hash, resolve),
+    )
+  })
+  const answer = (hash: string, reply: Reply = { ok: true }) => {
+    waiting.get(hash)?.(reply)
+    waiting.delete(hash)
+  }
+  return { send, sent, answer }
+}
+/** A probe the test switches. */
+function probeOf(up = true) {
+  const state = { up }
+  return { state, probe: vi.fn(async () => state.up) }
+}
+const refused: Reply = {
+  ok: false,
+  retriable: false,
+  refusal: { code: 'stale', text: 'Stale' },
+}
+
+test('replay sends one record in seq order and two records in parallel', async () => {
+  const host = hostOf()
+  const net = probeOf(false)
+  const o = outbox({ database: name(), send: host.send, probe: net.probe })
+  await o.enqueue(call('a', 'a1'))
+  await o.enqueue(call('b', 'b1'))
+  await o.enqueue(call('a', 'a2'))
+  net.state.up = true
+  const done = o.replay()
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'b1']))
+  host.answer('b1')
+  await tick()
+  expect(host.sent).toEqual(['a1', 'b1'])
+  host.answer('a1')
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'b1', 'a2']))
+  host.answer('a2')
+  await done
+  expect(o.entries()).toEqual([])
+  o.close()
+})
+
+test('a retriable reply stops the replay; the next replay resumes from it', async () => {
+  const host = hostOf()
+  const net = probeOf(false)
+  const o = outbox({
+    database: name(),
+    send: host.send,
+    probe: net.probe,
+    concurrency: 1,
+  })
+  await o.enqueue(call('a', 'a1'))
+  await o.enqueue(call('b', 'b1'))
+  net.state.up = true
+  const first = o.replay()
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1']))
+  host.answer('a1', { ok: false, retriable: true })
+  await first
+  expect(host.sent).toEqual(['a1'])
+  expect(o.entries().map((e) => e.state)).toEqual(['pending', 'pending'])
+  const second = o.replay()
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'a1']))
+  host.answer('a1')
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'a1', 'b1']))
+  host.answer('b1')
+  await second
+  expect(o.entries()).toEqual([])
+  o.close()
+})
+
+test('a refusal holds later entries of its record, except append-only ones', async () => {
+  const host = hostOf()
+  const net = probeOf(false)
+  const o = outbox({ database: name(), send: host.send, probe: net.probe })
+  await o.enqueue(call('a', 'a1'))
+  await o.enqueue(call('a', 'a2'))
+  await o.enqueue(call('a', 'a3', true))
+  await o.enqueue(call('b', 'b1'))
+  net.state.up = true
+  const done = o.replay()
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'b1']))
+  host.answer('a1', refused)
+  host.answer('b1')
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'b1', 'a3']))
+  host.answer('a3')
+  await done
+  expect(o.entries().map((e) => [e.request_hash, e.state])).toEqual([
+    ['a1', 'refused'],
+    ['a2', 'pending'],
+  ])
+  o.close()
+})
+
+test('a failed probe sends nothing; the online event and the 15 s probe resume', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+  const host = hostOf()
+  const net = probeOf(false)
+  const o = outbox({ database: name(), send: host.send, probe: net.probe })
+  await o.enqueue(call('a', 'a1'))
+  await tick()
+  expect(host.sent).toEqual([])
+  expect(o.entries()[0]?.state).toBe('pending')
+  net.state.up = true
+  window.dispatchEvent(new Event('online'))
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1']))
+  host.answer('a1', { ok: false, retriable: true })
+  await vi.waitFor(() => expect(o.entries()[0]?.state).toBe('pending'))
+  net.state.up = false
+  await o.replay()
+  const probes = net.probe.mock.calls.length
+  await vi.advanceTimersByTimeAsync(15_000)
+  expect(net.probe.mock.calls.length).toBe(probes + 1)
+  expect(host.sent).toEqual(['a1'])
+  net.state.up = true
+  await vi.advanceTimersByTimeAsync(15_000)
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'a1']))
+  host.answer('a1')
+  o.close()
+})
+
+test('a 30 s timer replays while an entry is pending, and close stops it', async () => {
+  vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+  const host = hostOf()
+  const o = outbox({ database: name(), send: host.send, probe })
+  await o.enqueue(call('a', 'a1'))
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1']))
+  host.answer('a1', { ok: false, retriable: true })
+  await vi.waitFor(() => expect(o.entries()[0]?.state).toBe('pending'))
+  await vi.advanceTimersByTimeAsync(30_000)
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'a1']))
+  o.close()
+  expect(vi.getTimerCount()).toBe(0)
+})
+
+test('on open, an entry left sending by a lost tab goes back to pending', async () => {
+  const database = name()
+  const lost = hostOf()
+  const a = outbox({ database, send: lost.send, probe })
+  await a.enqueue(call('a', 'a1'))
+  await vi.waitFor(async () =>
+    expect(await stored(database)).toMatchObject([{ state: 'sending' }]),
+  )
+  const net = probeOf(false)
+  const b = outbox({ database, send: vi.fn(offline), probe: net.probe })
+  await vi.waitFor(async () =>
+    expect(await stored(database)).toMatchObject([{ state: 'pending' }]),
+  )
+  expect(b.entries()[0]?.state).toBe('pending')
+  b.close()
+  a.close()
 })

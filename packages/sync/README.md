@@ -43,13 +43,23 @@ Create the adapters inside a Solid owner. When that owner disposes, the adapters
 The consumer supplies `send` and `probe`. The package never builds a request, a hash, a URL, or a header.
 
 - `enqueue(call)` resolves with the entry after the IndexedDB put commits, and starts a replay.
-- `replay()` sends pending entries in `seq` order. An ok reply removes the entry. A retriable reply puts it back to `pending` and ends the replay. Any other reply marks it `refused` with the refusal.
+- `replay()` sends pending entries. An ok reply removes the entry. A retriable reply puts it back to `pending` and ends the replay. Any other reply marks it `refused` with the refusal.
 - `resubmit(seq)` puts a refused entry back to `pending` and starts a replay. `discard(seq)` removes the entry.
 - `entries()` returns the entries that this page holds, in `seq` order. `watch(fn)` calls `fn` with the counts now and after each change.
 - `close()` aborts the sends in flight, leaves their entries `pending`, and closes the database.
 
-The constructor starts one replay. One tab replays at a time: a replay holds the Web Lock `${database}:outbox`.
+Replay sends the entries of one record (`expect.id`) in `seq` order, one at a time. Up to `concurrency` records, default 4, send at the same time.
+A refused entry holds the later entries of its record as `pending`, except `append_only` entries.
+A retriable reply stops the whole replay. The entry waits for the next trigger.
+Every send gets an `AbortSignal`, and a `send` that throws counts as retriable.
+
+A replay runs on open, after each `enqueue`, after a successful probe, and every 30 s while an entry is pending.
+The probe runs before each replay, on the `online` event, and every 15 s while the last probe failed. The package never reads `navigator.onLine`.
+A replay asked for during a replay runs once after it.
+
+One tab replays at a time: a replay holds the Web Lock `${database}:outbox`.
 In the lock, the outbox reads the store again, because another tab can change it. A stored `sending` entry lost its tab, so it goes back to `pending`.
+The open does this reset in the lock before the first replay.
 If `navigator.locks` is absent, replay runs without the lock. Two tabs can then send the same entry, and the write log dedupes on `request_hash`.
 `lastSentAt` is the ISO time of the last ok reply in this page, or undefined.
 `outboxStatus(o)` returns an accessor with the counts.

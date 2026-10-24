@@ -58,6 +58,10 @@ export interface Outbox {
 }
 
 const store = 'outbox'
+/** A replay runs on this interval while an entry is pending. */
+const replayEvery = 30_000
+/** The probe runs again on this interval while the last probe failed. */
+const probeEvery = 15_000
 
 function request<T>(r: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
@@ -88,7 +92,9 @@ function open(name: string): Promise<IDBDatabase> {
 /**
  * A durable write queue in the IndexedDB database the caller names. One tab
  * replays at a time under a Web Lock; without navigator.locks, replay runs
- * unlocked. The constructor starts one replay (app open).
+ * unlocked. A replay runs on open, after each enqueue, after a successful
+ * probe, and every 30 s while an entry is pending. The probe runs before each
+ * replay, on the 'online' event, and every 15 s while the last probe failed.
  */
 export function outbox(options: {
   /** IndexedDB name, chosen by the caller. */
@@ -106,6 +112,7 @@ export function outbox(options: {
   let closed = false
   let running: Promise<void> | undefined
   let again = false
+  let probing: ReturnType<typeof setInterval> | undefined
   const database = open(options.database).then(async (db) => {
     for (const entry of await all(db)) memory.set(entry.seq, entry)
     notify()
@@ -169,12 +176,16 @@ export function outbox(options: {
     }
   }
 
-  /** Send pending entries in seq order; stop at the first retriable failure. */
-  async function pass(): Promise<void> {
-    await reload()
-    for (const entry of ordered()) {
-      if (closed) return
-      if (entry.state !== 'pending') continue
+  /**
+   * Send the entries of one record in seq order, one at a time. A refused
+   * entry holds the later entries of the record, except append-only ones.
+   */
+  async function lane(entries: OutboxEntry[], halt: { now: boolean }) {
+    let held = false
+    for (const entry of entries) {
+      if (closed || halt.now) return
+      if (entry.state === 'refused') held = true
+      if (entry.state !== 'pending' || (held && !entry.append_only)) continue
       entry.state = 'sending'
       await put([entry])
       notify()
@@ -185,17 +196,63 @@ export function outbox(options: {
         memory.delete(entry.seq)
         lastSentAt = new Date().toISOString()
       } else if (reply.retriable) {
+        // Network or 5xx: the whole replay stops and waits for a trigger.
         entry.state = 'pending'
+        halt.now = true
         await put([entry])
-        notify()
-        return
       } else {
         entry.state = 'refused'
         if (reply.refusal) entry.refusal = reply.refusal
+        held = true
         await put([entry])
       }
       notify()
     }
+  }
+
+  /** Records in parallel up to `concurrency`; each record in its own lane. */
+  async function pass(): Promise<void> {
+    await reload()
+    const lanes = new Map<string, OutboxEntry[]>()
+    for (const entry of ordered()) {
+      const list = lanes.get(entry.expect.id)
+      if (list) list.push(entry)
+      else lanes.set(entry.expect.id, [entry])
+    }
+    const queue = [...lanes.values()]
+    const halt = { now: false }
+    const worker = async () => {
+      for (let next = queue.shift(); next; next = queue.shift()) {
+        await lane(next, halt)
+        if (closed || halt.now) return
+      }
+    }
+    const width = Math.max(1, options.concurrency ?? 4)
+    await Promise.all(Array.from({ length: width }, worker))
+    // A retriable failure waits for a trigger that comes after it.
+    if (halt.now) again = false
+  }
+
+  /** The probe never throws; a failed probe runs again every 15 s. */
+  async function probe(): Promise<boolean> {
+    let ok = false
+    try {
+      ok = await options.probe()
+    } catch {
+      ok = false
+    }
+    if (closed) return false
+    if (ok && probing !== undefined) {
+      clearInterval(probing)
+      probing = undefined
+    } else if (!ok && probing === undefined) {
+      probing = setInterval(() => {
+        void probe().then((answered) => {
+          if (answered) kick()
+        })
+      }, probeEvery)
+    }
+    return ok
   }
 
   /** One replay at a time; a replay asked for during one runs once after it. */
@@ -209,7 +266,8 @@ export function outbox(options: {
       try {
         do {
           again = false
-          await locked(pass)
+          // The probe runs before each attempt; navigator.onLine is never read.
+          if (await probe()) await locked(pass)
         } while (again && !closed)
       } catch (cause) {
         if (!closed) throw cause
@@ -221,7 +279,17 @@ export function outbox(options: {
   }
   const kick = () => void replay().catch(() => undefined)
 
-  void database.then(kick, () => undefined)
+  const timer = setInterval(() => {
+    if (counts().pending > 0) kick()
+  }, replayEvery)
+  const online = () => {
+    void probe().then((answered) => {
+      if (answered) kick()
+    })
+  }
+  globalThis.addEventListener?.('online', online)
+  // On open, lost 'sending' entries go back to pending before the first replay.
+  void database.then(() => locked(reload)).then(kick, () => undefined)
 
   return {
     async enqueue(op) {
@@ -272,6 +340,9 @@ export function outbox(options: {
       if (closed) return
       closed = true
       abort.abort()
+      clearInterval(timer)
+      if (probing !== undefined) clearInterval(probing)
+      globalThis.removeEventListener?.('online', online)
       const sending = [...memory.values()].filter((e) => e.state === 'sending')
       for (const entry of sending) entry.state = 'pending'
       notify()
