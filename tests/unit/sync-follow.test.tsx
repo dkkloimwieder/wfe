@@ -202,6 +202,45 @@ test('two fires during a pass run exactly one more pass', async () => {
   expect(feed.changes).toHaveBeenCalledTimes(2)
 })
 
+test('a refill during a pass lists after it and keeps the list cursor', async () => {
+  const { feed } = logFeed(
+    [order('a', 1)],
+    [changed('a', 2), changed('b', 1), changed('c', 1), changed('d', 1)],
+  )
+  const replay = vi.mocked(feed.changes).getMockImplementation()!
+  const second = deferred<{
+    rows: Change<Order>[]
+    next_cursor: string
+    complete: boolean
+  }>()
+  vi.mocked(feed.changes)
+    .mockImplementationOnce(replay)
+    .mockImplementationOnce(() => second.promise)
+  const c = collection(feed, 'all', { key: 'orders', pageSize: 2 })
+  await tick()
+  const running = c.utils.pull()
+  await tick()
+  expect(cursors(feed.changes)).toEqual(['c0', 'c2'])
+  vi.mocked(feed.list).mockResolvedValueOnce({
+    rows: [order('a', 2), order('z', 1)],
+    cursor: 'c9',
+  })
+  const refilled = c.utils.refill()
+  await tick()
+  expect(feed.list).toHaveBeenCalledTimes(1)
+  second.resolve({
+    rows: [changed('c', 1), changed('d', 1)],
+    next_cursor: 'c4',
+    complete: true,
+  })
+  await refilled
+  await running
+  expect(feed.list).toHaveBeenCalledTimes(2)
+  expect(ids(c)).toEqual(['a', 'z'])
+  await c.utils.pull()
+  expect(cursors(feed.changes)).toEqual(['c0', 'c2', 'c9'])
+})
+
 test('pollMs runs passes on the interval and stops on cleanup', async () => {
   vi.useFakeTimers()
   const { feed } = logFeed([order('a', 1)])

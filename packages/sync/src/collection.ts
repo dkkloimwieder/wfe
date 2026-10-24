@@ -33,10 +33,12 @@ interface Run<T extends Row> {
   following: boolean
   /** Stop the timer and unsubscribe the trigger. */
   stops: (() => void)[]
-  /** The running passes, until the last one ends. */
+  /** The running jobs, until the last one ends. */
   pass?: Promise<void>
-  /** A trigger or timer fired during a pass. */
+  /** A pull waits: a trigger, the timer or utils.pull(). */
   again: boolean
+  /** A list waits: utils.refill(). */
+  list: boolean
   save?: ReturnType<typeof setTimeout>
 }
 
@@ -136,21 +138,31 @@ export function collection<T extends Row, S>(
       r.stops.push(options.trigger.subscribe(options.key, () => void fire(r)))
   }
 
-  /** Start a pass. During a pass, mark one more pass after it instead. */
-  function fire(r: Run<T>): Promise<void> {
+  /**
+   * Ask for a pull or a list. One job runs at a time: a request during a job
+   * runs after it, and requests of one kind in the wait run once.
+   */
+  function fire(r: Run<T>, kind: 'pull' | 'list' = 'pull'): Promise<void> {
     if (r.stopped) return Promise.resolve()
-    if (r.pass) {
-      r.again = true
-      return r.pass
-    }
-    r.pass = (async () => {
-      do {
+    if (kind === 'list') r.list = true
+    else r.again = true
+    if (!r.pass) r.pass = drain(r)
+    return r.pass
+  }
+
+  /** Run the first job, then the waiting lists and pulls, a list first. */
+  async function drain(r: Run<T>, first?: () => Promise<void>): Promise<void> {
+    if (first) await first()
+    while ((r.list || r.again) && !r.stopped) {
+      if (r.list) {
+        r.list = false
+        await fill(r)
+      } else {
         r.again = false
         await pass(r)
-      } while (r.again && !r.stopped)
-      r.pass = undefined
-    })()
-    return r.pass
+      }
+    }
+    r.pass = undefined
   }
 
   /** Ask `moved`, then read `changes` pages until the feed is complete. */
@@ -220,16 +232,18 @@ export function collection<T extends Row, S>(
           following: false,
           stops: [],
           again: false,
+          list: false,
         }
         run = r
         cursor = undefined
         status.set('loading')
-        void start(r)
+        // The start is the first job, so a pull or refill waits for it.
+        r.pass = drain(r, () => start(r))
         return () => stop(r)
       },
     },
     utils: {
-      refill: () => (run ? fill(run) : Promise.resolve()),
+      refill: () => (run ? fire(run, 'list') : Promise.resolve()),
       pull: () => (run ? fire(run) : Promise.resolve()),
       error: () => error,
       currentAt: () => currentAt,
