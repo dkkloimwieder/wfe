@@ -1,14 +1,8 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { Theme } from '@wfe/components/theme'
 import { Button, SelectField } from '@wfe/components'
 import { render } from '@solidjs/web'
-import {
-  OBSERVE,
-  action,
-  createMemo,
-  createSignal,
-  flush,
-  onCleanup,
-} from 'solid-js'
+import { OBSERVE, createMemo, createSignal, flush, onCleanup } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
 import { Table } from './Table'
 import { inventory, sales, sortResult } from './demo-data'
@@ -58,8 +52,7 @@ function load(query: string) {
       })
   }, 200)
 }
-// eslint-disable-next-line require-yield -- Use the qualified runtime disposal path.
-const disposeRoot = action(function* () {
+const disposeRoot = createFixtureDisposal(() => {
   dispose?.()
 })
 function stop() {

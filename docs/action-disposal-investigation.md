@@ -4,6 +4,11 @@ Beads `wfe-0dj.4` tracks removal of the Solid disposal workaround.
 The workaround calls the root disposer inside a generator-based `action()`, then calls `flush()` outside that action.
 It uses public Solid APIs. It does not change the runtime or write application records.
 
+Normal example root shutdowns share `examples/shared/fixtureDisposal.ts`.
+The helper preserves the generator action; each caller retains its existing outside-action flush and reference cleanup order.
+See [shared example support](../examples/shared/README.md#fixture-disposal) for consumers and deliberate diagnostic exceptions.
+This extraction does not retire the workaround or change the independent runtime-only reproduction.
+
 ## Current result
 
 The matched rc.13 and rc.16 comparisons retain all 1,000 records after plain disposal in both `onSettled` cases.

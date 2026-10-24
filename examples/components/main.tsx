@@ -1,3 +1,4 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { ContextControls } from '../shared/controls/ContextControls'
 import { ThemeConsumer } from '../theme/ThemeConsumer'
 import { FileControls, fileLifecycle } from '../shared/controls/FileControls'
@@ -32,7 +33,7 @@ import {
 import { ConsistencyControls } from './ConsistencyControls'
 import { OverlayButtonControls } from './OverlayButtonControls'
 import './style.css'
-import { action, flush } from 'solid-js'
+import { flush } from 'solid-js'
 import { render } from '@solidjs/web'
 import { mountEditingFixture } from '../table-editing/fixture'
 import { popupFields } from '../table-editing/fields'
@@ -56,8 +57,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     ),
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.contextFixture = {
@@ -74,8 +74,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
 } else if (new URLSearchParams(location.search).has('gallery')) {
   const { Gallery } = await import('./gallery/Gallery')
   const dispose = render(() => <Gallery />, document.getElementById('root')!)
-  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.galleryFixture = {
@@ -95,8 +94,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     ),
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   fileLifecycle.stop = () => {
@@ -115,8 +113,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     ),
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   resizableLifecycle.stop = () => {
@@ -135,8 +132,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     ),
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   accordionLifecycle.stop = () => {
@@ -155,8 +151,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     ),
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   breadcrumbLifecycle.stop = () => {
@@ -175,8 +170,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     ),
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   tabsLifecycle.stop = () => {
@@ -189,8 +183,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <NumberControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose synchronously through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   numberLifecycle.stop = () => {
@@ -203,8 +196,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <CollapsibleControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose synchronously through the qualified runtime path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   collapsibleLifecycle.stop = () => {
@@ -219,8 +211,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <StructuredClasses />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Dispose the fixture synchronously.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.classFixture = {
@@ -235,8 +226,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <ConsistencyControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.consistencyFixture.stop = () => {
@@ -248,8 +238,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <OverlayButtonControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.overlayButtonFixture.stop = () => {
@@ -263,8 +252,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
       document.getElementById('root')!,
     )
     let active = true
-    // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-    const cleanup = action(function* () {
+    const cleanup = createFixtureDisposal(() => {
       dispose()
     })
     window.consumerFixture.start = start
@@ -281,8 +269,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <DisplayControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.displayFixture.stop = () => {
@@ -294,8 +281,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <OverlayControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.overlayFixture.stop = () => {
@@ -307,8 +293,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <DialogControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.dialogFixture.stop = () => {
@@ -320,8 +305,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <BooleanControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.booleanFixture.stop = () => {
@@ -333,8 +317,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <NativeFieldsFixture />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.nativeFieldFixture.stop = () => {
@@ -346,8 +329,7 @@ if (new URLSearchParams(location.search).has('contexts')) {
     () => <ChoiceControls />,
     document.getElementById('root')!,
   )
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous runtime disposal path.
-  const cleanup = action(function* () {
+  const cleanup = createFixtureDisposal(() => {
     dispose()
   })
   window.choiceFixture.stop = () => {

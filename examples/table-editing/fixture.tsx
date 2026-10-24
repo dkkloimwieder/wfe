@@ -1,5 +1,6 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { render } from '@solidjs/web'
-import { OBSERVE, action, flush, snapshot } from 'solid-js'
+import { OBSERVE, flush, snapshot } from 'solid-js'
 import {
   attribution,
   costs,
@@ -50,8 +51,7 @@ let unsubscribeTrace: (() => void) | undefined
 let unsubscribeCreations: (() => void) | undefined
 const traceRuns: Array<{ name: string; sources: Array<string> }> = []
 // Same rc.13 disposal workaround as the qualified WAMN fixture (table-gd3.6.5).
-// eslint-disable-next-line require-yield -- This synchronous action only disposes the root.
-const disposeRoot = action(function* () {
+const disposeRoot = createFixtureDisposal(() => {
   dispose?.()
 })
 function stop() {

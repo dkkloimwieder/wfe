@@ -1,4 +1,5 @@
-import { OBSERVE, action, flush } from 'solid-js'
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
+import { OBSERVE, flush } from 'solid-js'
 import { hydrate, render } from '@solidjs/web'
 import type { FormOutcome } from '@wfe/form'
 import { App } from './App'
@@ -16,8 +17,7 @@ export function createFixture(name: string = 'original') {
   let release: (() => void) | undefined
   let app: ReturnType<typeof createApplication> | undefined
   let outcome: FormOutcome | undefined
-  // eslint-disable-next-line require-yield -- Disposal uses the existing synchronous action boundary.
-  const dispose = action(function* () {
+  const dispose = createFixtureDisposal(() => {
     release?.()
   })
   return {

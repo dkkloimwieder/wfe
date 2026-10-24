@@ -1,5 +1,6 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { render, hydrate } from '@solidjs/web'
-import { action, flush } from 'solid-js'
+import { flush } from 'solid-js'
 import { PlatformApp } from './PlatformApp'
 import type { createPlatformApplication } from './application'
 let app: ReturnType<typeof createPlatformApplication>
@@ -16,8 +17,7 @@ const dispose = mount(
   ),
   document.getElementById('root')!,
 )
-// eslint-disable-next-line require-yield -- Keep the qualified synchronous disposal boundary.
-const cleanup = action(function* () {
+const cleanup = createFixtureDisposal(() => {
   dispose()
 })
 window.platformFixture = {

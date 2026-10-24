@@ -1,13 +1,13 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { classLifecycle } from '../shared/controls/StructuredClasses'
 import { hydrate } from '@solidjs/web'
-import { OBSERVE, action, flush } from 'solid-js'
+import { OBSERVE, flush } from 'solid-js'
 import App, { lifecycle } from './App'
 
 const capture = OBSERVE?.diagnostics.capture()
 const release = await hydrate(() => <App />, document.getElementById('app')!)
 // Match the rc.13 root disposal workaround in the editing fixture.
-// eslint-disable-next-line require-yield -- This synchronous action only disposes the root.
-const disposeRoot = action(function* () {
+const disposeRoot = createFixtureDisposal(() => {
   release()
 })
 Object.assign(window, {

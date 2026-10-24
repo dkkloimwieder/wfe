@@ -1,5 +1,6 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { render, hydrate } from '@solidjs/web'
-import { OBSERVE, action, flush } from 'solid-js'
+import { OBSERVE, flush } from 'solid-js'
 import { App } from './App'
 import type { createApplication } from './application'
 import './style.css'
@@ -10,8 +11,7 @@ export function createFixture(Example = App) {
     | ReturnType<NonNullable<typeof OBSERVE>['diagnostics']['capture']>
     | undefined
   const events: unknown[] = []
-  // eslint-disable-next-line require-yield -- Preserve the qualified synchronous disposal path.
-  const disposeRoot = action(function* () {
+  const disposeRoot = createFixtureDisposal(() => {
     release?.()
   })
   function stop() {

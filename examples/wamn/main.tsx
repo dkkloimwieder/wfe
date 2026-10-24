@@ -1,5 +1,6 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { render } from '@solidjs/web'
-import { OBSERVE, action, flush } from 'solid-js'
+import { OBSERVE, flush } from 'solid-js'
 import { App } from './App'
 import { createFixtureServer, makeWidget } from './transport'
 import provenance from './.input/provenance.json'
@@ -17,8 +18,7 @@ const root = document.getElementById('root')!
 // rc.13 can leave disposed computations in an unscheduled pending-node queue.
 // A public action boundary schedules the drain; flush runs after the action.
 // Keep this fixture workaround until table-gd3.6.5 is resolved upstream.
-// eslint-disable-next-line require-yield -- This synchronous action only disposes the root.
-const disposeRoot = action(function* () {
+const disposeRoot = createFixtureDisposal(() => {
   dispose?.()
 })
 function stop() {

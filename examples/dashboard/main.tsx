@@ -1,6 +1,7 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { Theme } from '@wfe/components/theme'
 import { render } from '@solidjs/web'
-import { OBSERVE, action, createSignal, createStore, flush } from 'solid-js'
+import { OBSERVE, createSignal, createStore, flush } from 'solid-js'
 import {
   Button,
   Checkbox,
@@ -170,8 +171,7 @@ let replaceRows: ((count: number) => void) | undefined
 let capture:
   ReturnType<NonNullable<typeof OBSERVE>['diagnostics']['capture']> | undefined
 const events: unknown[] = []
-// eslint-disable-next-line require-yield -- Use the qualified synchronous disposal path.
-const disposeRoot = action(function* () {
+const disposeRoot = createFixtureDisposal(() => {
   release?.()
 })
 function stop() {

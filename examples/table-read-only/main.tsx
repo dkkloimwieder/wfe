@@ -1,3 +1,4 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { Theme } from '@wfe/components/theme'
 import { MessagesExample } from './MessagesExample'
 import {
@@ -5,14 +6,7 @@ import {
   paginationLifecycle,
 } from '../shared/controls/PagedRecords'
 import { render } from '@solidjs/web'
-import {
-  OBSERVE,
-  action,
-  createSignal,
-  flush,
-  onCleanup,
-  untrack,
-} from 'solid-js'
+import { OBSERVE, createSignal, flush, onCleanup, untrack } from 'solid-js'
 import { Table, TableRow, ReadOnlyTable } from '@wfe/components/table'
 import {
   createTable,
@@ -55,8 +49,7 @@ let replace: ((rows: typeof initial) => void) | undefined
 let capture:
   ReturnType<NonNullable<typeof OBSERVE>['diagnostics']['capture']> | undefined
 const events: Array<unknown> = []
-// eslint-disable-next-line require-yield -- Use the qualified runtime disposal path.
-const disposeRoot = action(function* () {
+const disposeRoot = createFixtureDisposal(() => {
   dispose?.()
 })
 function stop() {

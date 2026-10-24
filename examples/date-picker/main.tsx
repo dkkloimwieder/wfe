@@ -1,6 +1,7 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { Theme } from '@wfe/components/theme'
 import { render } from '@solidjs/web'
-import { OBSERVE, action, createSignal, flush, untrack } from 'solid-js'
+import { OBSERVE, createSignal, flush, untrack } from 'solid-js'
 import {
   DatePicker,
   DateTimePicker,
@@ -60,8 +61,7 @@ const events: unknown[] = []
 let changes = 0
 let submits = 0
 let intrinsicValid = true
-// eslint-disable-next-line require-yield -- Disposal follows the qualified synchronous action path.
-const dispose = action(function* () {
+const dispose = createFixtureDisposal(() => {
   release?.()
 })
 function stop() {

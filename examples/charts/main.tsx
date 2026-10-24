@@ -1,5 +1,6 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { render, hydrate } from '@solidjs/web'
-import { action, flush } from 'solid-js'
+import { flush } from 'solid-js'
 import { App } from './App'
 import type { ChartFixture } from './App'
 let app: ChartFixture
@@ -16,8 +17,7 @@ const dispose = (target.dataset.ssr === 'true' ? hydrate : render)(
   ),
   target,
 )
-// eslint-disable-next-line require-yield -- The fixture exposes synchronous owned disposal.
-const stop = action(function* () {
+const stop = createFixtureDisposal(() => {
   dispose()
 })
 window.chartFixture = {
