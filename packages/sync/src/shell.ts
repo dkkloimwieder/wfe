@@ -1,5 +1,7 @@
 // The page side of the shell. It never imports Solid.
-import { skipWaitingMessage } from './message'
+
+/** The message the worker waits for; the same string is in worker.ts. */
+const skipWaitingMessage = 'wfe-sync:skip-waiting'
 
 /** What the browser gave the shell. A missing API is false or zeros. */
 export interface ShellResult {

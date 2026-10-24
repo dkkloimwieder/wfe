@@ -19,6 +19,8 @@ Refuse next send makes the server refuse one send. The refused entry shows under
 The status line shows the pending and refused counts and the last send time from `outboxStatus`.
 A written row shows "recorded, not uploaded" while its entry is pending.
 
+The build also writes `sw.js` from `sw.ts` with the manifest recipe in `vite.config.ts`. The recipe is the one in the `@wfe/sync` README.
+
 ## Preview
 
 From the repository root, install dependencies with `pnpm install --frozen-lockfile`.

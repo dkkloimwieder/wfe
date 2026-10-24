@@ -10,6 +10,11 @@
       "wfe-source": "./src/index.ts",
       "import": "./dist/index.js"
     },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "wfe-source": "./src/worker.ts",
+      "import": "./dist/worker.js"
+    },
     "./internal": {
       "types": "./dist/internal.d.ts",
       "wfe-source": "./src/internal.ts",

@@ -4,7 +4,7 @@ This private package holds a browser store for rows that a change feed keeps cur
 It wraps `@tanstack/db` collections and adds a Solid 2 adapter.
 The application supplies a `Feed`, a scope, and a key. The package never builds a URL, reads a token, or names a header.
 
-Import `collection`, `liveRows`, `liveList`, `syncStatus`, `shell`, and `CursorExpired` from `@wfe/sync`.
+Import `collection`, `liveRows`, `liveList`, `syncStatus`, `shell`, and `CursorExpired` from `@wfe/sync`, and `precache` from `@wfe/sync/worker`.
 If the host no longer holds a cursor, `feed.changes` must throw `CursorExpired`. The package inspects no other error shape.
 `collection(feed, scope, options)` returns a collection keyed by `row.id`.
 If the `persistence` option is given, the collection first loads the saved rows for the key. Saved rows land as one transaction, and the collection is ready.
@@ -97,3 +97,70 @@ It resolves `{ worker, persisted, quota: { usage, quota } }`. A missing or faili
 When a new worker waits behind an active one, the package calls `onUpdate(reload)`. The first install does not call it.
 `reload()` posts the skip-waiting message to the waiting worker and reloads the page once that worker controls it.
 The package never reloads on its own. The consumer chooses the time to call `reload`, for example after the outbox is empty.
+
+## Worker
+
+`@wfe/sync/worker` exports `precache(manifest, { buildId, apiPrefix })`. The consumer imports it into its own worker entry. The module imports no other module of the package and never imports Solid.
+
+- Each manifest entry is a URL relative to the worker scope, for example `./`, `index.html` or `assets/index-abc.js`.
+- Install caches every manifest URL. The cache name holds the scope and the build id. The default build id is a hash of the manifest.
+- A GET for a manifest URL is answered cache-first. The query is ignored, so `./?tab=2` gets the cached `./`. On a miss, the request goes to the network.
+- Every other request goes to the network. The worker does not answer it.
+- A request whose path starts with `apiPrefix`, default `/api`, is never answered from the cache and never cached. A manifest URL under that prefix is dropped.
+- Activate deletes the older caches of the same scope and claims the open pages.
+- The skip-waiting message from `reload()` of `shell()` makes a waiting worker take over.
+
+The package does not ship a Vite plugin. The consumer writes the manifest with this recipe in its Vite configuration. The worker entry calls `precache(__PRECACHE_MANIFEST__)`, and the recipe replaces that name with the list of built files.
+
+```ts
+import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vite'
+import type { Plugin } from 'vite'
+
+/**
+ * Builds the worker entry as sw.js beside index.html and writes the list of
+ * built files into it. Both paths are absolute. This is the recipe in
+ * packages/sync/README.md.
+ */
+function precacheManifest(html: string, worker: string): Plugin {
+  return {
+    name: 'precache-manifest',
+    enforce: 'post',
+    config: () => ({
+      build: {
+        rollupOptions: {
+          input: { index: html, sw: worker },
+          output: {
+            entryFileNames: (chunk) =>
+              chunk.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js',
+          },
+        },
+      },
+    }),
+    generateBundle(_options, bundle) {
+      const chunk = bundle['sw.js']
+      if (chunk?.type !== 'chunk') throw new Error('sw.js was not built')
+      const files = Object.keys(bundle).filter((name) => name !== 'sw.js')
+      chunk.code = chunk.code.replace(
+        '__PRECACHE_MANIFEST__',
+        JSON.stringify(['./', ...files]),
+      )
+    },
+  }
+}
+
+const path = (name: string) => fileURLToPath(new URL(name, import.meta.url))
+
+export default defineConfig({
+  plugins: [precacheManifest(path('index.html'), path('sw.ts'))],
+})
+```
+
+```ts
+// sw.ts
+import { precache } from '@wfe/sync/worker'
+declare const __PRECACHE_MANIFEST__: string[]
+precache(__PRECACHE_MANIFEST__)
+```
+
+The page then calls `shell({ workerUrl: './sw.js' })`. The gallery in `examples/sync` uses the same recipe.

@@ -185,6 +185,13 @@ export const documents = [
     reason:
       'Plan fragments sketch the sync surface and its consumer; the sync unit cases and gallery cover the implemented package.',
   },
+  {
+    path: 'packages/sync/README.md',
+    fences: 2,
+    status: 'excluded',
+    reason:
+      'The worker recipe needs Node types; the sync gallery builds the same recipe and worker entry in every mode.',
+  },
 ]
 
 export const contracts = [
