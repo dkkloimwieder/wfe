@@ -1,47 +1,10 @@
 import { expect, test, vi } from 'vitest'
 import { collection } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
-import type { Change, Feed, Row } from '@wfe/sync'
+import type { Change } from '@wfe/sync'
+import { deferred, feedOf, order, tick } from './sync-fixtures'
+import type { Order } from './sync-fixtures'
 
-type Order = Row & { name: string; quantity: number }
-
-export function deferred<T>() {
-  let resolve!: (value: T) => void
-  let reject!: (error: unknown) => void
-  const promise = new Promise<T>((yes, no) => {
-    resolve = yes
-    reject = no
-  })
-  return { promise, resolve, reject }
-}
-export const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
-export const order = (
-  id: string,
-  row_version: number,
-  quantity = 1,
-): Order => ({
-  id,
-  row_version,
-  name: `Order ${id}`,
-  quantity,
-})
-/** A feed whose pages come from a queue; an Error entry rejects. */
-export function feedOf(pages: (Order[] | Error)[]) {
-  const queue = [...pages]
-  const feed: Feed<Order, string> = {
-    list: vi.fn(async () => {
-      const page = queue.shift()
-      if (page instanceof Error) throw page
-      return { rows: page ?? [], cursor: 'end' }
-    }),
-    changes: vi.fn(async () => ({
-      rows: [],
-      next_cursor: 'end',
-      complete: true,
-    })),
-  }
-  return feed
-}
 const ids = (c: { toArray: Order[] }) => c.toArray.map((row) => row.id).sort()
 const change = (
   id: string,

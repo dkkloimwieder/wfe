@@ -11,11 +11,11 @@ import {
 import { collection, liveList, liveRows, syncStatus } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import type { Change } from '@wfe/sync'
-import { deferred, feedOf, order, tick } from './sync-collection.test'
+import { deferred, feedOf, order, tick } from './sync-fixtures'
+import type { Order } from './sync-fixtures'
 
 afterEach(cleanup)
 
-type Order = ReturnType<typeof order>
 const update = (
   id: string,
   row_version: number,
