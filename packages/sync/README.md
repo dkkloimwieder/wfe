@@ -4,16 +4,18 @@ This private package holds a browser store for rows that a change feed keeps cur
 It wraps `@tanstack/db` collections and adds a Solid 2 adapter.
 The application supplies a `Feed`, a scope, and a key. The package never builds a URL, reads a token, or names a header.
 
-Import `collection`, `liveRows`, `liveList`, `syncStatus`, `shell`, and `CursorExpired` from `@wfe/sync`, and `precache` from `@wfe/sync/worker`.
+Import `collection`, `liveRows`, `liveList`, `syncStatus`, `syncComplete`, `shell`, and `CursorExpired` from `@wfe/sync`, and `precache` from `@wfe/sync/worker`.
 If the host no longer holds a cursor, `feed.changes` must throw `CursorExpired`. The package inspects no other error shape.
 `collection(feed, scope, options)` returns a collection keyed by `row.id`.
 If the `persistence` option is given, the collection first loads the saved rows for the key. Saved rows land as one transaction, and the collection is ready.
 It then calls `feed.list(scope)` and reconciles the page. If the list fails after saved rows landed, the status stays `ready` and `utils.error()` holds the failure.
+`Feed.list` resolves `{ rows: T[]; cursor: string; complete?: boolean }`. A host sets `complete: false` when it stops the list at a row cap. An absent `complete` means true. An incomplete list still supplies the cursor, marks the collection ready, saves the rows, and starts follow.
 A rejecting load counts as no saved rows. `utils.error()` holds the load error until a list succeeds.
 `utils.refill()` reads the list again and reconciles it. Rows absent from the new page leave. Rows with a higher `row_version` land. Equal or lower versions are ignored.
 The collection reads the version of a row through `options.version`. The default is `row => row.row_version`. A consumer whose rows carry `rowVersion` passes `version: r => r.rowVersion` and does not copy its rows.
 `utils.error()` returns the error of the last failed read.
 `utils.currentAt()` returns the ISO time of the last successful list or change read, or undefined before one.
+`utils.complete()` returns false only when the last successful list reports `complete: false`. It returns true before any successful list. A later successful refill with `complete: true` or absent resets it to true. Failed reads and saved rows loaded from Persistence do not change it.
 
 ## Follow
 
@@ -38,6 +40,7 @@ The read adapters take any keyed collection: one made by `collection()`, a live 
 `liveRows(c)` returns a store keyed by the collection's own key, as a string. Each change batch lands in one store write.
 `liveList(c)` returns a store array reconciled by the collection's own key, in the order of the collection. Use it for small sets.
 `syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`. For a collection made by `collection()`, it reads the status of the sync source. For any other collection, it maps `c.status`: `ready` and `error` stay as they are, and every other status is `loading`.
+`syncComplete(c)` returns a reactive accessor with the same value as `utils.complete()` for a collection made by `collection()`. For any other collection, it returns true.
 Create the adapters inside a Solid owner. When that owner disposes, the adapters unsubscribe.
 
 ## Outbox

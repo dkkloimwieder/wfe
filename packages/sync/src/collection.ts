@@ -2,7 +2,7 @@ import { createCollection } from '@tanstack/db'
 import type { Collection } from '@tanstack/db'
 import { applyChanges } from './applyChanges'
 import { CursorExpired } from './errors'
-import { createStatus } from './status'
+import { createSourceSignal, createStatus } from './status'
 import { register, remove, upsert } from './writer'
 import type { AnyCollection, Batch, SyncParams, Writer } from './writer'
 import { rowVersion } from './types'
@@ -17,6 +17,8 @@ type Utils = {
   error: () => unknown
   /** ISO time of the last successful `list` or `changes`, or undefined. */
   currentAt: () => string | undefined
+  /** False only when the last successful list reported `complete: false`. */
+  complete: () => boolean
 }
 
 export type SyncCollection<T extends Row> = Collection<T, string, Utils, never>
@@ -68,6 +70,7 @@ export function collection<T extends Row, S>(
 ): SyncCollection<T> {
   const version: Version<T> = options.version ?? rowVersion
   const status = createStatus('loading')
+  const complete = createSourceSignal(true)
   let error: unknown
   let cursor: string | undefined
   let currentAt: string | undefined
@@ -93,6 +96,7 @@ export function collection<T extends Row, S>(
       reconcile(c, r.writer, page.rows, version)
       cursor = page.cursor
       currentAt = new Date().toISOString()
+      complete.set(page.complete ?? true)
       ready(r)
       scheduleSave(r)
       follow(r)
@@ -252,11 +256,13 @@ export function collection<T extends Row, S>(
       pull: () => (run ? fire(run) : Promise.resolve()),
       error: () => error,
       currentAt: () => currentAt,
+      complete: () => complete.get(),
     },
   })
   register(c, {
     writer: () => run!.writer,
     status,
+    complete,
     error: () => error,
     version,
   })

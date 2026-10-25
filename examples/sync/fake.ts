@@ -59,12 +59,17 @@ export function fakeServer(count: number) {
   let rows = makeRows(count)
   const log: Change<Order>[] = []
   const net = { online: true, refuseNext: false, reachable: true }
+  const listing: { cap?: number } = {}
   const fires = new Map<string, Set<() => void>>()
   const feed: Feed<Order, Scope> = {
     async list() {
       await new Promise((resolve) => setTimeout(resolve, 100))
       if (!net.reachable) throw new Error('The server cannot be reached')
-      return { rows, cursor: `c${log.length}` }
+      return {
+        rows: rows.slice(0, listing.cap),
+        cursor: `c${log.length}`,
+        complete: listing.cap === undefined || rows.length <= listing.cap,
+      }
     },
     async changes(_scope, cursor, limit = 50) {
       if (!net.reachable) throw new Error('The server cannot be reached')
@@ -127,7 +132,7 @@ export function fakeServer(count: number) {
     for (const set of fires.values()) for (const fire of [...set]) fire()
     return { ok: true }
   }
-  return { feed, trigger, change, send, probe, net }
+  return { feed, trigger, change, send, probe, net, listing }
 }
 
 const refusal: Reply = {

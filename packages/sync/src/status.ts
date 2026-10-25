@@ -1,15 +1,21 @@
 export type Status = 'loading' | 'ready' | 'error'
 
-/** A plain status signal owned by the sync source. The Solid adapter bridges it. */
-export interface StatusSignal {
-  get(): Status
-  set(next: Status): void
-  subscribe(listener: (status: Status) => void): () => void
+/** A plain signal owned by the sync source. The Solid adapter bridges it. */
+export interface SourceSignal<T> {
+  get(): T
+  set(next: T): void
+  subscribe(listener: (value: T) => void): () => void
 }
 
+export type StatusSignal = SourceSignal<Status>
+
 export function createStatus(initial: Status): StatusSignal {
+  return createSourceSignal(initial)
+}
+
+export function createSourceSignal<T>(initial: T): SourceSignal<T> {
   let current = initial
-  const listeners = new Set<(status: Status) => void>()
+  const listeners = new Set<(value: T) => void>()
   return {
     get: () => current,
     set(next) {

@@ -1,6 +1,6 @@
 import type { Collection, SyncConfig, UtilsRecord } from '@tanstack/db'
 import type { Row, Version } from './types'
-import type { StatusSignal } from './status'
+import type { SourceSignal, StatusSignal } from './status'
 
 /** The sync hooks `@tanstack/db` hands to a custom sync source. */
 export type SyncParams<T extends Row> = Parameters<
@@ -25,6 +25,7 @@ export interface Source<T extends Row> {
   /** The current sync params. A restarted sync run hands over new ones. */
   writer(): Writer<T>
   status: StatusSignal
+  complete: SourceSignal<boolean>
   error(): unknown
   /** Reads the version of a row; `options.version` of the collection. */
   version: Version<T>

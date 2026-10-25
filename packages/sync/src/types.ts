@@ -20,7 +20,11 @@ export type Change<T extends Row> =
 
 /** The consumer supplies the reads; the package never builds a URL. */
 export interface Feed<T extends Row, S> {
-  list(scope: S, signal?: AbortSignal): Promise<{ rows: T[]; cursor: string }>
+  /** `complete: false` reports a list stopped at a cap. Absent means true. */
+  list(
+    scope: S,
+    signal?: AbortSignal,
+  ): Promise<{ rows: T[]; cursor: string; complete?: boolean }>
   changes(
     scope: S,
     cursor: string,

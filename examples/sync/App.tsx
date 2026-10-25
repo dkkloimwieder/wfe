@@ -20,6 +20,7 @@ import {
   recordWrite,
   shell,
   syncStatus,
+  syncComplete,
 } from '@wfe/sync'
 import type { Outbox, ShellResult } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
@@ -121,6 +122,24 @@ export function App() {
           <span data-sync-applied={applied()}>{applied()} batches applied</span>
           <Button onClick={serve}>Change on the server</Button>
           <span data-sync-served={served()}>{served()} server batches</span>
+          <Button
+            onClick={() => {
+              const { server, c } = source()
+              server.listing.cap = 100
+              void c.utils.refill()
+            }}
+          >
+            Refill with a 100-row cap
+          </Button>
+          <Button
+            onClick={() => {
+              const { server, c } = source()
+              delete server.listing.cap
+              void c.utils.refill()
+            }}
+          >
+            Refill without a cap
+          </Button>
           <Show when={update()}>
             {(reload) => (
               <Button
@@ -188,6 +207,7 @@ function Shapes(props: { store: Store }) {
   const rows = liveRows(props.store)
   const list = liveList(props.store)
   const status = syncStatus(props.store)
+  const complete = syncComplete(props.store)
   const ids = createMemo(() => Object.keys(rows))
   const shownIds = createMemo(() => ids().slice(0, limit))
   // Every batch inserts and deletes rows, so the key list changes. Count the
@@ -214,7 +234,14 @@ function Shapes(props: { store: Store }) {
   return (
     <main class="sync-shapes">
       <p class="sync-status">
-        Status: <output data-sync-status={status()}>{status()}</output>
+        Status:{' '}
+        <output
+          data-sync-status={status()}
+          data-sync-complete={String(complete())}
+        >
+          {status()}
+          <Show when={!complete()}> · partial: stopped at the cap</Show>
+        </output>
         {' · '}Current as of{' '}
         <output data-sync-current-at={currentAt()}>
           {currentAt() || 'not yet'}

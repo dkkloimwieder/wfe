@@ -9,7 +9,13 @@ import {
   flush,
 } from 'solid-js'
 import { createLiveQueryCollection, sum } from '@tanstack/db'
-import { collection, liveList, liveRows, syncStatus } from '@wfe/sync'
+import {
+  collection,
+  liveList,
+  liveRows,
+  syncComplete,
+  syncStatus,
+} from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import type { Change } from '@wfe/sync'
 import { deferred, feedOf, order, tick } from './sync-fixtures'
@@ -188,7 +194,53 @@ test('syncStatus follows loading, ready, and error', async () => {
   })
 })
 
-test('liveRows, liveList and syncStatus read a grouped live query with no cast', async () => {
+test('syncComplete reacts to successful lists and unsubscribes on disposal', async () => {
+  const c = collection(
+    feedOf([
+      { rows: [], cursor: 'partial', complete: false },
+      new Error('offline'),
+      { rows: [], cursor: 'full', complete: true },
+      { rows: [], cursor: 'partial', complete: false },
+      [],
+      { rows: [], cursor: 'partial', complete: false },
+    ]),
+    'all',
+    { key: 'orders:all' },
+  )
+  const seen: boolean[] = []
+  const { complete, dispose } = createRoot((dispose) => {
+    const complete = syncComplete(c)
+    createEffect(complete, (value) => {
+      seen.push(value)
+    })
+    return { complete, dispose }
+  })
+  try {
+    flush()
+    expect(complete()).toBe(true)
+    await tick()
+    flush()
+    expect(complete()).toBe(false)
+    await c.utils.refill()
+    flush()
+    expect(seen).toEqual([true, false])
+    for (const expected of [true, false, true]) {
+      await c.utils.refill()
+      flush()
+      expect(complete()).toBe(expected)
+    }
+    expect(seen).toEqual([true, false, true, false, true])
+    dispose()
+    await c.utils.refill()
+    flush()
+    expect(seen).toEqual([true, false, true, false, true])
+  } finally {
+    dispose()
+    await c.cleanup()
+  }
+})
+
+test('read adapters read a grouped live query with no cast', async () => {
   const region = (id: string, name: string, quantity: number): Order => ({
     ...order(id, 1, quantity),
     name,
@@ -204,10 +256,11 @@ test('liveRows, liveList and syncStatus read a grouped live query with no cast',
       .groupBy(({ o }) => o.name)
       .select(({ o }) => ({ name: o.name, total: sum(o.quantity) })),
   )
-  const { rows, list, status, dispose } = createRoot((dispose) => ({
+  const { rows, list, status, complete, dispose } = createRoot((dispose) => ({
     rows: liveRows(totals),
     list: liveList(totals),
     status: syncStatus(totals),
+    complete: syncComplete(totals),
     dispose,
   }))
   await totals.preload()
@@ -216,6 +269,7 @@ test('liveRows, liveList and syncStatus read a grouped live query with no cast',
   const byName = () =>
     Object.fromEntries(Object.values(rows).map((row) => [row.name, row.total]))
   expect(status()).toBe('ready')
+  expect(complete()).toBe(true)
   expect(byName()).toEqual({ North: 5, South: 4 })
   expect(Object.keys(rows).sort()).toEqual(
     [...totals.keys()].map(String).sort(),

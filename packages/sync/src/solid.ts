@@ -148,6 +148,19 @@ export function syncStatus<T extends object>(
   )
 }
 
+/** The last successful list's completeness, or true for other collections. */
+export function syncComplete<T extends object>(
+  c: KeyedCollection<T>,
+): Accessor<boolean> {
+  const found = peek(c)
+  return createMemo<boolean>(() =>
+    from<boolean>((next) => {
+      next(found?.complete.get() ?? true)
+      return found?.complete.subscribe(next)
+    }),
+  )
+}
+
 /** The outbox counts, read through a memo over `watch`. */
 export function outboxStatus(o: Outbox): Accessor<OutboxCounts> {
   return createMemo<OutboxCounts>(() =>

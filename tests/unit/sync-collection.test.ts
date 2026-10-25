@@ -2,7 +2,14 @@ import { expect, test, vi } from 'vitest'
 import { CursorExpired, collection } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import type { Change, Feed } from '@wfe/sync'
-import { deferred, feedOf, order, persistenceOf, tick } from './sync-fixtures'
+import {
+  deferred,
+  feedOf,
+  order,
+  persistenceOf,
+  tick,
+  triggerOf,
+} from './sync-fixtures'
 import type { Order } from './sync-fixtures'
 
 const ids = (c: { toArray: Order[] }) => c.toArray.map((row) => row.id).sort()
@@ -32,14 +39,123 @@ test('fill calls list once and marks the collection ready', async () => {
   expect(feed.list).toHaveBeenCalledWith('all', expect.any(AbortSignal))
   expect(c.status).toBe('loading')
   expect(c.size).toBe(0)
+  expect(c.utils.complete()).toBe(true)
   page.resolve([order('a', 1), order('b', 1)])
   await tick()
   expect(c.status).toBe('ready')
+  expect(c.utils.complete()).toBe(true)
   expect(ids(c)).toEqual(['a', 'b'])
   expect(c.get('a')?.quantity).toBe(1)
   expect(c.utils.error()).toBeUndefined()
   expect(feed.list).toHaveBeenCalledTimes(1)
   expect(feed.changes).not.toHaveBeenCalled()
+})
+
+test('an incomplete list saves its cursor and rows and still follows changes', async () => {
+  const feed = feedOf([
+    { rows: [order('a', 1)], cursor: 'capped', complete: false },
+  ])
+  vi.mocked(feed.changes).mockResolvedValueOnce({
+    rows: [change('a', 2, 5)],
+    next_cursor: 'followed',
+    complete: true,
+  })
+  const persistence = persistenceOf(async () => undefined)
+  const { trigger, fire } = triggerOf()
+  const c = collection(feed, 'all', {
+    key: 'orders:all',
+    trigger,
+    persistence,
+  })
+  try {
+    await tick()
+    expect(c.utils.complete()).toBe(false)
+    expect(c.status).toBe('ready')
+    await vi.waitFor(() =>
+      expect(persistence.save).toHaveBeenCalledWith(
+        'orders:all',
+        [expect.objectContaining(order('a', 1))],
+        'capped',
+      ),
+    )
+    fire('orders:all')
+    await tick()
+    expect(feed.changes).toHaveBeenCalledWith(
+      'all',
+      'capped',
+      undefined,
+      expect.any(AbortSignal),
+    )
+    expect(c.get('a')?.quantity).toBe(5)
+    expect(c.utils.complete()).toBe(false)
+  } finally {
+    await c.cleanup()
+  }
+})
+
+test.each([true, undefined])(
+  'a refill with complete %s resets completeness and failed refills preserve it',
+  async (complete) => {
+    const failure = new Error('offline')
+    const c = collection(
+      feedOf([
+        { rows: [], cursor: 'partial', complete: false },
+        failure,
+        {
+          rows: [],
+          cursor: 'full',
+          ...(complete === undefined ? {} : { complete }),
+        },
+        failure,
+      ]),
+      'all',
+      { key: 'orders:all' },
+    )
+    try {
+      await tick()
+      expect(c.utils.complete()).toBe(false)
+      await c.utils.refill()
+      expect(c.utils.error()).toBe(failure)
+      expect(c.utils.complete()).toBe(false)
+      await c.utils.refill()
+      expect(c.utils.complete()).toBe(true)
+      await c.utils.refill()
+      expect(c.utils.error()).toBe(failure)
+      expect(c.utils.complete()).toBe(true)
+    } finally {
+      await c.cleanup()
+    }
+  },
+)
+
+test('saved rows do not change completeness before a list or on restart', async () => {
+  const page = deferred<Awaited<ReturnType<Feed<Order, string>['list']>>>()
+  const failure = new Error('offline')
+  const feed = feedOf([failure])
+  vi.mocked(feed.list).mockReturnValueOnce(page.promise)
+  const persistence = persistenceOf(async () => ({
+    rows: [order('a', 1)],
+    cursor: 'saved',
+    saved_at: '2026-10-25T00:00:00.000Z',
+  }))
+  const c = collection(feed, 'all', { key: 'orders:all', persistence })
+  try {
+    await tick()
+    expect(c.get('a')).toMatchObject(order('a', 1))
+    expect(c.status).toBe('ready')
+    expect(c.utils.complete()).toBe(true)
+    page.resolve({ rows: [], cursor: 'partial', complete: false })
+    await tick()
+    expect(c.utils.complete()).toBe(false)
+    await c.cleanup()
+    await c.preload()
+    await tick()
+    expect(c.get('a')).toMatchObject(order('a', 1))
+    expect(c.utils.error()).toBe(failure)
+    expect(c.utils.complete()).toBe(false)
+  } finally {
+    await c.cleanup()
+  }
 })
 
 test('a rejecting list sets error and leaves the collection empty', async () => {
@@ -49,6 +165,7 @@ test('a rejecting list sets error and leaves the collection empty', async () => 
   expect(c.status).toBe('error')
   expect(c.utils.error()).toBe(failure)
   expect(c.size).toBe(0)
+  expect(c.utils.complete()).toBe(true)
 })
 
 test('refill removes absent rows and applies the row_version rule', async () => {

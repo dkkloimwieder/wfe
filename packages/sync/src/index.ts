@@ -14,6 +14,7 @@ export {
   liveRows,
   liveList,
   syncStatus,
+  syncComplete,
   outboxStatus,
   recordWrite,
 } from './solid'

@@ -38,12 +38,15 @@ export const order = (
   quantity,
 })
 /** A feed whose pages come from a queue; an Error entry rejects. */
-export function feedOf(pages: (Order[] | Error)[]) {
+export function feedOf(
+  pages: (Order[] | Awaited<ReturnType<Feed<Order, string>['list']>> | Error)[],
+) {
   const queue = [...pages]
   const feed: Feed<Order, string> = {
     list: vi.fn(async () => {
       const page = queue.shift()
       if (page instanceof Error) throw page
+      if (page && !Array.isArray(page)) return page
       return { rows: page ?? [], cursor: 'end' }
     }),
     changes: vi.fn(async () => ({

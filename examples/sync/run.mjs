@@ -103,6 +103,22 @@ try {
     await expectShapes(10_000)
     assert.equal(await count(rows, 'syncRows'), 10_000)
   })
+  await run(
+    'a capped refill reports partial until an uncapped refill',
+    async () => {
+      await expect(status).toHaveAttribute('data-sync-complete', 'true')
+      await page
+        .getByRole('button', { name: 'Refill with a 100-row cap' })
+        .click()
+      await expect(status).toHaveAttribute('data-sync-complete', 'false')
+      await expect(status).toContainText('partial: stopped at the cap')
+      await expectShapes(100)
+      await page.getByRole('button', { name: 'Refill without a cap' }).click()
+      await expect(status).toHaveAttribute('data-sync-complete', 'true')
+      await expect(status).not.toContainText('partial: stopped at the cap')
+      await expectShapes(10_000)
+    },
+  )
   await run('a change on the server reaches both shapes', async () => {
     const before = await page
       .locator('[data-sync-current-at]')
