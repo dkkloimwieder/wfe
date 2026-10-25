@@ -40,6 +40,22 @@ function mount() {
   return { ...h, app }
 }
 
+/**
+ * The text input that the one label with this text names. A role query
+ * computes accessible names across the whole review page, about 300 ms each
+ * in jsdom, and eight of them pushed this test past its timeout under load.
+ */
+function labelled(container: HTMLElement, text: string): HTMLInputElement {
+  const labels = [...container.querySelectorAll('label')].filter(
+    (node) => node.textContent === text,
+  )
+  expect(labels).toHaveLength(1)
+  const input = labels[0]!.control
+  expect(input).toBeInstanceOf(HTMLInputElement)
+  expect((input as HTMLInputElement).type).toBe('text')
+  return input as HTMLInputElement
+}
+
 test('direct and repeated date and number invalid drafts retain focus and accepted values while messages change', () => {
   const h = mount()
   const original = JSON.stringify(h.app.values())
@@ -51,16 +67,14 @@ test('direct and repeated date and number invalid drafts retain focus and accept
   ] as const) {
     h.app.setFrench(false)
     flush()
-    const input = h.getByRole('textbox', {
-      name: label,
-    }) as HTMLInputElement
+    const input = labelled(h.container, label)
     fireEvent.input(input, { target: { value: draft } })
     input.focus()
     flush()
     expect(input.validationMessage).toBe(spanish)
     h.app.setFrench(true)
     flush()
-    expect(h.getByRole('textbox', { name: label })).toBe(input)
+    expect(labelled(h.container, label)).toBe(input)
     expect(input.value).toBe(draft)
     expect(input.validationMessage).toBe(french)
     expect(document.activeElement).toBe(input)
