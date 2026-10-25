@@ -52,6 +52,8 @@ export function createTableVirtualizer<Key extends string | number>(
   let mounted = false
   let disposed = false
   let cleanupQueued = false
+  let pendingAnchor:
+    { key: Key; within: number; offset: number; domOffset: number } | undefined
   const publish = () => {
     if (snapshotReady && !disposed)
       setWindow({
@@ -94,7 +96,22 @@ export function createTableVirtualizer<Key extends string | number>(
       initialRect: options.initialRect,
       observeElementRect,
       observeElementOffset,
-      scrollToFn: elementScroll,
+      scrollToFn: ((offset, settings, current) => {
+        // Detect independent movement before an engine write can overwrite
+        // its evidence and make a stale anchor appear current again.
+        if (
+          pendingAnchor &&
+          current.scrollElement &&
+          Math.abs(current.scrollElement.scrollTop - pendingAnchor.domOffset) >=
+            1.5
+        )
+          cancelAnchor()
+        elementScroll(offset, settings, current)
+        // Engine reconciliation may adjust the physical offset while a layout
+        // anchor is pending. Only independent viewport movement invalidates it.
+        if (pendingAnchor && current.scrollElement)
+          pendingAnchor.domOffset = current.scrollElement.scrollTop
+      }) satisfies typeof elementScroll,
       onChange: publish,
     }
   })
@@ -128,7 +145,6 @@ export function createTableVirtualizer<Key extends string | number>(
       current.scrollAdjustments +
       current.options.scrollMargin
   let previous = untrack(configuration)
-  let pendingAnchor: { key: Key; within: number; offset: number } | undefined
   let anchorFrame: number | undefined
   function cancelAnchor() {
     if (anchorFrame !== undefined) cancelAnimationFrame(anchorFrame)
@@ -140,6 +156,13 @@ export function createTableVirtualizer<Key extends string | number>(
     const anchor = pendingAnchor
     pendingAnchor = undefined
     if (!anchor || disposed) return
+    // Native scrolling can move the viewport after capture, even before its
+    // scroll event reaches the engine. A queued layout repair must not undo it.
+    if (
+      instance.scrollElement &&
+      Math.abs(instance.scrollElement.scrollTop - anchor.domOffset) >= 1.5
+    )
+      return
     const next = untrack(configuration)
     const index = next.keys?.indexOf(anchor.key) ?? -1
     if (index >= 0) {
@@ -188,6 +211,7 @@ export function createTableVirtualizer<Key extends string | number>(
           key: anchor.key as Key,
           within: offsetWithin,
           offset: instance.scrollOffset ?? 0,
+          domOffset: instance.scrollElement?.scrollTop ?? 0,
         }
         // Restore after Solid commits the new spacer and ResizeObserver has
         // measured the layout. Otherwise the browser clamps to the old extent.

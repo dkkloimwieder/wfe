@@ -371,3 +371,94 @@ test('an explicit initial viewport seeds bounded rows before client effects run'
   h.dispose()
   expect(capture.stop()).toEqual([])
 })
+
+for (const mode of ['fixed', 'measured'] as const) {
+  for (const delivered of [false, true, 'resize'] as const) {
+    test(`${mode}: native scroll after queued anchor wins with scroll event delivered=${delivered}`, () => {
+      const frames = new Map<number, FrameRequestCallback>()
+      let sequence = 0
+      vi.stubGlobal(
+        'requestAnimationFrame',
+        (callback: FrameRequestCallback) => {
+          frames.set(++sequence, callback)
+          return sequence
+        },
+      )
+      vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id))
+      const element = document.createElement('div')
+      document.body.append(element)
+      Object.defineProperties(element, {
+        offsetWidth: { value: 200 },
+        offsetHeight: { value: 100 },
+        clientHeight: { value: 100 },
+        scrollHeight: { value: 32024 },
+      })
+      element.scrollTo = (options: ScrollToOptions | number = {}) => {
+        if (typeof options !== 'number')
+          element.scrollTop = options.top ?? element.scrollTop
+      }
+      const h = createRoot((dispose) => {
+        const [margin, setMargin] = createSignal(0)
+        const virtualizer = createTableVirtualizer({
+          ...(mode === 'fixed'
+            ? {
+                mode,
+                count: 1000,
+                rowHeight: 32,
+                getItemKey: (index: number) => `r${index}`,
+                getIndexForKey: (key: string) => Number(key.slice(1)),
+              }
+            : {
+                mode,
+                keys: Array.from({ length: 1000 }, (_, i) => `r${i}`),
+                estimateSize: () => 32,
+              }),
+          getScrollElement: () => element,
+          get scrollMargin() {
+            return margin()
+          },
+        })
+        return { virtualizer, setMargin, dispose }
+      })
+      try {
+        flush()
+        element.scrollTop = 3200
+        element.dispatchEvent(new Event('scroll'))
+        flush()
+        expect(h.virtualizer.instance.scrollOffset).toBe(3200)
+        h.setMargin(24)
+        flush()
+        expect(frames.size).toBeGreaterThan(0)
+        const restore = vi.spyOn(h.virtualizer.instance, 'scrollToOffset')
+        // Model a scrollbar, wheel or native scroll changing the DOM between
+        // layout's anchor capture and its queued restoration. Exercise both
+        // delivery orders of the browser's subsequent scroll notification.
+        element.scrollTop = 6400
+        if (delivered) {
+          element.dispatchEvent(new Event('scroll'))
+          flush()
+          expect(h.virtualizer.instance.scrollOffset).toBe(6400)
+        }
+        // A measured row above the viewport can resize before the pending
+        // anchor RAF. Its engine-owned adjustment must not erase the evidence
+        // that the user already moved away from the captured anchor.
+        if (delivered === 'resize') {
+          h.virtualizer.instance.resizeItem(0, 64)
+          flush()
+        }
+        const expectedOffset =
+          delivered === 'resize' && mode === 'measured' ? 6432 : 6400
+        expect(element.scrollTop).toBe(expectedOffset)
+        const callbacks = [...frames.values()]
+        frames.clear()
+        for (const callback of callbacks) callback(0)
+        expect(element.scrollTop).toBe(expectedOffset)
+        expect(restore).not.toHaveBeenCalled()
+      } finally {
+        h.dispose()
+        element.remove()
+        vi.unstubAllGlobals()
+      }
+    })
+  }
+}
