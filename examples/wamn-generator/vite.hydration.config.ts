@@ -1,3 +1,4 @@
+import { vendorTransforms } from '../../scripts/vendor-transforms.mjs'
 import { cssProvenance } from '../../scripts/css-provenance.mjs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
@@ -30,6 +31,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    vendorTransforms(),
     cssProvenance(fileURLToPath(new URL('../../', import.meta.url)), built),
     solid({ ssr: true, observe: true, performanceTracks: false }),
     {

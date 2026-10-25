@@ -1,3 +1,4 @@
+import { vendorTransforms } from '../../scripts/vendor-transforms.mjs'
 import { defineConfig } from 'tsdown'
 import solid from '@solidjs/vite-plugin'
 
@@ -45,10 +46,15 @@ const shared = {
 }
 
 export default defineConfig([
-  { ...shared, plugins: [solid()], outDir: 'dist/client', dts: true },
   {
     ...shared,
-    plugins: [solid({ solid: { generate: 'ssr' } })],
+    plugins: [vendorTransforms(), solid()],
+    outDir: 'dist/client',
+    dts: true,
+  },
+  {
+    ...shared,
+    plugins: [vendorTransforms(), solid({ solid: { generate: 'ssr' } })],
     outDir: 'dist/server',
     dts: false,
   },

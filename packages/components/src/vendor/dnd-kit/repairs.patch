@@ -1,0 +1,1066 @@
+--- a/abstract/src/core/entities/droppable/droppable.ts
++++ b/abstract/src/core/entities/droppable/droppable.ts
+@@ -1,4 +1,4 @@
+-import {derived, effects, reactive, type Effect} from '../../../../../state/src/index.ts';
++import {derived, reactive} from '../../../../../state/src/index.ts';
+ import type {Shape} from '../../../../../geometry/src/index.ts';
+ 
+ import {Entity} from '../entity/index.ts';
+--- a/abstract/src/core/manager/actions.ts
++++ b/abstract/src/core/manager/actions.ts
+@@ -204,7 +204,8 @@
+       }
+ 
+       queueMicrotask(() => {
+-        if (event.defaultPrevented) {
++        if (event.defaultPrevented || controller.signal.aborted ||
++            dragOperation.controller !== controller || !dragOperation.status.dragging) {
+           return;
+         }
+ 
+@@ -269,6 +270,7 @@
+ 
+       const end = () => {
+         this.manager.renderer.rendering.then(() => {
++          if (dragOperation.controller !== controller) return;
+           dragOperation.status.set(StatusValue.Dropped);
+ 
+           const dropping = untracked(
+@@ -276,9 +278,8 @@
+           );
+ 
+           const cleanup = () => {
+-            if (dragOperation.controller === controller) {
+-              dragOperation.controller = undefined;
+-            }
++            if (dragOperation.controller !== controller) return;
++            dragOperation.controller = undefined;
+             dragOperation.reset();
+           };
+ 
+@@ -300,17 +301,22 @@
+ 
+       dragOperation.canceled = args.canceled ?? false;
+ 
+-      this.manager.monitor.dispatch('dragend', {
+-        nativeEvent: args.event,
+-        operation: dragOperation.snapshot(),
+-        canceled: args.canceled ?? false,
+-        suspend,
+-      });
+-
+-      if (promise) {
+-        promise.then(end).catch(() => dragOperation.reset());
+-      } else {
+-        end();
++      try {
++        this.manager.monitor.dispatch('dragend', {
++          nativeEvent: args.event,
++          operation: dragOperation.snapshot(),
++          canceled: args.canceled ?? false,
++          suspend,
++        });
++      } finally {
++        // A consumer callback must not prevent terminal engine cleanup.
++        if (promise) {
++          promise.then(end).catch(() => {
++            if (dragOperation.controller === controller) dragOperation.reset();
++          });
++        } else {
++          end();
++        }
+       }
+     });
+   }
+--- a/abstract/src/core/manager/events.ts
++++ b/abstract/src/core/manager/events.ts
+@@ -92,7 +92,7 @@
+ export type DragDropEventMap<
+   T extends Draggable,
+   U extends Droppable,
+-  V extends DragDropManager<T, U>,
++  _V extends DragDropManager<T, U>,
+ > = {
+   /** Event fired when collisions are detected */
+   collision: Preventable<{
+--- a/abstract/src/core/sensors/activation.ts
++++ b/abstract/src/core/sensors/activation.ts
+@@ -13,7 +13,7 @@
+   }
+ 
+   onEvent(event: E) {
+-    if (this.activated) return;
++    if (this.signal.aborted || this.activated) return;
+ 
+     if (this.constraints?.length) {
+       for (const constraint of this.constraints) {
+@@ -25,7 +25,7 @@
+   }
+ 
+   activate(event: E) {
+-    if (this.activated) return;
++    if (this.signal.aborted || this.activated) return;
+     this.activated = true;
+     this.onActivate(event);
+   }
+@@ -48,7 +48,12 @@
+   set controller(controller: ActivationController<E>) {
+     this.#controller = controller;
+ 
+-    controller.signal.addEventListener('abort', () => this.abort());
++    controller.signal.addEventListener('abort', () => {
++      if (this.#controller === controller) {
++        this.#controller = undefined;
++        this.abort();
++      }
++    }, {once: true});
+   }
+ 
+   constructor(protected options: O) {}
+--- a/dom/src/core/entities/droppable/droppable.ts
++++ b/dom/src/core/entities/droppable/droppable.ts
+@@ -87,6 +87,8 @@
+                 this.shape = undefined;
+               };
+             }
++
++            return undefined;
+           },
+           () => {
+             if (this.manager?.dragOperation.status.initialized) {
+@@ -94,6 +96,8 @@
+                 this.shape = undefined;
+               };
+             }
++
++            return undefined;
+           },
+         ],
+       },
+--- a/dom/src/core/plugins/accessibility/Accessibility.ts
++++ b/dom/src/core/plugins/accessibility/Accessibility.ts
+@@ -223,7 +223,7 @@
+ }
+ 
+ function debounce(fn: () => void, wait: number) {
+-  let timeout: NodeJS.Timeout | undefined;
++  let timeout: ReturnType<typeof setTimeout> | undefined;
+   const debounced = () => {
+     clearTimeout(timeout);
+     timeout = setTimeout(fn, wait);
+--- a/dom/src/core/plugins/feedback/observers.ts
++++ b/dom/src/core/plugins/feedback/observers.ts
+@@ -190,6 +190,7 @@
+ 
+       for (const [index, cell] of cells.entries()) {
+         const placeholderCell = placeholderCells[index];
++        if (!placeholderCell) continue;
+ 
+         cell.style.width = `${placeholderCell.getBoundingClientRect().width}px`;
+       }
+--- a/dom/src/core/plugins/scrolling/AutoScroller.ts
++++ b/dom/src/core/plugins/scrolling/AutoScroller.ts
+@@ -36,16 +36,17 @@
+       throw new Error('AutoScroller plugin depends on Scroller plugin');
+     }
+ 
+-    this.destroy = effect(() => {
++    const dispose = effect(() => {
+       if (this.disabled) {
++        scroller.autoScrolling = false;
+         return;
+       }
+ 
+       // We consume the position from the drag operation
+       // so that this effect is run when the position changes
+-      const {position: _, status} = manager.dragOperation;
++      const {position: _, status, controller} = manager.dragOperation;
+ 
+-      if (status.dragging) {
++      if (status.dragging && controller && !controller.signal.aborted) {
+         const scrollOptions = {
+           acceleration: this.options?.acceleration,
+           threshold:
+@@ -58,22 +59,35 @@
+ 
+         if (canScroll) {
+           scroller.autoScrolling = true;
++          let active = true;
+           const interval = setInterval(
+             () =>
+-              scheduler.schedule(() =>
+-                scroller.scroll(undefined, scrollOptions)
+-              ),
++              scheduler.schedule(() => {
++                if (active && !controller.signal.aborted &&
++                    manager.dragOperation.controller === controller && status.dragging) {
++                  scroller.scroll(undefined, scrollOptions);
++                }
++              }),
+             AUTOSCROLL_INTERVAL
+           );
+ 
+           return () => {
++            active = false;
+             clearInterval(interval);
+           };
+         } else {
+           scroller.autoScrolling = false;
+         }
++      } else {
++        scroller.autoScrolling = false;
+       }
++
++      return undefined;
+     });
++    this.destroy = () => {
++      dispose();
++      scroller.autoScrolling = false;
++    };
+   }
+ 
+   static configure = configurator(AutoScroller);
+--- a/dom/src/core/plugins/scrolling/ScrollIntent.ts
++++ b/dom/src/core/plugins/scrolling/ScrollIntent.ts
+@@ -1,4 +1,4 @@
+-import {batch, effect, signal, type Signal} from '../../../../../state/src/index.ts';
++import {batch, signal, type Signal} from '../../../../../state/src/index.ts';
+ import {Plugin} from '../../../../../abstract/src/core/index.ts';
+ import {Axes} from '../../../../../geometry/src/index.ts';
+ import type {Coordinates} from '../../../../../geometry/src/index.ts';
+@@ -30,7 +30,7 @@
+ 
+     this.signal = scrollIntent;
+ 
+-    effect(() => {
++    this.registerEffect(() => {
+       const {status} = manager.dragOperation;
+ 
+       if (!status.initialized) {
+--- a/dom/src/core/plugins/scrolling/ScrollListener.ts
++++ b/dom/src/core/plugins/scrolling/ScrollListener.ts
+@@ -9,7 +9,7 @@
+ };
+ 
+ export class ScrollListener extends CorePlugin<DragDropManager> {
+-  #timeout: NodeJS.Timeout | undefined;
++  #timeout: ReturnType<typeof setTimeout> | undefined;
+ 
+   constructor(manager: DragDropManager) {
+     super(manager);
+@@ -25,6 +25,8 @@
+         root.addEventListener('scroll', this.handleScroll, listenerOptions);
+ 
+         return () => {
++          clearTimeout(this.#timeout);
++          this.#timeout = undefined;
+           root.removeEventListener(
+             'scroll',
+             this.handleScroll,
+@@ -32,14 +34,21 @@
+           );
+         };
+       }
++
++      return undefined;
+     });
+   }
+ 
+   private handleScroll = () => {
++    const {controller, status} = this.manager.dragOperation;
++    if (!controller || controller.signal.aborted || !status.dragging) return;
+     if (this.#timeout == null) {
+       this.#timeout = setTimeout(() => {
+-        this.manager.collisionObserver.forceUpdate(false);
+         this.#timeout = undefined;
++        if (this.manager.dragOperation.controller === controller &&
++            !controller.signal.aborted && status.dragging) {
++          this.manager.collisionObserver.forceUpdate(false);
++        }
+       }, 50);
+     }
+   };
+--- a/dom/src/core/plugins/scrolling/Scroller.ts
++++ b/dom/src/core/plugins/scrolling/Scroller.ts
+@@ -10,7 +10,6 @@
+   scheduler,
+   isKeyboardEvent,
+   getDocument,
+-  getFrameTransform,
+   getRoot,
+ } from '../../../utilities/index.ts';
+ import {Axes, type Axis, type Coordinates} from '../../../../../geometry/src/index.ts';
+@@ -28,6 +27,7 @@
+   public getScrollableElements: () => Set<Element> | null;
+ 
+   private scrollIntentTracker: ScrollIntentTracker;
++  private destroyed = false;
+ 
+   @reactive
+   public accessor autoScrolling = false;
+@@ -102,7 +102,7 @@
+ 
+     this.scrollIntentTracker = new ScrollIntentTracker(manager);
+ 
+-    this.destroy = manager.monitor.addEventListener('dragmove', (event) => {
++    const unsubscribe = manager.monitor.addEventListener('dragmove', (event) => {
+       if (
+         this.disabled ||
+         event.defaultPrevented ||
+@@ -117,12 +117,23 @@
+         event.preventDefault();
+       }
+     });
++    this.destroy = () => {
++      this.destroyed = true;
++      this.#meta = undefined;
++      unsubscribe();
++      this.scrollIntentTracker.destroy();
++    };
+   }
+ 
+-  #meta: {element: Element; by: Coordinates} | undefined;
++  #meta: {element: Element; by: Coordinates; controller: AbortController} | undefined;
+ 
+   #scroll = () => {
+-    if (!this.#meta) {
++    if (!this.#meta) return;
++    const {controller} = this.#meta;
++    if (this.destroyed || this.disabled || controller.signal.aborted ||
++        this.manager.dragOperation.controller !== controller ||
++        !this.manager.dragOperation.status.dragging) {
++      this.#meta = undefined;
+       return;
+     }
+ 
+@@ -136,7 +147,10 @@
+     options?: {by: Coordinates},
+     scrollOptions?: ScrollOptions
+   ): boolean => {
+-    if (this.disabled) {
++    const {controller, status} = this.manager.dragOperation;
++    if (this.destroyed || this.disabled || !controller ||
++        controller.signal.aborted || !status.dragging) {
++      this.#meta = undefined;
+       return false;
+     }
+ 
+@@ -211,6 +225,7 @@
+               }
+ 
+               this.#meta = {
++                controller,
+                 element: scrollableElement,
+                 by: {
+                   x: scrollLeftBy,
+--- a/dom/src/core/plugins/selection/PreventSelection.ts
++++ b/dom/src/core/plugins/selection/PreventSelection.ts
+@@ -32,6 +32,8 @@
+           });
+         };
+       }
++
++      return undefined;
+     });
+ 
+     if (unregisterStyles) {
+--- a/dom/src/core/plugins/stylesheet/StyleInjector.ts
++++ b/dom/src/core/plugins/stylesheet/StyleInjector.ts
+@@ -1,3 +1,6 @@
++// The consuming bundler replaces this standard development-mode expression.
++declare const process: {env: {NODE_ENV?: string}};
++
+ import {CorePlugin, configurator} from '../../../../../abstract/src/core/index.ts';
+ import {derived, reactive, untracked} from '../../../../../state/src/index.ts';
+ import {getRoot, isDocument, isShadowRoot} from '../../../utilities/index.ts';
+--- a/dom/src/core/sensors/keyboard/KeyboardSensor.ts
++++ b/dom/src/core/sensors/keyboard/KeyboardSensor.ts
+@@ -86,11 +86,13 @@
+   }
+ 
+   #cleanupFunctions: CleanupFunction[] = [];
++  private source: Draggable | undefined;
+ 
+   protected listeners = new Listeners();
+ 
+   public bind(source: Draggable, options = this.options): CleanupFunction {
+     const unbind = effect(() => {
++      if (source.disabled || this.disabled) return undefined;
+       const target = source.handle ?? source.element;
+       const listener: EventListener = (event: Event) => {
+         if (isKeyboardEvent(event)) {
+@@ -102,9 +104,15 @@
+         target.addEventListener('keydown', listener);
+ 
+         return () => {
+-          target.removeEventListener('keydown', listener);
++          try {
++            if (this.source === source) this.cancel();
++          } finally {
++            target.removeEventListener('keydown', listener);
++          }
+         };
+       }
++
++      return undefined;
+     });
+ 
+     return unbind;
+@@ -115,7 +123,7 @@
+     source: Draggable,
+     options: KeyboardSensorOptions | undefined
+   ) => {
+-    if (this.disabled || event.defaultPrevented) {
++    if (this.disabled || event.defaultPrevented || event.isComposing) {
+       return;
+     }
+ 
+@@ -162,6 +170,7 @@
+     scrollIntoViewIfNeeded(element);
+ 
+     const {center} = new DOMRectangle(element);
++    this.source = source;
+     const controller = this.manager.actions.start({
+       event,
+       coordinates: {
+@@ -172,6 +181,9 @@
+     });
+ 
+     if (controller.signal.aborted) return this.cleanup();
++    const release = () => this.cleanup();
++    controller.signal.addEventListener('abort', release, {once: true});
++    this.#cleanupFunctions.push(() => controller.signal.removeEventListener('abort', release));
+ 
+     this.sideEffects();
+ 
+@@ -195,6 +207,7 @@
+     _source: Draggable,
+     options: KeyboardSensorOptions | undefined
+   ) {
++    if (event.isComposing) return;
+     const {keyboardCodes = defaults.keyboardCodes} = options ?? {};
+ 
+     if (isKeyboardKey(event, [...keyboardCodes.end, ...keyboardCodes.cancel])) {
+@@ -284,7 +297,18 @@
+     }
+   }
+ 
++  public cancel(event?: Event) {
++    try {
++      if (this.source && !this.manager.dragOperation.status.idle) {
++        this.manager.actions.stop({event, canceled: true});
++      }
++    } finally {
++      this.cleanup();
++    }
++  }
++
+   protected cleanup() {
++    this.source = undefined;
+     this.#cleanupFunctions.forEach((cleanup) => cleanup());
+     this.#cleanupFunctions = [];
+   }
+--- a/dom/src/core/sensors/pointer/PointerSensor.ts
++++ b/dom/src/core/sensors/pointer/PointerSensor.ts
+@@ -107,6 +107,10 @@
+ 
+   protected controller: ActivationController<PointerEvent> | undefined;
+ 
++  private source: Draggable | undefined;
++  private pointerId: number | undefined;
++  private captureTarget: Element | undefined;
++
+   constructor(
+     public manager: DragDropManager,
+     public options?: PointerSensorOptions
+@@ -136,6 +140,7 @@
+ 
+   public bind(source: Draggable, options = this.options): CleanupFunction {
+     const unbind = effect(() => {
++      if (source.disabled || this.disabled) return noop;
+       const controller = new AbortController();
+       const {signal} = controller;
+       const listener: EventListener = (event: Event) => {
+@@ -153,14 +158,22 @@
+         }
+       }
+ 
++      const releaseWindows: CleanupFunction[] = [];
+       for (const target of targets) {
+         if (!target) continue;
+ 
+-        patchWindow(target.ownerDocument.defaultView);
++        releaseWindows.push(patchWindow(target.ownerDocument.defaultView));
+         target.addEventListener('pointerdown', listener, {signal});
+       }
+ 
+-      return () => controller.abort();
++      return () => {
++        try {
++          if (this.source === source) this.cancel();
++        } finally {
++          controller.abort();
++          releaseWindows.forEach((release) => release());
++        }
++      };
+     });
+ 
+     return unbind;
+@@ -173,6 +186,7 @@
+   ) {
+     if (
+       this.disabled ||
++      this.pointerId !== undefined ||
+       !event.isPrimary ||
+       event.button !== 0 ||
+       !isElement(event.target) ||
+@@ -203,6 +217,8 @@
+       y: y * offset.scaleY + offset.y,
+     };
+ 
++    this.source = source;
++    this.pointerId = event.pointerId;
+     const constraints = this.activationConstraints(event, source, options);
+     (event as any).sensor = this;
+ 
+@@ -212,9 +228,9 @@
+     );
+ 
+     controller.signal.onabort = () => this.handleCancel(event);
++    this.controller = controller;
+     controller.onEvent(event);
+-
+-    this.controller = controller;
++    if (this.pointerId !== event.pointerId) return;
+ 
+     const documents = getDocuments();
+     const unbindListeners = this.listeners.bind(documents, [
+@@ -233,6 +249,15 @@
+       {
+         type: 'pointercancel',
+         listener: this.handleCancel,
++      },
++      {type: 'keydown', listener: this.handleKeyDown},
++      {
++        type: 'visibilitychange',
++        listener: (event) => {
++          if ((event.currentTarget as Document).visibilityState === 'hidden') {
++            this.handleCancel(event);
++          }
++        },
+       },
+       {
+         // Cancel activation if there is a competing Drag and Drop interaction
+@@ -250,6 +275,12 @@
+     };
+ 
+     this.#cleanup.add(cleanup);
++    const ownerWindow = source.element?.ownerDocument.defaultView;
++    if (ownerWindow) {
++      this.#cleanup.add(this.listeners.bind(ownerWindow, {
++        type: 'blur', listener: this.handleCancel,
++      }));
++    }
+   }
+ 
+   private latest: LatestState = {
+@@ -268,6 +299,7 @@
+   };
+ 
+   protected handlePointerMove(event: PointerEvent, source: Draggable) {
++    if (event.pointerId !== this.pointerId) return;
+     if (this.controller?.activated === false) {
+       this.controller?.onEvent(event);
+     }
+@@ -294,6 +326,29 @@
+   }
+ 
+   private handlePointerUp(event: PointerEvent) {
++    if (event.pointerId !== this.pointerId) return;
++    const {controller, status} = this.manager.dragOperation;
++    if (status.dragging && controller && this.latest.event) {
++      event.preventDefault();
++      event.stopPropagation();
++      // Flush the final queued coordinates before resolving the drop. Wait for
++      // prior target updates first; do not require another animation frame.
++      this.manager.renderer.rendering.then(() => {
++        if (controller.signal.aborted || this.manager.dragOperation.controller !== controller) return;
++        this.handleMove();
++        queueMicrotask(() => {
++          if (controller.signal.aborted || this.manager.dragOperation.controller !== controller) return;
++          this.manager.collisionObserver.forceUpdate();
++          this.finishPointerUp(event);
++        });
++      });
++      return;
++    }
++    this.finishPointerUp(event);
++  }
++
++  private finishPointerUp(event: PointerEvent) {
++    if (event.pointerId !== this.pointerId) return;
+     // End the drag and drop operation
+     const {status} = this.manager.dragOperation;
+ 
+@@ -332,7 +387,7 @@
+     this.cleanup();
+   }
+   protected handleKeyDown(event: KeyboardEvent) {
+-    if (event.key === 'Escape') {
++    if (event.key === 'Escape' && !event.isComposing) {
+       event.preventDefault();
+       this.handleCancel(event);
+     }
+@@ -357,6 +412,11 @@
+ 
+     if (controller.signal.aborted) return this.cleanup();
+ 
++    // Programmatic cancellation must release sensor resources immediately.
++    const release = () => this.cleanup();
++    controller.signal.addEventListener('abort', release, {once: true});
++    this.#cleanup.add(() => controller.signal.removeEventListener('abort', release));
++
+     event.preventDefault();
+ 
+     const ownerDocument = getDocument(event.target);
+@@ -364,10 +424,20 @@
+ 
+     try {
+       pointerCaptureTarget.setPointerCapture(event.pointerId);
++      this.captureTarget = pointerCaptureTarget;
+     } catch {
+       this.handleCancel(event);
+       return;
+     }
++
++    this.#cleanup.add(this.listeners.bind(pointerCaptureTarget, {
++      type: 'lostpointercapture',
++      listener: (event) => {
++        // Transferring implicit touch capture from the source bubbles a loss
++        // event through body. Only loss of our own capture cancels the drag.
++        if (event.target === pointerCaptureTarget) this.handleCancel(event);
++      },
++    }));
+ 
+     const listenerTargets = isElement(event.target)
+       ? [event.target, pointerCaptureTarget]
+@@ -409,21 +479,35 @@
+   }
+ 
+   protected handleCancel(event: Event) {
+-    const {dragOperation} = this.manager;
+-
+-    if (dragOperation.status.initialized) {
+-      this.manager.actions.stop({event, canceled: true});
+-    }
+-
+-    this.cleanup();
++    if (isPointerEvent(event) && event.pointerId !== this.pointerId) return;
++    this.cancel(event);
++  }
++
++  /** Cancel pending activation as well as an active interaction owned by this sensor. */
++  public cancel(event?: Event) {
++    try {
++      if (this.source && !this.manager.dragOperation.status.idle) {
++        this.manager.actions.stop({event, canceled: true});
++      }
++    } finally {
++      this.cleanup();
++    }
+   }
+ 
+   protected cleanup() {
+-    const {controller} = this;
++    const {controller, captureTarget, pointerId} = this;
+     this.controller = undefined;
+-
+-    if (controller && !controller.signal.aborted) {
+-      controller.abort();
++    this.source = undefined;
++    this.captureTarget = undefined;
++    this.pointerId = undefined;
++
++    if (controller) {
++      try {
++        if (!controller.signal.aborted) controller.abort();
++      } finally {
++        // Do not retain the initiating pointer event through a completed signal.
++        controller.signal.onabort = null;
++      }
+     }
+ 
+     this.latest = {
+@@ -432,6 +516,15 @@
+     };
+     this.#cleanup.forEach((cleanup) => cleanup());
+     this.#cleanup.clear();
++    if (captureTarget && pointerId !== undefined) {
++      try {
++        if (captureTarget.hasPointerCapture(pointerId)) {
++          captureTarget.releasePointerCapture(pointerId);
++        }
++      } catch {
++        // The browser may already have released capture when the node detached.
++      }
++    }
+   }
+ 
+   public destroy() {
+@@ -454,16 +547,26 @@
+ 
+ function noop() {}
+ 
+-const windows = new WeakSet<Window>();
+-
+-function patchWindow(window: Window | null) {
+-  if (!window || windows.has(window)) {
+-    return;
+-  }
+-
+-  window.addEventListener('touchmove', noop, {
+-    capture: false,
+-    passive: false,
+-  });
+-  windows.add(window);
++// Retain the non-passive touch listener while bindings need it (including
++// bindings from other managers), then release it when the last binding ends.
++const windows = new WeakMap<Window, number>();
++
++function patchWindow(window: Window | null): CleanupFunction {
++  if (!window) return noop;
++  const count = windows.get(window) ?? 0;
++  if (count === 0) {
++    window.addEventListener('touchmove', noop, {capture: false, passive: false});
++  }
++  windows.set(window, count + 1);
++  let released = false;
++  return () => {
++    if (released) return;
++    released = true;
++    const remaining = (windows.get(window) ?? 1) - 1;
++    if (remaining > 0) windows.set(window, remaining);
++    else {
++      windows.delete(window);
++      window.removeEventListener('touchmove', noop, false);
++    }
++  };
+ }
+--- a/dom/src/sortable/plugins/OptimisticSortingPlugin.ts
++++ b/dom/src/sortable/plugins/OptimisticSortingPlugin.ts
+@@ -102,23 +102,24 @@
+             const newState = move(state, event);
+ 
+             if (state === newState) return;
+-
+-            const sourceIndex = newState[targetGroup].indexOf(source.sortable);
+-            const targetIndex = newState[targetGroup].indexOf(target.sortable);
++            const nextSource = newState[sourceGroup];
++            const nextTarget = newState[targetGroup];
++            if (!nextSource || !nextTarget) return;
++
++            const sourceIndex = nextTarget.indexOf(source.sortable);
++            const targetIndex = nextTarget.indexOf(target.sortable);
+ 
+             manager.collisionObserver.disable();
+ 
+             reorder(sourceElement, sourceIndex, targetElement, targetIndex);
+ 
+             batch(() => {
+-              for (const [index, sortable] of newState[sourceGroup].entries()) {
++              for (const [index, sortable] of nextSource.entries()) {
+                 sortable.index = index;
+               }
+ 
+               if (!sameGroup) {
+-                for (const [index, sortable] of newState[
+-                  targetGroup
+-                ].entries()) {
++                for (const [index, sortable] of nextTarget.entries()) {
+                   sortable.group = target.sortable.group;
+                   sortable.index = index;
+                 }
+--- a/dom/src/sortable/plugins/SortableKeyboardPlugin.ts
++++ b/dom/src/sortable/plugins/SortableKeyboardPlugin.ts
+@@ -39,6 +39,8 @@
+           return () => scroller.enable();
+         }
+       }
++
++      return undefined;
+     });
+ 
+     const unsubscribe = manager.monitor.addEventListener(
+@@ -196,4 +198,6 @@
+   } else if (y < 0) {
+     return 'up';
+   }
++
++  return undefined;
+ }
+--- a/dom/src/utilities/animations/forceFinishAnimations.ts
++++ b/dom/src/utilities/animations/forceFinishAnimations.ts
+@@ -51,9 +51,13 @@
+             for (const property of options.properties) {
+               if (keyframe[property]) return true;
+             }
++
++            return undefined;
+           });
+         }
+       }
++
++      return undefined;
+     })
+     .map((animation) => {
+       const {effect, currentTime} = animation;
+@@ -72,9 +76,13 @@
+           animation.currentTime = currentTime;
+         };
+       }
++
++      return undefined;
+     });
+ 
+   if (animations.length > 0) {
+     return () => animations.forEach((reset) => reset?.());
+   }
++
++  return undefined;
+ }
+--- a/dom/src/utilities/animations/getFinalKeyframe.ts
++++ b/dom/src/utilities/animations/getFinalKeyframe.ts
+@@ -14,7 +14,7 @@
+     const matchedKeyframes = keyframes.filter(match);
+ 
+     if (matchedKeyframes.length > 0) {
+-      result = [matchedKeyframes[matchedKeyframes.length - 1], animation];
++      result = [matchedKeyframes[matchedKeyframes.length - 1]!, animation];
+     }
+   }
+ 
+--- a/dom/src/utilities/element/cloneElement.ts
++++ b/dom/src/utilities/element/cloneElement.ts
+@@ -6,6 +6,7 @@
+ 
+   clonedFields.forEach((field, index) => {
+     const originalField = fields[index];
++    if (!originalField) return;
+ 
+     if (isField(field) && isField(originalField)) {
+       if (field.type !== 'file') {
+--- a/dom/src/utilities/frame/getFrameElement.ts
++++ b/dom/src/utilities/frame/getFrameElement.ts
+@@ -4,4 +4,6 @@
+   if (refWindow && refWindow.self !== refWindow.parent) {
+     return refWindow.frameElement;
+   }
++
++  return undefined;
+ }
+--- a/dom/src/utilities/observers/PositionObserver.ts
++++ b/dom/src/utilities/observers/PositionObserver.ts
+@@ -50,6 +50,7 @@
+     this.#visibilityObserver = new IntersectionObserver(
+       (entries: IntersectionObserverEntry[]) => {
+         const entry = entries[entries.length - 1];
++        if (!entry) return;
+         const {boundingClientRect, isIntersecting: visible} = entry;
+         const {width, height} = boundingClientRect;
+         const previousVisible = this.#visible;
+@@ -129,6 +130,7 @@
+     this.#positionObserver = new IntersectionObserver(
+       (entries: IntersectionObserverEntry[]) => {
+         const [entry] = entries;
++        if (!entry) return;
+         const {intersectionRect} = entry;
+         /*
+          * The intersection ratio returned by the intersection observer entry
+--- a/dom/src/utilities/scroll/getScrollableAncestors.ts
++++ b/dom/src/utilities/scroll/getScrollableAncestors.ts
+@@ -1,4 +1,3 @@
+-import {getWindow} from '../execution-context/getWindow.ts';
+ import {isDocument} from '../type-guards/isDocument.ts';
+ import {isHTMLElement} from '../type-guards/isHTMLElement.ts';
+ import {isSVGElement} from '../type-guards/isSVGElement.ts';
+--- a/dom/src/utilities/scroll/isFixed.ts
++++ b/dom/src/utilities/scroll/isFixed.ts
+@@ -4,7 +4,6 @@
+   node: Element,
+   computedStyle: CSSStyleDeclaration = getComputedStyles(node, true)
+ ): boolean {
+-  return (
+-    computedStyle.position === 'fixed' || computedStyle.position === 'sticky'
+-  );
++  // Sticky elements still move with their scroll container on the other axis.
++  return computedStyle.position === 'fixed';
+ }
+--- a/dom/src/utilities/transform/parseScale.ts
++++ b/dom/src/utilities/transform/parseScale.ts
+@@ -4,8 +4,8 @@
+   }
+ 
+   const values = scale.split(' ');
+-  const x = parseFloat(values[0]);
+-  const y = parseFloat(values[1]);
++  const x = parseFloat(values[0] ?? '');
++  const y = parseFloat(values[1] ?? '');
+ 
+   if (isNaN(x) && isNaN(y)) {
+     return null;
+--- a/dom/src/utilities/transform/parseTransform.ts
++++ b/dom/src/utilities/transform/parseTransform.ts
+@@ -54,19 +54,19 @@
+     const transformArray = transform.slice(9, -1).split(/, /);
+ 
+     return {
+-      x: +transformArray[12],
+-      y: +transformArray[13],
+-      scaleX: +transformArray[0],
+-      scaleY: +transformArray[5],
++      x: Number(transformArray[12]),
++      y: Number(transformArray[13]),
++      scaleX: Number(transformArray[0]),
++      scaleY: Number(transformArray[5]),
+     };
+   } else if (transform.startsWith('matrix(')) {
+     const transformArray = transform.slice(7, -1).split(/, /);
+ 
+     return {
+-      x: +transformArray[4],
+-      y: +transformArray[5],
+-      scaleX: +transformArray[0],
+-      scaleY: +transformArray[3],
++      x: Number(transformArray[4]),
++      y: Number(transformArray[5]),
++      scaleX: Number(transformArray[0]),
++      scaleY: Number(transformArray[3]),
+     };
+   }
+ 
+--- a/dom/src/utilities/transform/parseTranslate.ts
++++ b/dom/src/utilities/transform/parseTranslate.ts
+@@ -3,7 +3,7 @@
+     return null;
+   }
+ 
+-  const [x, y, z = '0'] = translate.split(' ');
++  const [x = '', y = '', z = '0'] = translate.split(' ');
+   const output = {x: parseFloat(x), y: parseFloat(y), z: parseInt(z, 10)};
+ 
+   if (isNaN(output.x) && isNaN(output.y)) {
+--- a/helpers/src/move.ts
++++ b/helpers/src/move.ts
+@@ -133,7 +133,8 @@
+     return mutation(items, sourceIndex, targetIndex);
+   }
+ 
+-  // Grouped/record case
++  // Grouped/record case. Indexed reads below use keys established by
++  // Object.entries or getRecordKey; both prove membership in this snapshot.
+ 
+   const entries = Object.entries(items);
+ 
+@@ -189,23 +190,23 @@
+     if (srcParent === tgtParent) {
+       return {
+         ...items,
+-        [srcParent]: mutation(items[srcParent], srcIndex, tgtIndex),
++        [srcParent]: mutation(items[srcParent]!, srcIndex, tgtIndex),
+       };
+     }
+ 
+     // Cross-group transfer
+-    const sourceItem = items[srcParent][srcIndex];
++    const sourceItem = items[srcParent]![srcIndex];
+ 
+     return {
+       ...items,
+       [srcParent]: [
+-        ...items[srcParent].slice(0, srcIndex),
+-        ...items[srcParent].slice(srcIndex + 1),
++        ...items[srcParent]!.slice(0, srcIndex),
++        ...items[srcParent]!.slice(srcIndex + 1),
+       ],
+       [tgtParent]: [
+-        ...items[tgtParent].slice(0, tgtIndex),
++        ...items[tgtParent]!.slice(0, tgtIndex),
+         sourceItem,
+-        ...items[tgtParent].slice(tgtIndex),
++        ...items[tgtParent]!.slice(tgtIndex),
+       ],
+     };
+   }
+@@ -222,7 +223,7 @@
+     if (targetKey != null) {
+       const insertionIndex =
+         target.shape && position.y > target.shape.center.y
+-          ? items[targetKey].length
++          ? items[targetKey]!.length
+           : 0;
+ 
+       // The target does not have any matching children, but appears to be a valid target
+@@ -261,7 +262,7 @@
+             return {
+               ...items,
+               [sourceParent]: mutation(
+-                items[sourceParent],
++                items[sourceParent]!,
+                 sourceIndex,
+                 source.index
+               ),
+@@ -269,17 +270,17 @@
+           }
+ 
+           // Cross-group transfer
+-          const sourceItem = items[sourceParent][sourceIndex];
++          const sourceItem = items[sourceParent]![sourceIndex];
+           return {
+             ...items,
+             [sourceParent]: [
+-              ...items[sourceParent].slice(0, sourceIndex),
+-              ...items[sourceParent].slice(sourceIndex + 1),
++              ...items[sourceParent]!.slice(0, sourceIndex),
++              ...items[sourceParent]!.slice(sourceIndex + 1),
+             ],
+             [reconciledTargetParent]: [
+-              ...items[reconciledTargetParent].slice(0, source.index),
++              ...items[reconciledTargetParent]!.slice(0, source.index),
+               sourceItem,
+-              ...items[reconciledTargetParent].slice(source.index),
++              ...items[reconciledTargetParent]!.slice(source.index),
+             ],
+           };
+         }
+@@ -294,25 +295,25 @@
+   if (sourceParent === targetParent) {
+     return {
+       ...items,
+-      [sourceParent]: mutation(items[sourceParent], sourceIndex, targetIndex),
++      [sourceParent]: mutation(items[sourceParent]!, sourceIndex, targetIndex),
+     };
+   }
+ 
+   const isBelowTarget =
+     target.shape && Math.round(position.y) > Math.round(target.shape.center.y);
+   const modifier = isBelowTarget ? 1 : 0;
+-  const sourceItem = items[sourceParent][sourceIndex];
++  const sourceItem = items[sourceParent]![sourceIndex];
+ 
+   return {
+     ...items,
+     [sourceParent]: [
+-      ...items[sourceParent].slice(0, sourceIndex),
+-      ...items[sourceParent].slice(sourceIndex + 1),
++      ...items[sourceParent]!.slice(0, sourceIndex),
++      ...items[sourceParent]!.slice(sourceIndex + 1),
+     ],
+     [targetParent]: [
+-      ...items[targetParent].slice(0, targetIndex + modifier),
++      ...items[targetParent]!.slice(0, targetIndex + modifier),
+       sourceItem,
+-      ...items[targetParent].slice(targetIndex + modifier),
++      ...items[targetParent]!.slice(targetIndex + modifier),
+     ],
+   };
+ }

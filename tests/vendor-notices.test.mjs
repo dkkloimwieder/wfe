@@ -36,10 +36,11 @@ async function noticesIn(directory, prefix = 'vendor') {
   return result.sort()
 }
 
-test('all six captured subsets and every source notice are represented', async () => {
+test('all captured subsets and every source notice are represented', async () => {
   assert.deepEqual(Object.keys(vendorNotices).sort(), [
     'calendar',
     'charts',
+    'dnd',
     'icons',
     'kobalte',
     'matching',

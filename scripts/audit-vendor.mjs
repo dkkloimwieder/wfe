@@ -24,6 +24,7 @@ const { values } = parseArgs({
     'kobalte-upstream': { type: 'string' },
     'virtual-upstream': { type: 'string' },
     'calendar-upstream': { type: 'string' },
+    'dnd-upstream': { type: 'string' },
   },
 })
 const output = resolve(root, values.output)
@@ -33,6 +34,7 @@ const components = resolve(root, 'packages/components')
 const kobalte = resolve(components, 'src/vendor/kobalte')
 const virtual = resolve(components, 'src/vendor/virtual-core')
 const calendar = resolve(components, 'src/vendor/corvu-calendar')
+const dnd = resolve(components, 'src/vendor/dnd-kit')
 const inventory = await vendorInventory(root)
 const { origins } = inventory
 const packages = [components]
@@ -56,6 +58,7 @@ for (const script of [
   'scripts/check-calendar.mjs',
   'scripts/check-kobalte.mjs',
   'scripts/check-virtual.mjs',
+  'scripts/check-vendor-integrity.mjs',
 ]) {
   const result = spawnSync(
     process.execPath,
@@ -308,6 +311,16 @@ if (values['calendar-upstream']) {
     origins.calendar.sources,
     calendar,
     (path) => origins.calendar.sources[path].upstreamPath,
+  )
+}
+
+if (values['dnd-upstream']) {
+  await compare(
+    'dnd',
+    resolve(values['dnd-upstream']),
+    origins.dnd.sources,
+    dnd,
+    (path) => origins.dnd.sources[path].upstreamPath,
   )
 }
 

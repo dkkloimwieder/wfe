@@ -16,6 +16,7 @@ for (const family of [
   'matching',
   'charts',
   'icons',
+  'dnd',
 ]) {
   test(`${family}: source and distributed artifacts retain identical provenance`, () => {
     const artifact = inventory.artifacts.find(
@@ -45,7 +46,7 @@ for (const family of [
   })
 }
 
-test('all six raw manifests remain intact, including their repair and license evidence', async () => {
+test('all captured raw manifests remain intact, including their repair and license evidence', async () => {
   const directories = {
     kobalte: 'kobalte',
     virtual: 'virtual-core',
@@ -53,6 +54,7 @@ test('all six raw manifests remain intact, including their repair and license ev
     matching: 'match-sorter',
     charts: 'charts',
     icons: 'icons',
+    dnd: 'dnd-kit',
   }
   for (const [family, directory] of Object.entries(directories)) {
     const raw = JSON.parse(

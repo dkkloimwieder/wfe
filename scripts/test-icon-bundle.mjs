@@ -1,3 +1,4 @@
+import { vendorTransforms } from './vendor-transforms.mjs'
 import assert from 'node:assert/strict'
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
@@ -35,7 +36,7 @@ export function Example() { return <Icon glyph={iconSearch} /> }
     const result = await build({
       configFile: false,
       root,
-      plugins: [solid()],
+      plugins: [vendorTransforms(), solid()],
       logLevel: 'warn',
       resolve: {
         conditions: [

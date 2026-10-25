@@ -1,8 +1,9 @@
+import { vendorTransforms } from './scripts/vendor-transforms.mjs'
 import { defineConfig } from 'vitest/config'
 import solid from '@solidjs/vite-plugin'
 
 export default defineConfig({
-  plugins: [solid({ performanceTracks: false })],
+  plugins: [vendorTransforms(), solid({ performanceTracks: false })],
   resolve: {
     conditions: [
       ...(process.env.BENCH_DISTRIBUTION ? [] : ['wfe-source']),

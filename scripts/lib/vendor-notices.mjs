@@ -17,6 +17,7 @@ export const vendorNotices = {
     'vendor/match-sorter/LICENSE-remove-accents',
   ],
   icons: ['vendor/icons/LICENSE'],
+  dnd: ['vendor/dnd-kit/LICENSE'],
 }
 export const vendorNoticePaths = Object.values(vendorNotices).flat()
 export const componentDeliveryModes = ['source', 'client', 'server']

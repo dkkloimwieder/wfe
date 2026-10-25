@@ -15,3 +15,11 @@ packages/components/src/vendor/charts/charts-scales
 
 # Adjacent agent checkouts are separate repositories.
 /.claude/worktrees/
+
+# Captured upstream dnd-kit source; local repairs remain reviewable.
+packages/components/src/vendor/dnd-kit/dom
+packages/components/src/vendor/dnd-kit/abstract
+packages/components/src/vendor/dnd-kit/geometry
+packages/components/src/vendor/dnd-kit/collision
+packages/components/src/vendor/dnd-kit/state
+packages/components/src/vendor/dnd-kit/helpers

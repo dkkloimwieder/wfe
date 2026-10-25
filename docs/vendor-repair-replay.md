@@ -110,3 +110,18 @@ Native change handling also restores that accepted set immediately, before later
 The existing effect restores initial form values synchronously and retains its guarded queued reconciliation.
 Treat this as a semantic local repair in replay output, not a mechanical formatting difference.
 The Kobalte README records the reproduced diagnostic and the focused comparison. Full qualification evidence remains separate.
+
+## Drag and drop capture compilation
+
+The dnd-kit capture uses standard JavaScript decorators. The shared
+`scripts/vendor-transforms.mjs` plugin lowers only TypeScript files inside that
+capture to ES2022 with TypeScript's standard decorator transform. Component
+client/server builds, example development builds, hydration builds, and unit
+tests use this same plugin. Solid JSX and other vendor families keep their
+existing compiler pipelines. The source distribution already uses TypeScript's
+ES2022 transform in `scripts/build-source.mjs`, so its JavaScript needs no extra
+plugin in a consumer application.
+
+`tests/tooling/vendor-transforms.test.mjs` checks accessor initialization,
+updates, initializer execution, source maps, and the source boundary. The
+capture's `repairs.patch` and provenance remain separate from this build step.

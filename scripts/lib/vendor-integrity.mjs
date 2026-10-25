@@ -28,12 +28,38 @@ export async function checkVendorIntegrity(root) {
     'match-sorter',
     'charts',
     'icons',
+    'dnd-kit',
   ])
     expected.push(`${directory}/provenance.json`, `${directory}/README.md`)
-  expected.push('icons/upstream.json')
+  expected.push('icons/upstream.json', 'dnd-kit/repairs.patch')
   await exactFiles(resolve(root, source, 'vendor'), expected)
   const packageJson = JSON.parse(
     await readFile(resolve(root, 'packages/components/package.json'), 'utf8'),
+  )
+  assert.deepEqual(
+    inventory.origins.dnd.externalDependencies,
+    { '@preact/signals-core': '1.10.0' },
+    'DnD external dependency boundary',
+  )
+  assert.deepEqual(
+    inventory.origins.dnd.externalImports,
+    ['@preact/signals-core'],
+    'DnD external import boundary',
+  )
+  assert.equal(
+    packageJson.dependencies?.['@preact/signals-core'],
+    '1.10.0',
+    'DnD signal dependency pin',
+  )
+  assert.match(
+    inventory.origins.dnd.repairSha256,
+    /^[a-f0-9]{64}$/,
+    'DnD repair hash',
+  )
+  assert.equal(
+    hash(await readFile(resolve(root, source, 'vendor/dnd-kit/repairs.patch'))),
+    inventory.origins.dnd.repairSha256,
+    'DnD repair bytes',
   )
   const external = new Set([
     ...Object.keys(packageJson.dependencies),
@@ -84,7 +110,9 @@ export async function checkVendorIntegrity(root) {
             ? external
             : item.family === 'charts'
               ? new Set(['d3-scale', 'd3-shape'])
-              : new Set()
+              : item.family === 'dnd'
+                ? new Set(['@preact/signals-core'])
+                : new Set()
         assert.ok(
           allowed.has(imported) && !imported.startsWith('@kobalte/'),
           `Unexpected external vendor import: ${item.path}: ${imported}`,

@@ -1,3 +1,4 @@
+import { vendorTransforms } from './vendor-transforms.mjs'
 import assert from 'node:assert/strict'
 import { build } from 'vite'
 import solid from '@solidjs/vite-plugin'
@@ -30,6 +31,7 @@ for (const distribution of [false, true]) {
         rollupOptions: { input: entry },
       },
       plugins: [
+        vendorTransforms(),
         solid({ performanceTracks: false }),
         {
           name: 'chart-boundary-probe',

@@ -107,6 +107,56 @@ test('virtual maps must agree and captured imports cannot escape or become nonli
   }
 })
 
+test('DnD capture permits only its pinned signal dependency and rejects altered repair evidence', async (t) => {
+  const root = await vendor(t)
+  const folder = resolve(root, 'packages/components/src/vendor/dnd-kit')
+  const manifestPath = join(folder, 'provenance.json')
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+  const packagePath = resolve(root, 'packages/components/package.json')
+  const pkg = JSON.parse(await readFile(packagePath, 'utf8'))
+  await checkVendorIntegrity(root)
+
+  await writeFile(
+    packagePath,
+    JSON.stringify({
+      ...pkg,
+      dependencies: { ...pkg.dependencies, '@preact/signals-core': '^1.10.0' },
+    }),
+  )
+  await assert.rejects(checkVendorIntegrity(root), /signal dependency pin/)
+  await writeFile(packagePath, JSON.stringify(pkg))
+
+  const repairs = join(folder, 'repairs.patch')
+  const repairBytes = await readFile(repairs)
+  await writeFile(
+    repairs,
+    Buffer.concat([repairBytes, Buffer.from('\nchanged\n')]),
+  )
+  await assert.rejects(checkVendorIntegrity(root), /repair bytes/)
+  await writeFile(repairs, repairBytes)
+
+  const name = Object.keys(manifest.sources).find((path) =>
+    path.endsWith('.ts'),
+  )
+  assert.ok(name)
+  const path = join(folder, name)
+  for (const dependency of [
+    'solid-js',
+    '@preact/signals-core/internal',
+    'tslib',
+  ]) {
+    const bytes = Buffer.from(`import '${dependency}'\n`)
+    const changed = structuredClone(manifest)
+    changed.sources[name].localSha256 = hash(bytes)
+    await writeFile(path, bytes)
+    await writeFile(manifestPath, JSON.stringify(changed))
+    await assert.rejects(
+      checkVendorIntegrity(root),
+      /Unexpected external vendor import/,
+    )
+  }
+})
+
 async function patches(t) {
   const root = await scratch(t)
   for (const name of ['patches', 'pnpm-workspace.yaml', 'pnpm-lock.yaml'])

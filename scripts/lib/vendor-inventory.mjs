@@ -9,6 +9,7 @@ const families = {
   matching: 'match-sorter',
   charts: 'charts',
   icons: 'icons',
+  dnd: 'dnd-kit',
 }
 const componentSource = 'packages/components/src/'
 const normalize = (path) => path.replaceAll('\\', '/')
@@ -72,7 +73,7 @@ export async function vendorInventory(root) {
       origins.virtual.localSha256[path],
     )
   }
-  for (const family of ['calendar', 'matching']) {
+  for (const family of ['calendar', 'matching', 'dnd']) {
     for (const [path, item] of Object.entries(origins[family].sources)) {
       add(
         family,

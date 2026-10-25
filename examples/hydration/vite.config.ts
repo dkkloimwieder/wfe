@@ -1,3 +1,4 @@
+import { vendorTransforms } from '../../scripts/vendor-transforms.mjs'
 import { cssProvenance } from '../../scripts/css-provenance.mjs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
@@ -8,6 +9,7 @@ const built = Boolean(process.env.BENCH_DISTRIBUTION)
 export default defineConfig({
   root: fileURLToPath(new URL('.', import.meta.url)),
   plugins: [
+    vendorTransforms(),
     cssProvenance(fileURLToPath(new URL('../../', import.meta.url)), built),
     solid({ ssr: true, observe: true, performanceTracks: false }),
   ],

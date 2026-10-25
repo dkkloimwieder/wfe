@@ -1,3 +1,4 @@
+import { vendorTransforms } from '../scripts/vendor-transforms.mjs'
 import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import { isAbsolute, sep } from 'node:path'
@@ -35,6 +36,7 @@ export function exampleConfig(
     plugins: [
       ...extra,
       provenance,
+      vendorTransforms(),
       solid({
         performanceTracks: process.env.BENCH_TRACE
           ? { minMs: 1, rich: false }
