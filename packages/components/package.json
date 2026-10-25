@@ -225,6 +225,13 @@
       "solid": "./dist/source/icons/index.js",
       "node": "./dist/server/icons/index.js",
       "import": "./dist/client/icons/index.js"
+    },
+    "./dnd": {
+      "types": "./dist/client/dnd/index.d.ts",
+      "wfe-source": "./src/dnd/index.ts",
+      "solid": "./dist/source/dnd/index.js",
+      "node": "./dist/server/dnd/index.js",
+      "import": "./dist/client/dnd/index.js"
     }
   },
   "sideEffects": [

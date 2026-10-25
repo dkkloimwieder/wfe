@@ -1,0 +1,53 @@
+.ui-dnd-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.ui-dnd-preview,
+.ui-dnd-indicator {
+  --ui-dnd-color: var(--ui-border, #888);
+  pointer-events: none;
+}
+.ui-dnd-preview[data-tone='primary'],
+.ui-dnd-indicator[data-tone='primary'] {
+  --ui-dnd-color: var(--ui-accent);
+}
+.ui-dnd-preview[data-tone='secondary'],
+.ui-dnd-indicator[data-tone='secondary'] {
+  --ui-dnd-color: var(--ui-secondary-accent);
+}
+.ui-dnd-preview {
+  position: fixed;
+  z-index: var(--ui-dnd-z-index, 1000);
+  max-width: min(30rem, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  padding: var(--ui-gap, 6px);
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-dnd-color);
+}
+.ui-dnd-indicator {
+  background: var(--ui-dnd-color);
+  height: 2px;
+  width: 100%;
+}
+.ui-dnd-indicator[data-orientation='vertical'] {
+  width: 2px;
+  height: 100%;
+}
+:where([data-ui]) .ui-dnd-handle {
+  cursor: grab;
+  touch-action: none;
+}
+:where([data-ui]) .ui-dnd-handle[data-dragging] {
+  cursor: grabbing;
+}
+/* Deliberately no motion: pointer tracking stays direct, including reduced motion. */
