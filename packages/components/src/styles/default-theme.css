@@ -555,6 +555,8 @@
   --ui-input-decoration-dot-color: var(--ui-secondary-accent);
   --ui-input-decoration-border-color: var(--ui-secondary-accent);
 }
+.ui-theme [data-ui-section-decoration][data-ui-section-always]::before,
+.ui-theme [data-ui-section-decoration][data-ui-section-active]::before,
 .ui-theme [data-ui-section-decoration][data-ui-section-hover]:hover::before,
 .ui-theme
   [data-ui-section-decoration][data-ui-section-focus]:focus-within::before {

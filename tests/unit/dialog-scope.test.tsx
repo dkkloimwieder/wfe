@@ -7,7 +7,7 @@ import {
   waitFor,
 } from '@solidjs/testing-library'
 import { createSignal, flush, onCleanup, Show } from 'solid-js'
-import { AlertDialog, Dialog, Sheet } from '@wfe/components'
+import { AlertDialog, Dialog, Sheet, Theme } from '@wfe/components'
 
 afterEach(cleanup)
 
@@ -112,3 +112,87 @@ for (const [name, Family] of [
     })
   })
 }
+
+for (const [name, Family] of [
+  ['Dialog', Dialog],
+  ['AlertDialog', AlertDialog],
+  ['Sheet', Sheet],
+] as const) {
+  test(`${name} keeps a triggerless controlled portal in its nearest Theme`, async () => {
+    const [open, setOpen] = createSignal(false)
+    const [present, setPresent] = createSignal(true)
+    const h = render(() => (
+      <Theme id="outer-theme">
+        <button onClick={() => setOpen(true)}>Open controlled review</button>
+        <Theme id="inner-theme">
+          <Show when={present()}>
+            <Family open={open()} onOpenChange={setOpen}>
+              <Family.Portal>
+                <Family.Content>
+                  <Family.Title>Controlled review</Family.Title>
+                  <Family.Description>
+                    Review the current record.
+                  </Family.Description>
+                  <Family.CloseButton aria-label="Close controlled review">
+                    Close controlled review
+                  </Family.CloseButton>
+                </Family.Content>
+              </Family.Portal>
+            </Family>
+          </Show>
+        </Theme>
+      </Theme>
+    ))
+    flush()
+    const opener = h.getByRole('button', { name: 'Open controlled review' })
+    opener.focus()
+    fireEvent.click(opener)
+    flush()
+    const close = screen.getByRole('button', {
+      name: 'Close controlled review',
+    })
+    expect(close.closest('[data-ui-theme-owner]')?.id).toBe('inner-theme')
+    fireEvent.click(close)
+    flush()
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Close controlled review' }),
+      ).toBeNull(),
+    )
+    fireEvent.click(opener)
+    flush()
+    expect(
+      screen
+        .getByRole('button', { name: 'Close controlled review' })
+        .closest('[data-ui-theme-owner]')?.id,
+    ).toBe('inner-theme')
+    setPresent(false)
+    flush()
+    expect(document.querySelector('.ui-dialog-portal')).toBeNull()
+  })
+}
+
+test('an initially open triggerless dialog adopts its Theme without replacing content', () => {
+  const [mode, setMode] = createSignal<'light' | 'dark'>('light')
+  const h = render(() => (
+    <Theme id="initial-theme" mode={mode()}>
+      <Dialog open>
+        <Dialog.Portal>
+          <Dialog.Content>
+            <Dialog.Title>Initial review</Dialog.Title>
+            <Dialog.Description>Review the current record.</Dialog.Description>
+            <input aria-label="Draft" />
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+    </Theme>
+  ))
+  flush()
+  const draft = h.getByRole('textbox', { name: 'Draft' })
+  expect(draft.closest('[data-ui-theme-owner]')?.id).toBe('initial-theme')
+  fireEvent.input(draft, { target: { value: 'Keep this draft' } })
+  setMode('dark')
+  flush()
+  expect(h.getByRole('textbox', { name: 'Draft' })).toBe(draft)
+  expect((draft as HTMLInputElement).value).toBe('Keep this draft')
+})

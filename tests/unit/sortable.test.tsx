@@ -14,6 +14,7 @@ import type {
   SortableScope,
 } from '../../packages/components/src/sortable'
 import { getDragDropInternal } from '../../packages/components/src/dnd/internal'
+import { Rectangle } from '../../packages/components/src/vendor/dnd-kit/geometry/src/index'
 import { sortableKey } from '../../packages/components/src/sortable/internal'
 
 beforeEach(() => {
@@ -467,4 +468,89 @@ test('ignores item wrapper refs after their owner is disposed', () => {
   }).not.toThrow()
   expect(warn).not.toHaveBeenCalled()
   expect(getDragDropInternal(scope.dragDrop).sources.size).toBe(0)
+})
+
+test('pointer over an empty lane outranks a wide card overlapping a neighboring item', async () => {
+  let scope!: SortableScope
+  const onMove = vi.fn()
+  render(() => {
+    scope = createSortable({
+      containers: [
+        { id: 'left', items: ['wide', 'neighbor'] },
+        { id: 'right', items: [] },
+      ],
+      onMove,
+    })
+    const left = createSortableContainer(scope, { id: 'left', label: 'Left' })
+    const right = createSortableContainer(scope, {
+      id: 'right',
+      label: 'Right',
+    })
+    const wide = createSortableItem(scope, { id: 'wide', label: 'Wide' })
+    const neighbor = createSortableItem(scope, {
+      id: 'neighbor',
+      label: 'Neighbor',
+    })
+    const bind =
+      (ref: (node: HTMLElement) => void, rect: DOMRect) =>
+      (node: HTMLElement) => {
+        vi.spyOn(node, 'getBoundingClientRect').mockReturnValue(rect)
+        ref(node)
+      }
+    return (
+      <>
+        <div ref={bind(left.ref, new DOMRect(0, 0, 400, 200))}>
+          <div ref={bind(wide.ref, new DOMRect(0, 0, 200, 100))}>Wide</div>
+          <div ref={bind(neighbor.ref, new DOMRect(200, 0, 200, 100))}>
+            Neighbor
+          </div>
+        </div>
+        <div ref={bind(right.ref, new DOMRect(400, 0, 200, 200))}>Empty</div>
+      </>
+    )
+  })
+  flush()
+  const engine = getDragDropInternal(scope.dragDrop).manager()!
+  engine.actions.start({
+    source: sortableKey('item', 'wide'),
+    coordinates: { x: 100, y: 50 },
+  })
+  await Promise.resolve()
+  await Promise.resolve()
+  flush()
+  // jsdom has no layout observer delivery; supply the measured target rectangles.
+  for (const target of engine.registry.droppables) {
+    target.shape = Rectangle.from(target.element!.getBoundingClientRect())
+  }
+  engine.actions.move({ to: { x: 350, y: 75 } })
+  await Promise.resolve()
+  flush()
+  expect(engine.collisionObserver.computeCollisions()[0]?.id).toBe(
+    sortableKey('item', 'neighbor'),
+  )
+  engine.actions.move({ to: { x: 450, y: 50 } })
+  await Promise.resolve()
+  flush()
+  const collisions = engine.collisionObserver.computeCollisions()
+  expect(
+    collisions.some(
+      (collision) => collision.id === sortableKey('item', 'neighbor'),
+    ),
+  ).toBe(true)
+  expect(collisions[0]?.id).toBe(sortableKey('container', 'right'))
+  await engine.actions.setDropTarget(collisions[0]!.id)
+  await Promise.resolve()
+  flush()
+  expect(scope.preview()?.destination).toEqual({
+    containerId: 'right',
+    beforeId: null,
+  })
+  engine.actions.stop()
+  await Promise.resolve()
+  flush()
+  expect(onMove).toHaveBeenCalledTimes(1)
+  expect(onMove.mock.calls[0]![0].destination).toEqual({
+    containerId: 'right',
+    beforeId: null,
+  })
 })

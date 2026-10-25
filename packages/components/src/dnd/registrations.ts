@@ -7,6 +7,7 @@ import {
   PointerActivationConstraints,
 } from '../vendor/dnd-kit/dom/src/core/index'
 import { getDragDropInternal } from './internal'
+import type { CollisionDetector } from '../vendor/dnd-kit/abstract/src/core/index'
 import type { Registration } from './internal'
 import type {
   DragDropScope,
@@ -145,6 +146,15 @@ export function createDroppable<D>(
   scope: DragDropScope<D>,
   options: DroppableOptions<D>,
 ): DroppableRegistration {
+  return createDroppableRegistration(scope, options)
+}
+
+/** Internal composition seam; engine collision policies stay out of the public API. */
+export function createDroppableRegistration<D>(
+  scope: DragDropScope<D>,
+  options: DroppableOptions<D>,
+  collisionDetector?: CollisionDetector,
+): DroppableRegistration {
   const internal = getDragDropInternal(scope)
   const activeSourceId = createMemo(() => scope.operation()?.source.id)
   const [element, setElement] = createSignal<HTMLElement>()
@@ -213,6 +223,7 @@ export function createDroppable<D>(
             element: next.element,
             disabled: next.disabled,
             collisionPriority: next.priority,
+            collisionDetector,
           },
           next.manager,
         )

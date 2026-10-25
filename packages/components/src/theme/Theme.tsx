@@ -1,3 +1,4 @@
+import { PortalOwner } from '../internal/portalOwner'
 import { resolveDecorationGeometry } from './decorationGeometry'
 import type { DecorationGeometry } from './decorationGeometry'
 import type { ControlDecoration } from '../internal/controlDecoration'
@@ -149,17 +150,19 @@ export function Theme(props: ThemeProps) {
     controller = undefined
   })
   return (
-    <div
-      {...scope}
-      data-ui-density={props.density ?? 'default'}
-      id={props.id}
-      class={styledClasses('ui-theme', props.class)}
-      data-ui-portal-root=""
-      data-ui-theme-owner=""
-      ref={setElement}
-      style={{ ...scope.style, ...themeStyle(props), ...props.style }}
-    >
-      {props.children}
-    </div>
+    <PortalOwner value={element}>
+      <div
+        {...scope}
+        data-ui-density={props.density ?? 'default'}
+        id={props.id}
+        class={styledClasses('ui-theme', props.class)}
+        data-ui-portal-root=""
+        data-ui-theme-owner=""
+        ref={setElement}
+        style={{ ...scope.style, ...themeStyle(props), ...props.style }}
+      >
+        {props.children}
+      </div>
+    </PortalOwner>
   )
 }

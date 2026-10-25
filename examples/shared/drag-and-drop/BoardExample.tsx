@@ -1,6 +1,9 @@
 import { For, Show, createSignal, createUniqueId } from 'solid-js'
 import {
   Button,
+  Badge,
+  FormGrid,
+  Select,
   Checkbox,
   DropdownMenu,
   Field,
@@ -21,10 +24,22 @@ import type {
   SortableMove,
 } from '@wfe/components/sortable'
 import { nativeEvents } from '@wfe/components/events'
-import { iconEllipsis, iconPlus } from '@wfe/components/icons'
+import { accents } from '@wfe/components/theme'
+import { iconEllipsis, iconPlus, iconPencil } from '@wfe/components/icons'
 import './style.css'
 
-type Issue = { id: string; title: string; description: string }
+type Issue = { id: string; title: string; description: string; tags: string[] }
+const categories = ['Design', 'Engineering', 'Accessibility', 'Testing']
+const stageAccents = {
+  planned: accents.find((accent) => accent.name === 'Blue')!,
+  active: accents.find((accent) => accent.name === 'Green')!,
+}
+function stageStyle(id: SortableId) {
+  const accent = stageAccents[id as keyof typeof stageAccents]
+  return accent
+    ? { '--ui-accent': `light-dark(${accent.light}, ${accent.dark})` }
+    : undefined
+}
 const initial: ReadonlyArray<SortableContainer> = [
   { id: 'planned', items: ['outline', 'review', 'test'] },
   { id: 'active', items: ['keyboard'] },
@@ -39,21 +54,25 @@ const seed: Issue[] = [
   {
     id: 'outline',
     title: 'Outline the release',
+    tags: ['Engineering'],
     description: 'Agree on the scope before work starts.',
   },
   {
     id: 'review',
     title: 'Review the design',
+    tags: ['Design'],
     description: 'Compare the light and dark themes.',
   },
   {
     id: 'test',
     title: 'Test the small screen',
+    tags: ['Testing', 'Accessibility'],
     description: 'Use the move menu when a destination is offscreen.',
   },
   {
     id: 'keyboard',
     title: 'Support the keyboard',
+    tags: ['Engineering', 'Accessibility'],
     description:
       'Pick up with Space, move with arrows, and drop with Space. Escape cancels.',
   },
@@ -71,6 +90,7 @@ export function BoardExample() {
   const [selected, setSelected] = createSignal<Issue>()
   const [title, setTitle] = createSignal('')
   const [description, setDescription] = createSignal('')
+  const [tags, setTags] = createSignal<string[]>([])
   const [open, setOpen] = createSignal(false)
   const [origin, setOrigin] = createSignal<HTMLElement>()
   let nextId = 1
@@ -124,6 +144,7 @@ export function BoardExample() {
     setSelected(issue)
     setTitle(issue?.title ?? '')
     setDescription(issue?.description ?? '')
+    setTags([...(issue?.tags ?? [])])
     setOpen(true)
   }
   function save(event: SubmitEvent) {
@@ -134,7 +155,12 @@ export function BoardExample() {
       setIssues((current) =>
         current.map((issue) =>
           issue.id === previous.id
-            ? { ...issue, title: title(), description: description() }
+            ? {
+                ...issue,
+                title: title(),
+                description: description(),
+                tags: [...tags()],
+              }
             : issue,
         ),
       )
@@ -142,7 +168,7 @@ export function BoardExample() {
       const id = `new-${nextId++}`
       setIssues((current) => [
         ...current,
-        { id, title: title(), description: description() },
+        { id, title: title(), description: description(), tags: [...tags()] },
       ])
       setLanes((current) =>
         current.map((lane) =>
@@ -161,6 +187,7 @@ export function BoardExample() {
       return {
         id,
         title: `Sample issue ${id}`,
+        tags: ['Testing'],
         description: 'Sample content to explore scrolling and drop targets.',
       }
     })
@@ -226,8 +253,9 @@ export function BoardExample() {
         </Button>
       </header>
       <p class="board-example-help">
-        Use a handle to drag. Space picks up, arrow keys choose a destination,
-        Space drops, and Escape cancels. Each card also has a move menu.
+        Drag a card to move it. Focus a card and press Space to pick it up.
+        Arrow keys choose a destination, Space drops, and Escape cancels. Each
+        card also has a move menu.
       </p>
       <Show
         when={!loading()}
@@ -243,6 +271,10 @@ export function BoardExample() {
               const lane = () => lanes().find((value) => value.id === laneId)!
               return (
                 <KanbanColumn
+                  frameless
+                  style={stageStyle(laneId)}
+                  headerDecoration={laneId === 'done' ? 'neutral' : 'primary'}
+                  headerDecorationAlways
                   instructionsId={columnInstructionsId}
                   sortable={sorter}
                   columnSortable={columnSorter}
@@ -254,6 +286,10 @@ export function BoardExample() {
                   <For each={lane().items}>
                     {(id) => (
                       <KanbanItem
+                        title={issueFor(id).title}
+                        dragSurface="card"
+                        decoration={laneId === 'done' ? 'neutral' : 'primary'}
+                        decorationActive={open() && selected()?.id === id}
                         instructionsId={instructionsId}
                         id={id}
                         label={issueFor(id).title}
@@ -261,48 +297,64 @@ export function BoardExample() {
                         disabled={readonly()}
                         data-issue={String(id)}
                         actions={
-                          <DropdownMenu>
-                            <DropdownMenu.Trigger
-                              as={IconButton}
+                          <>
+                            <IconButton
                               tone="neutral"
-                              aria-label={`Actions for ${issueFor(id).title}`}
+                              aria-label={`Edit ${issueFor(id).title}`}
+                              disabled={readonly()}
+                              onClick={(event) =>
+                                edit(issueFor(id), event.currentTarget)
+                              }
                             >
-                              <Icon glyph={iconEllipsis} />
-                            </DropdownMenu.Trigger>
-                            <DropdownMenu.Portal>
-                              <DropdownMenu.Content>
-                                <For each={lanes()}>
-                                  {(destination) => (
-                                    <DropdownMenu.Item
-                                      disabled={readonly()}
-                                      onSelect={() =>
-                                        sorter.requestMove(id, {
-                                          containerId: destination.id,
-                                          beforeId: null,
-                                        })
-                                      }
-                                    >
-                                      Move to {titles[String(destination.id)]}
-                                    </DropdownMenu.Item>
-                                  )}
-                                </For>
-                              </DropdownMenu.Content>
-                            </DropdownMenu.Portal>
-                          </DropdownMenu>
+                              <Icon glyph={iconPencil} />
+                            </IconButton>
+                            <DropdownMenu>
+                              <DropdownMenu.Trigger
+                                as={IconButton}
+                                tone="neutral"
+                                aria-label={`Actions for ${issueFor(id).title}`}
+                              >
+                                <Icon glyph={iconEllipsis} />
+                              </DropdownMenu.Trigger>
+                              <DropdownMenu.Portal>
+                                <DropdownMenu.Content>
+                                  <For each={lanes()}>
+                                    {(destination) => (
+                                      <DropdownMenu.Item
+                                        disabled={readonly()}
+                                        onSelect={() =>
+                                          sorter.requestMove(id, {
+                                            containerId: destination.id,
+                                            beforeId: null,
+                                          })
+                                        }
+                                      >
+                                        Move to {titles[String(destination.id)]}
+                                      </DropdownMenu.Item>
+                                    )}
+                                  </For>
+                                </DropdownMenu.Content>
+                              </DropdownMenu.Portal>
+                            </DropdownMenu>
+                          </>
                         }
                       >
-                        <Button
-                          variant="ghost"
-                          tone="neutral"
-                          data-value=""
-                          class="board-example-open"
-                          onClick={(event) =>
-                            edit(issueFor(id), event.currentTarget)
-                          }
-                        >
-                          {issueFor(id).title}
-                        </Button>
                         <p>{issueFor(id).description}</p>
+                        <Show when={issueFor(id).tags.length > 0}>
+                          <div
+                            class="board-example-tags"
+                            role="list"
+                            aria-label="Categories"
+                          >
+                            <For each={issueFor(id).tags}>
+                              {(tag) => (
+                                <Badge role="listitem" data-value="">
+                                  {tag}
+                                </Badge>
+                              )}
+                            </For>
+                          </div>
+                        </Show>
                       </KanbanItem>
                     )}
                   </For>
@@ -344,26 +396,59 @@ export function BoardExample() {
               {selected() ? 'Issue details' : 'Create issue'}
             </Sheet.Title>
             <Sheet.Description>
-              This example app owns the records and accepted moves.
+              Edit the issue title, description, and categories.
             </Sheet.Description>
-            <form class="example-stack" ref={nativeEvents({ submit: save })}>
-              <Field>
-                <Label>Title</Label>
-                <Input
-                  required
-                  value={title()}
-                  onValueChange={setTitle}
-                  readonly={readonly()}
-                />
-              </Field>
-              <Field>
-                <Label>Description</Label>
-                <Input
-                  value={description()}
-                  onValueChange={setDescription}
-                  readonly={readonly()}
-                />
-              </Field>
+            <form
+              class="board-example-form"
+              ref={nativeEvents({ submit: save })}
+            >
+              <FormGrid>
+                <Field>
+                  <Label>Title</Label>
+                  <Input
+                    required
+                    value={title()}
+                    onValueChange={setTitle}
+                    readonly={readonly()}
+                  />
+                </Field>
+                <Field>
+                  <Label>Description</Label>
+                  <Input
+                    value={description()}
+                    onValueChange={setDescription}
+                    readonly={readonly()}
+                  />
+                </Field>
+                <Select<string>
+                  multiple
+                  options={categories}
+                  value={tags()}
+                  onChange={setTags}
+                  disabled={readonly()}
+                  itemComponent={(props) => (
+                    <Select.Item item={props.item}>
+                      <Select.ItemLabel>{props.item.rawValue}</Select.ItemLabel>
+                      <Select.ItemIndicator />
+                    </Select.Item>
+                  )}
+                >
+                  <Select.Label>Tags</Select.Label>
+                  <Select.Trigger>
+                    <Select.Value<string>>
+                      {(state) =>
+                        state.selectedOptions().join(', ') ||
+                        'Choose categories'
+                      }
+                    </Select.Value>
+                  </Select.Trigger>
+                  <Select.Portal>
+                    <Select.Content>
+                      <Select.Listbox />
+                    </Select.Content>
+                  </Select.Portal>
+                </Select>
+              </FormGrid>
               <div class="ui-form-actions">
                 <Button type="submit" disabled={readonly()}>
                   Save

@@ -57,3 +57,32 @@
 :where([data-ui]) .ui-kanban-count {
   font-variant-numeric: tabular-nums;
 }
+
+:where([data-ui]) .ui-kanban-column[data-frameless] {
+  border: 0;
+  background: transparent;
+}
+:where([data-ui]) .ui-kanban-column[data-frameless] .ui-kanban-column-header {
+  margin: var(--ui-layout-inset, 8px);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+}
+:where([data-ui]) .ui-kanban-item-title {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 500;
+}
+:where([data-ui]) .ui-kanban-item[data-drag-surface='card'] {
+  cursor: grab;
+}
+:where([data-ui]) .ui-kanban-item[data-dragging] {
+  cursor: grabbing;
+}
+:where([data-ui]) .ui-kanban-item[aria-disabled='true'] {
+  cursor: default;
+}
+:where([data-ui]) .ui-kanban-item[data-drag-surface='card']:focus-visible {
+  outline: var(--ui-focus-width, 1px) solid
+    var(--ui-focus-ring, var(--ui-accent));
+  outline-offset: 2px;
+}

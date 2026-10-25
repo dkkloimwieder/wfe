@@ -1,5 +1,8 @@
 import { createEffect, createSignal, onCleanup } from 'solid-js'
-import { createDraggable, createDroppable } from '../dnd'
+import { createDraggable } from '../dnd'
+import { createDroppableRegistration } from '../dnd/registrations'
+import { defaultCollisionDetection } from '../vendor/dnd-kit/collision/src/index'
+import type { CollisionDetector } from '../vendor/dnd-kit/abstract/src/core/index'
 import { getSortableInternal, sortableKey } from './internal'
 import type {
   SortableContainerOptions,
@@ -8,6 +11,20 @@ import type {
   SortableScope,
 } from './types'
 import type { DroppableRegistration } from '../dnd'
+
+// Preserve pointer-over-shape preference before preferring an item within its list.
+// Absolute item priorities would let a wide card overlapping the neighboring list
+// defeat the container actually under the pointer.
+const itemCollision: CollisionDetector = (input) => {
+  const collision = defaultCollisionDetection(input)
+  return collision
+    ? { ...collision, priority: collision.priority * 2 + 1 }
+    : null
+}
+const containerCollision: CollisionDetector = (input) => {
+  const collision = defaultCollisionDetection(input)
+  return collision ? { ...collision, priority: collision.priority * 2 } : null
+}
 
 export function createSortableItem(
   scope: SortableScope,
@@ -72,24 +89,27 @@ export function createSortableTarget(
   onCleanup(() => {
     alive = false
   })
-  const target = createDroppable(scope.dragDrop, {
-    get id() {
-      return sortableKey('item', options.id)
+  const target = createDroppableRegistration(
+    scope.dragDrop,
+    {
+      get id() {
+        return sortableKey('item', options.id)
+      },
+      get label() {
+        return options.label
+      },
+      get data() {
+        return { kind: 'item' as const, id: options.id }
+      },
+      get disabled() {
+        return options.disabled || !internal.hasItem(options.id)
+      },
+      accepts: (item) =>
+        item.data.kind === 'item' &&
+        internal.accepts(item.data.id, { kind: 'item', id: options.id }),
     },
-    get label() {
-      return options.label
-    },
-    get data() {
-      return { kind: 'item' as const, id: options.id }
-    },
-    get disabled() {
-      return options.disabled || !internal.hasItem(options.id)
-    },
-    accepts: (item) =>
-      item.data.kind === 'item' &&
-      internal.accepts(item.data.id, { kind: 'item', id: options.id }),
-    priority: 1,
-  })
+    itemCollision,
+  )
   const [element, setElement] = createSignal<HTMLElement>()
   createEffect(
     () => ({ id: options.id, element: element() }),
@@ -116,22 +136,25 @@ export function createSortableContainer(
   options: SortableContainerOptions,
 ): DroppableRegistration {
   const internal = getSortableInternal(scope)
-  return createDroppable(scope.dragDrop, {
-    get id() {
-      return sortableKey('container', options.id)
+  return createDroppableRegistration(
+    scope.dragDrop,
+    {
+      get id() {
+        return sortableKey('container', options.id)
+      },
+      get label() {
+        return options.label
+      },
+      get data() {
+        return { kind: 'container' as const, id: options.id }
+      },
+      get disabled() {
+        return options.disabled || !internal.hasContainer(options.id)
+      },
+      accepts: (item) =>
+        item.data.kind === 'item' &&
+        internal.accepts(item.data.id, { kind: 'container', id: options.id }),
     },
-    get label() {
-      return options.label
-    },
-    get data() {
-      return { kind: 'container' as const, id: options.id }
-    },
-    get disabled() {
-      return options.disabled || !internal.hasContainer(options.id)
-    },
-    accepts: (item) =>
-      item.data.kind === 'item' &&
-      internal.accepts(item.data.id, { kind: 'container', id: options.id }),
-    priority: 0,
-  })
+    containerCollision,
+  )
 }

@@ -1,5 +1,6 @@
-import { Show, omit } from 'solid-js'
+import { Show, createEffect, omit } from 'solid-js'
 import type { JSX } from '@solidjs/web'
+import type { DecorationColor } from '../theme/appearance'
 import { DropIndicator, DragHandle } from '../dnd/DragDropFeedback'
 import { Card } from '../components/Display'
 import { styledClasses } from '../internal/classes'
@@ -32,6 +33,12 @@ export type KanbanColumnProps = Omit<
   /** Optional, separate horizontal sorter for column ordering. */
   columnSortable?: SortableScope
   count?: number
+  frameless?: boolean
+  headerDecoration?: boolean | DecorationColor
+  headerDecorationHover?: boolean
+  headerDecorationFocusWithin?: boolean
+  headerDecorationAlways?: boolean
+  headerDecorationActive?: boolean
   actions?: JSX.Element
   disabled?: boolean
   instructionsId?: string
@@ -55,6 +62,12 @@ export function KanbanColumn(props: KanbanColumnProps) {
     'sortable',
     'columnSortable',
     'count',
+    'frameless',
+    'headerDecoration',
+    'headerDecorationHover',
+    'headerDecorationFocusWithin',
+    'headerDecorationAlways',
+    'headerDecorationActive',
     'actions',
     'disabled',
     'instructionsId',
@@ -68,9 +81,25 @@ export function KanbanColumn(props: KanbanColumnProps) {
       {...attributes}
       class={styledClasses('ui-kanban-column', props.class)}
       aria-label={props.title}
+      data-frameless={props.frameless || undefined}
       ref={[props.ref, events]}
     >
-      <header class="ui-kanban-column-header">
+      <header
+        class="ui-kanban-column-header"
+        data-ui-section-decoration={
+          props.headerDecoration === true
+            ? 'primary'
+            : props.headerDecoration || 'none'
+        }
+        data-ui-section-hover={
+          props.headerDecorationHover !== false ? '' : undefined
+        }
+        data-ui-section-focus={
+          props.headerDecorationFocusWithin !== false ? '' : undefined
+        }
+        data-ui-section-always={props.headerDecorationAlways ? '' : undefined}
+        data-ui-section-active={props.headerDecorationActive ? '' : undefined}
+      >
         <Show
           keyed
           when={props.columnSortable}
@@ -140,15 +169,25 @@ function ColumnHandle(props: {
   )
 }
 
-export type KanbanItemProps = Omit<JSX.HTMLAttributes<HTMLDivElement>, 'id'> & {
+export type KanbanItemProps = Omit<
+  JSX.HTMLAttributes<HTMLDivElement>,
+  'id' | 'title'
+> & {
   id: SortableId
   label: string
+  title?: JSX.Element
   sortable: SortableScope
   disabled?: boolean
+  dragSurface?: 'handle' | 'card'
+  decoration?: boolean | DecorationColor
+  decorationHover?: boolean
+  decorationFocusWithin?: boolean
+  decorationAlways?: boolean
+  decorationActive?: boolean
   actions?: JSX.Element
   instructionsId?: string
 }
-/** Uses the shared Card. Interactive content remains separate from the drag handle. */
+/** Shared Card with an optional keyboard-focusable, whole-card drag surface. */
 export function KanbanItem(props: KanbanItemProps) {
   const registration = createSortableItem(props.sortable, {
     get id() {
@@ -161,10 +200,23 @@ export function KanbanItem(props: KanbanItemProps) {
       return props.disabled
     },
   })
+  createEffect(
+    () => props.dragSurface,
+    (surface) => {
+      if (surface === 'card') registration.handleRef(undefined)
+    },
+  )
   const attributes = omit(
     props,
     'id',
     'label',
+    'title',
+    'dragSurface',
+    'decoration',
+    'decorationHover',
+    'decorationFocusWithin',
+    'decorationAlways',
+    'decorationActive',
     'sortable',
     'disabled',
     'actions',
@@ -182,16 +234,59 @@ export function KanbanItem(props: KanbanItemProps) {
         class={styledClasses('ui-kanban-item', props.class)}
         ref={[props.ref, registration.ref]}
         data-dragging={registration.dragging() || undefined}
+        data-drag-surface={props.dragSurface ?? 'handle'}
+        role={
+          props.role ?? (props.dragSurface === 'card' ? 'group' : undefined)
+        }
+        tabindex={
+          props.tabindex ??
+          (props.dragSurface === 'card' && !props.disabled ? 0 : undefined)
+        }
+        aria-label={
+          props['aria-label'] ??
+          (props.dragSurface === 'card' ? props.label : undefined)
+        }
+        aria-roledescription={
+          props['aria-roledescription'] ??
+          (props.dragSurface === 'card' ? 'draggable card' : undefined)
+        }
+        aria-disabled={props.disabled ? 'true' : undefined}
+        aria-describedby={
+          [
+            props['aria-describedby'],
+            props.dragSurface === 'card' ? props.instructionsId : undefined,
+          ]
+            .filter(Boolean)
+            .join(' ') || undefined
+        }
+        data-ui-section-decoration={
+          props.decoration === true ? 'primary' : props.decoration || 'none'
+        }
+        data-ui-section-hover={props.decorationHover !== false ? '' : undefined}
+        data-ui-section-focus={
+          props.decorationFocusWithin !== false ? '' : undefined
+        }
+        data-ui-section-always={props.decorationAlways ? '' : undefined}
+        data-ui-section-active={props.decorationActive ? '' : undefined}
       >
-        <div class="ui-kanban-item-actions">
-          <DragHandle
-            drag={registration}
-            label={`Move ${props.label}`}
-            aria-describedby={props.instructionsId}
-            disabled={props.disabled}
-          />
-          {props.actions}
-        </div>
+        <Show when={props.title}>
+          <h3 class="ui-kanban-item-title" data-ui-text="value">
+            {props.title}
+          </h3>
+        </Show>
+        <Show when={props.dragSurface !== 'card' || props.actions}>
+          <div class="ui-kanban-item-actions">
+            <Show when={props.dragSurface !== 'card'}>
+              <DragHandle
+                drag={registration}
+                label={`Move ${props.label}`}
+                aria-describedby={props.instructionsId}
+                disabled={props.disabled}
+              />
+            </Show>
+            {props.actions}
+          </div>
+        </Show>
         {props.children}
       </Card>
     </>

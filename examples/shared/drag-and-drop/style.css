@@ -30,6 +30,9 @@
 .board-example .ui-kanban-board {
   flex: 1;
   height: auto;
+  background: var(--ui-canvas-surface);
+  background-image: var(--ui-canvas-pattern);
+  background-size: var(--ui-canvas-pattern-size);
 }
 .board-example-footer {
   display: flex;
@@ -37,11 +40,16 @@
   justify-content: space-between;
   border-top: 1px solid var(--ui-border);
 }
-.board-example-open {
-  justify-content: flex-start;
-  width: 100%;
-  text-align: start;
-  margin-block: var(--ui-gap);
+.board-example-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap);
+}
+.board-example-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap);
+  margin-top: var(--ui-layout-inset);
 }
 .board-example-loading {
   flex: 1;

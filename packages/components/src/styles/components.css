@@ -390,7 +390,7 @@
 :where([data-ui]) .ui-dialog-overlay {
   position: fixed;
   inset: 0;
-  background: var(--ui-overlay, rgb(0 0 0));
+  background: var(--ui-overlay, rgb(0 0 0 / 40%));
   pointer-events: auto;
 }
 :where([data-ui]) .ui-dialog-content {

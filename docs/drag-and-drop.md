@@ -105,7 +105,7 @@ The gallery has separate Drag and drop and Issue board entries. The
 arbitrary targets, a controlled list, disabled state, request rejection,
 feedback and menu alternatives. The
 [board example](../examples/shared/drag-and-drop/BoardExample.tsx) composes columns,
-cards, editing and move menus with local application state. Those choices
+cards, editing, category tags and move menus with local application state. Those choices
 are examples, not application requirements.
 
 The shared hydration fixture renders generic registrations and a small
@@ -120,3 +120,23 @@ accepts `"both"` (default), `"horizontal"`, `"vertical"`, or `false`, on both
 `createDragDrop` and `createSortable`. Changing it cancels the active drag.
 Table column scopes use horizontal scrolling, so column dragging does not trigger
 vertical edge scrolling. Board scopes keep both axes.
+
+## Board presentation options
+
+`KanbanItem` keeps its separate drag handle by default. Set `dragSurface="card"`
+to make the card itself a focusable drag surface. It remains a group, not a
+button: nested buttons, links and inputs keep their own pointer and keyboard
+behavior. Space or Enter on the card picks it up. Supply `instructionsId`
+for the shared keyboard instructions. `title` renders a plain heading before
+`actions` and the card body. The application owns editing and action behavior.
+
+Cards accept the shared `decoration` color roles (`primary`, `secondary`,
+`neutral`, `true` for primary, or `false` to disable). `decorationHover` and
+`decorationFocusWithin` default to true. `decorationAlways` keeps decoration
+visible. `decorationActive` lets the application keep it visible during editing
+or another selected state. These reuse the Theme's decoration geometry.
+
+Columns accept the same options with the `headerDecoration` prefix, including
+`headerDecorationAlways`. `frameless` removes the column frame and surface so
+its header and cards can sit on the surrounding canvas. Stage colors and the
+meaning of each stage remain application choices.

@@ -1,7 +1,9 @@
+import { PortalOwner } from '../internal/portalOwner'
 import { portalMount } from '../internal/portalMount'
 import { createContext, onCleanup, useContext } from 'solid-js'
 
 export function createDialogScope() {
+  const owner = useContext(PortalOwner)
   let trigger: HTMLElement | undefined
   let content: HTMLElement | undefined
   let cancel: HTMLElement | undefined
@@ -29,7 +31,7 @@ export function createDialogScope() {
       ;(cancel ?? content)?.focus({ preventScroll: true })
     },
     mount: () => {
-      const mount = portalMount(trigger ?? origin)
+      const mount = portalMount(trigger ?? owner?.() ?? origin)
       // A control boundary without a containing scope keeps the body fallback.
       return mount === trigger ? undefined : mount
     },

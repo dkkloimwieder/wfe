@@ -75,10 +75,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
       await page.getByText('Reject moves', { exact: true }).click()
     })
     await test('Keyboard moves and Escape cancels without changing records', async () => {
-      const handle = card('outline').getByRole('button', {
-        name: 'Move Outline the release',
-        exact: true,
-      })
+      const handle = card('outline')
       await handle.focus()
       await page.keyboard.press('Space')
       await expect(card('outline')).toHaveAttribute('data-dragging', '')
@@ -95,21 +92,14 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
       await expect(
         lane('Active').locator('[data-issue="outline"]'),
       ).toHaveCount(1)
-      await expect(
-        card('outline').getByRole('button', {
-          name: 'Move Outline the release',
-          exact: true,
-        }),
-      ).toBeFocused()
+      await expect(card('outline')).toBeFocused()
     })
     await test('Pointer release emits one final request and preserves source content', async () => {
       await reset()
       const before = Number(
         await requestCount().getAttribute('data-move-requests'),
       )
-      const handle = await card('outline')
-        .getByRole('button', { name: 'Move Outline the release', exact: true })
-        .boundingBox()
+      const handle = await card('outline').boundingBox()
       const target = await lane('Done')
         .locator('.ui-kanban-items')
         .boundingBox()
@@ -127,7 +117,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
       await page.mouse.move(target.x + target.width / 2, target.y + 80, {
         steps: 15,
       })
-      await expect(page.locator('.ui-dnd-indicator')).toHaveCount(1)
+      await expect(lane('Done').locator('.ui-dnd-indicator')).toHaveCount(1)
       await expect(requestCount()).toHaveAttribute(
         'data-move-requests',
         String(before),
@@ -175,10 +165,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
           ['ArrowRight', 'Done'],
           ['ArrowLeft', 'Planned'],
         ]) {
-          const cardHandle = card('outline').getByRole('button', {
-            name: 'Move Outline the release',
-            exact: true,
-          })
+          const cardHandle = card('outline')
           await cardHandle.focus()
           await page.keyboard.press('Space')
           await expect(card('outline')).toHaveAttribute('data-dragging', '')
@@ -187,12 +174,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
           await expect(
             lane(destination).locator('[data-issue="outline"]'),
           ).toHaveCount(1)
-          await expect(
-            card('outline').getByRole('button', {
-              name: 'Move Outline the release',
-              exact: true,
-            }),
-          ).toBeFocused()
+          await expect(card('outline')).toBeFocused()
         }
         await expect(requestCount()).toHaveAttribute(
           'data-move-requests',
@@ -206,12 +188,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
     await test('Touch cancellation preserves records and touch release requests a move', async () => {
       const client = await page.context().newCDPSession(page)
       try {
-        const handle = await card('outline')
-          .getByRole('button', {
-            name: 'Move Outline the release',
-            exact: true,
-          })
-          .boundingBox()
+        const handle = await card('outline').boundingBox()
         const point = {
           x: handle.x + handle.width / 2,
           y: handle.y + handle.height / 2,
@@ -241,7 +218,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
           type: 'touchMove',
           touchPoints: [{ x: destination.x + 80, y: destination.y + 80 }],
         })
-        await expect(page.locator('.ui-dnd-indicator')).toHaveCount(1)
+        await expect(lane('Done').locator('.ui-dnd-indicator')).toHaveCount(1)
         await client.send('Input.dispatchTouchEvent', {
           type: 'touchEnd',
           touchPoints: [],
@@ -260,9 +237,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
         .click()
       const scroller = lane('Planned').locator('.ui-kanban-items')
       const box = await scroller.boundingBox()
-      const handle = await card('outline')
-        .getByRole('button', { name: 'Move Outline the release', exact: true })
-        .boundingBox()
+      const handle = await card('outline').boundingBox()
       await page.mouse.move(
         handle.x + handle.width / 2,
         handle.y + handle.height / 2,
@@ -288,12 +263,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
       await reset()
       const client = await page.context().newCDPSession(page)
       try {
-        const handle = await card('outline')
-          .getByRole('button', {
-            name: 'Move Outline the release',
-            exact: true,
-          })
-          .boundingBox()
+        const handle = await card('outline').boundingBox()
         const target = await lane('Done')
           .locator('.ui-kanban-items')
           .boundingBox()
@@ -325,7 +295,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
           buttons: 1,
           pointerType: 'pen',
         })
-        await expect(page.locator('.ui-dnd-indicator')).toHaveCount(1)
+        await expect(lane('Done').locator('.ui-dnd-indicator')).toHaveCount(1)
         await client.send('Input.dispatchMouseEvent', {
           type: 'mouseReleased',
           x: target.x + 80,
@@ -344,18 +314,37 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
     })
     await test('Details edit through shared Sheet and return focus', async () => {
       const open = card('outline').getByRole('button', {
-        name: 'Outline the release',
+        name: 'Edit Outline the release',
         exact: true,
       })
+      const moves = await requestCount().getAttribute('data-move-requests')
       await open.click()
+      await expect(card('outline')).not.toHaveAttribute('data-dragging', '')
+      assert.equal(
+        await page
+          .getByRole('dialog')
+          .evaluate((node) => !!node.closest('.ui-theme')),
+        true,
+      )
       await page
         .getByRole('textbox', { name: 'Title', exact: true })
         .fill('Outline the next release')
+      await page.getByRole('button', { name: /^Tags(?: |$)/ }).click()
+      await page.getByRole('option', { name: 'Design', exact: true }).click()
+      await page.keyboard.press('Escape')
       await page.getByRole('button', { name: 'Save', exact: true }).click()
       await expect(page.getByRole('dialog')).toHaveCount(0)
+      await expect
+        .poll(async () =>
+          (
+            await card('outline').getByRole('listitem').allTextContents()
+          ).sort(),
+        )
+        .toEqual(['Design', 'Engineering'])
+      await expect(requestCount()).toHaveAttribute('data-move-requests', moves)
       await expect(
         card('outline').getByRole('button', {
-          name: 'Outline the next release',
+          name: 'Edit Outline the next release',
           exact: true,
         }),
       ).toBeFocused()
@@ -370,13 +359,30 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
       await page
         .getByRole('textbox', { name: 'Description', exact: true })
         .fill('This record is local example state.')
+      await page.getByRole('button', { name: /^Tags(?: |$)/ }).click()
+      await page
+        .getByRole('option', { name: 'Accessibility', exact: true })
+        .click()
+      await page.getByRole('option', { name: 'Testing', exact: true }).click()
+      await page.keyboard.press('Escape')
       await page.getByRole('button', { name: 'Save', exact: true }).click()
       await expect(
-        lane('Planned').getByRole('button', {
+        lane('Planned').getByRole('heading', {
           name: 'Created in the example',
           exact: true,
         }),
       ).toHaveCount(1)
+      await expect(
+        page
+          .locator('[data-issue]')
+          .filter({
+            has: page.getByRole('heading', {
+              name: 'Created in the example',
+              exact: true,
+            }),
+          })
+          .getByRole('listitem'),
+      ).toHaveText(['Accessibility', 'Testing'])
       await page.getByText('Loading', { exact: true }).click()
       await expect(
         page.getByRole('group', { name: 'Issues', exact: true }),
@@ -386,7 +392,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
       ).toBeDisabled()
       await page.getByText('Loading', { exact: true }).click()
       await expect(
-        lane('Planned').getByRole('button', {
+        lane('Planned').getByRole('heading', {
           name: 'Created in the example',
           exact: true,
         }),
@@ -394,12 +400,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
     })
     await test('Read-only controls disable changes and small-screen menus reach all lanes', async () => {
       await page.getByText('Read only', { exact: true }).click()
-      await expect(
-        card('outline').getByRole('button', {
-          name: 'Move Outline the next release',
-          exact: true,
-        }),
-      ).toBeDisabled()
+      await expect(card('outline')).toHaveAttribute('aria-disabled', 'true')
       await page.getByText('Read only', { exact: true }).click()
       await page.setViewportSize({ width: 390, height: 844 })
       await reset()
@@ -427,9 +428,7 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
       await board.evaluate((node) => {
         node.scrollLeft = 0
       })
-      const handle = await card('outline')
-        .getByRole('button', { name: 'Move Outline the release', exact: true })
-        .boundingBox()
+      const handle = await card('outline').boundingBox()
       const bounds = await board.boundingBox()
       await page.mouse.move(
         handle.x + handle.width / 2,
