@@ -7,6 +7,7 @@ const shared = {
     './src/chart/index.ts',
     './src/dnd/index.ts',
     './src/sortable/index.ts',
+    './src/kanban/index.tsx',
     './src/icons/index.ts',
     './src/search/index.ts',
     './src/theme/index.ts',

@@ -1,0 +1,59 @@
+:where([data-ui]) .ui-kanban-board {
+  display: flex;
+  gap: var(--ui-gap, 8px);
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--ui-layout-inset, 8px);
+  box-sizing: border-box;
+  overscroll-behavior: contain;
+}
+:where([data-ui]) .ui-kanban-column {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 min(19rem, 85vw);
+  min-width: min(19rem, 85vw);
+  min-height: 0;
+  border: 1px solid var(--ui-border);
+  background: var(--ui-pane-surface, var(--ui-surface));
+}
+:where([data-ui]) .ui-kanban-column-header,
+:where([data-ui]) .ui-kanban-column-heading,
+:where([data-ui]) .ui-kanban-item-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 8px);
+}
+:where([data-ui]) .ui-kanban-column-header {
+  flex: none;
+  padding: var(--ui-layout-inset, 8px);
+  border-bottom: 1px solid var(--ui-border);
+}
+:where([data-ui]) .ui-kanban-column-header h2 {
+  font-size: inherit;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin: 0;
+}
+:where([data-ui]) .ui-kanban-column-actions {
+  margin-inline-start: auto;
+}
+:where([data-ui]) .ui-kanban-items {
+  flex: 1;
+  min-height: 5rem;
+  overflow-y: auto;
+  padding: var(--ui-layout-inset, 8px);
+  overscroll-behavior: contain;
+}
+:where([data-ui]) .ui-kanban-item {
+  margin-bottom: var(--ui-gap, 8px);
+}
+:where([data-ui]) .ui-kanban-item:last-child {
+  margin-bottom: 0;
+}
+:where([data-ui]) .ui-kanban-count {
+  font-variant-numeric: tabular-nums;
+}

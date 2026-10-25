@@ -248,3 +248,4 @@ export { resolveMessages } from './internal/messages'
 export * from './dnd'
 
 export * from './sortable'
+export * from './kanban'

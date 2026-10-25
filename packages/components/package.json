@@ -239,6 +239,13 @@
       "solid": "./dist/source/sortable/index.js",
       "node": "./dist/server/sortable/index.js",
       "import": "./dist/client/sortable/index.js"
+    },
+    "./kanban": {
+      "types": "./dist/client/kanban/index.d.ts",
+      "wfe-source": "./src/kanban/index.tsx",
+      "solid": "./dist/source/kanban/index.jsx",
+      "node": "./dist/server/kanban/index.js",
+      "import": "./dist/client/kanban/index.js"
     }
   },
   "sideEffects": [
