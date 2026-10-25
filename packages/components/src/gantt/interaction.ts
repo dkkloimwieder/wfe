@@ -65,7 +65,7 @@ export function createGanttInteraction(
   const [keyboardDelta, setKeyboardDelta] = createSignal(0)
   // Snapshot scalar values so same-ID store replacements and leaf edits invalidate
   // a gesture too. This never depends on pointer motion or transient preview state.
-  const revision = createMemo(() => ({
+  const acceptedIntervals = createMemo(() => ({
     intervals: options.intervals,
     values: options.intervals.map((item) => [
       item.id,
@@ -75,6 +75,10 @@ export function createGanttInteraction(
       item.readOnly,
       item.dateOnly,
     ]),
+  }))
+  // Scale and layout changes cancel gestures without rescanning accepted data.
+  const revision = createMemo(() => ({
+    ...acceptedIntervals(),
     start: options.range.start.getTime(),
     end: options.range.end.getTime(),
     width: options.width,

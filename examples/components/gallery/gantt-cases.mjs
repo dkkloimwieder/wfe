@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test'
+import { withCleanup } from '../../shared/browser/runner.mjs'
 
 export async function galleryGanttCases({ page, url, record }) {
   const host = () => page.locator('.gantt-example')
@@ -161,7 +162,9 @@ export async function galleryGanttCases({ page, url, record }) {
     'gallery: gantt range requests and large data keep bounded mounted rows',
     async () => {
       await open()
-      await host().getByRole('button', { name: 'Later', exact: true }).click()
+      await host()
+        .getByRole('button', { name: 'Next period', exact: true })
+        .click()
       await expect(host().locator('output')).toContainText('Requested window:')
       await expect(host().locator('.gantt-example-summary')).toContainText(
         '1 window requests',
@@ -189,6 +192,58 @@ export async function galleryGanttCases({ page, url, record }) {
         host().locator('[data-row="group-99-item-98"]'),
       ).toBeVisible()
       await expect.poll(() => rows.count()).toBeLessThan(100)
+      const connectors = host().locator('.ui-gantt-dependencies')
+      await expect
+        .poll(() => connectors.locator('path').count())
+        .toBeGreaterThan(0)
+      await expect
+        .poll(() =>
+          scroll.evaluate((node) => {
+            const svg = node.querySelector('.ui-gantt-dependencies')
+            if (!svg) return false
+            const bounds = svg.getBoundingClientRect()
+            const viewport = node.getBoundingClientRect()
+            return (
+              node.scrollTop > 0 &&
+              node.scrollHeight > node.clientHeight &&
+              bounds.height > 0 &&
+              bounds.height <= node.clientHeight &&
+              bounds.width <= node.clientWidth &&
+              bounds.top >= viewport.top - 1 &&
+              bounds.bottom <= viewport.bottom + 1
+            )
+          }),
+        )
+        .toBe(true)
+      await host().evaluate((node) => {
+        const svg = node.querySelector('.ui-gantt-dependencies')
+        const path = svg.querySelector('path')
+        node.__ganttReviewNodes = {
+          svg,
+          path,
+          geometry: path.getAttribute('d'),
+          grid: node.querySelector('.ui-gantt-gridline'),
+        }
+      })
+      await host()
+        .getByRole('button', { name: 'Zoom out', exact: true })
+        .click()
+      await expect(host().locator('output')).toContainText('Requested window:')
+      await expect
+        .poll(() =>
+          host().evaluate((node) => {
+            const retained = node.__ganttReviewNodes
+            return (
+              retained.svg === node.querySelector('.ui-gantt-dependencies') &&
+              retained.path.isConnected &&
+              retained.grid.isConnected &&
+              retained.grid === node.querySelector('.ui-gantt-gridline') &&
+              retained.path.getAttribute('d') !== retained.geometry
+            )
+          }),
+        )
+        .toBe(true)
+      await expect.poll(() => rows.count()).toBeLessThan(100)
       await host()
         .getByRole('button', { name: /^Dataset / })
         .click()
@@ -199,5 +254,71 @@ export async function galleryGanttCases({ page, url, record }) {
         "Loaded 8 rows into the example's local state.",
       )
     },
+  )
+
+  await record(
+    'gallery: gantt fits narrow viewports and keeps range controls usable',
+    async () =>
+      withCleanup(async () => {
+        for (const viewport of [
+          { width: 390, height: 844 },
+          { width: 320, height: 740 },
+        ]) {
+          await page.setViewportSize(viewport)
+          await page.goto(`${url}?gallery=gantt`)
+          await expect(interval()).toBeVisible()
+          const chart = host().locator('.ui-gantt')
+          const contained = () =>
+            chart.evaluate((node) => {
+              const bounds = node.getBoundingClientRect()
+              return (
+                bounds.width > 0 &&
+                bounds.height > 0 &&
+                bounds.left >= -1 &&
+                bounds.top >= -1 &&
+                bounds.right <= window.innerWidth + 1 &&
+                bounds.bottom <= window.innerHeight + 1
+              )
+            })
+          await expect.poll(contained).toBe(true)
+          for (const name of [
+            'Next period',
+            'Previous period',
+            'Zoom in',
+            'Zoom out',
+          ]) {
+            const control = chart.getByRole('button', { name, exact: true })
+            await control.click()
+            await expect(control).toBeFocused()
+            await expect(host().locator('output')).toContainText(
+              'Requested window:',
+            )
+          }
+          await expect(host().locator('.gantt-example-summary')).toContainText(
+            '4 window requests',
+          )
+          await host()
+            .getByRole('button', { name: 'Initial window', exact: true })
+            .click()
+          await expect(host().locator('.gantt-example-summary')).toContainText(
+            '5 window requests',
+          )
+          await expect(interval()).toBeVisible()
+          await expect.poll(contained).toBe(true)
+          await host()
+            .getByRole('button', { name: 'Reset', exact: true })
+            .click()
+          await expect(host().locator('output')).toHaveText(
+            "Loaded 8 rows into the example's local state.",
+          )
+          await expect(interval()).toBeVisible()
+          await expect.poll(contained).toBe(true)
+        }
+      }, [
+        {
+          name: 'gallery viewport',
+          close: () => page.setViewportSize({ width: 1280, height: 900 }),
+        },
+      ]),
   )
 }

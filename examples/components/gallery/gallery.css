@@ -240,9 +240,10 @@ body:has(.gallery-preview) {
   display: flex;
   flex: 1;
   flex-direction: column;
+  height: 100%;
   min-height: 0;
   min-width: 0;
-  overflow: auto;
+  overflow: hidden;
 }
 .gantt-example-controls,
 .gantt-example-summary {
@@ -252,16 +253,21 @@ body:has(.gallery-preview) {
   background: var(--ui-surface);
 }
 .gantt-example-controls {
-  border-bottom: 1px solid var(--ui-border);
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 40%;
+  overflow: auto;
 }
 .gantt-example-summary {
-  border-top: 1px solid var(--ui-border);
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 20%;
+  overflow: auto;
 }
-.gantt-example-controls h1,
 .gantt-example-summary p {
   margin: 0;
 }
 .gantt-example-chart {
-  flex: 0 0 auto;
-  min-height: 20rem;
+  flex: 1 1 0%;
+  min-height: min(12rem, 40%);
 }

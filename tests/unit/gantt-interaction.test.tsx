@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
-import { createSignal, flush } from 'solid-js'
+import { createSignal, createStore, flush } from 'solid-js'
 import { createGanttInteraction } from '../../packages/components/src/gantt/interaction'
 import type { GanttInteraction } from '../../packages/components/src/gantt/interaction'
 import type {
@@ -325,4 +325,86 @@ test('a proposal outside the Date range is rejected without halting the next ges
   await key(button, 'ArrowLeft')
   expect(f.interaction.preview()?.start.getTime()).toBe(8640000000000000 - 75)
   await key(button, 'Escape')
+})
+
+test('range and viewport revisions do not rescan unchanged interval scalar fields', async () => {
+  const [range, setRange] = createSignal({
+    start: new Date(0),
+    end: new Date(1000),
+  })
+  const [width, setWidth] = createSignal(1000)
+  const [revision, setRevision] = createSignal(0)
+  const [step, setStep] = createSignal(50)
+  const [zone, setZone] = createSignal('UTC')
+  const [start, setStart] = createSignal(new Date(200))
+  const readStart = vi.fn(() => start())
+  const intervals: readonly GanttInterval[] = [
+    {
+      id: 'a',
+      rowId: 'row',
+      label: 'Task',
+      get start() {
+        return readStart()
+      },
+      end: new Date(400),
+    },
+  ]
+  render(() => {
+    createGanttInteraction({
+      intervals,
+      get range() {
+        return range()
+      },
+      get width() {
+        return width()
+      },
+      get revision() {
+        return revision()
+      },
+      get keyboardStep() {
+        return step()
+      },
+      get timeZone() {
+        return zone()
+      },
+      onChange() {},
+    })
+    return <div />
+  })
+  await settle()
+  const initialReads = readStart.mock.calls.length
+  expect(initialReads).toBeGreaterThan(0)
+  for (const update of [
+    () => setRange({ start: new Date(100), end: new Date(1100) }),
+    () => setWidth(800),
+    () => setRevision(1),
+    () => setStep(100),
+    () => setZone('America/New_York'),
+  ]) {
+    update()
+    await settle()
+    expect(readStart).toHaveBeenCalledTimes(initialReads)
+  }
+  setStart(new Date(250))
+  await settle()
+  expect(readStart.mock.calls.length).toBeGreaterThan(initialReads)
+})
+
+test('same-array store leaf changes still cancel an active proposal', async () => {
+  const f = fixture()
+  const [records, setRecords] = createStore<GanttInterval[]>([
+    { ...f.original },
+  ])
+  f.setIntervals(records)
+  await settle()
+  const button = f.view.getByRole('button', { name: 'Move' })
+  await key(button, 'Space')
+  await key(button, 'ArrowRight')
+  expect(f.interaction.preview()).not.toBeNull()
+  setRecords((draft) => {
+    draft[0]!.start = new Date(250)
+  })
+  await settle()
+  expect(f.interaction.preview()).toBeNull()
+  expect(f.onChange).not.toHaveBeenCalled()
 })

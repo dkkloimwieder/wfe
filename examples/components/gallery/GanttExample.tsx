@@ -13,7 +13,6 @@ import type {
   GanttRange,
 } from '@wfe/components/gantt'
 import {
-  ganttDay,
   initialGanttRange,
   largeGanttFixture,
   smallGanttFixture,
@@ -103,27 +102,6 @@ export function GanttExample() {
       `Requested window: ${formatter().format(next.start)} to ${formatter().format(next.end)}.`,
     )
   }
-  function pan(direction: number) {
-    const current = range()
-    const offset =
-      ((current.end.getTime() - current.start.getTime()) * direction) / 2
-    changeRange({
-      start: new Date(current.start.getTime() + offset),
-      end: new Date(current.end.getTime() + offset),
-    })
-  }
-  function zoom(factor: number) {
-    const current = range()
-    const middle = (current.start.getTime() + current.end.getTime()) / 2
-    const span = Math.max(
-      ganttDay,
-      (current.end.getTime() - current.start.getTime()) * factor,
-    )
-    changeRange({
-      start: new Date(middle - span / 2),
-      end: new Date(middle + span / 2),
-    })
-  }
   function activate(interval: GanttInterval) {
     setActiveId(interval.id)
   }
@@ -131,7 +109,6 @@ export function GanttExample() {
   return (
     <section class="gantt-example" aria-label="Gantt example">
       <header class="gantt-example-controls">
-        <h1>Gantt</h1>
         <FormGrid columns={2}>
           <SelectField
             label="Dataset"
@@ -172,12 +149,6 @@ export function GanttExample() {
           <Button onClick={() => setExpanded(groups())}>Expand all</Button>
           <Button onClick={() => setExpanded([])}>Collapse all</Button>
           <Button onClick={() => load(dataset())}>Reset</Button>
-        </FormActions>
-        <FormActions>
-          <Button onClick={() => pan(-1)}>Earlier</Button>
-          <Button onClick={() => pan(1)}>Later</Button>
-          <Button onClick={() => zoom(0.5)}>Zoom in</Button>
-          <Button onClick={() => zoom(2)}>Zoom out</Button>
           <Button onClick={() => changeRange(initialGanttRange())}>
             Initial window
           </Button>
@@ -197,7 +168,7 @@ export function GanttExample() {
         onChange={readOnly() ? undefined : change}
         onRangeChange={changeRange}
         timeZone={timeZone()}
-        height={480}
+        height="auto"
         label="Example schedule"
       />
       <footer class="gantt-example-summary">

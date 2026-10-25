@@ -180,6 +180,7 @@ export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
     <div class="gallery-preview">
       <div
         class={
+          entry.id === 'gantt' ||
           entry.id === 'kanban' ||
           entry.id === 'entry' ||
           entry.id === 'everything' ||

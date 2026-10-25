@@ -85,10 +85,16 @@ export function Gantt(props: GanttProps) {
   const [width, setWidth] = createSignal(800)
   const headingId = createUniqueId()
   const instructionsId = createUniqueId()
-  const [viewport, setViewport] = createSignal({ top: 0, height: 480 })
+  const [scrollTop, setScrollTop] = createSignal(0)
+  const [viewportHeight, setViewportHeight] = createSignal(480)
+  const viewport = createMemo(() => ({
+    top: scrollTop(),
+    height: viewportHeight(),
+  }))
   const expanded = createMemo(() => new Set(props.expandedIds ?? []))
   const selected = createMemo(() => new Set(props.selectedIds ?? []))
-  const rows = createMemo(() => flattenGanttRows(props.rows, expanded()))
+  const acceptedRows = createMemo(() => props.rows)
+  const rows = createMemo(() => flattenGanttRows(acceptedRows(), expanded()))
   const intervalIndex = createMemo(() =>
     createGanttIntervalIndex(props.intervals),
   )
@@ -123,6 +129,16 @@ export function Gantt(props: GanttProps) {
     }
     return { heights, lanes, centers, offsets }
   })
+  // Moving an interval need not invalidate virtual measurements when lane counts
+  // stay unchanged. Row ordering is tracked separately through keys().
+  const measurementHeights = createMemo(() => layout().heights, {
+    equals: (previous, next) => {
+      if (previous.size !== next.size) return false
+      for (const [key, height] of previous)
+        if (next.get(key) !== height) return false
+      return true
+    },
+  })
   const laneIndex = createMemo(() =>
     createGanttIntervalIndex(props.intervals, (interval) =>
       JSON.stringify([interval.rowId, layout().lanes.get(interval.id) ?? 0]),
@@ -141,10 +157,10 @@ export function Gantt(props: GanttProps) {
       return keys()
     },
     get measurementVersion() {
-      return layout()
+      return measurementHeights()
     },
     get estimateSize() {
-      const heights = layout().heights
+      const heights = measurementHeights()
       const fallback = rowHeight()
       return (key: string) => heights.get(key) ?? fallback
     },
@@ -156,18 +172,17 @@ export function Gantt(props: GanttProps) {
     if (!element) return
     const measure = () => {
       setWidth(element.clientWidth || 800)
-      setViewport({
-        top: Math.max(0, element.scrollTop),
-        height: element.clientHeight || 480,
-      })
+      setViewportHeight(element.clientHeight || 480)
+      scroll()
     }
+    const scroll = () => setScrollTop(Math.max(0, element.scrollTop))
     measure()
     const observer = new ResizeObserver(measure)
     observer.observe(element)
-    element.addEventListener('scroll', measure, { passive: true })
+    element.addEventListener('scroll', scroll, { passive: true })
     return () => {
       observer.disconnect()
-      element.removeEventListener('scroll', measure)
+      element.removeEventListener('scroll', scroll)
     }
   })
   const dependencies = createMemo(() =>
@@ -179,8 +194,6 @@ export function Gantt(props: GanttProps) {
     ),
   )
   const paths = createMemo(() => {
-    const items = virtual.getItems()
-    if (!items.length) return []
     return dependencies()
       .query(viewport().top, viewport().top + viewport().height)
       .flatMap((edge) => {
@@ -202,14 +215,25 @@ export function Gantt(props: GanttProps) {
         return path ? [{ id: edge.id, path }] : []
       })
   })
+  const showTime = createMemo(
+    () =>
+      props.range.end.getTime() - props.range.start.getTime() < 3 * 86400000,
+  )
+  const connectorViewport = createMemo(() => {
+    const total = virtual.getTotalSize()
+    const top = Math.min(viewport().top, total)
+    return {
+      top,
+      height: Math.max(0, Math.min(viewport().height - 32, total - top)),
+    }
+  })
   const formatter = createMemo(
     () =>
       new Intl.DateTimeFormat(props.locale ?? 'en-US', {
         timeZone: props.timeZone ?? 'UTC',
         month: 'short',
         day: 'numeric',
-        ...(props.range.end.getTime() - props.range.start.getTime() <
-        3 * 86400000
+        ...(showTime()
           ? { hour: 'numeric' as const, minute: '2-digit' as const }
           : {}),
       }),
@@ -291,14 +315,17 @@ export function Gantt(props: GanttProps) {
     const move = interaction.register(interval, 'move')
     const start = interaction.register(interval, 'resize-start')
     const end = interaction.register(interval, 'resize-end')
-    const geometry = () => {
-      const preview = interaction.preview()
-      return ganttIntervalGeometry(
-        preview?.intervalId === interval().id ? preview : interval(),
+    const preview = createMemo(() => {
+      const current = interaction.preview()
+      return current?.intervalId === interval().id ? current : null
+    })
+    const geometry = createMemo(() =>
+      ganttIntervalGeometry(
+        preview() ?? interval(),
         props.range,
         timelineWidth(),
-      )
-    }
+      ),
+    )
     return (
       <Show when={geometry()}>
         {(box) => (
@@ -391,18 +418,26 @@ export function Gantt(props: GanttProps) {
   }
   function renderRow(key: string) {
     const entry = () => rowLookup().get(key)
+    const visibleLanes = createMemo(
+      () => {
+        const offset = layout().offsets.get(key) ?? 0
+        const count = (layout().heights.get(key) ?? rowHeight()) / rowHeight()
+        const first = Math.max(
+          0,
+          Math.floor((viewport().top - offset) / rowHeight()) - 2,
+        )
+        const last = Math.min(
+          count - 1,
+          Math.ceil(
+            (viewport().top + viewport().height - offset) / rowHeight(),
+          ) + 2,
+        )
+        return { first, last }
+      },
+      { equals: (a, b) => a.first === b.first && a.last === b.last },
+    )
     function queryVisible(baselines: boolean) {
-      const offset = layout().offsets.get(key) ?? 0
-      const count = (layout().heights.get(key) ?? rowHeight()) / rowHeight()
-      const first = Math.max(
-        0,
-        Math.floor((viewport().top - offset) / rowHeight()) - 2,
-      )
-      const last = Math.min(
-        count - 1,
-        Math.ceil((viewport().top + viewport().height - offset) / rowHeight()) +
-          2,
-      )
+      const { first, last } = visibleLanes()
       const result: GanttInterval[] = []
       for (let lane = first; lane <= last; lane++) {
         const query = baselines ? laneIndex().queryBaselines : laneIndex().query
@@ -451,12 +486,12 @@ export function Gantt(props: GanttProps) {
               </span>
             </div>
             <div role="cell" class="ui-gantt-track">
-              <For each={ticks()}>
+              <For each={ticks()} keyed={(tick) => tick.fraction}>
                 {(tick) => (
                   <span
                     class="ui-gantt-gridline"
                     aria-hidden="true"
-                    style={{ left: `${tick.fraction * 100}%` }}
+                    style={{ left: `${tick().fraction * 100}%` }}
                   />
                 )}
               </For>
@@ -515,9 +550,12 @@ export function Gantt(props: GanttProps) {
           instructions="Press Space or Enter to pick up. Use Left or Right to change time. Press Space or Enter to request the change, or Escape to cancel. Press S to select, Shift+S to toggle selection, or F2 to open details."
         />
       </Show>
-      <header class="ui-gantt-toolbar">
-        <Show when={props.onRangeChange}>
-          <div class="ui-gantt-actions">
+      <header
+        class="ui-gantt-toolbar table-workspace-header"
+        data-narrow={width() < 560 ? '' : undefined}
+      >
+        <div class="ui-gantt-actions table-workspace-header-actions">
+          <Show when={props.onRangeChange}>
             <IconButton
               aria-label="Previous period"
               onClick={() => navigate(-1)}
@@ -533,10 +571,20 @@ export function Gantt(props: GanttProps) {
             <IconButton aria-label="Zoom out" onClick={() => navigate(0, 2)}>
               <Icon glyph={iconZoomOut} />
             </IconButton>
+          </Show>
+          {props.toolbar}
+        </div>
+        <div class="table-workspace-title">
+          <div
+            class="table-workspace-title-face ui-button"
+            data-variant="outline"
+            data-tone="neutral"
+          >
+            <div class="table-workspace-title-text">
+              <h2 id={headingId}>{props.label ?? 'Schedule'}</h2>
+            </div>
           </div>
-        </Show>
-        {props.toolbar}
-        <h2 id={headingId}>{props.label ?? 'Schedule'}</h2>
+        </div>
       </header>
       <div
         class="ui-gantt-scroll"
@@ -557,10 +605,10 @@ export function Gantt(props: GanttProps) {
               class="ui-gantt-axis-track"
               aria-label={`Timeline, ${props.timeZone ?? 'UTC'}`}
             >
-              <For each={ticks()}>
+              <For each={ticks()} keyed={(tick) => tick.fraction}>
                 {(tick) => (
-                  <span style={{ left: `${tick.fraction * 100}%` }}>
-                    {tick.label}
+                  <span style={{ left: `${tick().fraction * 100}%` }}>
+                    {tick().label}
                   </span>
                 )}
               </For>
@@ -584,13 +632,17 @@ export function Gantt(props: GanttProps) {
             <svg
               class="ui-gantt-dependencies"
               aria-hidden="true"
+              viewBox={`0 ${connectorViewport().top} ${timelineWidth()} ${Math.max(1, connectorViewport().height)}`}
               style={{
+                top: `${connectorViewport().top}px`,
                 left: `${labelWidth()}px`,
                 width: `${timelineWidth()}px`,
-                height: `${virtual.getTotalSize()}px`,
+                height: `${connectorViewport().height}px`,
               }}
             >
-              <For each={paths()}>{(edge) => <path d={edge.path} />}</For>
+              <For each={paths()} keyed={(edge) => edge.id}>
+                {(edge) => <path d={edge().path} />}
+              </For>
             </svg>
           </div>
         </div>

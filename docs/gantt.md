@@ -146,6 +146,17 @@ records and their layout indexes still occupy memory. Virtualization does not
 page data from a server or remove the cost of indexing changed data. Bound the
 records supplied to the component according to the application's data size and
 available memory. Use range requests to load a suitable window when necessary.
+The connector SVG covers only the visible viewport, even when the schedule contains thousands of rows.
+Range changes retain mounted grid markers and connectors when their identities stay the same.
+An active edit updates the edited interval preview.
+It does not recalculate every mounted interval.
+Accepted edits still rebuild the indexes, but unchanged row heights retain virtual measurements.
+
+The gallery uses the available screen height and the shared table header styles.
+On narrow screens, the title sits above the range controls.
+The controls and status sections have their own scroll limits so that the timeline remains usable.
+For a flexible parent layout, pass `height="auto"` and give the parent a definite height.
+
 Dependency work also depends on the number of connectors that cross the viewport.
 If every connector crosses it, the component draws every connector. Applications
 can reduce the supplied relationships when a dense graph obscures the schedule.

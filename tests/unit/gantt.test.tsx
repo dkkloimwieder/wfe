@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal, flush } from 'solid-js'
+import { createSignal, createStore, flush } from 'solid-js'
 import { Gantt } from '../../packages/components/src/gantt/Gantt'
 import type {
   GanttInterval,
@@ -24,12 +24,37 @@ const scrollToDescriptor = Object.getOwnPropertyDescriptor(
 )
 
 beforeEach(() => {
+  Object.defineProperty(document, 'elementFromPoint', {
+    configurable: true,
+    value: () => null,
+  })
+  Object.defineProperty(document, 'getAnimations', {
+    configurable: true,
+    value: () => [],
+  })
+  Object.defineProperty(Element.prototype, 'getAnimations', {
+    configurable: true,
+    value: () => [],
+  })
+  Object.defineProperty(Element.prototype, 'scrollIntoView', {
+    configurable: true,
+    value() {},
+  })
+  vi.stubGlobal('matchMedia', () => ({
+    matches: false,
+    addEventListener() {},
+    removeEventListener() {},
+  }))
   class Observer {
     observe() {}
     unobserve() {}
     disconnect() {}
+    takeRecords() {
+      return []
+    }
   }
   vi.stubGlobal('ResizeObserver', Observer)
+  vi.stubGlobal('IntersectionObserver', Observer)
   vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(
     function (this: HTMLElement) {
       return this.classList.contains('ui-gantt-scroll')
@@ -53,6 +78,10 @@ afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
   vi.unstubAllGlobals()
+  Reflect.deleteProperty(document, 'elementFromPoint')
+  Reflect.deleteProperty(document, 'getAnimations')
+  Reflect.deleteProperty(Element.prototype, 'getAnimations')
+  Reflect.deleteProperty(Element.prototype, 'scrollIntoView')
   if (scrollToDescriptor)
     Object.defineProperty(HTMLElement.prototype, 'scrollTo', scrollToDescriptor)
   else Reflect.deleteProperty(HTMLElement.prototype, 'scrollTo')
@@ -276,4 +305,159 @@ test('editable intervals support keyboard selection without starting a move', as
   fireEvent.keyDown(bar, { key: 's', code: 'KeyS' })
   expect(selection).toHaveBeenCalledWith(['first'])
   expect(change).not.toHaveBeenCalled()
+})
+
+test('range updates retain connector and grid nodes instead of remounting them', async () => {
+  const [window, setWindow] = createSignal(range)
+  const h = render(() => (
+    <Gantt
+      rows={[
+        { id: 'a', label: 'A' },
+        { id: 'b', label: 'B' },
+      ]}
+      intervals={[task('first', 'a'), task('second', 'b')]}
+      dependencies={[{ id: 'link', from: 'first', to: 'second' }]}
+      range={window()}
+    />
+  ))
+  await settled()
+  const path = h.container.querySelector('.ui-gantt-dependencies path')!
+  const grid = h.container.querySelector('.ui-gantt-gridline')!
+  expect(path).not.toBeNull()
+  const originalPath = path.getAttribute('d')
+  setWindow({ start: new Date('2026-09-30'), end: new Date('2026-11-02') })
+  await settled()
+  expect(h.container.querySelector('.ui-gantt-dependencies path')).toBe(path)
+  expect(h.container.querySelector('.ui-gantt-gridline')).toBe(grid)
+  expect(path.getAttribute('d')).not.toBe(originalPath)
+})
+
+test('moving one interval does not reread unrelated interval geometry', async () => {
+  let reads = 0
+  const other = task('second', 'b')
+  const watched = {
+    ...other,
+    get start() {
+      reads++
+      return other.start
+    },
+  }
+  const h = render(() => (
+    <Gantt
+      rows={[
+        { id: 'a', label: 'A' },
+        { id: 'b', label: 'B' },
+      ]}
+      intervals={[task('first', 'a', 'First'), watched]}
+      range={range}
+      onChange={() => {}}
+    />
+  ))
+  await settled()
+  const bar = h.getByRole('button', { name: /^First,/ })
+  const item = bar.closest<HTMLElement>('.ui-gantt-item')!
+  const left = item.style.left
+  reads = 0
+  fireEvent.keyDown(bar, { key: ' ', code: 'Space' })
+  await settled()
+  fireEvent.keyDown(bar, { key: 'ArrowRight', code: 'ArrowRight' })
+  await settled()
+  expect(item.style.left).not.toBe(left)
+  expect(reads).toBe(0)
+  fireEvent.keyDown(bar, { key: 'Escape', code: 'Escape' })
+  await settled()
+  expect(item.style.left).toBe(left)
+})
+
+test('interval-only parent updates retain row hierarchy and rendered row identity', async () => {
+  const parentRead = vi.fn(() => undefined)
+  const rows: GanttRow[] = [
+    {
+      id: 'a',
+      label: 'A',
+      get parentId() {
+        return parentRead()
+      },
+    },
+  ]
+  const [data, setData] = createSignal({
+    rows,
+    intervals: [task('first', 'a', 'First')],
+  })
+  const h = render(() => (
+    <Gantt rows={data().rows} intervals={data().intervals} range={range} />
+  ))
+  await settled()
+  const row = h.container.querySelector('[data-row="a"]')
+  const bar = h.container.querySelector('[data-interval="first"]')
+  const reads = parentRead.mock.calls.length
+  expect(reads).toBeGreaterThan(0)
+  setData((current) => ({
+    ...current,
+    intervals: [{ ...current.intervals[0]!, label: 'Updated' }],
+  }))
+  await settled()
+  expect(h.getByRole('button', { name: /^Updated,/ })).toBe(bar)
+  expect(h.container.querySelector('[data-row="a"]')).toBe(row)
+  expect(parentRead).toHaveBeenCalledTimes(reads)
+})
+
+test('accepted overlapping intervals update row and virtual extent when lane count changes', async () => {
+  const first = task('first', 'a')
+  const second = {
+    ...task('second', 'a'),
+    start: new Date('2026-10-09'),
+    end: new Date('2026-10-12'),
+  }
+  const [intervals, setIntervals] = createSignal([
+    first,
+    second,
+    task('following', 'b'),
+  ])
+  const h = render(() => (
+    <Gantt
+      rows={[
+        { id: 'a', label: 'A' },
+        { id: 'b', label: 'B' },
+      ]}
+      intervals={intervals()}
+      range={range}
+      rowHeight={40}
+    />
+  ))
+  await settled()
+  const row = h.container.querySelector<HTMLElement>('[data-row="a"]')!
+  const extent = h.container.querySelector<HTMLElement>(
+    '.ui-gantt-body > div:not(.ui-gantt-dropzone)',
+  )!
+  expect(row.style.height).toBe('40px')
+  expect(extent.style.height).toBe('80px')
+  setIntervals([
+    first,
+    { ...second, start: first.start, end: first.end },
+    task('following', 'b'),
+  ])
+  await settled()
+  expect(row.style.height).toBe('80px')
+  expect(extent.style.height).toBe('120px')
+  expect(h.getByRole('button', { name: /^following,/ })).toBeTruthy()
+  setIntervals([first, second, task('following', 'b')])
+  await settled()
+  expect(row.style.height).toBe('40px')
+  expect(extent.style.height).toBe('80px')
+})
+
+test('same-reference row store parent changes still update visible hierarchy', async () => {
+  const [rows, setRows] = createStore<GanttRow[]>([
+    { id: 'a', label: 'A' },
+    { id: 'b', label: 'B', parentId: 'a' },
+  ])
+  const h = render(() => <Gantt rows={rows} intervals={[]} range={range} />)
+  await settled()
+  expect(h.queryByText('B')).toBeNull()
+  setRows((draft) => {
+    draft[1]!.parentId = undefined
+  })
+  await settled()
+  expect(h.getByText('B')).toBeTruthy()
 })
