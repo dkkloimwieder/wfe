@@ -99,11 +99,13 @@ body:has(.gallery-preview) {
 ) {
   overflow: visible;
 }
-.gallery-example-host:has(.gallery-table) > .gallery-preview {
+.gallery-example-host:has(.gallery-table, .gallery-example-fill)
+  > .gallery-preview {
   height: 100%;
   min-height: 0;
 }
-.gallery-example-host .gallery-table {
+.gallery-example-host .gallery-table,
+.gallery-example-host .gallery-example-fill {
   height: 100%;
 }
 .gallery-preview {
@@ -115,14 +117,20 @@ body:has(.gallery-preview) {
 .gallery-preview > main {
   padding: 0;
 }
-.gallery-preview:has(.gallery-table) {
+.gallery-preview:has(.gallery-table, .gallery-example-fill) {
   padding: 0;
 }
-.gallery-table {
+.gallery-table,
+.gallery-example-fill {
   display: flex;
   flex-direction: column;
   height: 100dvh;
   min-height: 0;
+}
+/* A fill example must let its own scroll containers shrink inside the viewport. */
+.gallery-example-fill > * {
+  min-height: 0;
+  min-width: 0;
 }
 @media (width < 48rem) {
   .gallery-dashboard > .ui-dashboard-header {

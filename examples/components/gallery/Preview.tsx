@@ -1,3 +1,5 @@
+import { DragExample } from '../../shared/drag-and-drop/DragExample'
+import { BoardExample } from '../../shared/drag-and-drop/BoardExample'
 import { DecorationGeometryExample } from './DecorationGeometryExample'
 import { InputDecorationExample } from './InputDecorationExample'
 import { ColumnControlsApp } from '../../shared/controls/ColumnControlsApp'
@@ -51,6 +53,12 @@ const IconsExample = lazy(() =>
 )
 
 const views = {
+  kanban: () => (
+    <div class="gallery-example-fill">
+      <BoardExample />
+    </div>
+  ),
+  'drag-and-drop': DragExample,
   'decoration-geometry': DecorationGeometryExample,
   icons: IconsExample,
   'input-decoration': InputDecorationExample,
@@ -166,6 +174,7 @@ export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
     <div class="gallery-preview">
       <div
         class={
+          entry.id === 'kanban' ||
           entry.id === 'entry' ||
           entry.id === 'everything' ||
           entry.id === 'table' ||

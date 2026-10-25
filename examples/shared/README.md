@@ -43,3 +43,7 @@ The editing-overhead diagnostic measures the real editing model, controller, val
 The WAMN generator integration reuses the prepared snapshot, owned transport adapter, and explicit generator runner override API.
 Each permitted source/import pair has a reason. No directory is exempt, private package imports remain prohibited, and an unused exception fails the check.
 These exceptions do not permit gallery/generator application imports or foreign application stylesheets.
+
+The `drag-and-drop` directory holds the generic drag example and board example
+used by the standalone preview and component gallery. Both use public component
+APIs. Their application records and accepted ordering stay in example state.

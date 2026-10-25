@@ -1144,3 +1144,76 @@ const shellMessagesOutput = await renderToString(() =>
 assert.match(shellMessagesOutput, /Audiencia/)
 assert.match(shellMessagesOutput, /Ruta/)
 assert.match(shellMessagesOutput, /Menú/)
+
+// Node exports must render registrations without constructing browser managers.
+const {
+  createDragDrop,
+  createDraggable,
+  createDroppable,
+  DragHandle,
+  DragDropFeedback,
+  DragPreview,
+} = await import('@wfe/components/dnd')
+const { createSortable } = await import('@wfe/components/sortable')
+const { KanbanBoard, KanbanColumn, KanbanItem } =
+  await import('@wfe/components/kanban')
+const dragWarnings = []
+let dragOutput
+try {
+  console.warn = (...args) => dragWarnings.push(args.map(String).join(' '))
+  dragOutput = await renderToString(() => {
+    const forbiddenRequest = () => {
+      throw new Error('SSR must not dispatch a move')
+    }
+    const scope = createDragDrop({ onDrop: forbiddenRequest })
+    const source = createDraggable(scope, {
+      id: 'source',
+      label: 'Server source',
+      data: null,
+    })
+    createDroppable(scope, { id: 'target', label: 'Server target', data: null })
+    assert.equal(scope.operation(), null)
+    assert.equal(scope.requestDrop('source', 'target'), false)
+    const sortable = createSortable({
+      containers: [{ id: 'lane', items: ['record'] }],
+      onMove: forbiddenRequest,
+    })
+    return [
+      createComponent(DragHandle, {
+        drag: source,
+        label: 'Move server source',
+      }),
+      createComponent(DragDropFeedback, {
+        scope,
+        instructionsId: 'server-drag-help',
+      }),
+      createComponent(DragPreview, { scope }),
+      createComponent(KanbanBoard, {
+        'aria-label': 'Server board',
+        get children() {
+          return createComponent(KanbanColumn, {
+            id: 'lane',
+            title: 'Server lane',
+            sortable,
+            get children() {
+              return createComponent(KanbanItem, {
+                id: 'record',
+                label: 'Server record',
+                sortable,
+                children: 'Server record content',
+              })
+            },
+          })
+        },
+      }),
+    ]
+  })
+} finally {
+  console.warn = originalWarn
+}
+assert.deepEqual(dragWarnings, [])
+assert.match(dragOutput, /Move server source/)
+assert.match(dragOutput, /Server lane/)
+assert.match(dragOutput, /Server record content/)
+assert.match(dragOutput, /server-drag-help/)
+assert.doesNotMatch(dragOutput, /ui-dnd-preview/)

@@ -392,3 +392,17 @@ Use `ReadOnlyTable.toolbarActions` for create or invite controls beside refresh 
 For generated tables, supply a stable application component through `TableViewBindings.toolbarActions`.
 Use `EntryPanel` and `EntryPanelActions` from `@wfe/components/layout` for a centered entry form.
 These components provide presentation. Applications retain navigation, requests, authentication, and validation rules.
+
+## Unreleased drag and drop
+
+Use `@wfe/components/dnd` for generic source/target scopes,
+`@wfe/components/sortable` for controlled ordering, and
+`@wfe/components/kanban` for board presentation. These additions are not in
+v0.0.8. They use the existing shared stylesheet and Default theme.
+
+Create scopes and registrations inside Solid owners and pass reactive
+options through getters. Applications retain accepted records, order,
+validation, asynchronous outcomes and persistence. A completed gesture or
+menu alternative emits a request; it does not prescribe application behavior.
+The [drag and drop guide](drag-and-drop.md) covers refs, handles, accessibility,
+preview rendering, cancellation, and the generic and board gallery examples.

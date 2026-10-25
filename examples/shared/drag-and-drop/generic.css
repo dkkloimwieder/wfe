@@ -1,0 +1,48 @@
+.drag-example {
+  display: grid;
+  align-content: start;
+  gap: var(--ui-layout-inset);
+  padding: var(--ui-layout-inset);
+  min-width: 0;
+}
+.drag-example-section {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  padding: var(--ui-layout-inset);
+  margin: 0;
+}
+.drag-example h2 {
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  margin-top: 0;
+}
+.drag-example-actions,
+.drag-example-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap);
+}
+.drag-example-source > span {
+  flex: 1;
+}
+.drag-example-targets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+  gap: var(--ui-gap);
+}
+.drag-example-target {
+  min-height: 5rem;
+  padding: var(--ui-layout-inset);
+  border: 1px solid var(--ui-border);
+}
+.drag-example-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.drag-example-list > li {
+  padding-block: var(--ui-gap);
+  border-bottom: 1px solid var(--ui-border);
+}

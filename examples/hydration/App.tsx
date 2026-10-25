@@ -1,3 +1,4 @@
+import { DragBoardControls } from '../shared/controls/DragBoardControls'
 import {
   CompoundFieldControls,
   compoundFieldLifecycle,
@@ -184,6 +185,7 @@ export default function App() {
         <MatchingCombobox mode="fuzzy" />
       </div>
       <ThemeConsumer />
+      <DragBoardControls />
       <CompoundFieldControls />
       <ButtonLinkControls />
       <FileControls />

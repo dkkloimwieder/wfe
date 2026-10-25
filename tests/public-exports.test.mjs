@@ -119,3 +119,31 @@ test('private shell exposes metadata guards and all package delivery targets', a
   for (const file of Object.values(manifest.exports['.']))
     await access(new URL('../packages/shell/' + file, import.meta.url))
 })
+
+test('drag, sortable and board subpaths expose owned generic APIs', async () => {
+  const dnd = await import('@wfe/components/dnd')
+  const sortable = await import('@wfe/components/sortable')
+  const kanban = await import('@wfe/components/kanban')
+  for (const name of [
+    'createDragDrop',
+    'createDraggable',
+    'createDroppable',
+    'DragDropFeedback',
+    'DragPreview',
+    'DragHandle',
+    'DropIndicator',
+  ])
+    assert.equal(typeof dnd[name], 'function', name)
+  for (const name of [
+    'createSortable',
+    'createSortableItem',
+    'createSortableTarget',
+    'createSortableContainer',
+    'moveSortableItem',
+  ])
+    assert.equal(typeof sortable[name], 'function', name)
+  for (const name of ['KanbanBoard', 'KanbanColumn', 'KanbanItem'])
+    assert.equal(typeof kanban[name], 'function', name)
+  assert.equal('DragDropManager' in dnd, false)
+  assert.equal('Draggable' in dnd, false)
+})

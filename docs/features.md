@@ -19,6 +19,17 @@ Applications own records, routing, permissions, requests, caching, persistence, 
 Components own presentation, generic interaction, accessibility associations, and intrinsic input validity.
 The [ownership contract](contracts/UI-BOUNDARIES.md) separates these responsibilities.
 
+## Drag and drop
+
+The unreleased `@wfe/components/dnd` entry provides generic sources, targets,
+keyboard navigation, lifecycle feedback, previews, handles and indicators.
+`@wfe/components/sortable` calculates controlled move requests within and
+between containers. Applications own accepted ordering and persistence.
+`@wfe/components/kanban` composes board, column and item presentation.
+
+See the [drag and drop guide](drag-and-drop.md) and
+[examples](../examples/drag-and-drop/README.md). These additions are not in v0.0.8.
+
 ## Controls and feedback
 
 | Area                    | Implemented functionality                                                                                                          | Guide or source                                                                                                                     |

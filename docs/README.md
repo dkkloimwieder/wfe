@@ -81,3 +81,5 @@ See [row-dependent table actions](table-row-actions.md) for live row state, disa
 - [Remaining audit findings](audit-low-dispositions.md): compatibility decisions and deferred work for the October 22 audit.
 
 - [Audit remediation checkpoint](audit-remediation-2026-10-24.md) records delivered work, retained evidence, and final qualification limits.
+
+See [Drag and drop](drag-and-drop.md) for unreleased generic scopes, controlled ordering, and board composition.

@@ -36,6 +36,7 @@ Generic controls and layout consumers:
 - [Charts](charts/README.md), [boolean grid](grid/README.md), and [status tiles](status-tiles/README.md).
 - [Table editing](table-editing/README.md), [read-only tables](table-read-only/README.md), [analytics](analytics/README.md), and [virtualization](virtualization/README.md).
 - [Sync store](sync/README.md), which fills one collection from a fake feed and reads it through both adapters.
+- [Drag and drop](drag-and-drop/README.md), with generic targets, controlled sorting, and an issue board.
 - [Shared hydration](hydration/README.md) and [shared fixture support](shared/README.md).
 
 Application integration examples:

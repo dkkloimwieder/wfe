@@ -19,6 +19,7 @@ The [release verification record](docs/qualification.md#v008-release) identifies
 
 Use the [documentation index](docs/README.md) to find the current guides.
 The [feature catalog](docs/features.md) records implemented functionality and its ownership boundaries.
+The unreleased [drag and drop guide](docs/drag-and-drop.md) covers generic scopes, controlled sorting, and board presentation.
 The [plans directory](docs/plan/README.md) keeps proposed work separate from current APIs.
 
 ## Development

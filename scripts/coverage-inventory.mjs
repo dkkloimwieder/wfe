@@ -11,6 +11,7 @@ const required = (id, modes = browserModes) => ({
   build: true,
 })
 export const examples = [
+  required('drag-and-drop'),
   required('status-tiles'),
   required('grid'),
   required('shell'),

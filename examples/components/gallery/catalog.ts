@@ -9,6 +9,18 @@ export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
   {
+    id: 'drag-and-drop',
+    label: 'Drag and drop',
+    group: 'Components',
+    states: ['normal'],
+  },
+  {
+    id: 'kanban',
+    label: 'Issue board',
+    group: 'Components',
+    states: ['normal'],
+  },
+  {
     id: 'decoration-geometry',
     label: 'Decoration geometry',
     group: 'Components',
