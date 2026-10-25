@@ -55,8 +55,10 @@ function bare(url: string): string {
  * the network first and return its response, including HTTP errors.
  * If the network fails, serve the cached fallback. If it is missing, fail
  * with the network error. Leave other requests to the network.
- * A request whose path starts with `apiPrefix` is never answered from the
- * cache and never cached, even when the manifest lists it.
+ * `apiPrefix` matches the exact path or the path followed by '/'.
+ * The worker strips trailing slashes from the prefix. '/' matches every path.
+ * Matching requests never use the cache or fallback, even when the manifest
+ * lists them. The worker never caches matching manifest URLs or fallbacks.
  * Activation deletes the caches of older builds.
  */
 export function precache(
@@ -72,8 +74,9 @@ export function precache(
 ): void {
   const scope = globalThis as unknown as WorkerScope
   const base = scope.registration.scope
-  const api = options.apiPrefix ?? '/api'
-  const underApi = (url: URL) => url.pathname.startsWith(api)
+  const api = (options.apiPrefix ?? '/api').replace(/\/+$/, '') || '/'
+  const underApi = (url: URL) =>
+    api === '/' || url.pathname === api || url.pathname.startsWith(`${api}/`)
   const navigationFallback = options.navigationFallback ?? 'index.html'
   const fallbackUrl = new URL(navigationFallback, base)
   const fallback = bare(fallbackUrl.href)

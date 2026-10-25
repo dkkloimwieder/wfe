@@ -114,7 +114,7 @@ The manifest lists the files to cache. The navigation fallback is the page that 
 - A GET for a manifest URL uses the cache first. The worker ignores the query, so `./?tab=2` gets the cached `./`. On a miss, the request goes to the network.
 - Other GET navigations use the network first. The worker returns the server response, including HTTP errors such as 404. Only a network failure uses the cached fallback. If the fallback is missing, the request fails with the network error. The consuming app handles deep routes.
 - The worker leaves other requests to the network without interception. This includes requests outside the manifest that are not navigations.
-- A request whose path starts with `apiPrefix`, default `/api`, never uses the cache or the fallback. The worker never caches a manifest URL or fallback under that prefix.
+- `apiPrefix`, default `/api`, matches the exact path or the path followed by '/'. The worker strips trailing slashes from the prefix. '/' matches every path. Matching requests never use the cache or the fallback. The worker never caches a manifest URL or fallback under that prefix.
 - Activate deletes the older caches of the same scope and claims the open pages.
 - The skip-waiting message from `reload()` of `shell()` makes a waiting worker take over.
 

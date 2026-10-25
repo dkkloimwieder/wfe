@@ -149,31 +149,80 @@ test('an offline navigation with no cached fallback rethrows the network error',
   ).rejects.toBe(error)
 })
 
-test.each(['/api', '/v2'])(
-  'offline navigation under %s is never intercepted, including prefix matches',
+test.each([undefined, '/api', '/api/', '/api///'])(
+  'API paths are never cached or intercepted with apiPrefix %s',
   async (apiPrefix) => {
     const scope = workerScope()
-    precache([...manifest, `${apiPrefix}/health`, `${apiPrefix}-other`], {
-      apiPrefix,
-    })
+    precache([...manifest, '/api', '/api/orders'], { apiPrefix })
     await scope.extend('install')
     scope.network.mockRejectedValue(new TypeError('offline'))
-    for (const path of [
-      apiPrefix,
-      `${apiPrefix}/health`,
-      `${apiPrefix}-other`,
-    ]) {
-      expect(
-        await scope.request(new URL(path, scopeUrl).href, 'GET', 'navigate'),
-      ).toBeUndefined()
+    const cached = [...[...scope.stores.values()][0]!.keys()]
+    for (const path of ['/api', '/api/orders']) {
+      const url = new URL(path, scopeUrl).href
+      expect(cached).not.toContain(url)
+      expect(await scope.request(url)).toBeUndefined()
+      expect(await scope.request(url, 'GET', 'navigate')).toBeUndefined()
     }
     expect(scope.network).not.toHaveBeenCalled()
-    const cached = [...[...scope.stores.values()][0]!.keys()]
-    expect(
-      cached.some((url) => new URL(url).pathname.startsWith(apiPrefix)),
-    ).toBe(false)
   },
 )
+
+test.each([undefined, '/api', '/api/', '/api///'])(
+  'similar manifest paths stay cache-first with apiPrefix %s',
+  async (apiPrefix) => {
+    const scope = workerScope()
+    precache([...manifest, '/apiary', '/apix/y'], { apiPrefix })
+    await scope.extend('install')
+    const cached = [...[...scope.stores.values()][0]!.keys()]
+    for (const path of ['/apiary', '/apix/y']) {
+      const url = new URL(path, scopeUrl).href
+      expect(cached).toContain(url)
+      expect(await scope.request(url)).toBe(`cached ${url}`)
+      expect(await scope.request(url, 'GET', 'navigate')).toBe(`cached ${url}`)
+    }
+    expect(scope.network).not.toHaveBeenCalled()
+  },
+)
+
+test.each([undefined, '/api', '/api/', '/api///'])(
+  'similar offline navigation paths use the fallback with apiPrefix %s',
+  async (apiPrefix) => {
+    const scope = workerScope()
+    precache(manifest, { apiPrefix })
+    await scope.extend('install')
+    scope.network.mockRejectedValue(new TypeError('offline'))
+    for (const path of ['/apiary', '/apix/y']) {
+      expect(
+        await scope.request(new URL(path, scopeUrl).href, 'GET', 'navigate'),
+      ).toBe(`cached ${scopeUrl}index.html`)
+    }
+    expect(scope.network).toHaveBeenCalledTimes(2)
+  },
+)
+
+test.each(['/api', '/api/orders'])(
+  'an API fallback %s is never cached',
+  async (navigationFallback) => {
+    const scope = workerScope()
+    precache([], { apiPrefix: '/api/', navigationFallback })
+    await scope.extend('install')
+    expect([...[...scope.stores.values()][0]!.keys()]).toEqual([])
+  },
+)
+
+test('apiPrefix / excludes every path from the cache and fallback', async () => {
+  const scope = workerScope()
+  precache([...manifest, '/'], { apiPrefix: '/' })
+  await scope.extend('install')
+  expect([...[...scope.stores.values()][0]!.keys()]).toEqual([])
+  scope.network.mockRejectedValue(new TypeError('offline'))
+  for (const path of ['/', '/api', '/apiary', '/shop/index.html']) {
+    const url = new URL(path, scopeUrl).href
+    expect(await scope.request(url)).toBeUndefined()
+    expect(await scope.request(url, 'GET', 'navigate')).toBeUndefined()
+  }
+  expect(scope.network).not.toHaveBeenCalled()
+})
 
 test('a non-navigation deep request and a POST navigation are not intercepted', async () => {
   const scope = workerScope()
