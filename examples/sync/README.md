@@ -23,6 +23,12 @@ The build also writes `sw.js` from `sw.ts` with the manifest recipe in `vite.con
 The page calls `shell({ workerUrl: './sw.js', onUpdate })`. When a new worker waits, the page shows "Update available, reload". The page never reloads on its own.
 The runner checks three worker cases in a second browser context. With the network blocked, a reload renders the page from the worker cache. A blocked `/api` request fails, and no cache holds an `/api` URL. A changed `sw.js` shows the update button, and the button hands over to the new worker.
 
+The Shell section shows the `shell()` result: whether the worker is installed, whether storage is protected, and the storage use and quota.
+The gallery saves the rows of each size through its own IndexedDB Persistence in the database `wfe-sync-gallery-rows`, object store `collections`. The package exports no Persistence.
+If the page loads with no network, the fake server cannot be reached, so the saved rows fill the collection. The status line shows the failed read. The next `online` event reads the list again.
+The Reload page button reloads the page. With the network off, the worker cache serves the page, and the rows come from this device.
+The runner checks this path: it changes the rows on the server, waits for the save, blocks the network, and reloads. The page shows the 10,010 saved rows, not the 10,000 rows of a fresh fake server.
+
 ## Preview
 
 From the repository root, install dependencies with `pnpm install --frozen-lockfile`.

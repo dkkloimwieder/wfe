@@ -52,18 +52,22 @@ export type CreateRequest = { id: string; name: string; quantity: number }
  * A fake host for one scope: a row table, a change log, and a trigger. The
  * cursor 'cN' means the first N log entries. `changes` pages the log, 50
  * entries by default. `send` takes create writes, and `net` switches the
- * network off or refuses the next send.
+ * network off or refuses the next send. While `net.reachable` is false, as
+ * after a page load with no network, `list` and `changes` reject.
  */
 export function fakeServer(count: number) {
   let rows = makeRows(count)
   const log: Change<Order>[] = []
+  const net = { online: true, refuseNext: false, reachable: true }
   const fires = new Map<string, Set<() => void>>()
   const feed: Feed<Order, Scope> = {
     async list() {
       await new Promise((resolve) => setTimeout(resolve, 100))
+      if (!net.reachable) throw new Error('The server cannot be reached')
       return { rows, cursor: `c${log.length}` }
     },
     async changes(_scope, cursor, limit = 50) {
+      if (!net.reachable) throw new Error('The server cannot be reached')
       const start = Number(cursor.slice(1))
       const page = log.slice(start, start + limit)
       const next = start + page.length
@@ -96,7 +100,6 @@ export function fakeServer(count: number) {
     rows = [...byId.values()]
     for (const fire of [...(fires.get(key) ?? [])]) fire()
   }
-  const net = { online: true, refuseNext: false }
   const applied = new Set<string>()
   const probe = async () => {
     await new Promise((resolve) => setTimeout(resolve, 20))

@@ -290,11 +290,35 @@ try {
   })
   const controlled = () =>
     tab.waitForFunction(() => navigator.serviceWorker.controller !== null)
+  /** Wait until the gallery Persistence holds this many rows of 10,000. */
+  /** The row count of 10,000 that the gallery Persistence holds, or 0. */
+  const savedRows = () =>
+    tab.evaluate(
+      () =>
+        new Promise((resolve) => {
+          const open = indexedDB.open('wfe-sync-gallery-rows')
+          // Never create the database before the gallery does.
+          open.onupgradeneeded = () => open.transaction.abort()
+          open.onerror = () => resolve(0)
+          open.onsuccess = () => {
+            const get = open.result
+              .transaction('collections')
+              .objectStore('collections')
+              .get('orders:10000')
+            get.onsuccess = () => {
+              open.result.close()
+              resolve(get.result?.rows.length ?? 0)
+            }
+          }
+        }),
+    )
+  const saved = (count) => expect.poll(savedRows).toBe(count)
   await run(
     'with the worker registered and the network blocked, a reload renders the page',
     async () => {
       await tab.goto(base)
       await controlled()
+      await saved(10_000)
       await context.setOffline(true)
       await tab.reload()
       await expect(tab.locator('[data-sync-status]')).toHaveAttribute(
@@ -344,8 +368,11 @@ try {
       )
       await expect(tab.locator('[data-sync-update]')).toHaveCount(0)
       build = 2
-      await tab.reload()
-      await controlled()
+      // The page asks for the update check. After the offline reload above,
+      // a reload did not find the new build within the wait.
+      await tab.evaluate(async () => {
+        await (await navigator.serviceWorker.getRegistration())?.update()
+      })
       const offer = tab.locator('[data-sync-update]')
       await expect(offer).toBeVisible()
       assert.ok(
@@ -372,6 +399,56 @@ try {
       })
       assert.equal(state.waiting, null)
       assert.equal(state.script, first)
+    },
+  )
+  await run(
+    'the shell result shows the worker, the storage and the quota',
+    async () => {
+      const line = tab.locator('[data-sync-shell]')
+      await expect(line).toHaveAttribute('data-sync-shell', 'ready')
+      await expect(line).toHaveAttribute('data-sync-worker', 'true')
+      assert.match(
+        await line.getAttribute('data-sync-persisted'),
+        /^(true|false)$/,
+      )
+      assert.ok(Number(await line.getAttribute('data-sync-quota')) > 0)
+      await expect(line).toContainText('Offline shell: installed')
+    },
+  )
+  await run(
+    'with the network blocked, the gallery reloads and renders from persistence',
+    async () => {
+      const rowsOf = tab.locator('[data-sync-rows]')
+      await expect(rowsOf).toHaveAttribute('data-sync-rows', '10000')
+      await tab.getByRole('button', { name: 'Change on the server' }).click()
+      await expect(rowsOf).toHaveAttribute('data-sync-rows', '10010')
+      // The collection saves 250 ms after the pass.
+      await saved(10_010)
+      await context.setOffline(true)
+      await expect(tab.locator('[data-sync-online]')).toHaveAttribute(
+        'data-sync-online',
+        'false',
+      )
+      const navigated = tab.waitForEvent('framenavigated')
+      await tab.getByRole('button', { name: 'Reload page' }).click()
+      await navigated
+      await expect(tab.locator('[data-sync-status]')).toHaveAttribute(
+        'data-sync-status',
+        'ready',
+      )
+      // A fresh fake server holds 10,000 rows; 10,010 came from this device.
+      await expect(rowsOf).toHaveAttribute('data-sync-rows', '10010')
+      await expect(tab.locator('[data-sync-online]')).toHaveAttribute(
+        'data-sync-online',
+        'false',
+      )
+      await expect(tab.locator('[data-sync-shell]')).toHaveAttribute(
+        'data-sync-worker',
+        'true',
+      )
+      await context.setOffline(false)
+      // The online event reads the list again from the fresh fake server.
+      await expect(rowsOf).toHaveAttribute('data-sync-rows', '10000')
     },
   )
   await context.close()

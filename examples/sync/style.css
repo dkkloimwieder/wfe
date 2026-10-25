@@ -10,7 +10,8 @@ body {
   gap: var(--ui-gap, 6px);
 }
 .sync-title,
-.sync-shape h2 {
+.sync-shape h2,
+.sync-shell h2 {
   margin: 0;
   font: inherit;
   font-weight: 600;
@@ -32,13 +33,15 @@ body {
   min-width: 0;
 }
 .sync-shape,
+.sync-shell,
 .sync-writes {
   display: flex;
   flex-direction: column;
   gap: var(--ui-gap, 6px);
   min-width: 0;
 }
-.sync-shape p {
+.sync-shape p,
+.sync-shell p {
   margin: 0;
 }
 .sync-writes h3 {

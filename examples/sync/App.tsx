@@ -1,4 +1,5 @@
 import {
+  Errored,
   For,
   Loading,
   Show,
@@ -20,10 +21,11 @@ import {
   shell,
   syncStatus,
 } from '@wfe/sync'
-import type { Outbox } from '@wfe/sync'
+import type { Outbox, ShellResult } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import { fakeServer, randomChanges, uuidv7 } from './fake'
+import { indexedPersistence } from './persistence'
 import type { CreateRequest, Order, Scope } from './fake'
 import './style.css'
 
@@ -31,32 +33,52 @@ type Store = ReturnType<typeof collection<Order, Scope>>
 type Server = ReturnType<typeof fakeServer>
 const sizes = [10_000, 100_000]
 const limit = 200
+// The gallery names the databases; the package never does.
+const persistence = indexedPersistence('wfe-sync-gallery-rows')
 
 export function App() {
   // A new worker waits: the page offers a reload and never reloads alone.
   const [update, setUpdate] = createSignal<() => void>()
+  const [result, setResult] = createSignal<ShellResult>()
   void shell({
     workerUrl: './sw.js',
     onUpdate: (reload) => setUpdate(() => reload),
+  }).then(setResult)
+  const [online, setOnline] = createSignal(navigator.onLine)
+  const network = () => setOnline(navigator.onLine)
+  window.addEventListener('online', network)
+  window.addEventListener('offline', network)
+  onCleanup(() => {
+    window.removeEventListener('online', network)
+    window.removeEventListener('offline', network)
   })
   const [size, setSize] = createSignal(sizes[0]!)
   const [applied, setApplied] = createSignal(0)
   const [served, setServed] = createSignal(0)
   const source = createMemo(() => {
     const server = fakeServer(size())
+    // A page loaded with no network cannot reach the server. The saved rows
+    // then fill the collection, and the next online event reads again.
+    server.net.reachable = navigator.onLine
     const key = `orders:${size()}`
     const c = collection(
       server.feed,
       { size: size() },
-      { key, trigger: server.trigger },
+      { key, trigger: server.trigger, persistence },
     )
-    // The gallery names the database; the package never does.
+    const reach = () => {
+      if (server.net.reachable) return
+      server.net.reachable = true
+      void c.utils.refill()
+    }
+    window.addEventListener('online', reach)
     const o = outbox({
       database: `wfe-sync-gallery:${size()}`,
       send: server.send,
       probe: server.probe,
     })
     onCleanup(() => {
+      window.removeEventListener('online', reach)
       o.close()
       queueMicrotask(() => void c.cleanup())
     })
@@ -112,6 +134,40 @@ export function App() {
           </Show>
         </div>
       </header>
+      <section class="sync-shell" aria-labelledby="sync-shell-title">
+        <h2 id="sync-shell-title" data-ui-text="system">
+          Shell
+        </h2>
+        <p
+          data-sync-shell={result() ? 'ready' : 'waiting'}
+          data-sync-worker={String(result()?.worker ?? '')}
+          data-sync-persisted={String(result()?.persisted ?? '')}
+          data-sync-quota={result()?.quota.quota ?? ''}
+        >
+          <Show when={result()} fallback="Preparing the shell">
+            {(shown) => (
+              <>
+                Offline shell: {shown().worker ? 'installed' : 'unavailable'}
+                {' · '}Storage:{' '}
+                {shown().persisted ? 'protected' : 'not protected'}
+                {' · '}
+                {megabytes(shown().quota.usage)} of{' '}
+                {megabytes(shown().quota.quota)} used
+              </>
+            )}
+          </Show>
+        </p>
+        <p class="sync-buttons">
+          <span data-sync-online={String(online())}>
+            Network: {online() ? 'online' : 'offline'}
+          </span>
+          <Button onClick={() => location.reload()}>Reload page</Button>
+          <span>
+            With the network off, a reload renders the page from the worker
+            cache and the rows from this device.
+          </span>
+        </p>
+      </section>
       <Show when={source()} keyed>
         {(current) => (
           <>
@@ -148,6 +204,13 @@ function Shapes(props: { store: Store }) {
     status()
     return untrack(() => props.store.utils.currentAt()) ?? ''
   })
+  // The last failed read, such as a list with no network. Saved rows stay.
+  const failure = createMemo(() => {
+    ids()
+    status()
+    const error = untrack(() => props.store.utils.error())
+    return error === undefined ? '' : String((error as Error).message ?? error)
+  })
   return (
     <main class="sync-shapes">
       <p class="sync-status">
@@ -156,6 +219,10 @@ function Shapes(props: { store: Store }) {
         <output data-sync-current-at={currentAt()}>
           {currentAt() || 'not yet'}
         </output>
+        <Show when={failure()}>
+          {' · '}Last read failed:{' '}
+          <output data-sync-error={failure()}>{failure()}</output>
+        </Show>
       </p>
       <section class="sync-shape" aria-labelledby="sync-rows-title">
         <h2 id="sync-rows-title" data-ui-text="system">
@@ -196,30 +263,43 @@ function Shapes(props: { store: Store }) {
         <h2 id="sync-list-title" data-ui-text="system">
           liveList
         </h2>
-        <Loading fallback={<p>Loading the first page</p>}>
-          <p>
-            <span data-sync-list={list.length}>
-              {list.length.toLocaleString('en-US')}
-            </span>{' '}
-            rows, first {limit} shown
-          </p>
-          <div class="sync-scroll">
-            <ol class="sync-list">
-              <For each={shown()}>
-                {(row) => (
-                  <li>
-                    {row.name} · {row.quantity} · {row.status} · v
-                    {row.row_version}
-                  </li>
-                )}
-              </For>
-            </ol>
-          </div>
-        </Loading>
+        <Errored
+          fallback={(error) => (
+            <p data-sync-failed>
+              The first page failed: {String((error() as Error).message)}
+            </p>
+          )}
+        >
+          <Loading fallback={<p>Loading the first page</p>}>
+            <p>
+              <span data-sync-list={list.length}>
+                {list.length.toLocaleString('en-US')}
+              </span>{' '}
+              rows, first {limit} shown
+            </p>
+            <div class="sync-scroll">
+              <ol class="sync-list">
+                <For each={shown()}>
+                  {(row) => (
+                    <li>
+                      {row.name} · {row.quantity} · {row.status} · v
+                      {row.row_version}
+                    </li>
+                  )}
+                </For>
+              </ol>
+            </div>
+          </Loading>
+        </Errored>
       </section>
       <VirtualTable rows={rows} ids={ids} />
     </main>
   )
+}
+
+/** A byte count in megabytes, one decimal. */
+function megabytes(bytes: number): string {
+  return `${(bytes / 1_048_576).toFixed(1)} MB`
 }
 
 /** Row height of the virtual table, in pixels. */
