@@ -40,7 +40,12 @@ import type {
 } from './TableColumnFilter'
 import type { TableDateRange } from './TableDateFilter'
 import { TableGrouping } from './TableGrouping'
-import { TableColumnMove, moveColumn } from './TableColumnMove'
+import {
+  TableColumnMove,
+  moveColumn,
+  columnMoveDestination,
+} from './TableColumnMove'
+import { createSortable } from '../sortable'
 import type { JSX } from '@solidjs/web'
 import type { NativeCell, NativeColumn, NativeTable } from './engine'
 
@@ -226,6 +231,32 @@ export function ReadOnlyTable<T, M>(
       )
       .map((column) => column.id),
   )
+  const columnSorting = createSortable({
+    autoScroll: 'horizontal',
+    get containers() {
+      return [{ id: 'columns', items: movable() }]
+    },
+    orientation: 'horizontal',
+    get disabled() {
+      return props.controls?.columnReordering === false || movable().length < 2
+    },
+    onMove(move) {
+      const destination = columnMoveDestination(movable(), move)
+      if (destination) reorderColumn(String(move.itemId), destination)
+    },
+  })
+  function reorderColumn(
+    id: string,
+    destination: Parameters<typeof moveColumn>[2],
+  ) {
+    table.setColumnOrder((old) => [
+      ...moveColumn(
+        [...new Set([...old, ...table.getColumns().map((item) => item.id)])],
+        id,
+        destination,
+      ),
+    ])
+  }
   function FilterApplyControl() {
     return (
       <Button
@@ -597,23 +628,13 @@ export function ReadOnlyTable<T, M>(
                 }
               >
                 <TableColumnMove
+                  scope={columnSorting}
                   messages={props.messages}
                   id={column.id}
                   label={label(column)}
                   ids={movable()}
                   onMove={(destination) =>
-                    table.setColumnOrder((old) => [
-                      ...moveColumn(
-                        [
-                          ...new Set([
-                            ...old,
-                            ...table.getColumns().map((item) => item.id),
-                          ]),
-                        ],
-                        column.id,
-                        destination,
-                      ),
-                    ])
+                    reorderColumn(column.id, destination)
                   }
                 />
               </Show>

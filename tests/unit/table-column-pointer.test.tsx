@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
-import { TableColumnMove, TableColumnResize } from '@wfe/components/table'
+import { TableColumnResize } from '@wfe/components/table'
 
 afterEach(() => {
   cleanup()
@@ -21,46 +21,31 @@ function dispatch(node: HTMLElement, type: string, x = 20, id = 7) {
   node.dispatchEvent(event)
   flush()
 }
-function mount(kind: 'move' | 'resize', scrolled = true) {
+function mount(scrolled = true) {
   const [disabled, setDisabled] = createSignal(false)
   const [size, setSize] = createSignal(100)
-  const [ids, setIds] = createSignal(['a', 'b'])
   const change = vi.fn((value: number) => setSize(value))
-  const move = vi.fn()
   const activity = vi.fn()
   const h = render(() => (
     <div class={scrolled ? 'table-scroll' : undefined}>
       <div>
         <div data-column-header="a">
-          {kind === 'move' ? (
-            <TableColumnMove
-              id="a"
-              label="Name"
-              ids={ids()}
-              disabled={disabled()}
-              onMove={move}
-              onActivity={activity}
-            />
-          ) : (
-            <TableColumnResize
-              label="Name"
-              size={size()}
-              min={50}
-              max={300}
-              disabled={disabled()}
-              onSizeChange={change}
-              onActivity={activity}
-            />
-          )}
+          <TableColumnResize
+            label="Name"
+            size={size()}
+            min={50}
+            max={300}
+            disabled={disabled()}
+            onSizeChange={change}
+            onActivity={activity}
+          />
         </div>
         <div data-column-header="b" />
       </div>
     </div>
   ))
   flush()
-  const handle = h.getByRole(kind === 'move' ? 'button' : 'separator', {
-    name: kind === 'move' ? 'Move Name column' : 'Resize Name column',
-  })
+  const handle = h.getByRole('separator', { name: 'Resize Name column' })
   let captured: number | undefined
   const capture = vi.fn((id: number) => {
     captured = id
@@ -101,10 +86,8 @@ function mount(kind: 'move' | 'resize', scrolled = true) {
     handle,
     scroll,
     setDisabled,
-    setIds,
     setSize,
     size,
-    move,
     change,
     activity,
     capture,
@@ -112,7 +95,7 @@ function mount(kind: 'move' | 'resize', scrolled = true) {
   }
 }
 
-for (const kind of ['move', 'resize'] as const) {
+{
   test.each([
     'pointercancel',
     'lostpointercapture',
@@ -123,9 +106,9 @@ for (const kind of ['move', 'resize'] as const) {
     'configuration',
     'dispose',
   ] as const)(
-    `${kind} releases the active pointer and listeners on %s`,
+    'resize releases the active pointer and listeners on %s',
     (reason) => {
-      const h = mount(kind)
+      const h = mount()
       const winAdd = vi.spyOn(window, 'addEventListener')
       const docAdd = vi.spyOn(document, 'addEventListener')
       const scrollAdd = vi.spyOn(h.scroll, 'addEventListener')
@@ -166,8 +149,7 @@ for (const kind of ['move', 'resize'] as const) {
         document.dispatchEvent(new Event('visibilitychange'))
       } else if (reason === 'disabled') h.setDisabled(true)
       else if (reason === 'configuration') {
-        if (kind === 'move') h.setIds(['b', 'a'])
-        else h.setSize(120)
+        h.setSize(120)
       } else if (reason === 'dispose') h.unmount()
       else dispatch(h.handle, reason)
       flush()
@@ -193,21 +175,14 @@ for (const kind of ['move', 'resize'] as const) {
       ).toEqual(scrollAdd.mock.calls.filter(([type]) => type === 'scroll'))
       dispatch(h.handle, 'pointerup', 160)
       window.dispatchEvent(new Event('blur'))
-      expect(h.move).not.toHaveBeenCalled()
       expect(h.change).not.toHaveBeenCalled()
       expect(h.release).toHaveBeenCalledTimes(1)
     },
   )
 }
 
-test('reorder commits header geometry once after release while resize retains scroll delta geometry', () => {
-  const move = mount('move')
-  dispatch(move.handle, 'pointerdown')
-  dispatch(move.handle, 'pointerup', 160)
-  expect(move.move).toHaveBeenCalledExactlyOnceWith({ id: 'b', side: 'after' })
-  expect(move.release).toHaveBeenCalledTimes(1)
-  move.unmount()
-  const resize = mount('resize')
+test('resize retains scroll delta geometry', () => {
+  const resize = mount()
   dispatch(resize.handle, 'pointerdown')
   dispatch(resize.handle, 'pointermove', 60)
   expect(resize.size()).toBe(140)
@@ -221,7 +196,7 @@ test('reorder commits header geometry once after release while resize retains sc
 })
 
 test('resize without a scroll container reports only the listeners it owns', () => {
-  const h = mount('resize', false)
+  const h = mount(false)
   dispatch(h.handle, 'pointerdown')
   dispatch(h.handle, 'pointerup')
   expect(h.activity.mock.calls).toEqual([
@@ -230,31 +205,28 @@ test('resize without a scroll container reports only the listeners it owns', () 
   ])
 })
 
-for (const kind of ['move', 'resize'] as const) {
-  test(`${kind} captures configuration after a focus handler publishes new values`, () => {
-    const h = mount(kind)
+{
+  test('resize captures configuration after a focus handler publishes new values', () => {
+    const h = mount()
     h.handle.addEventListener(
       'focus',
       () => {
-        if (kind === 'move') h.setIds(['a', 'b'])
-        else h.setSize(150)
+        h.setSize(150)
         flush()
       },
       { once: true },
     )
     dispatch(h.handle, 'pointerdown')
     dispatch(h.handle, 'pointerup', 160)
-    if (kind === 'move')
-      expect(h.move).toHaveBeenCalledExactlyOnceWith({ id: 'b', side: 'after' })
-    else expect(h.size()).toBe(290)
+    expect(h.size()).toBe(290)
     expect(h.activity.mock.calls.at(-1)).toEqual(['end', -4])
     expect(h.release).toHaveBeenCalledTimes(1)
   })
 }
 
-for (const kind of ['move', 'resize'] as const) {
-  test(`${kind} releases capture without double completion from synchronous lost capture`, () => {
-    const h = mount(kind)
+{
+  test('resize releases capture without double completion from synchronous lost capture', () => {
+    const h = mount()
     h.release.mockImplementation(() => {
       dispatch(h.handle, 'lostpointercapture')
     })
@@ -266,13 +238,12 @@ for (const kind of ['move', 'resize'] as const) {
         ([event]) => event === 'end' || event === 'cancel',
       ),
     ).toEqual([['end', -4]])
-    if (kind === 'move') expect(h.move).toHaveBeenCalledTimes(1)
-    else expect(h.change).toHaveBeenCalledTimes(1)
+    expect(h.change).toHaveBeenCalledTimes(1)
   })
 }
 
 test('resize follows the retained handle into its new scroller after focus', () => {
-  const h = mount('resize')
+  const h = mount()
   const nextScroller = document.createElement('div')
   nextScroller.className = 'table-scroll'
   nextScroller.scrollLeft = 40

@@ -151,6 +151,7 @@ export async function reorderCases({
         .jsEventListeners
       await begin(page)
       const point = await pointAt(page, 'priority', 'after')
+      const pageTop = await page.evaluate(() => window.scrollY)
       await page.mouse.move(point.x, point.y, { steps: 5 })
       assert.deepEqual((await read()).visibleColumns, initial)
       assert.equal(
@@ -159,7 +160,8 @@ export async function reorderCases({
           .count(),
         1,
       )
-      assert.equal((await read()).counts.reorderListeners, 4)
+      await settle()
+      assert.equal(await page.evaluate(() => window.scrollY), pageTop)
       await page.mouse.up()
       await settle()
       const after = await read()
@@ -578,7 +580,6 @@ export async function reorderCases({
         isPrimary: false,
       })
       await handle(page).dispatchEvent('pointercancel', { pointerId: 88 })
-      assert.equal((await read()).counts.reorderListeners, 4)
       await cdp.send('Input.dispatchTouchEvent', {
         type: 'touchMove',
         touchPoints: [point],

@@ -1,3 +1,5 @@
+import { createSortable } from '@wfe/components/sortable'
+import { columnMoveDestination } from '@wfe/components/table'
 import { Button, Input } from '@wfe/components/fields'
 import {
   For,
@@ -151,6 +153,31 @@ function ResultTable(
     Object.hasOwn(labels(), id)
       ? labels()[id]!
       : props.result.columns.find((column) => column.id === id)!.label
+  const columnSorting = createSortable({
+    autoScroll: 'horizontal',
+    get containers() {
+      return [
+        {
+          id: 'columns',
+          items: table.getVisibleColumns().map((column) => column.id),
+        },
+      ]
+    },
+    orientation: 'horizontal',
+    get disabled() {
+      return !props.available
+    },
+    onMove(move) {
+      const destination = columnMoveDestination(
+        table.getVisibleColumns().map((column) => column.id),
+        move,
+      )
+      if (destination)
+        table.setColumnOrder([
+          ...moveColumn(columnIds(), String(move.itemId), destination),
+        ])
+    },
+  })
   const exportResult = () => {
     if (!props.available || props.exportDisabled || !props.onExport) return
     const visible = table.getVisibleColumns()
@@ -307,6 +334,7 @@ function ResultTable(
               header={(column) => (
                 <>
                   <TableColumnMove
+                    scope={columnSorting}
                     id={column.id}
                     label={label(column.id)}
                     ids={columnIds()}

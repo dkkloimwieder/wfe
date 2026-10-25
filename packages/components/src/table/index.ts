@@ -7,7 +7,11 @@ export type {
   TableColumnAlignments,
 } from './Table'
 export { ReadOnlyTable } from './ReadOnlyTable'
-export { TableColumnMove, moveColumn } from './TableColumnMove'
+export {
+  TableColumnMove,
+  moveColumn,
+  columnMoveDestination,
+} from './TableColumnMove'
 export type { ColumnDestination } from './TableColumnMove'
 export { TableSort } from './TableSort'
 export { TableHeaderName } from './TableHeaderName'

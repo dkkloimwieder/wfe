@@ -10,6 +10,9 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
+import { createSortable } from '@wfe/components/sortable'
+import { columnMoveDestination } from '@wfe/components/table'
+import type { ColumnDestination } from '@wfe/components/table'
 import { Dynamic } from '@solidjs/web'
 import { Button, Input } from '@wfe/components/fields'
 import { SelectField } from '@wfe/components/select'
@@ -126,6 +129,38 @@ export function Table(props: {
         .map((column) => column.id),
     { equals: sameIds },
   )
+  function reorderColumn(id: string, destination: ColumnDestination) {
+    if (
+      model.locked() ||
+      !movableColumns().includes(id) ||
+      !movableColumns().includes(destination.id)
+    )
+      return
+    table.setColumnOrder((old) => [
+      ...moveColumn(
+        [...new Set([...old, ...model.columnIds])],
+        id,
+        destination,
+      ),
+    ])
+    setNotice(
+      `${String(table.getColumn(id)?.columnDef?.header)} column moved ${destination.side} ${String(table.getColumn(destination.id)?.columnDef?.header)}.`,
+    )
+  }
+  const columnSorting = createSortable({
+    autoScroll: 'horizontal',
+    get containers() {
+      return [{ id: 'columns', items: movableColumns() }]
+    },
+    orientation: 'horizontal',
+    get disabled() {
+      return model.locked() || props.controls?.columnReordering === false
+    },
+    onMove(move) {
+      const destination = columnMoveDestination(movableColumns(), move)
+      if (destination) reorderColumn(String(move.itemId), destination)
+    },
+  })
   // Capture focus in the read phase, before keyed DOM moves. Restore only
   // focus lost by that move, after owned effects finish, without changing drafts.
   createEffect(
@@ -186,25 +221,12 @@ export function Table(props: {
     return (
       <Show when={movableColumns().includes(props.column.id)}>
         <TableColumnMove
+          scope={columnSorting}
           id={props.column.id}
           label={String(props.column.columnDef?.header)}
           disabled={model.locked()}
           ids={movableColumns()}
-          onMove={(destination) => {
-            const id = props.column.id
-            if (
-              !movableColumns().includes(id) ||
-              !movableColumns().includes(destination.id)
-            )
-              return
-            table.setColumnOrder((old) => {
-              const order = [...new Set([...old, ...model.columnIds])]
-              return [...moveColumn(order, id, destination)]
-            })
-            setNotice(
-              `${String(props.column.columnDef?.header)} column moved ${destination.side} ${String(table.getColumn(destination.id)?.columnDef?.header)}.`,
-            )
-          }}
+          onMove={(destination) => reorderColumn(props.column.id, destination)}
           onActivity={(event, listeners) => {
             counts.reorderListeners += listeners
             if (event === 'start') counts.reorderStarts++

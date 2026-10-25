@@ -1,6 +1,18 @@
-import { createColumnPointer } from '../internal/columnPointer'
+import {
+  createSortable,
+  createSortableItem,
+  createSortableTarget,
+} from '../sortable'
+import type { SortableScope, SortableMove } from '../sortable'
 import { resolveTableMessages, type TableMessages } from './messages'
-import { createEffect, createUniqueId } from 'solid-js'
+import {
+  For,
+  createEffect,
+  createSignal,
+  createUniqueId,
+  onSettled,
+  untrack,
+} from 'solid-js'
 import { Button } from '../components/NativeFields'
 import { nativeEvents } from '../utils/nativeEvents'
 
@@ -12,20 +24,38 @@ export function moveColumn(
   id: string,
   destination: ColumnDestination,
 ) {
-  if (id === destination.id || !order.includes(destination.id)) return order
+  if (
+    id === destination.id ||
+    !order.includes(id) ||
+    !order.includes(destination.id)
+  )
+    return order
   const next = order.filter((key) => key !== id)
   const index = next.indexOf(destination.id)
   next.splice(index + Number(destination.side === 'after'), 0, id)
   return next.every((key, position) => key === order[position]) ? order : next
 }
 
+export function columnMoveDestination(
+  ids: ReadonlyArray<string>,
+  move: SortableMove,
+): ColumnDestination | undefined {
+  if (move.destination.beforeId !== null)
+    return { id: String(move.destination.beforeId), side: 'before' }
+  const last = ids.filter((id) => id !== move.itemId).at(-1)
+  return last === undefined ? undefined : { id: last, side: 'after' }
+}
+
 export function TableColumnMove(props: {
+  /** A table supplies one shared sorter. Standalone controls own a local scope. */
+  scope?: SortableScope
   messages?: Partial<TableMessages>
   id: string
   disabled?: boolean
   label: string
   ids: ReadonlyArray<string>
   onMove: (destination: ColumnDestination) => void
+  /** Legacy listener delta is zero: the shared engine owns transient listeners. */
   onActivity?: (
     event: 'start' | 'move' | 'end' | 'cancel',
     listeners: number,
@@ -37,129 +67,138 @@ export function TableColumnMove(props: {
   let handle!: HTMLButtonElement
   let menu!: HTMLDivElement
   let suppressClick = false
-  let frame = 0
-  let marker: HTMLElement | undefined
-  type Drag = {
-    pointerId: number
-    x: number
-    lastX: number
-    moved: boolean
-    ids: ReadonlyArray<string>
-    scroll: HTMLElement
-    header: HTMLElement
-    destination?: ColumnDestination
-  }
-  const pointer = createColumnPointer<Drag>({
-    disabled: () => Boolean(props.disabled),
-    cleanup: (current) => {
-      cancelAnimationFrame(frame)
-      clearMarker()
-      current.header.removeAttribute('data-column-moving')
+  const [header, setHeader] = createSignal<HTMLElement>()
+  const supplied = untrack(() => props.scope)
+  const scope =
+    supplied ??
+    createSortable({
+      autoScroll: 'horizontal',
+      get containers() {
+        return [{ id: 'columns', items: props.ids }]
+      },
+      orientation: 'horizontal',
+      get disabled() {
+        return props.disabled || props.ids.length < 2
+      },
+      onMove(move) {
+        const destination = columnMoveDestination(props.ids, move)
+        if (destination && move.itemId === props.id && !props.disabled)
+          props.onMove(destination)
+      },
+    })
+  const item = createSortableItem(scope, {
+    get id() {
+      return props.id
     },
-    escape: () => {
-      suppressClick = true
+    get label() {
+      return props.label
     },
-    activity: (event, listeners) => props.onActivity?.(event, listeners),
+    get disabled() {
+      return props.disabled || props.ids.length < 2 || !header()
+    },
+    keyboard: false,
+    activation: { distance: 5 },
   })
   const index = () => props.ids.indexOf(props.id)
   const first = () => index() <= 0
   const last = () => index() >= props.ids.length - 1
-  function clearMarker() {
-    marker?.removeAttribute('data-column-drop')
-    marker = undefined
-  }
-  function updateTarget() {
-    if (!pointer.current?.moved) return
-    clearMarker()
-    pointer.current.destination = undefined
-    const headers = Array.from(
-      pointer.current.header.parentElement!.querySelectorAll<HTMLElement>(
-        '[data-column-header]',
+  const headers = () =>
+    Array.from(
+      handle
+        ?.closest('[data-column-header]')
+        ?.parentElement?.querySelectorAll<HTMLElement>(
+          '[data-column-header]',
+        ) ?? [],
+    )
+  function FallbackTarget(target: { id: string }) {
+    const registration = createSortableTarget(scope, {
+      get id() {
+        return target.id
+      },
+      get label() {
+        return target.id
+      },
+    })
+    onSettled(() =>
+      registration.ref(
+        headers().find((node) => node.dataset.columnHeader === target.id),
       ),
-    ).filter((node) => props.ids.includes(node.dataset.columnHeader!))
-    // Only header geometry is read. The record collection is never visited.
-    const target = headers.find((node, position) =>
-      position === headers.length - 1
-        ? true
-        : pointer.current!.lastX < node.getBoundingClientRect().right,
     )
-    if (!target) return
-    const box = target.getBoundingClientRect()
-    const destination: ColumnDestination = {
-      id: target.dataset.columnHeader!,
-      side:
-        pointer.current.lastX < box.left + box.width / 2 ? 'before' : 'after',
+    return null
+  }
+  onSettled(() => {
+    const node =
+      handle.closest<HTMLElement>('[data-column-header]') ?? undefined
+    setHeader(node)
+    item.ref(node)
+    const unsubscribe = scope.dragDrop.subscribe((event) => {
+      if (event.operation.source.data.id !== untrack(() => props.id)) return
+      if (event.type === 'start') {
+        suppressClick = true
+        menu.hidePopover()
+        handle.focus({ preventScroll: true })
+      }
+      untrack(() => props.onActivity)?.(
+        event.type === 'drop'
+          ? 'end'
+          : event.type === 'over'
+            ? 'move'
+            : event.type,
+        0,
+      )
+    })
+    return () => {
+      try {
+        if (
+          scope.dragDrop.operation()?.source.data.id === untrack(() => props.id)
+        )
+          scope.cancel()
+      } finally {
+        unsubscribe()
+      }
     }
-    if (moveColumn(props.ids, props.id, destination) === props.ids) return
-    pointer.current.destination = destination
-    marker = target
-    marker.dataset.columnDrop = destination.side
-  }
-  function autoScroll() {
-    if (!pointer.current?.moved) return
-    const box = pointer.current.scroll.getBoundingClientRect()
-    const direction =
-      pointer.current.lastX < box.left + 28
-        ? -1
-        : pointer.current.lastX > box.right - 28
-          ? 1
-          : 0
-    if (!direction) return
-    const previous = pointer.current.scroll.scrollLeft
-    pointer.current.scroll.scrollLeft += direction * 12
-    updateTarget()
-    if (pointer.current.scroll.scrollLeft !== previous)
-      frame = requestAnimationFrame(autoScroll)
-  }
-  function start(event: PointerEvent) {
-    if (!pointer.canStart(event) || props.ids.length < 2) return
-    const header = handle.closest<HTMLElement>('[data-column-header]')
-    const scroll = header?.closest<HTMLElement>('.table-scroll')
-    if (!header?.parentElement || !scroll) return
-    suppressClick = false
-    menu.hidePopover()
-    pointer.start(
-      event,
-      handle,
-      () => ({
-        pointerId: event.pointerId,
-        x: event.clientX,
-        lastX: event.clientX,
-        moved: false,
-        ids: props.ids,
-        scroll,
-        header,
-      }),
-      () => ({ target: scroll, changed: updateTarget }),
-    )
-  }
-  function move(event: PointerEvent) {
-    if (!pointer.current || event.pointerId !== pointer.current.pointerId)
-      return
-    if (props.disabled || props.ids !== pointer.current.ids)
-      return pointer.cancel()
-    pointer.current.lastX = event.clientX
-    pointer.current.moved ||= Math.abs(event.clientX - pointer.current.x) >= 5
-    if (!pointer.current.moved) return
-    suppressClick = true
-    pointer.current.header.dataset.columnMoving = 'true'
-    updateTarget()
-    cancelAnimationFrame(frame)
-    autoScroll()
-    props.onActivity?.('move', 0)
-  }
-  function finish(event: PointerEvent) {
-    if (!pointer.current || event.pointerId !== pointer.current.pointerId)
-      return
-    move(event)
-    const current = pointer.finish()
-    if (!current) return
-    if (current.destination)
-      if (!props.disabled) props.onMove(current.destination)
-  }
+  })
+  createEffect(
+    () => ({
+      scope: props.scope,
+      id: props.id,
+      ids: props.ids,
+      header: header(),
+      operation: scope.dragDrop.operation(),
+      preview: scope.preview(),
+    }),
+    (value) => {
+      if (value.scope !== supplied)
+        throw new Error('Remount TableColumnMove to replace its sorting scope')
+      if (!value.header || value.operation?.source.data.id !== value.id)
+        return undefined
+      value.header.dataset.columnMoving = 'true'
+      const destination = value.preview
+        ? columnMoveDestination(value.ids, value.preview)
+        : undefined
+      const target = value.operation.target?.data
+      const markerId =
+        target?.kind === 'item' ? String(target.id) : destination?.id
+      const marker =
+        destination &&
+        headers().find((node) => node.dataset.columnHeader === markerId)
+      if (marker && destination)
+        marker.dataset.columnDrop =
+          target?.kind === 'item'
+            ? value.preview?.destination.beforeId === target.id
+              ? 'before'
+              : 'after'
+            : destination.side
+      return () => {
+        value.header?.removeAttribute('data-column-moving')
+        marker?.removeAttribute('data-column-drop')
+      }
+    },
+  )
   function keyboardMove(key: string) {
     if (props.disabled) return
     const position = index()
+    if (position < 0) return
     const target =
       key === 'Home'
         ? 0
@@ -174,12 +213,6 @@ export function TableColumnMove(props: {
       side: target < position ? 'before' : 'after',
     })
   }
-  createEffect(
-    () => props.ids,
-    (ids) => {
-      if (pointer.current && ids !== pointer.current.ids) pointer.cancel()
-    },
-  )
   return (
     <>
       <Button
@@ -194,13 +227,12 @@ export function TableColumnMove(props: {
         ref={[
           (node) => {
             handle = node
+            item.handleRef(node)
           },
           nativeEvents<HTMLButtonElement>({
-            pointerdown: start,
-            pointermove: move,
-            pointerup: finish,
-            pointercancel: pointer.cancelPointer,
-            lostpointercapture: pointer.cancelPointer,
+            pointerdown: () => {
+              suppressClick = false
+            },
             click: (event) => {
               event.stopPropagation()
               if (props.disabled || (suppressClick && event.detail !== 0))
@@ -217,7 +249,7 @@ export function TableColumnMove(props: {
             keydown: (event) => {
               if (
                 event.isComposing ||
-                pointer.current ||
+                scope.dragDrop.operation() ||
                 !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)
               )
                 return
@@ -230,6 +262,9 @@ export function TableColumnMove(props: {
       >
         {props.label}
       </Button>
+      <For each={supplied ? [] : props.ids.filter((id) => id !== props.id)}>
+        {(id) => <FallbackTarget id={id} />}
+      </For>
       <span id={helpId} class="sr-only">
         {messages.moveHelp}
       </span>
