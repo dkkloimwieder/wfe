@@ -1,3 +1,4 @@
+import { galleryGanttCases } from './gantt-cases.mjs'
 import { galleryDragCases } from './drag-cases.mjs'
 import { artifactPath } from '../../../scripts/artifacts.mjs'
 import { decorationGeometryCases } from './decoration-geometry-cases.mjs'
@@ -9,6 +10,7 @@ import { galleryLoadingCases } from './loading-cases.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 const catalog = [
+  ['gantt', 'Gantt'],
   ['drag-and-drop', 'Drag and drop'],
   ['kanban', 'Issue board'],
   ['decoration-geometry', 'Decoration geometry'],
@@ -43,6 +45,7 @@ export async function galleryCases({ page, url, record, settle }) {
   await inputDecorationCases({ page, url, record })
   await galleryActionCases({ page, url, record })
   await galleryDragCases({ page, url, record })
+  await galleryGanttCases({ page, url, record })
   await record(
     'gallery: pagination and header actions remain application-owned',
     async () => {

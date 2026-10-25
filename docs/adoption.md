@@ -406,3 +406,11 @@ validation, asynchronous outcomes and persistence. A completed gesture or
 menu alternative emits a request; it does not prescribe application behavior.
 The [drag and drop guide](drag-and-drop.md) covers refs, handles, accessibility,
 preview rendering, cancellation, and the generic and board gallery examples.
+
+## Unreleased Gantt component
+
+The `feat/gantt` branch adds `Gantt` through `@wfe/components/gantt` and the
+root component export. It supports controlled intervals, hierarchy, selection,
+editing, baselines, milestones, and dependency lines. Applications retain
+ownership of schedules, requests, and persistence. See the [Gantt guide](gantt.md).
+This addition is not included in an existing release tag.

@@ -111,10 +111,23 @@ await withArtifactRun(
         )
         assert.ok(
           !modules.some((id) =>
-            /table-core|@tanstack\/store|virtual-core|solid-form|\.input\/kobalte|node_modules\/@kobalte\//.test(
+            /table-core|@tanstack\/store|solid-form|\.input\/kobalte|node_modules\/@kobalte\//.test(
               id,
             ),
           ),
+        )
+        const virtualModules = modules.filter((id) =>
+          id.includes('virtual-core'),
+        )
+        assert.ok(
+          virtualModules.every(
+            (id) =>
+              !id.includes('/node_modules/') &&
+              /\/components\/(?:src|dist\/source)\/vendor\/virtual-core\//.test(
+                id,
+              ),
+          ),
+          'virtual rendering uses only owned source or distribution virtual-core modules',
         )
         for (const name of ['solid-js', '@solidjs/web', '@solidjs/signals']) {
           const roots = [

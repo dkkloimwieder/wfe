@@ -8,6 +8,7 @@ import type { Decorations } from '../../shared/appearance/appearance'
 export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
+  { id: 'gantt', label: 'Gantt', group: 'Components', states: ['normal'] },
   {
     id: 'drag-and-drop',
     label: 'Drag and drop',

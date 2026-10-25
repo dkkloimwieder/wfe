@@ -1,3 +1,4 @@
+import { GanttExample } from './GanttExample'
 import { DragExample } from '../../shared/drag-and-drop/DragExample'
 import { BoardExample } from '../../shared/drag-and-drop/BoardExample'
 import { DecorationGeometryExample } from './DecorationGeometryExample'
@@ -53,6 +54,11 @@ const IconsExample = lazy(() =>
 )
 
 const views = {
+  gantt: () => (
+    <div class="gallery-example-fill">
+      <GanttExample />
+    </div>
+  ),
   kanban: () => (
     <div class="gallery-example-fill">
       <BoardExample />

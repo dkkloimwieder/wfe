@@ -146,6 +146,7 @@ export const documents = [
     ['docs/resizable.md', 1],
     ['docs/file-input.md', 1],
     ['docs/charts.md', 2],
+    ['docs/gantt.md', 1],
     ['docs/status-tiles.md', 1],
     ['docs/table-row-actions.md', 1],
     ['docs/entry-panel.md', 1],

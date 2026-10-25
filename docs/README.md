@@ -83,3 +83,6 @@ See [row-dependent table actions](table-row-actions.md) for live row state, disa
 - [Audit remediation checkpoint](audit-remediation-2026-10-24.md) records delivered work, retained evidence, and final qualification limits.
 
 See [Drag and drop](drag-and-drop.md) for unreleased generic scopes, controlled ordering, and board composition.
+
+See [Gantt](gantt.md) for the unreleased controlled timeline, interval editing,
+calendar-day behavior, and large-dataset examples.

@@ -235,3 +235,33 @@ body:has(.gallery-preview) {
 .geometry-preview .geometry-wide-controls [data-ui-control-surface]::before {
   opacity: 1;
 }
+
+.gantt-example {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+}
+.gantt-example-controls,
+.gantt-example-summary {
+  display: grid;
+  gap: var(--ui-gap);
+  padding: var(--ui-layout-inset);
+  background: var(--ui-surface);
+}
+.gantt-example-controls {
+  border-bottom: 1px solid var(--ui-border);
+}
+.gantt-example-summary {
+  border-top: 1px solid var(--ui-border);
+}
+.gantt-example-controls h1,
+.gantt-example-summary p {
+  margin: 0;
+}
+.gantt-example-chart {
+  flex: 0 0 auto;
+  min-height: 20rem;
+}

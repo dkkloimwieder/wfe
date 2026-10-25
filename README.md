@@ -60,6 +60,8 @@ Within `packages/components`, `src/components` contains individual controls.
 `src/table` contains Table presentation and its engine.
 The dashboard shell, panels, and grid live under `src/layout`.
 The [layout guide](docs/layout.md) describes slots, navigation, scrolling, and available height.
+`src/gantt` contains the controlled schedule view.
+The [Gantt guide](docs/gantt.md) covers hierarchy, interval editing, and virtualization.
 `src/chart` contains the owned chart adapter and controlled legend.
 The [chart guide](docs/charts.md) describes imports, data boundaries, generated views, and supported plots.
 `src/vendor` contains the owned Kobalte, virtual, calendar, chart, match-sorter, and icon subsets with their attribution and provenance.
