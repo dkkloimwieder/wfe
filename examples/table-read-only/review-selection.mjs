@@ -10,8 +10,16 @@ export async function reviewSelection(page, test) {
   }
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
   await test('Cell rectangles use full-cell shading, native range and exact normal clipboard copy', async () => {
-    await page.evaluate(() => window.readOnlyFixture.start())
+    // The case before leaves a narrow viewport. Mount at the wide size and
+    // wait two frames, so the drag measures the settled wide layout.
     await page.setViewportSize({ width: 1280, height: 900 })
+    await page.evaluate(() => window.readOnlyFixture.start())
+    await page.evaluate(
+      () =>
+        new Promise((resolve) =>
+          requestAnimationFrame(() => requestAnimationFrame(resolve)),
+        ),
+    )
     const first = await cell('a', 'category').boundingBox(),
       last = await cell('c', 'name').boundingBox()
     await page.mouse.move(first.x + first.width / 2, first.y + first.height / 2)
