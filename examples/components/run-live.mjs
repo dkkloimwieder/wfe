@@ -1,3 +1,4 @@
+import { captureNavigation } from '../shared/browser/navigation-diagnostics.mjs'
 import { readFile } from 'node:fs/promises'
 import {
   attachDiagnostics,
@@ -133,7 +134,7 @@ await withArtifactRun(
     }
     const output = artifacts.reportPath
     const report = { cases: [], errors: [], warnings: [] }
-    let browser, server, accessibility, detachDiagnostics
+    let browser, server, accessibility, detachDiagnostics, navigation
     try {
       report.groups = selectGroups({ 'components-live': true })
       server = await createServer({
@@ -154,7 +155,16 @@ await withArtifactRun(
             ? 'reject'
             : 'observe',
       })
-      await page.goto(`${url}?consumer=1`)
+      navigation = await captureNavigation({ page, server: server.httpServer })
+      report.navigation = navigation.report
+      try {
+        await page.goto(`${url}?consumer=1`)
+        navigation.stop()
+      } catch (error) {
+        navigation.stop(error)
+        throw error
+      }
+      await navigation.dispose()
       await page
         .getByRole('textbox', { name: 'Display name', exact: true })
         .fill('Refresh draft')
@@ -278,6 +288,7 @@ await withArtifactRun(
         report,
         output,
         cleanup: [
+          { name: 'navigation capture', close: () => navigation?.dispose() },
           {
             name: 'accessibility CDP session',
             close: () => accessibility?.detach(),
