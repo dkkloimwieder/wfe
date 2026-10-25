@@ -28,3 +28,18 @@ No public import or handler migration is required. JSX event props are not
 blanket-replaced, and the native listener repair remains in place. The
 [action disposal investigation](action-disposal-investigation.md) concerns a
 separate disposal repair; this extraction does not retire either repair.
+
+## RC18 retention result
+
+On October 25, 2026, the preserved runtime-only event fixture ran against installed Solid RC18.
+The module inventory identifies RC18 for Solid, Signals, and Web.
+Six cases used 1,000 records each and captured twelve actual heaps with Chromium 153.0.8010.12.
+Delegated trusted and synthetic input retained all 1,000 records after disposal.
+The no-event, native-listener, native-unowned, and explicit delegated-handler-clear controls retained zero records.
+The fixture bytes match the historical reproduction.
+The diagnostic runner observes retention without requiring the old failure, and the heap inspector selects the exact record group.
+
+Keep the owned native listeners.
+This result does not establish a safe upstream replacement.
+Evidence is `/tmp/wfe-event-rc18-20261025/evidence.json`, with primary and control reports and heaps beside it.
+Beads `wfe-0dj.5` tracks a future matched replacement.
