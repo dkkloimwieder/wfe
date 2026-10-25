@@ -176,11 +176,60 @@ test('offline, the entry waits and the guess shows; a good probe sends and the e
   window.dispatchEvent(new Event('online'))
   await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
   host.answer('h1')
+  await vi.waitFor(() => expect(o.entries()).toEqual([]))
+  expect(write.done).toBe(false)
+  expect(item('a')?.textContent).toBe('a:9')
   applyChanges(c, [changed('a', 2, 9)])
   await vi.waitFor(() => expect(write.done).toBe(true))
   expect(write.error).toBeUndefined()
   expect(o.entries()).toEqual([])
 })
+
+test.each([undefined, 1])(
+  'an offline update with expected version %s keeps its guess until an early feed row and the send succeed',
+  async (version) => {
+    const { c, o, host, net, record, item } = await mounted(false)
+    const write = track(
+      record.write(call('a', 'h1'), {
+        id: 'a',
+        row_version: version,
+        quantity: 9,
+      }),
+    )
+    await vi.waitFor(() => expect(o.entries()).toHaveLength(1))
+    await tick()
+    flush()
+    expect(o.entries()[0]?.state).toBe('pending')
+    expect(host.sent).toEqual([])
+    expect(c.get('a')?.quantity).toBe(1)
+    expect(record.rows.a?.quantity).toBe(9)
+    expect(item('a')?.textContent).toBe('a:9')
+    expect(write.done).toBe(false)
+
+    applyChanges(c, [changed('a', 2, 9)])
+    await tick()
+    flush()
+    expect(c.get('a')?.row_version).toBe(2)
+    expect(write.done).toBe(false)
+    expect(item('a')?.textContent).toBe('a:9')
+
+    net.up = true
+    const replay = o.replay()
+    await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
+    expect(o.entries()[0]?.state).toBe('sending')
+    expect(write.done).toBe(false)
+    expect(item('a')?.textContent).toBe('a:9')
+    host.answer('h1')
+    await replay
+    expect(o.entries()).toEqual([])
+    await vi.waitFor(() => expect(write.done).toBe(true))
+    expect(write.error).toBeUndefined()
+    flush()
+    expect(record.rows.a?.row_version).toBe(2)
+    expect(item('a')?.textContent).toBe('a:9')
+    o.close()
+  },
+)
 
 test('the write reads the versions through options.version', async () => {
   type Camel = { id: string; rowVersion: number; quantity: number }

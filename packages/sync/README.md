@@ -74,7 +74,11 @@ If `navigator.locks` is absent, replay runs without the lock. Two tabs can then 
 
 1. It merges `expected` into `rows[expected.id]` as a guess.
 2. It enqueues `call` in the outbox.
-3. It waits with `until` until the collection holds `expected.id` with a version greater than the version of `expected`. Both versions are read through `options.version` of the collection. If `expected` has no version, any row with that id is enough.
+3. It waits with `until` for a successful send to remove the entry from the outbox and for the collection to hold `expected.id`.
+
+If `expected` has a version, the stored version must be greater. The collection reads both versions through `options.version`.
+Without an expected version, any row with that id and a successful send are enough.
+Changes to the collection or outbox update the wait, so the row can arrive before or after the send succeeds.
 
 The wait reads the collection, never `rows`, so the guess of the action never ends it.
 If the entry is refused, the wait throws `OutboxRefused` with the `code`, the `text` and the `seq`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.

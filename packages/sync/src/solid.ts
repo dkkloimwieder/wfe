@@ -188,11 +188,12 @@ function moves<T extends Row>(
 }
 
 /**
- * True when the collection holds the written row. It reads the collection,
- * never the optimistic store, so the guess of the action never satisfies it.
- * The versions are read through the accessor of the collection. When the
- * expected row has no version, any row with the id confirms the write. It
- * throws when the entry is refused or discarded.
+ * True after a successful send removes the entry from the outbox and the
+ * collection holds the expected id. If the expected row has a version, the
+ * stored version must be greater. The collection's version accessor reads
+ * both versions. Without an expected version, the row and successful send
+ * are enough. It reads the collection, so the optimistic value cannot end
+ * the wait. It throws when the entry is refused or discarded.
  */
 function confirmed<T extends Row>(
   c: AnyCollection<T>,
@@ -204,6 +205,7 @@ function confirmed<T extends Row>(
   const current = o.entries().find((e) => e.seq === entry.seq)
   if (current?.state === 'refused')
     throw new OutboxRefused(entry.seq, current.refusal)
+  if (current !== undefined) return false
   const row = c.get(expected.id)
   if (row === undefined) return false
   const version = peek(c)?.version ?? rowVersion
