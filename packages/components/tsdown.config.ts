@@ -6,6 +6,7 @@ const shared = {
   entry: [
     './src/chart/index.ts',
     './src/dnd/index.ts',
+    './src/sortable/index.ts',
     './src/icons/index.ts',
     './src/search/index.ts',
     './src/theme/index.ts',

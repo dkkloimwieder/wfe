@@ -232,6 +232,13 @@
       "solid": "./dist/source/dnd/index.js",
       "node": "./dist/server/dnd/index.js",
       "import": "./dist/client/dnd/index.js"
+    },
+    "./sortable": {
+      "types": "./dist/client/sortable/index.d.ts",
+      "wfe-source": "./src/sortable/index.ts",
+      "solid": "./dist/source/sortable/index.js",
+      "node": "./dist/server/sortable/index.js",
+      "import": "./dist/client/sortable/index.js"
     }
   },
   "sideEffects": [
