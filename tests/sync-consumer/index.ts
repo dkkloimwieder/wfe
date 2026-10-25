@@ -20,6 +20,7 @@ import type {
   liveList,
   syncStatus,
   syncComplete,
+  syncCurrentAt,
   outboxStatus,
   recordWrite,
   KeyedCollection,
@@ -64,6 +65,7 @@ export type ExportedTypes = Assert<
     liveList: typeof liveList
     syncStatus: typeof syncStatus
     syncComplete: typeof syncComplete
+    syncCurrentAt: typeof syncCurrentAt
     outboxStatus: typeof outboxStatus
     recordWrite: typeof recordWrite
     KeyedCollection: KeyedCollection<Row>
@@ -92,6 +94,7 @@ export type SignatureTypes = Assert<
     list: ReturnType<typeof liveList<Row>>
     status: ReturnType<ReturnType<typeof syncStatus<Row>>>
     complete: ReturnType<ReturnType<typeof syncComplete<Row>>>
+    currentAt: ReturnType<ReturnType<typeof syncCurrentAt<Row>>>
     outbox: ReturnType<typeof outbox>
     outboxCounts: ReturnType<ReturnType<typeof outboxStatus>>
     recordRows: ReturnType<typeof recordWrite<Row>>['rows']
@@ -101,6 +104,10 @@ export type SignatureTypes = Assert<
     internalCollection: Parameters<typeof applyChanges<Row>>[0]
     internalChanges: Parameters<typeof applyChanges<Row>>[1]
   }>
+>
+
+export type CurrentAtContract = Assert<
+  Equal<ReturnType<ReturnType<typeof syncCurrentAt<Row>>>, string | undefined>
 >
 
 export type OutboxContract = [

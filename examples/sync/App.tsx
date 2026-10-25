@@ -21,6 +21,7 @@ import {
   shell,
   syncStatus,
   syncComplete,
+  syncCurrentAt,
 } from '@wfe/sync'
 import type { Outbox, ShellResult } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
@@ -208,6 +209,7 @@ function Shapes(props: { store: Store }) {
   const list = liveList(props.store)
   const status = syncStatus(props.store)
   const complete = syncComplete(props.store)
+  const currentAt = syncCurrentAt(props.store)
   const ids = createMemo(() => Object.keys(rows))
   const shownIds = createMemo(() => ids().slice(0, limit))
   // Every batch inserts and deletes rows, so the key list changes. Count the
@@ -217,13 +219,6 @@ function Shapes(props: { store: Store }) {
     return untrack(() => keys.filter((id) => rows[id]!.row_version > 1).length)
   })
   const shown = createMemo(() => list.slice(0, limit))
-  // currentAt is a plain read. Each batch changes the key list, so read it
-  // again then.
-  const currentAt = createMemo(() => {
-    ids()
-    status()
-    return untrack(() => props.store.utils.currentAt()) ?? ''
-  })
   // The last failed read, such as a list with no network. Saved rows stay.
   const failure = createMemo(() => {
     ids()
@@ -243,7 +238,7 @@ function Shapes(props: { store: Store }) {
           <Show when={!complete()}> · partial: stopped at the cap</Show>
         </output>
         {' · '}Current as of{' '}
-        <output data-sync-current-at={currentAt()}>
+        <output data-sync-current-at={currentAt() ?? ''}>
           {currentAt() || 'not yet'}
         </output>
         <Show when={failure()}>

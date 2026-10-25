@@ -71,9 +71,9 @@ export function collection<T extends Row, S>(
   const version: Version<T> = options.version ?? rowVersion
   const status = createStatus('loading')
   const complete = createSourceSignal(true)
+  const currentAt = createSourceSignal<string | undefined>(undefined)
   let error: unknown
   let cursor: string | undefined
-  let currentAt: string | undefined
   let run: Run<T> | undefined
   let c: SyncCollection<T>
 
@@ -95,7 +95,7 @@ export function collection<T extends Row, S>(
       if (r.stopped) return
       reconcile(c, r.writer, page.rows, version)
       cursor = page.cursor
-      currentAt = new Date().toISOString()
+      currentAt.set(new Date().toISOString())
       complete.set(page.complete ?? true)
       ready(r)
       scheduleSave(r)
@@ -191,7 +191,7 @@ export function collection<T extends Row, S>(
         scheduleSave(r)
         if (page.complete) break
       }
-      currentAt = new Date().toISOString()
+      currentAt.set(new Date().toISOString())
       ready(r)
     } catch (cause) {
       if (r.stopped) return
@@ -255,7 +255,7 @@ export function collection<T extends Row, S>(
       refill: () => (run ? fire(run, 'list') : Promise.resolve()),
       pull: () => (run ? fire(run) : Promise.resolve()),
       error: () => error,
-      currentAt: () => currentAt,
+      currentAt: () => currentAt.get(),
       complete: () => complete.get(),
     },
   })
@@ -263,6 +263,7 @@ export function collection<T extends Row, S>(
     writer: () => run!.writer,
     status,
     complete,
+    currentAt,
     error: () => error,
     version,
   })

@@ -8,18 +8,20 @@ import {
   createRoot,
   flush,
 } from 'solid-js'
-import { createLiveQueryCollection, sum } from '@tanstack/db'
+import { createCollection, createLiveQueryCollection, sum } from '@tanstack/db'
 import {
   collection,
   liveList,
   liveRows,
   syncComplete,
+  syncCurrentAt,
   syncStatus,
 } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import type { Change } from '@wfe/sync'
 import { deferred, feedOf, order, tick } from './sync-fixtures'
 import type { Order } from './sync-fixtures'
+import { peek } from '../../packages/sync/src/writer'
 
 afterEach(cleanup)
 
@@ -234,6 +236,116 @@ test('syncComplete reacts to successful lists and unsubscribes on disposal', asy
     await c.utils.refill()
     flush()
     expect(seen).toEqual([true, false, true, false, true])
+  } finally {
+    dispose()
+    await c.cleanup()
+  }
+})
+
+test('syncCurrentAt follows successful reads and keeps its value after failures', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  const failure = new Error('offline')
+  const feed = feedOf([failure, [], failure, []])
+  const c = collection(feed, 'all', { key: 'orders:all' })
+  const seen: (string | undefined)[] = []
+  const { currentAt, dispose } = createRoot((dispose) => {
+    const currentAt = syncCurrentAt(c)
+    createEffect(currentAt, (value) => {
+      seen.push(value)
+    })
+    return { currentAt, dispose }
+  })
+  const expectAt = (expected: string | undefined) => {
+    flush()
+    expect(currentAt()).toBe(expected)
+    expect(currentAt()).toBe(c.utils.currentAt())
+  }
+  try {
+    expectAt(undefined)
+    await tick()
+    expectAt(undefined)
+    const listedAt = '2026-10-25T00:00:00.000Z'
+    vi.setSystemTime(new Date(listedAt))
+    await c.utils.refill()
+    expectAt(listedAt)
+
+    // No rows, status changes, or timers can trigger this observer.
+    const followedAt = '2026-10-25T00:00:01.000Z'
+    vi.setSystemTime(new Date(followedAt))
+    await c.utils.pull()
+    expectAt(followedAt)
+    expect(c.status).toBe('ready')
+    expect(c.toArray).toEqual([])
+    expect(seen).toEqual([undefined, listedAt, followedAt])
+
+    vi.setSystemTime(new Date('2026-10-25T00:00:02.000Z'))
+    vi.mocked(feed.changes).mockRejectedValueOnce(failure)
+    await c.utils.pull()
+    expectAt(followedAt)
+    expect(c.utils.error()).toBe(failure)
+    await c.utils.refill()
+    expectAt(followedAt)
+    expect(c.utils.error()).toBe(failure)
+    expect(seen).toEqual([undefined, listedAt, followedAt])
+
+    const refilledAt = '2026-10-25T00:00:03.000Z'
+    vi.setSystemTime(new Date(refilledAt))
+    await c.utils.refill()
+    expectAt(refilledAt)
+    expect(seen).toEqual([undefined, listedAt, followedAt, refilledAt])
+  } finally {
+    dispose()
+    await c.cleanup()
+    vi.useRealTimers()
+  }
+})
+
+test('syncCurrentAt unsubscribes from the source on disposal', async () => {
+  const c = await filled([])
+  const signal = peek(c)!.currentAt
+  const subscribe = signal.subscribe
+  const unsubscribe = vi.fn()
+  const subscription = vi
+    .spyOn(signal, 'subscribe')
+    .mockImplementation((next) => {
+      const stop = subscribe(next)
+      return () => {
+        unsubscribe()
+        stop()
+      }
+    })
+  const { currentAt, dispose } = createRoot((dispose) => ({
+    currentAt: syncCurrentAt(c),
+    dispose,
+  }))
+  try {
+    flush()
+    expect(currentAt()).toBe(c.utils.currentAt())
+    expect(subscription).toHaveBeenCalledTimes(1)
+    expect(unsubscribe).not.toHaveBeenCalled()
+    dispose()
+    expect(unsubscribe).toHaveBeenCalledTimes(1)
+  } finally {
+    dispose()
+    subscription.mockRestore()
+    await c.cleanup()
+  }
+})
+
+test('syncCurrentAt returns undefined for a plain collection', async () => {
+  const c = createCollection<{ id: string }, string>({
+    getKey: (row) => row.id,
+    sync: { sync: ({ markReady }) => markReady() },
+  })
+  const { currentAt, dispose } = createRoot((dispose) => ({
+    currentAt: syncCurrentAt(c),
+    dispose,
+  }))
+  try {
+    await c.preload()
+    flush()
+    expect(c.status).toBe('ready')
+    expect(currentAt()).toBeUndefined()
   } finally {
     dispose()
     await c.cleanup()

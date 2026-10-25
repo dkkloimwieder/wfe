@@ -26,6 +26,7 @@ export interface Source<T extends Row> {
   writer(): Writer<T>
   status: StatusSignal
   complete: SourceSignal<boolean>
+  currentAt: SourceSignal<string | undefined>
   error(): unknown
   /** Reads the version of a row; `options.version` of the collection. */
   version: Version<T>

@@ -47,6 +47,7 @@ The read adapters take any keyed collection: one made by `collection()`, a live 
 `liveList(c)` returns a store array reconciled by the collection's own key, in the order of the collection. Use it for small sets.
 `syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`. For a collection made by `collection()`, it reads the status of the sync source. For any other collection, it maps `c.status`: `ready` and `error` stay as they are, and every other status is `loading`.
 `syncComplete(c)` returns a reactive accessor with the same value as `utils.complete()` for a collection made by `collection()`. For any other collection, it returns true.
+`syncCurrentAt(c)` returns a reactive accessor with the same value as `utils.currentAt()` for a collection made by `collection()`. For any other collection, it returns undefined.
 Create the adapters inside a Solid owner. When that owner disposes, the adapters unsubscribe.
 
 ## Outbox

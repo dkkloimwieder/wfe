@@ -161,6 +161,19 @@ export function syncComplete<T extends object>(
   )
 }
 
+/** The last successful list or changes time, or undefined for other collections. */
+export function syncCurrentAt<T extends object>(
+  c: KeyedCollection<T>,
+): Accessor<string | undefined> {
+  const found = peek(c)
+  return createMemo<string | undefined>(() =>
+    from<string | undefined>((next) => {
+      next(found?.currentAt.get())
+      return found?.currentAt.subscribe(next)
+    }),
+  )
+}
+
 /** The outbox counts, read through a memo over `watch`. */
 export function outboxStatus(o: Outbox): Accessor<OutboxCounts> {
   return createMemo<OutboxCounts>(() =>

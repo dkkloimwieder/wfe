@@ -15,6 +15,7 @@ export {
   liveList,
   syncStatus,
   syncComplete,
+  syncCurrentAt,
   outboxStatus,
   recordWrite,
 } from './solid'
