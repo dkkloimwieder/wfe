@@ -37,12 +37,12 @@ interface Run<T extends Row> {
   /** Stop the timer and unsubscribe the trigger. */
   stops: (() => void)[]
   /** The running jobs, until the last one ends. */
-  pass?: Promise<void>
+  pass?: Promise<void> | undefined
   /** A pull waits: a trigger, the timer or utils.pull(). */
   again: boolean
   /** A list waits: utils.refill(). */
   list: boolean
-  save?: ReturnType<typeof setTimeout>
+  save?: ReturnType<typeof setTimeout> | undefined
 }
 
 /**

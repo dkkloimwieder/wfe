@@ -17,6 +17,12 @@ The collection reads the version of a row through `options.version`. The default
 `utils.currentAt()` returns the ISO time of the last successful list or change read, or undefined before one.
 `utils.complete()` returns false only when the last successful list reports `complete: false`. It returns true before any successful list. A later successful refill with `complete: true` or absent resets it to true. Failed reads and saved rows loaded from Persistence do not change it.
 
+## TypeScript consumers
+
+A consumer type-checks the built `dist` through the `"types"` condition, which selects the package declarations.
+Build the package first with `pnpm --filter @wfe/sync build`.
+The `tests/sync-consumer` fixture checks `dist` with a strict NodeNext consumer's flags and no `paths`.
+
 ## Follow
 
 After the first successful list, or after saved rows when the list failed, the collection follows the change feed.
