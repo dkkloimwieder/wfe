@@ -26,7 +26,7 @@ export function TableSort(props: {
       })}
     >
       <span class="column-sort-label">{props.label}</span>
-      <span aria-hidden="true">
+      <span class="column-sort-icon" aria-hidden="true">
         {props.sorted === 'asc'
           ? '↑'
           : props.sorted === 'desc'

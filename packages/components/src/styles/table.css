@@ -131,7 +131,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-:where([data-ui]) :is(.column-sort, .header-sort) > [aria-hidden='true'] {
+:where([data-ui]) :is(.column-sort, .header-sort) > .column-sort-icon {
   flex: none;
 }
 :where([data-ui]) .column-header {
@@ -646,7 +646,7 @@
   )
   .column-heading:not(:has(.column-move))
   .column-sort
-  > [aria-hidden='true'] {
+  > .column-sort-icon {
   position: absolute;
   inset-inline-end: 0;
 }
@@ -654,7 +654,7 @@
   .column-header[data-column-alignment='right']
   .column-heading:not(:has(.column-move))
   .column-sort
-  > [aria-hidden='true'] {
+  > .column-sort-icon {
   inset-inline-start: 0;
   inset-inline-end: auto;
 }
