@@ -18,6 +18,7 @@ import type {
 } from '../internal/compoundField'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { Icon } from './Icon'
+import { DisclosureIndicator } from './DisclosureIndicator'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { FieldContext } from '../internal/fieldContext'
 import * as Core from '../internal/controls/select'
@@ -111,9 +112,12 @@ export function SelectTrigger<T extends ValidComponent = 'button'>(
       data-ui-control-decoration={
         props.decoration === false ? 'none' : props.decoration
       }
-      class={styledClasses('popup-trigger', props.class)}
+      class={styledClasses('popup-trigger ui-disclosure-trigger', props.class)}
       ref={[scope.setControl, untrack(() => props.ref)]}
-    />
+    >
+      {props.children}
+      <SelectIcon class="ui-choice-icon-auto" aria-hidden="true" />
+    </Primitive>
   )
 }
 export type SelectContentProps<
@@ -169,7 +173,9 @@ export function SelectItemIndicator<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       class={styledClasses('popup-item-indicator', props.class)}
-    />
+    >
+      {props.children ?? <Icon class="ui-check-mark" name="check" />}
+    </Primitive>
   )
 }
 
@@ -266,9 +272,7 @@ export function SelectField(props: SelectFieldProps) {
           data-choice-value={item.item.rawValue.value}
         >
           <Core.ItemLabel>{item.item.rawValue.label}</Core.ItemLabel>
-          <SelectItemIndicator>
-            <Icon class="ui-check-mark" name="check" />
-          </SelectItemIndicator>
+          <SelectItemIndicator />
         </SelectItem>
       )}
     >
@@ -312,7 +316,7 @@ export function SelectIcon<T extends ValidComponent = 'span'>(
   const Primitive = Core.Icon as Component<typeof props>
   return (
     <Primitive {...props} class={styledClasses('ui-choice-icon', props.class)}>
-      {props.children ?? <Icon name="chevron-down" />}
+      {props.children ?? <DisclosureIndicator />}
     </Primitive>
   )
 }

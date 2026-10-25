@@ -48,7 +48,7 @@ export async function iconCases({ page, url, record, settle }) {
           await settle()
 
           assert.equal(
-            await slot.locator('.ui-choice-icon svg').count(),
+            await slot.locator('.ui-choice-icon svg:visible').count(),
             content === 'default' ? 1 : 0,
           )
           assert.equal(
@@ -62,7 +62,9 @@ export async function iconCases({ page, url, record, settle }) {
             )
           if (content === 'empty')
             assert.equal(
-              await slot.locator('.ui-choice-icon').textContent(),
+              await slot
+                .locator('.ui-choice-icon:not(.ui-choice-icon-auto)')
+                .textContent(),
               '',
             )
         }

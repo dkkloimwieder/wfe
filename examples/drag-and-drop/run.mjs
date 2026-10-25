@@ -330,6 +330,9 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
         .getByRole('textbox', { name: 'Title', exact: true })
         .fill('Outline the next release')
       await page.getByRole('button', { name: /^Tags(?: |$)/ }).click()
+      await expect(
+        page.getByRole('option', { name: 'Engineering', exact: true }),
+      ).toHaveAttribute('aria-selected', 'true')
       await page.getByRole('option', { name: 'Design', exact: true }).click()
       await page.keyboard.press('Escape')
       await page.getByRole('button', { name: 'Save', exact: true }).click()
@@ -348,6 +351,28 @@ await withArtifactRun({ suite: 'drag-and-drop' }, async (artifacts) => {
           exact: true,
         }),
       ).toBeFocused()
+      await card('outline')
+        .getByRole('button', {
+          name: 'Edit Outline the next release',
+          exact: true,
+        })
+        .click()
+      await page.getByRole('button', { name: /^Tags(?: |$)/ }).click()
+      await expect(page.getByRole('option', { selected: true })).toHaveText([
+        'Design',
+        'Engineering',
+      ])
+      await expect
+        .poll(() =>
+          page
+            .getByRole('listbox')
+            .evaluate((node) =>
+              node.contains(node.ownerDocument.activeElement),
+            ),
+        )
+        .toBe(true)
+      await page.keyboard.press('Escape')
+      await page.getByRole('button', { name: 'Dismiss', exact: true }).click()
     })
     await test('Create and loading states keep records owned by the example app', async () => {
       await page

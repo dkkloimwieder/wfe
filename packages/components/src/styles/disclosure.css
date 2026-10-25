@@ -27,3 +27,51 @@
     stroke: ButtonText;
   }
 }
+
+/* Choice controls share the disclosure glyph and its themed hover decoration. */
+:where([data-ui]) .ui-choice-icon > .ui-disclosure-indicator {
+  transform: rotate(90deg);
+  scale: 1;
+}
+:where([data-ui])
+  .popup-trigger:has(.ui-choice-icon:not(.ui-choice-icon-auto))
+  > .ui-choice-icon-auto {
+  display: none;
+}
+
+/* Input decoration settings apply to choice triangles, not other disclosures. */
+@media (forced-colors: none) {
+  .ui-theme .ui-choice-icon .ui-disclosure-decoration {
+    display: var(--ui-input-decoration-display, block);
+    stroke: var(
+      --ui-input-decoration-border-color,
+      var(--ui-neutral-border-color)
+    );
+  }
+  .ui-theme .ui-choice-icon .ui-disclosure-indicator pattern circle {
+    fill: var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color));
+  }
+}
+@media (hover: hover) and (forced-colors: none) {
+  .ui-theme
+    :is(.popup-trigger, .choice-toggle):hover:not(
+      :disabled,
+      [aria-disabled='true']
+    )
+    .ui-choice-icon
+    .ui-disclosure-arrow {
+    visibility: var(--ui-input-disclosure-arrow-visibility, hidden);
+  }
+}
+
+@media (forced-colors: active) {
+  .ui-theme
+    :is(.popup-trigger, .choice-toggle):is(:hover, :focus-visible):not(
+      :disabled,
+      [aria-disabled='true']
+    )
+    .ui-choice-icon
+    .ui-disclosure-arrow {
+    visibility: visible;
+  }
+}

@@ -225,12 +225,14 @@
   border-radius: 0;
   cursor: default;
 }
-:where([data-ui]) .popup-option[data-highlighted] {
+:where([data-ui]) .popup-option:is([data-selected], [data-highlighted]) {
   background: var(
     --ui-selection,
     var(--ui-accent, var(--ui-highlight, #edf3fb))
   );
   color: var(--ui-on-selection, var(--ui-on-accent, var(--ui-text, #191919)));
+}
+:where([data-ui]) .popup-option[data-highlighted] {
   outline: var(--ui-focus-width, 1px) solid
     var(--ui-focus-ring, var(--ui-focus, #1657a8));
   outline-offset: -2px;

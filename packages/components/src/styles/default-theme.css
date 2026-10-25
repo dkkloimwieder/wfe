@@ -446,19 +446,23 @@
 /* Every input uses the same backing, theme roles, and action geometry. */
 .ui-theme [data-ui-control-decoration='none'] {
   --ui-input-decoration-display: none;
+  --ui-input-disclosure-arrow-visibility: visible;
 }
 .ui-theme [data-ui-control-decoration='neutral'] {
   --ui-input-decoration-display: block;
+  --ui-input-disclosure-arrow-visibility: hidden;
   --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
   --ui-input-decoration-border-color: var(--ui-neutral-border-color);
 }
 .ui-theme [data-ui-control-decoration='primary'] {
   --ui-input-decoration-display: block;
+  --ui-input-disclosure-arrow-visibility: hidden;
   --ui-input-decoration-dot-color: var(--ui-accent);
   --ui-input-decoration-border-color: var(--ui-accent);
 }
 .ui-theme [data-ui-control-decoration='secondary'] {
   --ui-input-decoration-display: block;
+  --ui-input-disclosure-arrow-visibility: hidden;
   --ui-input-decoration-dot-color: var(--ui-secondary-accent);
   --ui-input-decoration-border-color: var(--ui-secondary-accent);
 }
@@ -544,6 +548,7 @@
 /* Section roles stay on the backing so that inner controls remain independent. */
 .ui-theme [data-ui-section-decoration]::before {
   --ui-input-decoration-display: block;
+  --ui-input-disclosure-arrow-visibility: hidden;
   --ui-input-decoration-dot-color: var(--ui-accent);
   --ui-input-decoration-border-color: var(--ui-accent);
 }

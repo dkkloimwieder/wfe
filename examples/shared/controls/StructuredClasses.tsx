@@ -207,7 +207,7 @@ export function StructuredClasses() {
         </RadioGroup.Item>
       </RadioGroup>
       <SelectField
-        {...attributes('popup-trigger')}
+        {...attributes('popup-trigger ui-disclosure-trigger')}
         label="Class select"
         value="a"
         choices={[{ value: 'a', label: 'Alpha' }]}
@@ -223,7 +223,12 @@ export function StructuredClasses() {
           </Select.Item>
         )}
       >
-        <Select.Trigger {...attributes('popup-trigger', 'Select.Trigger')}>
+        <Select.Trigger
+          {...attributes(
+            'popup-trigger ui-disclosure-trigger',
+            'Select.Trigger',
+          )}
+        >
           <Select.Value<string>>
             {(state) => state.selectedOption()}
           </Select.Value>

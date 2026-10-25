@@ -19,6 +19,7 @@ import type {
 import { CompoundControl } from '../internal/controlDecoration'
 import type { ControlDecorationProps } from '../internal/controlDecoration'
 import { Icon } from './Icon'
+import { DisclosureIndicator } from './DisclosureIndicator'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/combobox'
 import { callHandler } from '../internal/events'
@@ -96,7 +97,10 @@ export function ComboboxTrigger<T extends ValidComponent = 'button'>(
   const Primitive = Core.Trigger as Component<typeof props>
 
   return (
-    <Primitive {...props} class={styledClasses('choice-toggle', props.class)} />
+    <Primitive
+      {...props}
+      class={styledClasses('choice-toggle ui-disclosure-trigger', props.class)}
+    />
   )
 }
 export type ComboboxContentProps<
@@ -152,7 +156,9 @@ export function ComboboxItemIndicator<T extends ValidComponent = 'div'>(
     <Primitive
       {...props}
       class={styledClasses('popup-item-indicator', props.class)}
-    />
+    >
+      {props.children ?? <Icon class="ui-check-mark" name="check" />}
+    </Primitive>
   )
 }
 
@@ -233,7 +239,7 @@ export function ComboboxIcon<T extends ValidComponent = 'span'>(
   const Primitive = Core.Icon as Component<typeof props>
   return (
     <Primitive {...props} class={styledClasses('ui-choice-icon', props.class)}>
-      {props.children ?? <Icon name="chevron-down" />}
+      {props.children ?? <DisclosureIndicator />}
     </Primitive>
   )
 }

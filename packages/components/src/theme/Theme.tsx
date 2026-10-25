@@ -107,6 +107,8 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
     ),
     '--ui-input-decoration-display':
       options.inputDecoration === false ? 'none' : 'block',
+    '--ui-input-disclosure-arrow-visibility':
+      options.inputDecoration === false ? 'visible' : 'hidden',
     '--ui-input-decoration-dot-color':
       options.inputDecoration === 'primary'
         ? 'var(--ui-accent)'
