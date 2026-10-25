@@ -115,3 +115,8 @@ treating it as fixed hid that container from edge scrolling. The only production
 caller of the internal `isFixed` helper is this ancestor traversal. Regression
 coverage includes nested sticky ancestors, preserved fixed boundaries and actual
 queued horizontal scrolling.
+
+Pointer release uses the matching pointerup event's coordinates, converted through
+the same frame transform as pointermove, before flushing the final move. This also
+covers a release with no intermediate pointermove. Final geometry therefore does
+not depend on the browser having delivered a move event at the release position.

@@ -328,7 +328,18 @@ export class PointerSensor extends Sensor<
   private handlePointerUp(event: PointerEvent) {
     if (event.pointerId !== this.pointerId) return;
     const {controller, status} = this.manager.dragOperation;
-    if (status.dragging && controller && this.latest.event) {
+    if (status.dragging && controller && this.source) {
+      // The release can carry a newer position than the last pointermove.
+      // Preserve the same viewport/frame conversion used during movement.
+      const coordinates = getEventCoordinates(event);
+      const offset = getFrameTransform(this.source.element);
+      this.latest = {
+        event,
+        coordinates: {
+          x: coordinates.x * offset.scaleX + offset.x,
+          y: coordinates.y * offset.scaleY + offset.y,
+        },
+      };
       event.preventDefault();
       event.stopPropagation();
       // Flush the final queued coordinates before resolving the drop. Wait for

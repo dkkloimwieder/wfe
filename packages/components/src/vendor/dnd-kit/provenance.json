@@ -424,7 +424,7 @@
     "dom/src/core/sensors/pointer/PointerSensor.ts": {
       "upstreamPath": "packages/dom/src/core/sensors/pointer/PointerSensor.ts",
       "upstreamSha256": "095ca7ba0707f8efb88348dcc76ec5ac1a767e224476ac76abb40dabe99f5995",
-      "localSha256": "737fbc8cc5d5735117104e107548445c9ae76b8a668baec5c13b777c1df915d7"
+      "localSha256": "ae73257637195eea4f3e6fe04bcf0fe7f1821d684e3d19b8834542438268a5b5"
     },
     "dom/src/core/sensors/types.ts": {
       "upstreamPath": "packages/dom/src/core/sensors/types.ts",
@@ -992,7 +992,7 @@
       "localSha256": "0747211613cd31117c0f045ccfbddf4d64b602a230c15f17f958ecd03bf1ff7f"
     }
   },
-  "repairSha256": "038c75f0f2b5d300e7ef959dea5a5d10f25fdf0965f755a3e465113fd723fb98",
+  "repairSha256": "3e2c94a2eb8f0bed0664f272006add1c4927163cfe497053736d06e8f2cc41ee",
   "externalDependencies": {
     "@preact/signals-core": "1.10.0"
   }

@@ -337,25 +337,31 @@ it('does not invoke a queued auto-scroll callback after plugin disposal', async 
   expect(scroller.autoScrolling).toBe(false)
 })
 
-it('flushes a final pointer move before release without waiting for animation frames', async () => {
-  const { scheduler } =
-    await import('../../packages/components/src/vendor/dnd-kit/dom/src/utilities/scheduling/scheduler')
-  vi.spyOn(scheduler, 'schedule').mockImplementation(() => Promise.resolve())
-  const { Pointer, manager } = await pointerFixture()
-  const ended = vi.fn()
-  manager.monitor.addEventListener('dragend', ended)
-  document.dispatchEvent(
-    new Pointer('pointermove', { clientX: 99, clientY: 77 }),
-  )
-  document.dispatchEvent(new Pointer('pointerup', { clientX: 99, clientY: 77 }))
-  await manager.renderer.rendering
-  await manager.renderer.rendering
-  expect(ended).toHaveBeenCalledTimes(1)
-  expect(ended.mock.calls[0]![0].operation.position.current).toEqual({
-    x: 99,
-    y: 77,
-  })
-})
+it.each([true, false])(
+  'uses release coordinates without waiting for animation frames (prior move: %s)',
+  async (priorMove) => {
+    const { scheduler } =
+      await import('../../packages/components/src/vendor/dnd-kit/dom/src/utilities/scheduling/scheduler')
+    vi.spyOn(scheduler, 'schedule').mockImplementation(() => Promise.resolve())
+    const { Pointer, manager } = await pointerFixture()
+    const ended = vi.fn()
+    manager.monitor.addEventListener('dragend', ended)
+    if (priorMove)
+      document.dispatchEvent(
+        new Pointer('pointermove', { clientX: 40, clientY: 30 }),
+      )
+    document.dispatchEvent(
+      new Pointer('pointerup', { clientX: 99, clientY: 77 }),
+    )
+    await manager.renderer.rendering
+    await manager.renderer.rendering
+    expect(ended).toHaveBeenCalledTimes(1)
+    expect(ended.mock.calls[0]![0].operation.position.current).toEqual({
+      x: 99,
+      y: 77,
+    })
+  },
+)
 
 it.each(['cancel', 'disable', 'unbind'] as const)(
   'releases pending pointer activation on %s',

@@ -572,13 +572,24 @@
      if (this.controller?.activated === false) {
        this.controller?.onEvent(event);
      }
-@@ -294,6 +326,29 @@
+@@ -294,6 +326,40 @@
    }
  
    private handlePointerUp(event: PointerEvent) {
 +    if (event.pointerId !== this.pointerId) return;
 +    const {controller, status} = this.manager.dragOperation;
-+    if (status.dragging && controller && this.latest.event) {
++    if (status.dragging && controller && this.source) {
++      // The release can carry a newer position than the last pointermove.
++      // Preserve the same viewport/frame conversion used during movement.
++      const coordinates = getEventCoordinates(event);
++      const offset = getFrameTransform(this.source.element);
++      this.latest = {
++        event,
++        coordinates: {
++          x: coordinates.x * offset.scaleX + offset.x,
++          y: coordinates.y * offset.scaleY + offset.y,
++        },
++      };
 +      event.preventDefault();
 +      event.stopPropagation();
 +      // Flush the final queued coordinates before resolving the drop. Wait for
@@ -602,7 +613,7 @@
      // End the drag and drop operation
      const {status} = this.manager.dragOperation;
  
-@@ -332,7 +387,7 @@
+@@ -332,7 +398,7 @@
      this.cleanup();
    }
    protected handleKeyDown(event: KeyboardEvent) {
@@ -611,7 +622,7 @@
        event.preventDefault();
        this.handleCancel(event);
      }
-@@ -357,6 +412,11 @@
+@@ -357,6 +423,11 @@
  
      if (controller.signal.aborted) return this.cleanup();
  
@@ -623,7 +634,7 @@
      event.preventDefault();
  
      const ownerDocument = getDocument(event.target);
-@@ -364,10 +424,20 @@
+@@ -364,10 +435,20 @@
  
      try {
        pointerCaptureTarget.setPointerCapture(event.pointerId);
@@ -644,7 +655,7 @@
  
      const listenerTargets = isElement(event.target)
        ? [event.target, pointerCaptureTarget]
-@@ -409,21 +479,35 @@
+@@ -409,21 +490,35 @@
    }
  
    protected handleCancel(event: Event) {
@@ -691,7 +702,7 @@
      }
  
      this.latest = {
-@@ -432,6 +516,15 @@
+@@ -432,6 +527,15 @@
      };
      this.#cleanup.forEach((cleanup) => cleanup());
      this.#cleanup.clear();
@@ -707,7 +718,7 @@
    }
  
    public destroy() {
-@@ -454,16 +547,26 @@
+@@ -454,16 +558,26 @@
  
  function noop() {}
  

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
-import { cleanup, render } from '@solidjs/testing-library'
+import { cleanup, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, Errored, flush } from 'solid-js'
 import {
   createDragDrop,
@@ -311,9 +311,11 @@ test('pointer pickup and release use mounted sensors when keyboard is disabled',
   document.body.dispatchEvent(
     new Pointer('pointerup', { button: 0, bubbles: true, cancelable: true }),
   )
-  await Promise.resolve()
-  flush()
-  expect(scope.operation()).toBe(null)
+  // Release flushes its final coordinates and collision result before stopping.
+  await waitFor(() => {
+    flush()
+    expect(scope.operation()).toBe(null)
+  })
   expect(onCancel).toHaveBeenCalledTimes(1)
   Reflect.deleteProperty(document.body, 'setPointerCapture')
 })
