@@ -104,13 +104,17 @@ The package never reloads on its own. The consumer chooses the time to call `rel
 
 ## Worker
 
-`@wfe/sync/worker` exports `precache(manifest, { buildId, apiPrefix })`. The consumer imports it into its own worker entry. The module imports no other module of the package and never imports Solid.
+`@wfe/sync/worker` exports `precache(manifest, { buildId, apiPrefix, navigationFallback })`. The consumer imports it into its own worker entry. The module has no imports and never imports Solid.
+
+The manifest lists the files to cache. The navigation fallback is the page that handles deep routes offline. The worker uses these rules:
 
 - Each manifest entry is a URL relative to the worker scope, for example `./`, `index.html` or `assets/index-abc.js`.
-- Install caches every manifest URL. The cache name holds the scope and the build id. The default build id is a hash of the manifest.
-- A GET for a manifest URL is answered cache-first. The query is ignored, so `./?tab=2` gets the cached `./`. On a miss, the request goes to the network.
-- Every other request goes to the network. The worker does not answer it.
-- A request whose path starts with `apiPrefix`, default `/api`, is never answered from the cache and never cached. A manifest URL under that prefix is dropped.
+- Install caches every manifest URL and `navigationFallback`, even when the manifest omits the fallback. The fallback defaults to `index.html` and resolves relative to the worker scope.
+- The cache name holds the scope and the build id. The default build id is a hash of the manifest and the fallback name.
+- A GET for a manifest URL uses the cache first. The worker ignores the query, so `./?tab=2` gets the cached `./`. On a miss, the request goes to the network.
+- Other GET navigations use the network first. The worker returns the server response, including HTTP errors such as 404. Only a network failure uses the cached fallback. If the fallback is missing, the request fails with the network error. The consuming app handles deep routes.
+- The worker leaves other requests to the network without interception. This includes requests outside the manifest that are not navigations.
+- A request whose path starts with `apiPrefix`, default `/api`, never uses the cache or the fallback. The worker never caches a manifest URL or fallback under that prefix.
 - Activate deletes the older caches of the same scope and claims the open pages.
 - The skip-waiting message from `reload()` of `shell()` makes a waiting worker take over.
 
@@ -167,4 +171,4 @@ declare const __PRECACHE_MANIFEST__: string[]
 precache(__PRECACHE_MANIFEST__)
 ```
 
-The page then calls `shell({ workerUrl: './sw.js' })`. The gallery in `examples/sync` uses the same recipe.
+The page then calls `shell({ workerUrl: import.meta.env.BASE_URL + 'sw.js' })`. This resolves the worker from the Vite base on deep routes. The gallery in `examples/sync` uses the same recipe.

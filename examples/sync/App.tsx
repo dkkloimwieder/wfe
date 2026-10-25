@@ -41,7 +41,7 @@ export function App() {
   const [update, setUpdate] = createSignal<() => void>()
   const [result, setResult] = createSignal<ShellResult>()
   void shell({
-    workerUrl: './sw.js',
+    workerUrl: `${import.meta.env.BASE_URL}sw.js`,
     onUpdate: (reload) => setUpdate(() => reload),
   }).then(setResult)
   const [online, setOnline] = createSignal(navigator.onLine)

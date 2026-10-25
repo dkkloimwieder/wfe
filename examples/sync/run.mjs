@@ -451,6 +451,39 @@ try {
       await expect(rowsOf).toHaveAttribute('data-sync-rows', '10000')
     },
   )
+  await run('an offline reload of a deep route renders the app', async () => {
+    await controlled()
+    await saved(10_000)
+    const deepRoute = new URL('pallets/42', base).href
+    await context.setOffline(true)
+    try {
+      await tab.goto(deepRoute)
+      await expect(tab.locator('[data-sync-status]')).toHaveAttribute(
+        'data-sync-status',
+        'ready',
+      )
+      await tab.reload()
+      assert.equal(tab.url(), deepRoute)
+      await expect(tab.locator('[data-sync-status]')).toHaveAttribute(
+        'data-sync-status',
+        'ready',
+      )
+      await expect(tab.locator('[data-sync-rows]')).toHaveAttribute(
+        'data-sync-rows',
+        '10000',
+      )
+      await expect(tab.locator('[data-sync-online]')).toHaveAttribute(
+        'data-sync-online',
+        'false',
+      )
+      await expect(tab.locator('[data-sync-shell]')).toHaveAttribute(
+        'data-sync-worker',
+        'true',
+      )
+    } finally {
+      await context.setOffline(false)
+    }
+  })
   await context.close()
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])

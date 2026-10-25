@@ -33,7 +33,7 @@ interface WorkerScope {
 /** Cache names start with this, then the scope, then the build id. */
 const prefix = 'wfe-sync-shell'
 
-/** A short FNV-1a hash of the manifest; the default build id. */
+/** A short FNV-1a hash of the manifest and fallback. The default build id. */
 function digest(manifest: string[]): string {
   let hash = 0x811c9dc5
   for (const char of manifest.join('\n')) {
@@ -50,36 +50,49 @@ function bare(url: string): string {
 }
 
 /**
- * Precache the manifest and serve it cache-first. Each manifest entry is a
- * URL relative to the worker scope. Every other request goes to the network.
+ * Precache the manifest and navigation fallback, relative to the worker scope.
+ * Serve manifest URLs from the cache first. For other GET navigations, try
+ * the network first and return its response, including HTTP errors.
+ * If the network fails, serve the cached fallback. If it is missing, fail
+ * with the network error. Leave other requests to the network.
  * A request whose path starts with `apiPrefix` is never answered from the
- * cache and never cached, even when the manifest lists it. Activation deletes the caches of older builds.
+ * cache and never cached, even when the manifest lists it.
+ * Activation deletes the caches of older builds.
  */
 export function precache(
   manifest: string[],
   options: {
-    /** Names the cache; default a hash of the manifest. */
+    /** Names the cache. Default is a hash of the manifest and fallback. */
     buildId?: string
     /** Default '/api'. */
     apiPrefix?: string
+    /** URL relative to the worker scope. Default 'index.html'. */
+    navigationFallback?: string
   } = {},
 ): void {
   const scope = globalThis as unknown as WorkerScope
   const base = scope.registration.scope
   const api = options.apiPrefix ?? '/api'
+  const underApi = (url: URL) => url.pathname.startsWith(api)
+  const navigationFallback = options.navigationFallback ?? 'index.html'
+  const fallbackUrl = new URL(navigationFallback, base)
+  const fallback = bare(fallbackUrl.href)
   // A manifest entry under the API prefix is never cached.
   const urls = new Set(
     manifest
       .map((url) => new URL(url, base))
-      .filter((url) => !url.pathname.startsWith(api))
+      .filter((url) => !underApi(url))
       .map((url) => bare(url.href)),
   )
+  const precached = new Set(urls)
+  if (!underApi(fallbackUrl)) precached.add(fallback)
   const family = `${prefix}:${base}:`
-  const name = family + (options.buildId ?? digest(manifest))
+  const name =
+    family + (options.buildId ?? digest([...manifest, navigationFallback]))
 
   scope.addEventListener('install', (event) => {
     event.waitUntil(
-      scope.caches.open(name).then((cache) => cache.addAll([...urls])),
+      scope.caches.open(name).then((cache) => cache.addAll([...precached])),
     )
   })
   scope.addEventListener('activate', (event) => {
@@ -100,7 +113,18 @@ export function precache(
     const { request } = event
     if (request.method !== 'GET') return
     const key = bare(request.url)
-    if (!urls.has(key)) return
+    if (!urls.has(key)) {
+      if (request.mode !== 'navigate' || underApi(new URL(request.url))) return
+      event.respondWith(
+        fetch(request).catch(async (error: unknown) => {
+          const cache = await scope.caches.open(name)
+          const hit = await cache.match(fallback)
+          if (hit) return hit
+          throw error
+        }),
+      )
+      return
+    }
     event.respondWith(
       scope.caches
         .open(name)

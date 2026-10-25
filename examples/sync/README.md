@@ -20,8 +20,8 @@ The status line shows the pending and refused counts and the last send time from
 A written row shows "recorded, not uploaded" while its entry is pending.
 
 The build also writes `sw.js` from `sw.ts` with the manifest recipe in `vite.config.ts`. The recipe is the one in the `@wfe/sync` README.
-The page calls `shell({ workerUrl: './sw.js', onUpdate })`. When a new worker waits, the page shows "Update available, reload". The page never reloads on its own.
-The runner checks three worker cases in a second browser context. With the network blocked, a reload renders the page from the worker cache. A blocked `/api` request fails, and no cache holds an `/api` URL. A changed `sw.js` shows the update button, and the button hands over to the new worker.
+The page calls `shell({ workerUrl: import.meta.env.BASE_URL + 'sw.js', onUpdate })`. The Vite base keeps the worker path stable on deep routes. When a new worker waits, the page shows "Update available, reload". The page never reloads on its own.
+The runner tests the worker in a second browser context. With the network blocked, a reload renders the page from the worker cache. An offline navigation and reload at `pallets/42` under the gallery base render the app through the cached fallback. A blocked `/api` request fails, and no cache holds an `/api` URL. A changed `sw.js` shows the update button, and the button hands over to the new worker.
 
 The Shell section shows the `shell()` result: whether the worker is installed, whether storage is protected, and the storage use and quota.
 The gallery saves the rows of each size through its own IndexedDB Persistence in the database `wfe-sync-gallery-rows`, object store `collections`. The package exports no Persistence.
