@@ -11,12 +11,12 @@ This extraction does not retire the workaround or change the independent runtime
 
 ## Current result
 
-The matched rc.13 and rc.16 comparisons retain all 1,000 records after plain disposal in both `onSettled` cases.
+The matched rc.13, rc.16, and rc.18 comparisons retain all 1,000 records after plain disposal in both `onSettled` cases.
 The action wrapper releases all tagged records in those cases.
 Direct `onCleanup` releases the records with either disposal method.
 Setup and cleanup callbacks each run once.
 
-The rc.16 strong retaining path includes `pendingNodes`, a queued callback, its closure, and the records array.
+The rc.16 and rc.18 strong retaining paths include `pendingNodes`, a queued callback, its closure, and the records array.
 This reproduces retention without WFE components, JSX, stores, tables, or virtualization.
 The root initialization fix does not remove this separate retention path.
 Keep the existing action wrapper. No runtime dependency or component behavior changes follow from this investigation.
@@ -35,6 +35,32 @@ The earlier probe reports remain under `/tmp/wfe-disposal-rc16-first` and `/tmp/
 They remain separate from the final comparison.
 
 The retirement issue remains open for a future runtime candidate. The current workaround remains required by this reproduction.
+
+## October 25 RC18 recheck
+
+The installed `solid-js@2.0.0-rc.18` and `@solidjs/signals@2.0.0-rc.18`
+were compared with the untouched preserved RC16 bundle. Both used Playwright
+1.63.0 and matching Chromium 153.0.8010.12, without an HTTP preload. Each run
+covered all six arms twice at 1,000 records: 24 cases and 48 actual heaps across
+the comparison. Both completed with no browser, assertion, or cleanup errors.
+The loaded count was 1,000 in every case. Plain disposal retained 1,000 records
+in both `onSettled` arms. Action disposal and direct `onCleanup` retained zero.
+The RC18 strong sample path still passes through `pendingNodes` and callback
+closures to the records array. The workaround remains unchanged and required.
+
+Reports and their compressed heaps are under
+`/tmp/wfe-disposal-rc18-20261025/summary.json` and
+`/tmp/wfe-disposal-rc16-20261025/summary.json`.
+The runner, fixture, and inspector are unchanged from the October 21 comparison.
+Their SHA-256 values are, respectively,
+`6f5c2462952b2773081af134cee83aa448dc9cabb20f36ca6c3cf62b6735a523`,
+`3f100658f290bdbaa3680e5261acc1555f84fa8f147c00c2c12066e6aeced91d`, and
+`e9304f44a98a1884dd4a3ffb0955adda8bc6fceb4a828f1ba5d146918663bc13`.
+The captured RC18 JavaScript bundle has SHA-256
+`02140072c0916053ffbea16e5dd00667eb7f106b230693e3cc57804353f14476`.
+The preserved RC16 bundle remains
+`2202684d3df7aadc826cc2e641787b7d041c5155ead7616be5f2c5217de6ca7c`.
+No runtime upgrade or workaround removal follows from this recheck.
 
 ## Reproduction
 
