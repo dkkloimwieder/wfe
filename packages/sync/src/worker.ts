@@ -55,10 +55,14 @@ function bare(url: string): string {
  * the network first and return its response, including HTTP errors.
  * If the network fails, serve the cached fallback. If it is missing, fail
  * with the network error. Leave other requests to the network.
- * `apiPrefix` matches the exact path or the path followed by '/'.
- * The worker strips trailing slashes from the prefix. '/' matches every path.
+ * Start with `bypassPrefixes` when given, including an empty list.
+ * Otherwise, start with [] when `apiPrefix` is given, or ['/api'] by default.
+ * The `apiPrefix` alias adds one entry. Normalize each prefix and remove duplicates.
+ * Each prefix matches the exact path or the path followed by '/'.
+ * The worker strips trailing slashes from each prefix. '/' matches every path.
  * Matching requests never use the cache or fallback, even when the manifest
  * lists them. The worker never caches matching manifest URLs or fallbacks.
+ * It never calls `respondWith` for matching requests.
  * Activation deletes the caches of older builds.
  */
 export function precache(
@@ -66,7 +70,9 @@ export function precache(
   options: {
     /** Names the cache. Default is a hash of the manifest and fallback. */
     buildId?: string
-    /** Default '/api'. */
+    /** Paths to bypass. Default ['/api'] without apiPrefix. [] bypasses nothing. */
+    bypassPrefixes?: string[]
+    /** Adds one bypass prefix. Used alone, replaces the default '/api'. */
     apiPrefix?: string
     /** URL relative to the worker scope. Default 'index.html'. */
     navigationFallback?: string
@@ -74,21 +80,35 @@ export function precache(
 ): void {
   const scope = globalThis as unknown as WorkerScope
   const base = scope.registration.scope
-  const api = (options.apiPrefix ?? '/api').replace(/\/+$/, '') || '/'
-  const underApi = (url: URL) =>
-    api === '/' || url.pathname === api || url.pathname.startsWith(`${api}/`)
+  const prefixes =
+    options.bypassPrefixes ?? (options.apiPrefix !== undefined ? [] : ['/api'])
+  const bypassPrefixes = [
+    ...new Set(
+      [
+        ...prefixes,
+        ...(options.apiPrefix !== undefined ? [options.apiPrefix] : []),
+      ].map((prefix) => prefix.replace(/\/+$/, '') || '/'),
+    ),
+  ]
+  const isBypassed = (url: URL) =>
+    bypassPrefixes.some(
+      (prefix) =>
+        prefix === '/' ||
+        url.pathname === prefix ||
+        url.pathname.startsWith(`${prefix}/`),
+    )
   const navigationFallback = options.navigationFallback ?? 'index.html'
   const fallbackUrl = new URL(navigationFallback, base)
   const fallback = bare(fallbackUrl.href)
-  // A manifest entry under the API prefix is never cached.
+  // A manifest entry under any bypass prefix is never cached.
   const urls = new Set(
     manifest
       .map((url) => new URL(url, base))
-      .filter((url) => !underApi(url))
+      .filter((url) => !isBypassed(url))
       .map((url) => bare(url.href)),
   )
   const precached = new Set(urls)
-  if (!underApi(fallbackUrl)) precached.add(fallback)
+  if (!isBypassed(fallbackUrl)) precached.add(fallback)
   const family = `${prefix}:${base}:`
   const name =
     family + (options.buildId ?? digest([...manifest, navigationFallback]))
@@ -114,12 +134,13 @@ export function precache(
   })
   scope.addEventListener('fetch', (event) => {
     const { request } = event
-    if (request.method !== 'GET') return
+    if (request.method !== 'GET' || isBypassed(new URL(request.url))) return
     const key = bare(request.url)
     if (!urls.has(key)) {
-      if (request.mode !== 'navigate' || underApi(new URL(request.url))) return
+      if (request.mode !== 'navigate') return
       event.respondWith(
         fetch(request).catch(async (error: unknown) => {
+          if (isBypassed(fallbackUrl)) throw error
           const cache = await scope.caches.open(name)
           const hit = await cache.match(fallback)
           if (hit) return hit

@@ -128,7 +128,7 @@ The package never reloads on its own. The consumer chooses the time to call `rel
 
 ## Worker
 
-`@wfe/sync/worker` exports `precache(manifest, { buildId, apiPrefix, navigationFallback })`. The consumer imports it into its own worker entry. The module has no imports and never imports Solid.
+`@wfe/sync/worker` exports `precache(manifest, { buildId, bypassPrefixes, apiPrefix, navigationFallback })`. The consumer imports it into its own worker entry. The module has no imports and never imports Solid.
 
 The manifest lists the files to cache. The navigation fallback is the page that handles deep routes offline. The worker uses these rules:
 
@@ -138,9 +138,18 @@ The manifest lists the files to cache. The navigation fallback is the page that 
 - A GET for a manifest URL uses the cache first. The worker ignores the query, so `./?tab=2` gets the cached `./`. On a miss, the request goes to the network.
 - Other GET navigations use the network first. The worker returns the server response, including HTTP errors such as 404. Only a network failure uses the cached fallback. If the fallback is missing, the request fails with the network error. The consuming app handles deep routes.
 - The worker leaves other requests to the network without interception. This includes requests outside the manifest that are not navigations.
-- `apiPrefix`, default `/api`, matches the exact path or the path followed by '/'. The worker strips trailing slashes from the prefix. '/' matches every path. Matching requests never use the cache or the fallback. The worker never caches a manifest URL or fallback under that prefix.
+- Each entry in `bypassPrefixes` matches the exact path or the path followed by '/'. The worker strips trailing slashes from each entry. '/' matches every path. Matching requests never use the cache or the fallback, and the worker never calls `respondWith` for them. The worker never caches a manifest URL or fallback under any matching prefix.
 - Activate deletes the older caches of the same scope and claims the open pages.
 - The skip-waiting message from `reload()` of `shell()` makes a waiting worker take over.
+
+The worker starts with `bypassPrefixes` when given, including an empty list.
+Otherwise, it starts with `[]` when `apiPrefix` is given, or `['/api']` by default.
+The `apiPrefix` alias then adds one entry. The worker normalizes each prefix and removes duplicates.
+With `bypassPrefixes: []` and no `apiPrefix`, the worker bypasses nothing.
+
+For example, `precache(m)` bypasses `['/api']`, and `precache(m, { apiPrefix: '/v2' })` bypasses only `['/v2']`.
+With `{ bypassPrefixes: ['/api', '/auth'], apiPrefix: '/v2' }`, the worker bypasses all three prefixes.
+The bypass configuration does not change the default build id.
 
 The package does not ship a Vite plugin. The consumer writes the manifest with this recipe in its Vite configuration. The worker entry calls `precache(__PRECACHE_MANIFEST__)`, and the recipe replaces that name with the list of built files.
 

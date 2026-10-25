@@ -210,18 +210,143 @@ test.each(['/api', '/api/orders'])(
   },
 )
 
-test('apiPrefix / excludes every path from the cache and fallback', async () => {
+test.each([{ apiPrefix: '/' }, { bypassPrefixes: ['/auth', '///'] }])(
+  '%j excludes every path from the cache and fallback',
+  async (options) => {
+    const scope = workerScope()
+    precache([...manifest, '/'], options)
+    await scope.extend('install')
+    expect([...[...scope.stores.values()][0]!.keys()]).toEqual([])
+    scope.network.mockRejectedValue(new TypeError('offline'))
+    for (const path of ['/', '/api', '/apiary', '/shop/index.html']) {
+      const url = new URL(path, scopeUrl).href
+      expect(await scope.request(url)).toBeUndefined()
+      expect(await scope.request(url, 'GET', 'navigate')).toBeUndefined()
+    }
+    expect(scope.network).not.toHaveBeenCalled()
+  },
+)
+
+test.each([
+  {
+    options: {},
+    bypassed: ['/api'],
+    allowed: ['/auth', '/apiary', '/authors'],
+  },
+  {
+    options: { bypassPrefixes: ['/api', '/auth'] },
+    bypassed: ['/api', '/auth'],
+    allowed: ['/apiary', '/authors'],
+  },
+  {
+    options: { apiPrefix: '/v2' },
+    bypassed: ['/v2'],
+    allowed: ['/api', '/auth'],
+  },
+  {
+    options: { bypassPrefixes: ['/api', '/auth'], apiPrefix: '/v2' },
+    bypassed: ['/api', '/auth', '/v2'],
+    allowed: ['/apiary', '/authors'],
+  },
+  {
+    options: { bypassPrefixes: ['/api///', '/auth/'], apiPrefix: '/auth//' },
+    bypassed: ['/api', '/auth'],
+    allowed: ['/apiary', '/authors'],
+  },
+  {
+    options: { bypassPrefixes: [] },
+    bypassed: [],
+    allowed: ['/api', '/auth'],
+  },
+  {
+    options: { bypassPrefixes: [], apiPrefix: '/v2' },
+    bypassed: ['/v2'],
+    allowed: ['/api', '/auth'],
+  },
+])(
+  'resolves bypass prefixes with $options',
+  async ({ options, bypassed, allowed }) => {
+    const scope = workerScope()
+    const paths = [...bypassed, ...allowed].flatMap((path) => [
+      path,
+      `${path}/item`,
+    ])
+    precache([...manifest, ...paths], options)
+    await scope.extend('install')
+    const store = [...scope.stores.values()][0]!
+    scope.network.mockRejectedValue(new TypeError('offline'))
+    scope.caches.open.mockClear()
+
+    for (const path of bypassed) {
+      for (const suffix of ['', '/item']) {
+        const url = new URL(path + suffix, scopeUrl).href
+        expect(store.has(url)).toBe(false)
+        // A cache from an earlier configuration must not answer bypassed requests.
+        store.set(url, `old cached ${url}`)
+        expect(await scope.request(`${url}?page=2`)).toBeUndefined()
+        expect(
+          await scope.request(`${url}?page=2`, 'GET', 'navigate'),
+        ).toBeUndefined()
+      }
+      expect(
+        await scope.request(
+          new URL(`${path}/deep`, scopeUrl).href,
+          'GET',
+          'navigate',
+        ),
+      ).toBeUndefined()
+    }
+    expect(scope.caches.open).not.toHaveBeenCalled()
+    expect(scope.network).not.toHaveBeenCalled()
+
+    for (const path of allowed) {
+      for (const suffix of ['', '/item']) {
+        const url = new URL(path + suffix, scopeUrl).href
+        expect(store.has(url)).toBe(true)
+        expect(await scope.request(url)).toBe(`cached ${url}`)
+        expect(await scope.request(url, 'GET', 'navigate')).toBe(
+          `cached ${url}`,
+        )
+      }
+      expect(
+        await scope.request(
+          new URL(`${path}/deep`, scopeUrl).href,
+          'GET',
+          'navigate',
+        ),
+      ).toBe(`cached ${scopeUrl}index.html`)
+    }
+    expect(scope.network).toHaveBeenCalledTimes(allowed.length)
+  },
+)
+
+test.each(['/api', '/api/offline', '/auth', '/auth/offline'])(
+  'a bypassed fallback %s is neither cached nor served from an existing cache',
+  async (navigationFallback) => {
+    const scope = workerScope()
+    precache([], { bypassPrefixes: ['/api/', '/auth///'], navigationFallback })
+    await scope.extend('install')
+    const store = [...scope.stores.values()][0]!
+    expect([...store.keys()]).toEqual([])
+    store.set(new URL(navigationFallback, scopeUrl).href, 'old cached fallback')
+    scope.caches.open.mockClear()
+    const error = new TypeError('offline')
+    scope.network.mockRejectedValueOnce(error)
+    await expect(
+      scope.request(`${scopeUrl}deep`, 'GET', 'navigate'),
+    ).rejects.toBe(error)
+    expect(scope.caches.open).not.toHaveBeenCalled()
+  },
+)
+
+test('an explicit empty list allows an API fallback', async () => {
   const scope = workerScope()
-  precache([...manifest, '/'], { apiPrefix: '/' })
+  precache([], { bypassPrefixes: [], navigationFallback: '/api/offline' })
   await scope.extend('install')
-  expect([...[...scope.stores.values()][0]!.keys()]).toEqual([])
-  scope.network.mockRejectedValue(new TypeError('offline'))
-  for (const path of ['/', '/api', '/apiary', '/shop/index.html']) {
-    const url = new URL(path, scopeUrl).href
-    expect(await scope.request(url)).toBeUndefined()
-    expect(await scope.request(url, 'GET', 'navigate')).toBeUndefined()
-  }
-  expect(scope.network).not.toHaveBeenCalled()
+  scope.network.mockRejectedValueOnce(new TypeError('offline'))
+  expect(await scope.request(`${scopeUrl}deep`, 'GET', 'navigate')).toBe(
+    'cached https://app.example/api/offline',
+  )
 })
 
 test('a non-navigation deep request and a POST navigation are not intercepted', async () => {
@@ -343,6 +468,22 @@ test('the default build id is stable and follows the fallback name', async () =>
   }
   expect(names[0]).toBe(names[1])
   expect(names[0]).not.toBe(names[2])
+})
+
+test('bypass prefixes do not change the default build id', async () => {
+  const names: string[] = []
+  for (const options of [
+    {},
+    { bypassPrefixes: ['/api', '/auth'] },
+    { bypassPrefixes: [] },
+    { bypassPrefixes: ['/'], apiPrefix: '/v2' },
+  ]) {
+    const scope = workerScope()
+    precache([...manifest, '/api', '/auth'], options)
+    await scope.extend('install')
+    names.push([...scope.stores.keys()][0]!)
+  }
+  expect(new Set(names).size).toBe(1)
 })
 
 test('the skip-waiting message from shell() makes the worker take over', () => {

@@ -101,6 +101,9 @@ export type SignatureTypes = Assert<
     recordWrite: ReturnType<typeof recordWrite<Row>>['write']
     shell: Awaited<ReturnType<typeof shell>>
     manifest: Parameters<typeof precache>[0]
+    bypassPrefixes: NonNullable<
+      Parameters<typeof precache>[1]
+    >['bypassPrefixes']
     internalCollection: Parameters<typeof applyChanges<Row>>[0]
     internalChanges: Parameters<typeof applyChanges<Row>>[1]
   }>
@@ -108,6 +111,13 @@ export type SignatureTypes = Assert<
 
 export type CurrentAtContract = Assert<
   Equal<ReturnType<ReturnType<typeof syncCurrentAt<Row>>>, string | undefined>
+>
+
+export type BypassPrefixesContract = Assert<
+  Equal<
+    NonNullable<Parameters<typeof precache>[1]>['bypassPrefixes'],
+    string[] | undefined
+  >
 >
 
 export type OutboxContract = [
