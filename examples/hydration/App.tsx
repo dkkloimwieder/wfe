@@ -1,3 +1,4 @@
+import { GanttControls } from '../shared/controls/GanttControls'
 import { DragBoardControls } from '../shared/controls/DragBoardControls'
 import {
   CompoundFieldControls,
@@ -186,6 +187,7 @@ export default function App() {
       </div>
       <ThemeConsumer />
       <DragBoardControls />
+      <GanttControls />
       <CompoundFieldControls />
       <ButtonLinkControls />
       <FileControls />

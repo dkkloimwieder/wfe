@@ -1217,3 +1217,41 @@ assert.match(dragOutput, /Server lane/)
 assert.match(dragOutput, /Server record content/)
 assert.match(dragOutput, /server-drag-help/)
 assert.doesNotMatch(dragOutput, /ui-dnd-preview/)
+
+const { Gantt } = await import('@wfe/components/gantt')
+const ganttWarnings = []
+let ganttOutput
+try {
+  console.warn = (...args) => ganttWarnings.push(args.map(String).join(' '))
+  ganttOutput = await renderToString(() =>
+    createComponent(Gantt, {
+      label: 'Server schedule',
+      rows: [{ id: 'team', label: 'Server team' }],
+      intervals: [
+        {
+          id: 'task',
+          rowId: 'team',
+          label: 'Server interval',
+          start: new Date('2026-10-03T00:00:00Z'),
+          end: new Date('2026-10-04T00:00:00Z'),
+        },
+      ],
+      range: {
+        start: new Date('2026-10-01T00:00:00Z'),
+        end: new Date('2026-10-08T00:00:00Z'),
+      },
+      timeZone: 'UTC',
+      onSelectionChange: () =>
+        assert.fail('SSR must not request Gantt selection'),
+      onChange: () => assert.fail('SSR must not request Gantt edits'),
+    }),
+  )
+} finally {
+  console.warn = originalWarn
+}
+assert.deepEqual(ganttWarnings, [])
+assert.match(ganttOutput, /Server schedule/)
+assert.match(ganttOutput, /Server team/)
+assert.match(ganttOutput, /data-interval="task"/)
+assert.match(ganttOutput, /Server interval/)
+assert.doesNotMatch(ganttOutput, /ui-dnd-preview/)

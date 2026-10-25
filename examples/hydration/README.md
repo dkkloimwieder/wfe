@@ -3,6 +3,7 @@
 This fixture renders shared components on the server and hydrates them in the browser.
 Its runner covers retained nodes, initial focus, controlled interactions, and cleanup.
 Application data and callbacks remain in the fixture.
+The Gantt case retains server-rendered bars, adopts controlled selection and keyboard edits, and removes an active gesture when the schedule unmounts.
 
 From the repository root, install dependencies and Chromium as described in [the example guide](../README.md).
 Run the fixture:
