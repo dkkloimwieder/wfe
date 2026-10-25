@@ -427,7 +427,7 @@ Beads `wfe-0dj.3` and `wfe-0dj.5` retain the matched-evidence gates for repair r
 Filtering a controlled Combobox can change its option collection while the accepted selection stays the same.
 HiddenSelectBase no longer also writes the native select's scalar value.
 That write competed with selected option bindings and the existing queued collection reconciliation.
-The selection manager remains authoritative. Option bindings retain server-rendered selected markup.
+The selection manager remains authoritative. Native option defaults retain server-rendered selected markup.
 Native changes restore the currently accepted option set before the event handler returns.
 This prevents rejected changes from reaching a later option binding before queued restoration.
 The existing effect also restores initial selection synchronously, so multiple selects do not submit an extra empty placeholder.
@@ -439,3 +439,23 @@ The unchanged focused compound review reproduced `UNCOMMITTED_INPUT_OVERWRITTEN`
 The native selection regression covers retained nodes, form values, rejection, and acceptance; existing multiple-selection cases remain required.
 This is a semantic repair, not formatter normalization or upstream repair retirement.
 Original hashes and license text remain unchanged.
+
+## Native form reset selection
+
+HiddenSelectBase uses `defaultSelected` for native defaults and server markup.
+Its selection effect owns the live `option.selected` properties.
+A capture-phase reset listener restores accepted keys after the native reset action, even when the application rejects the reset.
+The listener queues restoration before reactive reset updates and cancels pending work after disposal.
+Real `form.reset()` tests cover unchanged, accepted, and rejected resets.
+An event-only reset test does not exercise the browser default action.
+The Everything Form regression passes with strict diagnostics in both themes.
+Original upstream hashes and licenses remain unchanged.
+
+ComboboxInput retains its controlled live `value` binding and synchronizes the
+native input `defaultValue` to accepted text. The root still owns reset selection
+policy. A browser reset therefore cannot clear rejected or unchanged text before
+reactive updates, including `form.reset(); flush()` in the same turn. The effect
+tracks the input ref and accepted text; it adds no event listener or queued work.
+Focused tests cover controlled and uncontrolled selection, accepted input drafts,
+accepted/rejected/unchanged resets, canceled native reset, and disposal. Server
+markup continues to use the controlled value binding.

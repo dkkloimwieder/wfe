@@ -110,7 +110,7 @@ test.each(['select', 'combobox'] as const)(
     await settle()
     expect(h.requested).toHaveBeenCalledExactlyOnceWith([])
     expect(h.submitted()).toEqual([])
-    fireEvent.reset(h.form)
+    h.form.reset()
     await settle()
     expect(h.submitted()).toEqual(['Alpha'])
     expect(h.select).toBe(h.form.querySelector('select'))
@@ -266,7 +266,7 @@ test('filtering a controlled combobox preserves its accepted native selection wi
     await settle()
     expect(new FormData(form).get('filtered')).toBe('Beta')
     checkPhase('unmatched filter and clear draft')
-    fireEvent.reset(form)
+    form.reset()
     await settle()
     checkPhase('reset')
     expect(requested).toHaveBeenCalledTimes(3)
@@ -283,3 +283,54 @@ test('filtering a controlled combobox preserves its accepted native selection wi
   }
   expect(diagnostics).toEqual([])
 })
+
+// A reset event alone does not run the browser's native option reset algorithm.
+test.each(['select', 'combobox'] as const)(
+  '%s real form reset preserves accepted selection without lost-input diagnostics',
+  async (family) => {
+    const capture = OBSERVE!.diagnostics.capture()
+    let diagnostics: ReturnType<typeof capture.stop> = []
+    const h = mount(family, true)
+    try {
+      await settle()
+      h.form.reset()
+      await settle()
+      expect(h.submitted()).toEqual(['Alpha'])
+      h.change(['Beta', 'Gamma'])
+      await settle()
+      expect(h.submitted()).toEqual(['Beta', 'Gamma'])
+      h.form.reset()
+      await settle()
+      expect(h.submitted()).toEqual(['Alpha'])
+      h.change(['Beta'])
+      await settle()
+      h.reject()
+      h.form.reset()
+      await settle()
+      expect(h.submitted()).toEqual(['Beta'])
+    } finally {
+      h.unmount()
+      await settle()
+      diagnostics = capture.stop()
+    }
+    expect(diagnostics).toEqual([])
+  },
+)
+
+test.each(['select', 'combobox'] as const)(
+  '%s disposal cancels native reset restoration',
+  async (family) => {
+    const h = mount(family, true)
+    await settle()
+    h.form.reset()
+    h.unmount()
+    for (const option of h.select.options)
+      option.selected = option.value === 'Gamma'
+    const calls = h.requested.mock.calls.length
+    await settle()
+    expect(
+      Array.from(h.select.selectedOptions, (option) => option.value),
+    ).toEqual(['Gamma'])
+    expect(h.requested).toHaveBeenCalledTimes(calls)
+  },
+)

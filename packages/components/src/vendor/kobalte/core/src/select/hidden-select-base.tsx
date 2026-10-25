@@ -96,6 +96,29 @@ export function HiddenSelectBase(props: HiddenSelectBaseProps) {
     return [...new Set([...props.selectionManager.selectedKeys(), ...keys])]
   }
 
+  // Native reset changes option properties after the reset event. Queue from
+  // capture so accepted values return before reset handlers flush bindings.
+  // Rejected or unchanged resets must restore DOM even when no signal changes.
+  createEffect(ref, (select) => {
+    const form = select?.form
+    if (!select || !form) return
+    let active = true
+    const reset = () => {
+      queueMicrotask(() => {
+        if (!active || disposed || !select.isConnected) return
+        restoreNativeSelection(
+          select,
+          untrack(() => props.selectionManager.selectedKeys()),
+        )
+      })
+    }
+    form.addEventListener('reset', reset, true)
+    return () => {
+      active = false
+      form.removeEventListener('reset', reset, true)
+    }
+  })
+
   // Apply native selection after the browser processes replacement option nodes.
   createEffect(
     () => ({
@@ -183,7 +206,7 @@ export function HiddenSelectBase(props: HiddenSelectBaseProps) {
           {(key) => (
             <option
               value={key}
-              selected={props.selectionManager.isSelected(key)}
+              defaultSelected={props.selectionManager.isSelected(key)}
             >
               {props.collection.getItem(key)?.textValue ?? key}
             </option>

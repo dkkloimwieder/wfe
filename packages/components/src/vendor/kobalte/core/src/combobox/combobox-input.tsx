@@ -8,7 +8,7 @@ import { renderAfterRegistration } from '../../../../../internal/fieldRendering.
  * https://github.com/adobe/react-spectrum/blob/ba727bdc0c4a57626131e84d9c9b661d0b65b754/packages/@react-aria/combobox/src/useComboBox.ts
  */
 
-import { createSignal, merge, omit, untrack } from 'solid-js'
+import { createEffect, createSignal, merge, omit, untrack } from 'solid-js'
 import { callHandler } from '../../../utils/src/index.ts'
 
 import {
@@ -76,6 +76,16 @@ export function ComboboxInput<T extends ValidComponent = 'input'>(
 
   const formControlContext = useFormControlContext()
   const context = useComboboxContext()
+
+  // The root owns reset policy. Keep the browser's reset target at the accepted
+  // text so native form.reset() cannot silently clear a retained controlled value
+  // before Solid settles, including callers that flush immediately after reset.
+  createEffect(
+    () => ({ input: ref(), value: context.inputValue() ?? '' }),
+    ({ input, value }) => {
+      if (input) input.defaultValue = value
+    },
+  )
 
   const mergedProps = merge(
     {

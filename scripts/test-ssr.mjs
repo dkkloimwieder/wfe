@@ -894,6 +894,31 @@ const {
   Select,
   Combobox,
 } = await import('@wfe/components')
+for (const Choice of [Select, Combobox]) {
+  for (const multiple of [false, true]) {
+    let requests = 0
+    const output = await renderToString(() =>
+      createComponent(Choice, {
+        options: ['Alpha', 'Beta'],
+        value: multiple ? ['Beta'] : 'Beta',
+        multiple,
+        name: 'server-choice',
+        onValueChange: () => requests++,
+        get children() {
+          return createComponent(Choice.HiddenSelect, {})
+        },
+      }),
+    )
+    const option = output.match(/<option\b[^>]*value="Beta"[^>]*>/)?.[0]
+    assert.ok(option, 'Accepted option exists before hydration')
+    assert.match(
+      option,
+      /\sselected(?:[\s=>])/,
+      'Accepted option is selected on the server',
+    )
+    assert.equal(requests, 0)
+  }
+}
 for (const family of ['checkbox', 'switch', 'radio', 'select', 'combobox']) {
   const target = `compound-ssr-${family}`
   const label = `${target}-label`

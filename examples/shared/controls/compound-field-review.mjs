@@ -132,6 +132,23 @@ export async function reviewCompoundFields(page) {
     await form.evaluate((node) => new FormData(node).get('uncontrolled')),
     'Beta',
   )
+  // Native reset runs its default DOM action as well as reset listeners.
+  await configure({ accept: false })
+  await form.evaluate((node) => node.reset())
+  for (const name of ['select', 'combobox'])
+    assert.equal(
+      await form.evaluate((node, name) => new FormData(node).get(name), name),
+      'Beta',
+    )
+  await expect(combo).toHaveValue('Beta')
+  await configure({ accept: true })
+  await form.evaluate((node) => node.reset())
+  for (const name of ['select', 'combobox'])
+    assert.equal(
+      await form.evaluate((node, name) => new FormData(node).get(name), name),
+      '',
+    )
+  await expect(combo).toHaveValue('')
   await page.evaluate(() => {
     window.retainedCompoundInput = document.getElementById('compound-checkbox')
   })
