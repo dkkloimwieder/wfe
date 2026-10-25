@@ -247,3 +247,99 @@ for (const mode of ['fixed', 'measured'] as const) {
     })
   }
 }
+
+for (const mode of ['fixed', 'measured'] as const) {
+  for (const action of ['key', 'index', 'rounded'] as const) {
+    test(`${mode}: ${action} navigation before header update preserves the viewport`, () => {
+      const frames = new Map<number, FrameRequestCallback>()
+      let sequence = 0
+      vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => {
+        frames.set(++sequence, cb)
+        return sequence
+      })
+      vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id))
+      const element = document.createElement('div')
+      document.body.append(element)
+      Object.defineProperties(element, {
+        offsetWidth: { value: 200 },
+        offsetHeight: { value: 100 },
+        clientHeight: { value: 100 },
+        scrollHeight: { value: 32024 },
+      })
+      // jsdom lacks scrolling. Preserve the browser contract: the DOM offset
+      // changes now, while its native scroll event arrives in a later task.
+      element.scrollTo = (options: ScrollToOptions | number = {}) => {
+        if (typeof options !== 'number')
+          element.scrollTop =
+            action === 'rounded'
+              ? Math.round(options.top ?? element.scrollTop)
+              : (options.top ?? element.scrollTop)
+      }
+      const h = createRoot((dispose) => {
+        const [margin, setMargin] = createSignal(0)
+        const virtualizer = createTableVirtualizer({
+          ...(mode === 'fixed'
+            ? {
+                mode,
+                count: 1000,
+                rowHeight: 32.25,
+                getItemKey: (index: number) => `r${index}`,
+                getIndexForKey: (key: string) => Number(key.slice(1)),
+              }
+            : {
+                mode,
+                keys: Array.from({ length: 1000 }, (_, i) => `r${i}`),
+                estimateSize: () => 32.25,
+              }),
+          getScrollElement: () => element,
+          get scrollMargin() {
+            return margin()
+          },
+        })
+        return { virtualizer, setMargin, dispose }
+      })
+      try {
+        flush()
+        expect(h.virtualizer.instance.scrollElement).toBe(element)
+        expect(h.virtualizer.instance.scrollOffset).toBe(0)
+        const restore = vi.spyOn(h.virtualizer.instance, 'scrollToOffset')
+        if (action !== 'index')
+          expect(h.virtualizer.scrollToKey('r500')).toBe(true)
+        if (action === 'index') h.virtualizer.scrollToIndex(500)
+        const target = element.scrollTop
+        expect(target).toBeGreaterThan(15000)
+        expect(h.virtualizer.instance.scrollOffset).toBe(0)
+        if (action === 'rounded') {
+          element.dispatchEvent(new Event('scroll'))
+          flush()
+          expect(h.virtualizer.instance.scrollOffset).not.toBe(
+            element.scrollTop,
+          )
+          expect(
+            Math.abs(h.virtualizer.instance.scrollOffset! - element.scrollTop),
+          ).toBeLessThan(1.5)
+        }
+        h.setMargin(24)
+        flush()
+        // Deliver the actual scroll event before queued anchor restoration.
+        element.dispatchEvent(new Event('scroll'))
+        flush()
+        const callbacks = [...frames.values()]
+        frames.clear()
+        for (const cb of callbacks) cb(0)
+
+        if (action === 'rounded') {
+          expect(element.scrollTop).toBeGreaterThan(15000)
+          expect(restore).toHaveBeenCalledOnce()
+        } else {
+          expect(element.scrollTop).toBeGreaterThan(15000)
+          expect(restore).not.toHaveBeenCalled()
+        }
+      } finally {
+        h.dispose()
+        element.remove()
+        vi.unstubAllGlobals()
+      }
+    })
+  }
+}

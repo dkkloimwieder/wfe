@@ -149,10 +149,19 @@ export function createTableVirtualizer<Key extends string | number>(
   createEffect(configuration, (next) => {
     const changed = next.keys !== previous.keys
     const visibleStart = (instance.scrollOffset ?? 0) + previous.scrollMargin
+    // A scroll command changes the DOM before its scroll event updates the
+    // engine. Do not preserve a virtual window the viewport has already left.
+    // Match virtual-core's tolerance for fractional scroll read-back.
+    const offsetCurrent =
+      !instance.scrollElement ||
+      Math.abs(
+        instance.scrollElement.scrollTop - (instance.scrollOffset ?? 0),
+      ) < 1.5
     const anchor =
-      changed ||
-      next.version !== previous.version ||
-      next.scrollMargin !== previous.scrollMargin
+      offsetCurrent &&
+      (changed ||
+        next.version !== previous.version ||
+        next.scrollMargin !== previous.scrollMargin)
         ? instance.getVirtualItems().find((item) => item.end > visibleStart)
         : undefined
     const offsetWithin = anchor ? visibleStart - anchor.start : 0
