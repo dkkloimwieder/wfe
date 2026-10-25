@@ -20,11 +20,27 @@ assert.ok(
   `Missing sync modules from ${syncDirectory}`,
 )
 const report = { directory, cases: [], errors: [], warnings: [] }
+// The server build: a new build serves a sw.js with other bytes.
+let build = 1
+let apiCalls = 0
 const server = createServer(async (request, response) => {
   try {
     const url = new URL(request.url, 'http://sync.example')
     if (url.pathname === '/favicon.ico') {
       response.writeHead(204).end()
+      return
+    }
+    if (url.pathname.startsWith('/api/')) {
+      apiCalls++
+      response.setHeader('Content-Type', 'application/json')
+      response.end(JSON.stringify({ calls: apiCalls }))
+      return
+    }
+    if (url.pathname === '/sw.js') {
+      response.setHeader('Content-Type', 'text/javascript')
+      response.end(
+        (await readFile(assets + 'sw.js', 'utf8')) + `\n// build ${build}\n`,
+      )
       return
     }
     response.setHeader(
@@ -252,6 +268,113 @@ try {
     await page.evaluate(() => window.syncFixture.stop())
     await expect(page.locator('#root')).toBeEmpty()
   })
+  // The worker cases use their own context, so the cases above stay as
+  // they were.
+  const context = await browser.newContext({
+    viewport: { width: 1200, height: 800 },
+  })
+  const tab = await context.newPage()
+  tab.setDefaultTimeout(120_000)
+  tab.on('pageerror', (error) => report.errors.push(String(error)))
+  tab.on('console', (message) => {
+    if (!['error', 'warning'].includes(message.type())) return
+    // The blocked /api fetch is the one expected failure.
+    const { url } = message.location()
+    if (
+      message.text() ===
+        'Failed to load resource: net::ERR_INTERNET_DISCONNECTED' &&
+      new URL(url).pathname.startsWith('/api/')
+    )
+      return
+    report.warnings.push(`${message.text()} (${url})`)
+  })
+  const controlled = () =>
+    tab.waitForFunction(() => navigator.serviceWorker.controller !== null)
+  await run(
+    'with the worker registered and the network blocked, a reload renders the page',
+    async () => {
+      await tab.goto(base)
+      await controlled()
+      await context.setOffline(true)
+      await tab.reload()
+      await expect(tab.locator('[data-sync-status]')).toHaveAttribute(
+        'data-sync-status',
+        'ready',
+      )
+      await expect(tab.locator('[data-sync-rows]')).toHaveAttribute(
+        'data-sync-rows',
+        '10000',
+      )
+      await context.setOffline(false)
+    },
+  )
+  await run('an /api request is never served from the cache', async () => {
+    const ping = () =>
+      tab.evaluate(() =>
+        fetch('/api/ping').then(
+          (response) => response.json(),
+          (error) => ({ failed: String(error) }),
+        ),
+      )
+    const online = await ping()
+    assert.equal(typeof online.calls, 'number')
+    await context.setOffline(true)
+    const offline = await ping()
+    assert.ok('failed' in offline, JSON.stringify(offline))
+    await context.setOffline(false)
+    const cached = await tab.evaluate(async () => {
+      const urls = []
+      for (const name of await caches.keys()) {
+        const cache = await caches.open(name)
+        for (const request of await cache.keys()) urls.push(request.url)
+      }
+      return urls
+    })
+    assert.ok(cached.length > 0, 'the shell is cached')
+    assert.deepEqual(
+      cached.filter((url) => new URL(url).pathname.startsWith('/api')),
+      [],
+    )
+  })
+  await run(
+    'a new build triggers onUpdate, and reload hands over',
+    async () => {
+      const first = await tab.evaluate(
+        () => navigator.serviceWorker.controller.scriptURL,
+      )
+      await expect(tab.locator('[data-sync-update]')).toHaveCount(0)
+      build = 2
+      await tab.reload()
+      await controlled()
+      const offer = tab.locator('[data-sync-update]')
+      await expect(offer).toBeVisible()
+      assert.ok(
+        await tab.evaluate(
+          async () =>
+            (await navigator.serviceWorker.getRegistration())?.waiting != null,
+        ),
+        'a new worker waits',
+      )
+      const navigated = tab.waitForEvent('framenavigated')
+      await offer.click()
+      await navigated
+      await expect(tab.locator('[data-sync-status]')).toHaveAttribute(
+        'data-sync-status',
+        'ready',
+      )
+      await expect(tab.locator('[data-sync-update]')).toHaveCount(0)
+      const state = await tab.evaluate(async () => {
+        const registration = await navigator.serviceWorker.getRegistration()
+        return {
+          waiting: registration?.waiting ?? null,
+          script: navigator.serviceWorker.controller?.scriptURL,
+        }
+      })
+      assert.equal(state.waiting, null)
+      assert.equal(state.script, first)
+    },
+  )
+  await context.close()
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])
 } catch (error) {

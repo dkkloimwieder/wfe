@@ -17,6 +17,7 @@ import {
   outbox,
   outboxStatus,
   recordWrite,
+  shell,
   syncStatus,
 } from '@wfe/sync'
 import type { Outbox } from '@wfe/sync'
@@ -32,6 +33,12 @@ const sizes = [10_000, 100_000]
 const limit = 200
 
 export function App() {
+  // A new worker waits: the page offers a reload and never reloads alone.
+  const [update, setUpdate] = createSignal<() => void>()
+  void shell({
+    workerUrl: './sw.js',
+    onUpdate: (reload) => setUpdate(() => reload),
+  })
   const [size, setSize] = createSignal(sizes[0]!)
   const [applied, setApplied] = createSignal(0)
   const [served, setServed] = createSignal(0)
@@ -92,6 +99,17 @@ export function App() {
           <span data-sync-applied={applied()}>{applied()} batches applied</span>
           <Button onClick={serve}>Change on the server</Button>
           <span data-sync-served={served()}>{served()} server batches</span>
+          <Show when={update()}>
+            {(reload) => (
+              <Button
+                variant="filled"
+                data-sync-update
+                onClick={() => reload()()}
+              >
+                Update available, reload
+              </Button>
+            )}
+          </Show>
         </div>
       </header>
       <Show when={source()} keyed>
