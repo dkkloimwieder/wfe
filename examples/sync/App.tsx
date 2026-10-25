@@ -77,7 +77,7 @@ export function App() {
     const o = outbox({
       database: `wfe-sync-gallery:${size()}`,
       send: server.send,
-      probe: server.probe,
+      probe: async () => navigator.onLine && server.probe(),
     })
     onCleanup(() => {
       window.removeEventListener('online', reach)
@@ -406,7 +406,7 @@ async function hashOf(request: CreateRequest): Promise<string> {
 }
 
 function Writes(props: { store: Store; outbox: Outbox; server: Server }) {
-  const record = recordWrite(props.store, props.outbox)
+  const record = recordWrite(props.store, props.outbox, { model: 'orders' })
   const counts = outboxStatus(props.outbox)
   const [name, setName] = createSignal('')
   const [written, setWritten] = createSignal<string[]>([])
@@ -418,6 +418,16 @@ function Writes(props: { store: Store; outbox: Outbox; server: Server }) {
     counts()
     return untrack(() => props.outbox.entries())
   })
+  // Keep restored ids visible after their entries leave the outbox.
+  const shown = createMemo<string[]>((previous) => [
+    ...new Set([
+      ...written(),
+      ...(previous ?? []),
+      ...entries()
+        .filter((entry) => entry.expect.model === 'orders')
+        .map((entry) => entry.expect.id),
+    ]),
+  ])
   const refused = createMemo(() =>
     entries().filter((entry) => entry.state === 'refused'),
   )
@@ -508,7 +518,7 @@ function Writes(props: { store: Store; outbox: Outbox; server: Server }) {
         </output>
       </p>
       <ul class="sync-written">
-        <For each={written()}>
+        <For each={shown()}>
           {(id) => (
             <li
               data-sync-written={id}

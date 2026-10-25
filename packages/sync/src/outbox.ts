@@ -24,6 +24,8 @@ export interface Send {
 }
 
 export type OutboxEntry = OperationCall & {
+  /** The tentative row; undefined for entries recorded without one. */
+  expected: unknown
   /** Local and monotonic; the replay order. */
   seq: number
   /** ISO, browser clock; a display value only. */
@@ -42,7 +44,7 @@ export type OutboxCounts = {
 
 export interface Outbox {
   /** Resolves after the IndexedDB put commits. */
-  enqueue(op: OperationCall): Promise<OutboxEntry>
+  enqueue(op: OperationCall, expected?: unknown): Promise<OutboxEntry>
   /** Sends pending entries to the end of the queue or the first retriable failure. */
   replay(): Promise<void>
   /** A refused entry goes back to pending, and a replay starts. */
@@ -300,13 +302,14 @@ export function outbox(options: {
   void database.then(() => locked(reload)).then(kick, () => undefined)
 
   const o: Outbox = {
-    async enqueue(op) {
+    async enqueue(op, expected) {
       if (closed) throw new Error('The outbox is closed')
       const entry = {
         operation: op.operation,
         request: op.request,
         request_hash: op.request_hash,
         expect: { model: op.expect.model, id: op.expect.id },
+        expected,
         append_only: op.append_only,
         recorded_at: new Date().toISOString(),
         state: 'pending',

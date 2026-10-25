@@ -500,6 +500,40 @@ try {
       await context.setOffline(false)
     }
   })
+  await run(
+    'an offline write survives a reload as a tentative row',
+    async () => {
+      await controlled()
+      await saved(10_000)
+      const pending = tab.locator('[data-sync-pending]')
+      const row = tab
+        .locator('[data-sync-written]')
+        .filter({ hasText: 'Reloaded write' })
+      await context.setOffline(true)
+      try {
+        await expect(tab.locator('[data-sync-online]')).toHaveAttribute(
+          'data-sync-online',
+          'false',
+        )
+        await tab.getByLabel('Order name').fill('Reloaded write')
+        await tab.getByRole('button', { name: 'Add row' }).click()
+        await expect(pending).toHaveAttribute('data-sync-pending', '1')
+        await expect(row).toContainText('recorded, not uploaded')
+        await tab.reload()
+        await expect(row).toHaveAttribute('data-sync-version', '0')
+        await expect(row).toHaveAttribute('data-sync-state', 'pending')
+        await expect(row).toContainText('recorded, not uploaded')
+        await expect(pending).toHaveAttribute('data-sync-pending', '1')
+        await context.setOffline(false)
+        await expect(row).toHaveAttribute('data-sync-version', '1')
+        await expect(row).toHaveAttribute('data-sync-state', 'sent')
+        await expect(row).not.toContainText('recorded, not uploaded')
+        await expect(pending).toHaveAttribute('data-sync-pending', '0')
+      } finally {
+        await context.setOffline(false)
+      }
+    },
+  )
   await context.close()
   assert.deepEqual(report.errors, [])
   assert.deepEqual(report.warnings, [])

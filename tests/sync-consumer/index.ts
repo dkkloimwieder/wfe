@@ -117,6 +117,19 @@ export type OutboxContract = [
   Assert<Equal<Awaited<ReturnType<Outbox['enqueue']>>, OutboxEntry>>,
   Assert<Equal<OutboxEntry['state'], 'pending' | 'sending' | 'refused'>>,
   Assert<Equal<OutboxEntry['seq'], number>>,
+  Assert<Equal<OutboxEntry['expected'], unknown>>,
+  Assert<
+    Equal<
+      Parameters<Outbox['enqueue']>,
+      [op: OperationCall, expected?: unknown]
+    >
+  >,
+  Assert<
+    Equal<
+      Parameters<typeof recordWrite<Row>>[2],
+      { model?: string } | undefined
+    >
+  >,
   Assert<Equal<ReturnType<ReturnType<typeof outboxStatus>>, OutboxCounts>>,
 ]
 

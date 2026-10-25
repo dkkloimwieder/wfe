@@ -41,7 +41,8 @@ async function stored(database: string) {
 test('enqueue resolves after the put commits, and a reopen finds the entry', async () => {
   const database = name()
   const o = outbox({ database, send: vi.fn(offline), probe })
-  const entry = await o.enqueue(call('a', 'h1'))
+  const expected = { id: 'a', quantity: 9, nested: { dates: [new Date(0)] } }
+  const entry = await o.enqueue(call('a', 'h1'), expected)
   expect(entry).toMatchObject({
     seq: 1,
     operation: 'orders.update',
@@ -49,9 +50,10 @@ test('enqueue resolves after the put commits, and a reopen finds the entry', asy
     expect: { model: 'orders', id: 'a' },
     append_only: false,
     state: 'pending',
+    expected,
   })
   expect(typeof entry.recorded_at).toBe('string')
-  expect(await stored(database)).toHaveLength(1)
+  expect(await stored(database)).toMatchObject([{ expected }])
   await tick()
   o.close()
   await tick()
@@ -59,6 +61,8 @@ test('enqueue resolves after the put commits, and a reopen finds the entry', asy
   // A replay waits for the open, so the entries are loaded after it.
   await again.replay()
   expect(again.entries().map((e) => e.request_hash)).toEqual(['h1'])
+  expect(again.entries()[0]?.expected).toEqual(expected)
+  expect(again.entries()[0]?.expected).not.toBe(expected)
   again.close()
 })
 
@@ -334,4 +338,33 @@ test('two outboxes on one database replay one at a time under the Web Lock', asy
   } finally {
     uninstall()
   }
+})
+
+test('entries stored before expected existed load with expected undefined', async () => {
+  const database = name()
+  const o = outbox({ database, send: vi.fn(offline), probe: async () => false })
+  const entry = await o.enqueue(call('a', 'h1'))
+  o.close()
+  await tick()
+  const db = await new Promise<IDBDatabase>((resolve) => {
+    const r = indexedDB.open(database, 1)
+    r.onsuccess = () => resolve(r.result)
+  })
+  const legacy = { ...entry }
+  Reflect.deleteProperty(legacy, 'expected')
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction('outbox', 'readwrite')
+    tx.objectStore('outbox').put(legacy)
+    tx.oncomplete = () => resolve()
+    tx.onerror = () => reject(tx.error)
+  })
+  db.close()
+  const again = outbox({
+    database,
+    send: vi.fn(offline),
+    probe: async () => false,
+  })
+  await vi.waitFor(() => expect(again.entries()).toHaveLength(1))
+  expect(again.entries()[0]?.expected).toBeUndefined()
+  again.close()
 })

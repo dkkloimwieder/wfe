@@ -1,6 +1,6 @@
 // The only module that imports solid-js. It uses createStore, createProjection,
-// createOptimisticStore, action, until, from, createMemo and onCleanup, and
-// nothing outside the adapter table.
+// createOptimisticStore, action, until, from, createMemo, runWithOwner,
+// onSettled and onCleanup.
 import {
   action,
   createMemo,
@@ -9,6 +9,8 @@ import {
   createStore,
   from,
   onCleanup,
+  onSettled,
+  runWithOwner,
   until,
 } from 'solid-js'
 import type { Collection } from '@tanstack/db'
@@ -219,17 +221,19 @@ function moves<T extends Row>(
  * stored version must be greater. The collection's version accessor reads
  * both versions. Without an expected version, the row and successful send
  * are enough. It reads the collection, so the optimistic value cannot end
- * the wait. It throws when the entry is refused or discarded.
+ * the wait. It throws on discard, and on refusal for a new write. Restored
+ * entries keep waiting through refusal so resubmit can finish the same action.
  */
 function confirmed<T extends Row>(
   c: AnyCollection<T>,
   o: Outbox,
   expected: Partial<T> & { id: string },
   entry: OutboxEntry,
+  restored = false,
 ): boolean {
   if (discarded(o, entry.seq)) throw new OutboxDiscarded(entry.seq)
   const current = o.entries().find((e) => e.seq === entry.seq)
-  if (current?.state === 'refused')
+  if (current?.state === 'refused' && !restored)
     throw new OutboxRefused(entry.seq, current.refusal)
   if (current !== undefined) return false
   const row = c.get(expected.id)
@@ -245,10 +249,13 @@ function confirmed<T extends Row>(
  * until the feed brings the row back. A refusal or a discard throws at the
  * wait, and the guess reverts. The wait has no timeout, so one action stays
  * open for each unsent entry.
+ * With a model, stored expected rows return as entries load. Restored refusals
+ * keep their overlay until discard or successful resubmission.
  */
 export function recordWrite<T extends Row>(
   c: AnyCollection<T>,
   o: Outbox,
+  options?: { model?: string },
 ): {
   rows: Store<Record<string, T>>
   write: (
@@ -262,18 +269,79 @@ export function recordWrite<T extends Row>(
     { key: 'id' },
   )
   const moved = moves(c, o)
+  // Both restored entries and this adapter's own writes run once per seq.
+  const seen = new Set<number>()
+  let enqueuing = 0
+  let disposed = false
+  let settled = false
+  const apply = (expected: Partial<T> & { id: string }) => {
+    setRows((draft) => {
+      draft[expected.id] = { ...draft[expected.id], ...expected } as T
+    })
+  }
+  const restoreEntry = action(function* (entry: OutboxEntry) {
+    const expected = entry.expected as Partial<T> & { id: string }
+    apply(expected)
+    yield until(() => {
+      moved()
+      return confirmed(c, o, expected, entry, true)
+    })
+  })
+  function restore(): void {
+    // enqueue notifies before its promise returns the seq. Wait for all local
+    // enqueues to register their seqs before scanning that notification.
+    if (disposed || !settled || enqueuing > 0 || options?.model === undefined)
+      return
+    for (const entry of o.entries()) {
+      if (
+        entry.expect.model !== options.model ||
+        entry.expected === undefined ||
+        seen.has(entry.seq)
+      )
+        continue
+      seen.add(entry.seq)
+      runWithOwner(null, () => {
+        void restoreEntry(entry).catch(() => undefined)
+      })
+    }
+  }
+  async function enqueue(
+    op: OperationCall,
+    expected: Partial<T> & { id: string },
+  ): Promise<OutboxEntry> {
+    enqueuing++
+    try {
+      const entry = await o.enqueue(op, expected)
+      seen.add(entry.seq)
+      return entry
+    } finally {
+      enqueuing--
+      restore()
+    }
+  }
   const write = action(function* (
     op: OperationCall,
     expected: Partial<T> & { id: string },
   ) {
-    setRows((draft) => {
-      draft[expected.id] = { ...draft[expected.id], ...expected } as T
-    })
-    const entry = (yield o.enqueue(op)) as OutboxEntry
+    apply(expected)
+    const entry = (yield enqueue(op, expected)) as OutboxEntry
     yield until(() => {
       moved()
       return confirmed(c, o, expected, entry)
     })
   })
-  return { rows, write }
+  // Let the async row source commit before an already loaded entry opens an
+  // action, so the action cannot hold the initial render open.
+  if (options?.model !== undefined)
+    onSettled(() => {
+      settled = true
+      return o.watch(restore)
+    })
+  onCleanup(() => {
+    disposed = true
+  })
+  return {
+    rows,
+    write: (op, expected) => runWithOwner(null, () => write(op, expected)),
+  }
 }

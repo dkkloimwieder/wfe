@@ -55,11 +55,14 @@ Create the adapters inside a Solid owner. When that owner disposes, the adapters
 `outbox({ database, send, probe, concurrency })` keeps writes in the IndexedDB database that the caller names, in the object store `outbox`.
 The consumer supplies `send` and `probe`. The package never builds a request, a hash, a URL, or a header.
 
-- `enqueue(call)` resolves with the entry after the IndexedDB put commits, and starts a replay.
+- `enqueue(call, expected?)` saves the expected row with the entry. It resolves after the IndexedDB put commits and starts a replay.
 - `replay()` sends pending entries. An ok reply removes the entry. A retriable reply puts it back to `pending` and ends the replay. Any other reply marks it `refused` with the refusal.
 - `resubmit(seq)` puts a refused entry back to `pending` and starts a replay. `discard(seq)` removes the entry.
 - `entries()` returns the entries that this page holds, in `seq` order. `watch(fn)` calls `fn` with the counts now and after each change.
 - `close()` aborts the sends in flight, leaves their entries `pending`, and closes the database.
+
+IndexedDB stores `expected` through structured clone, a copy that preserves supported data types. The value survives close and reopen.
+Older entries without this field return `undefined` for `expected`. `OperationCall` stays unchanged.
 
 Replay sends the entries of one record (`expect.id`) in `seq` order, one at a time. Up to `concurrency` records, default 4, send at the same time.
 A refused entry holds the later entries of its record as `pending`, except `append_only` entries.
@@ -83,7 +86,7 @@ If `navigator.locks` is absent, replay runs without the lock. Two tabs can then 
 `write(call, expected)` is a Solid action:
 
 1. It merges `expected` into `rows[expected.id]` as a guess.
-2. It enqueues `call` in the outbox.
+2. It enqueues `call` and `expected` in the outbox.
 3. It waits with `until` for a successful send to remove the entry from the outbox and for the collection to hold `expected.id`.
 
 If `expected` has a version, the stored version must be greater. The collection reads both versions through `options.version`.
@@ -94,6 +97,17 @@ The wait reads the collection, never `rows`, so the guess of the action never en
 If the entry is refused, the wait throws `OutboxRefused` with the `code`, the `text` and the `seq`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.
 The action then rejects, and the guess reverts.
 The wait has no timeout, because a page can stay offline for hours. One action stays open for each unsent entry.
+
+`recordWrite(c, o, { model })` also restores tentative rows from stored entries whose `expect.model` matches `model`.
+It restores each entry once, including entries that load later from IndexedDB. It skips entries without `expected` and its own new writes.
+Without `model`, it restores no entries.
+
+Each restored action shows the stored expected row and waits for the same send and collection conditions as a new write.
+A restored refused entry keeps its tentative row. The consumer reads the refusal from `o.entries()`.
+`resubmit(seq)` returns the entry to `pending`, and the same action continues its wait.
+
+`discard(seq)` throws `OutboxDiscarded` at that wait and removes the tentative row. The adapter catches restored action rejections.
+New writes still reject and revert on refusal.
 
 `@wfe/sync/internal` exports `applyChanges(c, changes)` for tests and the gallery.
 It applies one batch of changes as one transaction with the same `row_version` rule.
