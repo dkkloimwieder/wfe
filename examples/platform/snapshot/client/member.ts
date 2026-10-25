@@ -101,12 +101,21 @@ export async function grant(
 
 /** Input for `wamn-control:member/list@0.9.0`. */
 export interface MemberListRequest {
+  /** `text`, omittable */
+  cursor?: string;
+  /** `text`, omittable */
+  environment?: string;
+  /** `int32`, omittable */
+  limit?: number;
   /** `text` */
   project: string;
 }
 
 /** What `wamn-control:member/list@0.9.0` calls its input members. */
 export const MEMBER_LIST_REQUEST_FIELDS: FieldMap = {
+  "cursor": "cursor",
+  "environment": "environment",
+  "limit": "limit",
   "project": "project",
 };
 
@@ -114,6 +123,10 @@ export const MEMBER_LIST_REQUEST_FIELDS: FieldMap = {
 export interface MemberListResult {
   /** `array` */
   readonly members: readonly MemberListResultMembers[];
+  /** `text` */
+  readonly nextCursor: string | null;
+  /** `int32` */
+  readonly total: number | null;
 }
 
 export interface MemberListResultMembers {
@@ -144,6 +157,8 @@ export const MEMBER_LIST_RESULT_FIELDS: FieldMap = {
       "project_admin": "projectAdmin",
     },
   },
+  "next_cursor": "nextCursor",
+  "total": "total",
 };
 
 /**

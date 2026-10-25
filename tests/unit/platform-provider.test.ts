@@ -6,6 +6,9 @@ import {
   canonicalProject,
 } from '../../examples/platform/provider'
 import { PROJECT_CREATE_ROUTE } from '../../examples/platform/snapshot/client/project'
+import type { ProjectListResult } from '../../examples/platform/snapshot/client/project'
+import type { EnvironmentListResult } from '../../examples/platform/snapshot/client/environment'
+import type { Outcome } from '../../examples/platform/snapshot/runtime/wire'
 import type { Transport } from '../../examples/platform/snapshot/runtime/wire'
 
 test('platform reads use generated routes and revive nested wire member names', async () => {
@@ -23,6 +26,8 @@ test('platform reads use generated routes and revive nested wire member names', 
   expect(await client.projects()).toEqual({
     status: 'completed',
     value: {
+      nextCursor: null,
+      total: 3,
       projects: [
         { name: 'archive', state: 'inactive' },
         { name: 'billing', state: 'active' },
@@ -33,6 +38,8 @@ test('platform reads use generated routes and revive nested wire member names', 
   expect(await client.environments('billing')).toEqual({
     status: 'completed',
     value: {
+      nextCursor: null,
+      total: 2,
       environments: [
         { name: 'dev', state: 'active' },
         { name: 'prod', state: 'inactive' },
@@ -69,7 +76,7 @@ test('project creation encodes the nested command with the application request i
   ).toEqual({ status: 'completed', value: { project: 'trimmed' } })
   expect(await client.environments('accounts')).toEqual({
     status: 'completed',
-    value: { environments: [] },
+    value: { nextCursor: null, total: 0, environments: [] },
   })
   expect(
     await client.create({ project: 'accounts' }, 'intent-2'),
@@ -101,6 +108,8 @@ test('authority refusal stays distinct from empty results and project-admin scop
   expect(await limited.mine()).toEqual({
     status: 'completed',
     value: {
+      nextCursor: null,
+      total: 1,
       orgAdmin: false,
       projects: [{ project: 'billing', projectAdmin: true }],
     },
@@ -122,13 +131,16 @@ test('authority refusal stays distinct from empty results and project-admin scop
   const empty = createPlatformClient(createPlatformMock('empty').transport)
   expect(await empty.projects()).toEqual({
     status: 'completed',
-    value: { projects: [] },
+    value: { nextCursor: null, total: 0, projects: [] },
   })
   expect(
     await createPlatformClient(
       createPlatformMock('no-access').transport,
     ).mine(),
-  ).toEqual({ status: 'completed', value: { orgAdmin: false, projects: [] } })
+  ).toEqual({
+    status: 'completed',
+    value: { nextCursor: null, total: 0, orgAdmin: false, projects: [] },
+  })
 })
 test('invalid nested replies, malformed JSON, wrong command identity and unknown refusals establish no result', async () => {
   const mock = createPlatformMock(),
@@ -138,6 +150,9 @@ test('invalid nested replies, malformed JSON, wrong command identity and unknown
     body: JSON.stringify([
       {
         value: {
+          memberships: null,
+          roles: null,
+          users_with_role: null,
           digest: null,
           rollout: { replicas: 'wrong' },
           workloads: [],
@@ -300,7 +315,7 @@ test('application result checks reject wrong types at every leaf declared by the
 })
 
 for (const key of ['projects', 'environments'] as const) {
-  test(`${key} validate current record states instead of trusting stale generated array types`, async () => {
+  test(`${key} validate regenerated record states and retain pagination`, async () => {
     const mock = createPlatformMock()
     const client = createPlatformClient(mock.transport)
     const read = () =>
@@ -315,7 +330,9 @@ for (const key of ['projects', 'environments'] as const) {
     ]) {
       mock.replyNext({
         status: 200,
-        body: JSON.stringify([{ value: { [key]: rows } }]),
+        body: JSON.stringify([
+          { value: { [key]: rows, next_cursor: null, total: rows.length } },
+        ]),
       })
       expect(await read()).toMatchObject({
         status: 'uncertain',
@@ -328,12 +345,62 @@ for (const key of ['projects', 'environments'] as const) {
     ]
     mock.replyNext({
       status: 200,
-      body: JSON.stringify([{ value: { [key]: rows } }]),
+      body: JSON.stringify([
+        { value: { [key]: rows, next_cursor: null, total: rows.length } },
+      ]),
     })
     expect(await read()).toEqual({
       status: 'completed',
-      value: { [key]: rows },
+      value: { [key]: rows, nextCursor: null, total: rows.length },
     })
     mock.dispose()
   })
 }
+
+test('regenerated list declarations agree with checked replies and retain pagination fields', async () => {
+  const mock = createPlatformMock()
+  const client = createPlatformClient(mock.transport)
+  const projects: Outcome<ProjectListResult> = await client.projects()
+  const environments: Outcome<EnvironmentListResult> =
+    await client.environments('billing')
+  expect(projects).toMatchObject({
+    status: 'completed',
+    value: { nextCursor: null, total: 3 },
+  })
+  expect(environments).toMatchObject({
+    status: 'completed',
+    value: { nextCursor: null, total: 2 },
+  })
+  mock.replyNext({
+    status: 200,
+    body: JSON.stringify([
+      {
+        value: {
+          projects: [{ name: 'first', state: 'active' }],
+          next_cursor: 'opaque-next',
+          total: null,
+        },
+      },
+    ]),
+  })
+  expect(await client.projects()).toEqual({
+    status: 'completed',
+    value: {
+      projects: [{ name: 'first', state: 'active' }],
+      nextCursor: 'opaque-next',
+      total: null,
+    },
+  })
+  for (const pagination of [
+    { next_cursor: null },
+    { next_cursor: 42, total: 1 },
+    { next_cursor: null, total: 'one' },
+  ]) {
+    mock.replyNext({
+      status: 200,
+      body: JSON.stringify([{ value: { projects: [], ...pagination } }]),
+    })
+    expect(await client.projects()).toMatchObject({ status: 'uncertain' })
+  }
+  mock.dispose()
+})

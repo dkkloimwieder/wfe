@@ -7,17 +7,28 @@ import { reviveOutcome, toWire } from "../runtime/wire";
 
 /** Input for `wamn-control:control/mine@0.9.0`. */
 export interface ControlMineRequest {
+  /** `text`, omittable */
+  cursor?: string;
+  /** `int32`, omittable */
+  limit?: number;
 }
 
 /** What `wamn-control:control/mine@0.9.0` calls its input members. */
-export const CONTROL_MINE_REQUEST_FIELDS: FieldMap = {};
+export const CONTROL_MINE_REQUEST_FIELDS: FieldMap = {
+  "cursor": "cursor",
+  "limit": "limit",
+};
 
 /** Result of `wamn-control:control/mine@0.9.0`. */
 export interface ControlMineResult {
+  /** `text` */
+  readonly nextCursor: string | null;
   /** `boolean` */
   readonly orgAdmin: boolean;
   /** `array` */
   readonly projects: readonly ControlMineResultProjects[];
+  /** `int32` */
+  readonly total: number | null;
 }
 
 export interface ControlMineResultProjects {
@@ -29,6 +40,7 @@ export interface ControlMineResultProjects {
 
 /** What `wamn-control:control/mine@0.9.0` calls its result members. */
 export const CONTROL_MINE_RESULT_FIELDS: FieldMap = {
+  "next_cursor": "nextCursor",
   "org_admin": "orgAdmin",
   "projects": {
     member: "projects",
@@ -37,6 +49,7 @@ export const CONTROL_MINE_RESULT_FIELDS: FieldMap = {
       "project_admin": "projectAdmin",
     },
   },
+  "total": "total",
 };
 
 /**
@@ -53,6 +66,7 @@ export const CONTROL_MINE_ROUTE: OperationRoute = {
     resultClass: "one",
     partialSchema: null,
     errors: [
+      { literal: "invalid_input", required: ["field"], sources: ["malformed_input"], text: null },
       { literal: "permission_denied", required: ["operation"], sources: ["permission_denied"], text: null },
     ],
     replay: null,

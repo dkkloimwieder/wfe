@@ -113,10 +113,15 @@ export function ProjectTables(props: {
     id: 'platform-projects',
     title: 'Projects',
     columns: {
-      ...metadataTableColumns(projectResult, 'projects', {
-        name: { path: 'projects[].name', label: 'Project' },
-        state: { path: 'projects[].state', label: 'State' },
-      }),
+      ...metadataTableColumns(
+        projectResult,
+        'projects',
+        {
+          name: { path: 'projects[].name', label: 'Project' },
+          state: { path: 'projects[].state', label: 'State' },
+        },
+        ['next_cursor', 'total'],
+      ),
       actions: { label: 'Actions', renderer: 'openProject' },
     },
     controls,
@@ -129,6 +134,7 @@ export function ProjectTables(props: {
       name: { path: 'environments[].name', label: 'Environment' },
       state: { path: 'environments[].state', label: 'State' },
     },
+    ['next_cursor', 'total'],
   )
   const environmentDescription = () =>
     ({

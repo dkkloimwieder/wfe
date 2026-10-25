@@ -46,7 +46,12 @@ const principal = z
   .check(
     z.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i),
   )
+const pageFields = {
+  nextCursor: z.nullable(z.string()),
+  total: z.nullable(z.int32()),
+}
 const userSchema = z.object({
+  ...pageFields,
   users: z.array(
     z.object({
       principalId: principal,
@@ -65,6 +70,7 @@ const invitationWireSchema = z.object({
   project_admins: z.array(z.string()),
 })
 const memberSchema = z.object({
+  ...pageFields,
   members: z.array(
     z.object({
       principalId: principal,
@@ -78,6 +84,9 @@ const memberSchema = z.object({
 })
 const count = z.int32()
 const statusSchema = z.object({
+  memberships: z.nullable(z.int32()),
+  roles: z.nullable(z.int32()),
+  usersWithRole: z.nullable(z.int32()),
   digest: z.nullable(z.string()),
   rollout: z.object({
     replicas: count,
@@ -97,10 +106,17 @@ const recordSchema = z.object({
   name: z.string(),
   state: z.enum(['active', 'inactive']),
 })
-export type PlatformRecord = z.infer<typeof recordSchema>
-const projectsSchema = z.object({ projects: z.array(recordSchema) })
-const environmentsSchema = z.object({ environments: z.array(recordSchema) })
+export type PlatformRecord = project.ProjectListResultProjects
+const projectsSchema = z.object({
+  ...pageFields,
+  projects: z.array(recordSchema),
+})
+const environmentsSchema = z.object({
+  ...pageFields,
+  environments: z.array(recordSchema),
+})
 const mineSchema = z.object({
+  ...pageFields,
   orgAdmin: z.boolean(),
   projects: z.array(
     z.object({ project: z.string(), projectAdmin: z.boolean() }),
@@ -390,6 +406,8 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
     if (request.operation === user.USER_LIST_ROUTE.operation) {
       if (!orgAdmin && !accessible().length) return denied()
       return complete({
+        next_cursor: null,
+        total: users.size,
         users: [...users.values()].map((row) => ({
           principal_id: row.principalId,
           email: row.email,
@@ -404,6 +422,8 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
       if (!orgAdmin && !projectAdmins.get(name)?.has(MOCK_ACTOR))
         return denied()
       return complete({
+        next_cursor: null,
+        total: null,
         members: [...users.values()]
           .filter(
             (row) =>
@@ -506,6 +526,8 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
       case control.CONTROL_MINE_ROUTE.operation:
         return complete({
           org_admin: orgAdmin,
+          next_cursor: null,
+          total: accessible().length,
           projects: accessible().map((name) => ({
             project: name,
             project_admin:
@@ -515,6 +537,8 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
       case project.PROJECT_LIST_ROUTE.operation:
         return orgAdmin
           ? complete({
+              next_cursor: null,
+              total: projects.size,
               projects: [...projects.keys()]
                 .sort()
                 .map((name) => ({ name, state: projectStates.get(name)! })),
@@ -536,6 +560,8 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
       case environment.ENVIRONMENT_LIST_ROUTE.operation:
         if (!accessible().includes(String(item.project))) return denied()
         return complete({
+          next_cursor: null,
+          total: (projects.get(String(item.project)) ?? []).length,
           environments: (projects.get(String(item.project)) ?? []).map(
             (name) => ({
               name,
@@ -554,6 +580,9 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
           return refuse('environment_not_found', 'env')
         const digest = `sha256:${(name === 'billing' ? 'a' : 'b').repeat(64)}`
         return complete({
+          memberships: null,
+          roles: null,
+          users_with_role: null,
           digest,
           rollout: {
             replicas: 2,

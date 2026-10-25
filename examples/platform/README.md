@@ -38,7 +38,7 @@ The provider modules adapt captured clients to the mock transport.
 These adapters stay inside this example. They do not define behavior for library consumers.
 
 Existing upstream work remains separate: `wfe-f81.9` tracks authority metadata, and `wfe-f81.5` tracks validation constraints.
-`wfe-f81.29` tracks stale list declarations after upstream regeneration.
+`wfe-f81.29` refreshes the regenerated list declarations and their matching metadata.
 This screen split does not replace those contracts or invent missing metadata.
 
 ## Captured inputs
@@ -138,12 +138,15 @@ State does not change navigation or authorization in this mockup.
 Authority and creation replies contain no state, so their rows show Unknown until an authorized list read supplies it.
 Deployment status remains separate from registry state.
 
-The capture at `bd69b4e82b005d22f8fab3842ed6bf1a0dbd1a64` contains stale generated list declarations.
-Those clients still declare string arrays, while the captured result metadata declares records.
-The application treats decoded replies as unknown and returns schema-parsed values from its checked boundary.
-It rejects old string arrays, missing states, and states outside the captured contract.
-This adapter does not repair the upstream generator or claim that its declarations match the current metadata.
-Issue `wfe-f81.29` tracks replacement after upstream regeneration. Generated snapshot files retain their captured bytes.
+The capture at `448270d0ecc6dba0358a6475b2348b1aa257e34f` contains regenerated
+project and environment list clients whose name/state records match the metadata.
+The coherent snapshot also includes list pagination fields and nullable environment
+status counts from that revision. The mock returns one complete local page with a
+null next cursor; unknown totals and status counts remain null. These fixtures do
+not prescribe application paging or lifecycle policy.
+The application retains its checked boundary and rejects old string arrays,
+missing states, and states outside the captured contract. Captured files are
+unaltered except for the documented local client import paths.
 
 ## Generated result validation
 
@@ -162,7 +165,11 @@ The generator supports required objects and arrays, nullable scalar leaves, text
 It rejects unsupported metadata, duplicate paths, and conflicting structures.
 It does not infer input limits, authorization rules, or optional containers.
 The invocation helper supports one outcome per request. It does not expose streaming or batch transport methods.
-Existing decoded schemas retain application identity checks and TypeScript types while the upstream list declarations remain stale.
+Decoded schemas retain application identity checks alongside the regenerated client types.
+`metadataTableColumns` takes an explicit fourth argument for result-envelope paths
+that are not row columns. The example names `next_cursor` and `total`. Unknown,
+repeated, and nested envelope paths are rejected; every row field still needs an
+explicit column mapping. This is an application adapter, not shared UI policy.
 No shared UI package or upstream WAMN source changes for this path.
 
 From the WFE repository root, regenerate the example schemas:

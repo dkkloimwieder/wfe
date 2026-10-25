@@ -1,37 +1,37 @@
 {
-  "revision": "bd69b4e82b005d22f8fab3842ed6bf1a0dbd1a64",
-  "captured": "2026-10-21T06:04:07.044Z",
-  "changes": "Client imports point to the copied wire module. The application policy SQL schema uses platform through a recorded local replacement. Other captured source bytes stay unchanged.",
+  "revision": "448270d0ecc6dba0358a6475b2348b1aa257e34f",
+  "captured": "2026-10-25T19:03:02.863Z",
+  "changes": "Client imports point to the copied wire module. All other captured source bytes stay unchanged.",
   "files": [
     {
       "source": "apps/target/wamn/wamn_control/control/client-ts/control.ts",
       "local": "client/control.ts",
-      "sourceSha256": "fce09f964d0b3ac430ec071c93fec802c2efa436503608788cf64596de981cbd",
-      "sha256": "f20f71e1ab5f3aadc046129bdf5b78bee9b04461788122f3ad471808bac99833"
+      "sourceSha256": "a4a940d1626ad9e4817fb32a0a835619d71b202e5dd405da6d14096ddf72d7f1",
+      "sha256": "a730a6e729e0819a786b63e8f1ba661be7dcc38c1f7682417ef4e941c52cb246"
     },
     {
       "source": "apps/target/wamn/wamn_control/control/client-ts/project.ts",
       "local": "client/project.ts",
-      "sourceSha256": "d4ef86867f0c80e2243a9ee5adb1891555cdbe5569a796c17da4798dae64e758",
-      "sha256": "c2494453a509fa33c0b454ae6b5ca814381248ecda12b57de1c8acc9099d0833"
+      "sourceSha256": "8751f37ea8742734820e06ba7798e7a2bf543fedfa885cf73c99a5d0cb9ac44f",
+      "sha256": "5e6b39f72ece66e4cb0b49bc14f8c63beea30505d1f47fc5a4295833e72adaec"
     },
     {
       "source": "apps/target/wamn/wamn_control/control/client-ts/environment.ts",
       "local": "client/environment.ts",
-      "sourceSha256": "743385e061ee99ad22f9906380a5165a6b31dd9b66514e9a33200bf4b63576cf",
-      "sha256": "a7ef73e0eec63a0fc5652bdd0ccedc7a08223b2fb78e9a49164f366eaae4a73f"
+      "sourceSha256": "df41994bb6786f7c3b2a683a8aa78ef9e5bcf1d82938b1c200c75a0c9051b581",
+      "sha256": "3c63e61b63c9d4a18636ef320547a0b055fef6a06c7b73299117ed60da0512ab"
     },
     {
       "source": "apps/target/wamn/wamn_control/control/client-ts/user.ts",
       "local": "client/user.ts",
-      "sourceSha256": "a0da37da985c2725b2a9489fdd935412e3b0f02e34a2209f0374382f433b9ee4",
-      "sha256": "075a89416395cdb3e6f1231e679b65da762a7c66efb40ec60c64d12982203fbb"
+      "sourceSha256": "7a9161b7a43aea649bdb9a5ad16ff58c16556a428f8db4640cb5d2dc80927cab",
+      "sha256": "0d279de8148f9ca77f0122c479d02f5b9e90973b12460ede9b6dd0d7d1d68d39"
     },
     {
       "source": "apps/target/wamn/wamn_control/control/client-ts/member.ts",
       "local": "client/member.ts",
-      "sourceSha256": "eb6e077b07b699c18e222c87a3cd3ee4e2eab83ebf0f3fb1b4d843ba65f88dbb",
-      "sha256": "203fb405c9e816e05405e110956aaface4916c0106f26f66c675695fad42c579"
+      "sourceSha256": "eb60972931de6830447c2b8b8bc96a5fa33faa81f59ba48bf4fbf28220069796",
+      "sha256": "63849b469daeeff69c0b7f653bbe559668444c1c69b317a9fdddf8e7c9eef444"
     },
     {
       "source": "apps/target/wamn/wamn_control/control/client-ts/org_admin.ts",
@@ -48,14 +48,14 @@
     {
       "source": "web/runtime/src/wire.ts",
       "local": "runtime/wire.ts",
-      "sourceSha256": "2dddd4bb69f743fff6b1fe611d8bee4314f67d8d577c39a0f84609ecf6f9d4ce",
-      "sha256": "2dddd4bb69f743fff6b1fe611d8bee4314f67d8d577c39a0f84609ecf6f9d4ce"
+      "sourceSha256": "5bc2b4c6c7a21a56143d27b80d9f6e92bddb1e4f56ed3f97f97cc0996dfeec35",
+      "sha256": "5bc2b4c6c7a21a56143d27b80d9f6e92bddb1e4f56ed3f97f97cc0996dfeec35"
     },
     {
       "source": "web/runtime/src/transport.ts",
       "local": "runtime/transport.ts",
-      "sourceSha256": "5ab1e2e3deecabf6c3e673686f09cba904a717a5c55f7fb38dbf675af64d6c0e",
-      "sha256": "5ab1e2e3deecabf6c3e673686f09cba904a717a5c55f7fb38dbf675af64d6c0e"
+      "sourceSha256": "11e4bc8764f4faa9b74e38cde141c4d919812a6b73804f609bb2cb28e6b27201",
+      "sha256": "11e4bc8764f4faa9b74e38cde141c4d919812a6b73804f609bb2cb28e6b27201"
     },
     {
       "source": "web/runtime/src/readQuery.ts",
@@ -72,14 +72,14 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/control/mine.input.json",
       "local": "metadata/control/mine.input.json",
-      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
-      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+      "sourceSha256": "7db7cf8258c666e332f631ca1370a4af0c44e0a0002071a3cc99fc8d7881f203",
+      "sha256": "7db7cf8258c666e332f631ca1370a4af0c44e0a0002071a3cc99fc8d7881f203"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/control/mine.result.json",
       "local": "metadata/control/mine.result.json",
-      "sourceSha256": "0800d9d30a6deae335ca5b36867882430b63836eb21dc42aec8a1d26fedcea22",
-      "sha256": "0800d9d30a6deae335ca5b36867882430b63836eb21dc42aec8a1d26fedcea22"
+      "sourceSha256": "a531492148fe1c00f11640e06276164d14d3c6acbf2b1b449128f17398e4b79d",
+      "sha256": "a531492148fe1c00f11640e06276164d14d3c6acbf2b1b449128f17398e4b79d"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/control/mine.operation.json",
@@ -90,20 +90,20 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/control/mine.errors.json",
       "local": "metadata/control/mine.errors.json",
-      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
-      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+      "sourceSha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56",
+      "sha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/project/list.input.json",
       "local": "metadata/project/list.input.json",
-      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
-      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+      "sourceSha256": "7db7cf8258c666e332f631ca1370a4af0c44e0a0002071a3cc99fc8d7881f203",
+      "sha256": "7db7cf8258c666e332f631ca1370a4af0c44e0a0002071a3cc99fc8d7881f203"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/project/list.result.json",
       "local": "metadata/project/list.result.json",
-      "sourceSha256": "bbbd15d991681cf422d6de9bcc6009492ea8c173e858b015c47a09cd153b6976",
-      "sha256": "bbbd15d991681cf422d6de9bcc6009492ea8c173e858b015c47a09cd153b6976"
+      "sourceSha256": "1b84612cd652196da35264bbbd4ab2d0d3cea29726f8c4d1e6dfda4493c85e16",
+      "sha256": "1b84612cd652196da35264bbbd4ab2d0d3cea29726f8c4d1e6dfda4493c85e16"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/project/list.operation.json",
@@ -114,8 +114,8 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/project/list.errors.json",
       "local": "metadata/project/list.errors.json",
-      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
-      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+      "sourceSha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56",
+      "sha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/project/create.input.json",
@@ -144,14 +144,14 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.input.json",
       "local": "metadata/environment/list.input.json",
-      "sourceSha256": "93c6b3bbfc1b2f030d9959ea028062497e5bc5555ace29e8c1c3cec9452df59e",
-      "sha256": "93c6b3bbfc1b2f030d9959ea028062497e5bc5555ace29e8c1c3cec9452df59e"
+      "sourceSha256": "ff1aa348b5d72de5ce6e00d44a62f41b4c1fa45273fbd74b8c91190a364a9354",
+      "sha256": "ff1aa348b5d72de5ce6e00d44a62f41b4c1fa45273fbd74b8c91190a364a9354"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.result.json",
       "local": "metadata/environment/list.result.json",
-      "sourceSha256": "1b3e4d4704f1b4c790fd43da7213a180e2d61c43d0551dc28be06094acd2741a",
-      "sha256": "1b3e4d4704f1b4c790fd43da7213a180e2d61c43d0551dc28be06094acd2741a"
+      "sourceSha256": "45c3ca05414b672adee7eaa3358b6d4b7a503a205fda4334a9f0cb21690e866e",
+      "sha256": "45c3ca05414b672adee7eaa3358b6d4b7a503a205fda4334a9f0cb21690e866e"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/environment/list.operation.json",
@@ -174,8 +174,8 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/environment/status.result.json",
       "local": "metadata/environment/status.result.json",
-      "sourceSha256": "b3593b7c04f4ff3960fe468a86aa810ec8533acf2a9e344941c469aa1b6795fb",
-      "sha256": "b3593b7c04f4ff3960fe468a86aa810ec8533acf2a9e344941c469aa1b6795fb"
+      "sourceSha256": "cbdc2e9702d3af236fc3417266920c181f17c44954160751d555ed4472fcd6f0",
+      "sha256": "cbdc2e9702d3af236fc3417266920c181f17c44954160751d555ed4472fcd6f0"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/environment/status.operation.json",
@@ -192,14 +192,14 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/user/list.input.json",
       "local": "metadata/user/list.input.json",
-      "sourceSha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493",
-      "sha256": "b4d9102da31fe36952924081078d894dabd488b5402ead6cb61dc43711ae0493"
+      "sourceSha256": "7db7cf8258c666e332f631ca1370a4af0c44e0a0002071a3cc99fc8d7881f203",
+      "sha256": "7db7cf8258c666e332f631ca1370a4af0c44e0a0002071a3cc99fc8d7881f203"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/user/list.result.json",
       "local": "metadata/user/list.result.json",
-      "sourceSha256": "a4584de923565116b3aa0c08dface442998a74c66345714baf16872916ff5597",
-      "sha256": "a4584de923565116b3aa0c08dface442998a74c66345714baf16872916ff5597"
+      "sourceSha256": "a056ba16190df637dfda716a104a277da837cb253909c19f7e9e4a0ca5e9bbee",
+      "sha256": "a056ba16190df637dfda716a104a277da837cb253909c19f7e9e4a0ca5e9bbee"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/user/list.operation.json",
@@ -210,20 +210,92 @@
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/user/list.errors.json",
       "local": "metadata/user/list.errors.json",
-      "sourceSha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75",
-      "sha256": "343edad73e0bf505c3a811fa7fafa09a42cf24ec465c939176c2176cda968e75"
+      "sourceSha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56",
+      "sha256": "9abd1a1cbc8cc38fc90d861027d323c5cbcdeed6163ae4949fea61fcff5f9c56"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.input.json",
+      "local": "metadata/user/invite.input.json",
+      "sourceSha256": "dfc06594ea4b6da2272534d9e67a018cb378474331953b8dd43324403896cc0e",
+      "sha256": "dfc06594ea4b6da2272534d9e67a018cb378474331953b8dd43324403896cc0e"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.result.json",
+      "local": "metadata/user/invite.result.json",
+      "sourceSha256": "81d676eaca31dacae14a06c00c3720d3771166959494aa561d1a7474ad4a95e7",
+      "sha256": "81d676eaca31dacae14a06c00c3720d3771166959494aa561d1a7474ad4a95e7"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.operation.json",
+      "local": "metadata/user/invite.operation.json",
+      "sourceSha256": "cb95379fcb0ebf05362d892e159d412e1dcac41f924679fe95272eef55b9d446",
+      "sha256": "cb95379fcb0ebf05362d892e159d412e1dcac41f924679fe95272eef55b9d446"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.errors.json",
+      "local": "metadata/user/invite.errors.json",
+      "sourceSha256": "34b2f91bd7f115398339ece25ed910d100dd8283d9312b094150bc1fbe45e943",
+      "sha256": "34b2f91bd7f115398339ece25ed910d100dd8283d9312b094150bc1fbe45e943"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.input.json",
+      "local": "metadata/user/activate.input.json",
+      "sourceSha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616",
+      "sha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.result.json",
+      "local": "metadata/user/activate.result.json",
+      "sourceSha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435",
+      "sha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.operation.json",
+      "local": "metadata/user/activate.operation.json",
+      "sourceSha256": "1e3d2bbf81450666272f11654bdfa91811da00940e67af620bccbcb47d81818c",
+      "sha256": "1e3d2bbf81450666272f11654bdfa91811da00940e67af620bccbcb47d81818c"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.errors.json",
+      "local": "metadata/user/activate.errors.json",
+      "sourceSha256": "1b3f5059260d9a063fec34d47d2fce4473fbd502271e3a7407168962523d0e15",
+      "sha256": "1b3f5059260d9a063fec34d47d2fce4473fbd502271e3a7407168962523d0e15"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.input.json",
+      "local": "metadata/user/deactivate.input.json",
+      "sourceSha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616",
+      "sha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.result.json",
+      "local": "metadata/user/deactivate.result.json",
+      "sourceSha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435",
+      "sha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.operation.json",
+      "local": "metadata/user/deactivate.operation.json",
+      "sourceSha256": "a9d3be32fd80e2fddd59969a51a7f2b6c3c8cdae4f7b33bf8add8e12acc3a346",
+      "sha256": "a9d3be32fd80e2fddd59969a51a7f2b6c3c8cdae4f7b33bf8add8e12acc3a346"
+    },
+    {
+      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.errors.json",
+      "local": "metadata/user/deactivate.errors.json",
+      "sourceSha256": "cfc2ca5fc96f2f5ef7c37f0f7bf6437096364d09cb6111bd211f1adf6e4a2f69",
+      "sha256": "cfc2ca5fc96f2f5ef7c37f0f7bf6437096364d09cb6111bd211f1adf6e4a2f69"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/member/list.input.json",
       "local": "metadata/member/list.input.json",
-      "sourceSha256": "93c6b3bbfc1b2f030d9959ea028062497e5bc5555ace29e8c1c3cec9452df59e",
-      "sha256": "93c6b3bbfc1b2f030d9959ea028062497e5bc5555ace29e8c1c3cec9452df59e"
+      "sourceSha256": "8335f6541ac05fba3a1d0455c90e66a6e4ec96f2181f09c9e43803ad23216253",
+      "sha256": "8335f6541ac05fba3a1d0455c90e66a6e4ec96f2181f09c9e43803ad23216253"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/member/list.result.json",
       "local": "metadata/member/list.result.json",
-      "sourceSha256": "f57c1f9fef054b800192f1fe91f7a99bcf67e548e14967d8bc3c45cf78343c8b",
-      "sha256": "f57c1f9fef054b800192f1fe91f7a99bcf67e548e14967d8bc3c45cf78343c8b"
+      "sourceSha256": "a5359227683ce42185f89d2375b904951ce55c509ecceb46febcf74aaec4168d",
+      "sha256": "a5359227683ce42185f89d2375b904951ce55c509ecceb46febcf74aaec4168d"
     },
     {
       "source": "crates/catalog/model/src/host_route/control/contracts/member/list.operation.json",
@@ -600,129 +672,50 @@
     {
       "source": "crates/execution/host/src/application_route.rs",
       "local": "application/policy/application_route.rs",
-      "sourceSha256": "aef676c548d8e6660abff5ed74c661ed3c25a5c5ada1935b5b05904b53bbf136",
-      "sha256": "aef676c548d8e6660abff5ed74c661ed3c25a5c5ada1935b5b05904b53bbf136"
+      "sourceSha256": "535edf5ac683eab25dfe09e7d163a87ddc6f138647d63a993b0b551c3c7d25c7",
+      "sha256": "535edf5ac683eab25dfe09e7d163a87ddc6f138647d63a993b0b551c3c7d25c7"
     },
     {
       "source": "crates/execution/host/src/host_route.rs",
       "local": "application/policy/host_route.rs",
-      "sourceSha256": "f1b1cee9553bdc6dac97879f646d668bde2748284eacde915af8eade206da039",
-      "sha256": "f1b1cee9553bdc6dac97879f646d668bde2748284eacde915af8eade206da039"
+      "sourceSha256": "62b43c9d482d56da80d849bc309d6662782e08e8aa3384c05a821cbdee81b4f8",
+      "sha256": "62b43c9d482d56da80d849bc309d6662782e08e8aa3384c05a821cbdee81b4f8"
     },
     {
       "source": "crates/identity/platform/src/application.rs",
       "local": "application/policy/application.rs",
-      "sourceSha256": "47fca552781183e3ee694c745c68f4866777b2aa5a046d0f2fe9a613c25923e9",
-      "sha256": "07a4cf90387764d566192ef0277241af0d2a26453374d0e901b31c05536288cd",
-      "localReplacements": [
-        {
-          "from": "app_system.",
-          "to": "platform.",
-          "reason": "Consumer-requested SQL schema rename."
-        }
-      ]
+      "sourceSha256": "2247018f5104c337cb16076f831188b06845583beefc75f1e82646f85f73a75d",
+      "sha256": "2247018f5104c337cb16076f831188b06845583beefc75f1e82646f85f73a75d"
     },
     {
       "source": "crates/catalog/model/src/host_route.rs",
       "local": "policy/host_route.rs",
-      "sourceSha256": "1a584f9b464d6b20c621e46622a451dbe1ae7d93cc6cddfb5cea5454d5b6f560",
-      "sha256": "1a584f9b464d6b20c621e46622a451dbe1ae7d93cc6cddfb5cea5454d5b6f560"
+      "sourceSha256": "b1f37aa377607540dda86db3533ee79f1f2722a1e03f931fc2ac1d10e4cfe3a8",
+      "sha256": "b1f37aa377607540dda86db3533ee79f1f2722a1e03f931fc2ac1d10e4cfe3a8"
     },
     {
       "source": "crates/identity/platform/src/org.rs",
       "local": "policy/org.rs",
-      "sourceSha256": "8670218920ba6891d5073a3788e821f65d2a8c9942540db619a5f863a28b1891",
-      "sha256": "8670218920ba6891d5073a3788e821f65d2a8c9942540db619a5f863a28b1891"
+      "sourceSha256": "f4bec1d5147721e2a17b407764ef0fea9e21bec8457804f71f8ca5248c0484de",
+      "sha256": "f4bec1d5147721e2a17b407764ef0fea9e21bec8457804f71f8ca5248c0484de"
     },
     {
       "source": "Cargo.toml",
       "local": "upstream-Cargo.toml",
-      "sourceSha256": "898b757b3d03c0b69e2d140209372f0c66f4054a464a19480b55ed0a3ba58fe9",
-      "sha256": "898b757b3d03c0b69e2d140209372f0c66f4054a464a19480b55ed0a3ba58fe9"
+      "sourceSha256": "9cbd5331d7c69118ee23934e32e4d09eda857bc3919c21a04884a4cdcb90785d",
+      "sha256": "9cbd5331d7c69118ee23934e32e4d09eda857bc3919c21a04884a4cdcb90785d"
     },
     {
       "source": "web/runtime/package.json",
       "local": "runtime-package.json",
       "sourceSha256": "03e76e866feb03049b681a319d9b0935c005fe8bab8b8c19db23895edb359e36",
       "sha256": "03e76e866feb03049b681a319d9b0935c005fe8bab8b8c19db23895edb359e36"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.input.json",
-      "local": "metadata/user/invite.input.json",
-      "sourceSha256": "dfc06594ea4b6da2272534d9e67a018cb378474331953b8dd43324403896cc0e",
-      "sha256": "dfc06594ea4b6da2272534d9e67a018cb378474331953b8dd43324403896cc0e"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.result.json",
-      "local": "metadata/user/invite.result.json",
-      "sourceSha256": "81d676eaca31dacae14a06c00c3720d3771166959494aa561d1a7474ad4a95e7",
-      "sha256": "81d676eaca31dacae14a06c00c3720d3771166959494aa561d1a7474ad4a95e7"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.operation.json",
-      "local": "metadata/user/invite.operation.json",
-      "sourceSha256": "cb95379fcb0ebf05362d892e159d412e1dcac41f924679fe95272eef55b9d446",
-      "sha256": "cb95379fcb0ebf05362d892e159d412e1dcac41f924679fe95272eef55b9d446"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/invite.errors.json",
-      "local": "metadata/user/invite.errors.json",
-      "sourceSha256": "34b2f91bd7f115398339ece25ed910d100dd8283d9312b094150bc1fbe45e943",
-      "sha256": "34b2f91bd7f115398339ece25ed910d100dd8283d9312b094150bc1fbe45e943"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.input.json",
-      "local": "metadata/user/activate.input.json",
-      "sourceSha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616",
-      "sha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.result.json",
-      "local": "metadata/user/activate.result.json",
-      "sourceSha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435",
-      "sha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.operation.json",
-      "local": "metadata/user/activate.operation.json",
-      "sourceSha256": "1e3d2bbf81450666272f11654bdfa91811da00940e67af620bccbcb47d81818c",
-      "sha256": "1e3d2bbf81450666272f11654bdfa91811da00940e67af620bccbcb47d81818c"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/activate.errors.json",
-      "local": "metadata/user/activate.errors.json",
-      "sourceSha256": "1b3f5059260d9a063fec34d47d2fce4473fbd502271e3a7407168962523d0e15",
-      "sha256": "1b3f5059260d9a063fec34d47d2fce4473fbd502271e3a7407168962523d0e15"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.input.json",
-      "local": "metadata/user/deactivate.input.json",
-      "sourceSha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616",
-      "sha256": "b016f039fcb3df61f75490e65f851035e144007459e3a95088576a4f23051616"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.result.json",
-      "local": "metadata/user/deactivate.result.json",
-      "sourceSha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435",
-      "sha256": "d516f26bdcb32d9fdefde557817031a8cfe96e6988085f3352d322e9b0d51435"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.operation.json",
-      "local": "metadata/user/deactivate.operation.json",
-      "sourceSha256": "a9d3be32fd80e2fddd59969a51a7f2b6c3c8cdae4f7b33bf8add8e12acc3a346",
-      "sha256": "a9d3be32fd80e2fddd59969a51a7f2b6c3c8cdae4f7b33bf8add8e12acc3a346"
-    },
-    {
-      "source": "crates/catalog/model/src/host_route/control/contracts/user/deactivate.errors.json",
-      "local": "metadata/user/deactivate.errors.json",
-      "sourceSha256": "cfc2ca5fc96f2f5ef7c37f0f7bf6437096364d09cb6111bd211f1adf6e4a2f69",
-      "sha256": "cfc2ca5fc96f2f5ef7c37f0f7bf6437096364d09cb6111bd211f1adf6e4a2f69"
     }
   ],
   "support": [
     {
       "local": "scope-rule.json",
-      "sha256": "5bc87da394ba821f925f3419394152d19609957eaf41be74a1547376c214d093"
+      "sha256": "1c799935ee7132bb0fdb8c732d656b45985f6625e04fde71292ae206cf02c051"
     },
     {
       "local": "LICENSE",

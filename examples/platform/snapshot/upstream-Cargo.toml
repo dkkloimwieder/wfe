@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["services/host", "services/edge", "services/identity", "services/ctl", "services/scenario-worker", "services/cdc-reader", "tools/bench", "tests/orchestrator", "tests/conformance", "tests/integration", "tests/system", "test-support/harness", "test-support/fixture-package", "test-support/infrastructure", "test-support/postgres", "test-support/simulator", "crates/client/core", "apps/wamn_receiving/tests", "apps/client_acme_receiving/tests", "apps/wamn_wms/tests", "crates/authoring/model", "crates/catalog/model", "crates/catalog/package-artifact", "crates/execution/host", "crates/execution/workflow/router", "crates/execution/run-state", "crates/execution/run-state-sqlite", "crates/execution/workflow", "crates/schema/control", "crates/schema/generator", "crates/schema/introspection", "crates/platform/pg-core", "crates/platform/component-policy", "crates/platform/component-composer", "crates/platform/component-virtualizer", "crates/platform/engine", "crates/platform/runtime", "crates/control/lib", "crates/control/provision", "crates/control/registry", "crates/identity/platform", "crates/identity/client", "crates/identity/session", "crates/identity/project-state"]
+members = ["services/host", "services/edge", "services/identity", "services/ctl", "services/scenario-worker", "services/cdc-reader", "tools/bench", "tests/orchestrator", "tests/conformance", "tests/integration", "tests/system", "test-support/harness", "test-support/fixture-package", "test-support/infrastructure", "test-support/postgres", "test-support/simulator", "crates/client/core", "apps/wamn_receiving/tests", "apps/client_acme_receiving/tests", "apps/wamn_wms/tests", "crates/authoring/model", "crates/catalog/model", "crates/catalog/package-artifact", "crates/execution/host", "crates/execution/workflow/router", "crates/execution/run-state", "crates/execution/run-state-sqlite", "crates/execution/workflow", "crates/schema/control", "crates/schema/generator", "crates/schema/introspection", "crates/platform/pg-core", "crates/platform/number-pattern", "crates/platform/component-policy", "crates/platform/component-composer", "crates/platform/component-virtualizer", "crates/platform/engine", "crates/platform/runtime", "crates/control/lib", "crates/control/provision", "crates/control/registry", "crates/identity/platform", "crates/identity/client", "crates/identity/session", "crates/identity/project-state"]
 default-members = [
   "crates/authoring/model",
   "crates/catalog/model",
@@ -88,14 +88,15 @@ return_self_not_must_use = "allow"#   8. Library-API concern, as above.
 assert_is_empty = "allow"
 
 [workspace.dependencies]
-# Direct upstream v2.10.3, with zero patches. Source identity and evidence
+mimalloc = "0.1.52"
+# Direct upstream v2.11.0, with zero patches. Source identity and evidence
 # are recorded in docs/architecture/native-alignment.md.
 # default-features off keeps the excluded `wasi-webgpu` surface disabled.
 # No `oci` here, because wamn-engine must not link it. A crate that uses the
 # OCI registry source turns `oci` on in its own manifest.
 # wamn and wash-runtime resolve one crates.io Wasmtime 48.0.x family from the
 # compatible 48.x requirements; enforce that source identity in conformance.
-wash-runtime = { git = "https://github.com/wasmCloud/wasmCloud", rev = "548bb21b65ac8cc03776f73656c4bf7be2f96992", default-features = false }
+wash-runtime = { git = "https://github.com/wasmCloud/wasmCloud", tag = "v2.11.0", default-features = false }
 # Native sandbox hosts and gates must share one Wasmtime type universe.
 # parallel-compilation is a wasmtime DEFAULT that default-features=false drops.
 # Without it Cranelift compiles every component on one core: receiving took
@@ -118,6 +119,7 @@ base64 = "0.22"
 boon = "0.6"
 bytes = "1"
 chrono = { version = "0.4", default-features = false }
+percent-encoding = "2.3"
 croner = "4.0.1"
 clap = "4"
 data-encoding = "2.11"
@@ -193,6 +195,7 @@ tokio-postgres = "0.7"
 tokio-rustls = "0.26"
 tower-service = "0.3"
 tracing = "0.1"
+tracing-core = "0.1"
 tracing-opentelemetry = { version = "0.32", default-features = false }
 tracing-subscriber = "0.3"
 async-trait = "0.1"
@@ -229,6 +232,7 @@ wamn-gates = { path = "tests/orchestrator", version = "0.1.0" }
 wamn-host = { path = "services/host", version = "0.1.0" }
 wamn-materializer = { path = "apps/platform/events/materializer", version = "0.1.0" }
 wamn-pg-core = { path = "crates/platform/pg-core", version = "0.1.0" }
+wamn-number-pattern = { path = "crates/platform/number-pattern", version = "0.1.0" }
 wamn-platform-identity = { path = "crates/identity/platform", version = "0.1.0" }
 wamn-identity-client = { path = "crates/identity/client", version = "0.1.0" }
 wamn-project-state = { path = "crates/identity/project-state", version = "0.1.0" }

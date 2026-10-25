@@ -7,10 +7,12 @@ export const controlResultSchemas: ReadonlyMap<string, ResultValidator> =
     [
       'wamn-control:control/mine@0.9.0',
       z.object({
+        ['next_cursor']: z.nullable(z.string()),
         ['org_admin']: z.boolean(),
         ['projects']: z.array(
           z.object({ ['project']: z.string(), ['project_admin']: z.boolean() }),
         ),
+        ['total']: z.nullable(z.int32()),
       }),
     ], // snapshot/metadata/environment/list.result.json
     [
@@ -22,6 +24,8 @@ export const controlResultSchemas: ReadonlyMap<string, ResultValidator> =
             ['state']: z.literal(['active', 'inactive']),
           }),
         ),
+        ['next_cursor']: z.nullable(z.string()),
+        ['total']: z.nullable(z.int32()),
       }),
     ], // snapshot/metadata/environment/status.result.json
     [
@@ -31,12 +35,15 @@ export const controlResultSchemas: ReadonlyMap<string, ResultValidator> =
         ['live']: z.array(
           z.object({ ['digest']: z.string(), ['pods']: z.int32() }),
         ),
+        ['memberships']: z.nullable(z.int32()),
+        ['roles']: z.nullable(z.int32()),
         ['rollout']: z.object({
           ['available_replicas']: z.int32(),
           ['ready_replicas']: z.int32(),
           ['replicas']: z.int32(),
           ['updated_replicas']: z.int32(),
         }),
+        ['users_with_role']: z.nullable(z.int32()),
         ['workloads']: z.array(
           z.object({
             ['conditions']: z.array(
@@ -81,6 +88,8 @@ export const controlResultSchemas: ReadonlyMap<string, ResultValidator> =
             ['project_admin']: z.boolean(),
           }),
         ),
+        ['next_cursor']: z.nullable(z.string()),
+        ['total']: z.nullable(z.int32()),
       }),
     ], // snapshot/metadata/member/revoke.result.json
     [
@@ -131,12 +140,14 @@ export const controlResultSchemas: ReadonlyMap<string, ResultValidator> =
     [
       'wamn-control:project/list@0.9.0',
       z.object({
+        ['next_cursor']: z.nullable(z.string()),
         ['projects']: z.array(
           z.object({
             ['name']: z.string(),
             ['state']: z.literal(['active', 'inactive']),
           }),
         ),
+        ['total']: z.nullable(z.int32()),
       }),
     ], // snapshot/metadata/project_admin/grant.result.json
     [
@@ -210,6 +221,8 @@ export const controlResultSchemas: ReadonlyMap<string, ResultValidator> =
     [
       'wamn-control:user/list@0.9.0',
       z.object({
+        ['next_cursor']: z.nullable(z.string()),
+        ['total']: z.nullable(z.int32()),
         ['users']: z.array(
           z.object({
             ['display_name']: z.string(),

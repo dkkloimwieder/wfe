@@ -146,10 +146,15 @@ test('captured list records map only to application column IDs', () => {
     [projects, 'projects'],
     [environments, 'environments'],
   ] as const) {
-    const columns = metadataTableColumns(metadata, root, {
-      title: { path: `${root}[].name`, label: 'Name' },
-      state: { path: `${root}[].state` },
-    })
+    const columns = metadataTableColumns(
+      metadata,
+      root,
+      {
+        title: { path: `${root}[].name`, label: 'Name' },
+        state: { path: `${root}[].state` },
+      },
+      ['next_cursor', 'total'],
+    )
     expect(columns).toEqual({
       title: { label: 'Name' },
       state: { label: 'state' },
@@ -206,21 +211,36 @@ test.each([
 
 test('list mappings reject other roots, uncovered fields, and duplicate paths', () => {
   expect(() =>
-    metadataTableColumns(projects, 'environments', {
-      name: { path: 'projects[].name' },
-      state: { path: 'projects[].state' },
-    }),
+    metadataTableColumns(
+      projects,
+      'environments',
+      {
+        name: { path: 'projects[].name' },
+        state: { path: 'projects[].state' },
+      },
+      ['next_cursor', 'total'],
+    ),
   ).toThrow()
   expect(() =>
-    metadataTableColumns(projects, 'projects', {
-      name: { path: 'projects[].name' },
-    }),
+    metadataTableColumns(
+      projects,
+      'projects',
+      {
+        name: { path: 'projects[].name' },
+      },
+      ['next_cursor', 'total'],
+    ),
   ).toThrow(/Unmapped/)
   expect(() =>
-    metadataTableColumns(projects, 'projects', {
-      name: { path: 'projects[].name' },
-      state: { path: 'projects[].name' },
-    }),
+    metadataTableColumns(
+      projects,
+      'projects',
+      {
+        name: { path: 'projects[].name' },
+        state: { path: 'projects[].name' },
+      },
+      ['next_cursor', 'total'],
+    ),
   ).toThrow(/repeated mapping/)
 })
 
@@ -304,4 +324,26 @@ test('metadata and mappings remain unchanged when frozen', () => {
   expect(metadataTableColumns(result, 'rows', columns)).toEqual({
     name: { label: 'name' },
   })
+})
+
+test('list envelope metadata must be acknowledged explicitly and cannot hide row fields', () => {
+  const mapping = {
+    name: { path: 'projects[].name' },
+    state: { path: 'projects[].state' },
+  }
+  expect(() => metadataTableColumns(projects, 'projects', mapping)).toThrow()
+  for (const envelope of [
+    ['next_cursor', 'total', 'missing'],
+    ['next_cursor', 'next_cursor', 'total'],
+    ['next_cursor', 'total', 'projects[].state'],
+  ])
+    expect(() =>
+      metadataTableColumns(projects, 'projects', mapping, envelope),
+    ).toThrow()
+  expect(
+    metadataTableColumns(projects, 'projects', mapping, [
+      'next_cursor',
+      'total',
+    ]),
+  ).toEqual({ name: { label: 'name' }, state: { label: 'state' } })
 })

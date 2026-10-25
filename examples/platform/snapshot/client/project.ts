@@ -243,20 +243,46 @@ export async function inactivate(
 
 /** Input for `wamn-control:project/list@0.9.0`. */
 export interface ProjectListRequest {
+  /** `text`, omittable */
+  cursor?: string;
+  /** `int32`, omittable */
+  limit?: number;
 }
 
 /** What `wamn-control:project/list@0.9.0` calls its input members. */
-export const PROJECT_LIST_REQUEST_FIELDS: FieldMap = {};
+export const PROJECT_LIST_REQUEST_FIELDS: FieldMap = {
+  "cursor": "cursor",
+  "limit": "limit",
+};
 
 /** Result of `wamn-control:project/list@0.9.0`. */
 export interface ProjectListResult {
+  /** `text` */
+  readonly nextCursor: string | null;
   /** `array` */
-  readonly projects: readonly string[];
+  readonly projects: readonly ProjectListResultProjects[];
+  /** `int32` */
+  readonly total: number | null;
+}
+
+export interface ProjectListResultProjects {
+  /** `text` */
+  readonly name: string;
+  /** `text` */
+  readonly state: "active" | "inactive";
 }
 
 /** What `wamn-control:project/list@0.9.0` calls its result members. */
 export const PROJECT_LIST_RESULT_FIELDS: FieldMap = {
-  "projects": "projects",
+  "next_cursor": "nextCursor",
+  "projects": {
+    member: "projects",
+    fields: {
+      "name": "name",
+      "state": "state",
+    },
+  },
+  "total": "total",
 };
 
 /**
@@ -273,6 +299,7 @@ export const PROJECT_LIST_ROUTE: OperationRoute = {
     resultClass: "one",
     partialSchema: null,
     errors: [
+      { literal: "invalid_input", required: ["field"], sources: ["malformed_input"], text: null },
       { literal: "permission_denied", required: ["operation"], sources: ["permission_denied"], text: null },
     ],
     replay: null,

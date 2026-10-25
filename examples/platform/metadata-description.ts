@@ -9,7 +9,7 @@ const labelSchema = z
 const fieldSchema = z.strictObject({
   path: z.string().check(z.minLength(1)),
   type: z.enum(['text', 'boolean', 'int32']),
-  nullable: z.literal(false),
+  nullable: z.boolean(),
   values: z.array(z.union([z.string(), z.boolean(), z.int32()])),
   label: z.optional(labelSchema),
 })
@@ -71,6 +71,9 @@ export function metadataFormFields(
   supplied: readonly string[],
 ): (InputDescription & { label: string })[] {
   const indexed = fields(metadata, false)
+  for (const field of indexed.values())
+    if (field.nullable)
+      throw new Error(`Unsupported nullable input: ${field.path}`)
   for (const path of indexed.keys()) {
     if (!/^(?:value\.)?[a-zA-Z_][a-zA-Z0-9_]*$/.test(path))
       throw new Error(`Unsupported input path: ${path}`)
@@ -100,10 +103,19 @@ export function metadataTableColumns<const K extends string>(
   metadata: unknown,
   root: string,
   mappings: Readonly<Record<K, { path: string; label?: string }>>,
+  envelope: readonly string[] = [],
 ): Record<K, { label: string }> {
   if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(root))
     throw new Error(`Unsupported list root: ${root}`)
   const indexed = fields(metadata, true)
+  for (const path of envelope) {
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(path))
+      throw new Error(`Unsupported envelope path: ${path}`)
+    take(indexed, path)
+  }
+  for (const field of indexed.values())
+    if (field.nullable)
+      throw new Error(`Unsupported nullable column: ${field.path}`)
   const prefix = `${root}[].`
   for (const path of indexed.keys()) {
     if (

@@ -19,29 +19,29 @@ use wamn_project_state::ADMIN_ROLE;
 use crate::auth_changes::AuthDrops;
 use crate::{IdentityError, IdentityErrorType, PrincipalId, database_error};
 
-/// One project database serves one tenant. Its platform rows, which
-/// `env apply` writes first, name it.
-const TENANT_SQL: &str =
-    "SELECT DISTINCT tenant_id FROM platform.users WHERE type = 'platform' ORDER BY 1";
+/// Whether the project database has its platform rows, which `env apply`
+/// writes first.
+const PLATFORM_ROWS_SQL: &str =
+    "SELECT EXISTS (SELECT FROM platform.\"user\" WHERE type = 'platform')";
 
-const USER_ROW_SQL: &str = "INSERT INTO platform.users \
-    (tenant_id, id, type, email, display_name) VALUES ($1, $2::text::uuid, 'user', $3, $4) \
-    ON CONFLICT (tenant_id, id) DO NOTHING";
+const USER_ROW_SQL: &str = "INSERT INTO platform.\"user\" \
+    (id, type, email, display_name) VALUES ($1::text::uuid, 'user', $2, $3) \
+    ON CONFLICT (id) DO NOTHING";
 
-const SERVICE_ROW_SQL: &str = "INSERT INTO platform.users \
-    (tenant_id, id, type, email, display_name) VALUES ($1, $2::text::uuid, 'service', $3, $4)";
+const SERVICE_ROW_SQL: &str = "INSERT INTO platform.\"user\" \
+    (id, type, email, display_name) VALUES ($1::text::uuid, 'service', $2, $3)";
 
-const ROLE_SQL: &str = "INSERT INTO platform.roles (tenant_id, name) VALUES ($1, $2) \
+const ROLE_SQL: &str = "INSERT INTO platform.role (tenant_id, name) VALUES ($1, $2) \
     ON CONFLICT (tenant_id, name) DO NOTHING";
 
-const USER_ROLE_SQL: &str = "INSERT INTO platform.user_roles (tenant_id, user_id, role_name) \
+const USER_ROLE_SQL: &str = "INSERT INTO platform.user_role (tenant_id, user_id, role_name) \
     VALUES ($1, $2::text::uuid, $3) ON CONFLICT DO NOTHING";
 
-const DROP_USER_ROLE_SQL: &str = "DELETE FROM platform.user_roles \
+const DROP_USER_ROLE_SQL: &str = "DELETE FROM platform.user_role \
     WHERE tenant_id = $1 AND user_id = $2::text::uuid AND role_name = $3";
 
-const DROP_USER_ROW_SQL: &str = "DELETE FROM platform.users \
-    WHERE tenant_id = $1 AND id = $2::text::uuid AND type = 'user'";
+const DROP_USER_ROW_SQL: &str = "DELETE FROM platform.\"user\" \
+    WHERE id = $1::text::uuid AND type = 'user'";
 
 /// The status row of the environment. No row means active.
 const ENVIRONMENT_STATUS_ROW_SQL: &str = "INSERT INTO platform.environment \
@@ -57,31 +57,24 @@ pub struct ApplicationUser<'a> {
     pub display_name: &'a str,
 }
 
-/// The tenant of the project database. A database without platform rows, or
-/// with more than one tenant, is refused.
-pub async fn environment_tenant(
+/// Refuse a project database without platform rows. The database is the org
+/// boundary, so its rows name no tenant: the caller derives the tenant of
+/// the environment from its triple (`project_env_tenant`).
+pub async fn require_platform_rows(
     client: &(impl GenericClient + Sync),
-) -> Result<String, IdentityError> {
-    let tenants: Vec<String> = client
-        .query(TENANT_SQL, &[])
+) -> Result<(), IdentityError> {
+    let present: bool = client
+        .query_one(PLATFORM_ROWS_SQL, &[])
         .await
         .map_err(|error| database_error(&error))?
-        .iter()
-        .map(|row| row.get(0))
-        .collect();
-    match <[String; 1]>::try_from(tenants) {
-        Ok([tenant]) => Ok(tenant),
-        Err(tenants) if tenants.is_empty() => Err(IdentityError::new(
+        .get(0);
+    if present {
+        Ok(())
+    } else {
+        Err(IdentityError::new(
             IdentityErrorType::NotFound,
             "the project database has no platform rows. Run `wamn-ctl env apply` first",
-        )),
-        Err(tenants) => Err(IdentityError::new(
-            IdentityErrorType::Conflict,
-            format!(
-                "the project database names {} tenants in its platform rows",
-                tenants.len()
-            ),
-        )),
+        ))
     }
 }
 
@@ -111,12 +104,7 @@ pub async fn write_user(
     client
         .execute(
             USER_ROW_SQL,
-            &[
-                &tenant,
-                &user.principal_id.as_str(),
-                &user.email,
-                &user.display_name,
-            ],
+            &[&user.principal_id.as_str(), &user.email, &user.display_name],
         )
         .await
         .map_err(|error| database_error(&error))?;
@@ -124,7 +112,7 @@ pub async fn write_user(
     Ok(())
 }
 
-/// Write the users row of the service principal `service`.
+/// Write the user row of the service principal `service`.
 pub async fn write_service(
     client: &(impl GenericClient + Sync),
     tenant: &str,
@@ -135,7 +123,6 @@ pub async fn write_service(
         .execute(
             SERVICE_ROW_SQL,
             &[
-                &tenant,
                 &service.principal_id.as_str(),
                 &service.email,
                 &service.display_name,
@@ -197,7 +184,7 @@ pub async fn remove_user(
     drops: &mut AuthDrops,
 ) -> Result<(), IdentityError> {
     client
-        .execute(DROP_USER_ROW_SQL, &[&tenant, &principal_id.as_str()])
+        .execute(DROP_USER_ROW_SQL, &[&principal_id.as_str()])
         .await
         .map_err(|error| database_error(&error))?;
     drops.principal(tenant, principal_id.as_str());
@@ -305,15 +292,15 @@ pub struct PermissionGrantOutcome {
     pub rows_added: u64,
 }
 
-const ROLE_EXISTS_SQL: &str = "SELECT 1 FROM platform.roles WHERE tenant_id = $1 AND name = $2";
+const ROLE_EXISTS_SQL: &str = "SELECT 1 FROM platform.role WHERE tenant_id = $1 AND name = $2";
 
-const DROP_ROLE_SQL: &str = "DELETE FROM platform.roles WHERE tenant_id = $1 AND name = $2";
+const DROP_ROLE_SQL: &str = "DELETE FROM platform.role WHERE tenant_id = $1 AND name = $2";
 
-const PERMISSION_SQL: &str = "INSERT INTO platform.permissions \
+const PERMISSION_SQL: &str = "INSERT INTO platform.permission \
     (tenant_id, role_name, permission) VALUES ($1, $2, $3) \
     ON CONFLICT DO NOTHING";
 
-const DROP_PERMISSION_SQL: &str = "DELETE FROM platform.permissions \
+const DROP_PERMISSION_SQL: &str = "DELETE FROM platform.permission \
     WHERE tenant_id = $1 AND role_name = $2 AND permission = $3";
 
 // The writes below run in a transaction that the caller prepared: it holds
@@ -386,7 +373,7 @@ pub async fn require_role(
 }
 
 /// Grant `reference` to the authored `role`: store it as a row. The grant
-/// stores any reference that `permissions_reference_check` accepts, whether a
+/// stores any reference that `permission_reference_check` accepts, whether a
 /// release serves it or not.
 pub async fn grant_permission(
     client: &(impl GenericClient + Sync),
@@ -467,20 +454,20 @@ pub async fn revoke_user_role(
     Ok(removed == 1)
 }
 
-const USER_EXISTS_SQL: &str = "SELECT 1 FROM platform.users \
-    WHERE tenant_id = $1 AND id = $2::text::uuid AND type = 'user'";
+const USER_EXISTS_SQL: &str = "SELECT 1 FROM platform.\"user\" \
+    WHERE id = $1::text::uuid AND type = 'user'";
 
-const USERS_SQL: &str = "SELECT u.id::text, u.email, u.display_name, \
+const USER_LIST_SQL: &str = "SELECT u.id::text, u.email, u.display_name, \
     COALESCE(array_agg(r.role_name ORDER BY r.role_name) \
              FILTER (WHERE r.role_name IS NOT NULL), '{}') \
-    FROM platform.users u \
-    LEFT JOIN platform.user_roles r ON r.tenant_id = u.tenant_id AND r.user_id = u.id \
-    WHERE u.tenant_id = $1 AND u.type = 'user' \
+    FROM platform.\"user\" u \
+    LEFT JOIN platform.user_role r ON r.tenant_id = $1 AND r.user_id = u.id \
+    WHERE u.type = 'user' \
     GROUP BY u.id, u.email, u.display_name ORDER BY u.email, u.id";
 
-const ROLES_SQL: &str = "SELECT name FROM platform.roles WHERE tenant_id = $1 ORDER BY name";
+const ROLE_LIST_SQL: &str = "SELECT name FROM platform.role WHERE tenant_id = $1 ORDER BY name";
 
-const PERMISSIONS_SQL: &str = "SELECT permission FROM platform.permissions \
+const PERMISSION_LIST_SQL: &str = "SELECT permission FROM platform.permission \
     WHERE tenant_id = $1 AND role_name = $2 ORDER BY permission";
 
 /// One application user with the roles it holds.
@@ -492,14 +479,13 @@ pub struct ApplicationUserRow {
     pub roles: Vec<String>,
 }
 
-/// Refuse unless the tenant has the application user `user_id`.
+/// Refuse unless the database has the application user `user_id`.
 pub async fn require_user(
     client: &(impl GenericClient + Sync),
-    tenant: &str,
     user_id: &str,
 ) -> Result<(), AdministrationError> {
     let exists = client
-        .query_opt(USER_EXISTS_SQL, &[&tenant, &user_id])
+        .query_opt(USER_EXISTS_SQL, &[&user_id])
         .await
         .map_err(|error| database_error(&error))?
         .is_some();
@@ -519,7 +505,7 @@ pub async fn application_users(
     tenant: &str,
 ) -> Result<Vec<ApplicationUserRow>, AdministrationError> {
     Ok(client
-        .query(USERS_SQL, &[&tenant])
+        .query(USER_LIST_SQL, &[&tenant])
         .await
         .map_err(|error| database_error(&error))?
         .iter()
@@ -538,7 +524,7 @@ pub async fn role_names(
     tenant: &str,
 ) -> Result<Vec<String>, AdministrationError> {
     Ok(client
-        .query(ROLES_SQL, &[&tenant])
+        .query(ROLE_LIST_SQL, &[&tenant])
         .await
         .map_err(|error| database_error(&error))?
         .iter()
@@ -554,7 +540,7 @@ pub async fn permission_rows(
 ) -> Result<Vec<String>, AdministrationError> {
     require_role(client, tenant, role).await?;
     Ok(client
-        .query(PERMISSIONS_SQL, &[&tenant, &role])
+        .query(PERMISSION_LIST_SQL, &[&tenant, &role])
         .await
         .map_err(|error| database_error(&error))?
         .iter()

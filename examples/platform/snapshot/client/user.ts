@@ -277,13 +277,24 @@ export async function invite(
 
 /** Input for `wamn-control:user/list@0.9.0`. */
 export interface UserListRequest {
+  /** `text`, omittable */
+  cursor?: string;
+  /** `int32`, omittable */
+  limit?: number;
 }
 
 /** What `wamn-control:user/list@0.9.0` calls its input members. */
-export const USER_LIST_REQUEST_FIELDS: FieldMap = {};
+export const USER_LIST_REQUEST_FIELDS: FieldMap = {
+  "cursor": "cursor",
+  "limit": "limit",
+};
 
 /** Result of `wamn-control:user/list@0.9.0`. */
 export interface UserListResult {
+  /** `text` */
+  readonly nextCursor: string | null;
+  /** `int32` */
+  readonly total: number | null;
   /** `array` */
   readonly users: readonly UserListResultUsers[];
 }
@@ -303,6 +314,8 @@ export interface UserListResultUsers {
 
 /** What `wamn-control:user/list@0.9.0` calls its result members. */
 export const USER_LIST_RESULT_FIELDS: FieldMap = {
+  "next_cursor": "nextCursor",
+  "total": "total",
   "users": {
     member: "users",
     fields: {
@@ -329,6 +342,7 @@ export const USER_LIST_ROUTE: OperationRoute = {
     resultClass: "one",
     partialSchema: null,
     errors: [
+      { literal: "invalid_input", required: ["field"], sources: ["malformed_input"], text: null },
       { literal: "permission_denied", required: ["operation"], sources: ["permission_denied"], text: null },
     ],
     replay: null,

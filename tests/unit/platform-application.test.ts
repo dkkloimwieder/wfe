@@ -160,6 +160,8 @@ test('malformed replies surface as errors and disposal rejects late publication'
     body: JSON.stringify([
       {
         value: {
+          next_cursor: null,
+          total: 2,
           projects: [
             { name: 'duplicate', state: 'active' },
             { name: 'duplicate', state: 'inactive' },

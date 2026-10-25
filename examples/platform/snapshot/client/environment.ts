@@ -179,24 +179,49 @@ export async function inactivate(
 
 /** Input for `wamn-control:environment/list@0.9.0`. */
 export interface EnvironmentListRequest {
+  /** `text`, omittable */
+  cursor?: string;
+  /** `int32`, omittable */
+  limit?: number;
   /** `text` */
   project: string;
 }
 
 /** What `wamn-control:environment/list@0.9.0` calls its input members. */
 export const ENVIRONMENT_LIST_REQUEST_FIELDS: FieldMap = {
+  "cursor": "cursor",
+  "limit": "limit",
   "project": "project",
 };
 
 /** Result of `wamn-control:environment/list@0.9.0`. */
 export interface EnvironmentListResult {
   /** `array` */
-  readonly environments: readonly string[];
+  readonly environments: readonly EnvironmentListResultEnvironments[];
+  /** `text` */
+  readonly nextCursor: string | null;
+  /** `int32` */
+  readonly total: number | null;
+}
+
+export interface EnvironmentListResultEnvironments {
+  /** `text` */
+  readonly name: string;
+  /** `text` */
+  readonly state: "active" | "inactive";
 }
 
 /** What `wamn-control:environment/list@0.9.0` calls its result members. */
 export const ENVIRONMENT_LIST_RESULT_FIELDS: FieldMap = {
-  "environments": "environments",
+  "environments": {
+    member: "environments",
+    fields: {
+      "name": "name",
+      "state": "state",
+    },
+  },
+  "next_cursor": "nextCursor",
+  "total": "total",
 };
 
 /**
@@ -259,8 +284,14 @@ export interface EnvironmentStatusResult {
   readonly digest: string | null;
   /** `array` */
   readonly live: readonly EnvironmentStatusResultLive[];
+  /** `int32` */
+  readonly memberships: number | null;
+  /** `int32` */
+  readonly roles: number | null;
   /** `object` */
   readonly rollout: EnvironmentStatusResultRollout;
+  /** `int32` */
+  readonly usersWithRole: number | null;
   /** `array` */
   readonly workloads: readonly EnvironmentStatusResultWorkloads[];
 }
@@ -307,6 +338,8 @@ export const ENVIRONMENT_STATUS_RESULT_FIELDS: FieldMap = {
       "pods": "pods",
     },
   },
+  "memberships": "memberships",
+  "roles": "roles",
   "rollout": {
     member: "rollout",
     fields: {
@@ -316,6 +349,7 @@ export const ENVIRONMENT_STATUS_RESULT_FIELDS: FieldMap = {
       "updated_replicas": "updatedReplicas",
     },
   },
+  "users_with_role": "usersWithRole",
   "workloads": {
     member: "workloads",
     fields: {

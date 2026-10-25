@@ -17,16 +17,17 @@ use wamn_engine::flow_http_routing::AuthenticatedCaller;
 use wamn_engine::release_manifest::LoadedRelease;
 use wamn_engine::router_delivery::{
     DeliveryError, DeliveryOutcome, DeliveryReport, DeliveryRequest, RouteDelivery, Source,
-    SourceRef, StreamedDelivery, resolve_authorized_host_route,
+    SourceRef, resolve_authorized_host_route,
 };
 use wamn_identity_client::PatIssuerConfig;
 use wamn_platform_identity::PrincipalId;
 use wamn_platform_identity::auth_changes::AuthChanges;
-use wamn_platform_identity::control::{control_projects, is_org_admin, org_projects};
+use wamn_platform_identity::control::{control_projects_page, is_org_admin, org_projects_page};
+use wamn_platform_identity::paging::Order;
 use wamn_runtime::plugins::wamn_postgres::WamnPostgres;
 
 use crate::application_route::ApplicationRoutes;
-use crate::control_route::{ControlRoutes, Refusal};
+use crate::control_route::{ControlRoutes, Refusal, control_page};
 
 /// What the handlers of one host read.
 pub enum HostRouteHandlers {
@@ -56,7 +57,7 @@ pub enum HostRouteHandlers {
         /// The runtime status source selected by the serving mode.
         status: Arc<dyn crate::environment_status::StatusSource>,
         org: String,
-        /// Publishes each users row and status change of an environment.
+        /// Publishes each user row and status change of an environment.
         changes: AuthChanges,
     },
 }
@@ -111,6 +112,7 @@ impl HostRouteDelivery {
         &self,
         attachment: &HostAttachment,
         caller: &AuthenticatedCaller,
+        request_id: Option<&str>,
         payload: &str,
     ) -> Result<serde_json::Value, Refusal> {
         let principal: PrincipalId = caller.principal_id().parse().map_err(
@@ -141,22 +143,56 @@ impl HostRouteDelivery {
             }
             (HostHandler::ControlMine, HostRouteHandlers::Control { control, org, .. }) => {
                 let org_admin = is_org_admin(control.as_ref(), &principal, org).await?;
+                let page =
+                    control_page(payload, attachment, &principal, org, None, Order::Project)?;
                 let projects = if org_admin {
-                    org_projects(control.as_ref(), org)
+                    org_projects_page(control.as_ref(), org, page.after(0), page.read_limit())
                         .await?
                         .into_iter()
                         .map(|entry| entry.name)
                         .collect()
                 } else {
-                    control_projects(control.as_ref(), &principal, org).await?
+                    control_projects_page(
+                        control.as_ref(),
+                        &principal,
+                        org,
+                        page.after(0),
+                        page.read_limit(),
+                    )
+                    .await?
                 };
-                Ok(json!({
-                    "org_admin": org_admin,
-                    "projects": projects
+                let mut answer = page.answer("projects", projects, |project| json!([project]));
+                answer["projects"] = Value::Array(
+                    answer["projects"]
+                        .as_array()
+                        .expect("page rows are an array")
                         .iter()
-                        .map(|project| json!({ "project": project, "project_admin": true }))
-                        .collect::<Vec<_>>(),
-                }))
+                        .map(|project| json!({"project": project, "project_admin": true}))
+                        .collect(),
+                );
+                answer["org_admin"] = json!(org_admin);
+                Ok(answer)
+            }
+            (
+                HostHandler::WorkflowStart,
+                HostRouteHandlers::Application {
+                    postgres,
+                    project,
+                    identity,
+                    changes,
+                },
+            ) => {
+                ApplicationRoutes {
+                    postgres,
+                    project,
+                    changes,
+                    release: &self.release,
+                    identity: identity
+                        .as_ref()
+                        .map(|(client, org)| (client.as_ref(), org.as_str())),
+                }
+                .start_workflow(caller, payload)
+                .await
             }
             (
                 _,
@@ -176,7 +212,7 @@ impl HostRouteDelivery {
                         .as_ref()
                         .map(|(client, org)| (client.as_ref(), org.as_str())),
                 }
-                .handle(attachment, &principal, payload)
+                .handle(attachment, &principal, request_id, payload)
                 .await
             }
             (
@@ -302,7 +338,15 @@ impl RouteDelivery for HostRouteDelivery {
                 Value::Array(vec![Value::Object(item)]).to_string(),
             )))
         };
-        match self.handle(attachment, &caller, &input.to_string()).await {
+        match self
+            .handle(
+                attachment,
+                &caller,
+                request_id.as_deref(),
+                &input.to_string(),
+            )
+            .await
+        {
             Ok(result) => outcome("value", result),
             Err(Refusal::Declared { code, detail }) => {
                 let mut error = serde_json::Map::new();
@@ -319,18 +363,6 @@ impl RouteDelivery for HostRouteDelivery {
                 );
                 report(Err(DeliveryError::ExecutionFailed))
             }
-        }
-    }
-
-    async fn deliver_stream(
-        &self,
-        request: DeliveryRequest,
-        caller: Option<AuthenticatedCaller>,
-    ) -> Result<StreamedDelivery, DeliveryReport> {
-        // A host route reads one document and never streams.
-        match &self.next {
-            Some(next) => next.deliver_stream(request, caller).await,
-            None => Err(report(Err(DeliveryError::InvalidRequest))),
         }
     }
 }

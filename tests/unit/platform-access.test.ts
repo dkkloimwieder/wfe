@@ -380,6 +380,8 @@ test('access reply validation rejects malformed nested members and duplicate ide
     body: JSON.stringify([
       {
         value: {
+          next_cursor: null,
+          total: null,
           members: [
             {
               principal_id: ANN,
@@ -408,7 +410,9 @@ test('access reply validation rejects malformed nested members and duplicate ide
   }
   app.mock.replyNext({
     status: 200,
-    body: JSON.stringify([{ value: { users: [row, row] } }]),
+    body: JSON.stringify([
+      { value: { users: [row, row], next_cursor: null, total: 2 } },
+    ]),
   })
   await app.access.load({ screen: 'users' })
   await settle()
