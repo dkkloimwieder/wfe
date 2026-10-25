@@ -37,6 +37,142 @@ export async function galleryGanttCases({ page, url, record }) {
   )
 
   await record(
+    'gallery: gantt interval details explain dates and readonly state without interrupting edits',
+    async () =>
+      withCleanup(async () => {
+        await open()
+        const tooltip = page.getByRole('tooltip')
+        const field = (name) =>
+          tooltip
+            .locator('dt')
+            .filter({ hasText: new RegExp(`^${name}$`) })
+            .locator('xpath=following-sibling::dd[1]')
+        await interval().hover()
+        await expect(tooltip).toBeVisible()
+        await expect(tooltip.locator('strong')).toHaveText('Research')
+        await expect(field('START')).toContainText('Jun 1, 2026')
+        await expect(field('END')).toContainText('Jun 5, 2026')
+        await expect(field('TIME ZONE')).toHaveText('UTC')
+        await expect(field('PROGRESS')).toHaveText('100%')
+        await expect(field('BASELINE START')).toContainText('Jun 1, 2026')
+        await expect(field('BASELINE END')).toContainText('Jun 4, 2026')
+        await expect(field('EDITING')).toHaveText('MOVABLE AND RESIZABLE')
+        const tooltipId = await tooltip.getAttribute('id')
+        expect(
+          (await interval().getAttribute('aria-describedby')).split(/\s+/),
+        ).toContain(tooltipId)
+        expect(
+          await interval().evaluate((node) =>
+            node
+              .getAttribute('aria-describedby')
+              .split(/\s+/)
+              .some((id) =>
+                document
+                  .getElementById(id)
+                  ?.textContent.includes('Press Space or Enter'),
+              ),
+          ),
+        ).toBe(true)
+
+        const planning = host().locator('[data-interval="planning-summary"]')
+        await planning.hover()
+        await expect(planning).toHaveAccessibleName(/read only/i)
+        await expect(tooltip.locator('strong')).toHaveText('Planning summary')
+        await expect(field('EDITING')).toHaveText('READ ONLY')
+        await expect(field('PROGRESS')).toHaveText('80%')
+        for (const edge of ['start', 'end'])
+          await expect(
+            host().getByRole('button', {
+              name: `Resize ${edge}: Planning summary`,
+              exact: true,
+            }),
+          ).toHaveCount(0)
+        await planning.press('Escape')
+        await expect(tooltip).toHaveCount(0)
+        await page.mouse.move(0, 0)
+        await interval().focus()
+        await expect(tooltip.locator('strong')).toHaveText('Research')
+        await interval().press('Escape')
+        await expect(tooltip).toHaveCount(0)
+        await planning.focus()
+        await interval().focus()
+        await expect(tooltip.locator('strong')).toHaveText('Research')
+        await interval().press('Space')
+        const feedback = host().locator('.ui-dnd-sr[role="status"]')
+        await expect(feedback).toHaveText(
+          /Picked up Research\.|Research over Timeline\./,
+        )
+        await expect(tooltip).toHaveCount(0)
+        await interval().press('ArrowRight')
+        await interval().press('Escape')
+        await expect(feedback).toHaveText('Moving Research canceled.')
+        await expect(interval()).toBeFocused()
+        await expect(tooltip).toHaveCount(0)
+        await expect(host().locator('.gantt-example-summary')).toContainText(
+          '0 edit requests',
+        )
+
+        const retainDetails = async () => {
+          await planning.focus()
+          await interval().focus()
+          await expect(tooltip.locator('strong')).toHaveText('Research')
+          await tooltip.evaluate((node) => {
+            window.__ganttDetailReview = {
+              tooltip: node,
+              trigger: document.querySelector(
+                '[data-interval="research-work"]',
+              ),
+            }
+          })
+        }
+        const expectReleased = async () => {
+          await expect(tooltip).toHaveCount(0)
+          await expect
+            .poll(() =>
+              page.evaluate(
+                () =>
+                  !window.__ganttDetailReview.tooltip.isConnected &&
+                  !window.__ganttDetailReview.trigger.isConnected,
+              ),
+            )
+            .toBe(true)
+          await page.evaluate(() => {
+            delete window.__ganttDetailReview
+          })
+        }
+        await retainDetails()
+        await host()
+          .getByRole('button', { name: /^Dataset / })
+          .click()
+        await page
+          .getByRole('option', { name: '10,000 rows', exact: true })
+          .click()
+        await expect(interval()).toHaveCount(0)
+        await expectReleased()
+        await host()
+          .getByRole('button', { name: /^Dataset / })
+          .click()
+        await page
+          .getByRole('option', { name: 'Example schedule', exact: true })
+          .click()
+        await expect(interval()).toBeVisible()
+        await retainDetails()
+        await page.getByRole('link', { name: 'Buttons', exact: true }).click()
+        await expect(host()).toHaveCount(0)
+        await expectReleased()
+        await expect(page).toHaveURL(/gallery=buttons(?:&|$)/)
+      }, [
+        {
+          name: 'retained Gantt detail nodes',
+          close: () =>
+            page.evaluate(() => {
+              delete window.__ganttDetailReview
+            }),
+        },
+      ]),
+  )
+
+  await record(
     'gallery: gantt caller accepts and rejects keyboard date proposals',
     async () => {
       await open()

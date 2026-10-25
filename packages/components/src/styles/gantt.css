@@ -124,7 +124,17 @@
 :where([data-ui]) .ui-gantt-progress {
   position: absolute;
   inset: 0 auto 0 0;
-  background: color-mix(in srgb, var(--ui-accent) 15%, transparent);
+  background-image: radial-gradient(
+    circle,
+    color-mix(
+        in srgb,
+        var(--ui-accent) var(--ui-decoration-dot-opacity, 50%),
+        transparent
+      )
+      0.75px,
+    transparent 0.75px
+  );
+  background-size: var(--ui-canvas-pattern-size, 0.35em 0.35em);
   pointer-events: none;
 }
 :where([data-ui]) .ui-gantt-baseline {
@@ -178,4 +188,33 @@
 :where([data-ui]) .ui-gantt-row-label > .sub-table-toggle {
   flex: 0 0 24px;
   width: 24px;
+}
+
+:where([data-ui]) .ui-gantt-bar[data-readonly] {
+  border-color: var(--ui-border);
+  cursor: default;
+}
+:where([data-ui]) .ui-gantt-lock {
+  flex: none;
+  width: 1em;
+  height: 1em;
+  margin-inline-end: var(--ui-gap, 6px);
+  z-index: 1;
+}
+:where([data-ui]).ui-gantt-details {
+  max-width: min(26rem, calc(100vw - 2 * var(--ui-layout-inset, 8px)));
+}
+:where([data-ui]).ui-gantt-details dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--ui-gap, 6px);
+  margin: var(--ui-gap, 6px) 0 0;
+}
+:where([data-ui]).ui-gantt-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+:where([data-ui]) .ui-gantt-bar[data-milestone][data-readonly] {
+  background: var(--ui-text-muted, var(--ui-border));
 }

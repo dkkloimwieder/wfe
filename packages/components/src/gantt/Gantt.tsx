@@ -11,7 +11,9 @@ import type { Accessor } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { Button, IconButton } from '../components/NativeFields'
 import { Icon } from '../components/Icon'
-import { iconZoomIn, iconZoomOut } from '../icons'
+import { Tooltip } from '../components/Tooltip'
+import { GanttBarTrigger } from './GanttBarTrigger'
+import { iconLock, iconZoomIn, iconZoomOut } from '../icons'
 import { DragDropFeedback } from '../dnd/DragDropFeedback'
 import { createGanttInteraction } from './interaction'
 import { DisclosureIndicator } from '../components/DisclosureIndicator'
@@ -311,7 +313,29 @@ export function Gantt(props: GanttProps) {
     },
     onChange: (change) => props.onChange?.(change),
   })
+  const editing = createMemo(() => !!interaction.scope.operation())
+  const detailFormatters = createMemo(() => ({
+    date: new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+      timeZone: props.timeZone ?? 'UTC',
+      dateStyle: 'medium',
+    }),
+    time: new Intl.DateTimeFormat(props.locale ?? 'en-US', {
+      timeZone: props.timeZone ?? 'UTC',
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }),
+  }))
   function renderBar(interval: Accessor<GanttInterval>) {
+    const readOnly = () => !props.onChange || !!interval().readOnly
+    const [detailsOpen, setDetailsOpen] = createSignal(false)
+    createEffect(editing, (active) => {
+      if (active) setDetailsOpen(false)
+    })
+    const detailDate = (date: Date) =>
+      (interval().dateOnly
+        ? detailFormatters().date
+        : detailFormatters().time
+      ).format(date)
     const move = interaction.register(interval, 'move')
     const start = interaction.register(interval, 'resize-start')
     const end = interaction.register(interval, 'resize-end')
@@ -338,61 +362,116 @@ export function Gantt(props: GanttProps) {
               height: `${rowHeight() - 12}px`,
             }}
           >
-            <button
-              type="button"
-              class="ui-gantt-bar"
-              data-interval={interval().id}
-              ref={move.ref}
-              aria-describedby={
-                props.onChange && !interval().readOnly
-                  ? instructionsId
-                  : undefined
-              }
-              data-milestone={box().milestone ? '' : undefined}
-              data-critical={interval().critical ? '' : undefined}
-              aria-keyshortcuts={
-                props.onSelectionChange ? 'S Shift+S F2' : 'F2'
-              }
-              aria-pressed={selected().has(interval().id) ? 'true' : 'false'}
-              aria-label={describeInterval(interval(), formatter())}
-              onClick={(event) =>
-                select(interval(), event.ctrlKey || event.metaKey)
-              }
-              onDblClick={() => props.onActivate?.(interval())}
-              onKeyDown={(event) => {
-                if (
-                  event.key.toLowerCase() === 's' &&
-                  !event.ctrlKey &&
-                  !event.metaKey &&
-                  !event.altKey
-                ) {
-                  event.preventDefault()
-                  select(interval(), event.shiftKey)
-                  return
-                }
-                if (
-                  event.key === 'F2' ||
-                  (event.key === 'Enter' &&
-                    (!props.onChange || interval().readOnly))
-                ) {
-                  event.preventDefault()
-                  props.onActivate?.(interval())
-                }
-              }}
+            <Tooltip.Root
+              open={detailsOpen() && !editing()}
+              disabled={editing()}
+              onOpenChange={(open) => setDetailsOpen(open && !untrack(editing))}
             >
-              <Show when={interval().progress !== undefined}>
-                <span
-                  class="ui-gantt-progress"
-                  aria-hidden="true"
-                  style={{
-                    width: `${Math.max(0, Math.min(1, interval().progress ?? 0)) * 100}%`,
-                  }}
-                />
-              </Show>
-              <span class="ui-gantt-bar-label" data-value>
-                {props.renderInterval?.(interval()) ?? interval().label}
-              </span>
-            </button>
+              <GanttBarTrigger
+                hideDetails={editing()}
+                type="button"
+                class="ui-gantt-bar"
+                data-readonly={readOnly() ? '' : undefined}
+                data-interval={interval().id}
+                ref={move.ref}
+                aria-describedby={
+                  props.onChange && !interval().readOnly
+                    ? instructionsId
+                    : undefined
+                }
+                data-milestone={box().milestone ? '' : undefined}
+                data-critical={interval().critical ? '' : undefined}
+                aria-keyshortcuts={
+                  props.onSelectionChange ? 'S Shift+S F2' : 'F2'
+                }
+                aria-pressed={selected().has(interval().id) ? 'true' : 'false'}
+                aria-label={`${describeInterval(interval(), formatter())}${readOnly() ? ', read only' : ''}`}
+                onClick={(event) =>
+                  select(interval(), event.ctrlKey || event.metaKey)
+                }
+                onDblClick={() => props.onActivate?.(interval())}
+                onKeyDown={(event) => {
+                  if (
+                    event.key.toLowerCase() === 's' &&
+                    !event.ctrlKey &&
+                    !event.metaKey &&
+                    !event.altKey
+                  ) {
+                    event.preventDefault()
+                    select(interval(), event.shiftKey)
+                    return
+                  }
+                  if (
+                    event.key === 'F2' ||
+                    (event.key === 'Enter' &&
+                      (!props.onChange || interval().readOnly))
+                  ) {
+                    event.preventDefault()
+                    props.onActivate?.(interval())
+                  }
+                }}
+              >
+                <Show when={interval().progress !== undefined}>
+                  <span
+                    class="ui-gantt-progress"
+                    aria-hidden="true"
+                    style={{
+                      width: `${Math.max(0, Math.min(1, interval().progress ?? 0)) * 100}%`,
+                    }}
+                  />
+                </Show>
+                <Show when={readOnly() && !box().milestone}>
+                  <Icon glyph={iconLock} class="ui-gantt-lock" />
+                </Show>
+                <span class="ui-gantt-bar-label" data-value>
+                  {props.renderInterval?.(interval()) ?? interval().label}
+                </span>
+              </GanttBarTrigger>
+              <Tooltip.Portal>
+                <Tooltip.Content class="ui-gantt-details">
+                  <strong>{interval().label}</strong>
+                  <dl>
+                    <dt>START</dt>
+                    <dd>{detailDate(interval().start)}</dd>
+                    <dt>END</dt>
+                    <dd>{detailDate(interval().end)}</dd>
+                    <dt>TIME ZONE</dt>
+                    <dd>{props.timeZone ?? 'UTC'}</dd>
+                    <Show when={interval().progress !== undefined}>
+                      <dt>PROGRESS</dt>
+                      <dd>
+                        {Math.round(
+                          Math.max(0, Math.min(1, interval().progress!)) * 100,
+                        )}
+                        %
+                      </dd>
+                    </Show>
+                    <Show when={interval().baseline}>
+                      {(baseline) => (
+                        <>
+                          <dt>BASELINE START</dt>
+                          <dd>{detailDate(baseline().start)}</dd>
+                          <dt>BASELINE END</dt>
+                          <dd>{detailDate(baseline().end)}</dd>
+                        </>
+                      )}
+                    </Show>
+                    <dt>EDITING</dt>
+                    <dd>
+                      {readOnly()
+                        ? 'READ ONLY'
+                        : box().milestone
+                          ? 'MOVABLE'
+                          : 'MOVABLE AND RESIZABLE'}
+                    </dd>
+                    <Show when={interval().critical}>
+                      <dt>CRITICAL</dt>
+                      <dd>YES</dd>
+                    </Show>
+                  </dl>
+                </Tooltip.Content>
+              </Tooltip.Portal>
+            </Tooltip.Root>
             <Show
               when={props.onChange && !interval().readOnly && !box().milestone}
             >
