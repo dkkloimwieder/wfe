@@ -343,3 +343,31 @@ for (const mode of ['fixed', 'measured'] as const) {
     })
   }
 }
+
+test('an explicit initial viewport seeds bounded rows before client effects run', () => {
+  const capture = OBSERVE!.diagnostics.capture()
+  const h = createRoot((dispose) => {
+    const seeded = createTableVirtualizer({
+      mode: 'measured',
+      keys: Array.from({ length: 10000 }, (_, index) => String(index)),
+      estimateSize: () => 30,
+      getScrollElement: () => null,
+      overscan: 0,
+      initialRect: { width: 800, height: 60 },
+    })
+    const ordinary = createTableVirtualizer({
+      mode: 'fixed',
+      count: 10000,
+      rowHeight: 30,
+      getItemKey: (index) => String(index),
+      getScrollElement: () => null,
+    })
+    expect(seeded.getKeys()).toEqual(['0', '1'])
+    expect(seeded.getTotalSize()).toBe(300000)
+    expect(ordinary.getKeys()).toEqual([])
+    expect(ordinary.getTotalSize()).toBe(0)
+    return { dispose }
+  })
+  h.dispose()
+  expect(capture.stop()).toEqual([])
+})

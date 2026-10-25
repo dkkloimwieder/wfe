@@ -48,18 +48,12 @@ export function createTableVirtualizer<Key extends string | number>(
 ) {
   if (!getOwner())
     throw new Error('Create the virtualizer inside a Solid owner')
-  // Audited ownedWrite: virtual-core can synchronously publish geometry from
-  // a measured element or a lifecycle callback. This signal owns only its
-  // output, never records, Table state, or the input key sequence.
-  const [window, setWindow] = createSignal<{
-    items: Array<VirtualItem>
-    total: number
-  }>({ items: [], total: 0 }, { ownedWrite: true })
+  let snapshotReady = false
   let mounted = false
   let disposed = false
   let cleanupQueued = false
   const publish = () => {
-    if (!disposed)
+    if (snapshotReady && !disposed)
       setWindow({
         items: instance.getVirtualItems(),
         total: instance.getTotalSize(),
@@ -107,6 +101,21 @@ export function createTableVirtualizer<Key extends string | number>(
   const instance = new Virtualizer<HTMLElement, HTMLElement>(
     untrack(configuration),
   )
+  // An explicit viewport provides the same bounded first window on server and
+  // client. Constructor callbacks cannot publish before the signal exists.
+  // Audited ownedWrite: virtual-core may publish during layout callbacks.
+  const [window, setWindow] = createSignal<{
+    items: Array<VirtualItem>
+    total: number
+  }>(
+    untrack(() =>
+      options.initialRect
+        ? { items: instance.getVirtualItems(), total: instance.getTotalSize() }
+        : { items: [], total: 0 },
+    ),
+    { ownedWrite: true },
+  )
+  snapshotReady = true
   // Keep the first unobscured row in place when a measured row above it
   // changes height. Include sticky sections and ignore prior scroll direction.
   instance.shouldAdjustScrollPositionOnItemSizeChange = (
