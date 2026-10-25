@@ -5,6 +5,7 @@ import solid from '@solidjs/vite-plugin'
 const shared = {
   entry: [
     './src/chart/index.ts',
+    './src/gantt/index.ts',
     './src/dnd/index.ts',
     './src/sortable/index.ts',
     './src/kanban/index.tsx',

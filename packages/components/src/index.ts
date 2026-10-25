@@ -249,3 +249,14 @@ export * from './dnd'
 
 export * from './sortable'
 export * from './kanban'
+
+export { Gantt } from './gantt'
+export type {
+  GanttProps,
+  GanttId,
+  GanttRow,
+  GanttRange,
+  GanttInterval,
+  GanttDependency,
+  GanttChange,
+} from './gantt'

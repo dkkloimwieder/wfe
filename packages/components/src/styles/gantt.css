@@ -1,0 +1,183 @@
+:where([data-ui]).ui-gantt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  box-sizing: border-box;
+}
+:where([data-ui]) .ui-gantt-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  padding: var(--ui-layout-inset, 8px);
+  border-bottom: 1px solid var(--ui-border);
+}
+:where([data-ui]) .ui-gantt-toolbar h2 {
+  margin: 0 auto;
+  font-size: inherit;
+  font-weight: var(--ui-heading-weight, 500);
+  text-transform: uppercase;
+}
+:where([data-ui]) .ui-gantt-actions {
+  display: flex;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-gantt-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+:where([data-ui]) .ui-gantt-body {
+  position: relative;
+}
+:where([data-ui]) :is(.ui-gantt-axis, .ui-gantt-row) {
+  display: grid;
+  grid-template-columns: var(--ui-gantt-label-width) minmax(0, 1fr);
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--ui-table-row-divider, var(--ui-border));
+}
+:where([data-ui]) .ui-gantt-axis {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--ui-surface);
+  font-size: var(--ui-small-font-size, 11px);
+}
+:where([data-ui]) .ui-gantt-row-label {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+  padding-inline: var(--ui-cell-padding-x, 8px);
+  border-inline-end: 1px solid var(--ui-table-column-divider, var(--ui-border));
+}
+:where([data-ui]) .ui-gantt-row-label > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:where([data-ui]) :is(.ui-gantt-track, .ui-gantt-axis-track) {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+:where([data-ui]) .ui-gantt-axis-track > span {
+  position: absolute;
+  top: 8px;
+  white-space: nowrap;
+  padding-inline: 4px;
+}
+:where([data-ui]) .ui-gantt-gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-inline-start: 1px solid
+    var(--ui-table-column-divider, var(--ui-border));
+  pointer-events: none;
+}
+:where([data-ui]) .ui-gantt-item {
+  position: absolute;
+}
+:where([data-ui]) .ui-gantt-bar {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--ui-accent);
+  color: var(--ui-text);
+  background: var(--ui-surface);
+  border-radius: 0;
+  padding: 0 5px;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+}
+:where([data-ui]) .ui-gantt-bar:is(:hover, [aria-pressed='true']) {
+  background: var(--ui-hover, var(--ui-pane-surface));
+}
+:where([data-ui]) .ui-gantt-bar:focus-visible {
+  outline: 1px solid var(--ui-focus-ring, var(--ui-accent));
+  outline-offset: -3px;
+}
+:where([data-ui]) .ui-gantt-bar[data-critical] {
+  border-width: 2px;
+}
+:where([data-ui]) .ui-gantt-bar[data-milestone] {
+  border: 0;
+  padding: 0;
+  background: var(--ui-accent);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+:where([data-ui]) .ui-gantt-bar[data-milestone] .ui-gantt-bar-label {
+  visibility: hidden;
+}
+:where([data-ui]) .ui-gantt-bar-label {
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:where([data-ui]) .ui-gantt-progress {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: color-mix(in srgb, var(--ui-accent) 15%, transparent);
+  pointer-events: none;
+}
+:where([data-ui]) .ui-gantt-baseline {
+  position: absolute;
+  height: 2px;
+  background: var(--ui-text-muted, var(--ui-border));
+}
+:where([data-ui]) .ui-gantt-dependencies {
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+:where([data-ui]) .ui-gantt-dependencies path {
+  fill: none;
+  stroke: var(--ui-text-muted, var(--ui-border));
+  stroke-width: 1;
+}
+:where([data-ui]) .ui-gantt-empty {
+  padding: var(--ui-layout-inset, 8px);
+}
+
+:where([data-ui]) .ui-gantt-resize {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: ew-resize;
+  z-index: 2;
+}
+:where([data-ui]) .ui-gantt-resize-start {
+  left: 0;
+}
+:where([data-ui]) .ui-gantt-resize-end {
+  right: 0;
+}
+:where([data-ui]) .ui-gantt-resize:focus-visible {
+  outline: 1px solid var(--ui-accent);
+  background: var(--ui-surface);
+}
+:where([data-ui]) .ui-gantt-dropzone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+:where([data-ui]) .ui-gantt-row-label > .sub-table-toggle {
+  flex: 0 0 24px;
+  width: 24px;
+}

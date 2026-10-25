@@ -24,5 +24,6 @@
 
 @import './dnd.css';
 @import './kanban.css';
+@import './gantt.css';
 
 @import './default-theme.css';

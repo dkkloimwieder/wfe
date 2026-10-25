@@ -246,6 +246,13 @@
       "solid": "./dist/source/kanban/index.jsx",
       "node": "./dist/server/kanban/index.js",
       "import": "./dist/client/kanban/index.js"
+    },
+    "./gantt": {
+      "types": "./dist/client/gantt/index.d.ts",
+      "wfe-source": "./src/gantt/index.ts",
+      "solid": "./dist/source/gantt/index.js",
+      "node": "./dist/server/gantt/index.js",
+      "import": "./dist/client/gantt/index.js"
     }
   },
   "sideEffects": [
