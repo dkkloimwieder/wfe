@@ -16,6 +16,10 @@ export function vanillaStyle(
   const border = monochrome ? text : dark ? '#27272a' : '#e4e4e7'
   const hover = dark ? '#27272a' : '#f4f4f5'
   return {
+    '--ui-surface-1': scheme.surfaces[0],
+    '--ui-surface-2': scheme.surfaces[1],
+    '--ui-surface-3': scheme.surfaces[2],
+    '--ui-surface-4': scheme.surfaces[3],
     '--ui-font-family': 'ui-sans-serif, system-ui, sans-serif',
     '--ui-line-height': '1.5',
     '--ui-control-line-height': '1.5',

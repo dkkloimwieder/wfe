@@ -104,6 +104,10 @@ export function appearanceStyle(
         ? secondaryAccent
         : secondary
   return {
+    '--ui-surface-1': scheme.surfaces[0],
+    '--ui-surface-2': scheme.surfaces[1],
+    '--ui-surface-3': scheme.surfaces[2],
+    '--ui-surface-4': scheme.surfaces[3],
     '--ui-secondary-accent': secondaryAccent,
     '--ui-sidebar-accent': focus,
     '--ui-sidebar-neutral': text,

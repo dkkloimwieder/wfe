@@ -230,7 +230,8 @@ Review nested presets and a custom extension at `?gallery=themes`.
 Laser uses the shared controls with pill-shaped inputs and buttons, rounded panels, and smooth disclosure icons.
 A broad dark shadow provides elevation. A tighter accent glow marks hovered, focused, and selected controls.
 Compound inputs keep one outer shape. Their internal button corners stay square.
-Form sections omit borders and use a faint accent glow.
+Form sections share the cards’ border and resting shadow. Board headers use the same shadow.
+Issue cards add an accent glow on hover and keyboard focus.
 Sidebar groups omit the enclosing hover glow. Their headings and child links use neon text on hover and keyboard focus. Selection alone does not add text glow.
 Standalone icon actions keep their border for selection. Hover illuminates the glyph with a small shadow.
 Icons inside compound inputs retain the shared input outline.
@@ -246,3 +247,6 @@ The gallery supports `?gallery=everything&preset=laser` and selects dark mode wh
 `--ui-laser-elevation` controls the broad shadow. `--ui-laser-glow` controls the combined elevation and neon highlight.
 The shared radius variables control pills, panels, and popups independently.
 Forced-color mode removes the shadows and retains the native focus outline.
+
+The `--ui-surface-1` through `--ui-surface-4` variables expose the active surface palette.
+The canvas, pane, and content roles select colors from that palette.

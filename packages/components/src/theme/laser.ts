@@ -20,7 +20,7 @@ export function laserStyle(
     surfaces: monochrome
       ? ['#ffffff', '#ffffff', '#ffffff', '#ffffff']
       : dark
-        ? ['#030509', '#0a0f19', '#121b2b', '#222d43']
+        ? ['#050505', '#0b0b0b', '#121b2b', '#222d43']
         : ['#edf2fb', '#ffffff', '#e3ebf7', '#c6d3e6'],
     text: dark ? ['#e0eaff', '#a4b4d0'] : ['#172642', '#526480'],
   }
@@ -35,13 +35,11 @@ export function laserStyle(
       ? `color-mix(in srgb, ${secondary.dark} 80%, white)`
       : secondary.light
   const border = monochrome ? '#000000' : dark ? '#35445f' : '#b7c7de'
+  const divider = dark ? scheme.surfaces[1] : border
   const surface = scheme.surfaces[layers.content ?? 1]
   const shadow = dark
     ? '0 12px 28px -8px rgb(0 0 0 / 75%)'
     : '0 8px 20px -8px rgb(25 45 80 / 24%)'
-  const sectionElevation = dark
-    ? '0 14px 44px -2px rgb(0 0 0 / 75%)'
-    : '0 12px 32px -2px rgb(25 45 80 / 24%)'
   return {
     ...vanillaStyle(scheme, density, monochrome, {
       canvas: 0,
@@ -57,15 +55,15 @@ export function laserStyle(
     '--ui-heading-color': 'var(--ui-text)',
     '--ui-muted-text': monochrome ? '#000000' : scheme.text[1],
     '--ui-subtle-text': 'var(--ui-muted-text)',
-    '--ui-border': border,
-    '--ui-divider': border,
+    '--ui-border': divider,
+    '--ui-divider': divider,
     '--ui-control-border': border,
     '--ui-button-border': border,
-    '--ui-table-row-divider': border,
-    '--ui-table-column-divider': border,
+    '--ui-table-row-divider': divider,
+    '--ui-table-column-divider': divider,
     '--ui-accent': color,
     '--ui-secondary-accent': secondaryColor,
-    '--ui-on-accent': dark ? '#030509' : '#ffffff',
+    '--ui-on-accent': dark ? '#050505' : '#ffffff',
     '--ui-selection': 'var(--ui-accent)',
     '--ui-on-selection': 'var(--ui-on-accent)',
     '--ui-button-color': 'var(--ui-accent)',
@@ -90,9 +88,6 @@ export function laserStyle(
     '--ui-laser-text-glow': monochrome
       ? 'none'
       : `0 0 ${dark ? 10 : 6}px color-mix(in srgb, var(--ui-accent) ${dark ? 55 : 22}%, transparent)`,
-    '--ui-laser-section-shadow': monochrome
-      ? 'none'
-      : `${sectionElevation}, 0 0 8px color-mix(in srgb, var(--ui-accent) ${dark ? 17 : 9}%, transparent)`,
     '--ui-panel-shadow': 'var(--ui-laser-elevation)',
     '--ui-popup-shadow': 'var(--ui-laser-glow)',
   }

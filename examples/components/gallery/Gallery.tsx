@@ -318,6 +318,20 @@ export function Gallery() {
               </For>
             </div>
             <AppearanceReview
+              themeOptions={
+                route().preset === 'default'
+                  ? undefined
+                  : {
+                      ...galleryThemeOptions(route()),
+                      preset: route().preset,
+                      mode:
+                        route().scheme === 2
+                          ? 'dark'
+                          : route().scheme === 0
+                            ? 'monochrome'
+                            : 'light',
+                    }
+              }
               showDecorationControls={route().preset === 'default'}
               decorations={route().decorations}
               onDecorationsChange={(decorations, commit) =>

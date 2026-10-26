@@ -1,4 +1,6 @@
-import { For, Show, createSignal } from 'solid-js'
+import { For, Show, createMemo, createSignal } from 'solid-js'
+import { themeStyle } from '@wfe/components/theme'
+import type { ThemeOptions } from '@wfe/components/theme'
 import type { ButtonTone } from '@wfe/components'
 import { Button, Input, Field, Label } from '@wfe/components'
 import {
@@ -30,6 +32,7 @@ const roles = [
 
 /** Temporary application-owned review. Nothing is persisted. */
 export function AppearanceReview(props: {
+  themeOptions?: ThemeOptions
   showDecorationControls?: boolean
   decorations?: Decorations
   onDecorationsChange?: (value: Decorations, commit: boolean) => void
@@ -46,6 +49,16 @@ export function AppearanceReview(props: {
   onAccentChange: (accent: Accent) => void
   onDepthChange: (depth: Depth) => void
 }) {
+  const swatches = createMemo(() => {
+    if (!props.themeOptions) return props.scheme
+    const style = themeStyle(props.themeOptions)
+    return {
+      surfaces: [1, 2, 3, 4].map((level) =>
+        String(style[`--ui-surface-${level}`]),
+      ),
+      text: [String(style['--ui-text']), String(style['--ui-muted-text'])],
+    }
+  })
   const [buttonTone, setButtonTone] = createSignal<ButtonTone>('accent')
   return (
     <section class="appearance-review" aria-label="Appearance review">
@@ -350,12 +363,12 @@ export function AppearanceReview(props: {
                 class="surface-sample"
                 aria-hidden="true"
                 style={{
-                  background: props.scheme[role.source][role.index],
+                  background: swatches()[role.source][role.index],
                 }}
               />
               <span>
                 <span data-ui-text="system">{role.name}</span>
-                <code>{props.scheme[role.source][role.index]}</code>
+                <code>{swatches()[role.source][role.index]}</code>
               </span>
             </div>
           )}

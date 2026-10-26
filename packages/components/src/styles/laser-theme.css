@@ -1,12 +1,20 @@
 /* Laser shares plain control geometry and owns its neon presentation. */
 @scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
   :scope
-    :is(.ui-card, .ui-field-group, .ui-field-set, .ui-entry-panel-surface) {
+    :is(
+      .ui-card,
+      .ui-field-group,
+      .ui-field-set,
+      .ui-entry-panel-surface,
+      .ui-kanban-column-header
+    ) {
     box-shadow: var(--ui-panel-shadow);
   }
-  :scope :is(.ui-field-group, .ui-field-set, form > header.ui-card) {
-    border: 0;
-    box-shadow: var(--ui-laser-section-shadow);
+  :scope :is(.ui-field-group, .ui-field-set) {
+    border: var(--ui-border-width) solid var(--ui-border);
+  }
+  :scope .ui-kanban-item:is(:hover, :focus-within):not([aria-disabled='true']) {
+    box-shadow: var(--ui-laser-glow);
   }
   :scope :is(.ui-input, .choice-input) {
     padding-inline: max(12px, var(--ui-input-padding-x));
