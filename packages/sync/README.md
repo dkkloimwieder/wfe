@@ -6,12 +6,15 @@ The application supplies a `Feed`, a scope, and a key. The package never builds 
 
 Import `collection`, `liveRows`, `liveList`, `syncStatus`, `syncComplete`, `shell`, and `CursorExpired` from `@wfe/sync`, and `precache` from `@wfe/sync/worker`.
 If the host no longer holds a cursor, `feed.changes` must throw `CursorExpired`. The package inspects no other error shape.
-`collection(feed, scope, options)` returns a collection keyed by `row.id`.
+`collection(feed, scope, options)` returns a collection keyed by `row.id` by default. Row ids can be strings or numbers.
 If the `persistence` option is given, the collection first loads the saved rows for the key. Saved rows land as one transaction, and the collection is ready.
 It then calls `feed.list(scope)` and reconciles the page. If the list fails after saved rows landed, the status stays `ready` and `utils.error()` holds the failure.
 `Feed.list` resolves `{ rows: T[]; cursor: string; complete?: boolean }`. A host sets `complete: false` when it stops the list at a row cap. An absent `complete` means true. An incomplete list still supplies the cursor, marks the collection ready, saves the rows, and starts follow.
 A rejecting load counts as no saved rows. `utils.error()` holds the load error until a list succeeds.
 `utils.refill()` reads the list again and reconciles it. Rows absent from the new page leave. Rows with a higher `row_version` land. Equal or lower versions are ignored.
+The collection reads the key of a row through `options.getKey`. The default is `row => row.id`. A consumer whose rows use `code` as the key passes `getKey: r => r.code` and does not copy its rows.
+The required `options.key` string remains the persistence and trigger key.
+The feed supplies `Change.id` as a string or number that equals the collection key. For upserts, `change.id` must equal `getKey(change.data)`, including its type. Deletes use `change.id` directly as that key. A mismatched upsert rejects the whole batch before any writes. The package preserves the id stored in each row.
 The collection reads the version of a row through `options.version`. The default is `row => row.row_version`. A consumer whose rows carry `rowVersion` passes `version: r => r.rowVersion` and does not copy its rows.
 `utils.error()` returns the error of the last failed read.
 `utils.currentAt()` returns the ISO time of the last successful list or change read, or undefined before one.
@@ -50,6 +53,7 @@ A later subscriber restarts the collection. The restart loads, lists, and follow
 The read adapters take any keyed collection: one made by `collection()`, a live query result such as a `groupBy`, or any other `@tanstack/db` collection. The rows need no id and no version.
 
 `liveRows(c)` returns a store keyed by the collection's own key, as a string. Each change batch lands in one store write.
+`liveRows` is an object keyed by property name, so a collection must not hold both `1` and `'1'`. One model has one key type.
 `liveList(c)` returns a store array reconciled by the collection's own key, in the order of the collection. Use it for small sets.
 `syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`. For a collection made by `collection()`, it reads the status of the sync source. For any other collection, it maps `c.status`: `ready` and `error` stay as they are, and every other status is `loading`.
 `syncComplete(c)` returns a reactive accessor with the same value as `utils.complete()` for a collection made by `collection()`. For any other collection, it returns true.
@@ -88,15 +92,18 @@ If `navigator.locks` is absent, replay runs without the lock. Two tabs can then 
 
 ## Writes
 
-`recordWrite(c, o)` returns `{ rows, write }`. `rows` is an optimistic store keyed by id: the rows of the collection with the guesses of open writes on top.
+Outbox types default to string ids for existing callers. For numeric ids, use `outbox<number>(...)` and the matching `OperationCall<number>`, `OutboxEntry<number>`, and `Send<number>` types.
+
+`recordWrite(c, o)` returns `{ rows, write }`. `rows` is an optimistic store keyed by the collection accessor: the rows of the collection with the guesses of open writes on top.
 `write(call, expected)` is a Solid action:
 
-1. It merges `expected` into `rows[expected.id]` as a guess.
+1. It merges `expected` into `rows[getKey(expected)]` as a guess.
 2. It enqueues `call` and `expected` in the outbox.
-3. It waits with `until` for a successful send to remove the entry from the outbox and for the collection to hold `expected.id`.
+3. It waits with `until` for a successful send to remove the entry from the outbox and for the collection to hold `getKey(expected)`.
 
 If `expected` has a version, the stored version must be greater. The collection reads both versions through `options.version`.
-Without an expected version, any row with that id and a successful send are enough.
+Expected rows must include the fields that `options.getKey` reads, including restored rows from the outbox.
+Without an expected version, any row with that key and a successful send are enough.
 Changes to the collection or outbox update the wait, so the row can arrive before or after the send succeeds.
 
 The wait reads the collection, never `rows`, so the guess of the action never ends it.

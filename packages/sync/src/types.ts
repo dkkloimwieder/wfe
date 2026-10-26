@@ -1,11 +1,17 @@
 /**
- * A row has a client-generated id. Its integer version is `row_version`
+ * A row has a string or number id. Its integer version is `row_version`
  * unless the collection reads it through `options.version`.
  */
 export interface Row {
-  id: string
+  id: string | number
   row_version?: number
 }
+
+/** Reads the key of a row. */
+export type Key<T extends Row> = (row: T) => string | number
+
+/** The default key accessor. */
+export const rowKey = (row: Row): string | number => row.id
 
 /** Reads the integer version of a row. */
 export type Version<T extends Row> = (row: T) => number
@@ -13,10 +19,14 @@ export type Version<T extends Row> = (row: T) => number
 /** The default version accessor. */
 export const rowVersion = (row: Row): number => row.row_version as number
 
-/** A change is deleted or carries data. `row_version` is the feed's field. */
+/**
+ * A change is deleted or carries data. `id` and `row_version` are feed fields.
+ * The id identifies the collection key, including its string or number type.
+ * For an upsert, `id` must equal `getKey(data)`. A delete needs only that key.
+ */
 export type Change<T extends Row> =
-  | { id: string; row_version: number; deleted: true }
-  | { id: string; row_version: number; deleted: false; data: T }
+  | { id: string | number; row_version: number; deleted: true }
+  | { id: string | number; row_version: number; deleted: false; data: T }
 
 /** The consumer supplies the reads; the package never builds a URL. */
 export interface Feed<T extends Row, S> {
@@ -46,5 +56,5 @@ export interface Persistence {
 
 /** Fires when a scope may have moved. Poll now; an event channel later. */
 export interface Trigger {
-  subscribe(scopeKey: string, fire: () => void): () => void
+  subscribe(key: string, fire: () => void): () => void
 }

@@ -147,3 +147,37 @@ export type OutboxContract = [
 type Untyped = ReturnType<typeof JSON.parse>
 // @ts-expect-error An any type must fail the consumer contract.
 export type RejectAny = Assert<AllTyped<{ entry: Untyped }>>
+
+// Integer ids and custom accessors remain typed through the built declarations.
+type IntegerRow = { id: number; code: string; row_version: number }
+type CollectionOptions = Parameters<typeof collection<IntegerRow, string>>[2]
+export type KeyContract = [
+  Assert<Equal<Row['id'], string | number>>,
+  Assert<Equal<Change<Row>['id'], string | number>>,
+  Assert<Equal<OperationCall['expect']['id'], string>>,
+  Assert<Equal<OperationCall<number>['expect']['id'], number>>,
+  Assert<Equal<OutboxEntry['expect']['id'], string>>,
+  Assert<Equal<OutboxEntry<number>['expect']['id'], number>>,
+  Assert<
+    Equal<ReturnType<Outbox<number>['entries']>[number]['expect']['id'], number>
+  >,
+  Assert<
+    Equal<
+      CollectionOptions['getKey'],
+      ((row: IntegerRow) => string | number) | undefined
+    >
+  >,
+  Assert<Equal<CollectionOptions['key'], string>>,
+  Assert<
+    Equal<
+      Parameters<ReturnType<typeof collection<IntegerRow, string>>['get']>[0],
+      string | number
+    >
+  >,
+  Assert<
+    Equal<
+      Parameters<ReturnType<typeof recordWrite<IntegerRow>>['write']>[1]['id'],
+      number
+    >
+  >,
+]

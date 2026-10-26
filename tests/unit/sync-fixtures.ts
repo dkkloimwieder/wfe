@@ -136,11 +136,11 @@ export const call = (
  * A fake host that holds each reply until the test answers it by hash. The
  * write log dedupes on request_hash: `effects` counts one effect per hash.
  */
-export function hostOf() {
+export function hostOf<K extends string | number = string>() {
   const waiting = new Map<string, (reply: Reply) => void>()
   const sent: string[] = []
   const effects = new Set<string>()
-  const send = vi.fn((entry: OutboxEntry) => {
+  const send = vi.fn((entry: OutboxEntry<K>) => {
     sent.push(entry.request_hash)
     effects.add(entry.request_hash)
     return new Promise<Reply>((resolve) =>

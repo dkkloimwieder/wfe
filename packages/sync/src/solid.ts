@@ -21,8 +21,8 @@ import { peek } from './writer'
 import type { AnyCollection } from './writer'
 import type { OperationCall, Outbox, OutboxCounts, OutboxEntry } from './outbox'
 import type { Status } from './status'
-import { rowVersion } from './types'
-import type { Row } from './types'
+import { rowKey, rowVersion } from './types'
+import type { Key, Row } from './types'
 
 /**
  * Any collection the read adapters take: one made by `collection()`, a live
@@ -41,6 +41,8 @@ export type KeyedCollection<T extends object> = Pick<
  * events. The store is seeded after that, so it is complete at return for a
  * ready collection. A collection that becomes ready later sends its rows as
  * changes.
+ * Number and string keys with the same string form share one property.
+ * A collection must use one key type to avoid these collisions.
  */
 export function liveRows<T extends object>(
   c: KeyedCollection<T>,
@@ -177,19 +179,22 @@ export function syncCurrentAt<T extends object>(
 }
 
 /** The outbox counts, read through a memo over `watch`. */
-export function outboxStatus(o: Outbox): Accessor<OutboxCounts> {
+export function outboxStatus(
+  o: Outbox<string | number>,
+): Accessor<OutboxCounts> {
   return createMemo<OutboxCounts>(() =>
     from<OutboxCounts>((next) => o.watch(next)),
   )
 }
 
-/** The rows of each pushed array, keyed by id. */
+/** The rows of each pushed array, keyed by the collection accessor. */
 async function* keyed<T extends Row>(
   lists: AsyncIterable<T[]>,
+  getKey: Key<T>,
 ): AsyncIterable<Record<string, T>> {
   for await (const list of lists) {
     const rows: Record<string, T> = {}
-    for (const row of list) rows[row.id] = row
+    for (const row of list) rows[getKey(row)] = row
     yield rows
   }
 }
@@ -197,7 +202,7 @@ async function* keyed<T extends Row>(
 /** A counter that moves on each change of the collection or the outbox. */
 function moves<T extends Row>(
   c: AnyCollection<T>,
-  o: Outbox,
+  o: Outbox<string | number>,
 ): Accessor<number> {
   return createMemo<number>(() =>
     from<number>((next) => {
@@ -217,7 +222,7 @@ function moves<T extends Row>(
 
 /**
  * True after a successful send removes the entry from the outbox and the
- * collection holds the expected id. If the expected row has a version, the
+ * collection holds the expected key. If the expected row has a version, the
  * stored version must be greater. The collection's version accessor reads
  * both versions. Without an expected version, the row and successful send
  * are enough. It reads the collection, so the optimistic value cannot end
@@ -226,9 +231,9 @@ function moves<T extends Row>(
  */
 function confirmed<T extends Row>(
   c: AnyCollection<T>,
-  o: Outbox,
-  expected: Partial<T> & { id: string },
-  entry: OutboxEntry,
+  o: Outbox<string | number>,
+  expected: Partial<T> & { id: string | number },
+  entry: OutboxEntry<string | number>,
   restored = false,
 ): boolean {
   if (discarded(o, entry.seq)) throw new OutboxDiscarded(entry.seq)
@@ -236,7 +241,8 @@ function confirmed<T extends Row>(
   if (current?.state === 'refused' && !restored)
     throw new OutboxRefused(entry.seq, current.refusal)
   if (current !== undefined) return false
-  const row = c.get(expected.id)
+  const getKey = peek<T>(c)?.getKey ?? rowKey
+  const row = c.get(getKey(expected as T))
   if (row === undefined) return false
   const version = peek(c)?.version ?? rowVersion
   const want = version(expected as T) as number | undefined
@@ -249,24 +255,26 @@ function confirmed<T extends Row>(
  * until the feed brings the row back. A refusal or a discard throws at the
  * wait, and the guess reverts. The wait has no timeout, so one action stays
  * open for each unsent entry.
+ * Expected rows must contain the fields that `options.getKey` reads.
  * With a model, stored expected rows return as entries load. Restored refusals
  * keep their overlay until discard or successful resubmission.
  */
-export function recordWrite<T extends Row>(
+export function recordWrite<T extends Row, K extends string | number = string>(
   c: AnyCollection<T>,
-  o: Outbox,
+  o: Outbox<K>,
   options?: { model?: string },
 ): {
   rows: Store<Record<string, T>>
   write: (
-    op: OperationCall,
-    expected: Partial<T> & { id: string },
+    op: OperationCall<K>,
+    expected: Partial<T> & { id: string | number },
   ) => Promise<void>
 } {
+  const getKey = peek<T>(c)?.getKey ?? rowKey
   const [rows, setRows] = createOptimisticStore<Record<string, T>>(
-    () => keyed(from(subscribe(c))),
+    () => keyed(from(subscribe(c)), getKey),
     undefined,
-    { key: 'id' },
+    { key: (item: object) => getKey(item as T) },
   )
   const moved = moves(c, o)
   // Both restored entries and this adapter's own writes run once per seq.
@@ -274,13 +282,14 @@ export function recordWrite<T extends Row>(
   let enqueuing = 0
   let disposed = false
   let settled = false
-  const apply = (expected: Partial<T> & { id: string }) => {
+  const apply = (expected: Partial<T> & { id: string | number }) => {
+    const id = getKey(expected as T)
     setRows((draft) => {
-      draft[expected.id] = { ...draft[expected.id], ...expected } as T
+      draft[id] = { ...draft[id], ...expected } as T
     })
   }
-  const restoreEntry = action(function* (entry: OutboxEntry) {
-    const expected = entry.expected as Partial<T> & { id: string }
+  const restoreEntry = action(function* (entry: OutboxEntry<K>) {
+    const expected = entry.expected as Partial<T> & { id: string | number }
     apply(expected)
     yield until(() => {
       moved()
@@ -306,9 +315,9 @@ export function recordWrite<T extends Row>(
     }
   }
   async function enqueue(
-    op: OperationCall,
-    expected: Partial<T> & { id: string },
-  ): Promise<OutboxEntry> {
+    op: OperationCall<K>,
+    expected: Partial<T> & { id: string | number },
+  ): Promise<OutboxEntry<K>> {
     enqueuing++
     try {
       const entry = await o.enqueue(op, expected)
@@ -320,11 +329,11 @@ export function recordWrite<T extends Row>(
     }
   }
   const write = action(function* (
-    op: OperationCall,
-    expected: Partial<T> & { id: string },
+    op: OperationCall<K>,
+    expected: Partial<T> & { id: string | number },
   ) {
     apply(expected)
-    const entry = (yield enqueue(op, expected)) as OutboxEntry
+    const entry = (yield enqueue(op, expected)) as OutboxEntry<K>
     yield until(() => {
       moved()
       return confirmed(c, o, expected, entry)

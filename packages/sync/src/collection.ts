@@ -5,8 +5,8 @@ import { CursorExpired } from './errors'
 import { createSourceSignal, createStatus } from './status'
 import { register, remove, upsert } from './writer'
 import type { AnyCollection, Batch, SyncParams, Writer } from './writer'
-import { rowVersion } from './types'
-import type { Feed, Persistence, Row, Trigger, Version } from './types'
+import { rowKey, rowVersion } from './types'
+import type { Feed, Key, Persistence, Row, Trigger, Version } from './types'
 
 type Utils = {
   /** Run `list` again and reconcile the result into the collection. */
@@ -21,7 +21,12 @@ type Utils = {
   complete: () => boolean
 }
 
-export type SyncCollection<T extends Row> = Collection<T, string, Utils, never>
+export type SyncCollection<T extends Row> = Collection<
+  T,
+  string | number,
+  Utils,
+  never
+>
 
 /** Default interval between follow passes. */
 const pollDefault = 10_000
@@ -46,9 +51,9 @@ interface Run<T extends Row> {
 }
 
 /**
- * A collection keyed by `row.id`. It loads saved rows from persistence when
- * given, fills from `feed.list(scope)`, then follows `feed.changes` from the
- * cursor.
+ * A collection keyed by `options.getKey`, default `row => row.id`.
+ * It loads saved rows from persistence when given, fills from `feed.list(scope)`,
+ * then follows `feed.changes` from the cursor.
  */
 export function collection<T extends Row, S>(
   feed: Feed<T, S>,
@@ -56,6 +61,8 @@ export function collection<T extends Row, S>(
   options: {
     /** (model, scope) encoded by the caller; the persistence key. */
     key: string
+    /** Reads the key of a row; default `row => row.id`. */
+    getKey?: Key<T>
     /** Saved rows load from here before the list; rows save after writes. */
     persistence?: Persistence
     /** A follow pass runs when the trigger fires. */
@@ -68,6 +75,7 @@ export function collection<T extends Row, S>(
     version?: Version<T>
   },
 ): SyncCollection<T> {
+  const getKey: Key<T> = options.getKey ?? rowKey
   const version: Version<T> = options.version ?? rowVersion
   const status = createStatus('loading')
   const complete = createSourceSignal(true)
@@ -93,7 +101,7 @@ export function collection<T extends Row, S>(
     try {
       const page = await feed.list(scope, r.abort.signal)
       if (r.stopped) return
-      reconcile(c, r.writer, page.rows, version)
+      reconcile(c, r.writer, page.rows, version, getKey)
       cursor = page.cursor
       currentAt.set(new Date().toISOString())
       complete.set(page.complete ?? true)
@@ -120,7 +128,7 @@ export function collection<T extends Row, S>(
           const batch: Batch = new Map()
           r.writer.begin()
           for (const row of saved.rows as T[])
-            upsert(c, r.writer, row, batch, version)
+            upsert(c, r.writer, row, batch, version, getKey)
           r.writer.commit()
           cursor = saved.cursor
           ready(r)
@@ -225,8 +233,8 @@ export function collection<T extends Row, S>(
     for (const end of r.stops.splice(0)) end()
   }
 
-  c = createCollection<T, string, Utils>({
-    getKey: (row) => row.id,
+  c = createCollection<T, string | number, Utils>({
+    getKey,
     startSync: true,
     gcTime: 0,
     sync: {
@@ -266,6 +274,7 @@ export function collection<T extends Row, S>(
     currentAt,
     error: () => error,
     version,
+    getKey,
   })
   return c
 }
@@ -276,13 +285,14 @@ function reconcile<T extends Row>(
   writer: Writer<T>,
   rows: T[],
   version: Version<T>,
+  getKey: Key<T>,
 ): void {
   const batch: Batch = new Map()
-  const incoming = new Set<string>()
+  const incoming = new Set<string | number>()
   writer.begin()
   for (const row of rows) {
-    incoming.add(row.id)
-    upsert(c, writer, row, batch, version)
+    incoming.add(getKey(row))
+    upsert(c, writer, row, batch, version, getKey)
   }
   for (const key of [...c.keys()])
     if (!incoming.has(key)) remove(c, writer, key, batch)

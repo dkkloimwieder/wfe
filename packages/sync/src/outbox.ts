@@ -2,14 +2,14 @@
 // a URL, a hash or a header: Send and probe are the consumer's.
 
 /** One write, as the consumer's binding builds it. */
-export type OperationCall = {
+export type OperationCall<K extends string | number = string> = {
   /** Opaque to the package; passed to Send. */
   operation: string
   request: unknown
   /** Computed by the caller; the write log dedupes on it. */
   request_hash: string
   /** The record that the write changes, for replay order and `until`. */
-  expect: { model: string; id: string }
+  expect: { model: string; id: K }
   /** A refusal of an earlier entry for the same id does not hold this one. */
   append_only: boolean
 }
@@ -19,20 +19,21 @@ export type Reply =
   | { ok: true }
   | { ok: false; retriable: boolean; refusal?: { code: string; text: string } }
 
-export interface Send {
-  (entry: OutboxEntry, signal: AbortSignal): Promise<Reply>
+export interface Send<K extends string | number = string> {
+  (entry: OutboxEntry<K>, signal: AbortSignal): Promise<Reply>
 }
 
-export type OutboxEntry = OperationCall & {
-  /** The tentative row; undefined for entries recorded without one. */
-  expected: unknown
-  /** Local and monotonic; the replay order. */
-  seq: number
-  /** ISO, browser clock; a display value only. */
-  recorded_at: string
-  state: 'pending' | 'sending' | 'refused'
-  refusal?: { code: string; text: string }
-}
+export type OutboxEntry<K extends string | number = string> =
+  OperationCall<K> & {
+    /** The tentative row; undefined for entries recorded without one. */
+    expected: unknown
+    /** Local and monotonic; the replay order. */
+    seq: number
+    /** ISO, browser clock; a display value only. */
+    recorded_at: string
+    state: 'pending' | 'sending' | 'refused'
+    refusal?: { code: string; text: string }
+  }
 
 export type OutboxCounts = {
   pending: number
@@ -42,9 +43,9 @@ export type OutboxCounts = {
   lastSentAt: string | undefined
 }
 
-export interface Outbox {
+export interface Outbox<K extends string | number = string> {
   /** Resolves after the IndexedDB put commits. */
-  enqueue(op: OperationCall, expected?: unknown): Promise<OutboxEntry>
+  enqueue(op: OperationCall<K>, expected?: unknown): Promise<OutboxEntry<K>>
   /** Sends pending entries to the end of the queue or the first retriable failure. */
   replay(): Promise<void>
   /** A refused entry goes back to pending, and a replay starts. */
@@ -52,7 +53,7 @@ export interface Outbox {
   /** Removes the entry. */
   discard(seq: number): Promise<void>
   /** The entries in seq order, as this page holds them. */
-  entries(): OutboxEntry[]
+  entries(): OutboxEntry<K>[]
   /** Calls fn with the counts now and on each change; returns the unsubscribe. */
   watch(fn: (counts: OutboxCounts) => void): () => void
   /** Aborts sends in flight, leaves them pending, and closes the database. */
@@ -61,10 +62,10 @@ export interface Outbox {
 
 const store = 'outbox'
 /** The seqs that each outbox discarded in this page, for recordWrite. */
-const discards = new WeakMap<Outbox, Set<number>>()
+const discards = new WeakMap<Outbox<string | number>, Set<number>>()
 
 /** True when `o` discarded the entry `seq` in this page. */
-export function discarded(o: Outbox, seq: number): boolean {
+export function discarded(o: Outbox<string | number>, seq: number): boolean {
   return discards.get(o)?.has(seq) ?? false
 }
 /** A replay runs on this interval while an entry is pending. */
@@ -105,16 +106,16 @@ function open(name: string): Promise<IDBDatabase> {
  * probe, and every 30 s while an entry is pending. The probe runs before each
  * replay, on the 'online' event, and every 15 s while the last probe failed.
  */
-export function outbox(options: {
+export function outbox<K extends string | number = string>(options: {
   /** IndexedDB name, chosen by the caller. */
   database: string
-  send: Send
+  send: Send<K>
   /** True when the host answered. */
   probe: () => Promise<boolean>
   /** Sends at once across records; one at a time within a record. Default 4. */
   concurrency?: number
-}): Outbox {
-  const memory = new Map<number, OutboxEntry>()
+}): Outbox<K> {
+  const memory = new Map<number, OutboxEntry<K>>()
   const listeners = new Set<(counts: OutboxCounts) => void>()
   const abort = new AbortController()
   const gone = new Set<number>()
@@ -129,11 +130,11 @@ export function outbox(options: {
     return db
   })
 
-  function all(db: IDBDatabase): Promise<OutboxEntry[]> {
+  function all(db: IDBDatabase): Promise<OutboxEntry<K>[]> {
     const os = db.transaction(store).objectStore(store)
-    return request(os.getAll() as IDBRequest<OutboxEntry[]>)
+    return request(os.getAll() as IDBRequest<OutboxEntry<K>[]>)
   }
-  async function put(entries: OutboxEntry[]): Promise<void> {
+  async function put(entries: OutboxEntry<K>[]): Promise<void> {
     const tx = (await database).transaction(store, 'readwrite')
     for (const entry of entries) tx.objectStore(store).put(entry)
     await done(tx)
@@ -153,7 +154,7 @@ export function outbox(options: {
     const value = counts()
     for (const listener of [...listeners]) listener(value)
   }
-  function ordered(): OutboxEntry[] {
+  function ordered(): OutboxEntry<K>[] {
     return [...memory.values()].sort((a, b) => a.seq - b.seq)
   }
 
@@ -177,7 +178,7 @@ export function outbox(options: {
     notify()
   }
 
-  async function send(entry: OutboxEntry): Promise<Reply> {
+  async function send(entry: OutboxEntry<K>): Promise<Reply> {
     try {
       return await options.send({ ...entry }, abort.signal)
     } catch {
@@ -190,7 +191,7 @@ export function outbox(options: {
    * Send the entries of one record in seq order, one at a time. A refused
    * entry holds the later entries of the record, except append-only ones.
    */
-  async function lane(entries: OutboxEntry[], halt: { now: boolean }) {
+  async function lane(entries: OutboxEntry<K>[], halt: { now: boolean }) {
     let held = false
     for (const entry of entries) {
       if (closed || halt.now) return
@@ -223,7 +224,7 @@ export function outbox(options: {
   /** Records in parallel up to `concurrency`; each record in its own lane. */
   async function pass(): Promise<void> {
     await reload()
-    const lanes = new Map<string, OutboxEntry[]>()
+    const lanes = new Map<K, OutboxEntry<K>[]>()
     for (const entry of ordered()) {
       const list = lanes.get(entry.expect.id)
       if (list) list.push(entry)
@@ -301,7 +302,7 @@ export function outbox(options: {
   // On open, lost 'sending' entries go back to pending before the first replay.
   void database.then(() => locked(reload)).then(kick, () => undefined)
 
-  const o: Outbox = {
+  const o: Outbox<K> = {
     async enqueue(op, expected) {
       if (closed) throw new Error('The outbox is closed')
       const entry = {
@@ -313,7 +314,7 @@ export function outbox(options: {
         append_only: op.append_only,
         recorded_at: new Date().toISOString(),
         state: 'pending',
-      } as OutboxEntry
+      } as OutboxEntry<K>
       const tx = (await database).transaction(store, 'readwrite')
       const key = request(tx.objectStore(store).add(entry))
       await done(tx)
