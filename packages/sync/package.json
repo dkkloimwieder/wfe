@@ -8,17 +8,17 @@
     ".": {
       "types": "./dist/index.d.ts",
       "wfe-source": "./src/index.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
     },
     "./worker": {
       "types": "./dist/worker.d.ts",
       "wfe-source": "./src/worker.ts",
-      "import": "./dist/worker.js"
+      "default": "./dist/worker.js"
     },
     "./internal": {
       "types": "./dist/internal.d.ts",
       "wfe-source": "./src/internal.ts",
-      "import": "./dist/internal.js"
+      "default": "./dist/internal.js"
     }
   },
   "sideEffects": false,

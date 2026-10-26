@@ -8,7 +8,7 @@
     ".": {
       "types": "./dist/index.d.ts",
       "wfe-source": "./src/index.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
     }
   },
   "sideEffects": false,

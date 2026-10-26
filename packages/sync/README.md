@@ -17,6 +17,12 @@ The collection reads the version of a row through `options.version`. The default
 `utils.currentAt()` returns the ISO time of the last successful list or change read, or undefined before one.
 `utils.complete()` returns false only when the last successful list reports `complete: false`. It returns true before any successful list. A later successful refill with `complete: true` or absent resets it to true. Failed reads and saved rows loaded from Persistence do not change it.
 
+## Package exports
+
+Each entry lists conditions in this order: `types` selects `dist/*.d.ts`, `wfe-source` selects `src/*.ts`, and `default` selects `dist/*.js`.
+The `wfe-source` condition is only for wfe's own examples and checks.
+Before consuming the package, build it from the repository root with `pnpm --filter @wfe/sync build`.
+
 ## TypeScript consumers
 
 A consumer type-checks the built `dist` through the `"types"` condition, which selects the package declarations.
