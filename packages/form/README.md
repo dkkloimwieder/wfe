@@ -17,4 +17,4 @@ The [example](../../examples/form-contract/README.md) uses existing controls wit
 
 Export conditions select package files in this order: `types` selects `dist/*.d.ts`, `wfe-source` selects `src/*.ts`, and `default` selects `dist/*.js`.
 The `wfe-source` condition is only for wfe's own examples and checks.
-Before consuming the package, build it from the repository root with `pnpm --filter @wfe/form build`.
+`pnpm install` runs `prepare`, which builds `dist`.

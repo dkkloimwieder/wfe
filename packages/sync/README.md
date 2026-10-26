@@ -21,7 +21,7 @@ The collection reads the version of a row through `options.version`. The default
 
 Each entry lists conditions in this order: `types` selects `dist/*.d.ts`, `wfe-source` selects `src/*.ts`, and `default` selects `dist/*.js`.
 The `wfe-source` condition is only for wfe's own examples and checks.
-Before consuming the package, build it from the repository root with `pnpm --filter @wfe/sync build`.
+`pnpm install` runs `prepare`, which builds `dist`.
 
 ## TypeScript consumers
 
