@@ -330,12 +330,34 @@ export function recordWrite<T extends Row>(
       return confirmed(c, o, expected, entry)
     })
   })
-  // Let the async row source commit before an already loaded entry opens an
-  // action, so the action cannot hold the initial render open.
+  // onSettled can run while persistence is still loading under a Loading
+  // boundary. Read the store so restoration waits for its first committed
+  // value. until reads authoritative state without adding a render effect
+  // outside the caller's Loading boundary.
   if (options?.model !== undefined)
     onSettled(() => {
-      settled = true
-      return o.watch(restore)
+      const abort = new AbortController()
+      let stop: (() => void) | undefined
+      void runWithOwner(null, () =>
+        until(
+          () => {
+            Object.keys(rows)
+            return true
+          },
+          { signal: abort.signal },
+        ),
+      ).then(
+        () => {
+          if (disposed) return
+          settled = true
+          stop = o.watch(restore)
+        },
+        () => undefined,
+      )
+      return () => {
+        abort.abort()
+        stop?.()
+      }
     })
   onCleanup(() => {
     disposed = true

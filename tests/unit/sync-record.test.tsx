@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
-import { For, createRoot, flush, snapshot } from 'solid-js'
+import { For, Loading, createRoot, flush, snapshot } from 'solid-js'
 import {
   OutboxDiscarded,
   OutboxRefused,
@@ -13,9 +13,11 @@ import { applyChanges } from '@wfe/sync/internal'
 import {
   call,
   changed,
+  deferred,
   feedOf,
   hostOf,
   order,
+  persistenceOf,
   refused,
   tick,
 } from './sync-fixtures'
@@ -331,6 +333,93 @@ test('an offline write restores before network activity and clears after the sen
     Object.fromEntries(first.c.entries()),
   )
   next.o.close()
+})
+
+test('an offline reopen renders saved rows while a restored action waits for replay and the feed', async () => {
+  const database = name()
+  const host = hostOf()
+  let online = false
+  const probe = async () => online
+  const previous = outbox({ database, send: host.send, probe })
+  const entry = await previous.enqueue(call('a', 'reopen'), {
+    id: 'a',
+    row_version: 1,
+    quantity: 9,
+  })
+  await previous.replay()
+  previous.close()
+
+  const saved = {
+    rows: [order('a', 1), order('b', 1), order('c', 1)],
+    cursor: 'saved',
+    saved_at: '2026-10-24T00:00:00.000Z',
+  }
+  const load = deferred<typeof saved>()
+  const persistence = persistenceOf(() => load.promise)
+  const offline = new Error('offline')
+  const feed = feedOf([offline])
+  vi.mocked(feed.changes).mockRejectedValue(offline)
+  const c = collection(feed, 'all', { key: 'orders:all', persistence })
+  const o = outbox({ database, send: host.send, probe })
+  let record!: ReturnType<typeof recordWrite<Order>>
+  const view = render(() => {
+    record = recordWrite(c, o, { model: 'orders' })
+    return (
+      <Loading fallback={<p>Loading saved rows</p>}>
+        <ul>
+          <For each={Object.keys(record.rows)}>
+            {(id) => (
+              <li>
+                {id}:{record.rows[id]?.quantity}
+              </li>
+            )}
+          </For>
+        </ul>
+      </Loading>
+    )
+  })
+  const rendered = () =>
+    Array.from(view.container.querySelectorAll('li'), (li) => li.textContent)
+  try {
+    // The outbox can load before the independent collection persistence.
+    await vi.waitFor(() => expect(o.entries()).toHaveLength(1))
+    await tick()
+    flush()
+    load.resolve(saved)
+    await vi.waitFor(() => expect(c.status).toBe('ready'))
+    expect(c.toArray).toMatchObject(saved.rows)
+    await vi.waitFor(() => expect(rendered()).toEqual(['a:9', 'b:1', 'c:1']))
+    await o.replay()
+    await tick()
+    flush()
+    expect(host.sent).toEqual([])
+    expect(o.entries()[0]).toMatchObject({ seq: entry.seq, state: 'pending' })
+    // Optimistic values revert when their action settles. This one stays open.
+    expect(record.rows.a?.quantity).toBe(9)
+    expect(c.get('a')?.quantity).toBe(1)
+
+    online = true
+    vi.mocked(feed.changes).mockResolvedValue({
+      rows: [changed('a', 2, 8)],
+      next_cursor: 'confirmed',
+      complete: true,
+    })
+    const replay = o.replay()
+    await vi.waitFor(() => expect(host.sent).toEqual(['reopen']))
+    host.answer('reopen')
+    await replay
+    expect(o.entries()).toEqual([])
+    expect(record.rows.a?.quantity).toBe(9)
+    await c.utils.pull()
+    // A different authoritative value proves that confirmation clears the overlay.
+    await vi.waitFor(() => expect(rendered()).toEqual(['a:8', 'b:1', 'c:1']))
+    expect(snapshot(record.rows)).toEqual(Object.fromEntries(c.entries()))
+  } finally {
+    for (const pending of o.entries()) await o.discard(pending.seq)
+    o.close()
+    view.unmount()
+    await c.cleanup()
+  }
 })
 
 test.each(['discard', 'resubmit'] as const)(
