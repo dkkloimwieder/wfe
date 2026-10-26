@@ -26,7 +26,6 @@
       .ui-input-affix,
       .filter-input,
       .choice-control,
-      .ui-dashboard-menu > a,
       .ui-tabs-trigger
     ):is(:hover, :focus-within):not(
       :disabled,
@@ -41,7 +40,7 @@
         textarea[readonly]
       )
     ) {
-    box-shadow: var(--ui-laser-glow);
+    box-shadow: var(--ui-laser-control-glow, var(--ui-laser-glow));
   }
   :scope
     :is(.ui-input-affix, .filter-input, .choice-control)
@@ -62,7 +61,11 @@
     border-color: var(--ui-accent);
     box-shadow: var(--ui-laser-glow);
   }
-  :scope .ui-collapsible > summary:is(:hover, :focus-visible) {
+  :scope
+    :is(.ui-collapsible > summary, .ui-dashboard-menu > a):is(
+      :hover,
+      :focus-visible
+    ) {
     color: var(--ui-accent);
     text-shadow: var(--ui-laser-text-glow);
   }
@@ -70,6 +73,9 @@
     .ui-sidebar-group
     > .ui-sidebar-group-panel
     > summary:is(:hover, :focus-visible) {
+    background: transparent;
+  }
+  :scope .ui-dashboard-menu > a:hover:not([aria-current='page']) {
     background: transparent;
   }
   :scope .ui-dashboard-menu > a[aria-current='page'] {
@@ -87,6 +93,55 @@
     :is(.ui-toggle, .ui-radio-item):hover:not([data-disabled], [data-readonly])
     :is(.ui-check-control, .ui-radio-control, .ui-switch-control) {
     box-shadow: var(--ui-laser-glow);
+  }
+  /* Icon actions illuminate the glyph rather than its button box. */
+  :scope
+    :is(
+      .ui-icon-button,
+      .table-refresh,
+      .table-controls-toggle,
+      button.ui-disclosure-trigger:not(.popup-trigger, .choice-toggle),
+      .ui-sidebar-group[data-compact] > button,
+      .ui-calendar-navigation > button:not(.ui-calendar-heading)
+    ) {
+    --ui-laser-control-glow: none;
+    --ui-control-border: transparent;
+    --ui-button-border: transparent;
+    --ui-highlight: transparent;
+    border-color: transparent;
+    background: transparent;
+  }
+  :scope :is(.ui-input-affix, .filter-input, .choice-control) > button {
+    --ui-laser-control-glow: none;
+  }
+  :scope
+    :is(
+      .ui-icon-button,
+      .table-refresh,
+      .table-controls-toggle,
+      button.ui-disclosure-trigger:not(.popup-trigger),
+      .ui-sidebar-group[data-compact] > button,
+      .ui-calendar-navigation > button:not(.ui-calendar-heading),
+      .ui-input-affix > button,
+      .filter-input > button
+    ):is(:hover, :focus-visible):not(
+      :disabled,
+      [aria-disabled='true'],
+      [data-disabled]
+    ) {
+    color: var(--ui-accent);
+    text-shadow: var(--ui-laser-text-glow);
+  }
+  @media (forced-colors: none) {
+    :scope
+      :is(button, summary, .ui-dashboard-menu > a):is(
+        :hover,
+        :focus-visible
+      ):not(:disabled, [aria-disabled='true'], [data-disabled])
+      :is(svg, img) {
+      color: var(--ui-accent);
+      filter: var(--ui-laser-icon-shadow);
+    }
   }
   :scope .ui-check-control {
     border-radius: 6px;

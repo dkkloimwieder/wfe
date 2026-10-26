@@ -231,7 +231,9 @@ Laser uses the shared controls with pill-shaped inputs and buttons, rounded pane
 A broad dark shadow provides elevation. A tighter accent glow marks hovered, focused, and selected controls.
 Compound inputs keep one outer shape. Their internal button corners stay square.
 Form sections omit borders and use a faint accent glow.
-Sidebar groups omit the enclosing hover glow. Their headings use neon text on hover and keyboard focus.
+Sidebar groups omit the enclosing hover glow. Their headings and child links use neon text on hover and keyboard focus. Selection alone does not add text glow.
+Standalone icon actions keep their border for selection. Hover illuminates the glyph with a small shadow.
+Icons inside compound inputs retain the shared input outline.
 The theme adds no randomized dots or decoration listeners.
 
 Use `<Theme preset="laser">` for the dark first-pass presentation.

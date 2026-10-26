@@ -20,7 +20,7 @@ export function laserStyle(
     surfaces: monochrome
       ? ['#ffffff', '#ffffff', '#ffffff', '#ffffff']
       : dark
-        ? ['#06080e', '#0a0f19', '#121b2b', '#222d43']
+        ? ['#030509', '#0a0f19', '#121b2b', '#222d43']
         : ['#edf2fb', '#ffffff', '#e3ebf7', '#c6d3e6'],
     text: dark ? ['#e0eaff', '#a4b4d0'] : ['#172642', '#526480'],
   }
@@ -65,7 +65,7 @@ export function laserStyle(
     '--ui-table-column-divider': border,
     '--ui-accent': color,
     '--ui-secondary-accent': secondaryColor,
-    '--ui-on-accent': dark ? '#06080e' : '#ffffff',
+    '--ui-on-accent': dark ? '#030509' : '#ffffff',
     '--ui-selection': 'var(--ui-accent)',
     '--ui-on-selection': 'var(--ui-on-accent)',
     '--ui-button-color': 'var(--ui-accent)',
@@ -84,6 +84,9 @@ export function laserStyle(
     '--ui-laser-glow': monochrome
       ? 'none'
       : `${shadow}, 0 0 0 1px color-mix(in srgb, var(--ui-accent) ${dark ? 65 : 55}%, transparent), 0 0 ${dark ? 14 : 8}px color-mix(in srgb, var(--ui-accent) ${dark ? 40 : 16}%, transparent)`,
+    '--ui-laser-icon-shadow': monochrome
+      ? 'none'
+      : `drop-shadow(0 3px 3px rgb(0 0 0 / ${dark ? 65 : 25}%)) drop-shadow(0 0 4px color-mix(in srgb, var(--ui-accent) ${dark ? 65 : 40}%, transparent))`,
     '--ui-laser-text-glow': monochrome
       ? 'none'
       : `0 0 ${dark ? 10 : 6}px color-mix(in srgb, var(--ui-accent) ${dark ? 55 : 22}%, transparent)`,
