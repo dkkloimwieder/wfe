@@ -237,7 +237,7 @@ test('ten thousand rows render only a bounded window and expose later data on sc
   }))
   const intervals = rows.map((row) => task(row.id, row.id, `Record ${row.id}`))
   const h = render(() => (
-    <Gantt rows={rows} intervals={intervals} range={range} />
+    <Gantt rows={rows} intervals={intervals} range={range} rowHeight={36} />
   ))
   await settled()
   expect(await h.findByRole('button', { name: /^Record 0,/ })).toBeTruthy()
@@ -264,6 +264,7 @@ test('a dense resource renders only visible interval lanes and reveals later lan
   const h = render(() => (
     <Gantt
       rows={[{ id: 'dense', label: 'Dense resource' }]}
+      rowHeight={36}
       intervals={intervals}
       range={range}
     />

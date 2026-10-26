@@ -32,7 +32,7 @@
   padding: var(--ui-gap, 6px);
   color: var(--ui-text);
   background: var(--ui-surface);
-  border: 1px solid var(--ui-dnd-color);
+  border: var(--ui-border-width, 1px) solid var(--ui-dnd-color);
 }
 .ui-dnd-indicator {
   background: var(--ui-dnd-color);

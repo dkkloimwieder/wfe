@@ -24,7 +24,7 @@
   gap: var(--ui-gap, 6px);
   min-width: 0;
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
-  border-bottom: 1px solid var(--ui-border, #bbb);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
 }
 :where([data-ui]) .ui-dashboard-navigation {
   grid-column: 1;
@@ -33,7 +33,7 @@
   min-height: 0;
   overflow: auto;
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
-  border-inline-end: 1px solid var(--ui-border, #bbb);
+  border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
   background: var(--ui-surface, white);
 }
 :where([data-ui]) :is(.ui-dashboard-toggle, .ui-dashboard-close) {
@@ -101,7 +101,7 @@
       100%
     );
     display: none;
-    border-inline-end: 1px solid var(--ui-border, #bbb);
+    border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
   }
   :where(
       .ui-dashboard:not(
@@ -137,7 +137,7 @@
     100%
   );
   display: none;
-  border-inline-end: 1px solid var(--ui-border, #bbb);
+  border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
 }
 :where(
     .ui-dashboard[data-ui-responsive-ready][data-navigation-drawer][data-ui][data-navigation-open]
@@ -176,7 +176,7 @@
   min-height: 0;
   overflow: auto;
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
-  border-inline-end: 1px solid var(--ui-border, #bbb);
+  border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
   background: var(--ui-surface, white);
 }
 :where(.ui-dashboard[data-ui][data-has-navigation]) > .ui-dashboard-context {
@@ -194,7 +194,7 @@
   max-block-size: 20dvh;
   overflow: auto;
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
-  border-top: 1px solid var(--ui-border, #bbb);
+  border-top: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
   background: var(--ui-surface, white);
 }
 :where([data-ui]) .ui-dashboard-menu {
@@ -213,7 +213,7 @@
   align-items: center;
   min-block-size: var(--ui-control-height, 26px);
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
-  border: 1px solid transparent;
+  border: var(--ui-border-width, 1px) solid transparent;
   color: var(--ui-accent, currentColor);
   text-decoration: none;
   overflow-wrap: anywhere;
@@ -430,7 +430,7 @@
 :where([data-ui]) .ui-sidebar-group > .ui-sidebar-group-panel {
   display: block;
   margin-inline: var(--_ui-sidebar-inset);
-  border-width: 1px;
+  border-width: var(--ui-border-width, 1px);
   border-style: solid;
   padding: 0;
   text-align: start;
@@ -541,7 +541,7 @@
 :where([data-ui]) .ui-dashboard-divider-toggle svg {
   fill: var(--ui-pane-surface, var(--ui-surface, white));
   stroke: currentColor;
-  stroke-width: 1px;
+  stroke-width: var(--ui-icon-stroke-width, 1px);
   pointer-events: none;
 }
 :where([data-ui]) .ui-dashboard-divider-toggle[aria-expanded='true'] {
@@ -600,7 +600,7 @@
     .ui-popover,
     .ui-tabs-content
   ) {
-  --ui-table-frame-width: 1px;
+  --ui-table-frame-width: var(--ui-border-width, 1px);
 }
 
 :where([data-ui]) .ui-entry-panel {
@@ -633,31 +633,6 @@
   min-inline-size: 0;
   margin: auto;
   overflow-wrap: anywhere;
-}
-:where([data-ui]) .ui-entry-panel-surface::before {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  inset: -8px;
-  background-color: var(--ui-canvas-surface, var(--ui-surface, white));
-  border: 1px solid
-    color-mix(
-      in srgb,
-      var(--ui-accent, currentColor) var(--ui-decoration-border-opacity, 100%),
-      transparent
-    );
-  background-image: radial-gradient(
-    circle,
-    color-mix(
-        in srgb,
-        var(--ui-accent, currentColor) var(--ui-decoration-dot-opacity, 50%),
-        transparent
-      )
-      0.75px,
-    transparent 0.75px
-  );
-  background-size: var(--ui-canvas-pattern-size, 0.3em 0.3em);
-  pointer-events: none;
 }
 :where([data-ui]) .ui-entry-panel-surface::after {
   content: '';

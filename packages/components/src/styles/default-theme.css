@@ -2,136 +2,67 @@
 @import './fonts/font.css';
 @import './theme-sizing.css';
 
-.ui-theme {
-  --ui-icon-stroke-width: 1;
-  --ui-action-outline-opacity: 100%;
-  min-width: 0;
-  background: var(--ui-canvas-surface);
-}
-.ui-theme .ui-dashboard-main {
-  background: var(--ui-canvas-surface);
-  background-image: var(--ui-canvas-pattern);
-  background-size: var(--ui-canvas-pattern-size);
-}
-.ui-theme
-  :is(
-    .ui-dashboard-header,
-    .ui-dashboard-navigation,
-    .ui-dashboard-context,
-    .ui-dashboard-footer,
-    .ui-dashboard-panel
-  ) {
-  background: var(--ui-pane-surface);
-}
-.ui-theme .ui-dashboard-panel {
-  box-shadow: var(--ui-panel-shadow);
-}
-
-.ui-theme p {
-  line-height: var(--ui-line-height);
-}
-
-/* Decorative backing stays below each action's face and cannot intercept input. */
-.ui-theme
-  :is(
-    .ui-button,
-    .ui-dashboard-navigation a[href],
-    .ui-dashboard-menu a[href]
-  ):not(
-    .ui-date-trigger,
-    :is(.ui-input-clear, .clear-input),
-    .column-sort,
-    .column-move,
-    .header-rename,
-    .sub-table-toggle
-  ) {
-  position: relative;
-}
-.ui-theme
-  :has(
-    > :is(
-      .ui-button,
-      .ui-dashboard-navigation a[href],
-      .ui-dashboard-menu a[href]
-    )
-  ) {
-  isolation: isolate;
-}
-.ui-theme
-  :is(
-    .ui-button,
-    .ui-dashboard-navigation a[href],
-    .ui-dashboard-menu a[href]
-  ):not(
-    :disabled,
-    [aria-disabled='true'],
-    [data-disabled],
-    [data-readonly],
-    .ui-date-trigger,
-    :is(.ui-input-clear, .clear-input),
-    .column-sort,
-    .column-move,
-    .header-rename,
-    .sub-table-toggle
-  )::before {
-  content: '';
-  position: absolute;
-  inset: var(--ui-action-decoration-inset, -6px);
-  z-index: -1;
-  pointer-events: none;
-  border: 1px solid var(--ui-decoration-border);
-  background-color: var(--ui-canvas-surface);
-  background-image: var(--ui-canvas-pattern);
-  background-size: var(--ui-canvas-pattern-size);
-  opacity: 0;
-}
-.ui-theme
-  :is(
-    .ui-button,
-    .ui-dashboard-navigation a[href],
-    .ui-dashboard-menu a[href]
-  ):is(
-    [aria-pressed='true'],
-    [data-ui-active='true'],
-    [aria-selected='true'],
-    [aria-current='page']
-  )::before {
-  opacity: 1;
-}
-@media (hover: hover) {
-  .ui-theme
-    :is(
-      .ui-button,
-      .ui-dashboard-navigation a[href],
-      .ui-dashboard-menu a[href]
-    ):hover::before {
-    opacity: 1;
+@scope (.ui-theme:not([data-ui-preset='vanilla'])) to (.ui-theme) {
+  :scope {
+    --ui-icon-stroke-width: 1;
+    --ui-action-outline-opacity: 100%;
+    min-width: 0;
+    background: var(--ui-canvas-surface);
   }
-}
-@media (forced-colors: active) {
-  .ui-theme
+  :scope .ui-dashboard-main {
+    background: var(--ui-canvas-surface);
+    background-image: var(--ui-canvas-pattern);
+    background-size: var(--ui-canvas-pattern-size);
+  }
+  :scope
+    :is(
+      .ui-dashboard-header,
+      .ui-dashboard-navigation,
+      .ui-dashboard-context,
+      .ui-dashboard-footer,
+      .ui-dashboard-panel
+    ) {
+    background: var(--ui-pane-surface);
+  }
+  :scope .ui-dashboard-panel {
+    box-shadow: var(--ui-panel-shadow);
+  }
+
+  :scope p {
+    line-height: var(--ui-line-height);
+  }
+
+  /* Decorative backing stays below each action's face and cannot intercept input. */
+  :scope
     :is(
       .ui-button,
       .ui-dashboard-navigation a[href],
       .ui-dashboard-menu a[href]
-    )::before {
-    display: none;
+    ):not(
+      .ui-date-trigger,
+      :is(.ui-input-clear, .clear-input),
+      .column-sort,
+      .column-move,
+      .header-rename,
+      .sub-table-toggle
+    ) {
+    position: relative;
   }
-}
-
-/* Neutral action faces let the backing show through without a second tint. */
-@media (forced-colors: none) {
-  .ui-theme
+  :scope
+    :has(
+      > :is(
+        .ui-button,
+        .ui-dashboard-navigation a[href],
+        .ui-dashboard-menu a[href]
+      )
+    ) {
+    isolation: isolate;
+  }
+  :scope
     :is(
-      .ui-button:not([data-variant='filled'], [data-variant='inverted']),
+      .ui-button,
       .ui-dashboard-navigation a[href],
       .ui-dashboard-menu a[href]
-    ):is(
-      :hover,
-      [aria-pressed='true'],
-      [data-ui-active='true'],
-      [aria-selected='true'],
-      [aria-current='page']
     ):not(
       :disabled,
       [aria-disabled='true'],
@@ -143,431 +74,545 @@
       .column-move,
       .header-rename,
       .sub-table-toggle
-    ) {
-    background-color: color-mix(
-      in srgb,
-      var(--ui-canvas-surface) calc(100% - var(--ui-action-dot-visibility)),
-      transparent
-    );
+    )::before {
+    content: '';
+    position: absolute;
+    inset: var(--ui-action-decoration-inset, -6px);
+    z-index: -1;
+    pointer-events: none;
+    border: var(--ui-border-width, 1px) solid var(--ui-decoration-border);
+    background-color: var(--ui-canvas-surface);
+    background-image: var(--ui-canvas-pattern);
+    background-size: var(--ui-canvas-pattern-size);
+    opacity: 0;
   }
-}
-
-/* Hover and selection keep the dotted backing without a gray tint. */
-.ui-theme
-  :is(
-    .ui-button,
-    .ui-dashboard-navigation a[href],
-    .ui-dashboard-menu a[href]
-  ):is(
-    :hover,
-    [aria-pressed='true'],
-    [data-ui-active='true'],
-    [aria-selected='true'],
-    [aria-current='page']
-  )::before {
-  background-image: var(--ui-canvas-pattern);
-}
-
-/* Leave room for the decorative link outlines inside scrolling flyouts. */
-.ui-theme .ui-sidebar-flyout {
-  padding: 12px;
-}
-
-.ui-theme
-  :is(
-    .ui-sidebar-group,
-    .ui-sidebar-context,
-    .ui-sidebar-context-popup,
-    .ui-sidebar-flyout,
-    .table-workspace-title-face,
-    .table-controls-toggle,
-    .table-workspace-header-actions .ui-icon-button,
-    .table-page-action,
-    .table-page-size,
-    .table-refresh
-  ) {
-  --ui-decoration-border: color-mix(
-    in srgb,
-    var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
-    transparent
-  );
-  --ui-button-color: var(--ui-sidebar-neutral);
-  --ui-accent: var(--ui-sidebar-neutral);
-  --ui-text: var(--ui-sidebar-accent);
-  --ui-canvas-pattern: radial-gradient(
-    circle,
-    color-mix(
-        in srgb,
-        var(--ui-sidebar-accent) var(--ui-decoration-dot-opacity, 50%),
-        transparent
-      )
-      0.75px,
-    transparent 0.75px
-  );
-}
-.ui-theme :is(.ui-sidebar-group, .ui-sidebar-flyout) .ui-dashboard-menu > a {
-  --ui-decoration-border: color-mix(
-    in srgb,
-    var(--ui-neutral-border-color, var(--ui-neutral-dot-color))
-      var(--ui-decoration-border-opacity, 100%),
-    transparent
-  );
-  --ui-canvas-pattern: radial-gradient(
-    circle,
-    color-mix(
-        in srgb,
-        var(--ui-neutral-dot-color, var(--ui-sidebar-neutral))
-          var(--ui-decoration-dot-opacity, 50%),
-        transparent
-      )
-      0.75px,
-    transparent 0.75px
-  );
-}
-.ui-theme .ui-sidebar-flyout .ui-popup-title {
-  color: var(--ui-sidebar-neutral);
-}
-
-.ui-theme
-  :is(
-    .ui-sidebar-group,
-    .ui-sidebar-context,
-    .ui-sidebar-context-popup,
-    .ui-sidebar-flyout
-  )
-  .ui-button[data-variant='outline'],
-.ui-theme
-  :is(.ui-sidebar-group, .ui-sidebar-flyout)
-  .ui-dashboard-menu
-  > a:is(:hover, [aria-current='page']) {
-  border-color: var(--ui-control-border);
-}
-
-/* Keep the action face quieter than its text and separate from the backing. */
-@media (forced-colors: none) {
-  .ui-theme .ui-button[data-variant='outline'][data-tone='default'] {
-    --_ui-outline-color: var(
-      --ui-neutral-button-border,
-      var(--ui-button-border)
-    );
-    --_ui-outline-opacity: 100%;
-  }
-  .ui-theme
-    .ui-button[data-variant='outline'][data-tone='default']:is(
-      :focus-within,
+  :scope
+    :is(
+      .ui-button,
+      .ui-dashboard-navigation a[href],
+      .ui-dashboard-menu a[href]
+    ):is(
       [aria-pressed='true'],
       [data-ui-active='true'],
       [aria-selected='true'],
       [aria-current='page']
-    ) {
-    --_ui-outline-opacity: 100%;
+    )::before {
+    opacity: 1;
   }
   @media (hover: hover) {
-    .ui-theme .ui-button[data-variant='outline'][data-tone='default']:hover {
-      --_ui-outline-opacity: 100%;
+    :scope
+      :is(
+        .ui-button,
+        .ui-dashboard-navigation a[href],
+        .ui-dashboard-menu a[href]
+      ):hover::before {
+      opacity: 1;
     }
   }
-  .ui-theme .ui-button[data-variant='outline'][data-tone='accent'] {
-    --_ui-outline-color: var(--_button-color);
+  @media (forced-colors: active) {
+    :scope
+      :is(
+        .ui-button,
+        .ui-dashboard-navigation a[href],
+        .ui-dashboard-menu a[href]
+      )::before {
+      display: none;
+    }
   }
-  .ui-theme .ui-button[data-variant='outline'] {
-    --_ui-outline-color: var(--ui-button-border);
-    --_ui-outline-opacity: var(--ui-action-outline-opacity);
-    border-color: color-mix(
+
+  /* Neutral action faces let the backing show through without a second tint. */
+  @media (forced-colors: none) {
+    :scope
+      :is(
+        .ui-button:not([data-variant='filled'], [data-variant='inverted']),
+        .ui-dashboard-navigation a[href],
+        .ui-dashboard-menu a[href]
+      ):is(
+        :hover,
+        [aria-pressed='true'],
+        [data-ui-active='true'],
+        [aria-selected='true'],
+        [aria-current='page']
+      ):not(
+        :disabled,
+        [aria-disabled='true'],
+        [data-disabled],
+        [data-readonly],
+        .ui-date-trigger,
+        :is(.ui-input-clear, .clear-input),
+        .column-sort,
+        .column-move,
+        .header-rename,
+        .sub-table-toggle
+      ) {
+      background-color: color-mix(
+        in srgb,
+        var(--ui-canvas-surface) calc(100% - var(--ui-action-dot-visibility)),
+        transparent
+      );
+    }
+  }
+
+  /* Hover and selection keep the dotted backing without a gray tint. */
+  :scope
+    :is(
+      .ui-button,
+      .ui-dashboard-navigation a[href],
+      .ui-dashboard-menu a[href]
+    ):is(
+      :hover,
+      [aria-pressed='true'],
+      [data-ui-active='true'],
+      [aria-selected='true'],
+      [aria-current='page']
+    )::before {
+    background-image: var(--ui-canvas-pattern);
+  }
+
+  /* Leave room for the decorative link outlines inside scrolling flyouts. */
+  :scope .ui-sidebar-flyout {
+    padding: 12px;
+  }
+
+  :scope
+    :is(
+      .ui-sidebar-group,
+      .ui-sidebar-context,
+      .ui-sidebar-context-popup,
+      .ui-sidebar-flyout,
+      .table-workspace-title-face,
+      .table-controls-toggle,
+      .table-workspace-header-actions .ui-icon-button,
+      .table-page-action,
+      .table-page-size,
+      .table-refresh
+    ) {
+    --ui-decoration-border: color-mix(
       in srgb,
-      var(--_ui-outline-color) var(--_ui-outline-opacity),
+      var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
       transparent
     );
-  }
-  .ui-theme .ui-dashboard-menu > a:is(:hover, [aria-current='page']) {
-    border-color: color-mix(
-      in srgb,
-      var(--ui-accent) var(--ui-action-outline-opacity),
-      transparent
+    --ui-button-color: var(--ui-sidebar-neutral);
+    --ui-accent: var(--ui-sidebar-neutral);
+    --ui-text: var(--ui-sidebar-accent);
+    --ui-canvas-pattern: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--ui-sidebar-accent) var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
     );
   }
-  .ui-theme
-    :is(.ui-sidebar-group, .ui-sidebar-flyout)
+  :scope :is(.ui-sidebar-group, .ui-sidebar-flyout) .ui-dashboard-menu > a {
+    --ui-decoration-border: color-mix(
+      in srgb,
+      var(--ui-neutral-border-color, var(--ui-neutral-dot-color))
+        var(--ui-decoration-border-opacity, 100%),
+      transparent
+    );
+    --ui-canvas-pattern: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--ui-neutral-dot-color, var(--ui-sidebar-neutral))
+            var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
+  }
+  :scope .ui-sidebar-flyout .ui-popup-title {
+    color: var(--ui-sidebar-neutral);
+  }
+
+  :scope
+    :is(
+      .ui-sidebar-group,
+      .ui-sidebar-context,
+      .ui-sidebar-context-popup,
+      .ui-sidebar-flyout
+    )
     .ui-button[data-variant='outline'],
-  .ui-theme
+  :scope
     :is(.ui-sidebar-group, .ui-sidebar-flyout)
     .ui-dashboard-menu
     > a:is(:hover, [aria-current='page']) {
-    border-color: color-mix(
+    border-color: var(--ui-control-border);
+  }
+
+  /* Keep the action face quieter than its text and separate from the backing. */
+  @media (forced-colors: none) {
+    :scope .ui-button[data-variant='outline'][data-tone='default'] {
+      --_ui-outline-color: var(
+        --ui-neutral-button-border,
+        var(--ui-button-border)
+      );
+      --_ui-outline-opacity: 100%;
+    }
+    :scope
+      .ui-button[data-variant='outline'][data-tone='default']:is(
+        :focus-within,
+        [aria-pressed='true'],
+        [data-ui-active='true'],
+        [aria-selected='true'],
+        [aria-current='page']
+      ) {
+      --_ui-outline-opacity: 100%;
+    }
+    @media (hover: hover) {
+      :scope .ui-button[data-variant='outline'][data-tone='default']:hover {
+        --_ui-outline-opacity: 100%;
+      }
+    }
+    :scope .ui-button[data-variant='outline'][data-tone='accent'] {
+      --_ui-outline-color: var(--_button-color);
+    }
+    :scope .ui-button[data-variant='outline'] {
+      --_ui-outline-color: var(--ui-button-border);
+      --_ui-outline-opacity: var(--ui-action-outline-opacity);
+      border-color: color-mix(
+        in srgb,
+        var(--_ui-outline-color) var(--_ui-outline-opacity),
+        transparent
+      );
+    }
+    :scope .ui-dashboard-menu > a:is(:hover, [aria-current='page']) {
+      border-color: color-mix(
+        in srgb,
+        var(--ui-accent) var(--ui-action-outline-opacity),
+        transparent
+      );
+    }
+    :scope
+      :is(.ui-sidebar-group, .ui-sidebar-flyout)
+      .ui-button[data-variant='outline'],
+    :scope
+      :is(.ui-sidebar-group, .ui-sidebar-flyout)
+      .ui-dashboard-menu
+      > a:is(:hover, [aria-current='page']) {
+      border-color: color-mix(
+        in srgb,
+        var(--ui-control-border) var(--ui-action-outline-opacity),
+        transparent
+      );
+    }
+  }
+
+  /* Table titles share action decoration without becoming interactive controls. */
+  :scope :is(.table-workspace-header, .table-workspace-summary) {
+    background-color: var(--ui-pane-surface);
+    background-image: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--ui-neutral-dot-color, var(--ui-muted-text))
+            var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
+    background-size: var(--ui-canvas-pattern-size);
+  }
+  :scope
+    :is(.table-workspace-title-face, .table-controls-toggle, .table-refresh) {
+    color: var(--ui-sidebar-neutral);
+    border-color: var(--ui-control-border);
+  }
+
+  :scope
+    :is(
+      .table-workspace-header-actions .ui-icon-button,
+      .table-refresh,
+      .table-page-action
+    ) {
+    --ui-button-color: var(--ui-muted-text);
+    color: var(--ui-muted-text);
+  }
+
+  :scope .table-workspace-title-face {
+    --ui-action-decoration-inset: -6px;
+    --ui-decoration-border: color-mix(
       in srgb,
-      var(--ui-control-border) var(--ui-action-outline-opacity),
+      var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
       transparent
     );
   }
-}
 
-/* Table titles share action decoration without becoming interactive controls. */
-.ui-theme :is(.table-workspace-header, .table-workspace-summary) {
-  background-color: var(--ui-pane-surface);
-  background-image: radial-gradient(
-    circle,
-    color-mix(
-        in srgb,
-        var(--ui-neutral-dot-color, var(--ui-muted-text))
-          var(--ui-decoration-dot-opacity, 50%),
-        transparent
-      )
-      0.75px,
-    transparent 0.75px
-  );
-  background-size: var(--ui-canvas-pattern-size);
-}
-.ui-theme
-  :is(.table-workspace-title-face, .table-controls-toggle, .table-refresh) {
-  color: var(--ui-sidebar-neutral);
-  border-color: var(--ui-control-border);
-}
+  :scope
+    :is(
+      th,
+      .table-control-section > summary,
+      .ui-sidebar-group > .ui-collapsible > summary,
+      .ui-sidebar-group[data-compact] > .ui-button,
+      .ui-sidebar-flyout .ui-popup-title
+    ) {
+    color: var(--ui-heading-color, var(--ui-text));
+    font-weight: var(--ui-heading-weight, 500);
+  }
 
-.ui-theme
-  :is(
-    .table-workspace-header-actions .ui-icon-button,
-    .table-refresh,
-    .table-page-action
-  ) {
-  --ui-button-color: var(--ui-muted-text);
-  color: var(--ui-muted-text);
-}
-
-.ui-theme .table-workspace-title-face {
-  --ui-action-decoration-inset: -6px;
-  --ui-decoration-border: color-mix(
-    in srgb,
-    var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
-    transparent
-  );
-}
-
-.ui-theme
-  :is(
-    th,
-    .table-control-section > summary,
-    .ui-sidebar-group > .ui-collapsible > summary,
-    .ui-sidebar-group[data-compact] > .ui-button,
-    .ui-sidebar-flyout .ui-popup-title
-  ) {
-  color: var(--ui-heading-color, var(--ui-text));
-  font-weight: var(--ui-heading-weight, 500);
-}
-
-.ui-theme .ui-disclosure-indicator {
-  overflow: visible;
-  inline-size: 10.5px;
-  block-size: 15.75px;
-}
-.ui-theme .ui-disclosure-arrow {
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-  scale: calc(4 / 7);
-}
-.ui-theme .ui-disclosure-decoration {
-  display: initial;
-  opacity: 0;
-  pointer-events: none;
-}
-.ui-theme .ui-disclosure-trigger:focus-visible .ui-disclosure-decoration {
-  opacity: 1;
-}
-.ui-theme .ui-disclosure-trigger:focus-visible .ui-disclosure-arrow {
-  fill: var(--ui-muted-text);
-}
-@media (hover: hover) {
-  .ui-theme
-    .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
-    .ui-disclosure-decoration {
+  :scope .ui-disclosure-indicator {
+    overflow: visible;
+    inline-size: 10.5px;
+    block-size: 15.75px;
+  }
+  :scope .ui-disclosure-arrow {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    scale: calc(4 / 7);
+  }
+  :scope .ui-disclosure-decoration {
+    display: initial;
+    opacity: 0;
+    pointer-events: none;
+  }
+  :scope .ui-disclosure-trigger:focus-visible .ui-disclosure-decoration {
     opacity: 1;
   }
-  .ui-theme
-    .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
-    .ui-disclosure-arrow {
-    visibility: hidden;
+  :scope .ui-disclosure-trigger:focus-visible .ui-disclosure-arrow {
+    fill: var(--ui-muted-text);
   }
-}
-@media (forced-colors: active) {
-  .ui-theme .ui-disclosure-decoration {
-    display: none;
+  @media (hover: hover) {
+    :scope
+      .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
+      .ui-disclosure-decoration {
+      opacity: 1;
+    }
+    :scope
+      .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
+      .ui-disclosure-arrow {
+      visibility: hidden;
+    }
   }
-  .ui-theme
-    .ui-disclosure-trigger:is(:hover, :focus-visible)
-    .ui-disclosure-arrow {
-    fill: Highlight;
-    visibility: visible;
+  @media (forced-colors: active) {
+    :scope .ui-disclosure-decoration {
+      display: none;
+    }
+    :scope
+      .ui-disclosure-trigger:is(:hover, :focus-visible)
+      .ui-disclosure-arrow {
+      fill: Highlight;
+      visibility: visible;
+    }
   }
-}
 
-.ui-theme .ui-button.sub-table-toggle {
-  border-color: transparent;
-  background-color: transparent;
-}
+  :scope .ui-button.sub-table-toggle {
+    border-color: transparent;
+    background-color: transparent;
+  }
 
-/* Panels and actions share the same randomized backing geometry. */
-.ui-theme
-  :is(
-    .ui-button,
-    .ui-dashboard-navigation a[href],
-    .ui-dashboard-menu a[href],
-    .ui-entry-panel-surface,
-    [data-ui-control-surface],
-    [data-ui-section-decoration]
-  )::before {
-  transform: var(
-    --ui-action-decoration-transform,
-    rotate(var(--ui-action-angle, 0deg)) perspective(240px)
-      rotateX(var(--ui-action-taper, 0deg))
-      rotateY(var(--ui-action-taper-y, 0deg))
-  );
-}
-
-.ui-theme .table-page-action .ui-disclosure-arrow {
-  scale: 0.8;
-}
-.ui-theme .table-page-action .ui-disclosure-indicator pattern circle {
-  fill: var(--ui-neutral-dot-color, var(--ui-muted-text));
-}
-.ui-theme .table-page-action .ui-disclosure-decoration {
-  stroke: var(--ui-neutral-border-color, var(--ui-muted-text));
-}
-
-.ui-theme .table-workspace-summary > [role='status']:not(:empty),
-.ui-theme .table-pagination-status:not(:empty) {
-  display: inline-flex;
-  align-items: center;
-  box-sizing: border-box;
-  min-height: var(--ui-table-control-height, 26px);
-  padding: 0 var(--ui-cell-padding-x, 8px);
-  border: 1px solid var(--ui-border);
-  background: var(--ui-surface);
-}
-
-/* Every input uses the same backing, theme roles, and action geometry. */
-.ui-theme [data-ui-control-decoration='none'] {
-  --ui-input-decoration-display: none;
-  --ui-input-disclosure-arrow-visibility: visible;
-}
-.ui-theme [data-ui-control-decoration='neutral'] {
-  --ui-input-decoration-display: block;
-  --ui-input-disclosure-arrow-visibility: hidden;
-  --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
-  --ui-input-decoration-border-color: var(--ui-neutral-border-color);
-}
-.ui-theme [data-ui-control-decoration='primary'] {
-  --ui-input-decoration-display: block;
-  --ui-input-disclosure-arrow-visibility: hidden;
-  --ui-input-decoration-dot-color: var(--ui-accent);
-  --ui-input-decoration-border-color: var(--ui-accent);
-}
-.ui-theme [data-ui-control-decoration='secondary'] {
-  --ui-input-decoration-display: block;
-  --ui-input-disclosure-arrow-visibility: hidden;
-  --ui-input-decoration-dot-color: var(--ui-secondary-accent);
-  --ui-input-decoration-border-color: var(--ui-secondary-accent);
-}
-.ui-theme :has(> :is([data-ui-control-surface], [data-ui-section-decoration])) {
-  isolation: isolate;
-}
-.ui-theme [data-ui-control-surface],
-.ui-theme [data-ui-section-decoration] {
-  position: relative;
-}
-.ui-theme [data-ui-control-surface]::before,
-.ui-theme [data-ui-section-decoration]::before {
-  content: '';
-  display: var(--ui-input-decoration-display, block);
-  position: absolute;
-  inset: -4px;
-  z-index: -1;
-  pointer-events: none;
-  border: 1px solid
-    color-mix(
-      in srgb,
-      var(--ui-input-decoration-border-color, var(--ui-neutral-border-color))
-        var(--ui-decoration-border-opacity, 50%),
-      transparent
+  /* Panels and actions share the same randomized backing geometry. */
+  :scope
+    :is(
+      .ui-button,
+      .ui-dashboard-navigation a[href],
+      .ui-dashboard-menu a[href],
+      .ui-entry-panel-surface,
+      [data-ui-control-surface],
+      [data-ui-section-decoration]
+    )::before {
+    transform: var(
+      --ui-action-decoration-transform,
+      rotate(var(--ui-action-angle, 0deg)) perspective(240px)
+        rotateX(var(--ui-action-taper, 0deg))
+        rotateY(var(--ui-action-taper-y, 0deg))
     );
-  background-color: var(--ui-canvas-surface);
-  background-image: radial-gradient(
-    circle,
-    color-mix(
+  }
+
+  :scope .table-page-action .ui-disclosure-arrow {
+    scale: 0.8;
+  }
+  :scope .table-page-action .ui-disclosure-indicator pattern circle {
+    fill: var(--ui-neutral-dot-color, var(--ui-muted-text));
+  }
+  :scope .table-page-action .ui-disclosure-decoration {
+    stroke: var(--ui-neutral-border-color, var(--ui-muted-text));
+  }
+
+  :scope .table-workspace-summary > [role='status']:not(:empty),
+  :scope .table-pagination-status:not(:empty) {
+    display: inline-flex;
+    align-items: center;
+    box-sizing: border-box;
+    min-height: var(--ui-table-control-height, 26px);
+    padding: 0 var(--ui-cell-padding-x, 8px);
+    border: var(--ui-border-width, 1px) solid var(--ui-border);
+    background: var(--ui-surface);
+  }
+
+  /* Every input uses the same backing, theme roles, and action geometry. */
+  :scope [data-ui-control-decoration='none'] {
+    --ui-input-decoration-display: none;
+    --ui-input-disclosure-arrow-visibility: visible;
+  }
+  :scope [data-ui-control-decoration='neutral'] {
+    --ui-input-decoration-display: block;
+    --ui-input-disclosure-arrow-visibility: hidden;
+    --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
+    --ui-input-decoration-border-color: var(--ui-neutral-border-color);
+  }
+  :scope [data-ui-control-decoration='primary'] {
+    --ui-input-decoration-display: block;
+    --ui-input-disclosure-arrow-visibility: hidden;
+    --ui-input-decoration-dot-color: var(--ui-accent);
+    --ui-input-decoration-border-color: var(--ui-accent);
+  }
+  :scope [data-ui-control-decoration='secondary'] {
+    --ui-input-decoration-display: block;
+    --ui-input-disclosure-arrow-visibility: hidden;
+    --ui-input-decoration-dot-color: var(--ui-secondary-accent);
+    --ui-input-decoration-border-color: var(--ui-secondary-accent);
+  }
+  :scope :has(> :is([data-ui-control-surface], [data-ui-section-decoration])) {
+    isolation: isolate;
+  }
+  :scope [data-ui-control-surface],
+  :scope [data-ui-section-decoration] {
+    position: relative;
+  }
+  :scope [data-ui-control-surface]::before,
+  :scope [data-ui-section-decoration]::before {
+    content: '';
+    display: var(--ui-input-decoration-display, block);
+    position: absolute;
+    inset: -4px;
+    z-index: -1;
+    pointer-events: none;
+    border: var(--ui-border-width, 1px) solid
+      color-mix(
         in srgb,
-        var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color))
-          var(--ui-decoration-dot-opacity, 50%),
+        var(--ui-input-decoration-border-color, var(--ui-neutral-border-color))
+          var(--ui-decoration-border-opacity, 50%),
         transparent
-      )
-      0.75px,
-    transparent 0.75px
-  );
-  background-size: var(--ui-canvas-pattern-size);
-  opacity: 0;
-}
-.ui-theme [data-ui-control-surface]:is(:hover, :focus-within)::before,
-.ui-theme
-  :is(.ui-toggle, .ui-radio-item):focus-within
-  [data-ui-control-surface]::before {
-  opacity: 1;
-}
-.ui-theme
-  [data-ui-control-surface]:is(
-    :disabled,
-    [aria-disabled='true'],
-    [data-disabled],
-    [data-readonly]
-  )::before,
-.ui-theme
-  [data-ui-control-surface]:has(
-    :is(input, textarea, select):is(:disabled, [readonly])
-  )::before {
-  display: none;
-}
-@media (forced-colors: active) {
-  .ui-theme [data-ui-control-surface]::before,
-  .ui-theme [data-ui-section-decoration]::before {
+      );
+    background-color: var(--ui-canvas-surface);
+    background-image: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color))
+            var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
+    background-size: var(--ui-canvas-pattern-size);
+    opacity: 0;
+  }
+  :scope [data-ui-control-surface]:is(:hover, :focus-within)::before,
+  :scope
+    :is(.ui-toggle, .ui-radio-item):focus-within
+    [data-ui-control-surface]::before {
+    opacity: 1;
+  }
+  :scope
+    [data-ui-control-surface]:is(
+      :disabled,
+      [aria-disabled='true'],
+      [data-disabled],
+      [data-readonly]
+    )::before,
+  :scope
+    [data-ui-control-surface]:has(
+      :is(input, textarea, select):is(:disabled, [readonly])
+    )::before {
     display: none;
   }
-}
+  @media (forced-colors: active) {
+    :scope [data-ui-control-surface]::before,
+    :scope [data-ui-section-decoration]::before {
+      display: none;
+    }
+  }
 
-/* A compound face owns the backing; nested controls keep their focus outline. */
-.ui-theme [data-ui-control-surface] [data-ui-control-surface]::before,
-.ui-theme [data-ui-control-surface] .ui-button::before,
-.ui-theme
-  :is(.ui-toggle, .ui-radio-item):has(input:disabled)
-  [data-ui-control-surface]::before {
-  display: none;
-}
+  /* A compound face owns the backing; nested controls keep their focus outline. */
+  :scope [data-ui-control-surface] [data-ui-control-surface]::before,
+  :scope [data-ui-control-surface] .ui-button::before,
+  :scope
+    :is(.ui-toggle, .ui-radio-item):has(input:disabled)
+    [data-ui-control-surface]::before {
+    display: none;
+  }
 
-/* A fieldset positions its pseudo-element inside an anonymous content box. */
-.ui-theme fieldset[data-ui-section-decoration]::before {
-  box-sizing: border-box;
-  height: calc(var(--ui-section-decoration-height, 100%) + 8px);
-  bottom: auto;
-}
+  /* A fieldset positions its pseudo-element inside an anonymous content box. */
+  :scope fieldset[data-ui-section-decoration]::before {
+    box-sizing: border-box;
+    height: calc(var(--ui-section-decoration-height, 100%) + 8px);
+    bottom: auto;
+  }
 
-/* Section roles stay on the backing so that inner controls remain independent. */
-.ui-theme [data-ui-section-decoration]::before {
-  --ui-input-decoration-display: block;
-  --ui-input-disclosure-arrow-visibility: hidden;
-  --ui-input-decoration-dot-color: var(--ui-accent);
-  --ui-input-decoration-border-color: var(--ui-accent);
-}
-.ui-theme [data-ui-section-decoration='neutral']::before {
-  --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
-  --ui-input-decoration-border-color: var(--ui-neutral-border-color);
-}
-.ui-theme [data-ui-section-decoration='secondary']::before {
-  --ui-input-decoration-dot-color: var(--ui-secondary-accent);
-  --ui-input-decoration-border-color: var(--ui-secondary-accent);
-}
-.ui-theme [data-ui-section-decoration][data-ui-section-always]::before,
-.ui-theme [data-ui-section-decoration][data-ui-section-active]::before,
-.ui-theme [data-ui-section-decoration][data-ui-section-hover]:hover::before,
-.ui-theme
-  [data-ui-section-decoration][data-ui-section-focus]:focus-within::before {
-  opacity: 1;
-}
-.ui-theme [data-ui-section-decoration='none']::before,
-.ui-theme [data-ui-section-decoration]:disabled::before {
-  display: none;
+  /* Section roles stay on the backing so that inner controls remain independent. */
+  :scope [data-ui-section-decoration]::before {
+    --ui-input-decoration-display: block;
+    --ui-input-disclosure-arrow-visibility: hidden;
+    --ui-input-decoration-dot-color: var(--ui-accent);
+    --ui-input-decoration-border-color: var(--ui-accent);
+  }
+  :scope [data-ui-section-decoration='neutral']::before {
+    --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
+    --ui-input-decoration-border-color: var(--ui-neutral-border-color);
+  }
+  :scope [data-ui-section-decoration='secondary']::before {
+    --ui-input-decoration-dot-color: var(--ui-secondary-accent);
+    --ui-input-decoration-border-color: var(--ui-secondary-accent);
+  }
+  :scope [data-ui-section-decoration][data-ui-section-always]::before,
+  :scope [data-ui-section-decoration][data-ui-section-active]::before,
+  :scope [data-ui-section-decoration][data-ui-section-hover]:hover::before,
+  :scope
+    [data-ui-section-decoration][data-ui-section-focus]:focus-within::before {
+    opacity: 1;
+  }
+  :scope [data-ui-section-decoration='none']::before,
+  :scope [data-ui-section-decoration]:disabled::before {
+    display: none;
+  }
+  :scope .ui-entry-panel-surface::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -8px;
+    background-color: var(--ui-canvas-surface, var(--ui-surface, white));
+    border: var(--ui-border-width, 1px) solid
+      color-mix(
+        in srgb,
+        var(--ui-accent, currentColor) var(--ui-decoration-border-opacity, 100%),
+        transparent
+      );
+    background-image: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--ui-accent, currentColor) var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
+    background-size: var(--ui-canvas-pattern-size, 0.3em 0.3em);
+    pointer-events: none;
+  }
+  :scope .ui-gantt-progress {
+    background-image: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--ui-accent) var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
+    background-size: var(--ui-canvas-pattern-size, 0.35em 0.35em);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :scope {
+      --ui-action-decoration-transform: none;
+    }
+  }
 }

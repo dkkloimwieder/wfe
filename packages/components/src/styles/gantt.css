@@ -6,7 +6,7 @@
   width: 100%;
   color: var(--ui-text);
   background: var(--ui-surface);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   box-sizing: border-box;
 }
 :where([data-ui]) .ui-gantt-toolbar {
@@ -36,7 +36,8 @@
   display: grid;
   grid-template-columns: var(--ui-gantt-label-width) minmax(0, 1fr);
   box-sizing: border-box;
-  border-bottom: 1px solid var(--ui-table-row-divider, var(--ui-border));
+  border-bottom: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
+    var(--ui-table-row-divider, var(--ui-border));
 }
 :where([data-ui]) .ui-gantt-axis {
   position: sticky;
@@ -51,7 +52,8 @@
   gap: var(--ui-gap, 6px);
   min-width: 0;
   padding-inline: var(--ui-cell-padding-x, 8px);
-  border-inline-end: 1px solid var(--ui-table-column-divider, var(--ui-border));
+  border-inline-end: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
+    var(--ui-table-column-divider, var(--ui-border));
 }
 :where([data-ui]) .ui-gantt-row-label > span {
   overflow: hidden;
@@ -73,8 +75,8 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  border-inline-start: 1px solid
-    var(--ui-table-column-divider, var(--ui-border));
+  border-inline-start: var(--ui-divider-width, var(--ui-border-width, 1px))
+    solid var(--ui-table-column-divider, var(--ui-border));
   pointer-events: none;
 }
 :where([data-ui]) .ui-gantt-item {
@@ -87,10 +89,10 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  border: 1px solid var(--ui-accent);
+  border: var(--ui-border-width, 1px) solid var(--ui-accent);
   color: var(--ui-text);
   background: var(--ui-surface);
-  border-radius: 0;
+  border-radius: var(--ui-radius, 0px);
   padding: 0 5px;
   font: inherit;
   cursor: pointer;
@@ -109,14 +111,20 @@
 :where([data-ui]) .ui-gantt-bar[data-milestone] {
   border: 0;
   padding: 0;
-  background: var(--ui-accent);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: transparent;
 }
 :where([data-ui]) .ui-gantt-bar[data-milestone] .ui-gantt-bar-label {
   visibility: hidden;
 }
 :where([data-ui]) .ui-gantt-bar-label {
   z-index: 1;
+  min-width: 0;
+  max-width: 80%;
+  box-sizing: border-box;
+  padding-inline: 2px;
+  line-height: 1.1;
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
+  background: var(--ui-surface);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -124,17 +132,6 @@
 :where([data-ui]) .ui-gantt-progress {
   position: absolute;
   inset: 0 auto 0 0;
-  background-image: radial-gradient(
-    circle,
-    color-mix(
-        in srgb,
-        var(--ui-accent) var(--ui-decoration-dot-opacity, 50%),
-        transparent
-      )
-      0.75px,
-    transparent 0.75px
-  );
-  background-size: var(--ui-canvas-pattern-size, 0.35em 0.35em);
   pointer-events: none;
 }
 :where([data-ui]) .ui-gantt-baseline {
@@ -151,7 +148,7 @@
 :where([data-ui]) .ui-gantt-dependencies path {
   fill: none;
   stroke: var(--ui-text-muted, var(--ui-border));
-  stroke-width: 1;
+  stroke-width: var(--ui-connector-stroke-width, 1.5);
 }
 :where([data-ui]) .ui-gantt-empty {
   padding: var(--ui-layout-inset, 8px);
@@ -215,6 +212,31 @@
   overflow-wrap: anywhere;
 }
 
-:where([data-ui]) .ui-gantt-bar[data-milestone][data-readonly] {
-  background: var(--ui-text-muted, var(--ui-border));
+:where([data-ui])
+  .ui-gantt-bar[data-milestone][data-readonly]
+  .ui-gantt-milestone
+  path {
+  stroke: var(--ui-border);
+}
+:where([data-ui])
+  .ui-gantt-bar[data-milestone][data-readonly]
+  .ui-gantt-milestone
+  circle {
+  fill: var(--ui-text-muted, var(--ui-border));
+}
+
+/* The virtual window is one stacking context above the connector plane. */
+:where([data-ui]) .ui-gantt-rows {
+  z-index: 1;
+}
+:where([data-ui]) .ui-gantt-dependencies {
+  z-index: 0;
+}
+:where([data-ui]) .ui-gantt-milestone {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  stroke-width: var(--ui-border-width, 1px);
 }

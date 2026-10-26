@@ -1,16 +1,18 @@
-.ui-theme .ui-form {
-  inline-size: 100%;
-  margin-inline: auto;
-}
+@scope (.ui-theme) to (.ui-theme) {
+  :scope .ui-form {
+    inline-size: 100%;
+    margin-inline: auto;
+  }
 
-.ui-theme
-  .ui-form:not(
-    :has(.ui-form-grid[data-columns='2'], .ui-form-grid[data-columns='3'])
-  ) {
-  max-inline-size: var(--ui-form-max-width, 30rem);
-}
+  :scope
+    .ui-form:not(
+      :has(.ui-form-grid[data-columns='2'], .ui-form-grid[data-columns='3'])
+    ) {
+    max-inline-size: var(--ui-form-max-width, 30rem);
+  }
 
-/* Table cell controls retain the compact row profile. */
-.ui-theme table > tbody > tr > td {
-  --ui-control-height: var(--ui-table-control-height, 26px);
+  /* Table cell controls retain the compact row profile. */
+  :scope table > tbody > tr > td {
+    --ui-control-height: var(--ui-table-control-height, 26px);
+  }
 }

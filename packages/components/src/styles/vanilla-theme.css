@@ -1,0 +1,97 @@
+/* Plain presentation stops at nested theme owners. */
+@scope (.ui-theme[data-ui-preset='vanilla']) to (.ui-theme) {
+  :scope
+    :is(
+      .ui-dashboard-header,
+      .ui-dashboard-navigation,
+      .ui-dashboard-context,
+      .ui-dashboard-footer,
+      .ui-dashboard-panel
+    ) {
+    background: var(--ui-pane-surface);
+  }
+  :scope .ui-dashboard-main {
+    background: var(--ui-canvas-surface);
+  }
+  :scope :is(.ui-button, .ui-dashboard-menu > a, .ui-tabs-trigger) {
+    border-radius: var(--ui-control-radius, var(--ui-radius));
+  }
+  :scope .ui-button[data-variant='outline'][data-tone='default'] {
+    color: var(--ui-text);
+    border-color: var(--ui-control-border);
+  }
+  :scope
+    :is(.ui-button, .ui-dashboard-menu > a, .ui-tabs-trigger):is(
+      [aria-pressed='true'],
+      [aria-selected='true'],
+      [aria-current='page'],
+      [data-ui-active='true']
+    ) {
+    background: var(--ui-highlight);
+    color: var(--ui-text);
+  }
+  :scope
+    :is(.ui-card, .ui-field-group, .ui-field-set, .ui-entry-panel-surface) {
+    border-radius: var(--ui-panel-radius, var(--ui-radius));
+  }
+  :scope .ui-entry-panel-surface {
+    background: var(--ui-surface);
+    border: var(--ui-border-width) solid var(--ui-border);
+  }
+  :scope .ui-entry-panel-surface::after {
+    border-radius: inherit;
+  }
+  :scope :is(.ui-check-control, .ui-switch-control)[data-checked] {
+    background: var(--ui-accent);
+    border-color: var(--ui-accent);
+    color: var(--ui-on-accent);
+  }
+  :scope .ui-switch-thumb {
+    background: var(--ui-switch-thumb, var(--ui-text));
+  }
+  :scope .ui-switch-control[data-checked] .ui-switch-thumb {
+    background: var(--ui-on-accent);
+  }
+  :scope .ui-switch-control:not([data-checked]) {
+    background: var(--ui-border);
+  }
+  :scope .ui-radio-control[data-checked] {
+    color: var(--ui-accent);
+    border-color: var(--ui-accent);
+  }
+  :scope .ui-disclosure-indicator {
+    inline-size: 12px;
+    block-size: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--ui-icon-stroke-width);
+  }
+  :scope .ui-disclosure-chevron {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  :scope .ui-sidebar-group-icon {
+    border-color: transparent;
+  }
+  :scope :is(.table-workspace-header, .table-workspace-summary) {
+    background: var(--ui-pane-surface);
+  }
+  :scope .table-workspace-title-face {
+    border-color: transparent;
+  }
+  :scope .ui-gantt-bar-label {
+    border: 0;
+    background: var(--ui-surface);
+  }
+  :scope .ui-gantt-progress {
+    background-image: none;
+    background-color: var(--ui-highlight);
+  }
+  :scope .ui-gantt-bar {
+    border-radius: var(--ui-control-radius, var(--ui-radius));
+  }
+  :scope .ui-gantt-milestone {
+    stroke-width: var(--ui-border-width);
+  }
+}

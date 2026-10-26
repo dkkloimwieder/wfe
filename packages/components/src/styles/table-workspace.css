@@ -11,7 +11,8 @@
   grid-template-rows: auto minmax(0, 1fr);
   grid-template-areas: 'header header' 'controls results';
   gap: 0;
-  border: var(--ui-table-frame-width, 1px) solid var(--ui-border, #ccc);
+  border: var(--ui-table-frame-width, var(--ui-border-width, 1px)) solid
+    var(--ui-border, #ccc);
   box-shadow: var(--ui-panel-shadow, none);
   background: var(--ui-canvas-surface, var(--ui-surface, white));
   height: 100%;
@@ -47,7 +48,7 @@
 }
 :where([data-ui]) .table-workspace-controls {
   grid-area: controls;
-  border-inline-end: 1px solid var(--ui-border, #ccc);
+  border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -71,7 +72,7 @@
   );
   min-width: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
-  border-bottom: 1px solid var(--ui-border, #ccc);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
   background: var(--ui-pane-surface, var(--ui-surface, white));
 }
 :where([data-ui]) .table-workspace-title {
@@ -150,7 +151,7 @@
   gap: var(--ui-gap, 6px);
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
   border: 0;
-  border-top: 1px solid var(--ui-border, #ccc);
+  border-top: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
 }
 :where([data-ui]) .table-control-summary {
   margin-inline-start: var(--ui-gap, 6px);
@@ -208,7 +209,7 @@
   .table-workspace[data-controls-placement='top']
   > .table-workspace-controls {
   border-inline-end: 0;
-  border-bottom: 1px solid var(--ui-border, #ccc);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
 }
 :where([data-ui]) .table-workspace[data-controls-placement='right'] {
   grid-template-columns: minmax(0, 1fr) var(
@@ -221,7 +222,7 @@
   .table-workspace[data-controls-placement='right']
   > .table-workspace-controls {
   border-inline-end: 0;
-  border-inline-start: 1px solid var(--ui-border, #ccc);
+  border-inline-start: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
 }
 @media (width >= 48rem) {
   :where([data-ui])
@@ -403,7 +404,7 @@
     .table-workspace:not([data-ui-responsive-ready])[data-controls-placement]
     > .table-workspace-controls {
     grid-area: results;
-    border: 1px solid var(--ui-border, #ccc);
+    border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
     box-shadow: var(--ui-panel-shadow, none);
     display: none;
     position: absolute;
@@ -458,7 +459,7 @@
   .table-workspace[data-ui-responsive-ready][data-controls-drawer][data-controls-placement]
   > .table-workspace-controls {
   grid-area: results;
-  border: 1px solid var(--ui-border, #ccc);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
   box-shadow: var(--ui-panel-shadow, none);
   display: none;
   position: absolute;
@@ -838,7 +839,7 @@
 
 :where([data-ui]) .sub-table-row .table-workspace {
   border-width: 0;
-  border-inline-start-width: 1px;
+  border-inline-start-width: var(--ui-border-width, 1px);
 }
 :where([data-ui]) .sub-table-row .table-workspace-summary {
   border-top: 0;

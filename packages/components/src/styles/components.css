@@ -12,7 +12,7 @@
     --ui-triangle-color,
     color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
   );
-  stroke-width: 1px;
+  stroke-width: var(--ui-icon-stroke-width, 1px);
 }
 @media (forced-colors: active) {
   :where([data-ui]) .ui-direction-triangle {
@@ -125,8 +125,9 @@
       appearance: base-select;
       &::picker(select) {
         appearance: base-select;
-        border: 1px solid var(--ui-popup-border, var(--ui-control-border, #999));
-        border-radius: 0;
+        border: var(--ui-border-width, 1px) solid
+          var(--ui-popup-border, var(--ui-control-border, #999));
+        border-radius: var(--ui-popup-radius, var(--ui-radius, 0px));
         background: var(--ui-popup-surface, var(--ui-surface, white));
         color: var(--ui-popup-text, var(--ui-text, #191919));
         font: inherit;
@@ -142,7 +143,7 @@
       & option {
         min-height: var(--ui-control-height, 26px);
         padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
-        border-radius: 0;
+        border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
         background: var(--ui-popup-surface, var(--ui-surface, white));
         color: var(--ui-popup-text, var(--ui-text, #191919));
       }
@@ -222,7 +223,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: var(--ui-cell-padding-y, 6px) var(--ui-cell-padding-x, 8px);
-  border-radius: 0;
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   cursor: default;
 }
 :where([data-ui]) .popup-option:is([data-selected], [data-highlighted]) {
@@ -286,7 +287,8 @@
   margin: 0;
   min-width: 0;
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
-  border: 1px solid var(--ui-border, #ccc);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
 }
 :where([data-ui]) .ui-input-group {
   display: flex;
@@ -329,6 +331,7 @@
   width: calc(var(--ui-font-size, 12px) + 4px);
   height: calc(var(--ui-font-size, 12px) + 4px);
   cursor: pointer;
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
 }
 :where([data-ui]) .ui-check-indicator {
   display: grid;
@@ -351,7 +354,10 @@
 }
 :where([data-ui]) .ui-radio-control,
 :where([data-ui]) .ui-radio-indicator {
-  border-radius: 0;
+  border-radius: var(
+    --ui-radio-radius,
+    var(--ui-control-radius, var(--ui-radius, 0px))
+  );
 }
 :where([data-ui]) .ui-radio-indicator {
   width: calc(var(--ui-font-size, 12px) - 4px);
@@ -371,12 +377,18 @@
   width: calc(var(--ui-font-size, 12px) * 2.5);
   justify-items: start;
   padding: 2px;
-  border-radius: 0;
+  border-radius: var(
+    --ui-switch-radius,
+    var(--ui-control-radius, var(--ui-radius, 0px))
+  );
 }
 :where([data-ui]) .ui-switch-thumb {
   width: calc(var(--ui-font-size, 12px) - 2px);
   height: calc(var(--ui-font-size, 12px) - 2px);
-  border-radius: 0;
+  border-radius: var(
+    --ui-switch-radius,
+    var(--ui-control-radius, var(--ui-radius, 0px))
+  );
   background: currentColor;
 }
 :where([data-ui]) .ui-switch-control[data-checked] {
@@ -502,13 +514,14 @@
   display: flex;
   align-items: center;
   gap: var(--ui-gap, 5px);
-  border-radius: var(--ui-radius, 0px);
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   cursor: pointer;
   outline: none;
 }
 :where([data-ui]) .ui-menu-item:is([data-highlighted], :focus-visible) {
   background: var(--ui-hover, #eee);
-  box-shadow: inset 0 0 0 1px var(--ui-focus-ring, var(--ui-focus, #1657a8));
+  box-shadow: inset 0 0 0 var(--ui-focus-width, 1px)
+    var(--ui-focus-ring, var(--ui-focus, #1657a8));
 }
 :where([data-ui]) .ui-menu-item[data-disabled] {
   opacity: 1;
@@ -517,13 +530,14 @@
 :where([data-ui]) .ui-menu-separator {
   margin: 3px 0;
   border: 0;
-  border-top: 1px solid var(--ui-border, #bbb);
+  border-top: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
+    var(--ui-border, #bbb);
 }
 
 :where([data-ui]) :is(.ui-card, .ui-inline-alert) {
   box-sizing: border-box;
-  border: 1px solid var(--ui-border, #bbb);
-  border-radius: 0;
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
+  border-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
   background: var(--ui-surface, white);
   color: var(--ui-text, #191919);
@@ -534,8 +548,8 @@
 :where([data-ui]) .ui-badge {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--ui-border, #bbb);
-  border-radius: 0;
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   padding: 0 4px;
   background: var(--ui-muted-surface, #f2f2f2);
   font-size: var(--ui-small-font-size, 11px);
@@ -552,14 +566,16 @@
 }
 :where([data-ui]) .ui-separator {
   border: 0;
-  border-top: 1px solid var(--ui-divider, #ddd);
+  border-top: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
+    var(--ui-divider, #ddd);
   margin: var(--ui-gap, 5px) 0;
 }
 :where([data-ui]) .ui-separator[data-orientation='vertical'] {
   align-self: stretch;
   width: 0;
   border-top: 0;
-  border-left: 1px solid var(--ui-divider, #ddd);
+  border-left: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
+    var(--ui-divider, #ddd);
   margin: 0 var(--ui-gap, 5px);
 }
 :where([data-ui]) .ui-empty-state {
@@ -581,7 +597,7 @@
 }
 :where([data-ui]) .ui-skeleton {
   min-height: var(--ui-row-height, 32px);
-  border-radius: 0;
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   background: var(--ui-skeleton-surface, var(--ui-muted-surface, #eee));
 }
 :where([data-ui]) .ui-progress {

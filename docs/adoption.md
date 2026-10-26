@@ -95,6 +95,7 @@ Include Vite client types in the application TypeScript configuration to type CS
 Import `@wfe/components/styles.css` once in the application entry.
 Wrap the application in `Theme` for the Default theme introduced in `v0.0.3`.
 Use `<Theme mode="dark">` for dark mode.
+Use `<Theme preset="vanilla">` for the plain alternative; omission preserves the existing default.
 The gallery and consumers use the same theme implementation.
 See [Theme](theme.md) for configuration and a minimal example.
 Use `uiScope()` only for low-level density scopes without the Default theme.

@@ -2,7 +2,7 @@
   box-shadow: none;
   flex: none;
   border: 0;
-  border-bottom: 1px solid var(--ui-border, #ccc);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
   background: var(--ui-surface, white);
 }
 :where(.ui-collapsible[data-ui]) > summary {

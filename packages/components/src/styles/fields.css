@@ -13,22 +13,25 @@
 :where([data-ui]) .ui-check-control,
 :where([data-ui]) .ui-radio-control,
 :where([data-ui]) .ui-switch-control {
-  border: 1px solid var(--ui-control-border, #999);
+  border: var(--ui-control-border-width, var(--ui-border-width, 1px)) solid
+    var(--ui-control-border, #999);
   background-color: var(--ui-control-surface, var(--ui-surface, white));
 }
 :where([data-ui]) input,
 :where([data-ui]) textarea,
 :where([data-ui]) select,
 :where([data-ui]) .popup-trigger {
-  border-radius: 0;
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
 }
 
 :where([data-ui]) .ui-field-value {
   display: block;
   min-width: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
-  border: 1px solid var(--ui-control-border, #999);
+  border: var(--ui-control-border-width, var(--ui-border-width, 1px)) solid
+    var(--ui-control-border, #999);
   background-color: var(--ui-control-surface, var(--ui-surface, white));
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   overflow-wrap: anywhere;
 }
 
@@ -62,7 +65,8 @@
   flex: none;
   min-inline-size: var(--ui-control-height, 26px);
   padding-inline: var(--ui-input-padding-x, 6px);
-  border: 1px solid var(--ui-control-border, #999);
+  border: var(--ui-control-border-width, var(--ui-border-width, 1px)) solid
+    var(--ui-control-border, #999);
   border-inline-start: 0;
   background: var(--ui-control-surface, var(--ui-surface, white));
   color: var(--ui-text, #191919);
@@ -119,15 +123,38 @@
 
 :where([data-ui]) :is(.ui-input-affix, .filter-input) input,
 :where([data-ui]) :is(.ui-input-affix, .filter-input) select {
-  border-radius: 0;
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
 }
 :where([data-ui]) :is(.ui-input-clear, .clear-input) {
   border-inline-start: 0;
-  border-radius: 0;
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 8px);
 }
 
 :where([data-ui]) :is(.ui-input-affix, .filter-input) > [data-ui]:not(button) {
   flex: 1;
   min-width: 0;
+}
+
+/* Only the outer corners belong to an affixed control. */
+:where([data-ui]) :is(.ui-input-affix, .filter-input, .choice-control) {
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
+}
+:where([data-ui])
+  :is(.ui-input-affix, .filter-input, .choice-control):has(> button)
+  > :is(input, select, .popup-trigger) {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+:where([data-ui])
+  :is(.ui-input-affix, .filter-input, .choice-control)
+  > button:not(:first-child) {
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+:where([data-ui])
+  :is(.ui-input-affix, .filter-input, .choice-control)
+  > button:has(~ button) {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
 }

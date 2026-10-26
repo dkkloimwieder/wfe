@@ -26,7 +26,7 @@
     .table-workspace-summary,
     .result-count
   ) {
-  text-transform: uppercase;
+  text-transform: var(--ui-system-text-transform, uppercase);
 }
 
 :where([data-ui])
@@ -61,14 +61,14 @@
     [data-ui-text='system'] > option,
     .popup-content[data-ui-text='system'] .popup-option
   ) {
-  text-transform: uppercase;
+  text-transform: var(--ui-system-text-transform, uppercase);
 }
 
 :where([data-ui]) input::placeholder,
 :where([data-ui]) textarea::placeholder {
   color: var(--ui-muted-text, currentColor);
   opacity: 1;
-  text-transform: uppercase;
+  text-transform: var(--ui-system-text-transform, uppercase);
 }
 
 :where([data-ui]) :where([data-ui-text='value'], [data-ui-text='prose']) {

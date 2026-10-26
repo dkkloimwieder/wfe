@@ -7,7 +7,7 @@
     --ui-triangle-color,
     color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
   );
-  stroke-width: 1px;
+  stroke-width: var(--ui-icon-stroke-width, 1px);
   pointer-events: none;
 }
 :where([data-ui]) .ui-disclosure-indicator:dir(rtl) {
@@ -39,39 +39,41 @@
   display: none;
 }
 
-/* Input decoration settings apply to choice triangles, not other disclosures. */
-@media (forced-colors: none) {
-  .ui-theme .ui-choice-icon .ui-disclosure-decoration {
-    display: var(--ui-input-decoration-display, block);
-    stroke: var(
-      --ui-input-decoration-border-color,
-      var(--ui-neutral-border-color)
-    );
+@scope (.ui-theme:not([data-ui-preset='vanilla'])) to (.ui-theme) {
+  /* Input decoration settings apply to choice triangles, not other disclosures. */
+  @media (forced-colors: none) {
+    :scope .ui-choice-icon .ui-disclosure-decoration {
+      display: var(--ui-input-decoration-display, block);
+      stroke: var(
+        --ui-input-decoration-border-color,
+        var(--ui-neutral-border-color)
+      );
+    }
+    :scope .ui-choice-icon .ui-disclosure-indicator pattern circle {
+      fill: var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color));
+    }
   }
-  .ui-theme .ui-choice-icon .ui-disclosure-indicator pattern circle {
-    fill: var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color));
+  @media (hover: hover) and (forced-colors: none) {
+    :scope
+      :is(.popup-trigger, .choice-toggle):hover:not(
+        :disabled,
+        [aria-disabled='true']
+      )
+      .ui-choice-icon
+      .ui-disclosure-arrow {
+      visibility: var(--ui-input-disclosure-arrow-visibility, hidden);
+    }
   }
-}
-@media (hover: hover) and (forced-colors: none) {
-  .ui-theme
-    :is(.popup-trigger, .choice-toggle):hover:not(
-      :disabled,
-      [aria-disabled='true']
-    )
-    .ui-choice-icon
-    .ui-disclosure-arrow {
-    visibility: var(--ui-input-disclosure-arrow-visibility, hidden);
-  }
-}
 
-@media (forced-colors: active) {
-  .ui-theme
-    :is(.popup-trigger, .choice-toggle):is(:hover, :focus-visible):not(
-      :disabled,
-      [aria-disabled='true']
-    )
-    .ui-choice-icon
-    .ui-disclosure-arrow {
-    visibility: visible;
+  @media (forced-colors: active) {
+    :scope
+      :is(.popup-trigger, .choice-toggle):is(:hover, :focus-visible):not(
+        :disabled,
+        [aria-disabled='true']
+      )
+      .ui-choice-icon
+      .ui-disclosure-arrow {
+      visibility: visible;
+    }
   }
 }

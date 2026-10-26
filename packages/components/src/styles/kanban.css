@@ -17,7 +17,7 @@
   flex: 1 0 min(19rem, 85vw);
   min-width: min(19rem, 85vw);
   min-height: 0;
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   background: var(--ui-pane-surface, var(--ui-surface));
 }
 :where([data-ui]) .ui-kanban-column-header,
@@ -30,12 +30,12 @@
 :where([data-ui]) .ui-kanban-column-header {
   flex: none;
   padding: var(--ui-layout-inset, 8px);
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 :where([data-ui]) .ui-kanban-column-header h2 {
   font-size: inherit;
   font-weight: 500;
-  text-transform: uppercase;
+  text-transform: var(--ui-system-text-transform, uppercase);
   margin: 0;
 }
 :where([data-ui]) .ui-kanban-column-actions {
@@ -64,7 +64,7 @@
 }
 :where([data-ui]) .ui-kanban-column[data-frameless] .ui-kanban-column-header {
   margin: var(--ui-layout-inset, 8px);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   background: var(--ui-surface);
 }
 :where([data-ui]) .ui-kanban-item-title {

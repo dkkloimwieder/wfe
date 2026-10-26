@@ -127,6 +127,12 @@ export function decorateActions(root: HTMLDivElement) {
       observer.disconnect()
       resize?.disconnect()
       root.removeEventListener('pointerover', enter)
+      for (const node of nodes.keys()) {
+        node.style.removeProperty('--ui-action-angle')
+        node.style.removeProperty('--ui-action-taper')
+        node.style.removeProperty('--ui-action-taper-y')
+        node.style.removeProperty('--ui-section-decoration-height')
+      }
       nodes.clear()
     },
   }

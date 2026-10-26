@@ -6,7 +6,7 @@
   flex-wrap: wrap;
   gap: var(--ui-gap, 6px);
   padding: 4px;
-  border-bottom: 1px solid var(--ui-border, #ccc);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
 }
 :where(.ui-tabs-list[data-orientation='vertical']) {
   flex-direction: column;

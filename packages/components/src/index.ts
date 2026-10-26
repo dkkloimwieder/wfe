@@ -1,3 +1,4 @@
+export type { ThemePreset } from './internal/themePreset'
 export { Theme, themeStyle, themeSizing } from './theme'
 export type {
   ThemeDensity,

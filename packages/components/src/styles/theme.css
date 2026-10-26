@@ -32,3 +32,8 @@
   color: var(--ui-accent, var(--ui-focus, #1657a8));
   text-decoration: none;
 }
+
+.ui-theme {
+  min-width: 0;
+  background: var(--ui-canvas-surface);
+}

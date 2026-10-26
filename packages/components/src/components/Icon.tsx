@@ -1,3 +1,4 @@
+import { useThemePreset } from '../internal/themePreset'
 import { For, Show } from 'solid-js'
 import type { IconDefinition } from '../icons/types'
 import { trianglePath, triangleTransform } from '../internal/triangle'
@@ -42,6 +43,9 @@ export type IconProps = { class?: ClassValue } & (
 
 /** Decorative glyph. The surrounding control supplies its accessible name. */
 export function Icon(props: IconProps) {
+  const preset = useThemePreset()
+  const plainDirection = () =>
+    preset() === 'vanilla' && direction() !== undefined
   const direction = () =>
     props.name === 'chevron-down'
       ? 'down'
@@ -66,10 +70,24 @@ export function Icon(props: IconProps) {
         when={props.glyph}
         fallback={
           <path
-            d={paths[props.name!]}
-            class={direction() ? 'ui-direction-triangle' : undefined}
+            d={plainDirection() ? 'M6 3 11 8 6 13' : paths[props.name!]}
+            class={
+              direction()
+                ? plainDirection()
+                  ? 'ui-direction-chevron'
+                  : 'ui-direction-triangle'
+                : undefined
+            }
             transform={
-              direction() ? triangleTransform(direction()!) : undefined
+              plainDirection()
+                ? direction() === 'down'
+                  ? 'rotate(90 8 8)'
+                  : direction() === 'left'
+                    ? 'rotate(180 8 8)'
+                    : undefined
+                : direction()
+                  ? triangleTransform(direction()!)
+                  : undefined
             }
             vector-effect={direction() ? 'non-scaling-stroke' : undefined}
             shape-rendering={

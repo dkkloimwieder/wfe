@@ -1,3 +1,4 @@
+import { useThemePreset } from '../internal/themePreset'
 import {
   createEffect,
   createMemo,
@@ -81,6 +82,52 @@ function describeInterval(
   return parts.join(', ')
 }
 
+/** Milestone presentation follows its owning theme. */
+function MilestoneMarker() {
+  const pattern = createUniqueId()
+  const preset = useThemePreset()
+  return (
+    <svg
+      class="ui-gantt-milestone"
+      viewBox="0 0 18 32"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      {...{ focusable: 'false' }}
+    >
+      <Show when={preset() !== 'vanilla'}>
+        <defs>
+          <pattern
+            id={pattern}
+            width="0.3em"
+            height="0.3em"
+            patternUnits="userSpaceOnUse"
+          >
+            <rect
+              width="100%"
+              height="100%"
+              fill="var(--ui-canvas-surface, var(--ui-surface))"
+            />
+            <circle
+              cx="0.75"
+              cy="0.75"
+              r="0.75"
+              fill="var(--ui-accent)"
+              fill-opacity="var(--ui-decoration-dot-opacity, 50%)"
+            />
+          </pattern>
+        </defs>
+      </Show>
+      <path
+        d="M9 1 17 16 9 31 1 16Z"
+        fill={preset() === 'vanilla' ? 'var(--ui-accent)' : `url(#${pattern})`}
+        stroke="var(--ui-accent)"
+        stroke-opacity="var(--ui-decoration-border-opacity, 100%)"
+        vector-effect="non-scaling-stroke"
+      />
+    </svg>
+  )
+}
+
 /** Controlled schedule view. Applications own accepted dates and scheduling policy. */
 export function Gantt(props: GanttProps) {
   const [scrollElement, setScrollElement] = createSignal<HTMLDivElement>()
@@ -101,7 +148,7 @@ export function Gantt(props: GanttProps) {
     createGanttIntervalIndex(props.intervals),
   )
   const rowHeight = createMemo(() => {
-    const value = props.rowHeight ?? 36
+    const value = props.rowHeight ?? 40
     if (!Number.isFinite(value) || value <= 0)
       throw new RangeError('Gantt row height must be positive and finite')
     return Math.max(28, value)
@@ -357,12 +404,13 @@ export function Gantt(props: GanttProps) {
             class="ui-gantt-item"
             style={{
               left: `${box().x}px`,
-              width: `${Math.max(box().width, 12)}px`,
-              top: `${(layout().lanes.get(interval().id) ?? 0) * rowHeight() + 5}px`,
-              height: `${rowHeight() - 12}px`,
+              width: `${box().milestone ? 18 : Math.max(box().width, 12)}px`,
+              top: `${(layout().lanes.get(interval().id) ?? 0) * rowHeight() + 4}px`,
+              height: `${rowHeight() - 8}px`,
             }}
           >
             <Tooltip.Root
+              openDelay={150}
               open={detailsOpen() && !editing()}
               disabled={editing()}
               onOpenChange={(open) => setDetailsOpen(open && !untrack(editing))}
@@ -411,7 +459,12 @@ export function Gantt(props: GanttProps) {
                   }
                 }}
               >
-                <Show when={interval().progress !== undefined}>
+                <Show when={box().milestone}>
+                  <MilestoneMarker />
+                </Show>
+                <Show
+                  when={interval().progress !== undefined && !box().milestone}
+                >
                   <span
                     class="ui-gantt-progress"
                     aria-hidden="true"
@@ -591,7 +644,7 @@ export function Gantt(props: GanttProps) {
                         style={{
                           left: `${box().x}px`,
                           width: `${Math.max(2, box().width)}px`,
-                          top: `${((layout().lanes.get(interval.id) ?? 0) + 1) * rowHeight() - 5}px`,
+                          top: `${((layout().lanes.get(interval.id) ?? 0) + 1) * rowHeight() - 3}px`,
                         }}
                       />
                     )}
@@ -706,6 +759,7 @@ export function Gantt(props: GanttProps) {
             <VirtualRows
               window={virtual}
               layout="block"
+              windowClass="ui-gantt-rows"
               renderRow={renderRow}
             />
             <svg

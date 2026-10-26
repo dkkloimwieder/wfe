@@ -1,6 +1,8 @@
-# Default theme
+# Themes
 
-`Theme` applies the approved appearance from `v0.0.4`.
+`Theme` preserves the approved default appearance from `v0.0.4`.
+Set `preset="vanilla"` for plain neutral styling inspired by base shadcn and Zaidan.
+Omitting `preset` is equivalent to `preset="default"`.
 The theme lives in `@wfe/components`, including its CSS, fonts, and decorative behavior.
 The gallery uses this implementation too.
 
@@ -29,6 +31,7 @@ Forms use a 30rem field limit. Table controls retain compact sizing.
 Content panels, cards, dialogs, popovers, and tab content share `--ui-layout-inset` (16px in Default).
 Sidebar groups use equal outer insets. Table cells retain compact vertical padding, including grouped rows and expansion controls.
 Action decorations use random tilted outlines. Each Theme owns their event handlers and cleanup.
+Reduced-motion preference keeps the decorative backing without tilt or taper.
 
 ## Application configuration
 
@@ -51,7 +54,8 @@ The `style` prop overrides individual CSS variables last.
 Import the public types and `themeStyle` from `@wfe/components/theme`.
 `themeStyle` returns CSS variables only. Use `Theme` to include decoration behavior and popup ownership.
 
-Nested themes can use different modes and accents.
+Nested themes can use different presets, modes, and accents.
+Each scope owns its CSS and automatic popup portals. Ancestor preset rules stop at nested Theme boundaries.
 DashboardShell inherits theme sizing unless you pass an explicit density.
 
 `Theme.density` accepts `"default"`, `"compact"`, and `"comfortable"`.
@@ -161,3 +165,52 @@ Its nested Theme inherits the gallery appearance. Its geometry controls affect o
 
 Wide input and select previews compare 480-pixel and 800-pixel controls, constrained to the available width.
 Their decorations stay visible while tuning. Their entered values survive size changes and new random samples.
+
+## Vanilla preset
+
+Vanilla uses system sans-serif text, ordinary borders, rounded controls, round radios, and pill switches.
+Its default accent is neutral. An explicit accent selects a colored primary action.
+Light, dark, and black/white modes use the same component structure and behavior.
+Black/white uses black neutral text and borders over white content surfaces.
+Subtle state fills retain visible hover and selection feedback.
+Vanilla does not start decoration observers or mount decorative SVG patterns.
+Decoration props have no effect inside vanilla, including explicit per-field requests.
+Switching presets preserves input values, focus, selection, and open overlays.
+
+Mode, accent, density, class, and style remain independent of preset selection.
+Layers, dividers, depth, and decoration controls belong to the default preset.
+Use semantic CSS variables to customize vanilla surfaces and dividers.
+The default vanilla control height is 36px. Explicit density profiles still use shared geometry records.
+Caller-supplied virtual row heights remain authoritative.
+
+The gallery selector lives under Appearance. Direct links accept `preset=vanilla` and the existing `scheme` parameter.
+The same examples run under either preset.
+
+## Custom appearance
+
+Start with a preset and set CSS variables through the Theme style prop or an application stylesheet.
+Inline Theme defaults take precedence over ordinary class declarations for those same variables.
+Use the style prop for variable overrides. Use scoped application classes for component rules and state treatments.
+Keep application rules after the WFE stylesheet, and stop them at nested Theme boundaries.
+
+Shared roles include `--ui-border-width`, `--ui-control-border-width`, `--ui-divider-width`, and `--ui-radius`.
+Specific shape roles include `--ui-control-radius`, `--ui-panel-radius`, `--ui-popup-radius`, `--ui-radio-radius`, and `--ui-switch-radius`.
+Existing color, spacing, typography, focus, icon, and surface variables remain available.
+Use `--ui-system-text-transform` for labels and headings. Record values and prose retain their original casing.
+Set both the background and its foreground when replacing a primary or selected color.
+
+Component classes and public data/ARIA states provide styling hooks without copying behavior.
+Use hover, focus-visible, checked, selected, expanded, readonly, and invalid states where the component supports them.
+Keep visible keyboard focus, disabled behavior, and readable contrast in each state.
+See [the theme contract](theme-contract.md) for ownership and compatibility rules.
+
+The CSS uses `@scope` to isolate nested themes. Consumers need a browser with CSS scope support.
+Explicit portal mount overrides retain consumer ownership; place that mount inside the desired theme scope.
+The shared stylesheet includes both presets for compatibility. Vanilla avoids decoration execution, but the stylesheet still contains default-theme assets.
+
+## Reference presentation
+
+Vanilla takes its direction from the neutral examples in [shadcn theming](https://ui.shadcn.com/docs/theming) and [Zaidan](https://zaidan.carere.dev/).
+These references were reviewed on October 25, 2026. Vanilla is an independent WFE implementation, not a copied upstream preset or pixel-identical port.
+No component runtime or styling dependency was added.
+Review nested presets and a custom extension at `?gallery=themes`.

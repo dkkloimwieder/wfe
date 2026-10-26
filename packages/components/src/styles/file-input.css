@@ -4,7 +4,8 @@
   gap: var(--ui-gap, 6px);
   min-width: 0;
   padding: var(--ui-control-padding-x, 8px);
-  border: 1px solid var(--ui-border, #ccc);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
   background: var(--ui-pane-surface, var(--ui-surface, white));
 }
 :where([data-ui]) .ui-file-picker {

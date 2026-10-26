@@ -4,10 +4,11 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: 1px solid var(--ui-button-border, #aaa);
+  border: var(--ui-control-border-width, var(--ui-border-width, 1px)) solid
+    var(--ui-button-border, #aaa);
   background: var(--ui-surface, white);
   color: inherit;
-  border-radius: 0;
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 8px);
   cursor: pointer;
 }

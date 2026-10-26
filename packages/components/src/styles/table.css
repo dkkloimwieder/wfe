@@ -18,7 +18,7 @@
   position: relative;
   container-type: inline-size;
   overflow: auto;
-  border: 1px solid var(--ui-border, #ccc);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
   background: var(--ui-surface, white);
 }
 :where([data-ui]) table:where(.ui-table) {
@@ -41,7 +41,8 @@
 :where([data-ui]) :where(.ui-table > :is(thead, tbody, tfoot) > tr) > th,
 :where([data-ui]) :where(.ui-table > :is(thead, tbody, tfoot) > tr) > td {
   padding: var(--ui-table-cell-padding-y, 1px) var(--ui-cell-padding-x, 8px);
-  border-top: 1px solid var(--ui-table-row-divider, var(--ui-divider, #ddd));
+  border-top: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
+    var(--ui-table-row-divider, var(--ui-divider, #ddd));
   text-align: left;
   vertical-align: middle;
 }
@@ -51,13 +52,14 @@
   > :where(tr)
   > td,
 :where([data-ui]) :where(.ui-table) > tbody > :where(tr) > th {
-  border-bottom: 1px solid var(--ui-table-row-divider, var(--ui-divider, #ddd));
+  border-bottom: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
+    var(--ui-table-row-divider, var(--ui-divider, #ddd));
 }
 :where([data-ui])
   :where(.ui-table > :is(thead, tbody, tfoot))
   > tr
   > :is(th, td):not(:last-child) {
-  border-inline-end: 1px solid
+  border-inline-end: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
     var(--ui-table-column-divider, var(--ui-divider, #ddd));
 }
 :where([data-ui]) [data-column-alignment='left'] {
@@ -210,8 +212,8 @@
   gap: 8px;
   padding: 10px;
   margin-top: 10px;
-  border: 1px solid var(--ui-border, #ccc);
-  border-radius: 0;
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-radius: var(--ui-radius, 0px);
   background: var(--ui-surface, white);
 }
 :where([data-ui]) .display-fields {
@@ -252,8 +254,8 @@
   container-type: inline-size;
   margin: 10px 0 0;
   padding: 8px 10px 10px;
-  border: 1px solid var(--ui-border, #ccc);
-  border-radius: 0;
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-radius: var(--ui-radius, 0px);
   background: var(--ui-surface, white);
   min-width: 0;
 }
@@ -286,7 +288,7 @@
   align-items: end;
   gap: var(--ui-gap, 6px);
   padding: var(--ui-gap, 6px) 0;
-  border-top: 1px solid var(--ui-divider, #ddd);
+  border-top: var(--ui-border-width, 1px) solid var(--ui-divider, #ddd);
 }
 :where([data-ui]) .grouping-level-label {
   min-width: 0;
@@ -383,7 +385,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 8px;
-  border-top: 1px solid var(--ui-divider, #ddd);
+  border-top: var(--ui-border-width, 1px) solid var(--ui-divider, #ddd);
   padding-top: 8px;
 }
 :where([data-ui]) .summary-help {

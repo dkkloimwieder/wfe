@@ -1,3 +1,4 @@
+export type { ThemePreset } from '../internal/themePreset'
 export { Theme, themeStyle } from './Theme'
 export type {
   ThemeProps,

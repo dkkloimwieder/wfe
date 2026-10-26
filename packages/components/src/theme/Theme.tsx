@@ -1,3 +1,6 @@
+import { vanillaStyle } from './vanilla'
+import { ThemePresetContext } from '../internal/themePreset'
+import type { ThemePreset } from '../internal/themePreset'
 import { PortalOwner } from '../internal/portalOwner'
 import { resolveDecorationGeometry } from './decorationGeometry'
 import type { DecorationGeometry } from './decorationGeometry'
@@ -38,6 +41,7 @@ export type ThemeAccent =
 export type ThemeSecondaryAccent =
   ThemeAccent | 'yellow' | 'light-blue' | 'dark-blue'
 export type ThemeOptions = {
+  preset?: ThemePreset
   density?: ThemeDensity
   decorationGeometry?: Partial<DecorationGeometry>
   inputDecoration?: ControlDecoration
@@ -91,6 +95,18 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
   const accent =
     accents[accentNames.indexOf(options.accent ?? 'blue')] ?? accents[1]!
   const secondary = accentNames.indexOf(options.secondaryAccent ?? 'blue')
+  const vanillaPrimary =
+    options.mode === 'monochrome'
+      ? '#000000'
+      : scheme.mode === 'dark'
+        ? '#fafafa'
+        : '#18181b'
+  const vanillaOnPrimary =
+    options.mode === 'monochrome'
+      ? '#ffffff'
+      : scheme.mode === 'dark'
+        ? '#18181b'
+        : '#fafafa'
   return {
     ...resolveThemeSizing(options.density),
     ...appearanceStyle(
@@ -123,6 +139,41 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
           : 'var(--ui-neutral-border-color)',
     '--ui-button-color': 'var(--ui-accent)',
     '--ui-button-on-color': 'var(--ui-on-accent)',
+    '--ui-system-text-transform': 'uppercase',
+    '--ui-border-width': '1px',
+    '--ui-radius': '0px',
+    '--ui-control-radius': 'var(--ui-radius)',
+    '--ui-popup-radius': 'var(--ui-radius)',
+    '--ui-panel-radius': 'var(--ui-radius)',
+    '--ui-radio-radius': 'var(--ui-control-radius)',
+    '--ui-switch-radius': 'var(--ui-control-radius)',
+    '--ui-control-border-width': 'var(--ui-border-width)',
+    '--ui-divider-width': 'var(--ui-border-width)',
+    '--ui-icon-stroke-width': '1',
+    '--ui-disabled-opacity': '1',
+    '--ui-error': '#9d251e',
+    '--ui-connector-stroke-width': '1.5',
+
+    ...(options.preset === 'vanilla'
+      ? {
+          ...vanillaStyle(
+            scheme.mode === 'dark',
+            options.density,
+            options.mode === 'monochrome',
+          ),
+          ...(options.accent === undefined
+            ? {
+                '--ui-accent': vanillaPrimary,
+                '--ui-on-accent': vanillaOnPrimary,
+                '--ui-selection': vanillaPrimary,
+                '--ui-on-selection': vanillaOnPrimary,
+                '--ui-focus': vanillaPrimary,
+              }
+            : {}),
+          '--ui-accent-hover': 'var(--ui-accent)',
+          '--ui-accent-inverted-hover': 'var(--ui-on-accent)',
+        }
+      : {}),
   }
 }
 
@@ -135,10 +186,16 @@ export function Theme(props: ThemeProps) {
   createEffect(
     () => ({
       node: element(),
+      preset: props.preset ?? 'default',
       geometry: resolveDecorationGeometry(props.decorationGeometry),
     }),
-    ({ node, geometry }) => {
-      if (!node) return
+    ({ node, geometry, preset }) => {
+      if (!node || preset === 'vanilla') {
+        controller?.dispose()
+        controller = undefined
+        owner = undefined
+        return
+      }
       if (owner !== node) {
         controller?.dispose()
         owner = node
@@ -152,19 +209,22 @@ export function Theme(props: ThemeProps) {
     controller = undefined
   })
   return (
-    <PortalOwner value={element}>
-      <div
-        {...scope}
-        data-ui-density={props.density ?? 'default'}
-        id={props.id}
-        class={styledClasses('ui-theme', props.class)}
-        data-ui-portal-root=""
-        data-ui-theme-owner=""
-        ref={setElement}
-        style={{ ...scope.style, ...themeStyle(props), ...props.style }}
-      >
-        {props.children}
-      </div>
-    </PortalOwner>
+    <ThemePresetContext value={() => props.preset ?? 'default'}>
+      <PortalOwner value={element}>
+        <div
+          {...scope}
+          data-ui-preset={props.preset ?? 'default'}
+          data-ui-density={props.density ?? 'default'}
+          id={props.id}
+          class={styledClasses('ui-theme', props.class)}
+          data-ui-portal-root=""
+          data-ui-theme-owner=""
+          ref={setElement}
+          style={{ ...scope.style, ...themeStyle(props), ...props.style }}
+        >
+          {props.children}
+        </div>
+      </PortalOwner>
+    </ThemePresetContext>
   )
 }

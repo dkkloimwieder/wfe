@@ -21,8 +21,9 @@
 :where([data-ui]) .ui-menu,
 :where([data-ui]) .ui-tooltip,
 :where([data-ui]) .ui-toast {
-  border: 1px solid var(--ui-popup-border, var(--_ui-surface-border));
-  border-radius: var(--ui-radius, 0px);
+  border: var(--ui-border-width, 1px) solid
+    var(--ui-popup-border, var(--_ui-surface-border));
+  border-radius: var(--ui-popup-radius, var(--ui-radius, 0px));
   background: var(--ui-popup-surface, var(--ui-surface, white));
   color: var(--ui-popup-text, var(--ui-text, #191919));
   box-shadow: var(--ui-popup-shadow, none);
