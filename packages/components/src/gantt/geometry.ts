@@ -382,7 +382,22 @@ export function ganttDependencyPath(
     y: intervalCenters?.get(target.id) ?? (targetRow + 0.5) * rowHeight,
   }
   const middle = (a.x + b.x) / 2
-  const points = [a, { x: middle, y: a.y }, { x: middle, y: b.y }, b]
+  const stub = Math.min(8, rowHeight / 4)
+  // A midpoint behind the source end crosses endpoint bars. Leave each end
+  // outward instead, and join in the gap between packed lanes. Other bars are
+  // occluders in the renderer; routing never scans the interval collection.
+  const corridor = a.y + (b.y < a.y ? -1 : 1) * (rowHeight / 2)
+  const points =
+    b.x - a.x >= stub * 2
+      ? [a, { x: middle, y: a.y }, { x: middle, y: b.y }, b]
+      : [
+          a,
+          { x: a.x + stub, y: a.y },
+          { x: a.x + stub, y: corridor },
+          { x: b.x - stub, y: corridor },
+          { x: b.x - stub, y: b.y },
+          b,
+        ]
   const parts: string[] = []
   for (let i = 1; i < points.length; i++) {
     const segment = clipSegment(points[i - 1]!, points[i]!, viewport)

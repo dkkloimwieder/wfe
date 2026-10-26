@@ -256,6 +256,79 @@ describe('Gantt packed lanes and connectors', () => {
       ),
     ).toBe('M10,20L50,20 M50,20L50,80 M50,80L90,80')
   })
+  test.each([
+    { name: 'overlapping', start: 40, sourceY: 10, targetY: 30 },
+    { name: 'touching', start: 60, sourceY: 10, targetY: 30 },
+    { name: 'narrow gap', start: 65, sourceY: 10, targetY: 30 },
+    { name: 'reversed', start: 0, sourceY: 10, targetY: 30 },
+    { name: 'upward', start: 40, sourceY: 30, targetY: 10 },
+    { name: 'same lane reversed', start: 0, sourceY: 10, targetY: 10 },
+  ])(
+    'routes $name connections outside endpoint interiors',
+    ({ start, sourceY, targetY }) => {
+      const from = interval('from', 30, 60)
+      const to = interval('to', start, start + 20)
+      const path = ganttDependencyPath(
+        { id: 'edge', from: 'from', to: 'to' },
+        createGanttIntervalIndex([from, to]),
+        new Map([['a', 0]]),
+        range(0, 100),
+        100,
+        20,
+        { x: -10, y: 0, width: 120, height: 60 },
+        new Map([
+          ['from', sourceY],
+          ['to', targetY],
+        ]),
+      )
+      const segments = [
+        ...path!.matchAll(/M([^,]+),([^L]+)L([^,]+),([^ M]+)/g),
+      ].map((match) => match.slice(1).map(Number))
+      expect(segments).toHaveLength(5)
+      expect(segments[0]).toEqual([60, sourceY, 65, sourceY])
+      expect(segments.at(-1)).toEqual([start - 5, targetY, start, targetY])
+      const corridor = sourceY + (targetY < sourceY ? -10 : 10)
+      expect(segments[2]).toEqual([65, corridor, start - 5, corridor])
+      for (const [left, right, center] of [
+        [30, 60, sourceY],
+        [start, start + 20, targetY],
+      ]) {
+        for (const [x1, y1, x2, y2] of segments) {
+          const crossesInterior =
+            y1 === y2
+              ? y1! > center! - 4 &&
+                y1! < center! + 4 &&
+                Math.max(x1!, x2!) > left! &&
+                Math.min(x1!, x2!) < right!
+              : x1! > left! &&
+                x1! < right! &&
+                Math.max(y1!, y2!) > center! - 4 &&
+                Math.min(y1!, y2!) < center! + 4
+          expect(crossesInterior).toBe(false)
+        }
+      }
+    },
+  )
+  test('clips a reversed corridor when both endpoint lanes are outside the viewport', () => {
+    expect(
+      ganttDependencyPath(
+        { id: 'edge', from: 'from', to: 'to' },
+        createGanttIntervalIndex([
+          interval('from', 30, 60),
+          interval('to', 0, 20),
+        ]),
+        new Map([['a', 0]]),
+        range(0, 100),
+        100,
+        20,
+        { x: -10, y: 40, width: 110, height: 20 },
+        new Map([
+          ['from', 10],
+          ['to', 90],
+        ]),
+      ),
+    ).toBe('M-5,40L-5,60')
+  })
   test('omits dangling and collapsed endpoints without inventing dependencies', () => {
     const intervals = createGanttIntervalIndex([
       interval('from', 0, 10),
