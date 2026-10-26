@@ -180,7 +180,7 @@ export const documents = [
   },
   {
     path: 'docs/plan/wamn-sync.md',
-    fences: 10,
+    fences: 1,
     status: 'excluded',
     reason:
       'Plan fragments sketch the sync surface and its consumer; the sync unit cases and gallery cover the implemented package.',
