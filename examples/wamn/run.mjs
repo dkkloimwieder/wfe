@@ -31,7 +31,7 @@ assert.ok(
   modules.some((id) =>
     id.includes(
       process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/vendor/virtual-core/index.js'
+        ? '/components/dist/vendor/virtual-core/index.jsx'
         : '/components/src/vendor/virtual-core/index.ts',
     ),
   ),

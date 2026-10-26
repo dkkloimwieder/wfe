@@ -20,7 +20,7 @@ assert.ok(
   modules.some((id) =>
     id.includes(
       process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/layout/Dashboard.jsx'
+        ? '/components/dist/layout/Dashboard.jsx'
         : '/components/src/layout/Dashboard.tsx',
     ),
   ),

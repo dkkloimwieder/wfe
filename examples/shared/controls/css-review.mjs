@@ -6,7 +6,7 @@ import { cssInputs, hashCss } from '../../../scripts/css-provenance.mjs'
 
 export async function reviewCssProvenance(page, url) {
   const root = fileURLToPath(new URL('../../../', import.meta.url))
-  const directory = `packages/components/${process.env.BENCH_DISTRIBUTION ? 'dist/source' : 'src'}/styles`
+  const directory = `packages/components/${process.env.BENCH_DISTRIBUTION ? 'dist' : 'src'}/styles`
   const mode = process.env.BENCH_DISTRIBUTION ? 'distribution' : 'source'
   const response = await page.request.get(
     new URL('css-provenance.json', url).href,

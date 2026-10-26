@@ -52,7 +52,7 @@ assert.ok(
   modules.some((path) =>
     directory === '.dist'
       ? /src\/table\/engine\/table\.ts$/.test(path)
-      : /dist\/source\/table\/engine\/table\.js$/.test(path),
+      : /dist\/table\/engine\/table\.jsx$/.test(path),
   ),
 )
 const report = {

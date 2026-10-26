@@ -45,7 +45,7 @@ if (!externalUrl) {
     modules.some((id) =>
       id.includes(
         process.env.BENCH_DISTRIBUTION
-          ? '/components/dist/source/table/Table.jsx'
+          ? '/components/dist/table/Table.jsx'
           : '/components/src/table/Table.tsx',
       ),
     ),

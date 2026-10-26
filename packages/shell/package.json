@@ -6,16 +6,16 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "types": "./dist/client/index.d.ts",
+      "types": "./dist/index.d.ts",
       "wfe-source": "./src/index.ts",
-      "solid": "./dist/source/index.js",
+      "solid": "./dist/index.jsx",
       "node": "./dist/server/index.js",
-      "import": "./dist/client/index.js"
+      "default": "./dist/index.js"
     }
   },
   "sideEffects": false,
   "scripts": {
-    "build": "tsdown && node ../../scripts/build-source.mjs shell",
+    "build": "tsdown",
     "types": "tsc --project tsconfig.json"
   },
   "dependencies": {

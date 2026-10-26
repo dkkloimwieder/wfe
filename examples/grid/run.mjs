@@ -46,7 +46,7 @@ assert.ok(
   modules.some((id) =>
     id.endsWith(
       process.env.BENCH_DISTRIBUTION
-        ? '/generator/dist/source/GridView.jsx'
+        ? '/generator/dist/GridView.jsx'
         : '/generator/src/GridView.tsx',
     ),
   ),

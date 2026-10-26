@@ -46,7 +46,7 @@ assert.ok(
   modules.some((id) =>
     id.endsWith(
       process.env.BENCH_DISTRIBUTION
-        ? '/components/dist/source/components/StatusTile.jsx'
+        ? '/components/dist/components/StatusTile.jsx'
         : '/components/src/components/StatusTile.tsx',
     ),
   ),

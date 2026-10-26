@@ -69,11 +69,11 @@ export function Example() { return <Icon glyph={iconSearch} /> }
     new URL('../packages/components/src/vendor/icons/LICENSE', import.meta.url),
     'utf8',
   )
-  for (const mode of ['source', 'client', 'server']) {
+  for (const mode of ['', 'server/']) {
     assert.equal(
       await readFile(
         new URL(
-          `../packages/components/dist/${mode}/vendor/icons/LICENSE`,
+          `../packages/components/dist/${mode}vendor/icons/LICENSE`,
           import.meta.url,
         ),
         'utf8',

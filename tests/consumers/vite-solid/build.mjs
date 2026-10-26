@@ -90,7 +90,9 @@ try {
                 `Package source entered the build: ${id}`,
               )
               assert.ok(
-                !/^dist\/(client|server)\//.test(path),
+                !/^dist\/(client|server)\//.test(path) &&
+                  (!['components', 'generator', 'shell'].includes(pkg.name) ||
+                    /\.(jsx|css)$/.test(path)),
                 `Precompiled JSX entered the build: ${id}`,
               )
               moduleCount++
