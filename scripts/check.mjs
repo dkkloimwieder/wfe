@@ -4,6 +4,7 @@ for (const script of [
   'lint',
   'test:integrity',
   'build',
+  'test:consumers',
   'types',
   'types:unit',
   'types:examples',
