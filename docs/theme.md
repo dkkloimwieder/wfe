@@ -2,6 +2,7 @@
 
 `Theme` uses Sketchy, the approved dotted appearance from `v0.0.4`.
 Set `preset="vanilla"` for plain neutral styling inspired by base shadcn and Zaidan.
+Set `preset="laser"` for pill-shaped controls and neon highlights. Laser defaults to dark mode.
 Omitting `preset` selects Sketchy. Its API identifier remains `preset="default"`. Earlier releases called this theme Default.
 The theme lives in `@wfe/components`, including its CSS, fonts, and decorative behavior.
 The gallery uses this implementation too.
@@ -178,15 +179,15 @@ Decoration props have no effect inside vanilla, including explicit per-field req
 Switching presets preserves input values, focus, selection, and open overlays.
 
 Mode, accent, density, class, and style remain independent of preset selection.
-Both presets support primary and secondary accents and surface layers.
+All presets support primary and secondary accents and surface layers.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
 Dividers, depth, and decoration controls belong to the Sketchy preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
-Both presets capitalize system labels while preserving record values and prose.
+All presets capitalize system labels while preserving record values and prose.
 Vanilla navigation uses flat groups, indented child links, and a neutral selected-row fill.
 Opening a group does not paint the whole group as selected. Keyboard focus keeps a separate visible outline.
 Presets own these presentation choices. Shared accent and surface controls do not require identical navigation borders or group backgrounds.
-Both presets use 12px body text, 14px headings, and 32px controls by default.
+All presets use 12px body text, 14px headings, and 32px controls by default.
 Vanilla uses 6px gaps, 12px panel insets, and 16px gaps between fields.
 Attached input buttons share one outer shape, with square internal corners.
 Explicit density profiles still use shared geometry records.
@@ -215,7 +216,7 @@ See [the theme contract](theme-contract.md) for ownership and compatibility rule
 
 The CSS uses `@scope` to isolate nested themes. Consumers need a browser with CSS scope support.
 Explicit portal mount overrides retain consumer ownership; place that mount inside the desired theme scope.
-The shared stylesheet includes both presets for compatibility. Vanilla avoids decoration execution, but the stylesheet still contains default-theme assets.
+The shared stylesheet includes all presets for compatibility. Vanilla avoids decoration execution, but the stylesheet still contains default-theme assets.
 
 ## Reference presentation
 
@@ -223,3 +224,21 @@ Vanilla takes its direction from the neutral examples in [shadcn theming](https:
 These references were reviewed on October 25, 2026. Vanilla is an independent WFE implementation, not a copied upstream preset or pixel-identical port.
 No component runtime or styling dependency was added.
 Review nested presets and a custom extension at `?gallery=themes`.
+
+## Laser
+
+Laser uses the shared controls with pill-shaped inputs and buttons, rounded panels, and smooth disclosure icons.
+A broad dark shadow provides elevation. A tighter accent glow marks hovered, focused, and selected controls.
+Compound inputs keep one outer shape. Their internal button corners stay square.
+The theme adds no randomized dots or decoration listeners.
+
+Use `<Theme preset="laser">` for the dark first-pass presentation.
+Pass `mode="light"` for darker accents and weaker glow on light surfaces.
+The existing primary and secondary accent props remain available.
+Use `layers` to choose the canvas, pane, and content surfaces from the Laser scale.
+Laser defaults to `{ canvas: 0, pane: 1, content: 1 }`.
+The gallery supports `?gallery=everything&preset=laser` and selects dark mode when you choose Laser.
+
+`--ui-laser-elevation` controls the broad shadow. `--ui-laser-glow` controls the combined elevation and neon highlight.
+The shared radius variables control pills, panels, and popups independently.
+Forced-color mode removes the shadows and retains the native focus outline.

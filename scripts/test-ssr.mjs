@@ -821,6 +821,16 @@ for (const density of ['compact', 'comfortable']) {
   assert.ok(output.includes(`data-ui-density="${density}"`))
 }
 
+for (const preset of ['vanilla', 'laser']) {
+  const output = await renderToString(() =>
+    createComponent(Theme, { preset, children: 'Plain themed record' }),
+  )
+  assert.ok(output.includes(`data-ui-preset="${preset}"`))
+  assert.equal((output.match(/data-ui-theme-owner/g) ?? []).length, 1)
+  assert.equal((output.match(/data-ui-portal-root/g) ?? []).length, 1)
+  assert.ok(output.includes('Plain themed record'))
+}
+
 const embeddedShell = await renderToString(() =>
   createComponent(DashboardShell, {
     mainAs: 'section',

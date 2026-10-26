@@ -168,9 +168,11 @@ export type GalleryRoute = GalleryConfig & {
 export const layersForPreset = (
   preset: GalleryConfig['preset'],
 ): GalleryConfig['layers'] =>
-  preset === 'vanilla'
-    ? { canvas: 1, pane: 0, content: 0 }
-    : { ...defaultLayers }
+  preset === 'laser'
+    ? { canvas: 0, pane: 1, content: 1 }
+    : preset === 'vanilla'
+      ? { canvas: 1, pane: 0, content: 0 }
+      : { ...defaultLayers }
 export const galleryThemeOptions = (route: GalleryConfig) => ({
   accent: accents[route.accent]!.name.toLowerCase() as ThemeOptions['accent'],
   secondaryAccent: secondaryAccents[
@@ -205,8 +207,11 @@ export function readRoute(url: URL): GalleryRoute {
     const n = raw === null || !/^\d+$/.test(raw) ? fallback : Number(raw)
     return integer(n, max) ? n : fallback
   }
+  const requestedPreset = url.searchParams.get('preset')
   const preset =
-    url.searchParams.get('preset') === 'vanilla' ? 'vanilla' : 'default'
+    requestedPreset === 'vanilla' || requestedPreset === 'laser'
+      ? requestedPreset
+      : 'default'
   const layers = layersForPreset(preset)
   const state = url.searchParams.get('state') as GalleryState
   const viewport = url.searchParams.get('viewport')
@@ -227,7 +232,7 @@ export function readRoute(url: URL): GalleryRoute {
           (value) => value === url.searchParams.get('borderColor'),
         ) ?? 'neutral',
     },
-    scheme: number('scheme', 1, 2),
+    scheme: number('scheme', preset === 'laser' ? 2 : 1, 2),
     accent: number('accent', 1, 8),
     depth: number('depth', 2, 3) as GalleryConfig['depth'],
     layers: {
@@ -252,7 +257,7 @@ export function galleryUrl(base: URL, route: GalleryRoute, preview = false) {
         [key, route.decorations[key as keyof Decorations], fallback] as const,
     ),
     ['preset', route.preset, 'default'],
-    ['scheme', route.scheme, 1],
+    ['scheme', route.scheme, route.preset === 'laser' ? 2 : 1],
     ['accent', route.accent, 1],
     ['depth', route.depth, 2],
     ['canvas', route.layers.canvas, layersForPreset(route.preset).canvas],

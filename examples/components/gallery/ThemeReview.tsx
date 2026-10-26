@@ -119,6 +119,22 @@ export function ThemeReview() {
             <ThemeControls name="Sketchy inner" {...controls} />
           </Theme>
         </Theme>
+        <Theme
+          id="theme-review-laser"
+          preset="laser"
+          mode={mode()}
+          class="theme-review-boundary"
+        >
+          <ThemeControls name="Laser outer" {...controls} />
+          <Theme
+            id="theme-review-laser-vanilla"
+            preset="vanilla"
+            mode={mode()}
+            class="theme-review-boundary"
+          >
+            <ThemeControls name="Vanilla within Laser" {...controls} />
+          </Theme>
+        </Theme>
       </div>
       <Theme
         id="theme-review-custom"

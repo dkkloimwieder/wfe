@@ -1,0 +1,88 @@
+/* Laser shares plain control geometry and owns its neon presentation. */
+@scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
+  :scope
+    :is(.ui-card, .ui-field-group, .ui-field-set, .ui-entry-panel-surface) {
+    box-shadow: var(--ui-panel-shadow);
+  }
+  :scope :is(.ui-input, .choice-input) {
+    padding-inline: max(12px, var(--ui-input-padding-x));
+  }
+  :scope
+    :is(.ui-control-frame, .ui-input-affix, .filter-input, .choice-control) {
+    border-radius: var(--ui-control-radius);
+  }
+  :scope :is(textarea, .ui-control-frame:has(textarea)) {
+    border-radius: var(--ui-panel-radius);
+  }
+  :scope
+    :is(
+      .ui-button,
+      .popup-trigger,
+      .ui-control-frame,
+      .ui-input-affix,
+      .filter-input,
+      .choice-control,
+      .ui-dashboard-menu > a,
+      .ui-tabs-trigger
+    ):is(:hover, :focus-within):not(
+      :disabled,
+      [aria-disabled='true'],
+      [data-disabled],
+      [data-readonly]
+    ):not(
+      :has(
+        input:disabled,
+        input[readonly],
+        textarea:disabled,
+        textarea[readonly]
+      )
+    ) {
+    box-shadow: var(--ui-laser-glow);
+  }
+  :scope
+    :is(.ui-input-affix, .filter-input, .choice-control)
+    > :is(button, input, .ui-control-frame) {
+    box-shadow: none;
+  }
+  :scope
+    :is(
+      .ui-button:not(.ui-sidebar-group-panel),
+      .ui-dashboard-menu > a,
+      .ui-tabs-trigger
+    ):is(
+      [aria-pressed='true'],
+      [aria-selected='true'],
+      [aria-current='page'],
+      [data-ui-active='true']
+    ) {
+    border-color: var(--ui-accent);
+    box-shadow: var(--ui-laser-glow);
+  }
+  :scope .ui-dashboard-menu > a[aria-current='page'] {
+    color: var(--ui-accent);
+  }
+  :scope
+    :is(
+      .ui-check-control,
+      .ui-radio-control,
+      .ui-switch-control
+    )[data-checked] {
+    box-shadow: var(--ui-laser-glow);
+  }
+  :scope
+    :is(.ui-toggle, .ui-radio-item):hover:not([data-disabled], [data-readonly])
+    :is(.ui-check-control, .ui-radio-control, .ui-switch-control) {
+    box-shadow: var(--ui-laser-glow);
+  }
+  :scope .ui-check-control {
+    border-radius: 6px;
+  }
+  :scope .ui-gantt-bar {
+    border-radius: var(--ui-control-radius);
+  }
+  @media (forced-colors: active) {
+    :scope * {
+      box-shadow: none;
+    }
+  }
+}

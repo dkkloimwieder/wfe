@@ -94,7 +94,7 @@ function MilestoneMarker() {
       aria-hidden="true"
       {...{ focusable: 'false' }}
     >
-      <Show when={preset() !== 'vanilla'}>
+      <Show when={preset() === 'default'}>
         <defs>
           <pattern
             id={pattern}
@@ -119,7 +119,7 @@ function MilestoneMarker() {
       </Show>
       <path
         d="M9 1 17 16 9 31 1 16Z"
-        fill={preset() === 'vanilla' ? 'var(--ui-accent)' : `url(#${pattern})`}
+        fill={preset() !== 'default' ? 'var(--ui-accent)' : `url(#${pattern})`}
         stroke="var(--ui-accent)"
         stroke-opacity="var(--ui-decoration-border-opacity, 100%)"
         vector-effect="non-scaling-stroke"

@@ -136,7 +136,7 @@ test('omitted gallery surface defaults decode to the same choices', () => {
 })
 
 test('theme preset survives navigation and preview links independently of mode', () => {
-  for (const preset of ['default', 'vanilla'] as const) {
+  for (const preset of ['default', 'vanilla', 'laser'] as const) {
     for (const scheme of [0, 1, 2]) {
       const route = {
         ...defaults,

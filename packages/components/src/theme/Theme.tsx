@@ -1,4 +1,5 @@
 import { vanillaStyle } from './vanilla'
+import { laserStyle } from './laser'
 import { ThemePresetContext } from '../internal/themePreset'
 import type { ThemePreset } from '../internal/themePreset'
 import { PortalOwner } from '../internal/portalOwner'
@@ -88,10 +89,8 @@ function withDefaults<T extends object>(
 
 /** The approved default theme, resolved without browser state. */
 export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
-  const scheme =
-    schemes[
-      options.mode === 'dark' ? 2 : options.mode === 'monochrome' ? 0 : 1
-    ]!
+  const mode = options.mode ?? (options.preset === 'laser' ? 'dark' : 'light')
+  const scheme = schemes[mode === 'dark' ? 2 : mode === 'monochrome' ? 0 : 1]!
   const accent =
     accents[accentNames.indexOf(options.accent ?? 'blue')] ?? accents[1]!
   const secondary = accentNames.indexOf(options.secondaryAccent ?? 'blue')
@@ -175,6 +174,15 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
           '--ui-accent-inverted-hover': 'var(--ui-on-accent)',
         }
       : {}),
+    ...(options.preset === 'laser'
+      ? laserStyle(
+          mode,
+          accent,
+          secondaryAccents[secondary] ?? secondaryAccents[1]!,
+          options.density,
+          options.layers,
+        )
+      : {}),
   }
 }
 
@@ -191,7 +199,7 @@ export function Theme(props: ThemeProps) {
       geometry: resolveDecorationGeometry(props.decorationGeometry),
     }),
     ({ node, geometry, preset }) => {
-      if (!node || preset === 'vanilla') {
+      if (!node || preset !== 'default') {
         controller?.dispose()
         controller = undefined
         owner = undefined

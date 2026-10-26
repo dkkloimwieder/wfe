@@ -275,12 +275,19 @@ export function Gallery() {
                 choices={[
                   { value: 'default', label: 'Sketchy' },
                   { value: 'vanilla', label: 'Vanilla' },
+                  { value: 'laser', label: 'Laser' },
                 ]}
                 onValueChange={(preset) =>
                   change({
-                    preset: preset === 'vanilla' ? 'vanilla' : 'default',
+                    preset:
+                      preset === 'vanilla' || preset === 'laser'
+                        ? preset
+                        : 'default',
+                    scheme: preset === 'laser' ? 2 : route().scheme,
                     layers: layersForPreset(
-                      preset === 'vanilla' ? 'vanilla' : 'default',
+                      preset === 'vanilla' || preset === 'laser'
+                        ? preset
+                        : 'default',
                     ),
                   })
                 }

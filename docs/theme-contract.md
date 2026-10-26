@@ -14,11 +14,11 @@ Themes do not own requests, permissions, routing, validation rules, or applicati
 
 ## Public selection
 
-Theme accepts an additive preset property with default and vanilla values. Omission preserves default.
+Theme accepts an additive preset property with default, vanilla, and laser values. Omission preserves default.
 Existing mode, accent, secondaryAccent, density, style, class, and decoration options remain supported.
-Both presets support primary and secondary accents and the shared surface scale.
+All presets support primary and secondary accents and semantic surface roles.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
-Both presets capitalize system labels and preserve record values and prose.
+All presets capitalize system labels and preserve record values and prose.
 Dividers, depth, and decoration controls configure the Sketchy preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
 Vanilla suppresses decorative effects, including explicit decoration requests inside its scope.
@@ -55,7 +55,7 @@ Component-specific preset rules are valid where variables alone cannot describe 
 Only the Sketchy preset starts randomized decoration observers and listeners.
 Vanilla creates no decorative-only SVG or DOM. Structural wrappers remain stable during switching.
 Switching away from decoration disposes its resources and removes its owned inline geometry values.
-Reduced-motion and forced-color behavior remain usable in both presets.
+Reduced-motion and forced-color behavior remain usable in all presets.
 
 ## Floating content
 

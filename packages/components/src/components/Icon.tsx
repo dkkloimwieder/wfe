@@ -53,11 +53,11 @@ export function Icon(props: IconProps) {
   const preset = useThemePreset()
   const glyph = () =>
     props.glyph ??
-    (preset() === 'vanilla' && props.name
+    (preset() !== 'default' && props.name
       ? vanillaIcons[props.name]
       : undefined)
   const plainDirection = () =>
-    preset() === 'vanilla' && direction() !== undefined
+    preset() !== 'default' && direction() !== undefined
   const direction = () =>
     props.name === 'chevron-down'
       ? 'down'
@@ -103,7 +103,7 @@ export function Icon(props: IconProps) {
             }
             vector-effect={direction() ? 'non-scaling-stroke' : undefined}
             shape-rendering={
-              preset() !== 'vanilla' && pixelAligned.has(props.name!)
+              preset() === 'default' && pixelAligned.has(props.name!)
                 ? 'crispEdges'
                 : 'auto'
             }

@@ -39,7 +39,7 @@
   display: none;
 }
 
-@scope (.ui-theme:not([data-ui-preset='vanilla'])) to (.ui-theme) {
+@scope (.ui-theme:is([data-ui-preset='default'], :not([data-ui-preset]))) to (.ui-theme) {
   /* Input decoration settings apply to choice triangles, not other disclosures. */
   @media (forced-colors: none) {
     :scope .ui-choice-icon .ui-disclosure-decoration {

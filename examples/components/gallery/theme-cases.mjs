@@ -48,9 +48,20 @@ export async function galleryThemeCases({ page, url, record }) {
       }
       await expect(page.getByRole('slider')).toHaveCount(0)
       await choiceControl(page, { name: 'Theme', exact: true }).click()
+      await page.getByRole('option', { name: 'Laser', exact: true }).click()
+      await expect(draft).toHaveValue('Retained through theme changes')
+      await expect(draft).toHaveAttribute('data-theme-retained', 'yes')
+      await expect(page.locator('.gallery-shell')).toHaveAttribute(
+        'data-ui-preset',
+        'laser',
+      )
+      assert.equal(new URL(page.url()).searchParams.get('preset'), 'laser')
+      await expect(page.locator('.ui-disclosure-decoration')).toHaveCount(0)
+      await choiceControl(page, { name: 'Theme', exact: true }).click()
       await page.getByRole('option', { name: 'Sketchy', exact: true }).click()
       await expect(draft).toHaveValue('Retained through theme changes')
       await expect(draft).toHaveAttribute('data-theme-retained', 'yes')
+      await page.goBack()
       await page.goBack()
       await expect(page.locator('.gallery-shell')).toHaveAttribute(
         'data-ui-preset',
@@ -72,6 +83,8 @@ export async function galleryThemeCases({ page, url, record }) {
         ['Vanilla outer', 'theme-review-vanilla'],
         ['Sketchy inner', 'theme-review-default-inner'],
         ['Custom vanilla', 'theme-review-custom'],
+        ['Laser outer', 'theme-review-laser'],
+        ['Vanilla within Laser', 'theme-review-laser-vanilla'],
       ]) {
         await expect(
           page.getByRole('textbox', { name: `${name} draft`, exact: true }),

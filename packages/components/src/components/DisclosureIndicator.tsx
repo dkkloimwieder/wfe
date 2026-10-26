@@ -18,7 +18,7 @@ export function DisclosureIndicator(props: { class?: ClassValue }) {
       {...{ focusable: 'false' }}
     >
       <Show
-        when={preset() !== 'vanilla'}
+        when={preset() === 'default'}
         fallback={
           <path
             class="ui-disclosure-chevron"

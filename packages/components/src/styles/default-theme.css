@@ -2,7 +2,7 @@
 @import './fonts/font.css';
 @import './theme-sizing.css';
 
-@scope (.ui-theme:not([data-ui-preset='vanilla'])) to (.ui-theme) {
+@scope (.ui-theme:is([data-ui-preset='default'], :not([data-ui-preset]))) to (.ui-theme) {
   :scope {
     --ui-icon-stroke-width: 1;
     --ui-action-outline-opacity: 100%;

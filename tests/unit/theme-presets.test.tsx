@@ -22,33 +22,36 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-test('vanilla does not initialize decoration work when mode or geometry changes', () => {
-  const [mode, setMode] =
-    createSignal<NonNullable<ThemeOptions['mode']>>('light')
-  const [rotation, setRotation] = createSignal(1)
-  const h = render(() => (
-    <Theme
-      preset="vanilla"
-      mode={mode()}
-      decorationGeometry={{ rotationReduction: rotation() }}
-    >
-      <button type="button">
-        Open <DisclosureIndicator />
-      </button>
-    </Theme>
-  ))
-  flush()
-  expect(decorations.decorateActions).not.toHaveBeenCalled()
-  expect(h.container.querySelector('pattern')).toBeNull()
-  expect(h.container.querySelector('.ui-disclosure-decoration')).toBeNull()
-  for (const next of ['dark', 'monochrome', 'light'] as const) {
-    setMode(next)
-    setRotation(2)
+test.each(['vanilla', 'laser'] as const)(
+  '%s does not initialize decoration work when mode or geometry changes',
+  (preset) => {
+    const [mode, setMode] =
+      createSignal<NonNullable<ThemeOptions['mode']>>('light')
+    const [rotation, setRotation] = createSignal(1)
+    const h = render(() => (
+      <Theme
+        preset={preset}
+        mode={mode()}
+        decorationGeometry={{ rotationReduction: rotation() }}
+      >
+        <button type="button">
+          Open <DisclosureIndicator />
+        </button>
+      </Theme>
+    ))
     flush()
     expect(decorations.decorateActions).not.toHaveBeenCalled()
-  }
-  expect(h.getByRole('button', { name: 'Open' })).toBeTruthy()
-})
+    expect(h.container.querySelector('pattern')).toBeNull()
+    expect(h.container.querySelector('.ui-disclosure-decoration')).toBeNull()
+    for (const next of ['dark', 'monochrome', 'light'] as const) {
+      setMode(next)
+      setRotation(2)
+      flush()
+      expect(decorations.decorateActions).not.toHaveBeenCalled()
+    }
+    expect(h.getByRole('button', { name: 'Open' })).toBeTruthy()
+  },
+)
 
 test('preset changes retain the input and focus while starting and disposing decoration work', () => {
   const [preset, setPreset] =
@@ -84,6 +87,13 @@ test('preset changes retain the input and focus while starting and disposing dec
   expect(h.getByRole('textbox')).toBe(input)
   expect(input.value).toBe('Unsubmitted draft')
   expect(document.activeElement).toBe(input)
+
+  setPreset('laser')
+  flush()
+  expect(controllers).toHaveLength(1)
+  expect(h.getByRole('textbox')).toBe(input)
+  expect(document.activeElement).toBe(input)
+  expect(input.value).toBe('Unsubmitted draft')
 
   setPreset('default')
   flush()

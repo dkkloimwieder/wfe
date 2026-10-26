@@ -1,5 +1,5 @@
 /* Plain presentation stops at nested theme owners. */
-@scope (.ui-theme[data-ui-preset='vanilla']) to (.ui-theme) {
+@scope (.ui-theme:is([data-ui-preset='vanilla'], [data-ui-preset='laser'])) to (.ui-theme) {
   :scope
     :is(
       .ui-dashboard-header,

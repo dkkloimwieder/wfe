@@ -28,4 +28,5 @@
 
 @import './default-theme.css';
 
-@import './vanilla-theme.css';
+@import './plain-theme.css';
+@import './laser-theme.css';
