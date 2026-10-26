@@ -21,7 +21,11 @@
     border-color: var(--ui-control-border);
   }
   :scope
-    :is(.ui-button, .ui-dashboard-menu > a, .ui-tabs-trigger):is(
+    :is(
+      .ui-button:where(:not(.ui-sidebar-group-panel)),
+      .ui-dashboard-menu > a,
+      .ui-tabs-trigger
+    ):is(
       [aria-pressed='true'],
       [aria-selected='true'],
       [aria-current='page'],
@@ -86,8 +90,71 @@
     stroke-linecap: round;
     stroke-linejoin: round;
   }
+  /* Navigation uses flat rows; an open group is not a selected control. */
+  :scope :is(.ui-sidebar-group, .ui-sidebar-flyout) {
+    --ui-control-height: 32px;
+  }
+  :scope .ui-sidebar-group {
+    --_ui-sidebar-row-height: calc(var(--ui-control-height) + 4px);
+    padding-block: 2px;
+  }
+  :scope .ui-sidebar-group > .ui-sidebar-group-panel {
+    border: 0;
+    background: transparent;
+  }
+  :scope .ui-sidebar-group > .ui-sidebar-group-panel > summary {
+    min-block-size: var(--ui-control-height);
+    border-radius: var(--ui-control-radius);
+    font-weight: 500;
+  }
+  :scope .ui-sidebar-group > .ui-sidebar-group-panel > summary:hover {
+    background: var(--ui-highlight);
+  }
+  :scope .ui-sidebar-group-control {
+    block-size: var(--ui-control-height);
+  }
   :scope .ui-sidebar-group-icon {
+    inline-size: var(--ui-control-height);
+    block-size: var(--ui-control-height);
     border-color: transparent;
+  }
+  :scope .ui-sidebar-group .ui-collapsible-content {
+    margin-inline-start: calc(var(--ui-control-height) / 2);
+    margin-block: 4px;
+    padding: 0 0 0 calc(2 * var(--ui-gap));
+    border-inline-start: var(--ui-border-width) solid var(--ui-border);
+  }
+  :scope .ui-dashboard-menu {
+    gap: 2px;
+  }
+  :scope .ui-dashboard-menu > a {
+    color: var(--ui-text);
+    border-color: transparent;
+  }
+  :scope .ui-dashboard-menu > a:is(:hover, [aria-current='page']) {
+    border-color: transparent;
+    background: var(--ui-highlight);
+  }
+  :scope .ui-sidebar-group[data-compact] > .ui-button {
+    border-color: transparent;
+    background: transparent;
+  }
+  :scope
+    .ui-sidebar-group[data-compact]
+    > .ui-button:is(:hover, [aria-pressed='true']) {
+    background: var(--ui-highlight);
+  }
+  :scope
+    .ui-collapsible
+    > summary[data-indicator-placement='end']
+    > .ui-disclosure-indicator {
+    transform: none;
+  }
+  :scope
+    .ui-collapsible[open]
+    > summary[data-indicator-placement='end']
+    > .ui-disclosure-indicator {
+    transform: rotate(90deg);
   }
   :scope :is(.table-workspace-header, .table-workspace-summary) {
     background: var(--ui-pane-surface);

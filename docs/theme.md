@@ -183,6 +183,9 @@ Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content
 Dividers, depth, and decoration controls belong to the default preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
 Both presets capitalize system labels while preserving record values and prose.
+Vanilla navigation uses flat groups, indented child links, and a neutral selected-row fill.
+Opening a group does not paint the whole group as selected. Keyboard focus keeps a separate visible outline.
+Presets own these presentation choices. Shared accent and surface controls do not require identical navigation borders or group backgrounds.
 The default vanilla control height is 36px. Explicit density profiles still use shared geometry records.
 Caller-supplied virtual row heights remain authoritative.
 
