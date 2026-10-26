@@ -1,3 +1,4 @@
+import { galleryThemeCases } from './theme-cases.mjs'
 import { galleryGanttCases } from './gantt-cases.mjs'
 import { galleryDragCases } from './drag-cases.mjs'
 import { artifactPath } from '../../../scripts/artifacts.mjs'
@@ -10,6 +11,7 @@ import { galleryLoadingCases } from './loading-cases.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 const catalog = [
+  ['themes', 'Theme boundaries'],
   ['gantt', 'Gantt'],
   ['drag-and-drop', 'Drag and drop'],
   ['kanban', 'Issue board'],
@@ -40,6 +42,7 @@ const catalog = [
   ['pagination', 'Pagination and header actions'],
 ]
 export async function galleryCases({ page, url, record, settle }) {
+  await galleryThemeCases({ page, url, record })
   await decorationGeometryCases({ page, url, record })
   await iconCases({ page, url, record })
   await inputDecorationCases({ page, url, record })
@@ -143,7 +146,8 @@ export async function galleryCases({ page, url, record, settle }) {
           await page.goto(`${url}?gallery=${id}&scheme=${scheme}`)
           await expect(preview().locator('.gallery-preview')).toBeVisible()
           await expect(page.getByRole('main')).toHaveCount(1)
-          const themeOwners = id === 'decoration-geometry' ? 2 : 1
+          const themeOwners =
+            id === 'themes' ? 6 : id === 'decoration-geometry' ? 2 : 1
           await expect(page.locator('[data-ui-theme-owner]')).toHaveCount(
             themeOwners,
           )

@@ -8,7 +8,14 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
-import { Breadcrumbs, Button, Icon } from '@wfe/components'
+import {
+  Breadcrumbs,
+  Button,
+  Field,
+  Icon,
+  Label,
+  SelectField,
+} from '@wfe/components'
 import { DashboardShell, SidebarGroup } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
@@ -99,16 +106,26 @@ export function Gallery() {
   return (
     <DefaultAppearance
       class="gallery-shell"
-      style={{
-        ...appearanceStyle(
-          schemes[route().scheme]!,
-          accents[route().accent]!,
-          route().depth,
-          route().layers,
-          undefined,
-          route().decorations,
-        ),
-      }}
+      preset={route().preset}
+      mode={
+        route().scheme === 2
+          ? 'dark'
+          : route().scheme === 0
+            ? 'monochrome'
+            : 'light'
+      }
+      style={
+        route().preset === 'default'
+          ? appearanceStyle(
+              schemes[route().scheme]!,
+              accents[route().accent]!,
+              route().depth,
+              route().layers,
+              undefined,
+              route().decorations,
+            )
+          : undefined
+      }
     >
       <DashboardShell
         class="gallery-dashboard"
@@ -242,6 +259,22 @@ export function Gallery() {
       >
         <Show when={appearanceOpen()}>
           <section id="gallery-appearance" class="gallery-appearance">
+            <Field>
+              <Label>Theme</Label>
+              <SelectField
+                label="Theme"
+                value={route().preset}
+                choices={[
+                  { value: 'default', label: 'Default' },
+                  { value: 'vanilla', label: 'Vanilla' },
+                ]}
+                onValueChange={(preset) =>
+                  change({
+                    preset: preset === 'vanilla' ? 'vanilla' : 'default',
+                  })
+                }
+              />
+            </Field>
             <div
               class="appearance-options gallery-sidebar-options"
               role="group"
@@ -266,24 +299,43 @@ export function Gallery() {
                 )}
               </For>
             </div>
-            <AppearanceReview
-              decorations={route().decorations}
-              onDecorationsChange={(decorations, commit) =>
-                change({ decorations }, commit)
+            <Show
+              when={route().preset === 'default'}
+              fallback={
+                <Field>
+                  <Label>Mode</Label>
+                  <SelectField
+                    label="Mode"
+                    value={String(route().scheme)}
+                    choices={[
+                      { value: '1', label: 'Light' },
+                      { value: '2', label: 'Dark' },
+                      { value: '0', label: 'Black / white' },
+                    ]}
+                    onValueChange={(value) => change({ scheme: Number(value) })}
+                  />
+                </Field>
               }
-              scheme={schemes[route().scheme]!}
-              accent={accents[route().accent]!}
-              depth={route().depth}
-              layers={route().layers}
-              onSchemeChange={(value) =>
-                change({ scheme: schemes.indexOf(value) })
-              }
-              onAccentChange={(value) =>
-                change({ accent: accents.indexOf(value) })
-              }
-              onDepthChange={(depth) => change({ depth })}
-              onLayersChange={(layers) => change({ layers })}
-            />
+            >
+              <AppearanceReview
+                decorations={route().decorations}
+                onDecorationsChange={(decorations, commit) =>
+                  change({ decorations }, commit)
+                }
+                scheme={schemes[route().scheme]!}
+                accent={accents[route().accent]!}
+                depth={route().depth}
+                layers={route().layers}
+                onSchemeChange={(value) =>
+                  change({ scheme: schemes.indexOf(value) })
+                }
+                onAccentChange={(value) =>
+                  change({ accent: accents.indexOf(value) })
+                }
+                onDepthChange={(depth) => change({ depth })}
+                onLayersChange={(layers) => change({ layers })}
+              />
+            </Show>
           </section>
         </Show>
         <div class="gallery-toolbar">

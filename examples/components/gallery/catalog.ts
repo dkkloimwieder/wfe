@@ -1,3 +1,4 @@
+import type { ThemeOptions } from '@wfe/components/theme'
 import {
   defaultDecorations,
   defaultLayers,
@@ -8,6 +9,12 @@ import type { Decorations } from '../../shared/appearance/appearance'
 export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
+  {
+    id: 'themes',
+    label: 'Theme boundaries',
+    group: 'Components',
+    states: ['normal'],
+  },
   { id: 'gantt', label: 'Gantt', group: 'Components', states: ['normal'] },
   {
     id: 'drag-and-drop',
@@ -145,6 +152,7 @@ export const entries = [
 ] as const
 export type GalleryId = (typeof entries)[number]['id']
 export type GalleryConfig = {
+  preset: NonNullable<ThemeOptions['preset']>
   decorations: Decorations
   scheme: number
   accent: number
@@ -157,6 +165,7 @@ export type GalleryRoute = GalleryConfig & {
   viewport: 'full' | 'tablet' | 'phone'
 }
 export const defaults: GalleryConfig = {
+  preset: 'default',
   decorations: defaultDecorations,
   scheme: 1,
   accent: 1,
@@ -185,6 +194,8 @@ export function readRoute(url: URL): GalleryRoute {
   const viewport = url.searchParams.get('viewport')
   return {
     id,
+    preset:
+      url.searchParams.get('preset') === 'vanilla' ? 'vanilla' : 'default',
     decorations: {
       secondary: number('secondary', 1, secondaryAccents.length - 1),
       dots: number('dots', defaultDecorations.dots, 100),
@@ -223,6 +234,7 @@ export function galleryUrl(base: URL, route: GalleryRoute, preview = false) {
       ([key, fallback]) =>
         [key, route.decorations[key as keyof Decorations], fallback] as const,
     ),
+    ['preset', route.preset, 'default'],
     ['scheme', route.scheme, 1],
     ['accent', route.accent, 1],
     ['depth', route.depth, 2],

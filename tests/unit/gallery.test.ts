@@ -134,3 +134,30 @@ test('omitted gallery surface defaults decode to the same choices', () => {
     expect(readRoute(url)).toEqual(route)
   }
 })
+
+test('theme preset survives navigation and preview links independently of mode', () => {
+  for (const preset of ['default', 'vanilla'] as const) {
+    for (const scheme of [0, 1, 2]) {
+      const route = {
+        ...defaults,
+        id: 'fields' as const,
+        viewport: 'full' as const,
+        preset,
+        scheme,
+      }
+      for (const preview of [false, true]) {
+        const url = galleryUrl(new URL('https://example.test/'), route, preview)
+        expect(readRoute(url)).toEqual(route)
+        expect(url.searchParams.has('preset')).toBe(preset !== 'default')
+        const next = readRoute(
+          galleryUrl(url, { ...route, id: 'numbers' }, preview),
+        )
+        expect(next.preset).toBe(preset)
+        expect(next.scheme).toBe(scheme)
+      }
+    }
+  }
+  expect(
+    readRoute(new URL('https://example.test/?preset=unknown')).preset,
+  ).toBe('default')
+})

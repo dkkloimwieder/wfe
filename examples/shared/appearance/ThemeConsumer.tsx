@@ -1,6 +1,6 @@
 import { ContainerLayoutReview } from '../ContainerLayoutReview'
 import { createSignal } from 'solid-js'
-import type { ThemeDensity } from '@wfe/components/theme'
+import type { ThemeDensity, ThemePreset } from '@wfe/components/theme'
 import {
   Theme,
   Button,
@@ -16,6 +16,7 @@ import '@wfe/components/styles.css'
 
 /** A consumer owns state; all presentation comes from the public package. */
 export function ThemeConsumer() {
+  const [preset, setPreset] = createSignal<ThemePreset>('default')
   const [density, setDensity] = createSignal<ThemeDensity>('default')
   const [mode, setMode] = createSignal<'light' | 'dark'>('light')
   const [choice, setChoice] = createSignal<string | undefined>('first')
@@ -24,7 +25,12 @@ export function ThemeConsumer() {
     columns: [{ id: 'name', accessorKey: 'name', header: 'Name' }],
   })
   return (
-    <Theme id="theme-consumer" mode={mode()} density={density()}>
+    <Theme
+      id="theme-consumer"
+      preset={preset()}
+      mode={mode()}
+      density={density()}
+    >
       <DashboardShell header="Public theme" style={{ height: '28rem' }}>
         <DashboardShell
           mainAs="section"
@@ -50,6 +56,14 @@ export function ThemeConsumer() {
               onClick={() => setMode(mode() === 'light' ? 'dark' : 'light')}
             >
               Change mode
+            </Button>
+            <Button
+              id="theme-preset"
+              onClick={() =>
+                setPreset(preset() === 'default' ? 'vanilla' : 'default')
+              }
+            >
+              Change preset
             </Button>
             <Button
               id="theme-density"
@@ -86,6 +100,44 @@ export function ThemeConsumer() {
           </DashboardPanel>
         </DashboardShell>
       </DashboardShell>
+      <Theme id="vanilla-theme" preset="vanilla" mode="light">
+        <DashboardPanel>
+          <Input
+            id="vanilla-theme-draft"
+            aria-label="Vanilla draft"
+            defaultValue="Plain consumer record"
+          />
+          <Popover>
+            <Popover.Trigger id="vanilla-theme-trigger">
+              Vanilla popup
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content id="vanilla-theme-popup">
+                <Popover.Title>Vanilla details</Popover.Title>
+                <Input aria-label="Vanilla popup draft" />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover>
+          <Theme id="vanilla-nested-default" preset="default" mode="dark">
+            <Input
+              id="vanilla-nested-draft"
+              aria-label="Nested default draft"
+              defaultValue="Nested consumer record"
+            />
+            <Popover>
+              <Popover.Trigger id="vanilla-nested-trigger">
+                Nested default popup
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Content id="vanilla-nested-popup">
+                  <Popover.Title>Nested default details</Popover.Title>
+                  <Input aria-label="Nested default popup draft" />
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover>
+          </Theme>
+        </DashboardPanel>
+      </Theme>
       <ContainerLayoutReview />
     </Theme>
   )

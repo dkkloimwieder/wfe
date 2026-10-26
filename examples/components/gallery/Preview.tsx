@@ -1,3 +1,4 @@
+import { ThemeReview } from './ThemeReview'
 import { GanttExample } from './GanttExample'
 import { DragExample } from '../../shared/drag-and-drop/DragExample'
 import { BoardExample } from '../../shared/drag-and-drop/BoardExample'
@@ -54,6 +55,7 @@ const IconsExample = lazy(() =>
 )
 
 const views = {
+  themes: ThemeReview,
   gantt: () => (
     <div class="gallery-example-fill">
       <GanttExample />
@@ -216,14 +218,26 @@ export function GalleryPreview() {
   })
   return (
     <DefaultAppearance
-      style={appearanceStyle(
-        schemes[route.scheme]!,
-        accents[route.accent]!,
-        route.depth,
-        route.layers,
-        undefined,
-        route.decorations,
-      )}
+      preset={route.preset}
+      mode={
+        route.scheme === 2
+          ? 'dark'
+          : route.scheme === 0
+            ? 'monochrome'
+            : 'light'
+      }
+      style={
+        route.preset === 'default'
+          ? appearanceStyle(
+              schemes[route.scheme]!,
+              accents[route.accent]!,
+              route.depth,
+              route.layers,
+              undefined,
+              route.decorations,
+            )
+          : undefined
+      }
     >
       <GalleryExample id={route.id} state={route.state} />
     </DefaultAppearance>

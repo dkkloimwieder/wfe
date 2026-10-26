@@ -1,0 +1,23 @@
+.theme-review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: var(--ui-layout-inset, 16px);
+}
+.theme-review-boundary {
+  padding: var(--ui-layout-inset, 16px);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
+  border-radius: var(--ui-panel-radius, 0px);
+  min-width: 0;
+}
+.theme-review-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 8px);
+  padding-block: var(--ui-gap, 8px);
+}
+.theme-review-controls > h3 {
+  margin: 0;
+}
+.theme-review-custom {
+  letter-spacing: 0.025em;
+}
