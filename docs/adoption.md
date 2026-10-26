@@ -2,7 +2,7 @@
 
 ## v0.0.8
 
-Use Git tag `v0.0.8` for the current components and Default theme.
+Use Git tag `v0.0.8` for the current components and Sketchy theme.
 ShellView accepts application-supplied `header` and `navigation` content.
 Set `navigation={false}` to omit the navigation pane and its toggle.
 Undefined overrides preserve the defaults. Custom headers leave heading focus with the application.
@@ -10,7 +10,7 @@ Navigation callbacks receive the owning dashboard controls, and accepted route c
 See the [shell guide](../packages/shell/README.md) for the contract and example.
 
 Inputs and form sections support optional decoration with neutral, primary, or secondary colors.
-The Default theme reduces decoration rotation and taper in proportion to element size.
+The Sketchy theme reduces decoration rotation and taper in proportion to element size.
 The gallery includes a geometry playground, wide input previews, and alternating section decoration in the Everything form.
 The owned icon catalog supports selective imports from `@wfe/components/icons`.
 The gallery also demonstrates form actions and row-dependent table actions.
@@ -18,7 +18,7 @@ Dependency pins remain the same as `v0.0.7`.
 
 ## v0.0.7
 
-Git tag `v0.0.7` records the preceding components and Default theme.
+Git tag `v0.0.7` records the preceding components and Sketchy theme.
 FormView places submit and described actions in one final row at natural button widths.
 The public `FormActions` component provides the same layout for handwritten forms.
 Applications can disable FormView submission through `submitDisabled` without disabling fields or other actions.
@@ -33,7 +33,7 @@ See [the generator contract](generator-contract.md) and [form layout](form-layou
 
 ## v0.0.6
 
-Git tag `v0.0.6` records the preceding components and Default theme.
+Git tag `v0.0.6` records the preceding components and Sketchy theme.
 This release adds `SidebarContextSwitcher` with searchable context choices, an optional parent action, and compact navigation.
 Applications supply the current context, available choices, parent, selection callback, and menu.
 Existing `SidebarGroup` controls provide expandable items below the switcher.
@@ -44,7 +44,7 @@ The release also corrects the gallery history test and records browser and actio
 
 ## v0.0.5
 
-Git tag `v0.0.5` records the preceding components and Default theme.
+Git tag `v0.0.5` records the preceding components and Sketchy theme.
 The base canvas uses surface 1, panes use surface 3, and content uses surface 2.
 The theme retains the blue accent, outline buttons, dotted decoration, and flat surfaces without shadows.
 
@@ -64,7 +64,7 @@ These examples demonstrate component use and do not prescribe application behavi
 
 ## v0.0.4
 
-Git tag `v0.0.4` records the preceding Default theme and component gallery.
+Git tag `v0.0.4` records the preceding Sketchy theme and component gallery.
 This release refines borders, dots, icons, spacing, and disclosure controls, and removes surface shadows.
 The gallery renders examples directly in one document with the same theme that consumers import.
 Tables keep refresh available. Nested tables load through application-owned expansion and show Apply only for pending filters.
@@ -93,12 +93,12 @@ Use Solid with `@solidjs/web` and the Solid Vite plugin.
 Keep the runtime and compiler versions aligned with this repository.
 Include Vite client types in the application TypeScript configuration to type CSS imports.
 Import `@wfe/components/styles.css` once in the application entry.
-Wrap the application in `Theme` for the Default theme introduced in `v0.0.3`.
+Wrap the application in `Theme` for the Sketchy theme introduced in `v0.0.3`.
 Use `<Theme mode="dark">` for dark mode.
 Use `<Theme preset="vanilla">` for the plain alternative; omission preserves the existing default.
 The gallery and consumers use the same theme implementation.
 See [Theme](theme.md) for configuration and a minimal example.
-Use `uiScope()` only for low-level density scopes without the Default theme.
+Use `uiScope()` only for low-level density scopes without the Sketchy theme.
 Provide the same density to fixed row geometry through `uiDensity(density).rowHeight`.
 Component styles stay inside the UI scope.
 Application CSS owns page height, layout, and available table space.
@@ -399,7 +399,7 @@ These components provide presentation. Applications retain navigation, requests,
 Use `@wfe/components/dnd` for generic source/target scopes,
 `@wfe/components/sortable` for controlled ordering, and
 `@wfe/components/kanban` for board presentation. These additions are not in
-v0.0.8. They use the existing shared stylesheet and Default theme.
+v0.0.8. They use the existing shared stylesheet and Sketchy theme.
 
 Create scopes and registrations inside Solid owners and pass reactive
 options through getters. Applications retain accepted records, order,

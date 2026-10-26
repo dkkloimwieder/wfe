@@ -30,7 +30,7 @@ Normal pages use the shared public Theme. See [theme ownership and deliberate ra
 
 Generic controls and layout consumers:
 
-- [Component gallery](components/README.md), [shared styles](styles/README.md), and [Default theme](theme/README.md).
+- [Component gallery](components/README.md), [shared styles](styles/README.md), and [Sketchy theme](theme/README.md).
 - [Dashboard composition](dashboard/README.md), [layout](layout/README.md), and [described shell](shell/README.md).
 - [Date picker](date-picker/README.md), [form contract](form-contract/README.md), and [generator](generator/README.md).
 - [Charts](charts/README.md), [boolean grid](grid/README.md), and [status tiles](status-tiles/README.md).

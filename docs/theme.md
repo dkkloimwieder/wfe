@@ -1,8 +1,8 @@
 # Themes
 
-`Theme` preserves the approved default appearance from `v0.0.4`.
+`Theme` uses Sketchy, the approved dotted appearance from `v0.0.4`.
 Set `preset="vanilla"` for plain neutral styling inspired by base shadcn and Zaidan.
-Omitting `preset` is equivalent to `preset="default"`.
+Omitting `preset` selects Sketchy. Its API identifier remains `preset="default"`. Earlier releases called this theme Default.
 The theme lives in `@wfe/components`, including its CSS, fonts, and decorative behavior.
 The gallery uses this implementation too.
 
@@ -23,12 +23,12 @@ export function App() {
 }
 ```
 
-The Default theme uses light mode, a blue accent, outline buttons, and flat surfaces without shadows.
+The Sketchy theme uses light mode, a blue accent, outline buttons, and flat surfaces without shadows.
 Default outline buttons use shared border colors and text in the accent color.
 The base canvas uses surface 1 with subtle dots. Panes use surface 3, and content uses surface 2.
 Controls use Fira Code at 12px, with a 32px height.
 Forms use a 30rem field limit. Table controls retain compact sizing.
-Content panels, cards, dialogs, popovers, and tab content share `--ui-layout-inset` (16px in Default).
+Content panels, cards, dialogs, popovers, and tab content share `--ui-layout-inset` (16px in Sketchy).
 Sidebar groups use equal outer insets. Table cells retain compact vertical padding, including grouped rows and expansion controls.
 Action decorations use random tilted outlines. Each Theme owns their event handlers and cleanup.
 Reduced-motion preference keeps the decorative backing without tilt or taper.
@@ -41,7 +41,7 @@ Pass `secondaryAccent="yellow"` to set the secondary accent.
 The application owns these values, persistence, and any system preference detection.
 Use the same initial values on the server and client for hydration.
 
-`depth` remains accepted for compatibility. The Default theme renders all depths without shadows.
+`depth` remains accepted for compatibility. The Sketchy theme renders all depths without shadows.
 `layers`, `dividers`, and `decorations` accept partial overrides.
 Pass values from the exported TypeScript types. Opacity percentages use the range 0 to 100.
 Omitted or undefined values retain their defaults.
@@ -59,10 +59,10 @@ Each scope owns its CSS and automatic popup portals. Ancestor preset rules stop 
 DashboardShell inherits theme sizing unless you pass an explicit density.
 
 `Theme.density` accepts `"default"`, `"compact"`, and `"comfortable"`.
-Omitting it preserves the approved Default profile, including its 32px controls
+Omitting it preserves the approved Sketchy profile, including its 32px controls
 and compact table rows. This profile now reports `data-ui-density="default"`.
 Previously it reported compact despite applying different control sizes.
-Update selectors that used that old metadata to identify the Default theme.
+Update selectors that used that old metadata to identify the Sketchy theme.
 Explicit densities use the same sizing records as `uiScope` and `uiDensity`,
 including controls inside table cells. Supply the matching `uiDensity` row height
 to fixed-row virtual tables. `themeStyle` accepts the same density option.
@@ -180,13 +180,16 @@ Switching presets preserves input values, focus, selection, and open overlays.
 Mode, accent, density, class, and style remain independent of preset selection.
 Both presets support primary and secondary accents and surface layers.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
-Dividers, depth, and decoration controls belong to the default preset.
+Dividers, depth, and decoration controls belong to the Sketchy preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
 Both presets capitalize system labels while preserving record values and prose.
 Vanilla navigation uses flat groups, indented child links, and a neutral selected-row fill.
 Opening a group does not paint the whole group as selected. Keyboard focus keeps a separate visible outline.
 Presets own these presentation choices. Shared accent and surface controls do not require identical navigation borders or group backgrounds.
-The default vanilla control height is 36px. Explicit density profiles still use shared geometry records.
+Both presets use 12px body text, 14px headings, and 32px controls by default.
+Vanilla uses 6px gaps, 12px panel insets, and 16px gaps between fields.
+Attached input buttons share one outer shape, with square internal corners.
+Explicit density profiles still use shared geometry records.
 Caller-supplied virtual row heights remain authoritative.
 
 The gallery selector lives under Appearance. Direct links accept `preset=vanilla` and the existing `scheme` parameter.

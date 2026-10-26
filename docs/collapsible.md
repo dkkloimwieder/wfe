@@ -2,7 +2,7 @@
 
 `Collapsible` provides a native `details` disclosure with shared compact styles.
 The summary uses the shared triangular indicator. `indicatorPlacement` accepts `start` (the default) or `end`.
-The Default theme adds gray fill and blue dotted decoration on hover or keyboard focus. The triangle keeps its size.
+The Sketchy theme adds gray fill and blue dotted decoration on hover or keyboard focus. The triangle keeps its size.
 The `summary` prop supplies its heading. Children remain mounted while the disclosure closes, so inputs retain local values.
 Table control sections use this component and retain their existing classes and appearance.
 

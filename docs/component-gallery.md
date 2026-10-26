@@ -48,7 +48,7 @@ The default is Light with a Blue accent and no shadows.
 BASE uses Surface 1, PANES uses Surface 3, and CONTENT uses Surface 2.
 These choices come from the shared `defaultLayers` value: `{ canvas: 0, pane: 2, content: 1 }`.
 Layer numbers start at zero, so `0` selects Surface 1.
-See the [Default theme](theme.md) for the public configuration contract.
+See the [Sketchy theme](theme.md) for the public configuration contract.
 Appearance controls stay collapsed initially so the example receives the available height.
 They scroll within their region on small screens.
 The secondary accent has its own color choice.

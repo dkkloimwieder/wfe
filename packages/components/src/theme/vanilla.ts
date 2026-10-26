@@ -63,11 +63,11 @@ export function vanillaStyle(
     '--ui-popup-shadow': '0 4px 12px rgb(0 0 0 / 10%)',
     ...(density === 'default'
       ? {
-          '--ui-font-size': '14px',
-          '--ui-small-font-size': '12px',
-          '--ui-heading-font-size': '16px',
-          '--ui-control-height': '36px',
-          '--ui-table-control-height': '28px',
+          '--ui-control-padding-x': '8px',
+          '--ui-input-padding-x': '8px',
+          '--ui-gap': '6px',
+          '--ui-layout-inset': '12px',
+          '--ui-field-gap': '16px',
         }
       : {}),
   }

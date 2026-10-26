@@ -1,7 +1,7 @@
 # Theme contract
 
 This contract tracks the implementation under Beads epics wfe-w2y.41 through wfe-w2y.44.
-The default preset preserves the approved dotted appearance. The vanilla preset uses plain controls and neutral surfaces.
+The Sketchy preset preserves the approved dotted appearance. The vanilla preset uses plain controls and neutral surfaces.
 Theme identity, light or dark mode, and density are independent choices.
 Applications keep the same component props, generated descriptions, data, and callbacks when themes change.
 
@@ -19,7 +19,7 @@ Existing mode, accent, secondaryAccent, density, style, class, and decoration op
 Both presets support primary and secondary accents and the shared surface scale.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
 Both presets capitalize system labels and preserve record values and prose.
-Dividers, depth, and decoration controls configure the default preset.
+Dividers, depth, and decoration controls configure the Sketchy preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
 Vanilla suppresses decorative effects, including explicit decoration requests inside its scope.
 An inner Theme owns its full presentation and can select either preset independently.
@@ -52,7 +52,7 @@ Component-specific preset rules are valid where variables alone cannot describe 
 
 ## Decoration lifecycle
 
-Only the default preset starts randomized decoration observers and listeners.
+Only the Sketchy preset starts randomized decoration observers and listeners.
 Vanilla creates no decorative-only SVG or DOM. Structural wrappers remain stable during switching.
 Switching away from decoration disposes its resources and removes its owned inline geometry values.
 Reduced-motion and forced-color behavior remain usable in both presets.

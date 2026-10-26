@@ -23,7 +23,7 @@ Beads records task status and dependencies.
 
 ## Component guides
 
-- [Default theme](theme.md)
+- [Sketchy theme](theme.md)
 - [Owned icon catalog](icons.md)
 - [Button variants and tones](button-variants.md)
 - [Date picker and calendar](date-picker.md)

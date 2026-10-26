@@ -94,7 +94,7 @@ export function ThemeReview() {
           mode={mode()}
           class="theme-review-boundary"
         >
-          <ThemeControls name="Default outer" {...controls} />
+          <ThemeControls name="Sketchy outer" {...controls} />
           <Theme
             id="theme-review-vanilla-inner"
             preset="vanilla"
@@ -116,7 +116,7 @@ export function ThemeReview() {
             mode={mode()}
             class="theme-review-boundary"
           >
-            <ThemeControls name="Default inner" {...controls} />
+            <ThemeControls name="Sketchy inner" {...controls} />
           </Theme>
         </Theme>
       </div>

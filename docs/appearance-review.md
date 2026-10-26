@@ -1,17 +1,17 @@
 # Appearance review
 
-## Current Default theme
+## Current Sketchy theme
 
-Use the [component gallery](component-gallery.md) to review the current Default theme.
+Use the [component gallery](component-gallery.md) to review the current Sketchy theme.
 The gallery and standalone examples use the shared appearance controls where their hosts provide them.
 The [theme guide](theme.md) defines the public configuration contract.
 
-The Default theme starts in Light mode with a Blue accent and outline buttons.
+The Sketchy theme starts in Light mode with a Blue accent and outline buttons.
 It uses flat surfaces without shadows.
 BASE uses Surface 1, PANES uses Surface 3, and CONTENT uses Surface 2.
 The shared `defaultLayers` value is `{ canvas: 0, pane: 2, content: 1 }`.
 Layer numbers start at zero.
-The `depth` prop remains accepted for compatibility. It does not add shadows to the Default theme.
+The `depth` prop remains accepted for compatibility. It does not add shadows to the Sketchy theme.
 
 The appearance controls offer neutral schemes, accents, button variants, and layer choices.
 Hosts can also provide controls placement and divider choices.
@@ -22,7 +22,7 @@ Use the gallery guide for its direct links, history behavior, and review control
 
 The text below preserves the earlier table and form appearance experiment.
 It is retained as a historical record on October 23, 2026.
-Its URLs, initial values, APPLY label, shadow controls, and native picker description do not define the current Default theme.
+Its URLs, initial values, APPLY label, shadow controls, and native picker description do not define the current Sketchy theme.
 The original text and attribution remain unchanged.
 
 The default Table example at `http://127.0.0.1:7786/` has three neutral modes:

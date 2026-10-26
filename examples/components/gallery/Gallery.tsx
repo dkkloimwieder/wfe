@@ -273,7 +273,7 @@ export function Gallery() {
                 label="Theme"
                 value={route().preset}
                 choices={[
-                  { value: 'default', label: 'Default' },
+                  { value: 'default', label: 'Sketchy' },
                   { value: 'vanilla', label: 'Vanilla' },
                 ]}
                 onValueChange={(preset) =>

@@ -13,7 +13,7 @@
   :scope .ui-dashboard-main {
     background: var(--ui-canvas-surface);
   }
-  :scope :is(.ui-button, .ui-dashboard-menu > a, .ui-tabs-trigger) {
+  :scope :is(.ui-dashboard-menu > a, .ui-tabs-trigger) {
     border-radius: var(--ui-control-radius, var(--ui-radius));
   }
   :scope .ui-button[data-variant='outline'][data-tone='default'] {

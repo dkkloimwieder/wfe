@@ -1,4 +1,4 @@
-# Default theme consumer
+# Sketchy theme consumer
 
 The fixture uses the public Theme component around controls, nested layout, and a table.
 Applications own mode and appearance choices.

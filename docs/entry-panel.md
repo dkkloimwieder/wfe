@@ -41,7 +41,7 @@ Native attributes, classes, styles, events, and refs apply to the outer containe
 
 The panel uses the shared surface, spacing, border, and accent colors.
 The surrounding canvas uses the shared neutral dotted background.
-Its dotted frame uses the primary accent, which is blue in the Default theme.
+Its dotted frame uses the primary accent, which is blue in the Sketchy theme.
 Decoration remains behind an opaque surface and cannot receive pointer events.
 Forced-color mode removes the decorative frame.
 The component adds no shadow.

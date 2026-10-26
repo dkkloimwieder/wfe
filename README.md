@@ -79,5 +79,5 @@ The [migration record](migration/README.md) explains the extraction boundaries.
 Beads epic `wfe-w2y` records the work and dependency order.
 Run `bd ready --type task` to find the next implementation issue.
 
-See [Default theme](docs/theme.md) for the shared consumer appearance.
+See [Sketchy theme](docs/theme.md) for the shared consumer appearance.
 See [Icons](docs/icons.md) for the owned catalog and selective imports.

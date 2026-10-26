@@ -48,7 +48,7 @@ export async function galleryThemeCases({ page, url, record }) {
       }
       await expect(page.getByRole('slider')).toHaveCount(0)
       await choiceControl(page, { name: 'Theme', exact: true }).click()
-      await page.getByRole('option', { name: 'Default', exact: true }).click()
+      await page.getByRole('option', { name: 'Sketchy', exact: true }).click()
       await expect(draft).toHaveValue('Retained through theme changes')
       await expect(draft).toHaveAttribute('data-theme-retained', 'yes')
       await page.goBack()
@@ -67,10 +67,10 @@ export async function galleryThemeCases({ page, url, record }) {
         .getByRole('textbox', { name: 'Vanilla inner draft', exact: true })
         .fill('One application draft')
       for (const [name, id] of [
-        ['Default outer', 'theme-review-default'],
+        ['Sketchy outer', 'theme-review-default'],
         ['Vanilla inner', 'theme-review-vanilla-inner'],
         ['Vanilla outer', 'theme-review-vanilla'],
-        ['Default inner', 'theme-review-default-inner'],
+        ['Sketchy inner', 'theme-review-default-inner'],
         ['Custom vanilla', 'theme-review-custom'],
       ]) {
         await expect(
