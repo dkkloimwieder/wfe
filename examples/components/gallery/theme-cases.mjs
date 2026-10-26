@@ -32,7 +32,21 @@ export async function galleryThemeCases({ page, url, record }) {
           name: 'Secondary accent colors',
           exact: true,
         }),
-      ).toHaveCount(0)
+      ).toHaveCount(1)
+      for (const [name, key, value] of [
+        ['Orange accent', 'accent', '6'],
+        ['Yellow secondary accent', 'secondary', '9'],
+        ['Base Surface 3', 'canvas', '2'],
+        ['Content Surface 2', 'content', '1'],
+      ]) {
+        const control = page.getByRole('button', { name, exact: true })
+        await control.click()
+        await expect(control).toHaveAttribute('aria-pressed', 'true')
+        assert.equal(new URL(page.url()).searchParams.get(key), value)
+        await expect(draft).toHaveValue('Retained through theme changes')
+        await expect(draft).toHaveAttribute('data-theme-retained', 'yes')
+      }
+      await expect(page.getByRole('slider')).toHaveCount(0)
       await choiceControl(page, { name: 'Theme', exact: true }).click()
       await page.getByRole('option', { name: 'Default', exact: true }).click()
       await expect(draft).toHaveValue('Retained through theme changes')

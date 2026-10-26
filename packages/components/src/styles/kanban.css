@@ -19,6 +19,7 @@
   min-height: 0;
   border: var(--ui-border-width, 1px) solid var(--ui-border);
   background: var(--ui-pane-surface, var(--ui-surface));
+  border-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
 }
 :where([data-ui]) .ui-kanban-column-header,
 :where([data-ui]) .ui-kanban-column-heading,
@@ -31,6 +32,8 @@
   flex: none;
   padding: var(--ui-layout-inset, 8px);
   border-bottom: var(--ui-border-width, 1px) solid var(--ui-border);
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
 }
 :where([data-ui]) .ui-kanban-column-header h2 {
   font-size: inherit;
@@ -66,8 +69,10 @@
   margin: var(--ui-layout-inset, 8px);
   border: var(--ui-border-width, 1px) solid var(--ui-border);
   background: var(--ui-surface);
+  border-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
 }
 :where([data-ui]) .ui-kanban-item-title {
+  text-transform: var(--ui-system-text-transform, uppercase);
   margin: 0;
   font-size: inherit;
   font-weight: 500;

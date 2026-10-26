@@ -59,6 +59,21 @@
     color: var(--ui-accent);
     border-color: var(--ui-accent);
   }
+  :scope .ui-icon {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  :scope :is(.sub-table-toggle, .table-page-action) {
+    border: var(--ui-control-border-width) solid var(--ui-control-border);
+    border-radius: var(--ui-control-radius);
+    background: var(--ui-control-surface);
+  }
+  :scope .sub-table-toggle {
+    --ui-control-height: 24px;
+    inline-size: 24px;
+    block-size: 24px;
+    min-block-size: 0;
+  }
   :scope .ui-disclosure-indicator {
     inline-size: 12px;
     block-size: 16px;

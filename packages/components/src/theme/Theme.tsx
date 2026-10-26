@@ -157,9 +157,10 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
     ...(options.preset === 'vanilla'
       ? {
           ...vanillaStyle(
-            scheme.mode === 'dark',
+            scheme,
             options.density,
             options.mode === 'monochrome',
+            options.layers,
           ),
           ...(options.accent === undefined
             ? {

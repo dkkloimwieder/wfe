@@ -30,6 +30,7 @@ const roles = [
 
 /** Temporary application-owned review. Nothing is persisted. */
 export function AppearanceReview(props: {
+  showDecorationControls?: boolean
   decorations?: Decorations
   onDecorationsChange?: (value: Decorations, commit: boolean) => void
   placement?: 'left' | 'top' | 'right'
@@ -262,77 +263,79 @@ export function AppearanceReview(props: {
               )}
             </For>
           </div>
-          <For each={['dotColor', 'borderColor'] as const}>
-            {(key) => (
-              <div
-                class="appearance-options"
-                role="group"
-                aria-label={
-                  key === 'dotColor' ? 'Dot color' : 'Decorative border color'
-                }
-              >
-                <span data-ui-text="system">
-                  {key === 'dotColor' ? 'Dots' : 'Decorative border'}
-                </span>
-                <For each={decorationColors}>
-                  {(color) => (
-                    <Button
-                      aria-pressed={
-                        props.decorations![key] === color ? 'true' : 'false'
-                      }
-                      onClick={() =>
-                        props.onDecorationsChange?.(
-                          { ...props.decorations!, [key]: color },
-                          true,
-                        )
-                      }
-                    >
-                      {color}
-                    </Button>
-                  )}
-                </For>
-              </div>
-            )}
-          </For>
-          <For
-            each={
-              [
-                { key: 'dots', label: 'Dot opacity' },
-                { key: 'border', label: 'Decorative border opacity' },
-                { key: 'inside', label: 'Dots inside buttons' },
-              ] as const
-            }
-          >
-            {(item) => (
-              <Field class="appearance-opacity">
-                <Label>
-                  {item.label} · {props.decorations![item.key]}%
-                </Label>
-                <Input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={props.decorations![item.key]}
-                  onValueChange={(value) =>
-                    props.onDecorationsChange?.(
-                      { ...props.decorations!, [item.key]: Number(value) },
-                      false,
-                    )
+          <Show when={props.showDecorationControls !== false}>
+            <For each={['dotColor', 'borderColor'] as const}>
+              {(key) => (
+                <div
+                  class="appearance-options"
+                  role="group"
+                  aria-label={
+                    key === 'dotColor' ? 'Dot color' : 'Decorative border color'
                   }
-                  onChange={(event) =>
-                    props.onDecorationsChange?.(
-                      {
-                        ...props.decorations!,
-                        [item.key]: Number(event.currentTarget.value),
-                      },
-                      true,
-                    )
-                  }
-                />
-              </Field>
-            )}
-          </For>
+                >
+                  <span data-ui-text="system">
+                    {key === 'dotColor' ? 'Dots' : 'Decorative border'}
+                  </span>
+                  <For each={decorationColors}>
+                    {(color) => (
+                      <Button
+                        aria-pressed={
+                          props.decorations![key] === color ? 'true' : 'false'
+                        }
+                        onClick={() =>
+                          props.onDecorationsChange?.(
+                            { ...props.decorations!, [key]: color },
+                            true,
+                          )
+                        }
+                      >
+                        {color}
+                      </Button>
+                    )}
+                  </For>
+                </div>
+              )}
+            </For>
+            <For
+              each={
+                [
+                  { key: 'dots', label: 'Dot opacity' },
+                  { key: 'border', label: 'Decorative border opacity' },
+                  { key: 'inside', label: 'Dots inside buttons' },
+                ] as const
+              }
+            >
+              {(item) => (
+                <Field class="appearance-opacity">
+                  <Label>
+                    {item.label} · {props.decorations![item.key]}%
+                  </Label>
+                  <Input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={props.decorations![item.key]}
+                    onValueChange={(value) =>
+                      props.onDecorationsChange?.(
+                        { ...props.decorations!, [item.key]: Number(value) },
+                        false,
+                      )
+                    }
+                    onChange={(event) =>
+                      props.onDecorationsChange?.(
+                        {
+                          ...props.decorations!,
+                          [item.key]: Number(event.currentTarget.value),
+                        },
+                        true,
+                      )
+                    }
+                  />
+                </Field>
+              )}
+            </For>
+          </Show>
         </div>
       </Show>
       <div

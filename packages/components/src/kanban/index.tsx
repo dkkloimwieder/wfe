@@ -270,7 +270,7 @@ export function KanbanItem(props: KanbanItemProps) {
         data-ui-section-active={props.decorationActive ? '' : undefined}
       >
         <Show when={props.title}>
-          <h3 class="ui-kanban-item-title" data-ui-text="value">
+          <h3 class="ui-kanban-item-title" data-ui-text="system">
             {props.title}
           </h3>
         </Show>

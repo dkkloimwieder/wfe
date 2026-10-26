@@ -1,13 +1,16 @@
 import type { JSX } from '@solidjs/web'
 import type { ThemeDensity } from './sizing'
+import type { SurfaceScheme, SurfaceLayers } from './appearance'
 
 /** Plain neutral presentation; callers can still override semantic roles. */
 export function vanillaStyle(
-  dark: boolean,
+  scheme: SurfaceScheme,
   density: ThemeDensity = 'default',
   monochrome = false,
+  layers: Partial<SurfaceLayers> = {},
 ): JSX.CSSProperties {
-  const surface = dark ? '#09090b' : '#ffffff'
+  const dark = scheme.mode === 'dark'
+  const surface = scheme.surfaces[layers.content ?? 0]
   const text = monochrome ? '#000000' : dark ? '#fafafa' : '#09090b'
   const muted = monochrome ? text : dark ? '#a1a1aa' : '#71717a'
   const border = monochrome ? text : dark ? '#27272a' : '#e4e4e7'
@@ -20,7 +23,7 @@ export function vanillaStyle(
     '--ui-heading-line-height': '1.5',
     '--ui-label-weight': '500',
     '--ui-heading-weight': '600',
-    '--ui-system-text-transform': 'none',
+    '--ui-system-text-transform': 'uppercase',
     '--ui-icon-stroke-width': '1.5',
     '--ui-border-width': '1px',
     '--ui-disabled-opacity': '0.5',
@@ -29,8 +32,8 @@ export function vanillaStyle(
     '--ui-panel-radius': '0.5rem',
     '--ui-radio-radius': '50%',
     '--ui-switch-radius': '999px',
-    '--ui-canvas-surface': surface,
-    '--ui-pane-surface': surface,
+    '--ui-canvas-surface': scheme.surfaces[layers.canvas ?? 1],
+    '--ui-pane-surface': scheme.surfaces[layers.pane ?? 0],
     '--ui-surface': surface,
     '--ui-popup-surface': surface,
     '--ui-control-surface': surface,

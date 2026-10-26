@@ -16,8 +16,11 @@ Themes do not own requests, permissions, routing, validation rules, or applicati
 
 Theme accepts an additive preset property with default and vanilla values. Omission preserves default.
 Existing mode, accent, secondaryAccent, density, style, class, and decoration options remain supported.
-Layers, dividers, depth, and decoration controls configure the default preset.
-Vanilla uses its own neutral surface scale. Use semantic CSS variables to customize its surfaces and dividers.
+Both presets support primary and secondary accents and the shared surface scale.
+Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
+Both presets capitalize system labels and preserve record values and prose.
+Dividers, depth, and decoration controls configure the default preset.
+Use semantic CSS variables to customize vanilla borders and shadows.
 Vanilla suppresses decorative effects, including explicit decoration requests inside its scope.
 An inner Theme owns its full presentation and can select either preset independently.
 Switching a preset must preserve mounted content, values, focus, selection, and open overlays.

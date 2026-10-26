@@ -6,6 +6,10 @@ import type { JSX } from '@solidjs/web'
 /** Example layout classes around the public default theme. */
 export function DefaultAppearance(props: {
   children: JSX.Element
+  options?: Pick<
+    ThemeOptions,
+    'accent' | 'secondaryAccent' | 'layers' | 'depth'
+  >
   preset?: ThemeOptions['preset']
   mode?: ThemeOptions['mode']
   class?: string
@@ -13,6 +17,7 @@ export function DefaultAppearance(props: {
 }) {
   return (
     <Theme
+      {...props.options}
       preset={props.preset}
       mode={props.mode}
       class={['default-appearance', 'appearance-scope', props.class]}

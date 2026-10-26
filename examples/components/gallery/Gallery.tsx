@@ -25,7 +25,14 @@ import {
   schemes,
   accents,
 } from '../../shared/appearance/appearance'
-import { entries, entryFor, galleryUrl, readRoute } from './catalog'
+import {
+  entries,
+  entryFor,
+  galleryUrl,
+  readRoute,
+  galleryThemeOptions,
+  layersForPreset,
+} from './catalog'
 import type { GalleryRoute } from './catalog'
 import '../../shared/appearance/style.css'
 import './gallery.css'
@@ -106,6 +113,7 @@ export function Gallery() {
   return (
     <DefaultAppearance
       class="gallery-shell"
+      options={galleryThemeOptions(route())}
       preset={route().preset}
       mode={
         route().scheme === 2
@@ -271,6 +279,9 @@ export function Gallery() {
                 onValueChange={(preset) =>
                   change({
                     preset: preset === 'vanilla' ? 'vanilla' : 'default',
+                    layers: layersForPreset(
+                      preset === 'vanilla' ? 'vanilla' : 'default',
+                    ),
                   })
                 }
               />
@@ -299,43 +310,25 @@ export function Gallery() {
                 )}
               </For>
             </div>
-            <Show
-              when={route().preset === 'default'}
-              fallback={
-                <Field>
-                  <Label>Mode</Label>
-                  <SelectField
-                    label="Mode"
-                    value={String(route().scheme)}
-                    choices={[
-                      { value: '1', label: 'Light' },
-                      { value: '2', label: 'Dark' },
-                      { value: '0', label: 'Black / white' },
-                    ]}
-                    onValueChange={(value) => change({ scheme: Number(value) })}
-                  />
-                </Field>
+            <AppearanceReview
+              showDecorationControls={route().preset === 'default'}
+              decorations={route().decorations}
+              onDecorationsChange={(decorations, commit) =>
+                change({ decorations }, commit)
               }
-            >
-              <AppearanceReview
-                decorations={route().decorations}
-                onDecorationsChange={(decorations, commit) =>
-                  change({ decorations }, commit)
-                }
-                scheme={schemes[route().scheme]!}
-                accent={accents[route().accent]!}
-                depth={route().depth}
-                layers={route().layers}
-                onSchemeChange={(value) =>
-                  change({ scheme: schemes.indexOf(value) })
-                }
-                onAccentChange={(value) =>
-                  change({ accent: accents.indexOf(value) })
-                }
-                onDepthChange={(depth) => change({ depth })}
-                onLayersChange={(layers) => change({ layers })}
-              />
-            </Show>
+              scheme={schemes[route().scheme]!}
+              accent={accents[route().accent]!}
+              depth={route().depth}
+              layers={route().layers}
+              onSchemeChange={(value) =>
+                change({ scheme: schemes.indexOf(value) })
+              }
+              onAccentChange={(value) =>
+                change({ accent: accents.indexOf(value) })
+              }
+              onDepthChange={(depth) => change({ depth })}
+              onLayersChange={(layers) => change({ layers })}
+            />
           </section>
         </Show>
         <div class="gallery-toolbar">

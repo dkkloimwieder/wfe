@@ -46,7 +46,7 @@ import { BooleanControls } from '../BooleanControls'
 import { OverlayControls } from '../OverlayControls'
 import { DisplayControls } from '../DisplayControls'
 import { Fields, Buttons, Dates, Dialogs, TableExample } from './Recipes'
-import { entryFor, readRoute } from './catalog'
+import { entryFor, readRoute, galleryThemeOptions } from './catalog'
 import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'
 
@@ -218,6 +218,7 @@ export function GalleryPreview() {
   })
   return (
     <DefaultAppearance
+      options={galleryThemeOptions(route)}
       preset={route.preset}
       mode={
         route.scheme === 2

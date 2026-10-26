@@ -1,3 +1,4 @@
+import { iconForm, iconLayoutGrid, iconMenu, iconPanelsTopLeft } from '../icons'
 import { useThemePreset } from '../internal/themePreset'
 import { For, Show } from 'solid-js'
 import type { IconDefinition } from '../icons/types'
@@ -26,6 +27,12 @@ const paths = {
   calendar: 'M3 3h10v11H3zM5 1v4m6-4v4M3 6h10',
 } as const
 
+const vanillaIcons: Partial<Record<keyof typeof paths, IconDefinition>> = {
+  form: iconForm,
+  grid: iconLayoutGrid,
+  navigation: iconMenu,
+  layout: iconPanelsTopLeft,
+}
 export type IconName = keyof typeof paths
 // Snap only axis-aligned glyphs; curves and diagonals retain edge smoothing.
 const pixelAligned = new Set<IconName>([
@@ -44,6 +51,11 @@ export type IconProps = { class?: ClassValue } & (
 /** Decorative glyph. The surrounding control supplies its accessible name. */
 export function Icon(props: IconProps) {
   const preset = useThemePreset()
+  const glyph = () =>
+    props.glyph ??
+    (preset() === 'vanilla' && props.name
+      ? vanillaIcons[props.name]
+      : undefined)
   const plainDirection = () =>
     preset() === 'vanilla' && direction() !== undefined
   const direction = () =>
@@ -59,7 +71,7 @@ export function Icon(props: IconProps) {
       class={styledClasses('ui-icon', props.class)}
       width="16"
       height="16"
-      viewBox={props.glyph?.viewBox ?? '0 0 16 16'}
+      viewBox={glyph()?.viewBox ?? '0 0 16 16'}
       fill="none"
       stroke="currentColor"
       stroke-width="1.5"
@@ -67,7 +79,7 @@ export function Icon(props: IconProps) {
       {...{ focusable: 'false' }}
     >
       <Show
-        when={props.glyph}
+        when={glyph()}
         fallback={
           <path
             d={plainDirection() ? 'M6 3 11 8 6 13' : paths[props.name!]}
@@ -91,7 +103,9 @@ export function Icon(props: IconProps) {
             }
             vector-effect={direction() ? 'non-scaling-stroke' : undefined}
             shape-rendering={
-              pixelAligned.has(props.name!) ? 'crispEdges' : 'auto'
+              preset() !== 'vanilla' && pixelAligned.has(props.name!)
+                ? 'crispEdges'
+                : 'auto'
             }
           />
         }

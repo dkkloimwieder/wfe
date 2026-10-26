@@ -1,5 +1,6 @@
 import type { ThemeOptions } from '@wfe/components/theme'
 import {
+  accents,
   defaultDecorations,
   defaultLayers,
   decorationColors,
@@ -164,6 +165,20 @@ export type GalleryRoute = GalleryConfig & {
   id: GalleryId
   viewport: 'full' | 'tablet' | 'phone'
 }
+export const layersForPreset = (
+  preset: GalleryConfig['preset'],
+): GalleryConfig['layers'] =>
+  preset === 'vanilla'
+    ? { canvas: 1, pane: 0, content: 0 }
+    : { ...defaultLayers }
+export const galleryThemeOptions = (route: GalleryConfig) => ({
+  accent: accents[route.accent]!.name.toLowerCase() as ThemeOptions['accent'],
+  secondaryAccent: secondaryAccents[
+    route.decorations.secondary
+  ]!.name.toLowerCase().replaceAll(' ', '-') as ThemeOptions['secondaryAccent'],
+  layers: route.layers,
+  depth: route.depth,
+})
 export const defaults: GalleryConfig = {
   preset: 'default',
   decorations: defaultDecorations,
@@ -190,12 +205,14 @@ export function readRoute(url: URL): GalleryRoute {
     const n = raw === null || !/^\d+$/.test(raw) ? fallback : Number(raw)
     return integer(n, max) ? n : fallback
   }
+  const preset =
+    url.searchParams.get('preset') === 'vanilla' ? 'vanilla' : 'default'
+  const layers = layersForPreset(preset)
   const state = url.searchParams.get('state') as GalleryState
   const viewport = url.searchParams.get('viewport')
   return {
     id,
-    preset:
-      url.searchParams.get('preset') === 'vanilla' ? 'vanilla' : 'default',
+    preset,
     decorations: {
       secondary: number('secondary', 1, secondaryAccents.length - 1),
       dots: number('dots', defaultDecorations.dots, 100),
@@ -214,9 +231,9 @@ export function readRoute(url: URL): GalleryRoute {
     accent: number('accent', 1, 8),
     depth: number('depth', 2, 3) as GalleryConfig['depth'],
     layers: {
-      canvas: number('canvas', defaultLayers.canvas, 2) as 0 | 1 | 2,
-      pane: number('pane', defaultLayers.pane, 2) as 0 | 1 | 2,
-      content: number('content', defaultLayers.content, 2) as 0 | 1 | 2,
+      canvas: number('canvas', layers.canvas, 2) as 0 | 1 | 2,
+      pane: number('pane', layers.pane, 2) as 0 | 1 | 2,
+      content: number('content', layers.content, 2) as 0 | 1 | 2,
     },
     state: (entryFor(id).states as readonly string[]).includes(state)
       ? state
@@ -238,9 +255,9 @@ export function galleryUrl(base: URL, route: GalleryRoute, preview = false) {
     ['scheme', route.scheme, 1],
     ['accent', route.accent, 1],
     ['depth', route.depth, 2],
-    ['canvas', route.layers.canvas, defaultLayers.canvas],
-    ['pane', route.layers.pane, defaultLayers.pane],
-    ['content', route.layers.content, defaultLayers.content],
+    ['canvas', route.layers.canvas, layersForPreset(route.preset).canvas],
+    ['pane', route.layers.pane, layersForPreset(route.preset).pane],
+    ['content', route.layers.content, layersForPreset(route.preset).content],
     ['state', route.state, 'normal'],
     ['viewport', route.viewport, 'full'],
   ] as const)

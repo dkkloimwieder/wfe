@@ -178,8 +178,11 @@ Decoration props have no effect inside vanilla, including explicit per-field req
 Switching presets preserves input values, focus, selection, and open overlays.
 
 Mode, accent, density, class, and style remain independent of preset selection.
-Layers, dividers, depth, and decoration controls belong to the default preset.
-Use semantic CSS variables to customize vanilla surfaces and dividers.
+Both presets support primary and secondary accents and surface layers.
+Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
+Dividers, depth, and decoration controls belong to the default preset.
+Use semantic CSS variables to customize vanilla borders and shadows.
+Both presets capitalize system labels while preserving record values and prose.
 The default vanilla control height is 36px. Explicit density profiles still use shared geometry records.
 Caller-supplied virtual row heights remain authoritative.
 
