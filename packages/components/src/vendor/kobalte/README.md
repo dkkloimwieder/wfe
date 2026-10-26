@@ -10,6 +10,9 @@ This subset retains module barrels and their type dependencies. It does not clai
 
 ## Local changes
 
+`core/src/primitives/index.ts` uses named re-exports so the built barrel has no runtime namespace re-export and consumers tree-shake @solid-primitives/controlled-signal.
+It re-exports only `createControllableSignal` and the type `CreateControllableSignalProps` from that package.
+
 Core imports the single checked-in Utils subset through relative paths.
 Repository formatting replaces upstream formatting.
 Focus handlers use `untrack` when synchronous DOM events read current state.
