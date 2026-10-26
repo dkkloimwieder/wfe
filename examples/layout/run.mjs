@@ -297,7 +297,7 @@ try {
     const sidebar = await navigation.boundingBox()
     assert.equal((await main.boundingBox()).width, 1280 - sidebar.width)
     await page.setViewportSize({ width: 390, height: 800 })
-    assert.equal((await main.boundingBox()).width, 390)
+    await expect.poll(async () => (await main.boundingBox()).width).toBe(390)
     assert.equal(await navigation.count(), 0)
   })
   await test('A large virtual Table keeps bounded rows and scrolls within the dashboard', async () => {
@@ -455,7 +455,9 @@ try {
     await page.evaluate(() =>
       window.layoutFixture.configure({ density: 'compact' }),
     )
-    assert.deepEqual(await page.locator('#results').boundingBox(), before)
+    await expect
+      .poll(() => page.locator('#results').boundingBox())
+      .toEqual(before)
   })
   await test('Disposal with an open dialog releases portals and page locks', async () => {
     await page
