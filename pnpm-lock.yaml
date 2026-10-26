@@ -187,7 +187,7 @@ importers:
         version: 1.0.0-beta.3(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)
       '@solidjs/vite-plugin':
         specifier: 3.0.0-next.50
-        version: 3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.0(@types/node@26.5.1))
+        version: 3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.3(@types/node@26.5.1))
       '@solidjs/web':
         specifier: 2.0.0-rc.18
         version: 2.0.0-rc.18(solid-js@2.0.0-rc.18)
@@ -255,11 +255,11 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       vite:
-        specifier: 8.3.0
-        version: 8.3.0(@types/node@26.5.1)
+        specifier: 8.3.3
+        version: 8.3.3(@types/node@26.5.1)
       vitest:
         specifier: 4.1.11
-        version: 4.1.11(@types/node@26.5.1)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.3.0(@types/node@26.5.1))
+        version: 4.1.11(@types/node@26.5.1)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.3.3(@types/node@26.5.1))
       zod:
         specifier: 4.6.5
         version: 4.6.5
@@ -326,7 +326,7 @@ importers:
     devDependencies:
       '@solidjs/vite-plugin':
         specifier: 3.0.0-next.50
-        version: 3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.0(@types/node@26.5.1))
+        version: 3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.3(@types/node@26.5.1))
       '@solidjs/web':
         specifier: 2.0.0-rc.18
         version: 2.0.0-rc.18(solid-js@2.0.0-rc.18)
@@ -343,8 +343,8 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       vite:
-        specifier: 8.3.0
-        version: 8.3.0(@types/node@26.5.1)
+        specifier: 8.3.3
+        version: 8.3.3(@types/node@26.5.1)
 
   packages/form:
     devDependencies:
@@ -369,7 +369,7 @@ importers:
     devDependencies:
       '@solidjs/vite-plugin':
         specifier: 3.0.0-next.50
-        version: 3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.0(@types/node@26.5.1))
+        version: 3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.3(@types/node@26.5.1))
       '@solidjs/web':
         specifier: 2.0.0-rc.18
         version: 2.0.0-rc.18(solid-js@2.0.0-rc.18)
@@ -383,8 +383,8 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       vite:
-        specifier: 8.3.0
-        version: 8.3.0(@types/node@26.5.1)
+        specifier: 8.3.3
+        version: 8.3.3(@types/node@26.5.1)
 
   packages/shell:
     dependencies:
@@ -394,7 +394,7 @@ importers:
     devDependencies:
       '@solidjs/vite-plugin':
         specifier: 3.0.0-next.50
-        version: 3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.0(@types/node@26.5.1))
+        version: 3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.3(@types/node@26.5.1))
       '@solidjs/web':
         specifier: 2.0.0-rc.18
         version: 2.0.0-rc.18(solid-js@2.0.0-rc.18)
@@ -408,8 +408,8 @@ importers:
         specifier: 6.0.3
         version: 6.0.3
       vite:
-        specifier: 8.3.0
-        version: 8.3.0(@types/node@26.5.1)
+        specifier: 8.3.3
+        version: 8.3.3(@types/node@26.5.1)
 
   packages/sync:
     dependencies:
@@ -2054,8 +2054,8 @@ packages:
     resolution: {integrity: sha512-mMVzj0TXExtVdlDEq+Mzp0eyOuyznNpFobNM3uAqe3HVm/Ps2c+u17BligMkZjZCA6EiXpoon8iRTer3iu40SQ==}
     engines: {node: '>=18.12.0'}
 
-  vite@8.3.0:
-    resolution: {integrity: sha512-lhZBVvEHefgE+HQZC9O7EBJgCU/nVzFNl7vkS4RE0APtWLP02/8QVIkQtzBxPquh7lq5/78NHipTj7ODQ6XuyQ==}
+  vite@8.3.3:
+    resolution: {integrity: sha512-cTAldKPImjg6c+gk48U19POPn3GCBzZwpdsN8ZMEEcbpes+6/wvfqUd0C2y3qYY4wsj8PwgFwrZ/1jBPVttMSg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -2717,7 +2717,7 @@ snapshots:
       '@testing-library/dom': 10.4.2
       solid-js: 2.0.0-rc.18
 
-  '@solidjs/vite-plugin@3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.0(@types/node@26.5.1))':
+  '@solidjs/vite-plugin@3.0.0-next.50(@solidjs/web@2.0.0-rc.18(solid-js@2.0.0-rc.18))(solid-js@2.0.0-rc.18)(supports-color@7.2.0)(vite@8.3.3(@types/node@26.5.1))':
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@babel/core': 7.29.7(supports-color@7.2.0)
@@ -2727,8 +2727,8 @@ snapshots:
       '@types/babel__core': 7.20.5
       merge-anything: 5.1.7
       solid-js: 2.0.0-rc.18
-      vite: 8.3.0(@types/node@26.5.1)
-      vitefu: 1.1.3(vite@8.3.0(@types/node@26.5.1))
+      vite: 8.3.3(@types/node@26.5.1)
+      vitefu: 1.1.3(vite@8.3.3(@types/node@26.5.1))
     transitivePeerDependencies:
       - '@tsrx/core'
       - supports-color
@@ -2930,7 +2930,7 @@ snapshots:
       obug: 2.2.1
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 4.1.11(@types/node@26.5.1)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.3.0(@types/node@26.5.1))
+      vitest: 4.1.11(@types/node@26.5.1)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.3.3(@types/node@26.5.1))
 
   '@vitest/expect@4.1.11':
     dependencies:
@@ -2941,13 +2941,13 @@ snapshots:
       chai: 6.3.0
       tinyrainbow: 3.2.0
 
-  '@vitest/mocker@4.1.11(vite@8.3.0(@types/node@26.5.1))':
+  '@vitest/mocker@4.1.11(vite@8.3.3(@types/node@26.5.1))':
     dependencies:
       '@vitest/spy': 4.1.11
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.3.0(@types/node@26.5.1)
+      vite: 8.3.3(@types/node@26.5.1)
 
   '@vitest/pretty-format@4.1.11':
     dependencies:
@@ -3733,7 +3733,7 @@ snapshots:
 
   verkit@0.4.1: {}
 
-  vite@8.3.0(@types/node@26.5.1):
+  vite@8.3.3(@types/node@26.5.1):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -3744,14 +3744,14 @@ snapshots:
       '@types/node': 26.5.1
       fsevents: 2.3.3
 
-  vitefu@1.1.3(vite@8.3.0(@types/node@26.5.1)):
+  vitefu@1.1.3(vite@8.3.3(@types/node@26.5.1)):
     optionalDependencies:
-      vite: 8.3.0(@types/node@26.5.1)
+      vite: 8.3.3(@types/node@26.5.1)
 
-  vitest@4.1.11(@types/node@26.5.1)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.3.0(@types/node@26.5.1)):
+  vitest@4.1.11(@types/node@26.5.1)(@vitest/coverage-v8@4.1.11)(jsdom@30.0.1)(vite@8.3.3(@types/node@26.5.1)):
     dependencies:
       '@vitest/expect': 4.1.11
-      '@vitest/mocker': 4.1.11(vite@8.3.0(@types/node@26.5.1))
+      '@vitest/mocker': 4.1.11(vite@8.3.3(@types/node@26.5.1))
       '@vitest/pretty-format': 4.1.11
       '@vitest/runner': 4.1.11
       '@vitest/snapshot': 4.1.11
@@ -3768,7 +3768,7 @@ snapshots:
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tinyrainbow: 3.2.0
-      vite: 8.3.0(@types/node@26.5.1)
+      vite: 8.3.3(@types/node@26.5.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.5.1
