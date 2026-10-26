@@ -4,6 +4,10 @@
     :is(.ui-card, .ui-field-group, .ui-field-set, .ui-entry-panel-surface) {
     box-shadow: var(--ui-panel-shadow);
   }
+  :scope :is(.ui-field-group, .ui-field-set, form > header.ui-card) {
+    border: 0;
+    box-shadow: var(--ui-laser-section-shadow);
+  }
   :scope :is(.ui-input, .choice-input) {
     padding-inline: max(12px, var(--ui-input-padding-x));
   }
@@ -91,6 +95,9 @@
     border-radius: var(--ui-control-radius);
   }
   @media (forced-colors: active) {
+    :scope :is(.ui-field-group, .ui-field-set, form > header.ui-card) {
+      border: var(--ui-border-width) solid CanvasText;
+    }
     :scope * {
       box-shadow: none;
     }
