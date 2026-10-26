@@ -16,7 +16,7 @@
   }
   :scope
     :is(
-      .ui-button,
+      .ui-button:where(:not(.ui-sidebar-group-panel)),
       .popup-trigger,
       .ui-control-frame,
       .ui-input-affix,
@@ -57,6 +57,16 @@
     ) {
     border-color: var(--ui-accent);
     box-shadow: var(--ui-laser-glow);
+  }
+  :scope .ui-collapsible > summary:is(:hover, :focus-visible) {
+    color: var(--ui-accent);
+    text-shadow: var(--ui-laser-text-glow);
+  }
+  :scope
+    .ui-sidebar-group
+    > .ui-sidebar-group-panel
+    > summary:is(:hover, :focus-visible) {
+    background: transparent;
   }
   :scope .ui-dashboard-menu > a[aria-current='page'] {
     color: var(--ui-accent);

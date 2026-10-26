@@ -20,7 +20,7 @@ export function laserStyle(
     surfaces: monochrome
       ? ['#ffffff', '#ffffff', '#ffffff', '#ffffff']
       : dark
-        ? ['#0c101b', '#141b2b', '#1e293e', '#35445f']
+        ? ['#080b13', '#0e1421', '#182235', '#2a374f']
         : ['#edf2fb', '#ffffff', '#e3ebf7', '#c6d3e6'],
     text: dark ? ['#e0eaff', '#a4b4d0'] : ['#172642', '#526480'],
   }
@@ -62,7 +62,7 @@ export function laserStyle(
     '--ui-table-column-divider': border,
     '--ui-accent': color,
     '--ui-secondary-accent': secondaryColor,
-    '--ui-on-accent': dark ? '#0c101b' : '#ffffff',
+    '--ui-on-accent': dark ? '#080b13' : '#ffffff',
     '--ui-selection': 'var(--ui-accent)',
     '--ui-on-selection': 'var(--ui-on-accent)',
     '--ui-button-color': 'var(--ui-accent)',
@@ -80,7 +80,10 @@ export function laserStyle(
     '--ui-laser-elevation': monochrome ? 'none' : shadow,
     '--ui-laser-glow': monochrome
       ? 'none'
-      : `${shadow}, 0 0 0 1px color-mix(in srgb, var(--ui-accent) 55%, transparent), 0 0 ${dark ? 14 : 8}px color-mix(in srgb, var(--ui-accent) ${dark ? 30 : 12}%, transparent)`,
+      : `${shadow}, 0 0 0 1px color-mix(in srgb, var(--ui-accent) ${dark ? 65 : 55}%, transparent), 0 0 ${dark ? 14 : 8}px color-mix(in srgb, var(--ui-accent) ${dark ? 40 : 16}%, transparent)`,
+    '--ui-laser-text-glow': monochrome
+      ? 'none'
+      : `0 0 ${dark ? 10 : 6}px color-mix(in srgb, var(--ui-accent) ${dark ? 55 : 22}%, transparent)`,
     '--ui-panel-shadow': 'var(--ui-laser-elevation)',
     '--ui-popup-shadow': 'var(--ui-laser-glow)',
   }

@@ -230,6 +230,7 @@ Review nested presets and a custom extension at `?gallery=themes`.
 Laser uses the shared controls with pill-shaped inputs and buttons, rounded panels, and smooth disclosure icons.
 A broad dark shadow provides elevation. A tighter accent glow marks hovered, focused, and selected controls.
 Compound inputs keep one outer shape. Their internal button corners stay square.
+Sidebar groups omit the enclosing hover glow. Their headings use neon text on hover and keyboard focus.
 The theme adds no randomized dots or decoration listeners.
 
 Use `<Theme preset="laser">` for the dark first-pass presentation.
