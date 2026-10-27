@@ -237,6 +237,120 @@ export async function galleryGanttCases({ page, url, record }) {
   )
 
   await record(
+    'gallery: active resize blocks unrelated hover and selection and releases on Escape',
+    async () => {
+      await open()
+      const dataset = host().getByRole('button', { name: /^Dataset / })
+      await dataset.evaluate((node) => {
+        node.addEventListener(
+          'pointerenter',
+          () => {
+            node.dataset.dragReviewEntered = 'true'
+          },
+          { once: true },
+        )
+      })
+      const handle = host().getByRole('button', {
+        name: 'Resize end: Research',
+        exact: true,
+      })
+      const box = await handle.boundingBox()
+      const other = await dataset.boundingBox()
+      if (!box || !other)
+        throw new Error('Expected mounted resize and dataset controls')
+      const layer = page.locator('[data-dnd-cursor-layer]')
+      try {
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+        await page.mouse.down()
+        await expect(layer).toHaveCount(1)
+        await page.mouse.move(
+          other.x + other.width / 2,
+          other.y + other.height / 2,
+        )
+        expect(
+          await dataset.getAttribute('data-drag-review-entered'),
+        ).toBeNull()
+        expect(await dataset.evaluate((node) => node.matches(':hover'))).toBe(
+          false,
+        )
+        expect(
+          await page.evaluate(
+            () =>
+              !document.dispatchEvent(
+                new Event('selectstart', { cancelable: true, bubbles: true }),
+              ),
+          ),
+        ).toBe(true)
+        await page.keyboard.press('Escape')
+        await expect(layer).toHaveCount(0)
+        await expect(host().locator('.gantt-example-summary')).toContainText(
+          '0 edit requests',
+        )
+      } finally {
+        await page.mouse.up()
+      }
+      expect(
+        await page.evaluate(() =>
+          document.dispatchEvent(
+            new Event('selectstart', { cancelable: true, bubbles: true }),
+          ),
+        ),
+      ).toBe(true)
+      await page.mouse.move(0, 0)
+      await dataset.hover()
+      await expect(dataset).toHaveAttribute('data-drag-review-entered', 'true')
+      await dataset.click()
+      await expect(
+        page.getByRole('option', { name: '10,000 rows', exact: true }),
+      ).toBeVisible()
+      await page.keyboard.press('Escape')
+    },
+  )
+
+  await record(
+    'gallery: Escape cancels a resize without dismissing its parent dialog',
+    async () => {
+      await open()
+      await host().evaluate((node) => {
+        const dialog = document.createElement('dialog')
+        dialog.dataset.dragReviewDialog = ''
+        dialog.style.cssText =
+          'width:90vw;height:90vh;max-width:none;max-height:none'
+        node.before(dialog)
+        dialog.append(node)
+        dialog.showModal()
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape') dialog.dataset.escaped = 'true'
+        })
+      })
+      const dialog = page.locator('[data-drag-review-dialog]')
+      const handle = host().getByRole('button', {
+        name: 'Resize end: Research',
+        exact: true,
+      })
+      await handle.scrollIntoViewIfNeeded()
+      const box = await handle.boundingBox()
+      if (!box) throw new Error('Expected a resize handle inside the dialog')
+      try {
+        await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+        await page.mouse.down()
+        await expect(dialog.locator('[data-dnd-cursor-layer]')).toHaveCount(1)
+        await page.keyboard.press('Escape')
+        await expect(page.locator('[data-dnd-cursor-layer]')).toHaveCount(0)
+        await expect(dialog).toBeVisible()
+        expect(await dialog.evaluate((node) => node.open)).toBe(true)
+        expect(await dialog.getAttribute('data-escaped')).toBeNull()
+        await expect(host().locator('.gantt-example-summary')).toContainText(
+          '0 edit requests',
+        )
+      } finally {
+        await page.mouse.up()
+        await dialog.evaluate((node) => node.close())
+      }
+    },
+  )
+
+  await record(
     'gallery: gantt trusted touch tap, long press move and cancellation',
     async () => {
       await open()

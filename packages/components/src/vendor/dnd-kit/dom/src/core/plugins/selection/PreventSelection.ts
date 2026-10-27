@@ -1,51 +1,41 @@
 import {Plugin} from '../../../../../abstract/src/core/index.ts';
-import {effect} from '../../../../../state/src/index.ts';
-
 import {DragDropManager} from '../../manager/index.ts';
-import {StyleInjector} from '../stylesheet/StyleInjector.ts';
+import {getDocuments} from '../../../utilities/execution-context/getDocuments.ts';
 
-const CSS_RULES =
-  '* { user-select: none !important; -webkit-user-select: none !important; }';
-
+/** Suppress selection during a gesture without a document-wide CSS change. */
 export class PreventSelection extends Plugin<DragDropManager> {
   constructor(public manager: DragDropManager) {
     super(manager);
-
-    const styleInjector = manager.registry.plugins.get(
-      StyleInjector as any
-    ) as StyleInjector | undefined;
-
-    const unregisterStyles = styleInjector?.register(CSS_RULES);
-
-    this.destroy = effect(() => {
-      const {dragOperation} = this.manager;
-
-      if (dragOperation.status.initialized) {
-        removeSelection();
-        document.addEventListener('selectionchange', removeSelection, {
-          capture: true,
-        });
-
-        return () => {
-          document.removeEventListener('selectionchange', removeSelection, {
-            capture: true,
-          });
-        };
+    this.registerEffect(() => {
+      const operation = manager.dragOperation;
+      const source = operation.source?.element;
+      const target = operation.target?.element;
+      if (this.disabled || !operation.status.initialized || !source) return;
+      const documents = new Set(getDocuments(source.ownerDocument));
+      if (target) documents.add(target.ownerDocument);
+      const roots = new Set<Document | ShadowRoot>(documents);
+      for (const element of [source, target]) {
+        const root = element?.getRootNode();
+        if (root && 'host' in root) roots.add(root as ShadowRoot);
       }
-
-      return undefined;
-    });
-
-    if (unregisterStyles) {
-      const originalDestroy = this.destroy.bind(this);
-      this.destroy = () => {
-        unregisterStyles();
-        originalDestroy();
+      const prevent = (event: Event) => event.preventDefault();
+      const clear = () => {
+        for (const document of documents) {
+          const selection = document.getSelection();
+          if (selection?.rangeCount) selection.removeAllRanges();
+        }
       };
-    }
+      clear();
+      for (const root of roots) {
+        root.addEventListener('selectstart', prevent, true);
+        root.addEventListener('selectionchange', clear, true);
+      }
+      return () => {
+        for (const root of roots) {
+          root.removeEventListener('selectstart', prevent, true);
+          root.removeEventListener('selectionchange', clear, true);
+        }
+      };
+    });
   }
-}
-
-function removeSelection() {
-  document.getSelection()?.removeAllRanges();
 }

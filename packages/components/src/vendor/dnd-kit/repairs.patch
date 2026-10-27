@@ -148,6 +148,155 @@
    const debounced = () => {
      clearTimeout(timeout);
      timeout = setTimeout(fn, wait);
+--- a/dom/src/core/plugins/cursor/Cursor.ts
++++ b/dom/src/core/plugins/cursor/Cursor.ts
+@@ -1,38 +1,123 @@
+ import {Plugin} from '../../../../../abstract/src/core/index.ts';
+-
+ import {DragDropManager} from '../../manager/index.ts';
+-import {StyleInjector} from '../stylesheet/StyleInjector.ts';
++import {getDocuments} from '../../../utilities/execution-context/getDocuments.ts';
++import {registerCursorLayer} from '../../../utilities/element/getElementFromPoint.ts';
+ 
+ interface CursorPluginOptions {
+-  /**
+-   * The style of the cursor to be applied to the document body.
+-   * @default 'grabbing'
+-   */
++  /** Cursor displayed while pointer dragging. @default 'grabbing' */
+   cursor?: string;
+ }
+ 
++/** Pointer interception isolates a drag without restyling every page element. */
+ export class Cursor extends Plugin<DragDropManager> {
+   constructor(
+     public manager: DragDropManager,
+     options?: CursorPluginOptions
+   ) {
+     super(manager, options);
+-
+-    const {cursor = 'grabbing'} = options ?? {};
+-    const styleInjector = manager.registry.plugins.get(
+-      StyleInjector as any
+-    ) as StyleInjector | undefined;
+-
+-    const unregisterStyles = styleInjector?.register(
+-      `* { cursor: ${cursor} !important; }`
+-    );
+-
+-    if (unregisterStyles) {
+-      const originalDestroy = this.destroy.bind(this);
+-      this.destroy = () => {
+-        unregisterStyles();
+-        originalDestroy();
+-      };
+-    }
++    const layers = new Map<Document, () => void>();
++    const clear = () => {
++      for (const release of layers.values()) release();
++      layers.clear();
++    };
++    const destroy = this.destroy.bind(this);
++    this.destroy = () => {
++      destroy();
++      clear();
++    };
++    this.registerEffect(() => {
++      const operation = manager.dragOperation;
++      const source = operation.source?.element;
++      const target = operation.target?.element;
++      if (
++        this.disabled ||
++        !operation.status.initialized ||
++        !source ||
++        operation.activatorEvent?.type.startsWith('key')
++      ) {
++        clear();
++        return;
++      }
++      const documents = new Set(getDocuments(source.ownerDocument));
++      if (target) documents.add(target.ownerDocument);
++      for (const [document, release] of layers) {
++        if (!documents.has(document)) {
++          release();
++          layers.delete(document);
++        }
++      }
++      for (const document of documents) {
++        if (layers.has(document)) continue;
++        let ancestor: Element | null =
++          source.ownerDocument === document
++            ? source
++            : target?.ownerDocument === document
++              ? target
++              : null;
++        let container: Element | null = null;
++        while (ancestor) {
++          if (
++            ancestor.localName === 'dialog' &&
++            ancestor.hasAttribute('open')
++          ) {
++            container = ancestor;
++            break;
++          }
++          const root = ancestor.getRootNode();
++          ancestor =
++            ancestor.parentElement ??
++            ('host' in root ? (root as ShadowRoot).host : null);
++        }
++        // Native modal dialogs occupy the top layer, above body descendants.
++        if (!container) {
++          try {
++            container = document.querySelector('dialog:modal');
++          } catch {
++            /* Older DOM implementations. */
++          }
++        }
++        container ??= document.body;
++        if (!container) continue;
++        const layer = document.createElement('div');
++        layer.setAttribute('data-dnd-cursor-layer', '');
++        layer.setAttribute('aria-hidden', 'true');
++        layer.style.cssText =
++          'position:fixed;inset:0;z-index:2147483647;pointer-events:auto;touch-action:none;user-select:none;';
++        layer.style.setProperty(
++          'cursor',
++          options?.cursor ?? 'grabbing',
++          'important'
++        );
++        const block = (event: Event) => {
++          event.preventDefault();
++          event.stopPropagation();
++        };
++        for (const name of ['click', 'dblclick', 'contextmenu', 'wheel'])
++          layer.addEventListener(name, block, {passive: false});
++        const guardKey = (event: KeyboardEvent) => {
++          try {
++            if (
++              event.key === 'Escape' &&
++              !event.isComposing &&
++              event.keyCode !== 229
++            ) {
++              manager.actions.stop({event, canceled: true});
++            }
++          } finally {
++            // The gesture owns Escape; it must not also dismiss a parent overlay.
++            event.preventDefault();
++            event.stopImmediatePropagation();
++          }
++        };
++        document.addEventListener('keydown', guardKey, true);
++        const unregister = registerCursorLayer(layer);
++        container.append(layer);
++        layers.set(document, () => {
++          document.removeEventListener('keydown', guardKey, true);
++          unregister();
++          layer.remove();
++        });
++      }
++    });
+   }
+ }
 --- a/dom/src/core/plugins/feedback/observers.ts
 +++ b/dom/src/core/plugins/feedback/observers.ts
 @@ -190,6 +190,7 @@
@@ -355,15 +504,88 @@
                    x: scrollLeftBy,
 --- a/dom/src/core/plugins/selection/PreventSelection.ts
 +++ b/dom/src/core/plugins/selection/PreventSelection.ts
-@@ -32,6 +32,8 @@
-           });
-         };
-       }
-+
-+      return undefined;
-     });
+@@ -1,49 +1,41 @@
+ import {Plugin} from '../../../../../abstract/src/core/index.ts';
+-import {effect} from '../../../../../state/src/index.ts';
++import {DragDropManager} from '../../manager/index.ts';
++import {getDocuments} from '../../../utilities/execution-context/getDocuments.ts';
  
-     if (unregisterStyles) {
+-import {DragDropManager} from '../../manager/index.ts';
+-import {StyleInjector} from '../stylesheet/StyleInjector.ts';
+-
+-const CSS_RULES =
+-  '* { user-select: none !important; -webkit-user-select: none !important; }';
+-
++/** Suppress selection during a gesture without a document-wide CSS change. */
+ export class PreventSelection extends Plugin<DragDropManager> {
+   constructor(public manager: DragDropManager) {
+     super(manager);
+-
+-    const styleInjector = manager.registry.plugins.get(
+-      StyleInjector as any
+-    ) as StyleInjector | undefined;
+-
+-    const unregisterStyles = styleInjector?.register(CSS_RULES);
+-
+-    this.destroy = effect(() => {
+-      const {dragOperation} = this.manager;
+-
+-      if (dragOperation.status.initialized) {
+-        removeSelection();
+-        document.addEventListener('selectionchange', removeSelection, {
+-          capture: true,
+-        });
+-
+-        return () => {
+-          document.removeEventListener('selectionchange', removeSelection, {
+-            capture: true,
+-          });
+-        };
++    this.registerEffect(() => {
++      const operation = manager.dragOperation;
++      const source = operation.source?.element;
++      const target = operation.target?.element;
++      if (this.disabled || !operation.status.initialized || !source) return;
++      const documents = new Set(getDocuments(source.ownerDocument));
++      if (target) documents.add(target.ownerDocument);
++      const roots = new Set<Document | ShadowRoot>(documents);
++      for (const element of [source, target]) {
++        const root = element?.getRootNode();
++        if (root && 'host' in root) roots.add(root as ShadowRoot);
+       }
++      const prevent = (event: Event) => event.preventDefault();
++      const clear = () => {
++        for (const document of documents) {
++          const selection = document.getSelection();
++          if (selection?.rangeCount) selection.removeAllRanges();
++        }
++      };
++      clear();
++      for (const root of roots) {
++        root.addEventListener('selectstart', prevent, true);
++        root.addEventListener('selectionchange', clear, true);
++      }
++      return () => {
++        for (const root of roots) {
++          root.removeEventListener('selectstart', prevent, true);
++          root.removeEventListener('selectionchange', clear, true);
++        }
++      };
+     });
+-
+-    if (unregisterStyles) {
+-      const originalDestroy = this.destroy.bind(this);
+-      this.destroy = () => {
+-        unregisterStyles();
+-        originalDestroy();
+-      };
+-    }
+   }
+ }
+-
+-function removeSelection() {
+-  document.getSelection()?.removeAllRanges();
+-}
 --- a/dom/src/core/plugins/stylesheet/StyleInjector.ts
 +++ b/dom/src/core/plugins/stylesheet/StyleInjector.ts
 @@ -1,3 +1,6 @@
@@ -860,6 +1082,36 @@
  
      if (isField(field) && isField(originalField)) {
        if (field.type !== 'file') {
+--- a/dom/src/utilities/element/getElementFromPoint.ts
++++ b/dom/src/utilities/element/getElementFromPoint.ts
+@@ -1,10 +1,26 @@
+ import type {Coordinates} from '../../../../geometry/src/index.ts';
++
++const cursorLayers = new WeakSet<Element>();
++
++/** Only owned interception layers may be bypassed by internal hit testing. */
++export function registerCursorLayer(element: Element): () => void {
++  cursorLayers.add(element);
++  return () => {
++    cursorLayers.delete(element);
++  };
++}
+ 
+ export function getElementFromPoint(
+   root: Document | ShadowRoot,
+   {x, y}: Coordinates
+ ): Element | null {
+-  const element = root.elementFromPoint(x, y); //supported by both document and shadowRoot.
++  let element = root.elementFromPoint(x, y);
++  if (element && cursorLayers.has(element)) {
++    element =
++      root
++        .elementsFromPoint(x, y)
++        .find((candidate) => !cursorLayers.has(candidate)) ?? null;
++  }
+ 
+   if (isIFrameElement(element)) {
+     const {contentDocument} = element;
 --- a/dom/src/utilities/frame/getFrameElement.ts
 +++ b/dom/src/utilities/frame/getFrameElement.ts
 @@ -4,4 +4,6 @@

@@ -49,6 +49,12 @@ layout requires a different target order. Sortable lists use their accepted
 order and orientation. Existing table column keyboard commands remain
 immediate moves, alongside the existing move menu.
 
+During an active pointer drag or Gantt resize, a transparent interaction layer
+blocks unrelated hover, clicks, wheel input, and keyboard actions. Escape cancels
+only the gesture. Edge scrolling and drop targets remain active beneath the layer.
+Drop, cancellation, and disposal restore normal interaction. Keyboard drags keep
+the controls described above.
+
 `DragDropFeedback` supplies an optional live region and keyboard instructions.
 Pass `instructionsId` and connect a handle through `aria-describedby`.
 Use `message` to provide localized lifecycle messages. Its default drop

@@ -309,7 +309,7 @@
     "dom/src/core/plugins/cursor/Cursor.ts": {
       "upstreamPath": "packages/dom/src/core/plugins/cursor/Cursor.ts",
       "upstreamSha256": "f5d5fd8993ddc3cedd40e98c1cb77ccf66d9137c96ca65f6396b3b52b9bcad71",
-      "localSha256": "5472ff41d83270972f8b849019092ae822dcd3d703d720bc96fd8c96ee691f3a"
+      "localSha256": "8240c891cd2570aed0a88eee8b53ea0eff258001a57b296521caf7ad6026390a"
     },
     "dom/src/core/plugins/cursor/index.ts": {
       "upstreamPath": "packages/dom/src/core/plugins/cursor/index.ts",
@@ -389,7 +389,7 @@
     "dom/src/core/plugins/selection/PreventSelection.ts": {
       "upstreamPath": "packages/dom/src/core/plugins/selection/PreventSelection.ts",
       "upstreamSha256": "537f2693efc13aacf8ed7967cafe0bc02e3957ff5f13312d492d55814b9b8873",
-      "localSha256": "6d2b00d644db0bdeeb67558972633635c2617e41ca57bee08e6bdb71bce38fbd"
+      "localSha256": "40c3180830ac83e6aa303192df61876c54a5e365292a04c3eba7cf91382c5fac"
     },
     "dom/src/core/plugins/stylesheet/StyleInjector.ts": {
       "upstreamPath": "packages/dom/src/core/plugins/stylesheet/StyleInjector.ts",
@@ -519,7 +519,7 @@
     "dom/src/utilities/element/getElementFromPoint.ts": {
       "upstreamPath": "packages/dom/src/utilities/element/getElementFromPoint.ts",
       "upstreamSha256": "57c2ff75a65c3bda603b1deb9e2a73aae05eea48ee89c92113e070b4e8064a57",
-      "localSha256": "d3e3836f153bfdaed149c6e46c07a3e2a77730896ed60918b097283392251b5f"
+      "localSha256": "0d25773255d6fb343dc30ecb9fb56b77d17632b10bc0e223aff52370c1dd01c9"
     },
     "dom/src/utilities/element/index.ts": {
       "upstreamPath": "packages/dom/src/utilities/element/index.ts",
@@ -992,7 +992,7 @@
       "localSha256": "0747211613cd31117c0f045ccfbddf4d64b602a230c15f17f958ecd03bf1ff7f"
     }
   },
-  "repairSha256": "3e2c94a2eb8f0bed0664f272006add1c4927163cfe497053736d06e8f2cc41ee",
+  "repairSha256": "015563ad4b05121a3ed651f7f86e53471e6ee0c47c8cefb4906a0fa61d581065",
   "externalDependencies": {
     "@preact/signals-core": "1.10.0"
   }

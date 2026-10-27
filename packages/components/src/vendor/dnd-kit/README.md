@@ -40,8 +40,7 @@ node scripts/capture-dnd-kit.mjs /path/to/dnd-kit /tmp/dnd-kit-capture
 The script checks original hashes, rewrites imports, applies the recorded patch
 and checks local hashes. It never downloads source or changes the checkout.
 
-Local repairs retain upstream behavior except where malformed or changing DOM
-input previously caused a crash:
+Local repairs and interaction changes:
 
 - Explicit `return undefined` at optional cleanup/value fallthroughs satisfies
   `noImplicitReturns` without changing returned values.
@@ -120,3 +119,14 @@ Pointer release uses the matching pointerup event's coordinates, converted throu
 the same frame transform as pointermove, before flushing the final move. This also
 covers a release with no intermediate pointermove. Final geometry therefore does
 not depend on the browser having delivered a move event at the release position.
+
+Pointer drags use a temporary cursor layer instead of universal cursor rules.
+The layer blocks unrelated hover, clicks, wheel input and keyboard actions.
+Escape cancels only the active drag. Keyboard drags keep their existing behavior.
+Internal hit testing skips only registered layers so edge scrolling still finds
+the underlying scroll container. Drop, cancellation and disposal remove the
+layers and keyboard guards. Native modal dialogs contain their own layer.
+
+Selection guards cancel `selectstart` and clear selection during a drag.
+They replace universal selection rules and release their listeners after the
+operation. These changes avoid a page-wide style recalculation at drag startup.

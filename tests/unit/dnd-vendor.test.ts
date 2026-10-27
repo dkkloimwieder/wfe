@@ -634,3 +634,184 @@ it('discovers and scrolls the horizontal container behind a sticky header', asyn
   tasks.splice(0).forEach((task) => task())
   expect(inner.scrollLeft).toBeGreaterThan(0)
 })
+
+it('intercepts pointer drags without global styles and releases selection guards', async () => {
+  const { Cursor } =
+    await import('../../packages/components/src/vendor/dnd-kit/dom/src/core/plugins/cursor/Cursor')
+  const { PreventSelection } =
+    await import('../../packages/components/src/vendor/dnd-kit/dom/src/core/plugins/selection/PreventSelection')
+  const element = document.createElement('button')
+  document.body.append(element)
+  const manager = new DragDropManager({
+    plugins: [Cursor, PreventSelection],
+    sensors: [],
+  })
+  const source = new Draggable(
+    { id: 'isolated', element, register: false },
+    manager,
+  )
+  cleanup.push(() => {
+    source.destroy()
+    manager.destroy()
+    element.remove()
+  })
+  source.register()
+  manager.actions.start({
+    source,
+    coordinates: { x: 0, y: 0 },
+    event: new MouseEvent('pointerdown'),
+  })
+  await manager.renderer.rendering
+  const layer = document.querySelector('[data-dnd-cursor-layer]')!
+  expect(layer).toBeTruthy()
+  expect(layer.getAttribute('aria-hidden')).toBe('true')
+  const selection = new Event('selectstart', {
+    bubbles: true,
+    cancelable: true,
+  })
+  element.dispatchEvent(selection)
+  expect(selection.defaultPrevented).toBe(true)
+  const shortcut = vi.fn()
+  document.addEventListener('keydown', shortcut)
+  cleanup.push(() => document.removeEventListener('keydown', shortcut))
+  const tab = new KeyboardEvent('keydown', {
+    key: 'Tab',
+    bubbles: true,
+    cancelable: true,
+  })
+  element.dispatchEvent(tab)
+  expect(tab.defaultPrevented).toBe(true)
+  expect(shortcut).not.toHaveBeenCalled()
+  const composingEscape = new KeyboardEvent('keydown', {
+    key: 'Escape',
+    bubbles: true,
+    cancelable: true,
+    isComposing: true,
+  })
+  element.dispatchEvent(composingEscape)
+  expect(composingEscape.defaultPrevented).toBe(true)
+  expect(manager.dragOperation.status.dragging).toBe(true)
+  expect(shortcut).not.toHaveBeenCalled()
+  const legacyComposingEscape = new KeyboardEvent('keydown', {
+    key: 'Escape',
+    bubbles: true,
+    cancelable: true,
+    keyCode: 229,
+  })
+  element.dispatchEvent(legacyComposingEscape)
+  expect(manager.dragOperation.status.dragging).toBe(true)
+  expect(shortcut).not.toHaveBeenCalled()
+  const escape = new KeyboardEvent('keydown', {
+    key: 'Escape',
+    bubbles: true,
+    cancelable: true,
+  })
+  element.dispatchEvent(escape)
+  expect(escape.defaultPrevented).toBe(true)
+  expect(shortcut).not.toHaveBeenCalled()
+  await manager.renderer.rendering
+  await manager.renderer.rendering
+  expect(document.querySelector('[data-dnd-cursor-layer]')).toBeNull()
+  const released = new Event('selectstart', { bubbles: true, cancelable: true })
+  element.dispatchEvent(released)
+  expect(released.defaultPrevented).toBe(false)
+  const restoredTab = new KeyboardEvent('keydown', {
+    key: 'Tab',
+    bubbles: true,
+    cancelable: true,
+  })
+  element.dispatchEvent(restoredTab)
+  expect(restoredTab.defaultPrevented).toBe(false)
+  expect(shortcut).toHaveBeenCalledOnce()
+})
+
+it('bypasses only owned cursor layers without changing their styles', async () => {
+  const { getElementFromPoint, registerCursorLayer } =
+    await import('../../packages/components/src/vendor/dnd-kit/dom/src/utilities/element/getElementFromPoint')
+  const layer = document.createElement('div')
+  const underlying = document.createElement('div')
+  layer.style.pointerEvents = 'auto'
+  const release = registerCursorLayer(layer)
+  cleanup.push(release)
+  const root = {
+    elementFromPoint: () => layer,
+    elementsFromPoint: () => [layer, underlying],
+  } as unknown as Document
+  expect(getElementFromPoint(root, { x: 5, y: 5 })).toBe(underlying)
+  expect(layer.style.pointerEvents).toBe('auto')
+  release()
+  expect(getElementFromPoint(root, { x: 5, y: 5 })).toBe(layer)
+})
+
+it('keeps keyboard dragging free of a pointer interception layer', async () => {
+  const { Cursor } =
+    await import('../../packages/components/src/vendor/dnd-kit/dom/src/core/plugins/cursor/Cursor')
+  const element = document.createElement('button')
+  document.body.append(element)
+  const manager = new DragDropManager({ plugins: [Cursor], sensors: [] })
+  const source = new Draggable(
+    { id: 'keyboard-isolated', element, register: false },
+    manager,
+  )
+  cleanup.push(() => {
+    source.destroy()
+    manager.destroy()
+    element.remove()
+  })
+  source.register()
+  manager.actions.start({
+    source,
+    coordinates: { x: 0, y: 0 },
+    event: new KeyboardEvent('keydown', { key: ' ' }),
+  })
+  await manager.renderer.rendering
+  expect(document.querySelector('[data-dnd-cursor-layer]')).toBeNull()
+})
+
+it('places a shadow-root modal drag layer inside its dialog and cleans up on destroy', async () => {
+  const { Cursor } =
+    await import('../../packages/components/src/vendor/dnd-kit/dom/src/core/plugins/cursor/Cursor')
+  const { PreventSelection } =
+    await import('../../packages/components/src/vendor/dnd-kit/dom/src/core/plugins/selection/PreventSelection')
+  const host = document.createElement('div')
+  document.body.append(host)
+  const shadow = host.attachShadow({ mode: 'open' })
+  const dialog = document.createElement('dialog')
+  dialog.setAttribute('open', '')
+  const element = document.createElement('button')
+  dialog.append(element)
+  shadow.append(dialog)
+  const manager = new DragDropManager({
+    plugins: [Cursor, PreventSelection],
+    sensors: [],
+  })
+  const source = new Draggable(
+    { id: 'shadow-modal', element, register: false },
+    manager,
+  )
+  cleanup.push(() => {
+    source.destroy()
+    manager.destroy()
+    host.remove()
+  })
+  source.register()
+  manager.actions.start({
+    source,
+    coordinates: { x: 0, y: 0 },
+    event: new MouseEvent('pointerdown'),
+  })
+  await manager.renderer.rendering
+  expect(dialog.querySelector('[data-dnd-cursor-layer]')).toBeTruthy()
+  const selection = new Event('selectstart', {
+    bubbles: true,
+    cancelable: true,
+    composed: false,
+  })
+  element.dispatchEvent(selection)
+  expect(selection.defaultPrevented).toBe(true)
+  manager.destroy()
+  expect(dialog.querySelector('[data-dnd-cursor-layer]')).toBeNull()
+  const released = new Event('selectstart', { bubbles: true, cancelable: true })
+  element.dispatchEvent(released)
+  expect(released.defaultPrevented).toBe(false)
+})
