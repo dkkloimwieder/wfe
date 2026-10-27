@@ -9,6 +9,7 @@
       svg,
       img,
       .ui-card,
+      .ui-menu-item,
       .table-workspace-title-face,
       .popup-trigger,
       .ui-control-frame,
@@ -261,6 +262,48 @@
     text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
   }
   @media (forced-colors: none) {
+    /* Navigation entries share menu text feedback, including button entries. */
+    :scope
+      :is(
+        .ui-dashboard-menu > :is(a, .ui-button),
+        .ui-sidebar-context-options .ui-button,
+        .ui-sidebar-context-parent
+      ) {
+      --ui-laser-control-glow: none;
+      --ui-control-border: transparent;
+      --ui-button-border: transparent;
+      --ui-highlight: transparent;
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+    }
+    :scope
+      :is(
+        .ui-dashboard-menu > :is(a, .ui-button),
+        .ui-sidebar-context-options .ui-button,
+        .ui-sidebar-context-parent
+      ):is(
+        :hover,
+        :focus-visible,
+        [aria-current='page'],
+        [aria-pressed='true']
+      ):not(:disabled, [aria-disabled='true'], [data-disabled]) {
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+      color: var(--ui-accent);
+      text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
+    }
+    :scope
+      .ui-menu-item:is(:hover, [data-highlighted], :focus-visible):not(
+        [data-disabled]
+      ) {
+      border-color: transparent;
+      background: transparent;
+      box-shadow: none;
+      color: var(--ui-accent);
+      text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
+    }
     :scope
       :is(button, summary, .ui-dashboard-menu > a):is(
         :hover,
