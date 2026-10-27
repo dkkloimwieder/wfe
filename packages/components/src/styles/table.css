@@ -33,7 +33,7 @@
   background: transparent;
   text-align: left;
   padding: 8px 10px;
-  font-weight: 650;
+  font-weight: var(--ui-heading-weight, 650);
 }
 :where([data-ui]) :where(.ui-table > :is(thead, tbody, tfoot) > tr) > th {
   font-weight: var(--ui-heading-weight, 500);
@@ -195,7 +195,7 @@
   max-width: 100%;
 }
 :where([data-ui]) :where(.ui-table) > tbody > :where(tr) > th {
-  font-weight: 500;
+  font-weight: var(--ui-heading-weight, 500);
 }
 :where([data-ui]) .table-filter {
   display: grid;
@@ -261,7 +261,7 @@
 }
 :where([data-ui]) .grouping-controls legend {
   padding: 0 6px;
-  font-weight: 600;
+  font-weight: var(--ui-heading-weight, 600);
 }
 :where([data-ui]) .grouping-toolbar,
 :where([data-ui]) .group-heading {
@@ -294,7 +294,7 @@
   min-width: 0;
   align-self: center;
   overflow-wrap: anywhere;
-  font-weight: 600;
+  font-weight: var(--ui-heading-weight, 600);
 }
 :where([data-ui]) :is(.grouping-level-move, .grouping-level-actions) {
   display: flex;
@@ -333,12 +333,12 @@
 }
 :where([data-ui]) .group-heading button {
   text-align: left;
-  font-weight: 600;
+  font-weight: var(--ui-heading-weight, 600);
 }
 :where([data-ui]) .group-count,
 :where([data-ui]) .group-summary {
   font-size: var(--ui-small-font-size, 11px);
-  font-weight: 400;
+  font-weight: var(--ui-font-weight, 400);
 }
 :where([data-ui]) .group-summary {
   overflow-wrap: anywhere;
@@ -348,7 +348,7 @@
   padding-bottom: 6px;
   color: var(--ui-muted-text, #666);
   font-size: var(--ui-small-font-size, 11px);
-  font-weight: 400;
+  font-weight: var(--ui-font-weight, 400);
 }
 :where([data-ui]) .sub-table-row > td {
   padding: 0;
@@ -360,7 +360,10 @@
   max-width: calc(100cqw - 10px);
 }
 :where([data-ui]) .sub-table h2 {
-  font-size: 16px;
+  font-size: var(
+    --ui-subtable-heading-font-size,
+    var(--ui-heading-font-size, 16px)
+  );
 }
 :where([data-ui]) .sub-table-control {
   padding: var(--ui-table-cell-padding-y, 1px) 0;
@@ -372,7 +375,7 @@
   justify-content: center;
   width: 100%;
   min-width: 0;
-  height: 26px;
+  height: var(--ui-subtable-toggle-size, var(--ui-table-control-height, 26px));
   min-block-size: 0;
   padding: 0;
   border-color: transparent;
@@ -477,8 +480,8 @@
   overflow: visible;
   margin: 0;
   padding: 10px;
-  font-size: 12px;
-  font-weight: 400;
+  font-size: var(--ui-font-size, 12px);
+  font-weight: var(--ui-font-weight, 400);
 }
 :where([data-ui]) .header-filter-popup-body {
   max-height: calc(100dvh - 38px);

@@ -73,9 +73,14 @@
     background: var(--ui-control-surface);
   }
   :scope .sub-table-toggle {
-    --ui-control-height: 24px;
-    inline-size: 24px;
-    block-size: 24px;
+    inline-size: var(
+      --ui-subtable-toggle-size,
+      calc(var(--ui-table-control-height, 26px) - 2px)
+    );
+    block-size: var(
+      --ui-subtable-toggle-size,
+      calc(var(--ui-table-control-height, 26px) - 2px)
+    );
     min-block-size: 0;
   }
   :scope .ui-disclosure-indicator {
@@ -91,41 +96,46 @@
     stroke-linejoin: round;
   }
   /* Navigation uses flat rows; an open group is not a selected control. */
-  :scope :is(.ui-sidebar-group, .ui-sidebar-flyout) {
-    --ui-control-height: 32px;
-  }
   :scope .ui-sidebar-group {
-    --_ui-sidebar-row-height: calc(var(--ui-control-height) + 4px);
-    padding-block: 2px;
+    --_ui-sidebar-row-height: calc(
+      var(--ui-sidebar-control-height, var(--ui-control-height)) + 2 *
+        var(--ui-sidebar-group-padding-y, 2px)
+    );
+    padding-block: var(--ui-sidebar-group-padding-y, 2px);
   }
   :scope .ui-sidebar-group > .ui-sidebar-group-panel {
     border: 0;
     background: transparent;
   }
   :scope .ui-sidebar-group > .ui-sidebar-group-panel > summary {
-    min-block-size: var(--ui-control-height);
+    min-block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
     border-radius: var(--ui-control-radius);
-    font-weight: 500;
+    font-weight: var(
+      --ui-sidebar-heading-weight,
+      var(--ui-heading-weight, 500)
+    );
   }
   :scope .ui-sidebar-group > .ui-sidebar-group-panel > summary:hover {
     background: var(--ui-highlight);
   }
   :scope .ui-sidebar-group-control {
-    block-size: var(--ui-control-height);
+    block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
   }
   :scope .ui-sidebar-group-icon {
-    inline-size: var(--ui-control-height);
-    block-size: var(--ui-control-height);
+    inline-size: var(--ui-sidebar-control-height, var(--ui-control-height));
+    block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
     border-color: transparent;
   }
   :scope .ui-sidebar-group .ui-collapsible-content {
-    margin-inline-start: calc(var(--ui-control-height) / 2);
-    margin-block: 4px;
+    margin-inline-start: calc(
+      var(--ui-sidebar-control-height, var(--ui-control-height)) / 2
+    );
+    margin-block: var(--ui-sidebar-content-margin-y, 4px);
     padding: 0 0 0 calc(2 * var(--ui-gap));
     border-inline-start: var(--ui-border-width) solid var(--ui-border);
   }
   :scope .ui-dashboard-menu {
-    gap: 2px;
+    gap: var(--ui-navigation-gap, 2px);
   }
   :scope .ui-dashboard-menu > a {
     color: var(--ui-text);

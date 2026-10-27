@@ -6,7 +6,10 @@
   gap: var(--ui-gap, 6px);
 }
 :where([data-ui]) .ui-chart-tooltip-title {
-  font-weight: 600;
+  font-weight: var(
+    --ui-chart-tooltip-title-weight,
+    var(--ui-heading-weight, 600)
+  );
 }
 :where([data-ui]) .ui-chart-tooltip-row {
   display: grid;
@@ -25,15 +28,25 @@
 }
 :where([data-ui]).ui-chart,
 :where([data-ui])[data-ui-chart-tooltip] {
-  --ts-chart-tooltip-background: var(--ui-surface);
-  --ts-chart-tooltip-color: var(--ui-text);
-  --ts-chart-tooltip-border: var(--ui-border-width, 1px) solid var(--ui-border);
-  --ts-chart-tooltip-border-radius: var(--ui-radius, 0px);
-  --ts-chart-tooltip-shadow: var(--ui-panel-shadow, none);
+  --ts-chart-tooltip-background: var(--ui-popup-surface, var(--ui-surface));
+  --ts-chart-tooltip-color: var(--ui-popup-text, var(--ui-text));
+  --ts-chart-tooltip-border: var(--ui-border-width, 1px) solid
+    var(--ui-popup-border, var(--ui-border));
+  --ts-chart-tooltip-border-radius: var(
+    --ui-popup-radius,
+    var(--ui-radius, 0px)
+  );
+  --ts-chart-tooltip-shadow: var(
+    --ui-popup-shadow,
+    var(--_ui-popup-shadow, none)
+  );
   --ts-chart-tooltip-padding: var(--ui-control-padding-y, 4px)
     var(--ui-cell-padding-x, 8px);
   --ts-chart-tooltip-font: inherit;
-  --ts-chart-tooltip-active-row-border-radius: var(--ui-radius, 0px);
+  --ts-chart-tooltip-active-row-border-radius: var(
+    --ui-control-radius,
+    var(--ui-radius, 0px)
+  );
 }
 :where(.ui-chart[data-ui]) svg:focus-visible {
   outline: var(--ui-focus-width, 1px) solid

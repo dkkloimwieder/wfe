@@ -333,6 +333,12 @@
   cursor: pointer;
   border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
 }
+:where([data-ui]) .ui-check-control {
+  border-radius: var(
+    --ui-checkbox-radius,
+    var(--ui-control-radius, var(--ui-radius, 0px))
+  );
+}
 :where([data-ui]) .ui-check-indicator {
   display: grid;
   place-items: center;
@@ -424,8 +430,11 @@
 }
 :where([data-ui]) .ui-dialog-title {
   margin: 0;
-  font-size: calc(var(--ui-font-size, 12px) + 2px);
-  font-weight: 650;
+  font-size: var(
+    --ui-dialog-title-font-size,
+    var(--ui-heading-font-size, calc(var(--ui-font-size, 12px) + 2px))
+  );
+  font-weight: var(--ui-dialog-title-weight, var(--ui-heading-weight, 650));
 }
 :where([data-ui]) .ui-dialog-description {
   margin: 0;
@@ -496,16 +505,16 @@
   margin: 0;
 }
 :where([data-ui]) .ui-popup-title {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--ui-popup-title-font-size, var(--ui-heading-font-size, 14px));
+  font-weight: var(--ui-popup-title-weight, var(--ui-heading-weight, 600));
 }
 :where([data-ui]) :is(.ui-popup-description, .ui-menu-label) {
   color: var(--ui-muted-text, #555);
-  font-size: 12px;
+  font-size: var(--ui-small-font-size, 12px);
 }
 :where([data-ui]) .ui-menu {
   min-width: 160px;
-  padding: 3px;
+  padding: var(--ui-menu-padding, 3px);
 }
 :where([data-ui]) :is(.ui-menu-item, .ui-menu-label) {
   padding: var(--ui-control-padding-y, 4px) var(--ui-input-padding-x, 6px);
@@ -528,7 +537,7 @@
   cursor: default;
 }
 :where([data-ui]) .ui-menu-separator {
-  margin: 3px 0;
+  margin: var(--ui-menu-separator-margin-y, 3px) 0;
   border: 0;
   border-top: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
     var(--ui-border, #bbb);
@@ -550,7 +559,7 @@
   align-items: center;
   border: var(--ui-border-width, 1px) solid var(--ui-border, #bbb);
   border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
-  padding: 0 4px;
+  padding: 0 var(--ui-badge-padding-x, 4px);
   background: var(--ui-muted-surface, #f2f2f2);
   font-size: var(--ui-small-font-size, 11px);
   line-height: 1.5;
@@ -625,7 +634,7 @@
   font: inherit;
 }
 :where([data-ui]) .ui-toast-title {
-  font-weight: 600;
+  font-weight: var(--ui-toast-title-weight, var(--ui-heading-weight, 600));
 }
 @keyframes ui-display-spin {
   to {

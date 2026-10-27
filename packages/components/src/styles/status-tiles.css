@@ -17,7 +17,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 600;
+  font-weight: var(
+    --ui-status-tile-label-weight,
+    var(--ui-heading-weight, 600)
+  );
 }
 :where([data-ui]) .ui-status-tile-header .ui-badge {
   flex-shrink: 0;
@@ -25,9 +28,9 @@
 :where([data-ui]) .ui-status-tile-value {
   min-width: 0;
   overflow-wrap: anywhere;
-  font-size: 1.5em;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: var(--ui-status-tile-value-font-size, 1.5em);
+  font-weight: var(--ui-status-tile-value-weight, 600);
+  line-height: var(--ui-status-tile-value-line-height, 1.2);
 }
 :where([data-ui]) .ui-status-tile-detail {
   min-width: 0;

@@ -413,7 +413,10 @@
 :where([data-ui]) .ui-dashboard-navigation,
 :where([data-ui]) .ui-sidebar-group {
   --_ui-sidebar-inset: calc(
-    (var(--ui-navigation-rail-width, 3.5rem) - var(--ui-control-height, 32px)) /
+    (
+        var(--ui-navigation-rail-width, 3.5rem) -
+          var(--ui-sidebar-control-height, var(--ui-control-height, 32px))
+      ) /
       2
   );
 }
@@ -423,7 +426,8 @@
 }
 :where([data-ui]) .ui-sidebar-group {
   --_ui-sidebar-row-height: calc(
-    var(--ui-control-height, 32px) + 2 * var(--ui-gap, 6px)
+    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) + 2 *
+      var(--ui-gap, 6px)
   );
   padding-block: var(--ui-gap, 6px);
 }
@@ -438,11 +442,13 @@
 :where([data-ui]) .ui-sidebar-group > .ui-collapsible > summary {
   display: flex;
   align-items: center;
-  min-block-size: calc(var(--ui-control-height, 32px) - 2px);
+  min-block-size: calc(
+    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) - 2px
+  );
   padding: 0;
   list-style: none;
   color: inherit;
-  font-weight: var(--ui-heading-weight, 500);
+  font-weight: var(--ui-sidebar-heading-weight, var(--ui-heading-weight, 500));
 }
 :where([data-ui]) .ui-sidebar-group .ui-collapsible-content {
   padding: var(--ui-gap, 6px);
@@ -460,7 +466,9 @@
   gap: var(--ui-gap, 6px);
   inline-size: 100%;
   min-inline-size: 0;
-  block-size: calc(var(--ui-control-height, 32px) - 2px);
+  block-size: calc(
+    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) - 2px
+  );
   padding: 0;
   text-align: start;
 }
@@ -477,8 +485,12 @@
   justify-content: center;
   flex: none;
   padding: 0;
-  inline-size: calc(var(--ui-control-height, 32px) - 2px);
-  block-size: calc(var(--ui-control-height, 32px) - 2px);
+  inline-size: calc(
+    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) - 2px
+  );
+  block-size: calc(
+    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) - 2px
+  );
 }
 :where([data-ui]) .ui-sidebar-group-label {
   flex: 1;
@@ -495,8 +507,8 @@
 }
 :where([data-ui]) .ui-sidebar-group[data-compact] > .ui-button {
   flex-shrink: 0;
-  inline-size: var(--ui-control-height, 32px);
-  block-size: var(--ui-control-height, 32px);
+  inline-size: var(--ui-sidebar-control-height, var(--ui-control-height, 32px));
+  block-size: var(--ui-sidebar-control-height, var(--ui-control-height, 32px));
   padding: 0;
 }
 :where([data-ui])

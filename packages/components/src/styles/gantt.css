@@ -137,7 +137,7 @@
 :where([data-ui]) .ui-gantt-baseline {
   position: absolute;
   height: 2px;
-  background: var(--ui-text-muted, var(--ui-border));
+  background: var(--ui-muted-text, var(--ui-border));
 }
 :where([data-ui]) .ui-gantt-dependencies {
   position: absolute;
@@ -147,7 +147,7 @@
 }
 :where([data-ui]) .ui-gantt-dependencies path {
   fill: none;
-  stroke: var(--ui-text-muted, var(--ui-border));
+  stroke: var(--ui-muted-text, var(--ui-border));
   stroke-width: var(--ui-connector-stroke-width, 1.5);
 }
 :where([data-ui]) .ui-gantt-empty {
@@ -222,7 +222,7 @@
   .ui-gantt-bar[data-milestone][data-readonly]
   .ui-gantt-milestone
   circle {
-  fill: var(--ui-text-muted, var(--ui-border));
+  fill: var(--ui-muted-text, var(--ui-border));
 }
 
 /* The virtual window is one stacking context above the connector plane. */

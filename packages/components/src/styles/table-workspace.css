@@ -155,7 +155,7 @@
 }
 :where([data-ui]) .table-control-summary {
   margin-inline-start: var(--ui-gap, 6px);
-  font-weight: 400;
+  font-weight: var(--ui-font-weight, 400);
   font-size: var(--ui-small-font-size, 11px);
   color: var(--ui-muted-text, #666);
 }

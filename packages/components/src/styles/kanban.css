@@ -37,7 +37,7 @@
 }
 :where([data-ui]) .ui-kanban-column-header h2 {
   font-size: inherit;
-  font-weight: 500;
+  font-weight: var(--ui-kanban-heading-weight, var(--ui-heading-weight, 500));
   text-transform: var(--ui-system-text-transform, uppercase);
   margin: 0;
 }
@@ -75,7 +75,7 @@
   text-transform: var(--ui-system-text-transform, uppercase);
   margin: 0;
   font-size: inherit;
-  font-weight: 500;
+  font-weight: var(--ui-kanban-heading-weight, var(--ui-heading-weight, 500));
 }
 :where([data-ui]) .ui-kanban-item[data-drag-surface='card'] {
   cursor: grab;
