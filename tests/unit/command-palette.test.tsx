@@ -26,6 +26,7 @@ function press(target: EventTarget = document, init: KeyboardEventInit = {}) {
 }
 
 test('optional shortcut opens search and selection closes the palette', async () => {
+  const warnings = vi.spyOn(console, 'warn')
   const selected = vi.fn()
   const h = render(() => (
     <CommandPalette
@@ -41,6 +42,12 @@ test('optional shortcut opens search and selection closes the palette', async ()
   trigger.focus()
   press(trigger)
   const input = await screen.findByRole('combobox', { name: 'Search commands' })
+  expect(
+    warnings.mock.calls.filter((args) =>
+      args.some((value) => String(value).includes('STRICT_READ_UNTRACKED')),
+    ),
+  ).toEqual([])
+  warnings.mockRestore()
   await waitFor(() => expect(document.activeElement).toBe(input))
   fireEvent.keyDown(input, { key: 'Enter' })
   flush()

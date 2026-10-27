@@ -107,9 +107,11 @@ export function decorateActions(root: HTMLDivElement) {
       return
     pin(node)
     const state = nodes.get(node)!
+    if (!options.randomizeOnHover && resize) return
     if (options.randomizeOnHover) state.samples = sample()
-    measure(node, state)
-    paint(node, state)
+    // ResizeObserver owns geometry. Hover must not synchronously flush layout.
+    if (!resize) measure(node, state)
+    if (state.width || state.height || !resize) paint(node, state)
   }
   root.addEventListener('pointerover', enter)
   return {

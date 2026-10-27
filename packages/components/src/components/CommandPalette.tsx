@@ -55,7 +55,8 @@ export function CommandPalette(props: CommandPaletteProps) {
     props.onOpenChange?.(value)
   }
   createEffect(open, (visible) => {
-    if (visible) captureOrigin()
+    // Capture the current opener once, without subscribing to later content refs.
+    if (visible) untrack(captureOrigin)
   })
   const shortcut = () =>
     typeof props.shortcut === 'object' ? props.shortcut : undefined

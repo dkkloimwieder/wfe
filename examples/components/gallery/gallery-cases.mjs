@@ -48,6 +48,7 @@ const catalog = [
   ['pagination', 'Pagination and header actions'],
 ]
 export async function galleryCases({ page, url, record, settle }) {
+  await galleryNavigationFocusCases({ page, url, record })
   await galleryThemeCases({ page, url, record })
   await decorationGeometryCases({ page, url, record })
   await iconCases({ page, url, record })
@@ -681,6 +682,63 @@ export async function galleryCases({ page, url, record, settle }) {
       await expect(page.locator('.gallery-example-host')).toHaveCount(0)
     },
   )
+}
+
+export async function galleryNavigationFocusCases({ page, url, record }) {
+  for (const preset of ['default', 'vanilla', 'laser']) {
+    await record(
+      `gallery: ${preset} navigation restores heading focus without stealing later focus`,
+      async () => {
+        await page.setViewportSize({ width: 1280, height: 900 })
+        await page.goto(`${url}?gallery=fields&preset=${preset}`)
+        const everything = page.getByRole('link', {
+          name: 'Everything form',
+          exact: true,
+        })
+        await everything.click()
+        await expect(
+          page
+            .locator('.ui-dashboard-header')
+            .getByRole('heading', { name: 'Everything form', exact: true }),
+        ).toBeFocused()
+        await page.goBack()
+        await expect(
+          page
+            .locator('.ui-dashboard-header')
+            .getByRole('heading', { name: 'Fields', exact: true }),
+        ).toBeFocused()
+        await everything.evaluate((node) => node.click())
+        const kept = await page.evaluate(async () => {
+          await new Promise(requestAnimationFrame)
+          const input = document.querySelector(
+            '.gallery-example-host input:not([disabled])',
+          )
+          if (!(input instanceof HTMLInputElement))
+            throw new Error('Expected a form input')
+          input.focus()
+          await new Promise(requestAnimationFrame)
+          return document.activeElement === input
+        })
+        assert.equal(kept, true)
+        await page.setViewportSize({ width: 390, height: 844 })
+        await page.goto(`${url}?gallery=fields&preset=${preset}`)
+        await page
+          .getByRole('button', { name: 'Components', exact: true })
+          .click()
+        await page
+          .getByRole('link', { name: 'Everything form', exact: true })
+          .click()
+        await expect(
+          page.getByRole('navigation', { name: 'Component catalog' }),
+        ).not.toBeVisible()
+        await expect(
+          page
+            .locator('.ui-dashboard-header')
+            .getByRole('heading', { name: 'Everything form', exact: true }),
+        ).toBeFocused()
+      },
+    )
+  }
 }
 
 async function appearanceCases({ page, url, record }) {

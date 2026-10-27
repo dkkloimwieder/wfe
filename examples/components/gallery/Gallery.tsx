@@ -55,6 +55,7 @@ export function Gallery() {
   let heading: HTMLHeadingElement | undefined
   let alive = true
   let focusAttempt = 0
+  let focusFrame: number | undefined
   const entry = () => entryFor(route().id)
   const oldTitle = untrack(() => document.title)
   createEffect(
@@ -68,9 +69,20 @@ export function Gallery() {
     galleryUrl(new URL(window.location.href), next).search
   function focusTitle() {
     const attempt = ++focusAttempt
-    queueMicrotask(() => {
-      if (alive && attempt === focusAttempt)
-        heading?.focus({ preventScroll: true })
+    const origin = document.activeElement
+    if (focusFrame !== undefined) cancelAnimationFrame(focusFrame)
+    // Let the replacement page lay out before checking focusability.
+    focusFrame = requestAnimationFrame(() => {
+      focusFrame = requestAnimationFrame(() => {
+        focusFrame = undefined
+        if (
+          alive &&
+          attempt === focusAttempt &&
+          (document.activeElement === origin ||
+            document.activeElement === document.body)
+        )
+          heading?.focus({ preventScroll: true })
+      })
     })
   }
   function change(next: Partial<GalleryRoute>, commit = true) {
@@ -109,6 +121,7 @@ export function Gallery() {
     alive = false
     heading = undefined
     focusAttempt++
+    if (focusFrame !== undefined) cancelAnimationFrame(focusFrame)
   })
   return (
     <DefaultAppearance
