@@ -15,6 +15,24 @@
 :where([data-ui]) .ui-command-palette-heading .ui-dialog-title {
   margin: 0;
 }
-:where([data-ui]) .ui-command-palette > .ui-command {
+:where([data-ui]) .ui-command-palette-surface > .ui-command {
   min-block-size: 0;
+}
+
+/* The modal keeps viewport positioning and lets its backing extend outside. */
+:where([data-ui])
+  .ui-dialog-content.ui-command-palette[data-ui-section-decoration] {
+  position: fixed;
+  overflow: visible;
+  padding: 0;
+}
+
+:where([data-ui]) .ui-command-palette-surface {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-gap, 8px);
+  min-block-size: 0;
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
+  background: var(--ui-popup-surface, var(--ui-surface, white));
+  border-radius: inherit;
 }

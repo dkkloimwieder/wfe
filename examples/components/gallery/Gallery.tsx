@@ -402,7 +402,11 @@ export function Gallery() {
                 data-viewport={route().viewport}
                 aria-label={`${entryFor(id).label} preview`}
               >
-                <GalleryExample id={id} state={route().state} />
+                <GalleryExample
+                  id={id}
+                  state={route().state}
+                  onNavigate={(id) => change({ id, state: 'normal' })}
+                />
               </div>
             )}
           </Show>

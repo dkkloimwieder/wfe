@@ -58,7 +58,13 @@ export async function galleryCommandCases({ page, url, record }) {
           exact: true,
         })
         await expect(search).toBeFocused()
-        await search.fill('p')
+        await expect(dialog.getByRole('option')).toHaveCount(0)
+        await search.fill('pl')
+        await expect(
+          dialog.getByText('Type at least 3 characters'),
+        ).toBeVisible()
+        await expect(dialog.getByRole('option')).toHaveCount(0)
+        await search.fill('pla')
         await search.fill('plan')
         await expect(
           dialog.getByRole('option', { name: /Beacon plan/ }),
@@ -69,6 +75,14 @@ export async function galleryCommandCases({ page, url, record }) {
         await expect(
           dialog.getByRole('option', { name: /Beacon plan/ }),
         ).toBeVisible()
+        await search.fill('issue')
+        await expect(
+          dialog
+            .getByRole('group', { name: 'Records', exact: true })
+            .getByRole('option'),
+        ).toHaveCount(120)
+        await search.fill('is')
+        await expect(dialog.getByRole('option')).toHaveCount(0)
         await search.fill('error')
         await expect(dialog.getByRole('alert')).toHaveText(
           'Search is unavailable. Try another query.',
@@ -81,8 +95,16 @@ export async function galleryCommandCases({ page, url, record }) {
         await expect(
           dialog.getByRole('option', { name: /Beacon notes/ }),
         ).toBeVisible()
-        await search.press('ArrowDown')
-        await search.press('Enter')
+        await search.press('Tab')
+        const selected = dialog.getByRole('option', {
+          name: 'Beacon notes',
+          exact: true,
+        })
+        await expect(selected).toBeFocused()
+        await selected.press('Shift+Tab')
+        await expect(search).toBeFocused()
+        await search.press('Tab')
+        await selected.press('Enter')
         await expect(dialog).toHaveCount(0)
         await expect(result).toHaveText('Opened Beacon notes')
         await expect(trigger).toBeFocused()
@@ -115,6 +137,22 @@ export async function galleryCommandCases({ page, url, record }) {
         await search.press('Escape')
         await expect(note).toHaveValue('Retained application draft')
         await page.setViewportSize({ width: 1280, height: 900 })
+        await page.evaluate(() => {
+          document.documentElement.dataset.commandNavigation = 'retained'
+        })
+        await input.fill('Fields gallery')
+        await host
+          .getByRole('option', { name: 'Fields gallery', exact: true })
+          .click()
+        await expect(page).toHaveURL(/gallery=fields/)
+        assert.equal(
+          await page.evaluate(
+            () => document.documentElement.dataset.commandNavigation,
+          ),
+          'retained',
+        )
+        await page.goBack()
+        await expect(page).toHaveURL(/gallery=commands/)
       },
     )
   }

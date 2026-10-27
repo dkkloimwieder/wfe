@@ -334,3 +334,46 @@ test('removed and disposed command options release action handlers', () => {
   fireEvent.click(disposed)
   expect(selected).not.toHaveBeenCalled()
 })
+
+test('command exposes one result tab stop and moves focus with result arrow keys', () => {
+  const selected = vi.fn()
+  const h = render(() => (
+    <Command label="Commands" items={items} onSelect={selected} />
+  ))
+  const input = h.getByRole('combobox')
+  const first = h.getByRole('option', { name: 'Open project' })
+  const settings = h.getByRole('option', { name: 'Settings' })
+  expect(first.tabIndex).toBe(0)
+  expect(h.getByRole('option', { name: 'Delete project' }).tabIndex).toBe(-1)
+  const staleBoundary = vi.fn(() => input.focus())
+  input.addEventListener('keydown', staleBoundary)
+  input.focus()
+  fireEvent.keyDown(input, { key: 'Tab' })
+  expect(document.activeElement).toBe(first)
+  expect(staleBoundary).not.toHaveBeenCalled()
+  input.removeEventListener('keydown', staleBoundary)
+  fireEvent.keyDown(first, { key: 'Tab', shiftKey: true })
+  expect(document.activeElement).toBe(input)
+  fireEvent.keyDown(input, { key: 'Tab' })
+  fireEvent.keyDown(first, { key: 'ArrowDown' })
+  flush()
+  expect(document.activeElement).toBe(settings)
+  expect(settings.tabIndex).toBe(0)
+  expect(first.tabIndex).toBe(-1)
+  fireEvent.keyDown(settings, { key: 'Enter' })
+  expect(selected).toHaveBeenCalledOnce()
+  expect(input.getAttribute('aria-activedescendant')).toBe(settings.id)
+})
+
+test('focused result activation does not follow a different hovered result', () => {
+  const selected = vi.fn()
+  const h = render(() => (
+    <Command label="Commands" items={items} onSelect={selected} />
+  ))
+  const first = h.getByRole('option', { name: 'Open project' })
+  first.focus()
+  fireEvent.pointerMove(h.getByRole('option', { name: 'Settings' }))
+  flush()
+  fireEvent.keyDown(first, { key: 'Enter' })
+  expect(selected.mock.calls[0]?.[0].id).toBe('open')
+})

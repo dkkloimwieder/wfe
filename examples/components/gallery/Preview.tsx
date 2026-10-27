@@ -100,7 +100,11 @@ const views = {
   overlays: OverlayControls,
   display: DisplayControls,
 }
-export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
+export function GalleryExample(props: {
+  id: GalleryId
+  state: GalleryState
+  onNavigate?: (id: GalleryId) => void
+}) {
   const entry = entryFor(untrack(() => props.id))
   const lifecycle = (
     {
@@ -204,7 +208,12 @@ export function GalleryExample(props: { id: GalleryId; state: GalleryState }) {
             </p>
           }
         >
-          <Dynamic component={views[entry.id]} state={props.state} embedded />
+          <Dynamic
+            component={views[entry.id]}
+            state={props.state}
+            onNavigate={props.onNavigate}
+            embedded
+          />
         </Loading>
       </div>
     </div>

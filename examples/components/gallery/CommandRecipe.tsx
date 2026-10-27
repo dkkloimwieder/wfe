@@ -1,6 +1,15 @@
 import { createEffect, createMemo, createSignal } from 'solid-js'
 import { Command, CommandPalette, Field, Input, Label } from '@wfe/components'
 import type { CommandItem } from '@wfe/components'
+import { entries, type GalleryId } from './catalog'
+
+const navigation: CommandItem[] = entries.map((entry) => ({
+  id: `gallery-${entry.id}`,
+  label: `${entry.label} gallery`,
+  group: 'Navigation',
+  href: `?gallery=${entry.id}`,
+  keywords: [entry.group],
+}))
 
 type Project = 'Atlas' | 'Beacon'
 type SearchRecord = Pick<
@@ -35,26 +44,29 @@ function searchRecords(project: Project, query: string, signal: AbortSignal) {
             group: 'Records',
             description: 'Open the project notes',
           },
-          {
-            id: 'fields',
-            label: 'Fields gallery',
-            group: 'Navigation',
-            href: '?gallery=fields',
-          },
+          ...Array.from({ length: 120 }, (_, index) => ({
+            id: `${project}-issue-${index + 1}`,
+            label: `${project} ${['access', 'search', 'billing', 'inventory', 'delivery', 'report'][index % 6]} issue ${index + 1}`,
+            description: `${['Planned', 'Active', 'Done'][index % 3]} · ${['Platform', 'Operations', 'Support'][Math.floor(index / 3) % 3]}`,
+            group: 'Records',
+          })),
+          ...navigation,
         ]
         const term = query.trim().toLowerCase()
         resolve(
           records.filter((record) => record.label.toLowerCase().includes(term)),
         )
       },
-      query.length === 1 ? 450 : 80,
+      query.trim().length === 3 ? 450 : 80,
     )
     if (signal.aborted) abort()
     else signal.addEventListener('abort', abort, { once: true })
   })
 }
 
-export function CommandRecipe() {
+export function CommandRecipe(
+  props: { onNavigate?: (id: GalleryId) => void } = {},
+) {
   const [project, setProject] = createSignal<Project>('Atlas')
   const [query, setQuery] = createSignal('')
   const [search, setSearch] = createSignal('')
@@ -64,6 +76,16 @@ export function CommandRecipe() {
   const [error, setError] = createSignal<string>()
   const [note, setNote] = createSignal('Keep this note while using commands')
   const [result, setResult] = createSignal('No action selected')
+  function select(item: CommandItem, event: MouseEvent | KeyboardEvent) {
+    const destination = entries.find(
+      (entry) => `gallery-${entry.id}` === item.id,
+    )
+    if (destination && props.onNavigate) {
+      event.preventDefault()
+      setOpen(false)
+      props.onNavigate(destination.id)
+    } else if (item.group === 'Records') setResult(`Opened ${item.label}`)
+  }
   let request = 0
   createEffect(
     () => ({ project: project(), query: search(), open: open() }),
@@ -73,8 +95,9 @@ export function CommandRecipe() {
       let current = true
       setRecords([])
       setError(undefined)
-      setLoading(state.open)
-      if (state.open) {
+      const ready = state.open && state.query.trim().length >= 3
+      setLoading(ready)
+      if (ready) {
         void searchRecords(state.project, state.query, controller.signal).then(
           (items) => {
             if (!current || controller.signal.aborted || version !== request)
@@ -128,19 +151,7 @@ export function CommandRecipe() {
           setResult(`Context changed to ${next}`)
         },
       },
-      {
-        id: 'fields',
-        label: 'Fields gallery',
-        group: 'Navigation',
-        href: '?gallery=fields',
-        keywords: ['inputs'],
-      },
-      {
-        id: 'table',
-        label: 'Table gallery',
-        group: 'Navigation',
-        href: '?gallery=table',
-      },
+      ...navigation,
     ]
   })
   return (
@@ -152,6 +163,7 @@ export function CommandRecipe() {
       <Command
         label="Find a command"
         items={items()}
+        onSelect={select}
         query={query()}
         onQueryChange={setQuery}
       />
@@ -172,8 +184,12 @@ export function CommandRecipe() {
         filter="none"
         loading={loading()}
         error={error()}
-        empty="No matching records"
-        onSelect={(item) => setResult(`Opened ${item.label}`)}
+        empty={
+          search().trim().length < 3
+            ? 'Type at least 3 characters'
+            : 'No matching records'
+        }
+        onSelect={select}
       />
       <p>
         Use Control+K or Command+K outside a text field to open search. Try

@@ -25,9 +25,11 @@ The item renders a real link.
 Modified clicks preserve browser navigation without running selection callbacks or closing the palette.
 Applications can intercept ordinary navigation in their selection callback when they need a router.
 
-The search input has the `combobox` role and keeps keyboard focus.
+The search input has the `combobox` role.
 Results use a named `listbox`, and each result has the `option` role.
-Arrow keys move the active result, and Enter activates it.
+Tab moves from search into the active result.
+Arrow keys move between available results, and Enter activates one.
+Shift+Tab returns from the result to search.
 Unavailable results do not activate.
 
 ## Query and result ownership
@@ -81,6 +83,9 @@ The most recently registered eligible owner handles a matching event.
 
 The [command recipe](../examples/components/gallery/CommandRecipe.tsx) shows grouped local actions, real navigation links, and project context replacement.
 Its modal search uses a mock request owned by the application.
+The example requires three characters before a request and clears results below that threshold.
+It includes 122 records per project and links to every gallery entry.
+Ordinary gallery navigation uses the gallery router without a page reload.
 The example cancels old requests and guards against late responses after a query, context, or visibility change.
 It also demonstrates empty results, errors, recovery, and a retained application draft.
 Open `?gallery=commands` in the component gallery to review it in each theme.

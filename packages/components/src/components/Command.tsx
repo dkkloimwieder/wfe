@@ -166,10 +166,25 @@ export function Command(props: CommandProps) {
     input?.focus({ preventScroll: true })
     select(item, event)
   }
-  function keydown(event: KeyboardEvent) {
+  function keydown(event: KeyboardEvent, focusedId?: string) {
     if (event.isComposing || composing || event.keyCode === 229) return
-    const current = active()
+    const current = focusedId ?? active()
     let next: string | undefined
+    if (event.key === 'Tab') {
+      const destination =
+        focusedId !== undefined && event.shiftKey
+          ? input
+          : focusedId === undefined && !event.shiftKey && current !== undefined
+            ? list?.ownerDocument.getElementById(optionId(current))
+            : undefined
+      if (destination) {
+        // Own this transfer even while an enclosing trap refreshes its tab stops.
+        event.stopImmediatePropagation()
+        event.preventDefault()
+        destination.focus({ preventScroll: true })
+      }
+      return
+    }
     if (event.key === 'ArrowDown')
       next =
         current === undefined
@@ -224,6 +239,8 @@ export function Command(props: CommandProps) {
     } else return
     event.preventDefault()
     setActive(next)
+    if (event.currentTarget !== input && next !== undefined)
+      list?.ownerDocument.getElementById(optionId(next))?.focus()
   }
   return (
     <div class={styledClasses('ui-command', props.class)} data-ui="">
@@ -296,7 +313,11 @@ export function Command(props: CommandProps) {
                     id={optionId(item().id)}
                     role="option"
                     class="ui-menu-item ui-command-option"
-                    tabindex={-1}
+                    tabindex={active() === item().id ? 0 : -1}
+                    onFocus={() => setActive(item().id)}
+                    onKeyDown={(event: KeyboardEvent) =>
+                      keydown(event, item().id)
+                    }
                     href={item().disabled ? undefined : item().href}
                     target={item().target}
                     rel={

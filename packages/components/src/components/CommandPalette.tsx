@@ -99,6 +99,8 @@ export function CommandPalette(props: CommandPaletteProps) {
         <Dialog.Overlay />
         <Dialog.Content
           class="ui-command-palette"
+          data-ui-section-decoration="primary"
+          data-ui-section-always=""
           ref={setContent}
           onOpenAutoFocus={(event) => {
             event.preventDefault()
@@ -141,27 +143,29 @@ export function CommandPalette(props: CommandPaletteProps) {
               event.preventDefault()
           }}
         >
-          <div class="ui-command-palette-heading">
-            <Dialog.Title>{props.title}</Dialog.Title>
-            <Dialog.CloseButton
-              class="ui-icon-button"
-              aria-label={props.closeLabel ?? 'Close command palette'}
-            >
-              <Icon name="cross" />
-            </Dialog.CloseButton>
+          <div class="ui-command-palette-surface">
+            <div class="ui-command-palette-heading">
+              <Dialog.Title>{props.title}</Dialog.Title>
+              <Dialog.CloseButton
+                class="ui-icon-button"
+                aria-label={props.closeLabel ?? 'Close command palette'}
+              >
+                <Icon name="cross" />
+              </Dialog.CloseButton>
+            </div>
+            <Command
+              {...commandProps}
+              inputRef={(node) => {
+                setInput(node)
+                props.inputRef?.(node)
+              }}
+              onSelect={(item, event) => {
+                props.onSelect?.(item, event)
+                if (!event.defaultPrevented && props.closeOnSelect !== false)
+                  changeOpen(false)
+              }}
+            />
           </div>
-          <Command
-            {...commandProps}
-            inputRef={(node) => {
-              setInput(node)
-              props.inputRef?.(node)
-            }}
-            onSelect={(item, event) => {
-              props.onSelect?.(item, event)
-              if (!event.defaultPrevented && props.closeOnSelect !== false)
-                changeOpen(false)
-            }}
-          />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
