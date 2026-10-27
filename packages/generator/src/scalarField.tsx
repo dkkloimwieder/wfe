@@ -4,6 +4,7 @@ import {
   FieldValue,
   DatePicker,
   DateTimePicker,
+  TimePicker,
   Checkbox,
   Field,
   FieldError,
@@ -21,6 +22,7 @@ import type {
   CustomFieldProps,
   DateControlDescription,
   DateTimeControlDescription,
+  TimeControlDescription,
   NumberControlDescription,
   FormChoice,
   FieldPresentation,
@@ -34,6 +36,7 @@ export type RuntimeScalarField = FieldPresentation & { field: string } & (
       }
     | DateControlDescription
     | DateTimeControlDescription
+    | TimeControlDescription
     | (NumberControlDescription & { empty?: 'reject' | 'null' | 'undefined' })
   )
 export type RuntimeCustomField = Component<
@@ -58,6 +61,7 @@ export function validateScalarDescription(field: RuntimeScalarField) {
       'textarea',
       'date',
       'datetime',
+      'time',
       'number',
       'select',
       'checkbox',
@@ -104,7 +108,7 @@ export function validateScalarField(
   } else
     requireValue(
       typeof current ===
-        (['text', 'textarea', 'date', 'datetime'].includes(control)
+        (['text', 'textarea', 'date', 'datetime', 'time'].includes(control)
           ? 'string'
           : 'boolean'),
       `incompatible control for field "${field.field}"`,
@@ -146,6 +150,14 @@ export function ScalarField(
       'Datetime controls require a datetime description',
     )
     return value as RuntimeScalarField & DateTimeControlDescription
+  }
+  const timeDescription = () => {
+    const value = checkedField()
+    requireValue(
+      value.control === 'time',
+      'Time controls require a time description',
+    )
+    return value as RuntimeScalarField & TimeControlDescription
   }
   const numberDescription = () => {
     const value = checkedField()
@@ -236,6 +248,17 @@ export function ScalarField(
               min={dateDescription().min}
               max={dateDescription().max}
               startOfWeek={dateDescription().startOfWeek}
+              onValueChange={(value) => set(value ?? '')}
+            />
+          ) : control === 'time' ? (
+            <TimePicker
+              messages={props.controlMessages?.timePicker}
+              label={label()}
+              value={String(props.adapter.value()) || undefined}
+              timeFormat={timeDescription().timeFormat}
+              locale={timeDescription().locale}
+              min={timeDescription().min}
+              max={timeDescription().max}
               onValueChange={(value) => set(value ?? '')}
             />
           ) : control === 'datetime' ? (

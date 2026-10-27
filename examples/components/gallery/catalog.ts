@@ -87,7 +87,7 @@ export const entries = [
     group: 'Forms',
     states: ['normal', 'disabled', 'readonly'],
   },
-  { id: 'dates', label: 'Date and datetime', group: 'Forms', states },
+  { id: 'dates', label: 'Date, time and datetime', group: 'Forms', states },
   {
     id: 'files',
     label: 'File selection',

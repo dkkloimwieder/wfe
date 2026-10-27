@@ -10,6 +10,7 @@ export type {
   FormGroupDescription,
   FormLayoutDescription,
   NumberControlDescription,
+  TimeControlDescription,
   FormChoice,
   CustomFieldProps,
   FormViewBindings,

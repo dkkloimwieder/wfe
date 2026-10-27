@@ -92,7 +92,7 @@ Disabled and read-only controls omit the backing. Forced-color mode retains the 
 Set `Theme.inputDecoration` to `false`, `"neutral"`, `"primary"`, or `"secondary"`.
 The default is `"neutral"`. A nested Theme starts with its own default.
 Set `decoration` on a `Field` to change its controls, or on an individual control to override that field.
-Use this prop on `Input`, `Textarea`, `NumberInput`, `InputGroup`, `NativeSelect`, `SelectField`, `DatePicker`, `DateTimePicker`, and `FileInput`.
+Use this prop on `Input`, `Textarea`, `NumberInput`, `InputGroup`, `NativeSelect`, `SelectField`, `DatePicker`, `TimePicker`, `DateTimePicker`, and `FileInput`.
 For compound APIs, use `Checkbox`, `Switch`, `RadioGroup`, `Select.Trigger`, or `Combobox.Control`.
 A date picker or combobox draws one backing around its complete control.
 

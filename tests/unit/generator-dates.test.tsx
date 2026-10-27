@@ -143,3 +143,85 @@ test('locked and removed fields release draft blocks while application errors pe
   await submit(view)
   expect(view.snapshot()).toEqual({ validations: 3, submissions: 2 })
 })
+
+test('generated time fields preserve invalid drafts, forward messages, and submit canonical values', async () => {
+  const [values, setValues] = createSignal({ time: '14:15:16' })
+  const [invalidMessage, setInvalidMessage] = createSignal(
+    'Choose a valid time',
+  )
+  let validations = 0
+  const submitted: string[] = []
+  const view = render(() => {
+    const form = createForm<ReturnType<typeof values>>({
+      values,
+      defaults: () => ({ time: '14:15:16' }),
+      onValuesChange: setValues,
+      validate: () => {
+        validations++
+        return {}
+      },
+      onSubmit: () => {
+        submitted.push(values().time)
+        return { ok: true }
+      },
+    })
+    const description = {
+      id: 'time',
+      fields: [
+        {
+          field: 'time',
+          label: 'Appointment time',
+          control: 'time',
+          timeFormat: 'hh:mm:ss a',
+          locale: 'en-US',
+          min: '09:00:00',
+          max: '17:00:00',
+        },
+      ],
+      submit: { id: 'submit', label: 'Submit' },
+    } as const satisfies FormDescription<ReturnType<typeof values>>
+    return (
+      <FormView
+        description={description}
+        bindings={{ form }}
+        controlMessages={{
+          timePicker: { invalidTime: () => invalidMessage() },
+        }}
+      />
+    )
+  })
+  flush()
+  const input = view.getByRole('textbox', {
+    name: 'Appointment time',
+  }) as HTMLInputElement
+  expect(input.value).toBe('02:15:16 PM')
+  fireEvent.input(input, { target: { value: '08:30:00 AM' } })
+  flush()
+  expect(values().time).toBe('14:15:16')
+  expect(input.validationMessage).toBe('Choose a valid time')
+  setInvalidMessage('Time is outside the allowed range')
+  flush()
+  expect(input.validationMessage).toBe('Time is outside the allowed range')
+  const submitTime = async () => {
+    fireEvent.submit(view.container.querySelector('form')!)
+    flush()
+    await Promise.resolve()
+    flush()
+    await Promise.resolve()
+    flush()
+  }
+  await submitTime()
+  expect(validations).toBe(0)
+  expect(submitted).toEqual([])
+  expect(document.activeElement).toBe(input)
+  fireEvent.input(input, { target: { value: '03:45:20 PM' } })
+  flush()
+  expect(values().time).toBe('15:45:20')
+  await submitTime()
+  expect(submitted).toEqual(['15:45:20'])
+  fireEvent.input(input, { target: { value: '' } })
+  flush()
+  expect(values().time).toBe('')
+  await submitTime()
+  expect(submitted).toEqual(['15:45:20', ''])
+})

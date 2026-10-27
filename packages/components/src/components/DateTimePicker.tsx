@@ -14,9 +14,10 @@ import {
   Show,
 } from 'solid-js'
 import { DatePickerControl as DatePicker } from './DatePicker'
-import { Input } from './NativeFields'
+import { TimePickerControl } from './TimePicker'
 import { createTimeZone } from '../internal/timeZone'
 import { FieldContext } from '../internal/fieldContext'
+import { ownsFocus } from '../internal/ownedFocus'
 import { nativeEvents } from '../utils/nativeEvents'
 import {
   dateTimeParts,
@@ -158,11 +159,13 @@ export function DateTimePicker(props: DateTimePickerProps) {
   }
   let root: HTMLDivElement | undefined
   let calendar: HTMLDivElement | undefined
+  let timePopup: HTMLDivElement | undefined
   function focusout(event: FocusEvent) {
     if (
       event.relatedTarget instanceof Node &&
       (root?.contains(event.relatedTarget) ||
-        calendar?.contains(event.relatedTarget))
+        calendar?.contains(event.relatedTarget) ||
+        ownsFocus(timePopup, event.relatedTarget))
     )
       return
     if (!invalid()) restore()
@@ -229,41 +232,47 @@ export function DateTimePicker(props: DateTimePickerProps) {
         }}
       />
       <FieldContext value={null}>
-        <div class="ui-date-picker">
-          <label for={`${id()}-time`} class={field ? 'sr-only' : 'ui-label'}>
-            {props.timeLabel ?? messages.time}
-          </label>
-          <Input
-            ref={(node) => {
-              timeInput = node
-            }}
-            id={`${id()}-time`}
-            type="text"
-            value={time()}
-            placeholder={timeInputPattern(props.timeFormat)}
-            disabled={disabled() || !zone()}
-            readonly={readonly()}
-            required={required()}
-            invalid={invalid() || (props.invalid ?? field?.invalid())}
-            data-date-invalid={invalid() ? '' : undefined}
-            data-ui-invalid-input={invalid() ? '' : undefined}
-            aria-describedby={
-              [
-                field?.describedBy(),
-                props['aria-describedby'],
-                invalid() ? errorId : undefined,
-              ]
-                .filter(Boolean)
-                .join(' ') || undefined
-            }
-            onValueChange={(value) => {
-              if (disabled() || readonly() || !zone()) return
-              setTime(value)
-              if (!value.trim() && !date()) props.onValueChange(undefined)
-              else request(date(), value)
-            }}
-          />
-        </div>
+        <TimePickerControl
+          messages={props.messages}
+          label={props.timeLabel ?? messages.time}
+          labelHidden={Boolean(field)}
+          id={`${id()}-time`}
+          draftValue={time()}
+          onDraftChange={(value) => {
+            if (disabled() || readonly() || !zone()) return
+            setTime(value)
+            if (!value.trim() && !date()) props.onValueChange(undefined)
+            else request(date(), value)
+          }}
+          onValueChange={() => {}}
+          onDraftReset={restore}
+          resetVersion={resetVersion()}
+          externalValidation
+          draftInvalid={invalid()}
+          inputRef={(node) => {
+            timeInput = node
+          }}
+          onPopupRef={(node) => {
+            timePopup = node
+          }}
+          onPopupFocusOut={focusout}
+          timeFormat={props.timeFormat}
+          locale={props.locale}
+          decoration={props.decoration}
+          disabled={disabled() || !zone()}
+          readonly={readonly()}
+          required={required()}
+          invalid={invalid() || (props.invalid ?? field?.invalid())}
+          aria-describedby={
+            [
+              field?.describedBy(),
+              props['aria-describedby'],
+              invalid() ? errorId : undefined,
+            ]
+              .filter(Boolean)
+              .join(' ') || undefined
+          }
+        />
       </FieldContext>
       <span class="ui-help ui-datetime-zone">
         {zone() ?? messages.pendingTimezone}

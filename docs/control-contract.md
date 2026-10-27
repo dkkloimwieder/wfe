@@ -16,18 +16,18 @@ The listed legacy aliases remain supported.
 The compound controls expose separate root, input, label, and other parts.
 A callback on a compound root can carry a value rather than a DOM event.
 
-| Family                         | Current change callback              | Value and event shape                                                                                   |
-| ------------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `Input`, `Textarea`            | `onValueChange`                      | String, then `InputEvent`. Empty text is `''`.                                                          |
-| `NativeSelect`                 | `onValueChange`                      | String, then `Event`. Native DOM handlers remain separate.                                              |
-| `NumberInput`                  | `onValueChange`                      | Number or `undefined`, then `InputEvent`.                                                               |
-| `SelectField`                  | `onValueChange`                      | String without an event argument. Empty selection is `''`.                                              |
-| `DatePicker`, `DateTimePicker` | `onValueChange`                      | String or `undefined`, without an event argument. Empty values use `undefined`.                         |
-| `Select`, `Combobox` roots     | `onValueChange`, legacy `onChange`   | Selected option or `null` for single selection, option array for multiple selection. No event argument. |
-| `RadioGroup` root              | `onValueChange`, legacy `onChange`   | Selected string without an event argument.                                                              |
-| `Checkbox`, `Switch` roots     | `onCheckedChange`, legacy `onChange` | Checked boolean without an event argument.                                                              |
-| `FileInput`                    | `onFilesChange`                      | File array without an event argument. Empty selection is `[]`.                                          |
-| `Tabs`                         | `onValueChange`                      | Selected string without an event argument.                                                              |
+| Family                                       | Current change callback              | Value and event shape                                                                                   |
+| -------------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `Input`, `Textarea`                          | `onValueChange`                      | String, then `InputEvent`. Empty text is `''`.                                                          |
+| `NativeSelect`                               | `onValueChange`                      | String, then `Event`. Native DOM handlers remain separate.                                              |
+| `NumberInput`                                | `onValueChange`                      | Number or `undefined`, then `InputEvent`.                                                               |
+| `SelectField`                                | `onValueChange`                      | String without an event argument. Empty selection is `''`.                                              |
+| `DatePicker`, `TimePicker`, `DateTimePicker` | `onValueChange`                      | String or `undefined`, without an event argument. Empty values use `undefined`.                         |
+| `Select`, `Combobox` roots                   | `onValueChange`, legacy `onChange`   | Selected option or `null` for single selection, option array for multiple selection. No event argument. |
+| `RadioGroup` root                            | `onValueChange`, legacy `onChange`   | Selected string without an event argument.                                                              |
+| `Checkbox`, `Switch` roots                   | `onCheckedChange`, legacy `onChange` | Checked boolean without an event argument.                                                              |
+| `FileInput`                                  | `onFilesChange`                      | File array without an event argument. Empty selection is `[]`.                                          |
+| `Tabs`                                       | `onValueChange`                      | Selected string without an event argument.                                                              |
 
 `NumberInput` requests `undefined` for empty input unless `allowEmpty` is `false`.
 

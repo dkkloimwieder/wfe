@@ -52,6 +52,13 @@ export type DateControlDescription = {
   max?: string
   startOfWeek?: number
 }
+export type TimeControlDescription = {
+  control: 'time'
+  timeFormat?: TimeInputFormat
+  locale?: string
+  min?: string
+  max?: string
+}
 export type DateTimeControlDescription = Omit<
   DateControlDescription,
   'control'
@@ -83,6 +90,7 @@ type BuiltInControl<V> =
         | (string extends V
             ? | { control: 'text' | 'textarea' }
               | DateControlDescription
+              | TimeControlDescription
               | DateTimeControlDescription
             : never)
       : [V] extends [boolean]

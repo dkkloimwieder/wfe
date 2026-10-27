@@ -13,6 +13,7 @@ import {
   SelectField,
   DatePicker,
   DateTimePicker,
+  TimePicker,
   Dialog,
   AlertDialog,
 } from '@wfe/components'
@@ -117,6 +118,8 @@ export function Buttons(props: RecipeProps) {
   )
 }
 export function Dates(props: RecipeProps) {
+  const [time, setTime] = createSignal<string | undefined>('14:30')
+  const [seconds, setSeconds] = createSignal<string | undefined>('14:30:15')
   const [date, setDate] = createSignal<string | undefined>('2026-10-18')
   const [instant, setInstant] = createSignal<string | undefined>(
     '2026-10-18T14:30:00.000Z',
@@ -136,6 +139,38 @@ export function Dates(props: RecipeProps) {
           dateFormat="yyyy-MM-dd"
         />
         <FieldError>Review the date.</FieldError>
+      </Field>
+      <Field
+        disabled={props.state === 'disabled'}
+        readonly={props.state === 'readonly'}
+        invalid={props.state === 'invalid'}
+      >
+        <Label>Time (24-hour)</Label>
+        <TimePicker
+          label="Time (24-hour)"
+          value={time()}
+          onValueChange={setTime}
+          timeFormat="HH:mm"
+          locale="en-US"
+        />
+        <HelpText>A time of day without a date or timezone.</HelpText>
+        <FieldError>Review the time.</FieldError>
+      </Field>
+      <Field
+        disabled={props.state === 'disabled'}
+        readonly={props.state === 'readonly'}
+        invalid={props.state === 'invalid'}
+      >
+        <Label>Time (12-hour with seconds)</Label>
+        <TimePicker
+          label="Time (12-hour with seconds)"
+          value={seconds()}
+          onValueChange={setSeconds}
+          timeFormat="hh:mm:ss a"
+          locale="en-US"
+        />
+        <HelpText>A time of day without a date or timezone.</HelpText>
+        <FieldError>Review the time.</FieldError>
       </Field>
       <Field
         disabled={props.state === 'disabled'}

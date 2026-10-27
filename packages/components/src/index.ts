@@ -47,6 +47,8 @@ export type { ValueFormat, ValueFormatOptions } from './utils/valueFormat'
 
 export type { DateInputFormat } from './utils/dateFormat'
 
+export { TimePicker } from './components/TimePicker'
+export type { TimePickerProps } from './components/TimePicker'
 export { DateTimePicker } from './components/DateTimePicker'
 export type { DateTimePickerProps } from './components/DateTimePicker'
 export type { TimeInputFormat, DateTimeDisambiguation } from './utils/dateTime'
@@ -228,11 +230,13 @@ export {
   calendarMessages,
   datePickerMessages,
   dateTimePickerMessages,
+  timePickerMessages,
 } from './components/dateMessages'
 export type {
   CalendarMessages,
   DatePickerMessages,
   DateTimePickerMessages,
+  TimePickerMessages,
 } from './components/dateMessages'
 
 export {

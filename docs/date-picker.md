@@ -47,14 +47,16 @@ Click the calendar heading to choose a month and enter a year. Press Escape to r
 
 ## UI messages
 
-Calendar, DatePicker, and DateTimePicker accept a reactive partial `messages` object.
-Their exported types are `CalendarMessages`, `DatePickerMessages`, and `DateTimePickerMessages`.
-The picker catalogs include the calendar keys, and the datetime catalog includes the date-picker keys.
-The exported `calendarMessages`, `datePickerMessages`, and `dateTimePickerMessages` provide English defaults.
+Calendar, DatePicker, TimePicker, and DateTimePicker accept a reactive partial `messages` object.
+Their exported types are `CalendarMessages`, `DatePickerMessages`, `TimePickerMessages`, and `DateTimePickerMessages`.
+The date-picker catalog includes the calendar keys.
+The datetime catalog includes the date-picker and time-picker keys.
+The exported `calendarMessages`, `datePickerMessages`, `timePickerMessages`, and `dateTimePickerMessages` provide English defaults.
 Omitted keys fall back individually. Existing explicit `label`, `clearLabel`, and `timeLabel` props retain precedence where supported.
 
 Messages cover navigation, keyboard help, calendar titles, clear actions, invalid input, the time label, and the pending browser-timezone notice.
-Pickers forward their messages to the nested calendar.
+Date pickers forward their messages to the nested calendar.
+Time picker messages also cover the hour, minute, second, period, and apply controls.
 Changing messages updates visible errors and native validation text without requesting a new value or repeating an unchanged validity callback.
 Invalid drafts, focused controls, selected dates, and open calendars remain in place.
 An empty translated error does not make invalid input valid; native validation uses the default error as its fallback.

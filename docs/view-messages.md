@@ -39,7 +39,7 @@ The helper preserves each property's type, adds no global state, and does not pa
 FormView, DetailView, and TableView accept `controlMessages?: GeneratorControlMessages` for their standard child controls.
 Import this type and `GeneratorControlMessageProps` from `@wfe/generator`.
 
-The optional catalog keys are `datePicker`, `dateTimePicker`, `numberInput`, and `valueDisplay`.
+The optional catalog keys are `datePicker`, `timePicker`, `dateTimePicker`, `numberInput`, and `valueDisplay`.
 Each key accepts a partial catalog with the existing message type of its component.
 These catalogs are separate from `messages`, which supplies generated status and action text.
 They are also separate from `TableViewBindings.messages`, which supplies text for the table controls.

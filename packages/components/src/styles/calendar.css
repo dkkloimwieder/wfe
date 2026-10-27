@@ -92,3 +92,18 @@
   gap: var(--ui-gap, 6px);
   margin-top: var(--ui-gap, 6px);
 }
+
+:where([data-ui]) .ui-time-popup {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  max-inline-size: calc(100vw - 2 * var(--ui-gap, 6px));
+}
+:where([data-ui]) .ui-time-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-time-choices > * {
+  flex: 1 1 4rem;
+  min-inline-size: 0;
+}

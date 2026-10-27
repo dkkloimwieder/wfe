@@ -16,7 +16,19 @@ export interface DatePickerMessages extends CalendarMessages {
   calendarTitle: (label: string) => string
   invalidDate: (pattern: string) => string
 }
-export interface DateTimePickerMessages extends DatePickerMessages {
+export interface TimePickerMessages {
+  openTimePicker: (label: string) => string
+  clearTime: (label: string) => string
+  timePickerTitle: (label: string) => string
+  invalidTime: (pattern: string) => string
+  hour: string
+  minute: string
+  second: string
+  period: string
+  applyTime: string
+}
+export interface DateTimePickerMessages
+  extends DatePickerMessages, TimePickerMessages {
   time: string
   pendingTimezone: string
   invalidDateTime: string
@@ -38,8 +50,20 @@ export const datePickerMessages: Readonly<DatePickerMessages> = {
   calendarTitle: (label) => `${label} calendar`,
   invalidDate: (pattern) => `Enter an available date as ${pattern}.`,
 }
+export const timePickerMessages: Readonly<TimePickerMessages> = {
+  openTimePicker: (label) => `Open ${label} time picker`,
+  clearTime: (label) => `Clear ${label}`,
+  timePickerTitle: (label) => label,
+  invalidTime: (pattern) => `Enter an available time as ${pattern}.`,
+  hour: 'Hour',
+  minute: 'Minute',
+  second: 'Second',
+  period: 'AM/PM',
+  applyTime: 'Apply time',
+}
 export const dateTimePickerMessages: Readonly<DateTimePickerMessages> = {
   ...datePickerMessages,
+  ...timePickerMessages,
   time: 'Time',
   pendingTimezone: 'Browser timezone pending',
   invalidDateTime:
@@ -54,3 +78,7 @@ export const resolveDatePickerMessages = (
 export const resolveDateTimePickerMessages = (
   overrides: () => Partial<DateTimePickerMessages> | undefined,
 ) => resolveMessages(dateTimePickerMessages, overrides)
+
+export const resolveTimePickerMessages = (
+  overrides: () => Partial<TimePickerMessages> | undefined,
+) => resolveMessages(timePickerMessages, overrides)

@@ -204,7 +204,8 @@ assert.match(generatorOutput, /Record title/)
 assert.deepEqual(generatorWarnings, [])
 console.log('Generator public server rendering and disposal passed.')
 
-const { DatePicker, DateTimePicker } = await import('@wfe/components')
+const { DatePicker, TimePicker, DateTimePicker } =
+  await import('@wfe/components')
 let dateRequests = 0
 const datesOutput = await renderToString(() =>
   DatePicker({
@@ -217,6 +218,20 @@ const datesOutput = await renderToString(() =>
   }),
 )
 assert.match(datesOutput, /29\/02\/2024/)
+const timeOutput = await renderToString(() =>
+  TimePicker({
+    label: 'Server time',
+    name: 'time',
+    value: '14:30:15',
+    timeFormat: 'hh:mm:ss a',
+    locale: 'en-US',
+    onValueChange() {
+      dateRequests++
+    },
+  }),
+)
+assert.match(timeOutput, /02:30:15 PM/)
+assert.match(timeOutput, /14:30:15/)
 const explicitDateTime = await renderToString(() =>
   DateTimePicker({
     label: 'Server appointment',

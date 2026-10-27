@@ -1,4 +1,4 @@
-# Date inputs
+# Date and time inputs
 
 `DatePicker` edits a Gregorian calendar date.
 Its controlled value is `YYYY-MM-DD` or `undefined` for an empty field.
@@ -41,9 +41,37 @@ Intrinsic draft errors set native input validity and notify optional `onValidity
 Application-supplied errors do not change this intrinsic validity.
 Readonly inputs remain focusable, but typing, calendar selection, and clearing do not request changes.
 
+## Time input
+
+`TimePicker` edits a time of day without a date or timezone.
+Its controlled `value` is `HH:mm`, `HH:mm:ss`, or `undefined` for an empty field.
+`onValueChange` requests a canonical 24-hour value or `undefined` when cleared.
+The application owns the accepted value and any scheduling rules.
+
+`timeFormat` accepts `HH:mm`, `HH:mm:ss`, `hh:mm a`, or `hh:mm:ss a`.
+The default is `HH:mm`.
+The 12-hour formats use the supplied `locale` for AM and PM text.
+The input uses Latin digits.
+Changing format or locale updates the display without requesting a value change.
+`min` and `max` accept canonical times and include both endpoints.
+
+Users can type a time or open the popup to choose hours and minutes.
+Formats with seconds also show a seconds choice.
+The 12-hour formats add an AM or PM choice.
+Incomplete or invalid input remains a local draft and leaves the accepted value unchanged.
+Escape restores the accepted display.
+
+The picker accepts `label`, `id`, `name`, and `decoration`.
+It inherits disabled, readonly, required, and invalid states from `Field`.
+A named picker submits the accepted canonical value through one hidden input.
+Disabled controls omit that value, and readonly controls retain it.
+Intrinsic draft errors block native form submission and notify `onValidityChange`.
+`messages` accepts a partial `TimePickerMessages` catalog for control labels and errors.
+`timePickerMessages` supplies the English defaults.
+
 ## Datetime input
 
-`DateTimePicker` edits an instant with the shared date picker and time input.
+`DateTimePicker` edits an instant with the shared `DatePicker` and `TimePicker`.
 Its controlled value requires an ISO timestamp with `Z` or an explicit offset.
 For example, `2024-02-29T09:15:16.123-05:00` represents the same instant as `2024-02-29T14:15:16.123Z`.
 The callback requests a normalized UTC ISO timestamp, or `undefined` when cleared.
@@ -83,14 +111,16 @@ Its `onValidityChange` callback reports only intrinsic input validity.
 
 ## Generated forms
 
-`FormView` accepts `control: 'date'` and `control: 'datetime'` for string fields.
-Both controls use an empty string for an empty generated field.
+`FormView` accepts `control: 'date'`, `control: 'time'`, and `control: 'datetime'` for string fields.
+All three controls use an empty string for an empty generated field.
 The application maps other storage types through its adapter or a custom field binding.
 Date descriptions accept `dateFormat`, `locale`, `min`, `max`, and `startOfWeek`.
+`TimeControlDescription` accepts `timeFormat`, `locale`, `min`, and `max`.
+Standalone time descriptions have no timezone.
 Datetime descriptions also accept `timeFormat`, `timeZone`, and `disambiguation`.
 These descriptions contain data, not application callbacks.
 
-The generated view blocks its DOM submit action while an editable date control contains an invalid draft.
+The generated view blocks its DOM submit action while an editable date or time control contains an invalid draft.
 It focuses that control and does not call application validation or submission.
 Readonly, disabled, and removed fields release this local block.
 Application validation errors remain the application's responsibility and do not prevent a retry.

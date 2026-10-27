@@ -6,6 +6,7 @@ import { decorationGeometryCases } from './decoration-geometry-cases.mjs'
 import { iconCases } from './icon-cases.mjs'
 import { inputDecorationCases } from './input-decoration-cases.mjs'
 import { galleryActionCases } from './action-cases.mjs'
+import { galleryTimeCases } from './time-cases.mjs'
 import { galleryFormCases } from './form-cases.mjs'
 import { galleryLoadingCases } from './loading-cases.mjs'
 import assert from 'node:assert/strict'
@@ -27,7 +28,7 @@ const catalog = [
   ['choices', 'Select and combobox'],
   ['booleans', 'Checkbox, switch and radio'],
   ['numbers', 'Numbers'],
-  ['dates', 'Date and datetime'],
+  ['dates', 'Date, time and datetime'],
   ['files', 'File selection'],
   ['tabs', 'Tabs'],
   ['breadcrumbs', 'Breadcrumbs'],
@@ -82,6 +83,7 @@ export async function galleryCases({ page, url, record, settle }) {
   await appearanceCases({ page, url, record })
   await galleryLoadingCases({ page, url, record })
   await galleryFormCases({ page, url, record })
+  await galleryTimeCases({ page, url, record })
   const preview = () => page.locator('.gallery-example-host')
   const ready = async () => {
     await expect(preview().locator('.gallery-preview')).toBeVisible()
@@ -407,7 +409,7 @@ export async function galleryCases({ page, url, record, settle }) {
         preview().getByRole('button', { name: /^Status / }),
       ).toContainText('Closed')
       await page
-        .getByRole('link', { name: 'Date and datetime', exact: true })
+        .getByRole('link', { name: 'Date, time and datetime', exact: true })
         .click()
       await ready()
       await preview()
