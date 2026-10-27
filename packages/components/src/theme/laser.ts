@@ -40,8 +40,7 @@ export function laserStyle(
     : dark
       ? `color-mix(in srgb, ${secondary.dark} 80%, white)`
       : secondary.light
-  const border = monochrome ? '#000000' : dark ? '#35445f' : '#b7c7de'
-  const divider = dark ? 'var(--ui-surface-2)' : 'var(--ui-control-border)'
+  const border = monochrome ? '#000000' : dark ? '#252c39' : '#b7c7de'
   const shadow =
     '0 var(--ui-laser-shadow-y) var(--ui-laser-shadow-blur) var(--ui-laser-shadow-spread) var(--ui-laser-shadow-color)'
   return {
@@ -59,9 +58,9 @@ export function laserStyle(
     '--ui-heading-color': 'var(--ui-text)',
     '--ui-muted-text': monochrome ? '#000000' : scheme.text[1],
     '--ui-subtle-text': 'var(--ui-muted-text)',
-    '--ui-border': divider,
+    '--ui-border': border,
     '--ui-divider': 'var(--ui-border)',
-    '--ui-control-border': border,
+    '--ui-control-border': 'var(--ui-border)',
     '--ui-button-border': 'var(--ui-control-border)',
     '--ui-table-row-divider':
       dividers?.rows === undefined

@@ -274,7 +274,8 @@ Laser computes its default control, text, and icon glows at the consumer, so the
 `--ui-divider-1` through `--ui-divider-4` define the selectable divider scale.
 Sketchy retains its separate divider palette. Vanilla and Laser link the scale to their surface palettes.
 The `dividers` prop selects a level for rows and columns in every preset.
-Without that prop, Vanilla retains its border color and Laser retains its subtle divider color.
+Without that prop, Vanilla and Laser use their shared border color.
+Laser keeps disabled field outlines at that color and dims their text and icons.
 
 Shared headings use `--ui-heading-font-size` and `--ui-heading-weight`.
 Optional `--ui-dialog-title-font-size`, `--ui-dialog-title-weight`, `--ui-popup-title-font-size`, and `--ui-popup-title-weight` distinguish popup titles.

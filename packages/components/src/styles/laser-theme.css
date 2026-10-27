@@ -200,6 +200,33 @@
     border-color: transparent;
     background: transparent;
   }
+  :scope
+    :is(
+      .ui-input,
+      .ui-textarea,
+      .ui-native-select,
+      .choice-input,
+      .popup-trigger
+    ):is(:disabled, [aria-disabled='true'], [data-disabled]) {
+    opacity: 1;
+    color: color-mix(
+      in srgb,
+      var(--ui-text) calc(var(--ui-disabled-opacity, 0.5) * 100%),
+      transparent
+    );
+  }
+  /* A disabled adornment dims its content, not the shared input outline. */
+  :scope
+    :is(.ui-input-affix, .filter-input, .choice-control)
+    > button:is(:disabled, [aria-disabled='true']) {
+    opacity: 1;
+  }
+  :scope
+    :is(.ui-input-affix, .filter-input, .choice-control)
+    > button:is(:disabled, [aria-disabled='true'])
+    > * {
+    opacity: var(--ui-disabled-opacity, 0.5);
+  }
   :scope :is(.ui-input-affix, .filter-input, .choice-control) > button {
     --ui-laser-control-glow: none;
   }
