@@ -74,7 +74,9 @@ Both applications run in every browser and hydration mode through one shared har
 The provider unit tests also reject nonfinite amounts and invalid calendar dates.
 
 The date input application uses `/?app=dates`.
-It shows a date-only field and two datetime fields with explicit and browser timezones.
+It shows a date-only field and two combined datetime fields with explicit and browser timezones.
+Each datetime popup stages calendar and time choices until Apply.
+The `timeView` description selects scrollable columns or the staged analog clock.
 The display controls change numeric date formats, 12-hour or 24-hour time, and the application timezone.
 The accepted values remain canonical strings.
 The application owns validation and submission.

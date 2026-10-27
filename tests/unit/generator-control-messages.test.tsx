@@ -69,25 +69,34 @@ test('direct and repeated date and number invalid drafts retain focus and accept
   expect(h.app.requests()).toBe(0)
 })
 
-test('direct and repeated datetime fields forward time labels and invalid feedback without requesting values', () => {
+test('direct and repeated datetime fields forward clock labels and invalid feedback without requesting values', () => {
   const h = mount()
   for (const label of ['Nested instant', 'Repeated instant']) {
     h.app.setFrench(false)
     flush()
     const group = h.getByRole('group', { name: label })
-    const time = within(group).getByRole('textbox', {
-      name: 'Hora',
+    const input = within(group).getByRole('textbox', {
+      name: label,
     }) as HTMLInputElement
-    fireEvent.input(time, { target: { value: '99:99' } })
-    time.focus()
+    fireEvent.input(input, { target: { value: '2024-02-29 99:99' } })
+    input.focus()
     flush()
-    expect(time.validationMessage).toBe('Instante inválido')
+    expect(input.validationMessage).toBe('Instante inválido')
     h.app.setFrench(true)
     flush()
-    expect(within(group).getByRole('textbox', { name: 'Heure' })).toBe(time)
-    expect(time.value).toBe('99:99')
-    expect(time.validationMessage).toBe('Instant invalide')
-    expect(document.activeElement).toBe(time)
+    expect(within(group).getByRole('textbox', { name: label })).toBe(input)
+    expect(input.value).toBe('2024-02-29 99:99')
+    expect(input.validationMessage).toBe('Instant invalide')
+    expect(document.activeElement).toBe(input)
+    fireEvent.click(h.getByRole('button', { name: `Ouvrir ${label}` }))
+    flush()
+    const popup = h.getByRole('dialog', { name: label })
+    const clock = within(popup).getByRole('group', { name: 'Heure' })
+    h.app.setFrench(false)
+    flush()
+    expect(within(popup).getByRole('group', { name: 'Hora' })).toBe(clock)
+    fireEvent.click(within(popup).getByRole('button', { name: 'Cancel' }))
+    flush()
   }
   expect(h.app.requests()).toBe(0)
 })

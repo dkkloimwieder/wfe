@@ -97,8 +97,8 @@ test('invalid date drafts block application validation and reset restores submis
 })
 test('invalid datetime drafts block application validation and preserve the accepted instant', async () => {
   const view = mount()
-  const time = view.getByRole('textbox', { name: 'Time' })
-  fireEvent.input(time, { target: { value: '25:00' } })
+  const time = view.getByRole('textbox', { name: 'Instant' })
+  fireEvent.input(time, { target: { value: '2024-02-29 25:00' } })
   flush()
   await submit(view)
   expect(view.snapshot()).toEqual({ validations: 0, submissions: 0 })

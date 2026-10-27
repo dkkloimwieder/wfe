@@ -56,6 +56,8 @@ Changing format or locale updates the display without requesting a value change.
 `min` and `max` accept canonical times and include both endpoints.
 
 Users can type a time or open the popup to choose hours and minutes.
+`timeView="columns"` is the default and shows scrollable time columns.
+`timeView="clock"` shows an analog clock instead.
 Formats with seconds also show a seconds choice.
 The 12-hour formats add an AM or PM choice.
 Incomplete or invalid input remains a local draft and leaves the accepted value unchanged.
@@ -71,7 +73,8 @@ Intrinsic draft errors block native form submission and notify `onValidityChange
 
 ## Datetime input
 
-`DateTimePicker` edits an instant with the shared `DatePicker` and `TimePicker`.
+`DateTimePicker` edits an instant through one combined date and time text field.
+Its popup contains the shared calendar and time selection controls.
 Its controlled value requires an ISO timestamp with `Z` or an explicit offset.
 For example, `2024-02-29T09:15:16.123-05:00` represents the same instant as `2024-02-29T14:15:16.123Z`.
 The callback requests a normalized UTC ISO timestamp, or `undefined` when cleared.
@@ -80,13 +83,15 @@ The application owns conversion to its storage schema.
 
 `timeZone` defaults to `browser`.
 The browser zone resolves after the control mounts or attaches to server markup.
-Before that step, the visible controls stay empty and disabled.
+Before that step, the visible input stays empty and disabled.
 The server never guesses the user's zone from its own host.
 An explicit IANA zone, such as `America/New_York` or `UTC`, renders on the server and client.
 The application supplies its system timezone through this prop.
 Changing the timezone or display format does not request a value change.
 
 `dateFormat` and `locale` follow the date-only input rules.
+The input joins the formatted date and time with one space.
+For example, `dd/MM/yyyy` with `HH:mm` displays `29/02/2024 14:15`.
 `timeFormat` accepts `HH:mm`, `HH:mm:ss`, `hh:mm a`, or `hh:mm:ss a`.
 The default is `HH:mm`.
 The 12-hour formats use the supplied locale's AM and PM text.
@@ -101,11 +106,24 @@ These modes never shift a nonexistent time to another clock time.
 An unchanged accepted instant in a repeated hour retains its known offset.
 `min` and `max` constrain instants and require the same offset-bearing ISO grammar.
 
+Complete valid typed input requests an instant immediately.
 Invalid or incomplete date and time text remains local and blocks native form submission.
-Escape restores both accepted date and time displays.
-A valid request that the parent rejects restores the accepted display when focus leaves the composite control.
-Clearing the date clears the complete datetime.
-Clearing only the time leaves an incomplete draft until the user completes or resets it.
+Escape restores the accepted display when the popup is closed.
+A valid request that the parent rejects restores the accepted display when focus leaves the control.
+Clearing the complete text requests `undefined`.
+Removing only the time leaves an incomplete draft until the user completes or resets it.
+
+`timeView="columns"` is the default.
+It shows the calendar and scrollable time columns together in one popup.
+`timeView="clock"` first shows the calendar, then an analog clock after the user chooses a date.
+Calendar and time choices remain local until the user selects Apply date and time.
+Apply requests one complete instant and closes the popup.
+In clock mode, the upper-left back icon returns to the calendar and retains the pending selection.
+The hour, minute, and optional second fields above the clock also accept typed values.
+Blur or Escape in these fields restores invalid or rejected text to the current staged value.
+Cancel closes the popup and discards the pending selection.
+Escape elsewhere in the popup also closes it.
+The input uses `label`; `timeLabel` labels time selection in the popup.
 The control inherits `Field` state and serializes one canonical named value.
 Its `onValidityChange` callback reports only intrinsic input validity.
 
@@ -115,9 +133,9 @@ Its `onValidityChange` callback reports only intrinsic input validity.
 All three controls use an empty string for an empty generated field.
 The application maps other storage types through its adapter or a custom field binding.
 Date descriptions accept `dateFormat`, `locale`, `min`, `max`, and `startOfWeek`.
-`TimeControlDescription` accepts `timeFormat`, `locale`, `min`, and `max`.
+`TimeControlDescription` accepts `timeFormat`, `timeView`, `locale`, `min`, and `max`.
 Standalone time descriptions have no timezone.
-Datetime descriptions also accept `timeFormat`, `timeZone`, and `disambiguation`.
+Datetime descriptions also accept `timeFormat`, `timeView`, `timeZone`, and `disambiguation`.
 These descriptions contain data, not application callbacks.
 
 The generated view blocks its DOM submit action while an editable date or time control contains an invalid draft.

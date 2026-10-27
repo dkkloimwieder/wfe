@@ -243,8 +243,8 @@ const explicitDateTime = await renderToString(() =>
     },
   }),
 )
-assert.match(explicitDateTime, /2024-02-28/)
-assert.match(explicitDateTime, /21:15/)
+assert.match(explicitDateTime, /2024-02-28 21:15/)
+assert.equal((explicitDateTime.match(/type="text"/g) ?? []).length, 1)
 assert.match(explicitDateTime, /2024-02-29T02:15:16.123Z/)
 const browserDateTime = await renderToString(() =>
   DateTimePicker({

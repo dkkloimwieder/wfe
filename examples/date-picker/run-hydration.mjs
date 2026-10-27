@@ -70,18 +70,12 @@ await withArtifactRun(
         await initial.goto(url)
         await expect(
           initial.getByRole('textbox', { name: 'System date', exact: true }),
-        ).toHaveValue('28/02/2024')
-        await expect(
-          initial.getByLabel('System time', { exact: true }),
-        ).toHaveValue('21:15')
+        ).toHaveValue('28/02/2024 21:15')
         await expect(
           initial.getByRole('textbox', { name: 'Browser date', exact: true }),
         ).toBeDisabled()
         await expect(
           initial.getByRole('textbox', { name: 'Browser date', exact: true }),
-        ).toHaveValue('')
-        await expect(
-          initial.getByLabel('Browser time', { exact: true }),
         ).toHaveValue('')
         await expect(initial.locator('[data-date-display="date"]')).toHaveText(
           '29/02/2024',
@@ -119,16 +113,10 @@ await withArtifactRun(
       await reviewThemeHost(page)
       await expect(
         page.getByRole('textbox', { name: 'System date', exact: true }),
-      ).toHaveValue('28/02/2024')
-      await expect(page.getByLabel('System time', { exact: true })).toHaveValue(
-        '21:15',
-      )
+      ).toHaveValue('28/02/2024 21:15')
       await expect(
         page.getByRole('textbox', { name: 'Browser date', exact: true }),
-      ).toHaveValue('29/02/2024')
-      await expect(
-        page.getByLabel('Browser time', { exact: true }),
-      ).toHaveValue('08:00')
+      ).toHaveValue('29/02/2024 08:00')
       await expect(page.locator('[data-date-display="date"]')).toHaveText(
         '29/02/2024',
       )
@@ -176,7 +164,7 @@ await withArtifactRun(
       await page.keyboard.press('Escape')
       await expect(
         page.getByRole('button', {
-          name: 'Open System date calendar',
+          name: 'Open System date date and time picker',
           exact: true,
         }),
       ).toBeFocused()
@@ -187,14 +175,16 @@ await withArtifactRun(
       report.cases.push(
         'Translated server controls hydrate and change language without replacing focused calendar days',
       )
-      await page.getByLabel('Browser time', { exact: true }).fill('09:00')
+      await page
+        .getByRole('textbox', { name: 'Browser date', exact: true })
+        .fill('29/02/2024 09:00')
       assert.equal(
         (await page.evaluate(() => window.dateHydration.snapshot())).value,
         '2024-02-29T03:15:16.123Z',
       )
-      await expect(page.getByLabel('System time', { exact: true })).toHaveValue(
-        '22:15',
-      )
+      await expect(
+        page.getByRole('textbox', { name: 'System date', exact: true }),
+      ).toHaveValue('28/02/2024 22:15')
       await expect(page.locator('[data-date-display="system"]')).toHaveText(
         '28/02/2024 22:15',
       )
@@ -206,16 +196,16 @@ await withArtifactRun(
       )
       await page
         .getByRole('button', {
-          name: 'Open Browser date calendar',
+          name: 'Open Browser date date and time picker',
           exact: true,
         })
         .click()
       await page.evaluate(() => {
         window.dateHydration.stop()
         const node = window.dateServerNodes.find(
-          (node) => node.id === 'browser-date-time',
+          (node) => node.id === 'browser-date',
         )
-        node.value = '10:00'
+        node.value = '29/02/2024 10:00'
         node.dispatchEvent(new Event('input', { bubbles: true }))
       })
       assert.equal(

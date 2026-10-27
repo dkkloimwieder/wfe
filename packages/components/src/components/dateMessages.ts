@@ -1,4 +1,5 @@
 import { resolveMessages } from '../internal/messages'
+import { timeClockMessages, type TimeClockMessages } from './timeClockMessages'
 
 /** UI language is independent of date formatting locale and timezone. */
 export interface CalendarMessages {
@@ -16,20 +17,21 @@ export interface DatePickerMessages extends CalendarMessages {
   calendarTitle: (label: string) => string
   invalidDate: (pattern: string) => string
 }
-export interface TimePickerMessages {
+export interface TimePickerMessages extends TimeClockMessages {
   openTimePicker: (label: string) => string
   clearTime: (label: string) => string
   timePickerTitle: (label: string) => string
   invalidTime: (pattern: string) => string
-  hour: string
-  minute: string
-  second: string
-  period: string
   applyTime: string
 }
 export interface DateTimePickerMessages
   extends DatePickerMessages, TimePickerMessages {
   time: string
+  openDateTimePicker: (label: string) => string
+  dateTimePickerTitle: (label: string) => string
+  backToDate: string
+  cancelDateTime: string
+  applyDateTime: string
   pendingTimezone: string
   invalidDateTime: string
 }
@@ -55,16 +57,18 @@ export const timePickerMessages: Readonly<TimePickerMessages> = {
   clearTime: (label) => `Clear ${label}`,
   timePickerTitle: (label) => label,
   invalidTime: (pattern) => `Enter an available time as ${pattern}.`,
-  hour: 'Hour',
-  minute: 'Minute',
-  second: 'Second',
-  period: 'AM/PM',
+  ...timeClockMessages,
   applyTime: 'Apply time',
 }
 export const dateTimePickerMessages: Readonly<DateTimePickerMessages> = {
   ...datePickerMessages,
   ...timePickerMessages,
   time: 'Time',
+  openDateTimePicker: (label) => `Open ${label} date and time picker`,
+  dateTimePickerTitle: (label) => label,
+  backToDate: 'Back to date',
+  cancelDateTime: 'Cancel',
+  applyDateTime: 'Apply date and time',
   pendingTimezone: 'Browser timezone pending',
   invalidDateTime:
     'Enter an available date and time in the displayed timezone.',

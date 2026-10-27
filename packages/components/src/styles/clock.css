@@ -1,0 +1,143 @@
+:where([data-ui]) .ui-time-clock {
+  display: grid;
+  gap: var(--ui-gap, 8px);
+  inline-size: min(14rem, calc(100vw - 4 * var(--ui-gap, 8px)));
+  max-inline-size: 100%;
+  margin-inline: auto;
+}
+:where([data-ui]) .ui-time-clock-units,
+:where([data-ui]) .ui-time-clock-period {
+  display: flex;
+  gap: var(--ui-gap, 8px);
+  justify-content: center;
+}
+:where([data-ui]) .ui-time-clock-units > .ui-time-clock-unit {
+  flex: 1;
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-time-clock-face {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--ui-muted-surface, var(--ui-surface));
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
+  color: var(--ui-text);
+  touch-action: none;
+  user-select: none;
+  cursor: pointer;
+}
+:where([data-ui]) .ui-time-clock-face:focus-visible {
+  outline: var(--ui-focus-width, 2px) solid
+    var(--ui-focus-ring, var(--ui-accent));
+  outline-offset: var(--ui-focus-offset, 2px);
+}
+:where([data-ui])
+  .ui-time-clock-face:is([aria-disabled='true'], [aria-readonly='true']) {
+  cursor: default;
+}
+:where([data-ui]) .ui-time-clock-number {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+:where([data-ui]) .ui-time-clock-number[data-inner] {
+  font-size: var(--ui-small-font-size, 11px);
+}
+:where([data-ui]) .ui-time-clock-hand {
+  position: absolute;
+  left: calc(50% - var(--ui-border-width, 1px));
+  bottom: 50%;
+  inline-size: calc(2 * var(--ui-border-width, 1px));
+  background: var(--ui-accent);
+  transform-origin: bottom center;
+  pointer-events: none;
+}
+:where([data-ui]) .ui-time-clock-selected,
+:where([data-ui]) .ui-time-clock-center {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+:where([data-ui]) .ui-time-clock-selected {
+  inline-size: 2em;
+  block-size: 2em;
+  background: var(--ui-highlight);
+  border: var(--ui-border-width, 1px) solid var(--ui-accent);
+}
+:where([data-ui]) .ui-time-clock-center {
+  left: 50%;
+  top: 50%;
+  inline-size: 0.5em;
+  block-size: 0.5em;
+  background: var(--ui-accent);
+}
+:where([data-ui]) .ui-time-clock-unit {
+  display: grid;
+  gap: calc(var(--ui-gap, 8px) / 2);
+  text-align: center;
+}
+:where([data-ui]) .ui-time-clock-unit input {
+  inline-size: 100%;
+  min-inline-size: 0;
+  text-align: center;
+  font-size: var(--ui-heading-font-size, 14px);
+  font-variant-numeric: tabular-nums;
+}
+:where([data-ui]) .ui-time-clock-unit[data-active] input {
+  border-color: var(--ui-accent);
+}
+@media (forced-colors: active) {
+  :where([data-ui]) .ui-time-clock-face {
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+  :where([data-ui]) .ui-time-clock-selected {
+    border-color: Highlight;
+  }
+  :where([data-ui]) .ui-time-clock-hand,
+  :where([data-ui]) .ui-time-clock-center {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+}
+
+:where([data-ui]) .ui-time-columns {
+  display: flex;
+  gap: var(--ui-gap, 8px);
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-time-column {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--ui-gap, 8px);
+  flex: 1 1 4rem;
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-time-column-list {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  max-block-size: 16rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
+  border-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
+  padding: var(--ui-border-width, 1px);
+}
+:where([data-ui]) .ui-time-option {
+  flex: none;
+  inline-size: 100%;
+  font-variant-numeric: tabular-nums;
+}
+:where([data-ui]) .ui-time-option[aria-selected='true'] {
+  background: var(--ui-highlight);
+  color: var(--ui-text);
+}
+:where([data-ui]) .ui-time-option:focus-visible {
+  outline-offset: calc(-1 * var(--ui-focus-width, 2px));
+}

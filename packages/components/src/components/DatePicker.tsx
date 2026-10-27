@@ -56,19 +56,6 @@ export type DatePickerProps = Pick<
   }
 
 export function DatePicker(props: DatePickerProps) {
-  return <DatePickerControl {...props} />
-}
-
-/** Internal composition keeps local drafts inside the shared date control. */
-export function DatePickerControl(
-  props: DatePickerProps & {
-    resetVersion?: number
-    onDraftReset?: () => void
-    onCalendarSelect?: () => void
-    onCalendarRef?: (node: HTMLDivElement) => void
-    onPopupFocusOut?: (event: FocusEvent) => void
-  },
-) {
   const messages = resolveDatePickerMessages(() => props.messages)
   const field = useContext(FieldContext)
   const generated = createUniqueId()
@@ -97,8 +84,7 @@ export function DatePickerControl(
   })
   let calendar: HTMLDivElement | undefined
   const presentation = createMemo(
-    () =>
-      [display(), props.dateFormat, props.locale, props.resetVersion] as const,
+    () => [display(), props.dateFormat, props.locale] as const,
     {
       equals: (left, right) =>
         left.every((value, index) => value === right[index]),
@@ -197,7 +183,6 @@ export function DatePickerControl(
               if (event.key === 'Escape' && !open()) {
                 event.preventDefault()
                 event.stopPropagation()
-                props.onDraftReset?.()
                 setDraft(display())
               }
             }}
@@ -230,7 +215,6 @@ export function DatePickerControl(
         <Popover.Portal>
           <Popover.Content
             class="ui-date-popup"
-            onFocusOut={props.onPopupFocusOut}
             onOpenAutoFocus={(event) => {
               event.preventDefault()
               queueMicrotask(() => {
@@ -258,7 +242,6 @@ export function DatePickerControl(
               startOfWeek={props.startOfWeek}
               ref={(node) => {
                 calendar = node
-                props.onCalendarRef?.(node)
               }}
               onValueChange={(value) => {
                 if (disabled() || readonly()) return
@@ -281,7 +264,6 @@ export function DatePickerControl(
                       !previousFocus?.isConnected))
                 )
                   trigger.focus({ preventScroll: true })
-                props.onCalendarSelect?.()
                 setDraft(display())
                 setOpen(false)
               }}

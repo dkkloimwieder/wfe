@@ -54,6 +54,7 @@ export type DateControlDescription = {
 }
 export type TimeControlDescription = {
   control: 'time'
+  timeView?: 'columns' | 'clock'
   timeFormat?: TimeInputFormat
   locale?: string
   min?: string
@@ -64,6 +65,7 @@ export type DateTimeControlDescription = Omit<
   'control'
 > & {
   control: 'datetime'
+  timeView?: 'columns' | 'clock'
   timeFormat?: TimeInputFormat
   timeZone?: string
   disambiguation?: DateTimeDisambiguation

@@ -57,6 +57,8 @@ Omitted keys fall back individually. Existing explicit `label`, `clearLabel`, an
 Messages cover navigation, keyboard help, calendar titles, clear actions, invalid input, the time label, and the pending browser-timezone notice.
 Date pickers forward their messages to the nested calendar.
 Time picker messages also cover the hour, minute, second, period, and apply controls.
+The combined datetime picker uses `openDateTimePicker`, `dateTimePickerTitle`, `backToDate`, `cancelDateTime`, and `applyDateTime` for its popup.
+Use `openDateTimePicker` to translate its trigger; `openCalendar` applies to date-only pickers.
 Changing messages updates visible errors and native validation text without requesting a new value or repeating an unchanged validity callback.
 Invalid drafts, focused controls, selected dates, and open calendars remain in place.
 An empty translated error does not make invalid input valid; native validation uses the default error as its fallback.

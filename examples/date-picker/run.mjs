@@ -351,65 +351,65 @@ await withArtifactRun(
         name: 'Appointment',
         exact: true,
       })
-      const time = page.getByLabel('Time', { exact: true })
       const setDateTime = (next) =>
         page.evaluate(
           (next) => window.datePickerFixture.setDateTime(next),
           next,
         )
       await test('Datetime formats an explicit timezone and serializes one canonical instant', async () => {
-        await expect(appointment).toHaveValue('29/02/2024')
-        await expect(time).toHaveValue('14:15')
+        await expect(appointment).toHaveValue('29/02/2024 14:15')
         assert.deepEqual(
           await page
             .locator('#datetime-test-form')
             .evaluate((node) => [...new FormData(node)]),
           [['appointment', '2024-02-29T14:15:16.123Z']],
         )
-        await time.fill('15:20')
+        await appointment.fill('29/02/2024 15:20')
         assert.equal((await state()).datetime.value, '2024-02-29T15:20:16.123Z')
-        await appointment.fill('01/03/2024')
+        await appointment.fill('01/03/2024 15:20')
         assert.equal((await state()).datetime.value, '2024-03-01T15:20:16.123Z')
         const before = (await state()).datetimeChanges
         await setDateTime({
           timeZone: 'Asia/Kathmandu',
           timeFormat: 'hh:mm:ss a',
         })
-        await expect(time).toHaveValue('09:05:16 PM')
+        await expect(appointment).toHaveValue('01/03/2024 09:05:16 PM')
         assert.equal((await state()).datetimeChanges, before)
       })
       await test('Datetime retains invalid drafts and restores rejected requests on blur', async () => {
-        await time.fill('25:00')
-        await expect(time).toHaveAttribute('aria-invalid', 'true')
+        await appointment.fill('29/02/2024 25:00')
+        await expect(appointment).toHaveAttribute('aria-invalid', 'true')
         assert.equal((await state()).datetimeValid, false)
         assert.equal((await state()).datetimeChanges, 0)
-        await appointment.fill('30/02/2024')
-        await time.press('Escape')
-        await expect(appointment).toHaveValue('29/02/2024')
-        await expect(time).toHaveValue('14:15')
+        await appointment.fill('30/02/2024 14:15')
+        await appointment.press('Escape')
+        await expect(appointment).toHaveValue('29/02/2024 14:15')
         assert.equal((await state()).datetimeValid, true)
-        await appointment.fill('30/02/2024')
+        await appointment.fill('30/02/2024 14:15')
         await setDateTime({ value: '2024-02-29T14:15:17.456Z' })
-        await expect(appointment).toHaveValue('29/02/2024')
-        await expect(time).toHaveValue('14:15')
+        await expect(appointment).toHaveValue('29/02/2024 14:15')
         assert.equal((await state()).datetimeValid, true)
         assert.equal((await state()).datetimeChanges, 0)
         await setDateTime({ value: '2024-02-29T14:15:16.123Z', accept: false })
-        await time.fill('15:20')
-        await expect(time).toHaveValue('15:20')
+        await appointment.fill('29/02/2024 15:20')
+        await expect(appointment).toHaveValue('29/02/2024 15:20')
         await page
           .getByRole('button', {
-            name: 'Open Appointment calendar',
+            name: 'Open Appointment date and time picker',
             exact: true,
           })
           .click()
-        await expect(time).toHaveValue('15:20')
+        await expect(appointment).toHaveValue('29/02/2024 15:20')
         await day('2024-03-01').click()
-        await expect(time).toHaveValue('15:20')
+        await expect(appointment).toHaveValue('29/02/2024 15:20')
+        assert.equal((await state()).datetimeChanges, 1)
+        await page
+          .getByRole('button', { name: 'Apply date and time', exact: true })
+          .click()
         await page
           .getByRole('button', { name: 'After picker', exact: true })
           .click()
-        await expect(time).toHaveValue('14:15')
+        await expect(appointment).toHaveValue('29/02/2024 14:15')
         assert.equal((await state()).datetimeChanges, 2)
         assert.equal((await state()).datetime.value, '2024-02-29T14:15:16.123Z')
       })
@@ -418,45 +418,44 @@ await withArtifactRun(
           value: '2024-03-09T07:30:00Z',
           timeZone: 'America/New_York',
         })
-        await appointment.fill('10/03/2024')
-        await expect(time).toHaveAttribute('aria-invalid', 'true')
+        await appointment.fill('10/03/2024 02:30')
+        await expect(appointment).toHaveAttribute('aria-invalid', 'true')
         assert.equal((await state()).datetimeChanges, 0)
         await appointment.press('Escape')
-        await expect(appointment).toHaveValue('09/03/2024')
+        await expect(appointment).toHaveValue('09/03/2024 02:30')
         await setDateTime({ value: '2024-11-02T05:30:00Z' })
-        await appointment.fill('03/11/2024')
-        await expect(time).toHaveAttribute('aria-invalid', 'true')
+        await appointment.fill('03/11/2024 01:30')
+        await expect(appointment).toHaveAttribute('aria-invalid', 'true')
         await setDateTime({ disambiguation: 'earlier' })
-        await time.fill('01:30')
+        await appointment.fill('03/11/2024 01:30')
         assert.equal((await state()).datetime.value, '2024-11-03T05:30:00.000Z')
         await setDateTime({
           value: '2024-11-02T05:30:00Z',
           disambiguation: 'later',
         })
-        await appointment.fill('03/11/2024')
+        await appointment.fill('03/11/2024 01:30')
         assert.equal((await state()).datetime.value, '2024-11-03T06:30:00.000Z')
       })
       await test('Datetime validity follows bounds, native submission, readonly and disabled state', async () => {
         const form = page.locator('#datetime-test-form')
-        await time.fill('25:00')
+        await appointment.fill('29/02/2024 25:00')
         await form.evaluate((node) => node.requestSubmit())
         assert.equal((await state()).datetimeSubmits, 0)
-        await time.press('Escape')
+        await appointment.press('Escape')
         await form.evaluate((node) => node.requestSubmit())
         assert.equal((await state()).datetimeSubmits, 1)
         await setDateTime({ min: '2024-03-01T00:00Z' })
-        await expect(time).toHaveAttribute('aria-invalid', 'true')
+        await expect(appointment).toHaveAttribute('aria-invalid', 'true')
         await setDateTime({ min: undefined, readonly: true })
         await expect(appointment).toHaveAttribute('readonly', '')
-        await expect(time).toHaveAttribute('readonly', '')
         await expect(
           page.getByRole('button', {
-            name: 'Open Appointment calendar',
+            name: 'Open Appointment date and time picker',
             exact: true,
           }),
         ).toBeDisabled()
-        await time.evaluate((node) => {
-          node.value = '15:20'
+        await appointment.evaluate((node) => {
+          node.value = '29/02/2024 15:20'
           node.dispatchEvent(new Event('input', { bubbles: true }))
         })
         assert.equal((await state()).datetimeChanges, 0)
@@ -489,10 +488,7 @@ await withArtifactRun(
           )
           await expect(
             local.getByRole('textbox', { name: 'Appointment', exact: true }),
-          ).toHaveValue('28/02/2024')
-          await expect(local.getByLabel('Time', { exact: true })).toHaveValue(
-            '18:15',
-          )
+          ).toHaveValue('28/02/2024 18:15')
           assert.equal(
             (await local.evaluate(() => window.datePickerFixture.snapshot()))
               .datetimeChanges,
@@ -511,14 +507,14 @@ await withArtifactRun(
       await test('Datetime disposal removes its popup and retained time listeners', async () => {
         await page
           .getByRole('button', {
-            name: 'Open Appointment calendar',
+            name: 'Open Appointment date and time picker',
             exact: true,
           })
           .click()
         await page.evaluate(() => {
-          const detached = document.getElementById('appointment-time')
+          const detached = document.getElementById('appointment')
           window.datePickerFixture.stop()
-          detached.value = '15:20'
+          detached.value = '29/02/2024 15:20'
           detached.dispatchEvent(new Event('input', { bubbles: true }))
         })
         assert.equal((await state()).datetimeChanges, 0)

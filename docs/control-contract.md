@@ -31,6 +31,11 @@ A callback on a compound root can carry a value rather than a DOM event.
 
 `NumberInput` requests `undefined` for empty input unless `allowEmpty` is `false`.
 
+`DateTimePicker` displays one combined date and time input.
+Complete valid typed input requests an instant immediately.
+Calendar and time choices in its popup remain local until Apply date and time requests one complete instant.
+Cancel or Escape discards pending popup choices without a callback.
+
 `Checkbox` and `Switch` use `checked` and `defaultChecked` for boolean state.
 Their separate `value` is the string submitted by a native form.
 Checkbox `indeterminate` remains separate from checked state.

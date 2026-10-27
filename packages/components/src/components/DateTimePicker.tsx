@@ -3,18 +3,25 @@ import {
   dateTimePickerMessages,
   type DateTimePickerMessages,
 } from './dateMessages'
-import type { ControlDecorationProps } from '../internal/controlDecoration'
+import {
+  ControlSurface,
+  type ControlDecorationProps,
+} from '../internal/controlDecoration'
 import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
+  onCleanup,
   untrack,
   useContext,
   Show,
 } from 'solid-js'
-import { DatePickerControl as DatePicker } from './DatePicker'
-import { TimePickerControl } from './TimePicker'
+import { Calendar } from './Calendar'
+import { TimeSelection, type ClockValue } from './TimeSelection'
+import { Popover } from './Popover'
+import { Button, Input } from './NativeFields'
+import { Icon } from './Icon'
 import { createTimeZone } from '../internal/timeZone'
 import { FieldContext } from '../internal/fieldContext'
 import { ownsFocus } from '../internal/ownedFocus'
@@ -23,15 +30,22 @@ import {
   dateTimeParts,
   formatTimeInput,
   normalizeInstant,
+  parseTimeInput,
   resolveDateTimeInput,
   timeInputPattern,
 } from '../utils/dateTime'
-import type { DateInputFormat } from '../utils/dateFormat'
+import {
+  dateInputPattern,
+  formatDateInput,
+  parseDateInput,
+  type DateInputFormat,
+} from '../utils/dateFormat'
 import type { TimeInputFormat, DateTimeDisambiguation } from '../utils/dateTime'
 
 export type DateTimePickerProps = ControlDecorationProps & {
   messages?: Partial<DateTimePickerMessages>
   label: string
+  /** Accessible label for the clock inside the combined popup. */
   timeLabel?: string
   id?: string
   name?: string
@@ -40,6 +54,8 @@ export type DateTimePickerProps = ControlDecorationProps & {
   onValidityChange?: (valid: boolean) => void
   dateFormat?: DateInputFormat
   timeFormat?: TimeInputFormat
+  /** Inline columns by default, or a staged calendar and analog clock. */
+  timeView?: 'columns' | 'clock'
   locale?: string
   timeZone?: 'browser' | (string & {})
   disambiguation?: DateTimeDisambiguation
@@ -53,16 +69,20 @@ export type DateTimePickerProps = ControlDecorationProps & {
   'aria-describedby'?: string
 }
 
+/** One instant input; calendar and clock edit a staged value until Apply. */
 export function DateTimePicker(props: DateTimePickerProps) {
   const messages = resolveDateTimePickerMessages(() => props.messages)
   const field = useContext(FieldContext)
   const generated = createUniqueId()
   const errorId = createUniqueId()
+  const popupErrorId = createUniqueId()
   const id = () => props.id ?? field?.baseControlId() ?? generated
   const disabled = () => props.disabled ?? field?.disabled()
   const readonly = () => props.readonly ?? field?.readonly()
-  const required = () => props.required ?? field?.required()
   const zone = createTimeZone(() => props.timeZone, 'browser')
+  const locked = () => disabled() || readonly() || !zone()
+  const datePattern = () => dateInputPattern(props.dateFormat, props.locale)
+  const timePattern = () => timeInputPattern(props.timeFormat)
   const accepted = createMemo(() =>
     props.value ? normalizeInstant(props.value) : undefined,
   )
@@ -70,75 +90,103 @@ export function DateTimePicker(props: DateTimePickerProps) {
     min: props.min ? normalizeInstant(props.min) : undefined,
     max: props.max ? normalizeInstant(props.max) : undefined,
   }))
+  const display = () => {
+    const value = accepted(),
+      timeZone = zone()
+    if (!value || !timeZone) return ''
+    const parts = dateTimeParts(value, timeZone)
+    return `${formatDateInput(parts.date, props.dateFormat, props.locale)} ${formatTimeInput(parts, props.timeFormat, props.locale)}`
+  }
   const presentation = createMemo(
-    () => {
-      const format = timeInputPattern(props.timeFormat)
-      const value = accepted(),
-        timeZone = zone()
-      const parts =
-        value && timeZone ? dateTimeParts(value, timeZone) : undefined
-      return {
-        value,
-        date: parts?.date,
-        time: parts ? formatTimeInput(parts, format, props.locale) : '',
-        dateFormat: props.dateFormat,
-        locale: props.locale,
-        zone: timeZone,
-        format,
-      }
-    },
+    () =>
+      [
+        display(),
+        accepted(),
+        zone(),
+        datePattern(),
+        timePattern(),
+        props.locale,
+      ] as const,
     {
       equals: (left, right) =>
-        left.value === right.value &&
-        left.date === right.date &&
-        left.time === right.time &&
-        left.dateFormat === right.dateFormat &&
-        left.locale === right.locale &&
-        left.zone === right.zone &&
-        left.format === right.format,
+        left.every((value, index) => value === right[index]),
     },
   )
-  const initial = untrack(presentation)
-  const [date, setDate] = createSignal(initial.date)
-  const [time, setTime] = createSignal(initial.time)
-  const [dateValid, setDateValid] = createSignal(true)
-  const [resetVersion, setResetVersion] = createSignal(0)
-  createEffect(presentation, (value) => {
-    setResetVersion((version) => version + 1)
-    setDate(value.date)
-    setTime(value.time)
+  const [draft, setDraft] = createSignal(untrack(display))
+  const [open, setOpen] = createSignal(false)
+  const [step, setStep] = createSignal<'date' | 'time'>('date')
+  const [popupDate, setPopupDate] = createSignal('1970-01-01')
+  const [clock, setClock] = createSignal<ClockValue>({
+    hour: 0,
+    minute: 0,
+    second: 0,
   })
-  const candidate = (nextDate: string | undefined, nextTime: string) => {
-    const timeZone = zone()
-    if (!timeZone || !nextDate || !nextTime.trim()) return undefined
-    return resolveDateTimeInput(
-      nextDate,
-      nextTime,
-      timeZone,
-      props.timeFormat,
+  createEffect(presentation, ([value]) => {
+    setDraft(value)
+    setOpen(false)
+  })
+  createEffect(locked, (value) => {
+    if (value) setOpen(false)
+  })
+  function parseDraft(value: string) {
+    const text = value.trim()
+    // The supported numeric date grammar has a fixed width, including literals.
+    // Splitting at its width also supports date patterns containing spaces.
+    const width = datePattern().length
+    if (!/\s/.test(text.charAt(width))) return undefined
+    const date = parseDateInput(
+      text.slice(0, width),
+      props.dateFormat,
       props.locale,
-      props.disambiguation,
-      accepted(),
     )
+    const time = text.slice(width).trim()
+    const parts = parseTimeInput(time, props.timeFormat, props.locale)
+    return date && parts ? { date, time, parts } : undefined
   }
-  const inRange = (value: string) => {
+  function candidate(date: string, time: string) {
+    const timeZone = zone()
+    return timeZone
+      ? resolveDateTimeInput(
+          date,
+          time,
+          timeZone,
+          props.timeFormat,
+          props.locale,
+          props.disambiguation,
+          accepted(),
+        )
+      : undefined
+  }
+  function inRange(value: string) {
     const { min, max } = bounds()
     return (!min || value >= min) && (!max || value <= max)
   }
   const invalid = createMemo(() => {
-    if (!zone()) return false
-    if (!dateValid()) return true
-    if (!date() && !time().trim()) return false
-    const value = candidate(date(), time())
+    if (!zone() || !draft().trim()) return false
+    const parsed = parseDraft(draft())
+    const value = parsed && candidate(parsed.date, parsed.time)
     return !value || !inRange(value)
   })
-  let timeInput: HTMLInputElement | undefined
+  let root: HTMLDivElement | undefined
+  let input: HTMLInputElement | undefined
+  let trigger: HTMLButtonElement | undefined
+  let popup: HTMLDivElement | undefined
+  const [calendarRoot, setCalendarRoot] = createSignal<HTMLDivElement>()
+  const [clockRoot, setClockRoot] = createSignal<HTMLDivElement>()
+  const columns = () => props.timeView !== 'clock'
+  const showingTime = () => columns() || step() === 'time'
+  const stageRoot = () =>
+    !columns() && step() === 'time' ? clockRoot() : calendarRoot()
+  let alive = true
+  onCleanup(() => {
+    alive = false
+  })
   createEffect(
     () =>
       invalid()
         ? messages.invalidDateTime || dateTimePickerMessages.invalidDateTime
         : '',
-    (message) => timeInput?.setCustomValidity(message),
+    (message) => input?.setCustomValidity(message),
   )
   createEffect(
     () => Boolean(disabled() || readonly() || !invalid()),
@@ -146,45 +194,135 @@ export function DateTimePicker(props: DateTimePickerProps) {
       untrack(() => props.onValidityChange?.(valid))
     },
   )
-  function request(nextDate: string | undefined, nextTime: string) {
-    if (disabled() || readonly() || !zone()) return
-    const value = candidate(nextDate, nextTime)
-    if (value && inRange(value)) props.onValueChange(value)
-  }
-  function restore() {
-    setResetVersion((version) => version + 1)
-    const value = presentation()
-    setDate(value.date)
-    setTime(value.time)
-  }
-  let root: HTMLDivElement | undefined
-  let calendar: HTMLDivElement | undefined
-  let timePopup: HTMLDivElement | undefined
-  function focusout(event: FocusEvent) {
-    if (
-      event.relatedTarget instanceof Node &&
-      (root?.contains(event.relatedTarget) ||
-        calendar?.contains(event.relatedTarget) ||
-        ownsFocus(timePopup, event.relatedTarget))
-    )
+  function restoreOutside(event: FocusEvent) {
+    const next = event.relatedTarget
+    if (next instanceof Node) {
+      if (ownsFocus(root, next) || ownsFocus(popup, next)) return
+    } else if (open()) {
+      // Calendar redraws can remove the focused day before its replacement
+      // receives focus. A null relatedTarget is not yet an outside transition.
+      const previous = event.target instanceof Node ? event.target : undefined
+      const document = previous?.ownerDocument
+      queueMicrotask(() => {
+        if (!alive || !document) return
+        const active = document.activeElement
+        if (ownsFocus(root, active) || ownsFocus(popup, active)) return
+        if (
+          open() &&
+          previous &&
+          !previous.isConnected &&
+          active === document.body
+        )
+          return
+        if (!invalid()) setDraft(display())
+      })
       return
-    if (!invalid()) restore()
+    }
+    if (!invalid()) setDraft(display())
   }
-  const events = nativeEvents<HTMLDivElement>({
-    focusout,
-    keydown(event) {
-      if (event.key !== 'Escape' || event.isComposing) return
-      event.preventDefault()
-      event.stopPropagation()
-      restore()
+  const events = nativeEvents<HTMLDivElement>({ focusout: restoreOutside })
+  function change(value: string) {
+    if (locked()) return
+    setDraft(value)
+    if (!value.trim()) {
+      props.onValueChange(undefined)
+      return
+    }
+    const parsed = parseDraft(value)
+    const next = parsed && candidate(parsed.date, parsed.time)
+    if (next && inRange(next)) props.onValueChange(next)
+  }
+  function changeOpen(value: boolean) {
+    if (value) {
+      if (locked()) return
+      const timeZone = zone()!
+      const base = dateTimeParts(
+        accepted() ?? bounds().min ?? new Date().toISOString(),
+        timeZone,
+      )
+      const parsed = parseDraft(draft())
+      setPopupDate(parsed?.date ?? base.date)
+      setClock({
+        hour: parsed?.parts.hour ?? base.hour,
+        minute: parsed?.parts.minute ?? base.minute,
+        second: parsed?.parts.second ?? base.second,
+      })
+      setStep('date')
+    }
+    setOpen(value)
+  }
+  const popupCandidate = createMemo(() =>
+    candidate(
+      popupDate(),
+      formatTimeInput(
+        { date: popupDate(), ...clock(), millisecond: 0 },
+        props.timeFormat,
+        props.locale,
+      ),
+    ),
+  )
+  const popupValid = () => {
+    const value = popupCandidate()
+    return Boolean(value && inRange(value))
+  }
+  const boundDate = (side: 'min' | 'max') => {
+    const value = bounds()[side],
+      timeZone = zone()
+    return value && timeZone ? dateTimeParts(value, timeZone).date : undefined
+  }
+  createEffect(
+    () => ({ open: open(), step: step(), root: stageRoot() }),
+    ({ open: isOpen, step: activeStep, root }) => {
+      if (!isOpen || !root) return
+      queueMicrotask(() => {
+        if (
+          !alive ||
+          !open() ||
+          locked() ||
+          !root.isConnected ||
+          step() !== activeStep
+        )
+          return
+        const active = root.ownerDocument.activeElement
+        if (
+          active !== root.ownerDocument.body &&
+          active !== trigger &&
+          active !== input &&
+          !popup?.contains(active)
+        )
+          return
+        root
+          .querySelector<HTMLElement>(
+            activeStep === 'date'
+              ? '[tabindex="0"]'
+              : '[role="slider"], [role="option"][tabindex="0"]',
+          )
+          ?.focus()
+      })
     },
-  })
+  )
+  function apply() {
+    const value = popupCandidate()
+    if (locked() || !value || !inRange(value)) return
+    const previous = popup?.ownerDocument.activeElement
+    const owned = Boolean(previous && popup?.contains(previous))
+    props.onValueChange(value)
+    setDraft(display())
+    const active = trigger?.ownerDocument.activeElement
+    if (
+      alive &&
+      trigger?.isConnected &&
+      !trigger.disabled &&
+      owned &&
+      (popup?.contains(active ?? null) ||
+        (active === trigger.ownerDocument.body && !previous?.isConnected))
+    )
+      trigger.focus({ preventScroll: true })
+    setOpen(false)
+  }
   return (
     <div
-      class="ui-datetime-picker"
-      data-ui-control-decoration={
-        props.decoration === false ? 'none' : props.decoration
-      }
+      class="ui-date-picker ui-datetime-picker"
       data-ui=""
       role="group"
       aria-label={props.label}
@@ -193,87 +331,166 @@ export function DateTimePicker(props: DateTimePickerProps) {
         events(node)
       }}
     >
-      <DatePicker
-        messages={props.messages}
-        id={id()}
-        label={props.label}
-        resetVersion={resetVersion()}
-        onDraftReset={restore}
-        onCalendarSelect={() =>
-          root
-            ?.querySelector<HTMLInputElement>('input')
-            ?.focus({ preventScroll: true })
-        }
-        onCalendarRef={(node) => {
-          calendar = node
-        }}
-        onPopupFocusOut={focusout}
-        value={date()}
-        dateFormat={props.dateFormat}
-        locale={props.locale}
-        startOfWeek={props.startOfWeek}
-        disabled={disabled() || !zone()}
-        readonly={readonly()}
-        required={required()}
-        invalid={invalid() || (props.invalid ?? field?.invalid())}
-        aria-describedby={
-          [props['aria-describedby'], invalid() ? errorId : undefined]
-            .filter(Boolean)
-            .join(' ') || undefined
-        }
-        onValidityChange={setDateValid}
-        onValueChange={(value) => {
-          if (disabled() || readonly() || !zone()) return
-          setDate(value)
-          if (!value) {
-            setTime('')
-            props.onValueChange(undefined)
-          } else request(value, time())
-        }}
-      />
-      <FieldContext value={null}>
-        <TimePickerControl
-          messages={props.messages}
-          label={props.timeLabel ?? messages.time}
-          labelHidden={Boolean(field)}
-          id={`${id()}-time`}
-          draftValue={time()}
-          onDraftChange={(value) => {
-            if (disabled() || readonly() || !zone()) return
-            setTime(value)
-            if (!value.trim() && !date()) props.onValueChange(undefined)
-            else request(date(), value)
-          }}
-          onValueChange={() => {}}
-          onDraftReset={restore}
-          resetVersion={resetVersion()}
-          externalValidation
-          draftInvalid={invalid()}
-          inputRef={(node) => {
-            timeInput = node
-          }}
-          onPopupRef={(node) => {
-            timePopup = node
-          }}
-          onPopupFocusOut={focusout}
-          timeFormat={props.timeFormat}
-          locale={props.locale}
-          decoration={props.decoration}
-          disabled={disabled() || !zone()}
-          readonly={readonly()}
-          required={required()}
-          invalid={invalid() || (props.invalid ?? field?.invalid())}
-          aria-describedby={
-            [
-              field?.describedBy(),
-              props['aria-describedby'],
-              invalid() ? errorId : undefined,
-            ]
-              .filter(Boolean)
-              .join(' ') || undefined
-          }
-        />
-      </FieldContext>
+      <Show when={!field}>
+        <label for={id()} class="ui-label">
+          {props.label}
+        </label>
+      </Show>
+      <Popover open={open()} onOpenChange={changeOpen}>
+        <ControlSurface class="ui-input-affix" decoration={props.decoration}>
+          <Input
+            id={id()}
+            type="text"
+            value={draft()}
+            placeholder={`${datePattern()} ${timePattern()}`}
+            disabled={disabled() || !zone()}
+            readonly={readonly()}
+            required={props.required}
+            invalid={invalid() || (props.invalid ?? field?.invalid())}
+            data-ui-invalid-input={invalid() ? '' : undefined}
+            data-date-invalid={invalid() ? '' : undefined}
+            aria-describedby={
+              [props['aria-describedby'], invalid() ? errorId : undefined]
+                .filter(Boolean)
+                .join(' ') || undefined
+            }
+            ref={(node) => {
+              input = node
+            }}
+            onValueChange={change}
+            onBlur={restoreOutside}
+            onKeyDown={(event) => {
+              if (event.isComposing) return
+              if (event.key === 'ArrowDown' && event.altKey) {
+                event.preventDefault()
+                changeOpen(true)
+              }
+              if (event.key === 'Escape' && !open()) {
+                event.preventDefault()
+                event.stopPropagation()
+                setDraft(display())
+              }
+            }}
+          />
+          <Popover.Trigger
+            type="button"
+            class="ui-date-trigger"
+            disabled={locked()}
+            aria-label={messages.openDateTimePicker(props.label)}
+            ref={(node) => {
+              trigger = node
+            }}
+          >
+            <Icon name="calendar" />
+          </Popover.Trigger>
+          <Button
+            type="button"
+            class="ui-input-clear"
+            aria-label={messages.clearDate(props.label)}
+            disabled={locked() || (!draft() && !accepted())}
+            onClick={() => {
+              if (!locked()) {
+                input?.focus({ preventScroll: true })
+                change('')
+              }
+            }}
+          >
+            <Icon name="cross" />
+          </Button>
+        </ControlSurface>
+        <Popover.Portal>
+          <Popover.Content
+            class="ui-date-popup ui-datetime-popup"
+            ref={(node) => {
+              popup = node
+            }}
+            onFocusOut={restoreOutside}
+            onOpenAutoFocus={(event) => event.preventDefault()}
+          >
+            <Popover.Title class="sr-only">
+              {messages.dateTimePickerTitle(props.label)}
+            </Popover.Title>
+            <FieldContext value={null}>
+              <Show when={!columns() && step() === 'time'}>
+                <div>
+                  <Button
+                    type="button"
+                    class="ui-icon-button"
+                    aria-label={messages.backToDate}
+                    onClick={() => setStep('date')}
+                  >
+                    <Icon name="chevron-left" />
+                  </Button>
+                </div>
+              </Show>
+              <div
+                class="ui-datetime-stages"
+                data-time-view={props.timeView ?? 'columns'}
+              >
+                <Show when={columns() || step() === 'date'}>
+                  <Calendar
+                    messages={props.messages}
+                    value={popupDate()}
+                    initialMonth={popupDate()}
+                    min={boundDate('min')}
+                    max={boundDate('max')}
+                    disabled={locked()}
+                    locale={props.locale}
+                    startOfWeek={props.startOfWeek}
+                    ref={setCalendarRoot}
+                    onValueChange={(value) => {
+                      if (!locked()) {
+                        setPopupDate(value)
+                        if (!columns()) setStep('time')
+                      }
+                    }}
+                  />
+                </Show>
+                <Show when={showingTime()}>
+                  <TimeSelection
+                    value={clock()}
+                    onValueChange={(value) => {
+                      if (!locked()) setClock(value)
+                    }}
+                    timeView={props.timeView}
+                    timeFormat={props.timeFormat}
+                    locale={props.locale}
+                    messages={props.messages}
+                    label={props.timeLabel ?? messages.time}
+                    disabled={locked()}
+                    ref={setClockRoot}
+                  />
+                </Show>
+              </div>
+              <span class="ui-help ui-datetime-zone">
+                {zone() ?? messages.pendingTimezone}
+              </span>
+              <span
+                id={popupErrorId}
+                class="ui-field-error"
+                hidden={!showingTime() || popupValid()}
+              >
+                {messages.invalidDateTime}
+              </span>
+              <div class="ui-form-actions">
+                <Button type="button" onClick={() => setOpen(false)}>
+                  {messages.cancelDateTime}
+                </Button>
+                <Show when={showingTime()}>
+                  <Button
+                    type="button"
+                    disabled={locked() || !popupValid()}
+                    aria-describedby={!popupValid() ? popupErrorId : undefined}
+                    onClick={apply}
+                  >
+                    {messages.applyDateTime}
+                  </Button>
+                </Show>
+              </div>
+            </FieldContext>
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover>
       <span class="ui-help ui-datetime-zone">
         {zone() ?? messages.pendingTimezone}
       </span>

@@ -13,7 +13,10 @@ export function HydrationApp(props: {
 }) {
   const [messages, setMessages] = createSignal<
     Partial<DateTimePickerMessages> | undefined
-  >({ openCalendar: (label) => `Abrir ${label}`, nextMonth: 'Mes siguiente' })
+  >({
+    openDateTimePicker: (label) => `Abrir ${label}`,
+    nextMonth: 'Mes siguiente',
+  })
   const [value, setValue] = createSignal('2024-02-29T02:15:16.123Z')
   let requests = 0
   props.ready?.(() => untrack(() => ({ value: value(), requests })))

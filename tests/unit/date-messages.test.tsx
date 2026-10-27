@@ -59,7 +59,7 @@ test('date message changes retain invalid drafts and focus without publishing va
   expect(validity).toHaveBeenLastCalledWith(true)
 })
 
-test('datetime messages update native errors while explicit time labels and instant semantics remain intact', () => {
+test('datetime messages update native errors while combined input and instant semantics remain intact', () => {
   const [messages, setMessages] =
     createSignal<Partial<DateTimePickerMessages>>()
   const changed = vi.fn(),
@@ -75,19 +75,19 @@ test('datetime messages update native errors while explicit time labels and inst
       onValidityChange={validity}
     />
   ))
-  const time = h.getByLabelText<HTMLInputElement>('Explicit time')
-  fireEvent.input(time, { target: { value: '25:00' } })
+  const time = h.getByRole<HTMLInputElement>('textbox', { name: 'Appointment' })
+  fireEvent.input(time, { target: { value: '2024-02-29 25:00' } })
   flush()
   time.focus()
   const calls = validity.mock.calls.length
   setMessages({
     invalidDateTime: 'Hora inválida',
     time: 'Hora',
-    openCalendar: () => 'Abrir calendario',
+    openDateTimePicker: () => 'Abrir calendario',
   })
   flush()
-  expect(h.getByLabelText('Explicit time')).toBe(time)
-  expect(time.value).toBe('25:00')
+  expect(h.getByRole('textbox', { name: 'Appointment' })).toBe(time)
+  expect(time.value).toBe('2024-02-29 25:00')
   expect(document.activeElement).toBe(time)
   expect(time.validationMessage).toBe('Hora inválida')
   expect(h.getByRole('button', { name: 'Abrir calendario' })).toBeTruthy()
@@ -101,7 +101,7 @@ test('datetime messages update native errors while explicit time labels and inst
   expect(changed).not.toHaveBeenCalled()
   fireEvent.keyDown(time, { key: 'Escape' })
   flush()
-  expect(time.value).toBe('14:15')
+  expect(time.value).toBe('2024-02-29 14:15')
   expect(validity).toHaveBeenLastCalledWith(true)
 })
 

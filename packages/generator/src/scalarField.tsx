@@ -256,6 +256,7 @@ export function ScalarField(
               label={label()}
               value={String(props.adapter.value()) || undefined}
               timeFormat={timeDescription().timeFormat}
+              timeView={timeDescription().timeView}
               locale={timeDescription().locale}
               min={timeDescription().min}
               max={timeDescription().max}
@@ -268,6 +269,7 @@ export function ScalarField(
               value={String(props.adapter.value()) || undefined}
               dateFormat={datetimeDescription().dateFormat}
               timeFormat={datetimeDescription().timeFormat}
+              timeView={datetimeDescription().timeView}
               locale={datetimeDescription().locale}
               timeZone={datetimeDescription().timeZone}
               disambiguation={datetimeDescription().disambiguation}

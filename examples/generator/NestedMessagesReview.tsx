@@ -15,7 +15,7 @@ export function nestedMessages(french: boolean): GeneratorControlMessages {
       clearDate: () => 'Child clear label',
     },
     dateTimePicker: {
-      openCalendar: (label) => `${french ? 'Ouvrir' : 'Abrir'} ${label}`,
+      openDateTimePicker: (label) => `${french ? 'Ouvrir' : 'Abrir'} ${label}`,
       time: french ? 'Heure' : 'Hora',
       invalidDateTime: french ? 'Instant invalide' : 'Instante inválido',
     },

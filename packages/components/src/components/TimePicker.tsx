@@ -23,7 +23,7 @@ import {
 import { Button, Input } from './NativeFields'
 import { Icon } from './Icon'
 import { Popover } from './Popover'
-import { Select } from './Select'
+import { TimeSelection } from './TimeSelection'
 import {
   resolveTimePickerMessages,
   timePickerMessages,
@@ -38,6 +38,7 @@ export type TimePickerProps = ControlDecorationProps & {
   value?: string
   onValueChange: (value: string | undefined) => void
   onValidityChange?: (valid: boolean) => void
+  timeView?: 'columns' | 'clock'
   timeFormat?: TimeInputFormat
   locale?: string
   min?: string
@@ -51,9 +52,6 @@ export type TimePickerProps = ControlDecorationProps & {
 }
 
 const pad = (value: number) => String(value).padStart(2, '0')
-const minutes = Array.from({ length: 60 }, (_, value) => pad(value))
-const hours24 = Array.from({ length: 24 }, (_, value) => pad(value))
-const hours12 = Array.from({ length: 12 }, (_, value) => pad(value + 1))
 type Clock = { hour: number; minute: number; second?: number }
 function canonicalParts(value: string | undefined): Clock | undefined {
   if (value === undefined) return undefined
@@ -81,24 +79,6 @@ function format(value: Clock, pattern: TimeInputFormat, locale?: string) {
 }
 
 export function TimePicker(props: TimePickerProps) {
-  return <TimePickerControl {...props} />
-}
-
-/** Internal composition delegates drafts and validation to the datetime owner. */
-export function TimePickerControl(
-  props: TimePickerProps & {
-    draftValue?: string
-    onDraftChange?: (value: string) => void
-    inputRef?: (node: HTMLInputElement) => void
-    resetVersion?: number
-    onDraftReset?: () => void
-    onPopupRef?: (node: HTMLDivElement) => void
-    onPopupFocusOut?: (event: FocusEvent) => void
-    labelHidden?: boolean
-    externalValidation?: boolean
-    draftInvalid?: boolean
-  },
-) {
   const messages = resolveTimePickerMessages(() => props.messages)
   const field = useContext(FieldContext)
   const generated = createUniqueId()
@@ -107,7 +87,6 @@ export function TimePickerControl(
   const disabled = () => props.disabled ?? field?.disabled()
   const readonly = () => props.readonly ?? field?.readonly()
   const pattern = () => timeInputPattern(props.timeFormat)
-  const twelve = () => pattern().startsWith('hh')
   const accepted = createMemo(() => canonicalParts(props.value))
   const bounds = createMemo(() => ({
     min: canonicalParts(props.min),
@@ -118,18 +97,16 @@ export function TimePickerControl(
     return value ? format(value, pattern(), props.locale) : ''
   }
   const [localDraft, setLocalDraft] = createSignal(untrack(display))
-  const draft = () => props.draftValue ?? localDraft()
-  const externalDraft = () => props.draftValue !== undefined
+  const draft = localDraft
   const presentation = createMemo(
-    () =>
-      [display(), props.timeFormat, props.locale, props.resetVersion] as const,
+    () => [display(), props.timeFormat, props.locale] as const,
     {
       equals: (left, right) =>
         left.every((value, index) => value === right[index]),
     },
   )
   createEffect(presentation, ([value]) => {
-    if (!externalDraft()) setLocalDraft(value)
+    setLocalDraft(value)
   })
   function withPrecision(value: Clock): Clock {
     return { ...value, second: value.second ?? accepted()?.second }
@@ -146,7 +123,7 @@ export function TimePickerControl(
     const parsed = parseTimeInput(draft(), pattern(), props.locale)
     return !parsed || !inRange(withPrecision(parsed))
   })
-  const localInvalid = () => !props.externalValidation && invalid()
+  const localInvalid = invalid
   const error = () => messages.invalidTime(pattern())
   let input: HTMLInputElement | undefined
   let trigger: HTMLButtonElement | undefined
@@ -157,13 +134,12 @@ export function TimePickerControl(
   })
   createEffect(
     () => ({
-      external: props.externalValidation,
       message: localInvalid()
         ? error() || timePickerMessages.invalidTime(pattern())
         : '',
     }),
-    ({ external, message }) => {
-      if (!external) input?.setCustomValidity(message)
+    ({ message }) => {
+      input?.setCustomValidity(message)
     },
   )
   const valid = createMemo(() =>
@@ -184,8 +160,7 @@ export function TimePickerControl(
   )
   function change(value: string) {
     if (disabled() || readonly()) return
-    if (!externalDraft()) setLocalDraft(value)
-    props.onDraftChange?.(value)
+    setLocalDraft(value)
     if (!value.trim()) {
       props.onValueChange(undefined)
       return
@@ -215,16 +190,12 @@ export function TimePickerControl(
     minute: minute(),
     second: pattern().includes(':ss') ? second() : accepted()?.second,
   })
-  const periodLabels = () =>
-    [0, 12].map((hour) =>
-      format({ hour, minute: 0 }, 'hh:mm a', props.locale).slice(6),
-    )
   function apply() {
     if (disabled() || readonly() || !inRange(selected())) return
     const previousFocus = popup?.ownerDocument.activeElement
     const owned = Boolean(previousFocus && popup?.contains(previousFocus))
     change(format(selected(), pattern(), props.locale))
-    if (!externalDraft()) setLocalDraft(display())
+    setLocalDraft(display())
     const active = trigger?.ownerDocument.activeElement
     if (
       alive &&
@@ -240,7 +211,7 @@ export function TimePickerControl(
   return (
     <div class="ui-date-picker ui-time-picker" data-ui="">
       <Show when={!field}>
-        <label for={id()} class={props.labelHidden ? 'sr-only' : 'ui-label'}>
+        <label for={id()} class="ui-label">
           {props.label}
         </label>
       </Show>
@@ -255,12 +226,8 @@ export function TimePickerControl(
             readonly={readonly()}
             required={props.required ?? field?.required()}
             invalid={localInvalid() || (props.invalid ?? field?.invalid())}
-            data-ui-invalid-input={
-              localInvalid() || props.draftInvalid ? '' : undefined
-            }
-            data-date-invalid={
-              localInvalid() || props.draftInvalid ? '' : undefined
-            }
+            data-ui-invalid-input={localInvalid() ? '' : undefined}
+            data-date-invalid={localInvalid() ? '' : undefined}
             aria-describedby={
               [props['aria-describedby'], localInvalid() ? errorId : undefined]
                 .filter(Boolean)
@@ -268,11 +235,10 @@ export function TimePickerControl(
             }
             ref={(node) => {
               input = node
-              props.inputRef?.(node)
             }}
             onValueChange={change}
             onBlur={() => {
-              if (!externalDraft() && !invalid()) setLocalDraft(display())
+              if (!invalid()) setLocalDraft(display())
             }}
             onKeyDown={(event) => {
               if (event.isComposing) return
@@ -288,8 +254,7 @@ export function TimePickerControl(
               if (event.key === 'Escape' && !open()) {
                 event.preventDefault()
                 event.stopPropagation()
-                props.onDraftReset?.()
-                if (!externalDraft()) setLocalDraft(display())
+                setLocalDraft(display())
               }
             }}
           />
@@ -323,15 +288,15 @@ export function TimePickerControl(
             class="ui-date-popup ui-time-popup"
             ref={(node) => {
               popup = node
-              props.onPopupRef?.(node)
             }}
-            onFocusOut={(event) => props.onPopupFocusOut?.(event)}
             onOpenAutoFocus={(event) => {
               event.preventDefault()
               queueMicrotask(() => {
                 if (alive && open() && !disabled() && !readonly())
                   popup
-                    ?.querySelector<HTMLButtonElement>('[data-time-hour]')
+                    ?.querySelector<HTMLElement>(
+                      '[role=slider], [role=option][tabindex="0"]',
+                    )
                     ?.focus()
               })
             }}
@@ -340,47 +305,21 @@ export function TimePickerControl(
               {messages.timePickerTitle(props.label)}
             </Popover.Title>
             <FieldContext value={null}>
-              <div class="ui-time-choices">
-                <TimeChoice
-                  label={messages.hour}
-                  options={twelve() ? hours12 : hours24}
-                  value={pad(twelve() ? hour() % 12 || 12 : hour())}
-                  hour
-                  onChange={(value) =>
-                    setHour(
-                      twelve()
-                        ? (Number(value) % 12) + (hour() >= 12 ? 12 : 0)
-                        : Number(value),
-                    )
-                  }
-                />
-                <TimeChoice
-                  label={messages.minute}
-                  options={minutes}
-                  value={pad(minute())}
-                  onChange={(value) => setMinute(Number(value))}
-                />
-                <Show when={pattern().includes(':ss')}>
-                  <TimeChoice
-                    label={messages.second}
-                    options={minutes}
-                    value={pad(second())}
-                    onChange={(value) => setSecond(Number(value))}
-                  />
-                </Show>
-                <Show when={twelve()}>
-                  <TimeChoice
-                    label={messages.period}
-                    options={periodLabels()}
-                    value={periodLabels()[hour() < 12 ? 0 : 1]!}
-                    onChange={(value) =>
-                      setHour(
-                        (hour() % 12) + (value === periodLabels()[1] ? 12 : 0),
-                      )
-                    }
-                  />
-                </Show>
-              </div>
+              <TimeSelection
+                value={{ hour: hour(), minute: minute(), second: second() }}
+                timeView={props.timeView}
+                timeFormat={props.timeFormat}
+                locale={props.locale}
+                messages={props.messages}
+                disabled={disabled()}
+                readonly={readonly()}
+                label={props.label}
+                onValueChange={(value) => {
+                  setHour(value.hour)
+                  setMinute(value.minute)
+                  setSecond(value.second)
+                }}
+              />
               <Button
                 type="button"
                 disabled={disabled() || readonly() || !inRange(selected())}
@@ -404,42 +343,5 @@ export function TimePickerControl(
         {error()}
       </span>
     </div>
-  )
-}
-
-/** Shared choice portals preserve positioning and nested popup ownership. */
-function TimeChoice(props: {
-  label: string
-  options: string[]
-  value: string
-  hour?: boolean
-  onChange: (value: string) => void
-}) {
-  return (
-    <Select
-      options={props.options}
-      value={props.value}
-      onValueChange={(value) => {
-        if (typeof value === 'string') props.onChange(value)
-      }}
-      itemComponent={(item) => (
-        <Select.Item item={item.item}>
-          <Select.ItemLabel>{item.item.rawValue}</Select.ItemLabel>
-          <Select.ItemIndicator>
-            <Icon name="check" />
-          </Select.ItemIndicator>
-        </Select.Item>
-      )}
-    >
-      <Select.Label>{props.label}</Select.Label>
-      <Select.Trigger data-time-hour={props.hour ? '' : undefined}>
-        <Select.Value<string>>{(state) => state.selectedOption()}</Select.Value>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Content>
-          <Select.Listbox />
-        </Select.Content>
-      </Select.Portal>
-    </Select>
   )
 }

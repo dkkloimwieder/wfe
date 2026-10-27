@@ -262,6 +262,26 @@
     text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
   }
   @media (forced-colors: none) {
+    :scope .ui-calendar td button {
+      --ui-laser-control-glow: none;
+      --ui-control-border: transparent;
+      --ui-button-border: transparent;
+      --ui-highlight: transparent;
+      border-color: transparent;
+      background: transparent;
+    }
+    :scope
+      .ui-calendar
+      td
+      button:is(:hover, :focus-visible, [data-selected]):not(:disabled) {
+      border-color: transparent;
+      outline: none;
+      box-shadow: none;
+      background: transparent;
+      color: var(--ui-accent);
+      text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
+    }
+
     /* Navigation entries share menu text feedback, including button entries. */
     :scope
       :is(

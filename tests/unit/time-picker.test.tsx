@@ -1,12 +1,13 @@
 import { afterEach, expect, test, vi } from 'vitest'
-import { cleanup, fireEvent, render, waitFor } from '@solidjs/testing-library'
-import { createSignal, flush } from 'solid-js'
 import {
-  DateTimePicker,
-  TimePicker,
-  type TimePickerMessages,
-} from '@wfe/components'
-import { TimePickerControl } from '../../packages/components/src/components/TimePicker'
+  cleanup,
+  fireEvent,
+  render,
+  waitFor,
+  within,
+} from '@solidjs/testing-library'
+import { createSignal, flush } from 'solid-js'
+import { TimePicker, type TimePickerMessages } from '@wfe/components'
 
 afterEach(cleanup)
 
@@ -15,13 +16,10 @@ async function choose(
   label: RegExp,
   value: string,
 ) {
-  const trigger = await h.findByRole('button', { name: label })
-  trigger.focus()
-  fireEvent.keyDown(trigger, { key: 'ArrowDown' })
-  flush()
-  const option = await h.findByRole('option', { name: value })
+  const list = await h.findByRole('listbox', { name: label })
+  const option = within(list).getByRole('option', { name: value })
   option.focus()
-  fireEvent.keyDown(option, { key: 'Enter' })
+  fireEvent.click(option)
   flush()
 }
 
@@ -141,7 +139,7 @@ test('time popup uses shared choices, waits for apply, preserves focus and accep
   const trigger = h.getByRole('button', { name: 'Open Start time picker' })
   fireEvent.click(trigger)
   flush()
-  await choose(h, /^Minute /, '30')
+  await choose(h, /^Minute$/, '30')
   expect(changed).not.toHaveBeenCalled()
   const apply = h.getByRole('button', { name: 'Apply time' })
   apply.focus()
@@ -169,45 +167,12 @@ test('time popup supports seconds and localized period selection without changin
   const input = h.getByLabelText<HTMLInputElement>('Time')
   fireEvent.keyDown(input, { key: 'ArrowDown', altKey: true })
   flush()
-  await choose(h, /^AM\/PM /, 'AM')
-  await choose(h, /^Second /, '20')
+  await choose(h, /^AM\/PM$/, 'AM')
+  await choose(h, /^Second$/, '20')
   fireEvent.click(h.getByRole('button', { name: 'Apply time' }))
   flush()
   expect(changed).toHaveBeenLastCalledWith('00:15:20')
   expect(input.value).toBe('12:15:10 PM')
-})
-
-test('composed time delegates partial drafts and native errors to its owner', () => {
-  const [draft, setDraft] = createSignal('')
-  const reset = vi.fn(),
-    changed = vi.fn()
-  const h = render(() => (
-    <TimePickerControl
-      label="Time"
-      value="12:00"
-      draftValue={draft()}
-      onDraftChange={setDraft}
-      onValueChange={changed}
-      onDraftReset={reset}
-      externalValidation
-      draftInvalid
-      inputRef={(node) => node.setCustomValidity('Parent datetime error')}
-      invalid
-    />
-  ))
-  const input = h.getByLabelText<HTMLInputElement>('Time')
-  fireEvent.input(input, { target: { value: '1:' } })
-  flush()
-  fireEvent.blur(input)
-  flush()
-  expect(input.value).toBe('1:')
-  expect(input.validationMessage).toBe('Parent datetime error')
-  expect(input.hasAttribute('data-ui-invalid-input')).toBe(true)
-  expect(changed).not.toHaveBeenCalled()
-  fireEvent.keyDown(input, { key: 'Escape' })
-  flush()
-  expect(reset).toHaveBeenCalledOnce()
-  expect(input.value).toBe('1:')
 })
 
 test('readonly and disabled time controls reject synthetic edits and do not open', () => {
@@ -231,49 +196,27 @@ test('readonly and disabled time controls reject synthetic edits and do not open
   }
 })
 
-test('datetime popup retains rejected DST gaps and preserves accepted hidden precision', async () => {
-  const [value, setValue] = createSignal<string | undefined>(
-    '2024-03-10T06:30:45.123Z',
-  )
+test('standalone clock stages exact minute changes until Apply', async () => {
+  const [value, setValue] = createSignal<string | undefined>('09:15:42')
   const changed = vi.fn((next: string | undefined) => setValue(next))
-  const validity = vi.fn()
   const h = render(() => (
-    <DateTimePicker
-      label="Appointment"
-      timeLabel="Time"
-      name="appointment"
-      timeZone="America/New_York"
+    <TimePicker
+      label="Start"
       value={value()}
+      timeView="clock"
       onValueChange={changed}
-      onValidityChange={validity}
     />
   ))
-  const input = h.getByLabelText<HTMLInputElement>('Time')
-  const trigger = h.getByRole('button', { name: 'Open Time time picker' })
-  expect(input.value).toBe('01:30')
-  fireEvent.click(trigger)
+  fireEvent.click(h.getByRole('button', { name: 'Open Start time picker' }))
   flush()
-  await choose(h, /^Hour /, '02')
-  const apply = h.getByRole('button', { name: 'Apply time' })
-  apply.focus()
-  fireEvent.click(apply)
+  fireEvent.focus(await h.findByRole('textbox', { name: 'Minute' }))
   flush()
-  expect(input.value).toBe('02:30')
-  expect(input.validity.customError).toBe(true)
-  expect(validity).toHaveBeenLastCalledWith(false)
+  fireEvent.input(h.getByRole('textbox', { name: 'Minute' }), {
+    target: { value: '37' },
+  })
+  flush()
   expect(changed).not.toHaveBeenCalled()
-  expect(
-    h.container.querySelector<HTMLInputElement>('input[name="appointment"]')!
-      .value,
-  ).toBe('2024-03-10T06:30:45.123Z')
-  fireEvent.click(trigger)
-  flush()
-  await choose(h, /^Hour /, '03')
   fireEvent.click(h.getByRole('button', { name: 'Apply time' }))
   flush()
-  expect(changed).toHaveBeenLastCalledWith('2024-03-10T07:30:45.123Z')
-  expect(value()).toBe('2024-03-10T07:30:45.123Z')
-  expect(input.value).toBe('03:30')
-  expect(input.validity.customError).toBe(false)
-  expect(validity).toHaveBeenLastCalledWith(true)
+  expect(value()).toBe('09:37:42')
 })

@@ -63,4 +63,65 @@ export async function dateMessageCases({ page, test }) {
       0,
     )
   })
+  await test('Datetime messages retain the combined draft and focused calendar day', async () => {
+    const input = page.getByRole('textbox', {
+      name: 'Appointment',
+      exact: true,
+    })
+    await input.fill('29/02/2024 25:00')
+    await input.focus()
+    const original = await input.elementHandle()
+    await page.evaluate(() =>
+      window.datePickerFixture.setDateTime({
+        messages: {
+          invalidDateTime: 'Instante inválido',
+          openDateTimePicker: (label) => `Abrir ${label}`,
+          nextMonth: 'Mes siguiente',
+        },
+      }),
+    )
+    await expect(input).toHaveValue('29/02/2024 25:00')
+    await expect(input).toBeFocused()
+    assert.equal(
+      await input.evaluate((node) => node.validationMessage),
+      'Instante inválido',
+    )
+    assert.equal(
+      (await page.evaluate(() => window.datePickerFixture.snapshot()))
+        .datetimeChanges,
+      0,
+    )
+    await input.press('Escape')
+    await expect(input).toHaveValue('29/02/2024 14:15')
+    await page
+      .getByRole('button', { name: 'Abrir Appointment', exact: true })
+      .click()
+    const selected = page.locator('[data-date="2024-02-29"]')
+    await expect(selected).toBeFocused()
+    const dateLabel = await selected.getAttribute('aria-label')
+    await page.evaluate(() =>
+      window.datePickerFixture.setDateTime({
+        messages: { nextMonth: 'Suivant' },
+      }),
+    )
+    await expect(selected).toBeFocused()
+    assert.equal(await selected.getAttribute('aria-label'), dateLabel)
+    await expect(
+      page.getByRole('button', { name: 'Suivant', exact: true }),
+    ).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(
+      page.getByRole('button', {
+        name: 'Open Appointment date and time picker',
+        exact: true,
+      }),
+    ).toBeFocused()
+    assert.equal(await original.evaluate((node) => node.isConnected), true)
+    await original.dispose()
+    assert.equal(
+      (await page.evaluate(() => window.datePickerFixture.snapshot()))
+        .datetimeChanges,
+      0,
+    )
+  })
 }

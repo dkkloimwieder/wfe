@@ -15,7 +15,7 @@ export async function reviewDateServer(page) {
   ).toHaveValue('29/02/2024')
   await expect(
     page.getByRole('textbox', { name: 'System appointment', exact: true }),
-  ).toHaveValue('29/02/2024')
+  ).toHaveValue('29/02/2024 14:15')
   await expect(page.locator('[data-date-display="detail-date"]')).toHaveText(
     '29/02/2024',
   )
@@ -36,7 +36,7 @@ export async function reviewDateServer(page) {
     local.getByRole('textbox', { name: 'Local appointment', exact: true }),
   ).toBeDisabled()
   await expect(
-    local.getByRole('textbox', { name: 'Time', exact: true }),
+    local.getByRole('textbox', { name: 'Local appointment', exact: true }),
   ).toHaveValue('')
 }
 export async function reviewDates({ page, record }) {
@@ -50,7 +50,6 @@ export async function reviewDates({ page, record }) {
     name: 'System appointment',
     exact: true,
   })
-  const time = system.getByRole('textbox', { name: 'Time', exact: true })
   const submit = page.getByRole('button', { name: 'Apply', exact: true })
   const snapshot = () => page.evaluate(() => window.generatorFixture.snapshot())
   const configure = (next) =>
@@ -149,9 +148,9 @@ export async function reviewDates({ page, record }) {
         locale: 'en-US',
       })
       await expect(date).toHaveValue('02/29/2024')
-      await expect(time).toHaveValue('09:15:16 AM')
+      await expect(systemDate).toHaveValue('02/29/2024 09:15:16 AM')
       assert.equal((await snapshot()).requests, 0)
-      await time.fill('10:20:30 AM')
+      await systemDate.fill('02/29/2024 10:20:30 AM')
       assert.equal(
         (await snapshot()).values.systemTime,
         '2024-02-29T15:20:30.123Z',
@@ -161,7 +160,7 @@ export async function reviewDates({ page, record }) {
         timeZone: 'UTC',
         timeFormat: 'HH:mm',
       })
-      await expect(time).toHaveValue('15:20')
+      await expect(systemDate).toHaveValue('29/02/2024 15:20')
     },
   )
   await record(
@@ -183,11 +182,11 @@ export async function reviewDates({ page, record }) {
     'An invalid datetime draft blocks submission until recovery',
     async () => {
       const before = (await snapshot()).validations
-      await time.fill('25:00')
+      await systemDate.fill('29/02/2024 25:00')
       await submit.click()
-      await expect(time).toBeFocused()
+      await expect(systemDate).toBeFocused()
       assert.equal((await snapshot()).validations, before)
-      await time.press('Escape')
+      await systemDate.press('Escape')
       await submit.click()
       await phase('success')
       assert.equal((await snapshot()).validations, before + 1)
@@ -231,7 +230,7 @@ export async function reviewDates({ page, record }) {
       const accepted = (await snapshot()).values.reviewDate
       await configure({ reject: true })
       await date.fill('01/03/2024')
-      await time.focus()
+      await systemDate.focus()
       await expect(date).toHaveValue('29/02/2024')
       assert.equal((await snapshot()).values.reviewDate, accepted)
       await configure({ reject: false })
@@ -243,8 +242,7 @@ export async function reviewDates({ page, record }) {
         }),
       )
       await expect(date).toHaveValue('15/01/2025')
-      await expect(systemDate).toHaveValue('15/01/2025')
-      await expect(time).toHaveValue('12:45')
+      await expect(systemDate).toHaveValue('15/01/2025 12:45')
     },
   )
   await record(
@@ -315,18 +313,18 @@ export async function reviewDates({ page, record }) {
     async () => {
       await page
         .getByRole('button', {
-          name: 'Open System appointment calendar',
+          name: 'Open System appointment date and time picker',
           exact: true,
         })
         .click()
       const before = (await snapshot()).requests
-      await time.evaluate((node) => {
+      await systemDate.evaluate((node) => {
         window.detachedDateTime = node
       })
       await page.evaluate(() => window.generatorFixture.stop())
       await page.evaluate(() => {
         const node = window.detachedDateTime
-        node.value = '15:20'
+        node.value = '15/01/2025 15:20'
         node.dispatchEvent(new Event('input', { bubbles: true }))
       })
       assert.equal((await snapshot()).requests, before)

@@ -177,9 +177,9 @@ export function Dates(props: RecipeProps) {
         readonly={props.state === 'readonly'}
         invalid={props.state === 'invalid'}
       >
-        <Label>Datetime</Label>
+        <Label>Datetime (time columns)</Label>
         <DateTimePicker
-          label="Datetime"
+          label="Datetime (time columns)"
           value={instant()}
           onValueChange={setInstant}
           timeZone="UTC"
@@ -187,6 +187,25 @@ export function Dates(props: RecipeProps) {
         />
         <HelpText>
           This example uses UTC. Applications choose the timezone.
+        </HelpText>
+        <FieldError>Review the datetime.</FieldError>
+      </Field>
+      <Field
+        disabled={props.state === 'disabled'}
+        readonly={props.state === 'readonly'}
+        invalid={props.state === 'invalid'}
+      >
+        <Label>Datetime (clock)</Label>
+        <DateTimePicker
+          label="Datetime (clock)"
+          value={instant()}
+          onValueChange={setInstant}
+          timeView="clock"
+          timeZone="UTC"
+          dateFormat="yyyy-MM-dd"
+        />
+        <HelpText>
+          Both examples share one value. Pick a date, then use the clock.
         </HelpText>
         <FieldError>Review the datetime.</FieldError>
       </Field>

@@ -1,18 +1,3 @@
-.ui-datetime-picker {
-  display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-  align-items: end;
-  gap: var(--ui-gap, 6px);
-  min-width: 0;
-}
-.ui-datetime-picker > :is(.ui-datetime-zone, .ui-field-error) {
-  grid-column: 1 / -1;
-}
-@media (max-width: 480px) {
-  .ui-datetime-picker {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 .ui-date-picker {
   display: grid;
   gap: var(--ui-gap, 6px);
@@ -98,12 +83,23 @@
   gap: var(--ui-gap, 6px);
   max-inline-size: calc(100vw - 2 * var(--ui-gap, 6px));
 }
-:where([data-ui]) .ui-time-choices {
-  display: flex;
-  flex-wrap: wrap;
+:where([data-ui]) .ui-datetime-popup {
+  display: grid;
   gap: var(--ui-gap, 6px);
+  max-inline-size: calc(100vw - 2 * var(--ui-gap, 6px));
 }
-:where([data-ui]) .ui-time-choices > * {
-  flex: 1 1 4rem;
+
+:where([data-ui]) .ui-datetime-stages {
+  display: flex;
+  align-items: start;
+  gap: var(--ui-gap, 6px);
   min-inline-size: 0;
+}
+:where([data-ui]) .ui-datetime-stages > * {
+  min-inline-size: 0;
+}
+@media (max-width: 600px) {
+  :where([data-ui]) .ui-datetime-stages[data-time-view='columns'] {
+    flex-direction: column;
+  }
 }
