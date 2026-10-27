@@ -9,7 +9,7 @@ The platform supplies the mechanism, and sync-bench tests it through take-offlin
 
 The platform scope includes:
 
-- A generated change feed through each eligible model's list route.
+- A change feed on each list read that a sync screen uses, generated or authored.
 - Browser collections and live queries, with a Solid 2 adapter in `@wfe/sync`.
 - A durable outbox, ordered replay, and refusal handling.
 - A cached shell and storage support for Chrome on PCs and tablets.
@@ -21,10 +21,11 @@ Native applications, automatic conflict merging, server-side incremental views, 
 
 | Term | Meaning |
 | --- | --- |
-| change feed | The list read's mode that returns changed rows and a continuation cursor. |
+| change feed | The list read's mode that returns changed result rows and a continuation cursor. |
+| root | The model whose id keys each result row of a feeding query. |
 | cursor | An opaque string that the client returns unchanged. |
 | snapshot | Rows and a feed cursor from a list statement. |
-| collection | Browser rows for one model and scope, keyed by id in `@tanstack/db`. |
+| collection | Browser result rows of one query and argument set, keyed by root key in `@tanstack/db`. |
 | live query | A query whose result updates when its input collections change. |
 | adapter | The `@wfe/sync` code that exposes collections as Solid stores. |
 | outbox | The durable local queue of operation calls awaiting upload or resolution. |
@@ -68,7 +69,7 @@ Screens that use sync read collections and record writes through the outbox.
 
 `@tanstack/db` stays as the collection and live-query engine.
 `liveRows` serves table screens, and `liveList` serves small sets.
-The measurement section supplies the evidence for this read-shape rule.
+The read-shape rule below governs the adapter.
 
 ## Ownership: `@wfe/sync` and wamn
 
@@ -81,19 +82,19 @@ The package receives `Feed`, `Send`, `Persistence`, and `probe` implementations 
 wamn supplies generated reads over GET and writes over POST.
 Reads use ETags and 304 responses.
 Writes carry a request hash for deduplication.
-Rows have client-generated ids and integer versions, read through the collection's version accessor.
+Rows have ids and integer versions, read through the collection's version accessor.
 The browser adapter targets Solid 2.
 
 ### `@wfe/sync` public surface
 
-The surface below comes from wfe commit `9248538bbed3a22f16d9b5b764037c22df71f19f`, pinned by main's `web/wfe` entry.
+The surface below comes from wfe commit `248556349cb29a1483b35d8022734c317b67368b`, pinned by the `web/wfe` entry.
 [`index.ts`](../../web/wfe/packages/sync/src/index.ts) exports the main entry.
 [`internal.ts`](../../web/wfe/packages/sync/src/internal.ts) exports `applyChanges`.
 [`worker.ts`](../../web/wfe/packages/sync/src/worker.ts) exports `precache` and `skipWaitingMessage`.
 
 [`package.json`](../../web/wfe/packages/sync/package.json), `exports`, declares these entry conditions:
 
-| Entry | `types` | `wfe-source` | `import` |
+| Entry | `types` | `wfe-source` | `default` |
 | --- | --- | --- | --- |
 | `.` | `./dist/index.d.ts` | `./src/index.ts` | `./dist/index.js` |
 | `./internal` | `./dist/internal.d.ts` | `./src/internal.ts` | `./dist/internal.js` |
@@ -191,10 +192,14 @@ export function syncStatus<T extends object>(
 export function syncComplete<T extends object>(
   c: KeyedCollection<T>,
 ): Accessor<boolean>
+export function syncCurrentAt<T extends object>(
+  c: KeyedCollection<T>,
+): Accessor<string | undefined>
 export function outboxStatus(o: Outbox): Accessor<OutboxCounts>
 export function recordWrite<T extends Row>(
   c: AnyCollection<T>,
   o: Outbox,
+  options?: { model?: string },
 ): {
   rows: Store<Record<string, T>>
   write: (
@@ -218,6 +223,7 @@ export interface Send {
   (entry: OutboxEntry, signal: AbortSignal): Promise<Reply>
 }
 export type OutboxEntry = OperationCall & {
+  expected: unknown
   seq: number
   recorded_at: string
   state: 'pending' | 'sending' | 'refused'
@@ -230,7 +236,7 @@ export type OutboxCounts = {
   lastSentAt: string | undefined
 }
 export interface Outbox {
-  enqueue(op: OperationCall): Promise<OutboxEntry>
+  enqueue(op: OperationCall, expected?: unknown): Promise<OutboxEntry>
   replay(): Promise<void>
   resubmit(seq: number): Promise<void>
   discard(seq: number): Promise<void>
@@ -290,6 +296,7 @@ export function precache(
   manifest: string[],
   options?: {
     buildId?: string
+    bypassPrefixes?: string[]
     apiPrefix?: string
     navigationFallback?: string
   },
@@ -309,17 +316,9 @@ export function precache(
 
 ### Package consumption
 
-The consumption target installs built wfe packages with `dist` types, `solid` and `default` conditions, and NodeNext resolution.
-Consumers must use neither `paths` nor a source condition, because those bypass the installed package surface.
-
-The pinned package exposes `types`, `wfe-source`, and `import`, so the wfe 5b packaging target remains outstanding.
+wamn installs the built wfe packages with NodeNext resolution, without `paths` for wfe packages or a source condition.
 [`pnpm-workspace.yaml`](../../pnpm-workspace.yaml), `packages`, includes the submodule packages.
 [`web/runtime/package.json`](../../web/runtime/package.json), `dependencies`, and [`web/sync-bench/package.json`](../../web/sync-bench/package.json), `dependencies`, use `workspace:*`.
-
-[`web/runtime/tsconfig.json`](../../web/runtime/tsconfig.json), `compilerOptions`, uses NodeNext but maps `@wfe/sync` to `src/outbox.ts` through `paths`.
-[`web/sync-bench/tsconfig.json`](../../web/sync-bench/tsconfig.json), `compilerOptions`, uses Bundler resolution, `wfe-source`, and source aliases.
-Its [`vite.config.ts`](../../web/sync-bench/vite.config.ts), `resolve.conditions`, also selects `wfe-source`.
-Removing these aliases and conditions remains the consumer step after the built exports exist.
 
 The root [`package.json`](../../package.json) owns the web workspace.
 
@@ -338,7 +337,7 @@ wamn supplies:
 
 | Section | Owner |
 | --- | --- |
-| Change feed (host) | wamn host and generator |
+| Query feed (host) | wamn host and generator |
 | Browser store and live queries | `@wfe/sync`, with wamn's `Feed`, version accessor, and scope key |
 | Solid 2 adapter | `@wfe/sync` |
 | Writes | `@wfe/sync` queue, with wamn's send mapping, ids, numbers, and refusal panel |
@@ -347,82 +346,177 @@ wamn supplies:
 | Release compatibility | Ordinary host validation and wamn's shell reload rule |
 | Generator and bindings | wamn |
 
-## Change feed (host)
+## Query feed (host)
 
-`changes` is a mode of the generated list read, not a separate operation.
-The optional `feed` part selects a `changes` result instead of a `page` result.
-The list keeps one permission row, because every operation is grantable and the access-control list is never written by derivation.
+A feed belongs to a query, not to a model.
+It returns the changed result rows of that query.
+Joins stay in PostgreSQL, and the browser never joins tables.
 
-[`manifest.rs`](../../crates/schema/generator/src/manifest.rs), `ModelDeclaration::feed_revision`, requires a generated list read, history, and a revision field.
-It skips models that lack those inputs and skips authored list SQL.
-Epic 5 adds the feed opt-out and build refusal.
+### Unit and root
+
+Every list read that a sync screen uses can carry a feed, whether the read is generated or authored.
+The feed returns rows of that query's result.
+The browser holds those result rows, and it never holds raw joined tables for a screen.
+
+Each feeding query names its root model.
+The root is the model whose id keys the result.
+The query returns one result row per root key, and the key of a result row is the root's id.
+A query that can return two rows for one root key, or a row without a root key, cannot carry a feed.
+
+For an authored read, the root is the model of its `lists` declaration.
+[`manifest.rs`](../../crates/schema/generator/src/manifest.rs), `ListDeclaration`, already names that model and the key field.
+The key field must be the root's id, and a feed needs one key field.
+An authored feeding read selects from one view, as [Read set and linking columns](#read-set-and-linking-columns) states.
+
+| Rule | Invariant | Test |
+| --- | --- | --- |
+| One unit | A feed belongs to one query and returns that query's result rows | Generated contract test for a generated read and an authored read |
+| One row per root | Each result row has a root key, and no two rows share one | Build refusal test for a query with a nullable or repeated key |
 
 ### Contract
 
-[`generate/wit.rs`](../../crates/schema/generator/src/generate/wit.rs), `emit_query_page`, emits `query-result` with `page` and `changes` variants.
-[`generate/component.rs`](../../crates/schema/generator/src/generate/component.rs), `handler`, selects the branch from `request.feed`.
+[The change feed](../architecture/execution.md#change-feed) owns the list contract, the `changes` variant, and the client helper.
+The query feed keeps that contract and changes three facts:
 
-```text
-list(list arguments, feed?: { cursor?: string, limit?: integer })
-  -> page { item, next_cursor, cursor }
-   | changes { rows: [{ id, row_version, data? }], next_cursor, complete }
-```
+- An authored read gets the same `page` and `changes` variants as a generated read.
+- `id` in a `changes` row is the root key of a result row.
+- The list keeps one permission row for both variants, as it does today.
 
-The generated client maps absent data to `deleted` and exposes a `changes` helper over the same list route.
-[`client_ts.rs`](../../crates/schema/generator/src/client_ts.rs), `write_changes`, owns that helper.
-Without a feed cursor, the read starts at the current snapshot xmin and returns no history rows.
-Clients obtain their first cursor from a list page.
+### changes(cursor)
+
+One `changes` call runs one statement, so every step reads one snapshot.
+The statement has three steps.
+
+1. It finds the affected root keys. For every table that the query reads, it takes the history entries in the cursor window. The window, paging, and visibility rules are the rules of the current feed in [`sql.rs`](../../crates/schema/generator/src/sql.rs), `changes`.
+2. It maps each entry to root keys. A root table entry maps through its `row_key`. A joined table entry maps through the view's linking column for that table. A deleted joined row, or an update that changes a foreign key, also maps through the foreign key in its history `before` image.
+3. It runs the query's own statement again, restricted to `root.id = any($affected)`. A returned key is an upsert. An affected key that the statement does not return is a deletion.
+
+A changed row of a joined table has its own history entry.
+So each entry maps through the current rows on its path and its own `before` image.
+A key that leaves the query's filters is not returned, so it is a deletion.
+
+The cursor, `next_cursor`, `complete`, and 304 rules stay as they are.
+Paging counts root keys, not history entries.
+Root keys page by `(transaction, key)`, where the transaction is the greatest one among the key's entries in the window.
+If the cursor transaction is at or below the pruning watermark of any history table that the query reads, `cursor_expired` applies.
+
+| Rule | Invariant | Test |
+| --- | --- | --- |
+| One snapshot | Key mapping and the restricted run read one snapshot | Host test with a write that commits between two feed calls |
+| Joined change | A change to any joined row returns its root key with the new result | Host test that updates, inserts, and deletes a joined row |
+| Moved join | An update that moves a joined row returns the old and the new root key | Host test that changes a line's purchase order |
+| Deletion | An affected key that the restricted run does not return is a deletion | Host test for a deleted root and a root that leaves the filters |
+| Expiry | Pruning of any table that the query reads expires an older cursor | Retention test on a joined table |
 
 ### Cursor and snapshot handoff
 
-[`feed.rs`](../../apps/platform/data/access/src/feed.rs), `encode` and `decode`, encode the model and transaction as unpadded base64url.
-A snapshot cursor carries xmin.
-A cut page replaces the transaction with its last row's transaction and adds that row's id.
-The browser never parses either form.
+[The change feed](../architecture/execution.md#change-feed) owns the opaque cursor and the snapshot handoff.
+The query feed changes three facts:
 
-[`sql.rs`](../../crates/schema/generator/src/sql.rs), `query` and `SNAPSHOT_XMIN`, read rows and `pg_snapshot_xmin(pg_current_snapshot())` in one statement.
-One statement supplies one snapshot, with no shared transaction.
-An outer row supplies the cursor even when the list page contains no rows.
+- The cursor names the query instead of the model.
+- A cut page adds its last row's root key.
+- An authored read's page gets the same outer row with the snapshot xmin.
 
-History `position` is an insert-time identity, so it cannot order commits and cannot serve as the feed cursor.
-[`record-history.sql`](../../deploy/sql/record-history.sql), `wamn_history.create_history_table`, defines that identity.
-A feed can repeat rows visible in the initial snapshot, because xmin also covers transactions whose commit order differs from their allocation order.
+| Rule | Invariant | Test |
+| --- | --- | --- |
+| Opaque cursor | The cursor round-trips unchanged and refuses another query | `feed::encode` and `feed::decode` tests |
 
-### Source and paging
+### Row version
 
-[`sql.rs`](../../crates/schema/generator/src/sql.rs), `changes`, reads history from the incoming transaction and collapses entries to one per id.
-It joins the current row and applies the list's filters.
-A missing row, or one outside the scope, returns a deletion.
-Rows follow transaction and id order.
+The `row_version` of a result row is the snapshot xmin of the statement that read it.
+A list page and a `changes` call both supply it, from the same `SNAPSHOT_XMIN` value that supplies the cursor.
 
-Rows below the statement's xmin page by `(transaction, id)`.
-When those rows end inside a page, visible rows at or above xmin fill the remaining space up to the limit.
-Such a page is complete and keeps its next cursor at xmin.
-Rows beyond that page wait until xmin advances.
+A later statement sees every commit that an earlier statement saw.
+The browser runs startup, pulls, and refills one at a time.
+So a row from a later read is never older than a held row, even with two equal xmin values.
+If the new version is equal or greater, the browser replaces the held row. It ignores a lower version.
 
-[`feed.rs`](../../apps/platform/data/access/src/feed.rs), `Changes::new`, cuts the extra row and chooses the continuation.
-An empty page returns the incoming cursor unchanged.
-Repeated rows are expected, and the browser ignores equal or lower versions on upsert.
+The two example rules fail:
 
-`cursor_expired` applies only under `P<n>D` retention, when the cursor predates the oldest retained entry.
-[`sql.rs`](../../crates/schema/generator/src/sql.rs), `changes`, emits that predicate only for bounded retention.
-[`generate/data.rs`](../../crates/schema/generator/src/generate/data.rs), `emit_feed`, turns it into the ordinary refusal.
+- The greatest transaction id among the participating rows does not grow with commit order. A transaction with a lower id can commit later, so a newer result can carry an equal or lower value.
+- A counter per result needs a stored counter for each root key and a write to it on every joined change. That is a server-side view, and it puts every joined write behind one root row lock.
+
+The outbox accepts a write as landed without a version comparison.
+A joined write, such as a receipt line, has no root revision that the browser can expect.
+A write lands after two events: its send succeeds, and a `changes` call that starts after the reply ends with `complete`.
+That call runs after the commit, so it returns every result row that the write changed.
+A revision column stays only as the write guard for operations that declare one.
+Bead `wamn-3phv6` plans this rule in `@wfe/sync`, and wamn does not edit that package.
+
+| Rule | Invariant | Test |
+| --- | --- | --- |
+| Version order | A row from a later read replaces a held row. A lower version never does | Collection batch test with equal and lower versions |
+| Confirmation | A write lands only after a successful send and a complete `changes` call that starts after the reply | `recordWrite` adapter test with a write to a joined row |
+
+### Read set and linking columns
+
+The host needs, for each feeding query, the tables that it reads and how each table links to the root.
+
+A generated list read reads one table, the model's table, with no join.
+[`sql.rs`](../../crates/schema/generator/src/sql.rs), `query`, writes `FROM <table> AS model` and nothing else.
+[`manifest.rs`](../../crates/schema/generator/src/manifest.rs), `ModelDeclaration::feed_revision`, has the model.
+Its read set is the root table, and it has no links.
+
+An authored feeding read selects from one authored view, with its own filters.
+A query that joins puts its join in that view.
+[Authored views](authored-views.md#feed-on-a-view) owns the view rules: the root, the linking columns, the shapes that can feed, and the build refusals.
+The view's base tables, from `pg_depend`, are the read set.
+Each linking column of the view links its table to the root.
+
+The host does not parse an authored statement's joins.
+An authored feeding read that names any relation other than one view refuses, naming the relation.
+
+The restricted run wraps an authored statement as `SELECT * FROM (<statement>) AS result WHERE result.<key> = any($n)`.
+The build refuses a feed on an authored statement that groups, uses window functions, or carries `LIMIT`, because the wrapper changes their result.
+[`sql_lex.rs`](../../crates/schema/generator/src/sql_lex.rs), `groups_or_windows`, already detects the first two.
+
+| Rule | Invariant | Test |
+| --- | --- | --- |
+| Read set | The feed reads history for exactly the base tables of the read's view, or the model's table | Generator test that compares the feed statement with the profile |
+| One view | An authored feeding read selects from one view and nothing else | Generator refusal test for an authored feed that joins |
+
+### Scoping
+
+A query feed covers exactly the query's own filters and arguments.
+The restricted run applies them, so a key outside them is a deletion.
+No client-side scope rules remain.
+A collection's scope is the query's argument set.
+
+| Rule | Invariant | Test |
+| --- | --- | --- |
+| Scope | Feed rows match the query's filters, and a row that leaves them is a deletion | Host test that changes a filtered column |
+
+### Prerequisites and build refusal
+
+A feeding query needs:
+
+- History on every table that it reads, with retention.
+- A unique root id in each result row.
+- A link to the root for every joined table, as [Authored views](authored-views.md#feed-on-a-view) states.
+
+The build refuses a feed on a query that reads a table without history, and names that table.
+A feed needs no revision column, because the row version is the statement's snapshot xmin.
+
+| Rule | Invariant | Test |
+| --- | --- | --- |
+| History | The build refuses a feed that reads a table without history, naming it | Generator refusal test |
 
 ### Delivery and authorization
 
 The package polls changes every `pollMs`, default 10000, and also responds to its trigger.
-wamn has no model-version `moved` read, because no per-model version table exists and unchanged changes cost a 304.
-The optional generic `Feed.moved` member remains part of the package surface.
+wamn has no query-version `moved` read, because unchanged changes cost a 304.
+The optional generic `Feed.moved` member stays part of the package surface.
 The bench's offline wrapper uses it only to suppress network reads while offline.
 
 [`http-route/src/entry.rs`](../../apps/platform/ingress/http-route/src/entry.rs), `changes_etag`, derives a weak ETag from the returned cursor and route release.
 [`http-route/src/lib.rs`](../../apps/platform/ingress/http-route/src/lib.rs), `feed_cache_control`, preserves the list's cache scope and adds `no-cache`.
 A matching ETag produces 304.
-The list route supplies authentication and authorization for both result variants.
+The read's route supplies authentication and authorization for both result variants.
 
 [`data_access.rs`](../../crates/schema/generator/src/data_access.rs), `FEED_HISTORY_COLUMNS`, limits feed SELECT grants to `transaction_id`, `row_key`, `type`, and `before`.
-`derive_data_access_overlay_for_manifest` emits those grants for eligible models.
+`derive_data_access_overlay_for_manifest` emits those grants for the history table of every table that a feeding query reads.
 [`record-history.sql`](../../deploy/sql/record-history.sql), `wamn_history.create_history_table`, adds an index on `transaction_id`.
+Each linking column needs an index on its base column, because the key mapping looks up root rows by it.
 
 [`packaging-feed.ts`](../../web/sync-bench/src/packaging-feed.ts), `packagingFeed`, reads every list page up to its cap.
 It keeps the first page's feed cursor, which covers changes between page reads.
@@ -430,14 +524,44 @@ It reports `complete: false` when the cap stops a fill with more pages available
 The default `RECORD_CAP` is 1000.
 The bench's take-offline path requests the full selected set and the whole location reference collection.
 
+| Rule | Invariant | Test |
+| --- | --- | --- |
+| Unchanged feed | Empty changes keep the cursor and support a matching weak ETag | Route 304 test |
+| Feed privileges | The feed reads only its four granted history columns of each table read, through an indexed transaction range | Application-role SQL execution |
+
+### Removed rules
+
+The query feed removes these rules:
+
+- The model-level `feed = true` and `feed = false`. A per-query `feed` setting replaces them.
+- The client-side join path. Screens no longer join collections in `@tanstack/db`.
+- Every rule that assumes one collection per model. A model can appear in many query results.
+
+### Cost and measurement
+
+These costs are an inference, not a measurement.
+With no changes, the statement does one indexed `transaction_id` range read per table read, finds nothing, and the route answers 304.
+With a few changed rows, it adds one indexed lookup per join hop and one restricted run over a few keys.
+With many changed rows, the page limit bounds each call to 100 root keys.
+So each call does at most one restricted run over 100 keys.
+If PostgreSQL pushes the key predicate into the statement, the restricted run costs about as much as the query for those keys.
+
+The first query to measure is `receiving.load_receipt_screen` over the view `receiving.receipt_screen_line`, the order lines with their order and item.
+[Authored views](authored-views.md#receipt-screen) defines that view.
+Collect these numbers:
+
+- `changes` latency with 0, 10, and 1,000 changed rows, on lines, on orders, and on items.
+- The plan (`EXPLAIN (ANALYZE, BUFFERS)`) of the restricted run, to show whether the key predicate reaches the joins.
+
+
 ## Browser store and live queries
 
 ### Collection
 
-A collection covers one model, generated shape digest, and canonical scope.
+A collection covers one query, generated shape digest, and canonical argument set.
 [`names.ts`](../../web/runtime/src/sync/names.ts), `collectionKey`, encodes those three values.
-[`packaging-feed.ts`](../../web/sync-bench/src/packaging-feed.ts), `canonicalJson` and `packagingKey`, make equal scopes share a key.
-Rows use `id` as their collection key.
+[`packaging-feed.ts`](../../web/sync-bench/src/packaging-feed.ts), `canonicalJson` and `packagingKey`, make equal argument sets share a key.
+Rows use the root key as their collection key.
 
 [`client_ts.rs`](../../crates/schema/generator/src/client_ts.rs), `shape_digest`, hashes generated row names, contract types, nested fields, and nullability in stable order.
 `emit_model` exports each model's `*_SHAPE_DIGEST`.
@@ -473,7 +597,8 @@ A failed save changes no status.
 
 ### Live queries
 
-Screens build queries through `from`, `where`, `join`, `groupBy`, aggregates, and `orderBy` in `@tanstack/db`.
+Screens build queries over one query feed collection through `from`, `where`, `groupBy`, aggregates, and `orderBy` in `@tanstack/db`.
+A screen never joins two collections, because PostgreSQL owns joins.
 The engine updates results from change batches.
 A query result is also a keyed collection, so both read adapters accept it.
 
@@ -481,14 +606,13 @@ Table screens use `liveRows`.
 Small sets use `liveList`.
 No custom aggregate can enforce decimal arithmetic inside `@tanstack/db`, because its aggregate surface does not accept custom aggregates.
 A live-query float sum is exact only for int32-range totals.
-The measurement section states the numeric conditions of its evidence.
 Applications keep exact decimal calculations outside that aggregate path.
 
 ### Memory
 
 Collections and live queries each retain their rows or results.
 The table cap bounds ordinary fills.
-The measurement covers 100,000 rows, but it does not establish a fixed maximum heap for every screen.
+Each screen needs a memory budget for its selected rows.
 The take-offline bench sizes its full selected set before saving it.
 
 ## Solid 2 adapter
@@ -502,7 +626,7 @@ Generated packages consume it, and `@wfe/components` does not import it.
 The adapter targets Solid `2.0.0-rc.18` or later.
 Stores come from `solid-js`, and the web runtime comes from `@solidjs/web`.
 The table also covers screen and test primitives around the adapter.
-Only `createStore`, `createProjection`, `createOptimisticStore`, `action`, `until`, `from`, `createMemo`, and `onCleanup` appear in its imports.
+It imports `createStore`, `createProjection`, `createOptimisticStore`, `action`, `until`, `from`, `createMemo`, `runWithOwner`, `onSettled`, and `onCleanup`.
 
 | Primitive | Signature | Use here |
 | --- | --- | --- |
@@ -572,12 +696,13 @@ The wait reads the authoritative collection, never the optimistic overlay.
 [`solid.ts`](../../web/wfe/packages/sync/src/solid.ts), `confirmed`, requires a successful send to remove the entry and the collection to hold its id.
 If `expected` supplies a version, the collection's version must be greater.
 The collection's accessor reads both versions.
-Refusal throws `OutboxRefused`, and discard throws `OutboxDiscarded`.
+A query feed confirms a write by the rule in [Row version](#row-version), not by this comparison.
+Refusal of a new write throws `OutboxRefused`, and discard throws `OutboxDiscarded`.
 Either rejection ends the action and reverts its guess.
+Restored refusals keep their tentative rows until discard or successful resubmission.
 
-The pinned package keeps `expected` in the action, while the durable entry stores only `expect: { model, id }`.
-Persisting the expected row with the entry remains a package gap.
-[`packaging-writes.ts`](../../web/sync-bench/src/packaging-writes.ts), `packagingWrites`, reconstructs pending creates from stored requests after reopen.
+[`outbox.ts`](../../web/wfe/packages/sync/src/outbox.ts), `OutboxEntry`, stores `expected`.
+[`solid.ts`](../../web/wfe/packages/sync/src/solid.ts), `recordWrite`, restores tentative rows from the outbox with `{ model }`, after the collection's first committed rows land.
 
 ### Pinned versions
 
@@ -670,15 +795,9 @@ They still undergo all ordinary host validation.
 
 ### Ids and numbers
 
-Every generated create requires a client id.
+See [generated operations](../architecture/data-access.md#generated-operations) for client UUIDs and database-generated integer keys.
+An integer-id model syncs reads, updates, and deletes. Its creates are online only.
 [`call.ts`](../../web/runtime/src/sync/call.ts), `createCall`, generates UUIDv7 through [`ids.ts`](../../web/runtime/src/sync/ids.ts), `uuidv7`.
-[`generate/contracts.rs`](../../crates/schema/generator/src/generate/contracts.rs), `input_contract`, requires the id.
-[`sql.rs`](../../crates/schema/generator/src/sql.rs), `create`, inserts the supplied id.
-
-The id never belongs to `server_owned_fields`.
-[`generate/validation.rs`](../../crates/schema/generator/src/generate/validation.rs), `validate_model`, refuses that declaration.
-A key field cannot be numbered.
-[`generate/numbering.rs`](../../crates/schema/generator/src/generate/numbering.rs), `validate_numbered_field`, enforces this rule.
 
 Numbers occupy separate host-assigned fields, because offline records need stable ids before the host assigns numbers.
 [`numbers.ts`](../../web/runtime/src/sync/numbers.ts), `pendingNumber`, renders `pending·<last 4 hex>` until the feed supplies the number.
@@ -703,8 +822,7 @@ Precached assets use the cache first.
 Other navigations use the network first and fall back only on network failure, not an HTTP error response.
 
 The worker bypasses `/wamn` and `/password` on a path-segment boundary.
-`sw.ts`, `bypass`, filters the manifest and stops those fetch events before the package handler.
-This local filter exists because the pinned `precache` accepts only one `apiPrefix`.
+`precache` receives `bypassPrefixes: ['/wamn', '/password']` and excludes both paths from installation and fetch handling.
 The worker never supplies cached application API or password replies.
 
 The web manifest supplies a name, icon, and standalone display mode.
@@ -764,7 +882,7 @@ The environment comes from the page route through [`packaging-writes.ts`](../../
 `SessionPackaging` gates upload on the matching signed-in user and shows “sign in to upload” while upload waits.
 Local recording needs no token.
 
-The host applies the user's active role when it receives replayed operations.
+Replay uses the host's current authorization. The per-application active role and picker belong to [platform configuration C6](platform-config.md#roles).
 A role change can produce an ordinary refusal.
 The entry's `recorded_at` is a local display timestamp, not authoritative host time.
 Applications can declare a separate business timestamp without changing queue behavior.
@@ -802,6 +920,10 @@ Epic 5 adds these declarations:
 
 ```text
 model receipt {
+  operations.query.feed = false
+}
+
+projection receiving.load_receipt_screen {
   feed = true
 }
 
@@ -815,7 +937,9 @@ screen receiving.lines {
 }
 ```
 
-`feed` defaults true for an eligible list model, with `false` as the explicit opt-out.
+`feed` belongs to one list read, generated or authored, as [Query feed](#query-feed-host) states.
+It defaults on for a generated list read and off for an authored read.
+An authored read turns it on with `feed = true`, and its view must pass the shape check in [Authored views](authored-views.md#feed-on-a-view).
 `append_only` declares whether a prior refusal holds later entries for that record.
 `offline` selects application-defined offline wiring without promising whole-application coverage.
 `read` selects `liveRows` or `liveList` under the read-shape rule.
@@ -828,19 +952,20 @@ screen receiving.lines {
 | Snapshot cursor | List SQL | xmin from the list statement itself |
 | Client binding | `client_ts.rs`, `emit_operation` and `write_changes` | List and changes helpers with signal forwarding |
 | Shape digest | `client_ts.rs`, `shape_digest` and `emit_model` | Stable row shape hash |
-| Collection factory, Epic 5 | Generated components | Feed paging, cap, scope key, version accessor, and persistence |
+| Collection factory, Epic 5 | Generated components | Feed paging, cap, argument key, version accessor, and persistence, for each feeding query |
 | Write helper, Epic 5 | Generated components | Outbox and `recordWrite` wiring for the model |
 
 ### Emitted per screen
 
-Epic 5 emits the query over the screen's collections from its fields, filters, sort, and references.
+Epic 5 binds each screen to the collection of one feeding query.
+The screen sorts, filters, and groups that query's result rows, and joins nothing.
 An application-selected offline screen declares the collections and references that its action fills.
 The generated action reports completion only after those chosen sets are complete and durable.
 
 ### Build refusal rules
 
-Epic 5 refuses an enabled feed without its required history and revision inputs.
-A model can opt out through `feed = false`.
+Epic 5 refuses a feed by the rules in [Prerequisites and build refusal](#prerequisites-and-build-refusal).
+A list read opts out through `feed = false`.
 An append-only operation cannot also declare a revision guard.
 Receiving and WMS regenerate from their definitions with no hand edits to generated files.
 
@@ -851,24 +976,18 @@ Each row names a measurable rule and its test boundary.
 | Rule | Invariant | Test |
 | --- | --- | --- |
 | One operation | Page and changes use one list permission row | Generated contract and route assertions |
-| Snapshot handoff | Rows and cursor come from one statement. Later commits remain reachable despite transaction allocation order | Host list, overlapping transactions, and feed drain |
-| Feed paging | Below-xmin rows page by transaction and id. Visible rows above xmin fill one complete page | Host and `Changes::new` tests |
-| Feed collapse | Each feed page contains one current result per id | History updates followed by a feed read |
-| Opaque cursor | The cursor round-trips unchanged and rejects another model | `feed::encode` and `feed::decode` tests |
-| Unchanged feed | Empty changes retain the cursor and support a matching weak ETag | Route 304 test |
+| Feed paging | Below-xmin rows page by transaction and root key. Visible rows above xmin fill one complete page | Host and `Changes::new` tests |
+| Feed collapse | Each feed page contains one current result per root key | History updates followed by a feed read |
 | Retention | Only bounded retention can expire an older cursor | Retention and `cursor_expired` cases |
-| Feed privileges | The feed reads only its four granted history columns through an indexed transaction range | Application-role SQL execution |
 | List cap | A capped fill reports incomplete if more pages exist | `packagingFeed` paging test |
 | Saved first paint | Saved rows render before fetch resolves | Adapter test with blocked fetch |
 | Serialized reads | Startup, pull, and refill never overlap | Controlled feed promises |
 | Saved updates | Saves debounce after list and change pages, then flush on cleanup | Persistence timing test |
 | Shape cleanup | Unknown digests remove rows without altering outbox entries | `rowsPersistence` storage test |
-| Version rule | Equal or lower upsert versions do not overwrite a row | Collection batch test |
 | Delete delivery | A deletion removes a stored row | Fake feed test |
 | Durable recording | Enqueue resolves only after the put commits | IndexedDB reload test |
 | Replay recovery | Stored sending entries become pending under the lock | Reopen and shared-database tests |
 | Replay order | One record sends in sequence. Other records can progress after its refusal | Controlled sender test |
-| Confirmation | Both successful send and authoritative row are required, with a greater version when expected | `recordWrite` adapter tests |
 | Refusal and discard | Typed errors reject the action and revert its guess | `OutboxRefused` and `OutboxDiscarded` tests |
 | Immutable correction | A new entry keeps the id and commits before the refused entry disappears | `packagingWrites` correction test |
 | Abort forwarding | Closing an outbox aborts the binding's fetch | Sender, binding, and transport tests |
@@ -889,8 +1008,8 @@ Each row names a measurable rule and its test boundary.
 | A live-query float sum is exact only for int32-range totals | The measurement sums integer `row_version`. `@tanstack/db` accepts no custom aggregates | Decimal or larger totals require a separate exact calculation |
 | Generated list pages accept 1–100 rows | `generate/validation.rs`, `validate_query`, fixes the minimum and maximum | A 20,000-row reference fill takes about 200 requests |
 | Retention covers the expected outage and recovery window | Retention declarations and host retention tests | Expired cursors require a fresh list |
-| A feed needs a generated list, history, and a revision | `ModelDeclaration::feed_revision` | Ineligible models get no feed until Epic 5 supplies explicit refusal and opt-out |
-| The selected read shape fits the screen's memory budget | The 10,000-row and 100,000-row measurement below | The application reduces its local set or uses ordinary pages |
+| A feeding query reads only tables with history, and its rows have a unique root id | [Prerequisites and build refusal](#prerequisites-and-build-refusal) | The build refuses the feed and names the table |
+| The selected read shape fits the screen's memory budget | Measure the screen with its selected rows | The application reduces its local set or uses ordinary pages |
 | Keyed Solid projections preserve row identity | Adapter tests against the pinned runtime | The adapter needs a correction before adoption |
 | Host request identity deduplicates a resend | Send one entry twice and assert one effect | Replay cannot claim effective single application |
 | The browser keeps IndexedDB data during ordinary use | Browser tests on supported devices | The UI must report failed recording or unprotected storage |
@@ -905,7 +1024,7 @@ Each item waits for a consumer:
 - A native application.
 - The local target consuming the same feed contract for its projections.
 - Background Sync registration as an enhancement to replay.
-- Query-driven partial sync beyond the current scope model.
+- Partial sync of a query's result beyond the query's own filters.
 - Shared optimistic state across users, including presence and live cursors.
 - A request-shape hash if ordinary validation cannot distinguish incompatible meanings.
 
@@ -913,63 +1032,9 @@ Each item waits for a consumer:
 
 | Epic | Repo | Scope | Done when |
 | --- | --- | --- | --- |
-| 5. Generator | wamn | Manifest fields, collection and screen emission, feed opt-out, and build refusal | Receiving and WMS regenerate without hand edits. Refusal cases fail at build. |
+| 5. Generator | wamn | Manifest fields, query feeds, collection and screen emission, feed opt-out, and build refusal | Receiving and WMS regenerate without hand edits. Refusal cases fail at build. |
 
-## Read-shape measurements
+## Read-shape rule
 
 `@wfe/sync` and `@tanstack/db` stay.
 Table screens use `liveRows`, and small sets use `liveList`.
-The [`web/sync-bench`](../../web/sync-bench/README.md) measurement supplies evidence for that rule.
-
-| Input | Version |
-| --- | --- |
-| wfe pin | `fdeaacc` |
-| `@tanstack/db` | 0.15.2 |
-| `@tanstack/db-ivm` | 0.2.0 |
-| `solid-js`, `@solidjs/web` | 2.0.0-rc.18 |
-| Browser | Chrome 156.0.8078.47, headless, automation harness 1.63.0 |
-| Machine | 8 cores, shared with other agents |
-
-The screen uses the WMS packaging table and generated `PackagingQueryTable` columns over virtual rows.
-It groups by status and type, with counts, sums of `row_version`, and a totals row.
-Shape A reads a sync collection through `liveRows` and derives groups and totals through `@tanstack/db` queries.
-Shape B keeps a Solid store by id and derives sort, filters, groups, and totals through memos.
-Both shapes sort packaging codes in a memo, with the status filter set to “all”.
-
-Each cell is the median of five runs.
-Each run mounts one shape on a new production-build page and fills it from a fake feed of seeded synthetic rows.
-The shapes alternate order between repeats.
-Other agents hold new builds and test runs from 15:03:20 to 15:05:21 UTC during the measurement window.
-
-The measures use these boundaries:
-
-- Fill starts when `list` resolves and ends at the first painted row, on the frame after DOM insertion.
-- Update covers one batch of 70 updates, 20 inserts, and 10 deletes through the next frame. Ten batches per run give 50 batches.
-- Heap uses `performance.memory.usedJSHeapSize` after forced garbage collection.
-
-| Shape | Rows | Fill to first paint (ms) | Update per 100 changes (ms) | Heap after fill (MB) | Heap after 10 batches (MB) | Runs finished | Load average |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| A | 10,000 | 453.2 | 46.8 | 15.5 | 16.4 | 5/5 | 5.5–5.8 |
-| B | 10,000 | 223.4 | 68.6 | 17.2 | 17.9 | 5/5 | 5.5–5.8 |
-| A | 100,000 | 3,403.1 | 308.5 | 111.8 | 112.6 | 5/5 | 5.7–7.8 |
-| B | 100,000 | 1,634.6 | 933.0 | 141.9 | 142.6 | 5/5 | 5.7–7.8 |
-
-At 10,000 rows, individual batch updates range from 27.5–69.6 ms for A and 58.4–137.8 ms for B.
-At 100,000 rows, they range from 224.8–583.4 ms for A and 668.4–1,958.8 ms for B.
-
-The fake feed supplies `row_version` directly.
-The measured real-feed conversion copies each row to add `row_version` beside `rowVersion`.
-That separate conversion takes medians of 4.9 ms at 10,000 rows and 164.1 ms at 100,000 rows.
-Its run at 15:06 UTC has load averages of 18.6–19.1.
-It is outside the fill column.
-The version accessor avoids that copy.
-
-These conditions limit the measurement:
-
-- `row_version` stands in for a numeric business field because packaging has no other numeric column.
-- Shape A uses the float `sum` in `@tanstack/db`, with int32 inputs and an integer total below 2^53. Shape B uses an exact BigInt sum.
-- The measured package fills only. Updates enter through `applyChanges`, without a host follow loop.
-- Shape A casts the live query result for `liveRows` and uses `Table`, because the measured `ReadOnlyTable` has no virtual-row body slot.
-
-The related findings are `wamn-7e86p`, `wamn-b4icu`, `wamn-dhggm`, and `wamn-5dcm4`.
-They cover version naming, live query inputs, custom aggregates, and the table body slot.
