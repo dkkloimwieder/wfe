@@ -1,5 +1,80 @@
 /* Laser shares plain control geometry and owns its neon presentation. */
 @scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
+  /* Resolve color-dependent defaults at consumers, not at the theme ancestor. */
+  :scope
+    :is(
+      button,
+      summary,
+      a,
+      svg,
+      img,
+      .ui-card,
+      .popup-trigger,
+      .ui-control-frame,
+      .ui-input-affix,
+      .filter-input,
+      .choice-control,
+      .ui-tabs-trigger,
+      .ui-check-control,
+      .ui-radio-control,
+      .ui-switch-control,
+      .popup-content,
+      .header-filter-popup,
+      .column-move-menu,
+      .ui-dialog-content,
+      .ui-popover,
+      .ui-menu,
+      .ui-tooltip,
+      .ui-toast,
+      .ui-chart,
+      [data-ui-chart-tooltip]
+    ) {
+    --_ui-laser-glow:
+      0 var(--ui-laser-shadow-y) var(--ui-laser-shadow-blur)
+        var(--ui-laser-shadow-spread) var(--ui-laser-shadow-color),
+      0 0 0 var(--ui-laser-glow-width)
+        color-mix(
+          in srgb,
+          var(--ui-accent) var(--ui-laser-glow-ring-opacity),
+          transparent
+        ),
+      0 0 var(--ui-laser-glow-blur)
+        color-mix(
+          in srgb,
+          var(--ui-accent) var(--ui-laser-glow-opacity),
+          transparent
+        );
+    --_ui-laser-text-glow: 0 0 var(--ui-laser-text-glow-blur)
+      color-mix(
+        in srgb,
+        var(--ui-accent) var(--ui-laser-text-glow-opacity),
+        transparent
+      );
+    --_ui-laser-icon-shadow: drop-shadow(var(--ui-laser-icon-elevation))
+      drop-shadow(
+        0 0 var(--ui-laser-icon-glow-blur)
+          color-mix(
+            in srgb,
+            var(--ui-accent) var(--ui-laser-icon-glow-opacity),
+            transparent
+          )
+      );
+  }
+  :scope
+    :is(
+      .popup-content,
+      .header-filter-popup,
+      .column-move-menu,
+      .ui-dialog-content,
+      .ui-popover,
+      .ui-menu,
+      .ui-tooltip,
+      .ui-toast,
+      .ui-chart,
+      [data-ui-chart-tooltip]
+    ) {
+    --_ui-popup-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
+  }
   :scope
     :is(
       .ui-card,
@@ -14,10 +89,13 @@
     border: var(--ui-border-width) solid var(--ui-border);
   }
   :scope .ui-kanban-item:is(:hover, :focus-within):not([aria-disabled='true']) {
-    box-shadow: var(--ui-laser-glow);
+    box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
   }
   :scope :is(.ui-input, .choice-input) {
-    padding-inline: max(12px, var(--ui-input-padding-x));
+    padding-inline: max(
+      var(--ui-input-min-padding-x, 0px),
+      var(--ui-input-padding-x)
+    );
   }
   :scope
     :is(.ui-control-frame, .ui-input-affix, .filter-input, .choice-control) {
@@ -48,7 +126,10 @@
         textarea[readonly]
       )
     ) {
-    box-shadow: var(--ui-laser-control-glow, var(--ui-laser-glow));
+    box-shadow: var(
+      --ui-laser-control-glow,
+      var(--ui-laser-glow, var(--_ui-laser-glow))
+    );
   }
   :scope
     :is(.ui-input-affix, .filter-input, .choice-control)
@@ -67,7 +148,7 @@
       [data-ui-active='true']
     ) {
     border-color: var(--ui-accent);
-    box-shadow: var(--ui-laser-glow);
+    box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
   }
   :scope
     :is(.ui-collapsible > summary, .ui-dashboard-menu > a):is(
@@ -75,7 +156,7 @@
       :focus-visible
     ) {
     color: var(--ui-accent);
-    text-shadow: var(--ui-laser-text-glow);
+    text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
   }
   :scope
     .ui-sidebar-group
@@ -95,12 +176,12 @@
       .ui-radio-control,
       .ui-switch-control
     )[data-checked] {
-    box-shadow: var(--ui-laser-glow);
+    box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
   }
   :scope
     :is(.ui-toggle, .ui-radio-item):hover:not([data-disabled], [data-readonly])
     :is(.ui-check-control, .ui-radio-control, .ui-switch-control) {
-    box-shadow: var(--ui-laser-glow);
+    box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
   }
   /* Icon actions illuminate the glyph rather than its button box. */
   :scope
@@ -138,7 +219,7 @@
       [data-disabled]
     ) {
     color: var(--ui-accent);
-    text-shadow: var(--ui-laser-text-glow);
+    text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
   }
   @media (forced-colors: none) {
     :scope
@@ -148,11 +229,11 @@
       ):not(:disabled, [aria-disabled='true'], [data-disabled])
       :is(svg, img) {
       color: var(--ui-accent);
-      filter: var(--ui-laser-icon-shadow);
+      filter: var(--ui-laser-icon-shadow, var(--_ui-laser-icon-shadow));
     }
   }
   :scope .ui-check-control {
-    border-radius: 6px;
+    border-radius: var(--ui-checkbox-radius, var(--ui-control-radius));
   }
   :scope .ui-gantt-bar {
     border-radius: var(--ui-control-radius);

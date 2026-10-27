@@ -145,12 +145,14 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
     '--ui-popup-radius': 'var(--ui-radius)',
     '--ui-panel-radius': 'var(--ui-radius)',
     '--ui-radio-radius': 'var(--ui-control-radius)',
+    '--ui-checkbox-radius': 'var(--ui-control-radius)',
+    '--ui-sidebar-heading-weight': 'var(--ui-heading-weight)',
+    '--ui-kanban-heading-weight': 'var(--ui-heading-weight)',
     '--ui-switch-radius': 'var(--ui-control-radius)',
     '--ui-control-border-width': 'var(--ui-border-width)',
     '--ui-divider-width': 'var(--ui-border-width)',
     '--ui-icon-stroke-width': '1',
     '--ui-disabled-opacity': '1',
-    '--ui-error': '#9d251e',
     '--ui-connector-stroke-width': '1.5',
 
     ...(options.preset === 'vanilla'
@@ -160,14 +162,15 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
             options.density,
             options.mode === 'monochrome',
             options.layers,
+            options.dividers,
           ),
           ...(options.accent === undefined
             ? {
                 '--ui-accent': vanillaPrimary,
                 '--ui-on-accent': vanillaOnPrimary,
-                '--ui-selection': vanillaPrimary,
-                '--ui-on-selection': vanillaOnPrimary,
-                '--ui-focus': vanillaPrimary,
+                '--ui-selection': 'var(--ui-accent)',
+                '--ui-on-selection': 'var(--ui-on-accent)',
+                '--ui-focus': 'var(--ui-accent)',
               }
             : {}),
           '--ui-accent-hover': 'var(--ui-accent)',
@@ -181,6 +184,7 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
           secondaryAccents[secondary] ?? secondaryAccents[1]!,
           options.density,
           options.layers,
+          options.dividers,
         )
       : {}),
   }

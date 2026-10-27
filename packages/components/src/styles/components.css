@@ -131,7 +131,7 @@
         background: var(--ui-popup-surface, var(--ui-surface, white));
         color: var(--ui-popup-text, var(--ui-text, #191919));
         font: inherit;
-        box-shadow: var(--ui-popup-shadow, none);
+        box-shadow: var(--ui-popup-shadow, var(--_ui-popup-shadow, none));
         max-height: min(480px, 50dvh);
         overflow: auto;
         padding: var(--ui-control-padding-y, 4px);

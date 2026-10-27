@@ -26,5 +26,5 @@
   border-radius: var(--ui-popup-radius, var(--ui-radius, 0px));
   background: var(--ui-popup-surface, var(--ui-surface, white));
   color: var(--ui-popup-text, var(--ui-text, #191919));
-  box-shadow: var(--ui-popup-shadow, none);
+  box-shadow: var(--ui-popup-shadow, var(--_ui-popup-shadow, none));
 }

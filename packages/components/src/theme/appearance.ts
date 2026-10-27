@@ -76,15 +76,16 @@ export function appearanceStyle(
   dividers: TableDividers = defaultDividers,
   decorations: Decorations = defaultDecorations,
 ): JSX.CSSProperties {
-  const [, , hover, edge] = scheme.surfaces
-  const canvas = scheme.surfaces[layers.canvas]
-  const pane = scheme.surfaces[layers.pane]
-  const surface = scheme.surfaces[layers.content]
+  const hover = 'var(--ui-surface-3)'
+  const edge = 'var(--ui-surface-4)'
+  const canvas = `var(--ui-surface-${layers.canvas + 1})`
+  const pane = `var(--ui-surface-${layers.pane + 1})`
+  const surface = `var(--ui-surface-${layers.content + 1})`
   const [text, secondary] = scheme.text
   const dark = scheme.mode === 'dark'
   const border =
     scheme === monochrome ? text : dark ? paletteRoles.darkBorder : edge
-  const controlBorder = border
+  const controlBorder = 'var(--ui-border)'
   const controlSurface = dark
     ? `color-mix(in srgb, ${surface} 95.5%, white)`
     : surface
@@ -99,18 +100,35 @@ export function appearanceStyle(
   const neutralDot = dark ? paletteRoles.darkNeutralDot : secondary
   const decorationColor = (role: DecorationColor) =>
     role === 'primary'
-      ? focus
+      ? 'var(--ui-accent)'
       : role === 'secondary'
-        ? secondaryAccent
-        : secondary
+        ? 'var(--ui-secondary-accent)'
+        : 'var(--ui-muted-text)'
   return {
     '--ui-surface-1': scheme.surfaces[0],
     '--ui-surface-2': scheme.surfaces[1],
     '--ui-surface-3': scheme.surfaces[2],
     '--ui-surface-4': scheme.surfaces[3],
+    '--ui-divider-1': dividerSurfaces(scheme)[0],
+    '--ui-divider-2': dividerSurfaces(scheme)[1],
+    '--ui-divider-3': dividerSurfaces(scheme)[2],
+    '--ui-divider-4': dividerSurfaces(scheme)[3],
+    '--ui-success': scheme === monochrome ? text : dark ? '#8ce99a' : '#37734c',
+    '--ui-warning-surface':
+      scheme === monochrome
+        ? 'var(--ui-surface)'
+        : dark
+          ? '#39301c'
+          : '#fff7d9',
+    '--ui-warning-text':
+      scheme === monochrome ? 'var(--ui-text)' : dark ? '#f1d68c' : '#765200',
+    '--ui-warning-border':
+      scheme === monochrome ? 'var(--ui-border)' : '#a78d4d',
+    '--ui-error': scheme === monochrome ? text : dark ? '#ffa69b' : '#9d251e',
+    '--ui-overlay': 'rgb(0 0 0 / 40%)',
     '--ui-secondary-accent': secondaryAccent,
-    '--ui-sidebar-accent': focus,
-    '--ui-sidebar-neutral': text,
+    '--ui-sidebar-accent': 'var(--ui-accent)',
+    '--ui-sidebar-neutral': 'var(--ui-text)',
     '--ui-decoration-border': `color-mix(in srgb, ${decorations.borderColor === 'neutral' ? neutralBorder : decorationColor(decorations.borderColor)} ${decorations.border}%, transparent)`,
     '--ui-decoration-dot-opacity': `${decorations.dots}%`,
     '--ui-decoration-border-opacity': `${decorations.border}%`,
@@ -125,20 +143,21 @@ export function appearanceStyle(
     '--ui-highlight': hover,
     '--ui-hover': hover,
     '--ui-text': text,
-    '--ui-heading-color': `color-mix(in srgb, ${text} 80%, ${secondary})`,
+    '--ui-heading-color':
+      'color-mix(in srgb, var(--ui-text) 80%, var(--ui-muted-text))',
     '--ui-muted-text': secondary,
-    '--ui-subtle-text': secondary,
+    '--ui-subtle-text': 'var(--ui-muted-text)',
     '--ui-border': border,
-    '--ui-divider': border,
-    '--ui-table-row-divider': dividerSurfaces(scheme)[dividers.rows],
-    '--ui-table-column-divider': dividerSurfaces(scheme)[dividers.columns],
+    '--ui-divider': 'var(--ui-border)',
+    '--ui-table-row-divider': `var(--ui-divider-${dividers.rows + 1})`,
+    '--ui-table-column-divider': `var(--ui-divider-${dividers.columns + 1})`,
     '--ui-control-border': controlBorder,
     '--ui-control-surface': controlSurface,
     '--ui-control-hover': controlSurface,
     '--ui-focus-width': '1px',
     '--ui-focus-offset': '0px',
     '--ui-field-focus-border': ring,
-    '--ui-button-border': border,
+    '--ui-button-border': 'var(--ui-control-border)',
     '--ui-neutral-dot-color': neutralDot,
     '--ui-neutral-border-color': neutralBorder,
     '--ui-neutral-button-border': dark
@@ -146,15 +165,15 @@ export function appearanceStyle(
       : 'var(--ui-button-color, var(--ui-button-border))',
     '--ui-canvas-pattern': `radial-gradient(circle, color-mix(in srgb, ${decorations.dotColor === 'neutral' ? neutralDot : decorationColor(decorations.dotColor)} ${decorations.dots}%, transparent) 0.75px, transparent 0.75px)`,
     '--ui-canvas-pattern-size': '0.3em 0.3em',
-    '--ui-handle-border': border,
-    '--ui-focus': focus,
+    '--ui-handle-border': 'var(--ui-border)',
+    '--ui-focus': 'var(--ui-accent)',
     '--ui-focus-ring': ring,
-    '--ui-selection': focus,
-    '--ui-on-selection': onAccent,
+    '--ui-selection': 'var(--ui-accent)',
+    '--ui-on-selection': 'var(--ui-on-accent)',
     '--ui-accent': focus,
     '--ui-on-accent': onAccent,
-    '--ui-accent-hover': focus,
-    '--ui-accent-inverted-hover': onAccent,
+    '--ui-accent-hover': 'var(--ui-accent)',
+    '--ui-accent-inverted-hover': 'var(--ui-on-accent)',
     '--ui-shadow-overflow': '24px',
     '--ui-panel-shadow': 'none',
     '--ui-popup-shadow': 'none',
