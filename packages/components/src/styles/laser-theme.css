@@ -9,6 +9,7 @@
       svg,
       img,
       .ui-card,
+      .table-workspace-title-face,
       .popup-trigger,
       .ui-control-frame,
       .ui-input-affix,
@@ -183,12 +184,19 @@
     :is(.ui-check-control, .ui-radio-control, .ui-switch-control) {
     box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
   }
+  :scope .column-header:is(:hover, :focus-within) {
+    background: var(--ui-highlight);
+  }
   /* Icon actions illuminate the glyph rather than its button box. */
   :scope
     :is(
       .ui-icon-button,
       .table-refresh,
       .table-controls-toggle,
+      .column-move,
+      .column-sort,
+      .header-sort,
+      .table-workspace-title-face,
       button.ui-disclosure-trigger:not(.popup-trigger, .choice-toggle),
       .ui-sidebar-group[data-compact] > button,
       .ui-calendar-navigation > button:not(.ui-calendar-heading)
@@ -235,6 +243,10 @@
       .ui-icon-button,
       .table-refresh,
       .table-controls-toggle,
+      .column-move,
+      .column-sort,
+      .header-sort,
+      .table-workspace-title-face,
       button.ui-disclosure-trigger:not(.popup-trigger),
       .ui-sidebar-group[data-compact] > button,
       .ui-calendar-navigation > button:not(.ui-calendar-heading),
