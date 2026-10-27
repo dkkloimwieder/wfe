@@ -1,0 +1,50 @@
+:where(.ui-command[data-ui]) {
+  display: grid;
+  gap: var(--ui-gap, 8px);
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-command-list {
+  min-block-size: 0;
+  max-block-size: min(24rem, 55dvh);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+:where([data-ui]) .ui-command-option {
+  justify-content: start;
+  gap: var(--ui-gap, 8px);
+  color: inherit;
+  text-decoration: none;
+}
+:where([data-ui]) .ui-command-text {
+  display: grid;
+  flex: 1;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+:where([data-ui]) .ui-command-description,
+:where([data-ui]) .ui-command-shortcut {
+  font-size: var(--ui-small-font-size, 12px);
+}
+:where([data-ui]) .ui-command-description {
+  color: var(--ui-muted-text);
+}
+:where([data-ui]) .ui-command-option[data-highlighted] .ui-command-description {
+  color: inherit;
+}
+:where([data-ui]) .ui-command-icon,
+:where([data-ui]) .ui-command-shortcut {
+  flex: none;
+}
+:where([data-ui]) .ui-command-group-label,
+:where([data-ui]) .ui-command-status {
+  padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
+}
+:where([data-ui]) .ui-command-group-label {
+  font-weight: var(--ui-heading-weight, 500);
+  color: var(--ui-muted-text);
+}
+@media (forced-colors: active) {
+  :where([data-ui]) .ui-command-option[data-highlighted] {
+    outline: var(--ui-focus-width, 1px) solid Highlight;
+  }
+}

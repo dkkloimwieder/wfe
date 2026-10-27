@@ -265,3 +265,10 @@ export type {
   GanttDependency,
   GanttChange,
 } from './gantt'
+
+export { Command, commandMessages } from './components/Command'
+export type {
+  CommandItem,
+  CommandProps,
+  CommandMessages,
+} from './components/Command'
