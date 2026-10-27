@@ -18,6 +18,7 @@ const shared = {
     './src/components/AlertDialog.tsx',
     './src/components/Checkbox.tsx',
     './src/components/Combobox.tsx',
+    './src/command/index.ts',
     './src/components/Collapsible.tsx',
     './src/components/Dialog.tsx',
     './src/components/Display.tsx',

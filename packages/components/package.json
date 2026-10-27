@@ -253,6 +253,13 @@
       "solid": "./dist/source/gantt/index.js",
       "node": "./dist/server/gantt/index.js",
       "import": "./dist/client/gantt/index.js"
+    },
+    "./command": {
+      "types": "./dist/client/command/index.d.ts",
+      "wfe-source": "./src/command/index.ts",
+      "solid": "./dist/source/command/index.js",
+      "node": "./dist/server/command/index.js",
+      "import": "./dist/client/command/index.js"
     }
   },
   "sideEffects": [

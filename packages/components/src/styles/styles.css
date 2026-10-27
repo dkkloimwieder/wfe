@@ -32,3 +32,5 @@
 
 @import './plain-theme.css';
 @import './laser-theme.css';
+
+@import './command-palette.css';
