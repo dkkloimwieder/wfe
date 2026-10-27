@@ -368,14 +368,19 @@ test.each([false, true])(
     host.answer('integer')
     await vi.waitFor(() => expect(o.entries()).toEqual([]))
     expect(done).toBe(false)
-    applyChanges(c, [
-      {
-        id: getKey(expected),
-        row_version: 2,
-        deleted: false,
-        data: item(1, 2, 9),
-      },
-    ])
+    vi.mocked(feed.changes).mockResolvedValueOnce({
+      rows: [
+        {
+          id: getKey(expected),
+          row_version: 2,
+          deleted: false,
+          data: item(1, 2, 9),
+        },
+      ],
+      next_cursor: 'confirmed',
+      complete: true,
+    })
+    await c.utils.pull()
     await vi.waitFor(() => expect(done).toBe(true))
     await write
     expect(record.rows[getKey(expected)]?.revision).toBe(2)

@@ -9,6 +9,8 @@ import type {
   OutboxDiscarded,
   OutboxRefused,
   collection,
+  FollowPass,
+  SyncCollection,
   OperationCall,
   Reply,
   Send,
@@ -53,6 +55,8 @@ export type ExportedTypes = Assert<
     CursorExpired: typeof CursorExpired
     OutboxDiscarded: typeof OutboxDiscarded
     OutboxRefused: typeof OutboxRefused
+    FollowPass: FollowPass
+    SyncCollection: SyncCollection<Row>
     collection: typeof collection
     OperationCall: OperationCall
     Reply: Reply
@@ -87,6 +91,10 @@ export type SignatureTypes = Assert<
     sendReply: Awaited<ReturnType<Send>>
     queuedEntry: Awaited<ReturnType<Outbox['enqueue']>>
     counts: Parameters<Parameters<Outbox['watch']>[0]>[0]
+    sent: Parameters<Parameters<Outbox['watchSent']>[0]>[0]
+    follow: Parameters<
+      Parameters<SyncCollection<Row>['utils']['watchFollow']>[0]
+    >[0]
     collection: ReturnType<typeof collection<Row, string>>
     collectionRow: ReturnType<ReturnType<typeof collection<Row, string>>['get']>
     keyedEntries: ReturnType<KeyedCollection<Row>['entries']>
@@ -108,6 +116,28 @@ export type SignatureTypes = Assert<
     internalChanges: Parameters<typeof applyChanges<Row>>[1]
   }>
 >
+
+export type FollowContract = [
+  Assert<
+    Equal<
+      FollowPass,
+      | { type: 'start'; id: number }
+      | { type: 'end'; id: number; complete: boolean }
+    >
+  >,
+  Assert<Equal<Parameters<typeof recordWrite<Row>>[0], SyncCollection<Row>>>,
+  Assert<
+    Equal<
+      Parameters<SyncCollection<Row>['utils']['watchFollow']>,
+      [fn: (event: FollowPass) => void]
+    >
+  >,
+  Assert<
+    Equal<ReturnType<SyncCollection<Row>['utils']['watchFollow']>, () => void>
+  >,
+  Assert<Equal<Parameters<Outbox['watchSent']>, [fn: (seq: number) => void]>>,
+  Assert<Equal<ReturnType<Outbox['watchSent']>, () => void>>,
+]
 
 export type CurrentAtContract = Assert<
   Equal<ReturnType<ReturnType<typeof syncCurrentAt<Row>>>, string | undefined>

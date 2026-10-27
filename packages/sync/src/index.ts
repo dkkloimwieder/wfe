@@ -1,6 +1,7 @@
 export type { Row, Change, Feed, Persistence, Trigger } from './types'
 export { CursorExpired, OutboxDiscarded, OutboxRefused } from './errors'
 export { collection } from './collection'
+export type { FollowPass, SyncCollection } from './collection'
 export type {
   OperationCall,
   Reply,

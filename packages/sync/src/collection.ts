@@ -8,11 +8,17 @@ import type { AnyCollection, Batch, SyncParams, Writer } from './writer'
 import { rowKey, rowVersion } from './types'
 import type { Feed, Key, Persistence, Row, Trigger, Version } from './types'
 
+/** One follow pass starts once and ends once, after all its changes pages. */
+export type FollowPass =
+  { type: 'start'; id: number } | { type: 'end'; id: number; complete: boolean }
+
 type Utils = {
   /** Run `list` again and reconcile the result into the collection. */
   refill: () => Promise<void>
   /** Run one follow pass now; resolves when it ends. */
   pull: () => Promise<void>
+  /** Observe follow passes, starting with the active pass if any. Lists emit none. */
+  watchFollow: (fn: (event: FollowPass) => void) => () => void
   /** The error of the last failed read, or undefined. */
   error: () => unknown
   /** ISO time of the last successful `list` or `changes`, or undefined. */
@@ -48,6 +54,8 @@ interface Run<T extends Row> {
   /** A list waits: utils.refill(). */
   list: boolean
   save?: ReturnType<typeof setTimeout> | undefined
+  /** End an active pass at once on cleanup, even if the feed ignores abort. */
+  endFollow?: (() => void) | undefined
 }
 
 /**
@@ -80,6 +88,8 @@ export function collection<T extends Row, S>(
   const status = createStatus('loading')
   const complete = createSourceSignal(true)
   const currentAt = createSourceSignal<string | undefined>(undefined)
+  const followers = new Set<(event: FollowPass) => void>()
+  let passId = 0
   let error: unknown
   let cursor: string | undefined
   let run: Run<T> | undefined
@@ -186,18 +196,31 @@ export function collection<T extends Row, S>(
   async function pass(r: Run<T>): Promise<void> {
     if (cursor === undefined) return
     const { signal } = r.abort
+    const id = ++passId
+    let complete = false
+    const end = () => {
+      if (r.endFollow !== end) return
+      r.endFollow = undefined
+      for (const fn of [...followers]) fn({ type: 'end', id, complete })
+    }
+    r.endFollow = end
+    for (const fn of [...followers]) fn({ type: 'start', id })
     try {
       if (feed.moved && !(await feed.moved(scope, cursor, signal))) {
         if (!r.stopped) ready(r)
         return
       }
+      if (r.stopped) return
       for (;;) {
         const page = await feed.changes(scope, cursor, options.pageSize, signal)
         if (r.stopped) return
         applyChanges(c, page.rows)
         cursor = page.next_cursor
         scheduleSave(r)
-        if (page.complete) break
+        if (page.complete) {
+          complete = true
+          break
+        }
       }
       currentAt.set(new Date().toISOString())
       ready(r)
@@ -205,6 +228,8 @@ export function collection<T extends Row, S>(
       if (r.stopped) return
       if (cause instanceof CursorExpired) await fill(r)
       else failed(r, cause)
+    } finally {
+      end()
     }
   }
 
@@ -229,6 +254,7 @@ export function collection<T extends Row, S>(
       save(r)
     }
     r.stopped = true
+    r.endFollow?.()
     r.abort.abort()
     for (const end of r.stops.splice(0)) end()
   }
@@ -262,6 +288,13 @@ export function collection<T extends Row, S>(
     utils: {
       refill: () => (run ? fire(run, 'list') : Promise.resolve()),
       pull: () => (run ? fire(run) : Promise.resolve()),
+      watchFollow: (fn) => {
+        followers.add(fn)
+        if (run?.endFollow) fn({ type: 'start', id: passId })
+        return () => {
+          followers.delete(fn)
+        }
+      },
       error: () => error,
       currentAt: () => currentAt.get(),
       complete: () => complete.get(),

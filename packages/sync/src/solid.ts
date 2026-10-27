@@ -18,10 +18,11 @@ import type { Accessor, Store } from 'solid-js'
 import { OutboxDiscarded, OutboxRefused } from './errors'
 import { discarded } from './outbox'
 import { peek } from './writer'
-import type { AnyCollection } from './writer'
 import type { OperationCall, Outbox, OutboxCounts, OutboxEntry } from './outbox'
+import { createSourceSignal } from './status'
 import type { Status } from './status'
-import { rowKey, rowVersion } from './types'
+import type { SyncCollection } from './collection'
+import { rowKey } from './types'
 import type { Key, Row } from './types'
 
 /**
@@ -199,60 +200,63 @@ async function* keyed<T extends Row>(
   }
 }
 
-/** A counter that moves on each change of the collection or the outbox. */
-function moves<T extends Row>(
-  c: AnyCollection<T>,
+/** Subscribe before enqueue, so even an immediate reply records the pass boundary. */
+function confirmation<T extends Row>(
+  c: SyncCollection<T>,
   o: Outbox<string | number>,
-): Accessor<number> {
-  return createMemo<number>(() =>
+): (entry: OutboxEntry<string | number>, restored?: boolean) => boolean {
+  let started = 0
+  let completed = 0
+  const sentAfter = new Map<number, number>()
+  const changes = createSourceSignal(0)
+  const notify = () => changes.set(changes.get() + 1)
+  const stopFollow = c.utils.watchFollow((event) => {
+    if (event.type === 'start') started = event.id
+    else if (event.complete) completed = event.id
+    notify()
+  })
+  const stopSent = o.watchSent((seq) => {
+    sentAfter.set(seq, started)
+    notify()
+  })
+  const stopOutbox = o.watch(notify)
+  const moved = createMemo<number>(() =>
     from<number>((next) => {
-      let count = 0
-      next(count)
-      const subscription = c.subscribeChanges(() => next(++count), {
-        includeInitialState: false,
-      })
-      const stop = o.watch(() => next(++count))
-      return () => {
-        subscription.unsubscribe()
-        stop()
-      }
+      next(changes.get())
+      return changes.subscribe(next)
     }),
   )
-}
-
-/**
- * True after a successful send removes the entry from the outbox and the
- * collection holds the expected key. If the expected row has a version, the
- * stored version must be greater. The collection's version accessor reads
- * both versions. Without an expected version, the row and successful send
- * are enough. It reads the collection, so the optimistic value cannot end
- * the wait. It throws on discard, and on refusal for a new write. Restored
- * entries keep waiting through refusal so resubmit can finish the same action.
- */
-function confirmed<T extends Row>(
-  c: AnyCollection<T>,
-  o: Outbox<string | number>,
-  expected: Partial<T> & { id: string | number },
-  entry: OutboxEntry<string | number>,
-  restored = false,
-): boolean {
-  if (discarded(o, entry.seq)) throw new OutboxDiscarded(entry.seq)
-  const current = o.entries().find((e) => e.seq === entry.seq)
-  if (current?.state === 'refused' && !restored)
-    throw new OutboxRefused(entry.seq, current.refusal)
-  if (current !== undefined) return false
-  const getKey = peek<T>(c)?.getKey ?? rowKey
-  const row = c.get(getKey(expected as T))
-  if (row === undefined) return false
-  const version = peek(c)?.version ?? rowVersion
-  const want = version(expected as T) as number | undefined
-  return want === undefined || version(row) > want
+  onCleanup(() => {
+    stopFollow()
+    stopSent()
+    stopOutbox()
+  })
+  return (entry, restored = false) => {
+    moved()
+    if (discarded(o, entry.seq)) {
+      sentAfter.delete(entry.seq)
+      throw new OutboxDiscarded(entry.seq)
+    }
+    const current = o.entries().find((e) => e.seq === entry.seq)
+    if (current?.state === 'refused' && !restored) {
+      sentAfter.delete(entry.seq)
+      throw new OutboxRefused(entry.seq, current.refusal)
+    }
+    if (current !== undefined) return false
+    // Another tab can remove a sent entry. In that case, wait for a pass
+    // that starts after this tab first observes its removal.
+    const after = sentAfter.get(entry.seq) ?? started
+    sentAfter.set(entry.seq, after)
+    if (completed <= after) return false
+    sentAfter.delete(entry.seq)
+    return true
+  }
 }
 
 /**
  * The rows of the collection with an optimistic overlay, and a write action.
  * The write shows the expected row at once, enqueues the call, and waits
- * until the feed brings the row back. A refusal or a discard throws at the
+ * until a later follow pass ends complete. A refusal or a discard throws at the
  * wait, and the guess reverts. The wait has no timeout, so one action stays
  * open for each unsent entry.
  * Expected rows must contain the fields that `options.getKey` reads.
@@ -260,7 +264,7 @@ function confirmed<T extends Row>(
  * keep their overlay until discard or successful resubmission.
  */
 export function recordWrite<T extends Row, K extends string | number = string>(
-  c: AnyCollection<T>,
+  c: SyncCollection<T>,
   o: Outbox<K>,
   options?: { model?: string },
 ): {
@@ -276,7 +280,7 @@ export function recordWrite<T extends Row, K extends string | number = string>(
     undefined,
     { key: (item: object) => getKey(item as T) },
   )
-  const moved = moves(c, o)
+  const confirmed = confirmation(c, o)
   // Both restored entries and this adapter's own writes run once per seq.
   const seen = new Set<number>()
   let enqueuing = 0
@@ -291,10 +295,7 @@ export function recordWrite<T extends Row, K extends string | number = string>(
   const restoreEntry = action(function* (entry: OutboxEntry<K>) {
     const expected = entry.expected as Partial<T> & { id: string | number }
     apply(expected)
-    yield until(() => {
-      moved()
-      return confirmed(c, o, expected, entry, true)
-    })
+    yield until(() => confirmed(entry, true))
   })
   function restore(): void {
     // enqueue notifies before its promise returns the seq. Wait for all local
@@ -334,10 +335,7 @@ export function recordWrite<T extends Row, K extends string | number = string>(
   ) {
     apply(expected)
     const entry = (yield enqueue(op, expected)) as OutboxEntry<K>
-    yield until(() => {
-      moved()
-      return confirmed(c, o, expected, entry)
-    })
+    yield until(() => confirmed(entry))
   })
   // onSettled can run while persistence is still loading under a Loading
   // boundary. Read the store so restoration waits for its first committed

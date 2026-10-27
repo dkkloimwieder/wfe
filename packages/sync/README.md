@@ -41,6 +41,16 @@ Passes and lists run one at a time, after the start. A fire or refill during one
 
 In one pass, the collection first calls `feed.moved(scope, cursor)` if the feed has it. A false result ends the pass.
 The collection then calls `feed.changes(scope, cursor, pageSize)` and applies each page as one transaction, until a page is complete.
+`utils.watchFollow(fn)` observes each pass through a `FollowPass` event.
+It returns an unsubscribe function.
+A start event is `{ type: 'start', id }`.
+An end event is `{ type: 'end', id, complete }`.
+The id increases within the collection, including across restarts.
+If a pass is active, a new subscriber receives its start event at once.
+Only a pass whose final `changes` page reports `complete: true` ends complete.
+Errors, cleanup, and a false `moved` result end the pass with `complete: false`.
+Lists emit no follow events.
+
 The cursor moves to `next_cursor` after every page. The package never parses a cursor.
 The status stays `ready` during a pass. If `changes` throws `CursorExpired`, the collection lists again and goes on following.
 Any other error sets the status to `error`, keeps the rows, and sets `utils.error()`. The next successful pass sets `ready` and clears the error.
@@ -87,6 +97,9 @@ One tab replays at a time: a replay holds the Web Lock `${database}:outbox`.
 In the lock, the outbox reads the store again, because another tab can change it. A stored `sending` entry lost its tab, so it goes back to `pending`.
 The open does this reset in the lock before the first replay.
 If `navigator.locks` is absent, replay runs without the lock. Two tabs can then send the same entry, and the write log dedupes on `request_hash`.
+`watchSent(fn)` calls `fn(seq)` after each successful send reply, before the outbox removes the entry.
+It returns an unsubscribe function and sends no initial event.
+
 `lastSentAt` is the ISO time of the last ok reply in this page, or undefined.
 `outboxStatus(o)` returns an accessor with the counts.
 
@@ -94,19 +107,22 @@ If `navigator.locks` is absent, replay runs without the lock. Two tabs can then 
 
 Outbox types default to string ids for existing callers. For numeric ids, use `outbox<number>(...)` and the matching `OperationCall<number>`, `OutboxEntry<number>`, and `Send<number>` types.
 
-`recordWrite(c, o)` returns `{ rows, write }`. `rows` is an optimistic store keyed by the collection accessor: the rows of the collection with the guesses of open writes on top.
+`recordWrite(c, o)` takes a `SyncCollection` from `collection()` and returns `{ rows, write }`. `rows` is an optimistic store keyed by the collection accessor: the rows of the collection with the guesses of open writes on top.
 `write(call, expected)` is a Solid action:
 
 1. It merges `expected` into `rows[getKey(expected)]` as a guess.
 2. It enqueues `call` and `expected` in the outbox.
-3. It waits with `until` for a successful send to remove the entry from the outbox and for the collection to hold `getKey(expected)`.
+3. It waits with `until` for a successful send and a complete follow pass that starts after the reply.
 
-If `expected` has a version, the stored version must be greater. The collection reads both versions through `options.version`.
+The outbox must also remove the sent entry before the action ends.
+A pass that starts before the reply cannot end the wait, even if it ends complete.
+A pass that ends without complete also cannot end the wait.
 Expected rows must include the fields that `options.getKey` reads, including restored rows from the outbox.
-Without an expected version, any row with that key and a successful send are enough.
-Changes to the collection or outbox update the wait, so the row can arrive before or after the send succeeds.
+The wait compares no row versions and requires no row with the expected key.
+A joined write can change a result without a root revision that the browser can expect.
 
-The wait reads the collection, never `rows`, so the guess of the action never ends it.
+Follow events and outbox changes update the wait.
+The optimistic row never ends it.
 If the entry is refused, the wait throws `OutboxRefused` with the `code`, the `text` and the `seq`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.
 The action then rejects, and the guess reverts.
 The wait has no timeout, because a page can stay offline for hours. One action stays open for each unsent entry.

@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { createRoot, flush } from 'solid-js'
 import { CursorExpired, collection, liveList, liveRows } from '@wfe/sync'
-import type { Change } from '@wfe/sync'
+import type { Change, FollowPass } from '@wfe/sync'
 import {
   changed,
   deferred,
@@ -35,6 +35,8 @@ test('a pass replays the change log in pages into both shapes', async () => {
   )
   const c = collection(feed, 'all', { key: 'orders', pageSize: 2 })
   await tick()
+  const events: FollowPass[] = []
+  const stop = c.utils.watchFollow((event) => events.push(event))
   const listedAt = c.utils.currentAt()
   expect(listedAt).toBeDefined()
   const { rows, list, dispose } = createRoot((dispose) => ({
@@ -60,7 +62,13 @@ test('a pass replays the change log in pages into both shapes', async () => {
   expect(rows.a?.quantity).toBe(5)
   expect(list.map((row) => row.id)).toEqual(['a', 'c'])
   expect(c.utils.currentAt()! > listedAt!).toBe(true)
+  expect(events).toEqual([
+    { type: 'start', id: 1 },
+    { type: 'end', id: 1, complete: true },
+  ])
+  stop()
   await c.utils.pull()
+  expect(events).toHaveLength(2)
   expect(cursors(feed.changes)).toEqual(['c0', 'c2', 'c3'])
   dispose()
 })
@@ -280,14 +288,22 @@ test('cleanup aborts the pass in flight and drops its page', async () => {
   vi.mocked(feed.changes).mockImplementationOnce(() => page.promise)
   const c = collection(feed, 'all', { key: 'orders' })
   await tick()
+  const events: FollowPass[] = []
+  const stop = c.utils.watchFollow((event) => events.push(event))
   const running = c.utils.pull()
   const signal = vi.mocked(feed.changes).mock.calls[0]?.[3] as AbortSignal
   expect(signal.aborted).toBe(false)
   await c.cleanup()
   expect(signal.aborted).toBe(true)
+  expect(events).toEqual([
+    { type: 'start', id: 1 },
+    { type: 'end', id: 1, complete: false },
+  ])
   page.resolve({ rows: [changed('b', 1)], next_cursor: 'c1', complete: true })
   await running
   expect(c.has('b')).toBe(false)
+  expect(events).toHaveLength(2)
+  stop()
 })
 
 test('a restart after cleanup fills and follows again, and the old run stays stopped', async () => {
@@ -296,6 +312,9 @@ test('a restart after cleanup fills and follows again, and the old run stays sto
   const { trigger, unsubscribe } = triggerOf()
   const c = collection(feed, 'all', { key: 'orders', trigger, pollMs: 1000 })
   await vi.advanceTimersByTimeAsync(0)
+  const events: FollowPass[] = []
+  const stop = c.utils.watchFollow((event) => events.push(event))
+  await c.utils.pull()
   await c.cleanup()
   expect(unsubscribe).toHaveBeenCalledTimes(1)
   const subscription = c.subscribeChanges(() => {})
@@ -304,8 +323,15 @@ test('a restart after cleanup fills and follows again, and the old run stays sto
   expect(trigger.subscribe).toHaveBeenCalledTimes(2)
   log.push(changed('b', 1))
   await vi.advanceTimersByTimeAsync(1000)
-  expect(feed.changes).toHaveBeenCalledTimes(1)
+  expect(feed.changes).toHaveBeenCalledTimes(2)
   expect(ids(c)).toEqual(['a', 'b'])
+  expect(events).toEqual([
+    { type: 'start', id: 1 },
+    { type: 'end', id: 1, complete: true },
+    { type: 'start', id: 2 },
+    { type: 'end', id: 2, complete: true },
+  ])
+  stop()
   subscription.unsubscribe()
   await c.cleanup()
 })

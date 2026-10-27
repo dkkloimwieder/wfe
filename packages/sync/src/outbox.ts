@@ -56,6 +56,8 @@ export interface Outbox<K extends string | number = string> {
   entries(): OutboxEntry<K>[]
   /** Calls fn with the counts now and on each change; returns the unsubscribe. */
   watch(fn: (counts: OutboxCounts) => void): () => void
+  /** Calls fn at each successful send reply, before the entry is removed. */
+  watchSent(fn: (seq: number) => void): () => void
   /** Aborts sends in flight, leaves them pending, and closes the database. */
   close(): void
 }
@@ -117,6 +119,7 @@ export function outbox<K extends string | number = string>(options: {
 }): Outbox<K> {
   const memory = new Map<number, OutboxEntry<K>>()
   const listeners = new Set<(counts: OutboxCounts) => void>()
+  const sentListeners = new Set<(seq: number) => void>()
   const abort = new AbortController()
   const gone = new Set<number>()
   let lastSentAt: string | undefined
@@ -203,6 +206,7 @@ export function outbox<K extends string | number = string>(options: {
       const reply = await send(entry)
       if (closed) return
       if (reply.ok) {
+        for (const fn of [...sentListeners]) fn(entry.seq)
         await remove(entry.seq)
         memory.delete(entry.seq)
         lastSentAt = new Date().toISOString()
@@ -347,6 +351,12 @@ export function outbox<K extends string | number = string>(options: {
       fn(counts())
       return () => {
         listeners.delete(fn)
+      }
+    },
+    watchSent(fn) {
+      sentListeners.add(fn)
+      return () => {
+        sentListeners.delete(fn)
       }
     },
     close() {

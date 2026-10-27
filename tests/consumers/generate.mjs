@@ -69,6 +69,7 @@ const argumentsByName = {
   Change: "import('@wfe/sync').Row",
   Feed: "import('@wfe/sync').Row, string",
   KeyedCollection: "import('@wfe/sync').Row",
+  SyncCollection: "import('@wfe/sync').Row",
 }
 const prettier = await resolveConfig(resolve(root, 'package.json'))
 const counts = new Map()

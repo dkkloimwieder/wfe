@@ -3,6 +3,7 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { For, Loading, createRoot, flush, snapshot } from 'solid-js'
 import {
+  CursorExpired,
   OutboxDiscarded,
   OutboxRefused,
   collection,
@@ -22,6 +23,7 @@ import {
   tick,
 } from './sync-fixtures'
 import type { Order } from './sync-fixtures'
+import type { Change, Feed } from '@wfe/sync'
 
 afterEach(cleanup)
 
@@ -30,7 +32,8 @@ const name = () => `record-test-${++count}`
 
 /** A filled collection, an outbox, and a rendered list over recordWrite. */
 async function mounted(up = true, model?: string) {
-  const c = collection(feedOf([[order('a', 1), order('b', 1)]]), 'all', {
+  const feed = feedOf([[order('a', 1), order('b', 1)]])
+  const c = collection(feed, 'all', {
     key: 'orders:all',
   })
   await tick()
@@ -42,7 +45,7 @@ async function mounted(up = true, model?: string) {
   const view = mountedRecord(c, o, model)
   await tick()
   flush()
-  return { c, o, host, net, database, probe, ...view }
+  return { c, o, host, net, database, probe, feed, ...view }
 }
 
 function mountedRecord(
@@ -83,24 +86,166 @@ function track<T>(promise: Promise<T>) {
   return state
 }
 
-test('the guess shows at once, and the write ends when the feed brings a newer row', async () => {
-  const { c, host, record, item } = await mounted()
+/** Supply authoritative changes through one complete follow pass. */
+async function follow(
+  c: ReturnType<typeof collection<Order, string>>,
+  feed: Feed<Order, string>,
+  rows: Change<Order>[] = [],
+) {
+  vi.mocked(feed.changes).mockResolvedValueOnce({
+    rows,
+    next_cursor: 'followed',
+    complete: true,
+  })
+  await c.utils.pull()
+}
+
+test('a joined write confirms after a later complete pass without comparing the expected version', async () => {
+  const { c, o, host, record, item, feed } = await mounted()
   expect(item('a')?.textContent).toBe('a:1')
   const write = track(
-    record.write(call('a', 'h1'), { id: 'a', row_version: 1, quantity: 9 }),
+    record.write(
+      { ...call('line-a', 'h1'), operation: 'receiptLines.update' },
+      { id: 'a', row_version: 999, quantity: 9 },
+    ),
   )
   flush()
   expect(item('a')?.textContent).toBe('a:9')
   await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
   host.answer('h1')
-  await tick()
+  await vi.waitFor(() => expect(o.entries()).toEqual([]))
   expect(write.done).toBe(false)
   applyChanges(c, [changed('a', 2, 9)])
+  await tick()
+  expect(write.done).toBe(false)
+  await follow(c, feed)
   await vi.waitFor(() => expect(write.done).toBe(true))
   expect(write.error).toBeUndefined()
   flush()
   expect(item('a')?.textContent).toBe('a:9')
   expect(record.rows.a?.row_version).toBe(2)
+})
+
+test.each([false, true])(
+  'a pass running at the reply does not confirm, including an adapter mounted during that pass: %s',
+  async (mountDuringPass) => {
+    const setup = await mounted()
+    const { c, o, host, feed } = setup
+    const first = deferred<Awaited<ReturnType<typeof feed.changes>>>()
+    const last = deferred<Awaited<ReturnType<typeof feed.changes>>>()
+    vi.mocked(feed.changes)
+      .mockReturnValueOnce(first.promise)
+      .mockReturnValueOnce(last.promise)
+    const pull = c.utils.pull()
+    expect(feed.changes).toHaveBeenCalledTimes(1)
+    const view = mountDuringPass ? mountedRecord(c, o) : setup
+    await tick()
+    flush()
+    const write = track(
+      view.record.write(call('line-a', 'joined'), { id: 'a', quantity: 9 }),
+    )
+    await vi.waitFor(() => expect(host.sent).toEqual(['joined']))
+    host.answer('joined')
+    await vi.waitFor(() => expect(o.entries()).toEqual([]))
+    first.resolve({
+      rows: [changed('a', 2, 8)],
+      next_cursor: 'page-1',
+      complete: false,
+    })
+    await vi.waitFor(() => expect(feed.changes).toHaveBeenCalledTimes(2))
+    expect(write.done).toBe(false)
+    last.resolve({ rows: [], next_cursor: 'page-2', complete: true })
+    await pull
+    await tick()
+    expect(write.done).toBe(false)
+    expect(view.record.rows.a?.quantity).toBe(9)
+    await follow(c, feed)
+    await vi.waitFor(() => expect(write.done).toBe(true))
+    expect(write.error).toBeUndefined()
+    expect(view.record.rows.a?.quantity).toBe(8)
+    o.close()
+  },
+)
+
+test('a later pass waits for its final complete page', async () => {
+  const { c, o, host, record, feed } = await mounted()
+  const write = track(
+    record.write(call('a', 'paged'), { id: 'a', quantity: 9 }),
+  )
+  await vi.waitFor(() => expect(host.sent).toEqual(['paged']))
+  host.answer('paged')
+  await vi.waitFor(() => expect(o.entries()).toEqual([]))
+  const last = deferred<Awaited<ReturnType<typeof feed.changes>>>()
+  vi.mocked(feed.changes)
+    .mockResolvedValueOnce({
+      rows: [changed('a', 2, 8)],
+      next_cursor: 'partial',
+      complete: false,
+    })
+    .mockReturnValueOnce(last.promise)
+  const pull = c.utils.pull()
+  await vi.waitFor(() => expect(feed.changes).toHaveBeenCalledTimes(2))
+  await tick()
+  expect(write.done).toBe(false)
+  expect(record.rows.a?.quantity).toBe(9)
+  last.resolve({ rows: [], next_cursor: 'complete', complete: true })
+  await pull
+  await vi.waitFor(() => expect(write.done).toBe(true))
+  expect(record.rows.a?.quantity).toBe(8)
+  o.close()
+})
+
+test.each(['failed', 'expired', 'unmoved'] as const)(
+  'a pass that ends %s without complete does not confirm a write',
+  async (ending) => {
+    const { c, o, host, record, feed } = await mounted()
+    const write = track(record.write(call('a', 'h1'), { id: 'a', quantity: 9 }))
+    await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
+    host.answer('h1')
+    await vi.waitFor(() => expect(o.entries()).toEqual([]))
+    if (ending === 'unmoved') feed.moved = async () => false
+    else {
+      vi.mocked(feed.changes)
+        .mockResolvedValueOnce({
+          rows: [changed('a', 2, 8)],
+          next_cursor: 'partial',
+          complete: false,
+        })
+        .mockRejectedValueOnce(
+          ending === 'expired' ? new CursorExpired() : new Error('offline'),
+        )
+    }
+    await c.utils.pull()
+    // A successful refill cannot substitute for a complete changes pass.
+    await c.utils.refill()
+    await tick()
+    expect(write.done).toBe(false)
+    expect(record.rows.a?.quantity).toBe(9)
+    delete feed.moved
+    await follow(c, feed, [changed('a', 3, 8)])
+    await vi.waitFor(() => expect(write.done).toBe(true))
+    expect(write.error).toBeUndefined()
+    expect(record.rows.a?.quantity).toBe(8)
+    o.close()
+  },
+)
+
+test('a pass after the reply can complete before durable outbox removal', async () => {
+  const { c, o, host, record, feed } = await mounted()
+  const write = track(record.write(call('a', 'fast'), { id: 'a', quantity: 9 }))
+  let pull: Promise<void> | undefined
+  const stop = o.watchSent(() => {
+    expect(o.entries()[0]?.state).toBe('sending')
+    pull = follow(c, feed, [changed('a', 2, 8)])
+  })
+  await vi.waitFor(() => expect(host.sent).toEqual(['fast']))
+  host.answer('fast')
+  await vi.waitFor(() => expect(write.done).toBe(true))
+  await pull
+  expect(write.error).toBeUndefined()
+  expect(record.rows.a?.quantity).toBe(8)
+  stop()
+  o.close()
 })
 
 test('a refusal rejects the write with OutboxRefused and the guess reverts', async () => {
@@ -142,7 +287,7 @@ test('a discard rejects the write with OutboxDiscarded and the seq', async () =>
 })
 
 test('two overlapping writes keep both guesses, and neither row remounts', async () => {
-  const { c, host, record, item } = await mounted()
+  const { c, o, host, record, item, feed } = await mounted()
   const a = item('a')
   const b = item('b')
   const first = track(
@@ -163,6 +308,9 @@ test('two overlapping writes keep both guesses, and neither row remounts', async
   expect(item('a')?.textContent).toBe('a:7')
   expect(item('b')?.textContent).toBe('b:8')
   applyChanges(c, [changed('b', 2, 8)])
+  await vi.waitFor(() => expect(o.entries()).toEqual([]))
+  expect(first.done || second.done).toBe(false)
+  await follow(c, feed)
   await vi.waitFor(() => expect(first.done && second.done).toBe(true))
   expect(first.error).toBeUndefined()
   expect(second.error).toBeUndefined()
@@ -173,8 +321,8 @@ test('two overlapping writes keep both guesses, and neither row remounts', async
   expect(item('b')).toBe(b)
 })
 
-test('offline, the entry waits and the guess shows; a good probe sends and the echo ends the write', async () => {
-  const { c, o, host, net, record, item } = await mounted(false)
+test('offline, the write stays tentative until replay and a later complete pass', async () => {
+  const { c, o, host, net, record, item, feed } = await mounted(false)
   const write = track(
     record.write(call('a', 'h1'), { id: 'a', row_version: 1, quantity: 9 }),
   )
@@ -192,16 +340,16 @@ test('offline, the entry waits and the guess shows; a good probe sends and the e
   await vi.waitFor(() => expect(o.entries()).toEqual([]))
   expect(write.done).toBe(false)
   expect(item('a')?.textContent).toBe('a:9')
-  applyChanges(c, [changed('a', 2, 9)])
+  await follow(c, feed, [changed('a', 2, 9)])
   await vi.waitFor(() => expect(write.done).toBe(true))
   expect(write.error).toBeUndefined()
   expect(o.entries()).toEqual([])
 })
 
 test.each([undefined, 1])(
-  'an offline update with expected version %s keeps its guess until an early feed row and the send succeed',
+  'an offline update with expected version %s ignores a complete pass before replay',
   async (version) => {
-    const { c, o, host, net, record, item } = await mounted(false)
+    const { c, o, host, net, record, item, feed } = await mounted(false)
     const write = track(
       record.write(call('a', 'h1'), {
         id: 'a',
@@ -219,7 +367,7 @@ test.each([undefined, 1])(
     expect(item('a')?.textContent).toBe('a:9')
     expect(write.done).toBe(false)
 
-    applyChanges(c, [changed('a', 2, 9)])
+    await follow(c, feed, [changed('a', 2, 9)])
     await tick()
     flush()
     expect(c.get('a')?.row_version).toBe(2)
@@ -235,6 +383,8 @@ test.each([undefined, 1])(
     host.answer('h1')
     await replay
     expect(o.entries()).toEqual([])
+    expect(write.done).toBe(false)
+    await follow(c, feed)
     await vi.waitFor(() => expect(write.done).toBe(true))
     expect(write.error).toBeUndefined()
     flush()
@@ -244,49 +394,19 @@ test.each([undefined, 1])(
   },
 )
 
-test('the write reads the versions through options.version', async () => {
-  type Camel = { id: string; rowVersion: number; quantity: number }
-  const camel = (id: string, rowVersion: number, quantity = 1): Camel => ({
-    id,
-    rowVersion,
-    quantity,
-  })
-  const c = collection(
-    {
-      list: async () => ({ rows: [camel('a', 1)], cursor: 'end' }),
-      changes: async () => ({ rows: [], next_cursor: 'end', complete: true }),
-    },
-    'all',
-    { key: 'camel:all', version: (row: Camel) => row.rowVersion },
-  )
-  await tick()
-  const host = hostOf()
-  const o = outbox({
-    database: name(),
-    send: host.send,
-    probe: async () => true,
-  })
-  let record!: ReturnType<typeof recordWrite<Camel>>
-  render(() => {
-    record = recordWrite(c, o)
-    return null
-  })
-  await tick()
+test('a complete pass can confirm without the expected row in the collection', async () => {
+  const { c, o, host, record, feed } = await mounted()
   const write = track(
-    record.write(call('a', 'h1'), { id: 'a', rowVersion: 1, quantity: 9 }),
+    record.write(call('a', 'delete'), { id: 'a', quantity: 9 }),
   )
-  await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
-  host.answer('h1')
-  applyChanges(c, [
-    { id: 'a', row_version: 1, deleted: false, data: camel('a', 1, 9) },
-  ])
-  await tick()
-  expect(write.done).toBe(false)
-  applyChanges(c, [
-    { id: 'a', row_version: 2, deleted: false, data: camel('a', 2, 9) },
-  ])
+  await vi.waitFor(() => expect(host.sent).toEqual(['delete']))
+  host.answer('delete')
+  await vi.waitFor(() => expect(o.entries()).toEqual([]))
+  await follow(c, feed, [{ id: 'a', row_version: 2, deleted: true }])
   await vi.waitFor(() => expect(write.done).toBe(true))
   expect(write.error).toBeUndefined()
+  expect(c.has('a')).toBe(false)
+  expect(record.rows.a).toBeUndefined()
 })
 
 /** Reopen the same database and mount before IndexedDB loads its entries. */
@@ -327,7 +447,7 @@ test('an offline write restores before network activity and clears after the sen
   await replay
   expect(next.item('a')?.textContent).toBe('a:9')
   // A different server value proves that the tentative overlay clears.
-  applyChanges(first.c, [changed('a', 2, 8)])
+  await follow(first.c, first.feed, [changed('a', 2, 8)])
   await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:8'))
   expect(snapshot(next.record.rows)).toEqual(
     Object.fromEntries(first.c.entries()),
@@ -451,7 +571,8 @@ test.each(['discard', 'resubmit'] as const)(
       await vi.waitFor(() => expect(first.host.sent).toEqual(['h1', 'h1']))
       expect(next.item('a')?.textContent).toBe('a:9')
       first.host.answer('h1')
-      applyChanges(first.c, [changed('a', 2, 8)])
+      await vi.waitFor(() => expect(next.o.entries()).toEqual([]))
+      await follow(first.c, first.feed, [changed('a', 2, 8)])
       await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:8'))
     }
     expect(next.o.entries()).toEqual([])

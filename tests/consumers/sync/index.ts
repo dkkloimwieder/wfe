@@ -5,6 +5,7 @@ import type {
   collection,
   CursorExpired,
   Feed,
+  FollowPass,
   KeyedCollection,
   liveList,
   liveRows,
@@ -23,6 +24,7 @@ import type {
   Send,
   shell,
   ShellResult,
+  SyncCollection,
   syncComplete,
   syncCurrentAt,
   syncStatus,
@@ -36,6 +38,7 @@ export type ExportedTypes = Assert<
     collection: typeof collection
     CursorExpired: typeof CursorExpired
     Feed: Feed<import('@wfe/sync').Row, string>
+    FollowPass: FollowPass
     KeyedCollection: KeyedCollection<import('@wfe/sync').Row>
     liveList: typeof liveList
     liveRows: typeof liveRows
@@ -54,6 +57,7 @@ export type ExportedTypes = Assert<
     Send: Send
     shell: typeof shell
     ShellResult: ShellResult
+    SyncCollection: SyncCollection<import('@wfe/sync').Row>
     syncComplete: typeof syncComplete
     syncCurrentAt: typeof syncCurrentAt
     syncStatus: typeof syncStatus

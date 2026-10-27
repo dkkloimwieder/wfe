@@ -75,6 +75,14 @@ test('ok removes the entry and sets lastSentAt; watch reports counts', async () 
   )
   const o = outbox({ database: name(), send, probe })
   const stop = o.watch((counts) => seen.push(counts))
+  const sent: number[] = []
+  const stopSent = o.watchSent((seq) => {
+    expect(o.entries()).toContainEqual(
+      expect.objectContaining({ seq, state: 'sending' }),
+    )
+    sent.push(seq)
+  })
+  expect(sent).toEqual([])
   expect(seen[0]).toEqual({
     pending: 0,
     sending: 0,
@@ -88,6 +96,11 @@ test('ok removes the entry and sets lastSentAt; watch reports counts', async () 
   expect(o.entries()).toEqual([])
   expect(seen.at(-1)?.lastSentAt).toEqual(expect.any(String))
   expect(seen.some((counts) => counts.sending === 1)).toBe(true)
+  expect(sent).toEqual([1])
+  stopSent()
+  await o.enqueue(call('b', 'h2'))
+  await o.replay()
+  expect(sent).toEqual([1])
   stop()
   o.close()
 })
@@ -100,6 +113,8 @@ test('a refusal keeps the entry; resubmit sends it again and discard removes it'
   const send = vi.fn(async () => replies.shift() ?? { ok: true as const })
   const database = name()
   const o = outbox({ database, send, probe })
+  const sent = vi.fn()
+  o.watchSent(sent)
   const entry = await o.enqueue(call('a', 'h1'))
   await o.replay()
   expect(o.entries()[0]).toMatchObject({
@@ -113,6 +128,7 @@ test('a refusal keeps the entry; resubmit sends it again and discard removes it'
   await o.discard(entry.seq)
   expect(o.entries()).toEqual([])
   expect(await stored(database)).toEqual([])
+  expect(sent).not.toHaveBeenCalled()
   o.close()
 })
 
