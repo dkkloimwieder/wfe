@@ -85,7 +85,10 @@ export function DialogControls() {
       >
         Outside action
       </Button>
-      <div id="reserved" style={{ height: '200px', border: '1px solid' }}>
+      <div
+        id="reserved"
+        style={{ height: '200px', border: 'var(--ui-border-width, 1px) solid' }}
+      >
         Reserved page area
       </div>
       <Dialog

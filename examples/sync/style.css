@@ -43,7 +43,7 @@ body {
 .sync-scroll {
   max-height: 60dvh;
   overflow: auto;
-  border: 1px solid var(--ui-border, currentColor);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, currentColor);
 }
 .sync-table {
   border-collapse: collapse;

@@ -13,7 +13,7 @@ body {
 .form-example {
   max-width: 42rem;
   background: var(--ui-pane-surface);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   box-shadow: var(--ui-panel-shadow);
   margin: var(--ui-gap, 6px) auto 0;
   padding: 12px;
@@ -29,7 +29,7 @@ h2 {
   gap: 12px;
   padding: 12px;
   background: var(--ui-surface);
-  border-top: 1px solid var(--ui-border);
+  border-top: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 
 p {

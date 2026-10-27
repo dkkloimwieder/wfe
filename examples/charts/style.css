@@ -13,7 +13,7 @@ body {
 .chart-review-panel {
   padding: var(--ui-cell-padding-x, 8px);
   background: var(--ui-surface);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   box-shadow: var(--ui-panel-shadow);
   min-width: 0;
 }

@@ -87,7 +87,7 @@ body,
 .platform-access-summary dl {
   margin: 0;
   padding: var(--ui-gap);
-  border: 1px solid var(--ui-canvas-surface);
+  border: var(--ui-border-width, 1px) solid var(--ui-canvas-surface);
 }
 .platform-access-summary dd {
   margin: 0;

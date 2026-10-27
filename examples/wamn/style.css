@@ -21,12 +21,12 @@ body {
   height: 440px;
   overflow: auto;
   background: var(--ui-surface);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 .row {
   height: 44px;
   display: flex;
-  border-bottom: 1px solid var(--ui-divider);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-divider);
 }
 .row > div {
   flex-shrink: 0;

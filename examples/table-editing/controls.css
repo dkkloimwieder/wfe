@@ -67,7 +67,7 @@
 :where([data-ui]) .table-views fieldset {
   margin: 0;
   min-width: 0;
-  border: 1px solid var(--ui-border, #ccc);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
   border-radius: 0;
   padding: 8px 10px;
 }
@@ -125,5 +125,5 @@
 :where([data-ui]) .fixture-warning {
   padding: 8px 10px;
   background: var(--ui-warning-surface, #fff7d9);
-  border: 1px solid var(--ui-warning-border, #ddc777);
+  border: var(--ui-border-width, 1px) solid var(--ui-warning-border, #ddc777);
 }

@@ -18,7 +18,7 @@ body:has(.component-preview) {
 }
 #resizable-review {
   height: 12rem;
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 #resizable-review .ui-resizable-pane {
   padding: var(--ui-gap, 6px);

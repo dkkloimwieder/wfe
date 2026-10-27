@@ -195,10 +195,7 @@ export function PlatformApp(props: {
   return (
     <DefaultAppearance
       class="platform-example"
-      style={{
-        ...appearanceStyle(scheme(), accent(), depth(), layers()),
-        '--ui-text': 'var(--ui-muted-text)',
-      }}
+      style={appearanceStyle(scheme(), accent(), depth(), layers())}
     >
       <div
         class="platform-root"

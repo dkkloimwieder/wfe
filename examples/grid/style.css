@@ -12,7 +12,7 @@ body {
 .grid-example-header,
 .grid-example-footer {
   padding: var(--ui-layout-inset, 8px);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   background: var(--ui-pane-surface);
   box-shadow: var(--ui-panel-shadow);
 }

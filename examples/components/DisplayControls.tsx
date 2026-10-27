@@ -99,7 +99,7 @@ export function DisplayControls(props: { embedded?: boolean } = {}) {
           height: '320px',
           overflow: 'auto',
           position: 'relative',
-          border: '1px solid var(--ui-border)',
+          border: 'var(--ui-border-width, 1px) solid var(--ui-border)',
         }}
       >
         <Show when={loading()} fallback={<EmptyState>No results</EmptyState>}>

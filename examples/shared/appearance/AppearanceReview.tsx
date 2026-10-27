@@ -1,6 +1,11 @@
 import { For, Show, createMemo, createSignal } from 'solid-js'
+import type { JSX } from '@solidjs/web'
 import { themeStyle } from '@wfe/components/theme'
-import type { ThemeOptions } from '@wfe/components/theme'
+import type {
+  ThemeAccent,
+  ThemeOptions,
+  ThemeSecondaryAccent,
+} from '@wfe/components/theme'
 import type { ButtonTone } from '@wfe/components'
 import { Button, Input, Field, Label } from '@wfe/components'
 import {
@@ -49,9 +54,38 @@ export function AppearanceReview(props: {
   onAccentChange: (accent: Accent) => void
   onDepthChange: (depth: Depth) => void
 }) {
+  const activeStyle = createMemo<JSX.CSSProperties>(() =>
+    props.themeOptions ? themeStyle(props.themeOptions) : {},
+  )
+  const accentSample = (accent: Accent, secondary = false) => {
+    if (!props.themeOptions)
+      return { background: accentColor(accent, props.scheme) }
+    const name = accent.name.toLowerCase().replaceAll(' ', '-')
+    const style = themeStyle({
+      ...props.themeOptions,
+      ...(secondary
+        ? { secondaryAccent: name as ThemeSecondaryAccent }
+        : { accent: name as ThemeAccent }),
+    })
+    return {
+      ...style,
+      background: secondary ? 'var(--ui-secondary-accent)' : 'var(--ui-accent)',
+    }
+  }
+  const dividerSample = (key: keyof TableDividers, level: 0 | 1 | 2 | 3) => {
+    if (!props.themeOptions)
+      return { background: dividerSurfaces(props.scheme)[level] }
+    return {
+      ...themeStyle({
+        ...props.themeOptions,
+        dividers: { ...props.themeOptions.dividers, [key]: level },
+      }),
+      background: `var(--ui-table-${key === 'rows' ? 'row' : 'column'}-divider)`,
+    }
+  }
   const swatches = createMemo(() => {
     if (!props.themeOptions) return props.scheme
-    const style = themeStyle(props.themeOptions)
+    const style = activeStyle()
     return {
       surfaces: [1, 2, 3, 4].map((level) =>
         String(style[`--ui-surface-${level}`]),
@@ -92,10 +126,7 @@ export function AppearanceReview(props: {
                 aria-pressed={props.accent === accent ? 'true' : 'false'}
                 onClick={() => props.onAccentChange(accent)}
               >
-                <span
-                  aria-hidden="true"
-                  style={{ background: accentColor(accent, props.scheme) }}
-                />
+                <span aria-hidden="true" style={accentSample(accent)} />
               </Button>
             )}
           </For>
@@ -232,9 +263,7 @@ export function AppearanceReview(props: {
                       <span
                         class="divider-sample"
                         aria-hidden="true"
-                        style={{
-                          background: dividerSurfaces(props.scheme)[level],
-                        }}
+                        style={dividerSample(divider.key, level)}
                       />
                       {level + 1}
                     </Button>
@@ -268,10 +297,7 @@ export function AppearanceReview(props: {
                     )
                   }
                 >
-                  <span
-                    aria-hidden="true"
-                    style={{ background: accentColor(accent, props.scheme) }}
-                  />
+                  <span aria-hidden="true" style={accentSample(accent, true)} />
                 </Button>
               )}
             </For>
@@ -363,6 +389,7 @@ export function AppearanceReview(props: {
                 class="surface-sample"
                 aria-hidden="true"
                 style={{
+                  ...activeStyle(),
                   background: swatches()[role.source][role.index],
                 }}
               />

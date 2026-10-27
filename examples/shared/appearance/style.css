@@ -5,7 +5,7 @@
   gap: var(--ui-gap, 6px);
   min-width: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   background: var(--ui-surface);
   box-shadow: var(--ui-panel-shadow);
 }
@@ -38,12 +38,6 @@
 .appearance-pickers > a {
   color: var(--ui-accent);
 }
-.appearance-review button[aria-pressed='true'] {
-  background: var(--ui-surface);
-  color: var(--ui-accent);
-  border-color: var(--ui-accent);
-  font-weight: 700;
-}
 .appearance-review .accent-swatch {
   padding: 4px;
 }
@@ -68,7 +62,7 @@
   display: block;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 .surface-swatch > span:last-child {
   display: grid;
@@ -82,7 +76,7 @@
   width: 10px;
   height: 10px;
   margin-inline-end: 4px;
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 
 .appearance-decorations {

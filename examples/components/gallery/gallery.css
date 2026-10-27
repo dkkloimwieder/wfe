@@ -39,7 +39,7 @@ body:has(.gallery-preview) {
   max-height: 40dvh;
   overflow: auto;
   padding: var(--ui-layout-inset);
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 .gallery-appearance > .appearance-review {
   padding: 0;
@@ -54,7 +54,7 @@ body:has(.gallery-preview) {
   flex: none;
   padding: var(--ui-layout-inset);
   background: var(--ui-pane-surface);
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 .gallery-toolbar > div {
   display: flex;
@@ -158,7 +158,7 @@ body:has(.gallery-preview) {
   min-width: 0;
   width: 100%;
   padding: var(--ui-layout-inset);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   background: var(--ui-surface);
   margin-inline: auto;
 }

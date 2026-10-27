@@ -12,7 +12,7 @@
   align-items: center;
   gap: var(--ui-gap);
   padding: var(--ui-layout-inset);
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border);
   background: var(--ui-surface);
 }
 .board-example-toolbar h1 {
@@ -38,7 +38,7 @@
   display: flex;
   gap: var(--ui-gap);
   justify-content: space-between;
-  border-top: 1px solid var(--ui-border);
+  border-top: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 .board-example-tags {
   display: flex;

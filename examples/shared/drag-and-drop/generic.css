@@ -7,7 +7,7 @@
 }
 .drag-example-section {
   background: var(--ui-surface);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
   padding: var(--ui-layout-inset);
   margin: 0;
 }
@@ -35,7 +35,7 @@
 .drag-example-target {
   min-height: 5rem;
   padding: var(--ui-layout-inset);
-  border: 1px solid var(--ui-border);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
 }
 .drag-example-list {
   list-style: none;
@@ -44,5 +44,5 @@
 }
 .drag-example-list > li {
   padding-block: var(--ui-gap);
-  border-bottom: 1px solid var(--ui-border);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border);
 }

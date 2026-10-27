@@ -244,9 +244,57 @@ Use `layers` to choose the canvas, pane, and content surfaces from the Laser sca
 Laser defaults to `{ canvas: 0, pane: 1, content: 1 }`.
 The gallery supports `?gallery=everything&preset=laser` and selects dark mode when you choose Laser.
 
-`--ui-laser-elevation` controls the broad shadow. `--ui-laser-glow` controls the combined elevation and neon highlight.
+`--ui-laser-elevation` overrides the resting panel shadow.
+Set it to `none` to remove that shadow without disabling hover glow.
+Laser resolves its glow at each control so a local accent also colors the glow.
+`--ui-laser-glow`, `--ui-laser-text-glow`, and `--ui-laser-icon-shadow` accept complete effect overrides.
+Their default is CSS `initial`, which selects the stylesheet fallback.
+The stylesheet computes that effect from its inputs.
 The shared radius variables control pills, panels, and popups independently.
 Forced-color mode removes the shadows and retains the native focus outline.
 
 The `--ui-surface-1` through `--ui-surface-4` variables expose the active surface palette.
-The canvas, pane, and content roles select colors from that palette.
+The canvas, pane, and content roles reference that palette.
+Override palette variables on the `Theme` element through its `style` prop to update the linked roles.
+An explicit role override, such as `--ui-control-border`, takes precedence over its default link.
+
+## Shared roles and component overrides
+
+All presets define success, warning, error, and overlay colors.
+Warning uses `--ui-warning-surface`, `--ui-warning-text`, and `--ui-warning-border`.
+Success uses `--ui-success`. Error uses `--ui-error`. Modal backdrops use `--ui-overlay`.
+Gantt dependencies and baselines use `--ui-muted-text`.
+Charts use the same popup surface, border, text, radius, and shadow roles as other popups.
+
+Selection and button colors follow `--ui-accent` on the theme owner.
+When you supply a custom accent color, also supply a suitable `--ui-on-accent` foreground.
+Use a nested `Theme` for a complete local theme. A local accent alone does not replace every inherited semantic role.
+Laser computes its default control, text, and icon glows at the consumer, so they follow a local accent.
+
+`--ui-divider-1` through `--ui-divider-4` define the selectable divider scale.
+Sketchy retains its separate divider palette. Vanilla and Laser link the scale to their surface palettes.
+The `dividers` prop selects a level for rows and columns in every preset.
+Without that prop, Vanilla retains its border color and Laser retains its subtle divider color.
+
+Shared headings use `--ui-heading-font-size` and `--ui-heading-weight`.
+Optional `--ui-dialog-title-font-size`, `--ui-dialog-title-weight`, `--ui-popup-title-font-size`, and `--ui-popup-title-weight` distinguish popup titles.
+`--ui-chart-tooltip-title-weight`, `--ui-toast-title-weight`, and `--ui-kanban-heading-weight` override their respective headings.
+Status tiles expose `--ui-status-tile-label-weight`, `--ui-status-tile-value-font-size`, `--ui-status-tile-value-weight`, and `--ui-status-tile-value-line-height`.
+
+`--ui-sidebar-control-height` changes sidebar row geometry without changing form controls.
+`--ui-sidebar-heading-weight`, `--ui-sidebar-group-padding-y`, `--ui-sidebar-content-margin-y`, and `--ui-navigation-gap` control sidebar presentation.
+Vanilla and Laser retain weight 500 for sidebar and Kanban headings through their dedicated roles.
+`--ui-subtable-toggle-size` and `--ui-subtable-heading-font-size` distinguish compact child tables.
+`--ui-checkbox-radius` controls checkbox corners. Laser sets its default to 6px.
+`--ui-menu-padding`, `--ui-menu-separator-margin-y`, and `--ui-badge-padding-x` expose compact component spacing.
+
+Laser exposes glow geometry through `--ui-laser-glow-width` and `--ui-laser-glow-blur`.
+`--ui-laser-glow-ring-opacity` and `--ui-laser-glow-opacity` control its strength.
+Text uses `--ui-laser-text-glow-blur` and `--ui-laser-text-glow-opacity`.
+Icons use `--ui-laser-icon-elevation`, `--ui-laser-icon-glow-blur`, and `--ui-laser-icon-glow-opacity`.
+`--ui-input-min-padding-x` controls Laser's minimum input padding.
+Explicit `--ui-popup-shadow` or complete Laser effect overrides replace these computed defaults.
+
+`--ui-laser-shadow-y`, `--ui-laser-shadow-blur`, `--ui-laser-shadow-spread`, and `--ui-laser-shadow-color` supply the shared elevation geometry.
+These inputs feed both resting shadows and the broad layer behind glow.
+Set the shadow color to `transparent` to remove that layer from both effects.
