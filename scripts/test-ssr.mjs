@@ -204,6 +204,82 @@ assert.match(generatorOutput, /Record title/)
 assert.deepEqual(generatorWarnings, [])
 console.log('Generator public server rendering and disposal passed.')
 
+const { Command, CommandPalette } = await import('@wfe/components')
+let commandRequests = 0
+const commandItems = [
+  {
+    id: 'report',
+    label: 'Open server report',
+    group: 'Documents',
+    href: '/reports',
+  },
+  { id: 'disabled', label: 'Unavailable server action', disabled: true },
+  { id: 'create', label: 'Create server record' },
+]
+const commandOutput = await renderToString(() =>
+  createComponent(Command, {
+    label: 'Server commands',
+    items: commandItems,
+    onSelect() {
+      commandRequests++
+    },
+    onQueryChange() {
+      commandRequests++
+    },
+  }),
+)
+const commandInput = commandOutput.match(
+  /<input\b[^>]*role="combobox"[^>]*>/,
+)?.[0]
+assert.ok(
+  commandInput,
+  'Command renders its accessible search input on the server',
+)
+const commandInputId = commandInput.match(/\bid="([^"]+)"/)?.[1]
+const commandListId = commandInput.match(/aria-controls="([^"]+)"/)?.[1]
+const commandActiveId = commandInput.match(
+  /aria-activedescendant="([^"]+)"/,
+)?.[1]
+assert.ok(commandInputId && commandListId && commandActiveId)
+assert.ok(commandOutput.includes(`for="${commandInputId}"`))
+assert.ok(commandOutput.includes(`id="${commandListId}"`))
+assert.ok(commandOutput.includes(`id="${commandActiveId}"`))
+assert.match(commandOutput, /role="listbox"/)
+assert.match(commandOutput, /aria-selected="true"/)
+assert.match(commandOutput, /aria-disabled="true"/)
+assert.match(commandOutput, /href="\/reports"/)
+for (const [, references] of commandOutput.matchAll(
+  /aria-(?:labelledby|describedby)="([^"]+)"/g,
+))
+  for (const reference of references.split(/\s+/))
+    assert.ok(
+      commandOutput.includes(`id="${reference}"`),
+      `Server command reference ${reference} resolves`,
+    )
+assert.equal(typeof globalThis.document, 'undefined')
+const closedCommandPalette = await renderToString(() =>
+  createComponent(CommandPalette, {
+    title: 'Server palette',
+    label: 'Server palette commands',
+    items: commandItems,
+    trigger: 'Open server palette',
+    open: false,
+    shortcut: true,
+    onOpenChange() {
+      commandRequests++
+    },
+    onSelect() {
+      commandRequests++
+    },
+  }),
+)
+assert.match(closedCommandPalette, /Open server palette/)
+assert.doesNotMatch(closedCommandPalette, /role="dialog"|role="combobox"/)
+assert.equal(commandRequests, 0)
+console.log(
+  'Command server markup has complete associations; closed palette shortcuts need no DOM.',
+)
+
 const { DatePicker, TimePicker, DateTimePicker } =
   await import('@wfe/components')
 let dateRequests = 0

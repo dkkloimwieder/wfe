@@ -110,7 +110,7 @@ await withArtifactRun(
         assets + 'index.html',
         html.replace(
           '</body>',
-          '<script>window.serverGanttNodes = [...document.querySelectorAll("#gantt-review .ui-gantt, #gantt-review .ui-gantt-axis, #gantt-review [data-interval]")]; window.serverDragNodes = [...document.querySelectorAll("#drag-board-review [data-drag-adopt], #drag-board-review button, #drag-board-review input")]; window.serverDisplayMessageNodes = [...document.querySelectorAll("#display-messages-review [role=img], #display-messages-review [role=group], #display-messages-review [role=region], #display-messages-review [role=status], #display-messages-review button")]; window.serverCompoundNodes = [...document.querySelectorAll("#compound-field-review input, #compound-field-review [id^=compound-], #compound-field-review label")]; window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverGlyphNodes = [...document.querySelectorAll("#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle")]; window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode, #theme-preset, #nested-theme, #nested-theme-action, #vanilla-theme, #vanilla-theme-draft, #vanilla-theme-trigger, #vanilla-nested-default, #vanilla-nested-draft, #vanilla-nested-trigger, #container-dashboard, #container-host")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
+          '<script>window.serverCommandNodes = [...document.querySelectorAll("#command-hydration-review input, #command-hydration-review [role=listbox], #command-hydration-review [role=option], #command-hydration-review button")]; window.serverCommandRelations = [...document.querySelectorAll("#command-hydration-review input")].map(node => [node.id, node.getAttribute("aria-controls"), node.getAttribute("aria-activedescendant")]); window.serverGanttNodes = [...document.querySelectorAll("#gantt-review .ui-gantt, #gantt-review .ui-gantt-axis, #gantt-review [data-interval]")]; window.serverDragNodes = [...document.querySelectorAll("#drag-board-review [data-drag-adopt], #drag-board-review button, #drag-board-review input")]; window.serverDisplayMessageNodes = [...document.querySelectorAll("#display-messages-review [role=img], #display-messages-review [role=group], #display-messages-review [role=region], #display-messages-review [role=status], #display-messages-review button")]; window.serverCompoundNodes = [...document.querySelectorAll("#compound-field-review input, #compound-field-review [id^=compound-], #compound-field-review label")]; window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverGlyphNodes = [...document.querySelectorAll("#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle")]; window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode, #theme-preset, #nested-theme, #nested-theme-action, #vanilla-theme, #vanilla-theme-draft, #vanilla-theme-trigger, #vanilla-nested-default, #vanilla-nested-draft, #vanilla-nested-trigger, #container-dashboard, #container-host")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
         ),
       )
       if (!process.env.BENCH_URL)
@@ -177,6 +177,119 @@ await withArtifactRun(
         true,
         'Gantt adopts its server frame, time axis and interval bar',
       )
+      const commands = page.locator('#command-hydration-review')
+      const commandInput = commands.getByRole('combobox', {
+        name: 'Hydrated commands',
+      })
+      assert.equal(
+        await page.evaluate(() =>
+          window.serverCommandNodes.every((node) => node.isConnected),
+        ),
+        true,
+      )
+      assert.deepEqual(
+        await commands
+          .locator('input')
+          .evaluateAll((nodes) =>
+            nodes.map((node) => [
+              node.id,
+              node.getAttribute('aria-controls'),
+              node.getAttribute('aria-activedescendant'),
+            ]),
+          ),
+        await page.evaluate(() => window.serverCommandRelations),
+      )
+      await commandInput.fill('create')
+      await expect(
+        commands.getByRole('option', {
+          name: 'Create hydrated record',
+          exact: true,
+        }),
+      ).toBeVisible()
+      await expect(commands.getByRole('option')).toHaveCount(1)
+      const activeCommand = await commandInput.getAttribute(
+        'aria-activedescendant',
+      )
+      assert.ok(activeCommand)
+      assert.equal(
+        await commandInput.evaluate((node) => {
+          const active = document.getElementById(
+            node.getAttribute('aria-activedescendant'),
+          )
+          return (
+            active?.getAttribute('role') === 'option' &&
+            active.getAttribute('aria-selected') === 'true'
+          )
+        }),
+        true,
+      )
+      await commandInput.press('Enter')
+      await expect(page.locator('#command-hydration-selection')).toHaveText(
+        'create',
+      )
+      assert.equal(
+        await page.evaluate(
+          () => window.hydrationFixture.lifecycle.commandSelections,
+        ),
+        1,
+      )
+      const commandTrigger = commands.getByRole('button', {
+        name: 'Open hydrated commands',
+      })
+      await commandTrigger.focus()
+      await page.keyboard.press('Control+k')
+      const commandDialog = page.getByRole('dialog', {
+        name: 'Hydrated command palette',
+      })
+      await expect(commandDialog).toBeVisible()
+      const paletteInput = commandDialog.getByRole('combobox', {
+        name: 'Palette commands',
+      })
+      await expect(paletteInput).toBeFocused()
+      assert.equal(
+        await page.evaluate(
+          () => window.hydrationFixture.lifecycle.commandOpenRequests,
+        ),
+        1,
+      )
+      await paletteInput.fill('report')
+      await expect(
+        commandDialog.getByRole('option', {
+          name: 'Open hydrated report',
+          exact: true,
+        }),
+      ).toBeVisible()
+      await paletteInput.press('Enter')
+      await expect(commandDialog).not.toBeVisible()
+      await expect(commandTrigger).toBeFocused()
+      assert.equal(
+        await page.evaluate(
+          () => window.hydrationFixture.lifecycle.commandSelections,
+        ),
+        2,
+      )
+      assert.equal(
+        await page.evaluate(
+          () => window.hydrationFixture.lifecycle.commandOpenRequests,
+        ),
+        2,
+      )
+      await commandTrigger.click()
+      await expect(commandDialog).toBeVisible()
+      await expect(paletteInput).toBeFocused()
+      await paletteInput.press('Escape')
+      await expect(commandDialog).not.toBeVisible()
+      await expect(commandTrigger).toBeFocused()
+      assert.equal(
+        await page.evaluate(
+          () => window.hydrationFixture.lifecycle.commandOpenRequests,
+        ),
+        4,
+      )
+      report.assertions.push(
+        'Command hydrates existing input/results with stable ARIA IDs; palette shortcut and actions run once, close, and restore focus',
+      )
+
       await reviewGantt(page)
       report.assertions.push(
         'Gantt retains server bars, accepts controlled selection and keyboard edits, and cancels gestures on disposal',
@@ -314,11 +427,13 @@ await withArtifactRun(
         true,
       )
       await page.locator('#adopt-matching input[role=combobox]').fill('gm')
-      await expect(page.getByRole('option')).toHaveText([
-        'Green Meadow',
-        'Gamma',
-        'Gamma Ray',
-      ])
+      const matchingListId = await page
+        .locator('#adopt-matching input[role=combobox]')
+        .getAttribute('aria-controls')
+      assert.ok(matchingListId)
+      await expect(
+        page.locator(`[id="${matchingListId}"]`).getByRole('option'),
+      ).toHaveText(['Green Meadow', 'Gamma', 'Gamma Ray'])
       await page.locator('#adopt-matching input[role=combobox]').press('Escape')
       report.assertions.push(
         'Hydrated fuzzy combobox retains its input and ranks typed matches',
@@ -877,7 +992,29 @@ await withArtifactRun(
         const accordionBefore = fixture.lifecycle.accordion.read()
         const numberBefore = fixture.lifecycle.number.read()
         const disclosureBefore = fixture.lifecycle.collapsible.read()
+        const commandsBefore = [
+          fixture.lifecycle.commandSelections,
+          fixture.lifecycle.commandOpenRequests,
+        ]
         fixture.dispose()
+        document.dispatchEvent(
+          new KeyboardEvent('keydown', {
+            key: 'k',
+            ctrlKey: true,
+            bubbles: true,
+            cancelable: true,
+          }),
+        )
+        for (const node of window.serverCommandNodes) {
+          node.click()
+          node.dispatchEvent(
+            new KeyboardEvent('keydown', {
+              key: 'Enter',
+              bubbles: true,
+              cancelable: true,
+            }),
+          )
+        }
         for (const node of window.serverFileNodes) {
           if (node.tagName === 'BUTTON' && node.type === 'button') node.click()
           node.dispatchEvent(new Event('change', { bubbles: true }))
@@ -949,6 +1086,11 @@ await withArtifactRun(
           requestAnimationFrame(() => requestAnimationFrame(done)),
         )
         return {
+          commandsBefore,
+          commandsAfter: [
+            fixture.lifecycle.commandSelections,
+            fixture.lifecycle.commandOpenRequests,
+          ],
           filesBefore,
           filesAfter: fixture.lifecycle.files.read(),
           resizableBefore,
@@ -979,6 +1121,10 @@ await withArtifactRun(
           diagnostics: fixture.diagnostics(),
         }
       })
+      assert.deepEqual(cleanup.commandsAfter, cleanup.commandsBefore)
+      report.assertions.push(
+        'Command disposal removes shortcut ownership and detached actions cannot run',
+      )
       assert.deepEqual(cleanup.filesAfter, cleanup.filesBefore)
       assert.deepEqual(cleanup.resizableAfter, cleanup.resizableBefore)
       assert.deepEqual(

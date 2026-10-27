@@ -1,3 +1,4 @@
+import { choiceListbox } from './select-review.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 export async function reviewResizable(page, api) {
@@ -117,11 +118,15 @@ export async function reviewResizable(page, api) {
   await handle.dblclick()
   await expect(handle).toHaveAttribute('aria-valuenow', '35')
   await configure({ acceptCollapse: true })
-  await root.getByRole('button', { name: 'Navigation choice' }).click()
-  await expect(page.getByRole('listbox')).toBeVisible()
+  const navigationChoice = root.getByRole('button', {
+    name: 'Navigation choice',
+  })
+  await navigationChoice.click()
+  const navigationList = await choiceListbox(navigationChoice)
+  await expect(navigationList).toBeVisible()
   await configure({ paneCollapsed: true })
   await expect(handle).toBeFocused()
-  await expect(page.getByRole('listbox')).not.toBeVisible()
+  await expect(navigationList).not.toBeVisible()
   await handle.press('Enter')
   await handle.focus()
   await page.keyboard.press('ArrowRight')

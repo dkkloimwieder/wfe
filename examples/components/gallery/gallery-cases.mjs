@@ -1,3 +1,7 @@
+import {
+  galleryCommandCases,
+  galleryCommandLinkCases,
+} from './command-cases.mjs'
 import { galleryThemeCases } from './theme-cases.mjs'
 import { galleryGanttCases } from './gantt-cases.mjs'
 import { galleryDragCases } from './drag-cases.mjs'
@@ -33,6 +37,7 @@ const catalog = [
   ['tabs', 'Tabs'],
   ['breadcrumbs', 'Breadcrumbs'],
   ['contexts', 'Context switcher'],
+  ['commands', 'Commands and search'],
   ['collapsible', 'Collapsible'],
   ['accordion', 'Accordion'],
   ['resizable', 'Resizable panes'],
@@ -84,6 +89,8 @@ export async function galleryCases({ page, url, record, settle }) {
   await galleryLoadingCases({ page, url, record })
   await galleryFormCases({ page, url, record })
   await galleryTimeCases({ page, url, record })
+  await galleryCommandCases({ page, url, record })
+  await galleryCommandLinkCases({ page, url, record })
   const preview = () => page.locator('.gallery-example-host')
   const ready = async () => {
     await expect(preview().locator('.gallery-preview')).toBeVisible()

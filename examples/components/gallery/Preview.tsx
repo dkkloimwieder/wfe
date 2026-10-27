@@ -1,3 +1,4 @@
+import { CommandRecipe } from './CommandRecipe'
 import { ThemeReview } from './ThemeReview'
 import { GanttExample } from './GanttExample'
 import { DragExample } from '../../shared/drag-and-drop/DragExample'
@@ -55,6 +56,7 @@ const IconsExample = lazy(() =>
 )
 
 const views = {
+  commands: CommandRecipe,
   themes: ThemeReview,
   gantt: () => (
     <div class="gallery-example-fill">

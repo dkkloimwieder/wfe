@@ -40,6 +40,8 @@ import '@wfe/components/styles.css'
 import { createSignal, onCleanup } from 'solid-js'
 import {
   Button,
+  Command,
+  CommandPalette,
   Toast,
   StatusTile,
   Checkbox,
@@ -72,6 +74,8 @@ import type {
 } from '@wfe/components/table'
 
 export const lifecycle = {
+  commandSelections: 0,
+  commandOpenRequests: 0,
   compound: compoundFieldLifecycle,
   pagination: paginationLifecycle,
   files: fileLifecycle,
@@ -341,6 +345,7 @@ export default function App() {
         </output>
       </section>
       <DisplayMessagesReview />
+      <CommandReview />
       <BreadcrumbControls />
       <TabsControls />
       <NumberControls />
@@ -413,6 +418,53 @@ function DisplayMessagesReview() {
       <Button onClick={() => setFrench(true)}>
         Translate display messages
       </Button>
+    </section>
+  )
+}
+
+function CommandReview() {
+  const [query, setQuery] = createSignal('')
+  const [open, setOpen] = createSignal(false)
+  const [selection, setSelection] = createSignal('None')
+  const items = [
+    { id: 'report', label: 'Open hydrated report', group: 'Records' },
+    {
+      id: 'disabled',
+      label: 'Disabled hydrated action',
+      group: 'Records',
+      disabled: true,
+    },
+    { id: 'create', label: 'Create hydrated record', group: 'Records' },
+  ]
+  return (
+    <section id="command-hydration-review">
+      <Command
+        label="Hydrated commands"
+        items={items}
+        query={query()}
+        onQueryChange={setQuery}
+        onSelect={(item) => {
+          lifecycle.commandSelections++
+          setSelection(item.id)
+        }}
+      />
+      <CommandPalette
+        title="Hydrated command palette"
+        label="Palette commands"
+        items={items}
+        trigger="Open hydrated commands"
+        shortcut
+        open={open()}
+        onOpenChange={(value) => {
+          lifecycle.commandOpenRequests++
+          setOpen(value)
+        }}
+        onSelect={(item) => {
+          lifecycle.commandSelections++
+          setSelection(item.id)
+        }}
+      />
+      <output id="command-hydration-selection">{selection()}</output>
     </section>
   )
 }

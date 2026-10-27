@@ -10,18 +10,21 @@ export const choiceControl = (root, options) => {
   return buttons.or(root.getByRole('combobox', options))
 }
 
+export async function choiceListbox(control) {
+  await expect(control).toHaveAttribute('aria-controls', /.+/)
+  const id = await control.getAttribute('aria-controls')
+  return control.page().locator(`[id=${JSON.stringify(id)}]`)
+}
+
 export async function selectValue(control, value) {
   if (await control.evaluate((node) => node instanceof HTMLSelectElement)) {
     await control.selectOption(value)
     return
   }
   await control.click()
-  await control
-    .page()
-    .getByRole('listbox')
-    .locator(`[data-choice-value=${JSON.stringify(value)}]`)
-    .click()
-  await expect(control.page().getByRole('listbox')).toHaveCount(0)
+  const listbox = await choiceListbox(control)
+  await listbox.locator(`[data-choice-value=${JSON.stringify(value)}]`).click()
+  await expect(listbox).toHaveCount(0)
 }
 
 export async function controlValue(control) {
@@ -40,17 +43,14 @@ export async function expectValue(control, value) {
 
 export async function choiceOptions(control) {
   await control.click()
-  const choices = await control
-    .page()
-    .getByRole('listbox')
-    .getByRole('option')
-    .evaluateAll((nodes) =>
-      nodes.map((node) => ({
-        label: node.textContent.trim(),
-        value: node.dataset.choiceValue,
-        disabled: node.getAttribute('aria-disabled') === 'true',
-      })),
-    )
+  const listbox = await choiceListbox(control)
+  const choices = await listbox.getByRole('option').evaluateAll((nodes) =>
+    nodes.map((node) => ({
+      label: node.textContent.trim(),
+      value: node.dataset.choiceValue,
+      disabled: node.getAttribute('aria-disabled') === 'true',
+    })),
+  )
   await control.page().keyboard.press('Escape')
   return choices
 }

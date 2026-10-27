@@ -46,6 +46,11 @@ See the [drag and drop guide](drag-and-drop.md) and
 | Feedback                | `Badge`, `Card`, `Separator`, `InlineAlert`, `EmptyState`, `Spinner`, `Skeleton`, `Progress`, `Toast`, `StatusTile`, and `TileRow` | [Display source](../packages/components/src/components/Display.tsx) and [Toast](../packages/components/src/components/Toast.tsx)    |
 | Navigation and sections | Tabs, breadcrumbs, collapsible content, accordion, and resizable panes                                                             | [Tabs](tabs.md), [breadcrumbs](breadcrumbs.md), [collapsible](collapsible.md), [accordion](accordion.md), [resizable](resizable.md) |
 
+`Command` provides grouped local actions and real navigation links with keyboard search.
+`CommandPalette` adds a shared modal dialog and an optional keyboard shortcut.
+Applications own remote search, cancellation, context, and action policy.
+Read the [command guide](command.md) for the public API and examples.
+
 SidebarContextSwitcher presents application-controlled contexts, searchable siblings, and parent navigation above the existing sidebar menu.
 Read the [context switcher guide](sidebar-context-switcher.md) for ownership and keyboard behavior.
 

@@ -23,6 +23,8 @@ Beads records task status and dependencies.
 
 ## Component guides
 
+- [Commands and search](command.md)
+
 - [Sketchy theme](theme.md)
 - [Owned icon catalog](icons.md)
 - [Button variants and tones](button-variants.md)

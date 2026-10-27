@@ -42,7 +42,7 @@ export async function reviewCompoundFields(page) {
   await toggle.press('Space')
   await select.focus()
   await select.press('ArrowDown')
-  await expect(page.getByRole('option')).toHaveCount(0)
+  await expect(select).toHaveAttribute('aria-expanded', 'false')
   await expect(combo).toHaveAttribute('readonly', '')
   const uncontrolled = form.getByRole('button', {
     name: /Uncontrolled readonly select/,

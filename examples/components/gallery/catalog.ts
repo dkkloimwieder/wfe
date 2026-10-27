@@ -11,6 +11,12 @@ export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
   {
+    id: 'commands',
+    label: 'Commands and search',
+    group: 'Navigation',
+    states: ['normal'],
+  },
+  {
     id: 'themes',
     label: 'Theme boundaries',
     group: 'Components',
