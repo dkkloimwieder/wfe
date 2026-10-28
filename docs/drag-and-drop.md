@@ -1,10 +1,10 @@
 # Drag and drop
 
-The unreleased drag and drop APIs are separate public subpaths of
+The drag and drop APIs are separate public subpaths of
 `@wfe/components`. Import generic dragging from `@wfe/components/dnd`,
 controlled ordering from `@wfe/components/sortable`, and board presentation
 from `@wfe/components/kanban`. Load the shared component stylesheet once.
-These APIs are not part of the last tagged release, v0.0.8.
+These APIs ship in v0.0.9.
 
 ## Generic scopes
 

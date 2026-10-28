@@ -7,19 +7,20 @@ The private `@wfe/generator` package defines typed descriptions and application 
 Its public views build forms, tables, layouts, charts, and boolean grids from shared components.
 The private `@wfe/shell` package composes described navigation through the existing layout and controls.
 Applications supply accepted audience and route IDs, links, and page components.
+The private `@wfe/sync` package provides optional collection synchronization and offline support through application adapters.
 Application records, routing, permissions, validation rules, requests, and persistence remain application-owned.
 
 ## Current release
 
-Use Git tag [`v0.0.8`](https://github.com/dkkloimwieder/wfe/tree/v0.0.8).
-The [adoption guide](docs/adoption.md#v008) describes shell overrides, optional field decoration, and the owned icon catalog.
-The [release verification record](docs/qualification.md#v008-release) identifies the tested commit and test scope.
+Use Git tag [`v0.0.9`](https://github.com/dkkloimwieder/wfe/tree/v0.0.9).
+The [adoption guide](docs/adoption.md#v009) describes themes, drag and drop, Gantt, command navigation, date and time inputs, and the color picker.
+The [release verification record](docs/qualification.md#v009-release) identifies the tested commit and test scope.
 
 ## Documentation
 
 Use the [documentation index](docs/README.md) to find the current guides.
 The [feature catalog](docs/features.md) records implemented functionality and its ownership boundaries.
-The unreleased [drag and drop guide](docs/drag-and-drop.md) covers generic scopes, controlled sorting, and board presentation.
+The [drag and drop guide](docs/drag-and-drop.md) covers generic scopes, controlled sorting, and board presentation.
 The [plans directory](docs/plan/README.md) keeps proposed work separate from current APIs.
 
 ## Development

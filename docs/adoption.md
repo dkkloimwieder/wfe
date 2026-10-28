@@ -1,8 +1,24 @@
 # Adopt the components
 
+## v0.0.9
+
+Use Git tag `v0.0.9` for the current library.
+This release includes reusable drag and drop, sortable controls, Kanban presentation, and the controlled Gantt component.
+Applications retain records, ordering, schedules, requests, and persistence.
+
+Sketchy, Vanilla, and Laser provide shared theme variables and gallery appearance controls.
+Vanilla embedded table actions and calendar days use plain controls with retained keyboard focus indicators.
+The release includes command lists, a command palette, keyboard shortcuts, integrated date and time inputs, and the color picker.
+See [commands](command.md), [date inputs](date-inputs.md), and [colors](color-picker.md) for their controlled APIs.
+
+The runtime and compiler use the pinned Solid `2.0.0-rc.18` packages.
+Packages provide declarations, preserved JSX for Solid consumers, compiled output, and server output where applicable.
+This release also includes the sync work already on main. See the [sync package guide](../packages/sync/README.md) for its separate contract.
+The [release record](qualification.md#v009-release) describes the checks and remaining limits.
+
 ## v0.0.8
 
-Use Git tag `v0.0.8` for the current components and Sketchy theme.
+Git tag `v0.0.8` records the preceding components and Sketchy theme.
 ShellView accepts application-supplied `header` and `navigation` content.
 Set `navigation={false}` to omit the navigation pane and its toggle.
 Undefined overrides preserve the defaults. Custom headers leave heading focus with the application.
@@ -394,12 +410,12 @@ For generated tables, supply a stable application component through `TableViewBi
 Use `EntryPanel` and `EntryPanelActions` from `@wfe/components/layout` for a centered entry form.
 These components provide presentation. Applications retain navigation, requests, authentication, and validation rules.
 
-## Unreleased drag and drop
+## Drag and drop in v0.0.9
 
 Use `@wfe/components/dnd` for generic source/target scopes,
 `@wfe/components/sortable` for controlled ordering, and
-`@wfe/components/kanban` for board presentation. These additions are not in
-v0.0.8. They use the existing shared stylesheet and Sketchy theme.
+`@wfe/components/kanban` for board presentation. These additions ship in
+v0.0.9. They use the shared stylesheet and theme variables.
 
 Create scopes and registrations inside Solid owners and pass reactive
 options through getters. Applications retain accepted records, order,
@@ -408,10 +424,10 @@ menu alternative emits a request; it does not prescribe application behavior.
 The [drag and drop guide](drag-and-drop.md) covers refs, handles, accessibility,
 preview rendering, cancellation, and the generic and board gallery examples.
 
-## Unreleased Gantt component
+## Gantt in v0.0.9
 
-The `feat/gantt` branch adds `Gantt` through `@wfe/components/gantt` and the
+The release adds `Gantt` through `@wfe/components/gantt` and the
 root component export. It supports controlled intervals, hierarchy, selection,
 editing, baselines, milestones, and dependency lines. Applications retain
 ownership of schedules, requests, and persistence. See the [Gantt guide](gantt.md).
-This addition is not included in an existing release tag.
+This addition ships in `v0.0.9`.

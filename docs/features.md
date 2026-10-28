@@ -21,7 +21,7 @@ The [ownership contract](contracts/UI-BOUNDARIES.md) separates these responsibil
 
 ## Drag and drop
 
-The unreleased `@wfe/components/dnd` entry provides generic sources, targets,
+The `@wfe/components/dnd` entry provides generic sources, targets,
 keyboard navigation, lifecycle feedback, previews, handles and indicators.
 `@wfe/components/sortable` calculates controlled move requests within and
 between containers. Applications own accepted ordering and persistence.

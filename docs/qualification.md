@@ -10,11 +10,11 @@ Other pinned tools also exclude Node 22.12.
 Within 22.x, tsdown 0.23.0 requires Node 22.18 or newer, and ESLint 10 requires Node 22.13 or newer.
 The package manager pin remains pnpm 12.4.1. Dependency versions and the lockfile remain unchanged.
 
-The four library packages retain their existing `>=22.12.0` consumer engine declarations.
+The library packages retain their existing `>=22.12.0` consumer engine declarations.
 Those declarations do not promise that repository development tools run on Node 22.12.
 This change does not establish new consumer-runtime coverage for that version.
 
-CI runs `pnpm check` and the direct source test on each declared boundary: Node 22.22.2, 24.15.0, and 26.0.0.
+On branches other than main, CI runs `pnpm check` and the direct source test on each declared boundary: Node 22.22.2, 24.15.0, and 26.0.0.
 Each matrix job uses the frozen lockfile. Boundary jobs run one at a time; the existing Node 24 browser qualification job remains in place.
 The direct source test imports an erasable TypeScript file without a custom loader.
 Local verification on October 22, 2026 used the official Node 22.22.2 Linux x64 archive after SHA-256 verification.
@@ -499,3 +499,21 @@ charts records per-file repairs and entrypoints; icons records artwork and the
 generator/output hashes. The reporting adapter provides a common view without
 rewriting that evidence. The icon generator keeps its existing local hash function
 so this maintenance refactor does not alter its recorded generator bytes.
+
+## v0.0.9 release
+
+The release combines the UI feature branch with main, including the existing sync work and package build changes.
+Every stage of `pnpm check` passed across the initial run and focused reruns.
+The run passed 1,391 unit tests across 143 files, package and example types, integrity checks, builds, strict consumers, and server rendering.
+The first run found a syntax error in the color picker documentation example. After its correction, all 35 documentation examples passed.
+The Node suite then found an old output path in the license delivery helper. After its correction, all 160 Node tests passed.
+The external Solid consumer resolved 13 public imports and inspected 487 built modules, including the new runtime entries.
+Ten focused browser cases passed against the merged package build, with no page errors or reactivity diagnostics.
+Those cases covered Gantt hierarchy and editing, command search, and the color picker in all three themes.
+Sync engine source matches main commit `0b50ddd` at integration.
+Focused ColorPicker checks pass in Sketchy, Vanilla, and Laser, with five unit tests and real browser keyboard interaction.
+Vanilla styling received a source audit and browser review across the gallery, with focused calendar, pagination, datetime, and subtable interaction checks.
+
+No full qualification run or performance benchmark accompanies this release.
+The shared machine has high and variable load. Earlier performance results do not establish current timing guarantees.
+Incremental Gantt acceptance work remains tracked in `wfe-5y6`.
