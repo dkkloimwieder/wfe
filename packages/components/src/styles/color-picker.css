@@ -1,0 +1,41 @@
+.ui-color-picker {
+  display: flex;
+  gap: 0;
+  max-inline-size: var(--ui-field-max-width, 30rem);
+}
+.ui-color-picker > .ui-input {
+  flex: 1;
+  min-inline-size: 0;
+}
+.ui-color-picker > .ui-color-trigger {
+  flex: none;
+  min-inline-size: var(--ui-control-height, 26px);
+  padding: var(--ui-control-padding-y, 4px);
+  border-inline-start: 0;
+  border-color: var(--ui-control-border);
+  background: var(--ui-control-surface, var(--ui-surface));
+}
+.ui-color-swatch {
+  display: block;
+  inline-size: 1em;
+  block-size: 1em;
+  border: var(--ui-border-width, 1px) solid var(--ui-control-border);
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
+}
+.ui-color-popup {
+  inline-size: min(20rem, calc(100vw - 2rem));
+}
+.ui-color-channel {
+  display: grid;
+  grid-template-columns: 5em minmax(0, 1fr) 3ch;
+  gap: var(--ui-gap);
+  align-items: center;
+}
+.ui-color-channel > input {
+  padding: 0;
+  accent-color: var(--ui-accent);
+}
+.ui-color-channel > output {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}

@@ -1,6 +1,12 @@
 import { Show } from 'solid-js'
 import { EntryPanel, DashboardShell } from '@wfe/components/layout'
-import { Theme, StatusTile, TileRow, NumberInput } from '@wfe/components'
+import {
+  Theme,
+  StatusTile,
+  TileRow,
+  NumberInput,
+  ColorPicker,
+} from '@wfe/components'
 import { GridView } from '@wfe/generator'
 import { FileInput } from '@wfe/components/file-input'
 import assert from 'node:assert/strict'
@@ -13,6 +19,18 @@ import {
   nativeAggregations,
   TableWorkspace,
 } from '@wfe/components/table'
+
+const colorOutput = await renderToString(() =>
+  createComponent(ColorPicker, {
+    label: 'Accent',
+    name: 'accent',
+    value: '#336699',
+    onValueChange: () => {},
+  }),
+)
+assert.match(colorOutput, /name="accent"/)
+assert.match(colorOutput, /value="#336699"/)
+assert.match(colorOutput, /Choose Accent color/)
 
 const nativeOutput = await renderToString(() => {
   const table = createNativeTable({

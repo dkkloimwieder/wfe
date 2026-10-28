@@ -1,3 +1,4 @@
+import { ColorExample } from './ColorExample'
 import { CommandRecipe } from './CommandRecipe'
 import { ThemeReview } from './ThemeReview'
 import { GanttExample } from './GanttExample'
@@ -90,6 +91,7 @@ const views = {
   subtables: SubTables,
   files: FileControls,
   numbers: NumberControls,
+  colors: ColorExample,
   tabs: TabsControls,
   breadcrumbs: BreadcrumbControls,
   collapsible: CollapsibleControls,

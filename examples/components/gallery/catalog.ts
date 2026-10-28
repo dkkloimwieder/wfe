@@ -93,6 +93,7 @@ export const entries = [
     group: 'Forms',
     states: ['normal', 'disabled', 'readonly'],
   },
+  { id: 'colors', label: 'Color picker', group: 'Forms', states: ['normal'] },
   { id: 'dates', label: 'Date, time and datetime', group: 'Forms', states },
   {
     id: 'files',

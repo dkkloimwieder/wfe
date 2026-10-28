@@ -138,6 +138,7 @@ export const documents = [
     ['docs/form-contract.md', 4],
     ['docs/table-formatting.md', 1],
     ['docs/collapsible.md', 1],
+    ['docs/color-picker.md', 1],
     ['docs/number-inputs.md', 2],
     ['docs/form-layout.md', 3],
     ['docs/tabs.md', 1],

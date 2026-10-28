@@ -190,3 +190,5 @@ Owned styled component props are available from the package root and existing co
 Status and display components accept [application-supplied messages](display-messages.md) for owned labels and empty values. Message updates preserve existing controls; formatting locale remains separate.
 
 Generated forms, repeated rows, details, and tables forward [nested control messages](view-messages.md#nested-standard-controls) without replacing their standard controls. Date-filter boundary labels retain their own explicit precedence.
+
+The [color picker](color-picker.md) provides controlled hex entry and a themed popup with RGB sliders.

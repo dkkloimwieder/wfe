@@ -276,3 +276,6 @@ export { CommandPalette } from './components/CommandPalette'
 export type { CommandPaletteProps } from './components/CommandPalette'
 export { createCommandShortcut } from './components/commandShortcut'
 export type { CommandShortcutOptions } from './components/commandShortcut'
+
+export { ColorPicker } from './components/ColorPicker'
+export type { ColorPickerProps } from './components/ColorPicker'

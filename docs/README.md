@@ -32,6 +32,7 @@ Beads records task status and dependencies.
 - [Date, time, and datetime fields](date-inputs.md)
 - [Status tiles](status-tiles.md)
 - [Status and display messages](display-messages.md)
+- [Color picker](color-picker.md)
 - [Numeric fields](number-inputs.md)
 - [File input](file-input.md)
 - [Form layout](form-layout.md)

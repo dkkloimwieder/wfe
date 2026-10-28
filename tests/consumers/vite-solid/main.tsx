@@ -1,5 +1,5 @@
 import { render } from '@solidjs/web'
-import { Button } from '@wfe/components'
+import { Button, ColorPicker } from '@wfe/components'
 import { createDragDrop } from '@wfe/components/dnd'
 import { moveSortableItem } from '@wfe/components/sortable'
 import { KanbanBoard } from '@wfe/components/kanban'
@@ -25,6 +25,7 @@ function Page() {
   return (
     <Card>
       <Button onClick={() => drag.cancel()}>Built consumer</Button>
+      <ColorPicker label="Color" value="#336699" onValueChange={() => {}} />
       <Command label="Commands" items={[{ id: 'home', label: 'Home' }]} />
       <KanbanBoard aria-label="Board">{columns.length} column</KanbanBoard>
       <Gantt
