@@ -6,23 +6,24 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "types": "./dist/client/index.d.ts",
+      "types": "./dist/index.d.ts",
       "wfe-source": "./src/index.ts",
-      "solid": "./dist/source/index.js",
+      "solid": "./dist/index.jsx",
       "node": "./dist/server/index.js",
-      "import": "./dist/client/index.js"
+      "default": "./dist/index.js"
     },
     "./chart": {
-      "types": "./dist/client/chart/index.d.ts",
+      "types": "./dist/chart/index.d.ts",
       "wfe-source": "./src/chart/index.ts",
-      "solid": "./dist/source/chart/index.js",
+      "solid": "./dist/chart/index.jsx",
       "node": "./dist/server/chart/index.js",
-      "import": "./dist/client/chart/index.js"
+      "default": "./dist/chart/index.js"
     }
   },
   "sideEffects": false,
   "scripts": {
-    "build": "tsdown && node ../../scripts/build-source.mjs generator",
+    "build": "tsdown",
+    "prepare": "node ../../scripts/prepare-package.mjs",
     "types": "tsc --project tsconfig.json"
   },
   "dependencies": {
@@ -39,5 +40,13 @@
   ],
   "engines": {
     "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "@solidjs/vite-plugin": "3.0.0-next.50",
+    "@solidjs/web": "2.0.0-rc.18",
+    "solid-js": "2.0.0-rc.18",
+    "tsdown": "0.23.0",
+    "typescript": "6.0.3",
+    "vite": "8.3.0"
   }
 }

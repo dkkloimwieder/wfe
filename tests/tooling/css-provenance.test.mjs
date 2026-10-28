@@ -10,7 +10,7 @@ import { cssProvenance, hashCss } from '../../scripts/css-provenance.mjs'
 async function fixture(work) {
   const root = await mkdtemp(join(tmpdir(), 'wfe-css-provenance-'))
   try {
-    for (const directory of ['src', 'dist/source']) {
+    for (const directory of ['src', 'dist']) {
       const path = join(root, 'packages/components', directory, 'styles')
       await mkdir(path, { recursive: true })
       await writeFile(join(path, 'styles.css'), "@import './fields.css';\n")
@@ -39,7 +39,7 @@ async function fixture(work) {
           alias: {
             '/entry.css': resolve(
               root,
-              `packages/components/${distribution || wrong ? 'dist/source' : 'src'}/styles/styles.css`,
+              `packages/components/${distribution || wrong ? 'dist' : 'src'}/styles/styles.css`,
             ),
           },
         },
@@ -96,7 +96,7 @@ test('source CSS qualification rejects CSS resolved from distribution', () =>
 test('distribution CSS qualification rejects stale copied styles', () =>
   fixture(async ({ root, compile }) => {
     await writeFile(
-      join(root, 'packages/components/dist/source/styles/fields.css'),
+      join(root, 'packages/components/dist/styles/fields.css'),
       '.control {border:2px solid black;}',
     )
     await assert.rejects(compile({ distribution: true }), /Stale built CSS/)

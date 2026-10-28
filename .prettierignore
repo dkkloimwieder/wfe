@@ -23,3 +23,5 @@ packages/components/src/vendor/dnd-kit/geometry
 packages/components/src/vendor/dnd-kit/collision
 packages/components/src/vendor/dnd-kit/state
 packages/components/src/vendor/dnd-kit/helpers
+
+docs/plan/wamn-sync.md

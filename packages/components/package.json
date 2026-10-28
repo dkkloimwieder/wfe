@@ -6,267 +6,267 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "types": "./dist/client/index.d.ts",
+      "types": "./dist/index.d.ts",
       "wfe-source": "./src/index.ts",
-      "solid": "./dist/source/index.js",
+      "solid": "./dist/index.jsx",
       "node": "./dist/server/index.js",
-      "import": "./dist/client/index.js"
+      "default": "./dist/index.js"
     },
     "./styles.css": {
-      "wfe-source": "./src/styles/styles.css",
-      "default": "./dist/source/styles/styles.css"
+      "default": "./dist/styles/styles.css"
     },
     "./density": {
-      "types": "./dist/client/styles/density.d.ts",
+      "types": "./dist/styles/density.d.ts",
       "wfe-source": "./src/styles/density.ts",
-      "solid": "./dist/source/styles/density.js",
+      "solid": "./dist/styles/density.jsx",
       "node": "./dist/server/styles/density.js",
-      "import": "./dist/client/styles/density.js"
+      "default": "./dist/styles/density.js"
     },
     "./table": {
-      "types": "./dist/client/table/index.d.ts",
+      "types": "./dist/table/index.d.ts",
       "wfe-source": "./src/table/index.ts",
-      "solid": "./dist/source/table/index.js",
+      "solid": "./dist/table/index.jsx",
       "node": "./dist/server/table/index.js",
-      "import": "./dist/client/table/index.js"
+      "default": "./dist/table/index.js"
     },
     "./events": {
-      "types": "./dist/client/utils/nativeEvents.d.ts",
+      "types": "./dist/utils/nativeEvents.d.ts",
       "wfe-source": "./src/utils/nativeEvents.ts",
-      "solid": "./dist/source/utils/nativeEvents.js",
+      "solid": "./dist/utils/nativeEvents.jsx",
       "node": "./dist/server/utils/nativeEvents.js",
-      "import": "./dist/client/utils/nativeEvents.js"
+      "default": "./dist/utils/nativeEvents.js"
     },
     "./virtual": {
-      "types": "./dist/client/virtual/index.d.ts",
+      "types": "./dist/virtual/index.d.ts",
       "wfe-source": "./src/virtual/index.ts",
-      "solid": "./dist/source/virtual/index.js",
+      "solid": "./dist/virtual/index.jsx",
       "node": "./dist/server/virtual/index.js",
-      "import": "./dist/client/virtual/index.js"
+      "default": "./dist/virtual/index.js"
     },
     "./select": {
-      "types": "./dist/client/components/Select.d.ts",
+      "types": "./dist/components/Select.d.ts",
       "wfe-source": "./src/components/Select.tsx",
-      "solid": "./dist/source/components/Select.jsx",
+      "solid": "./dist/components/Select.jsx",
       "node": "./dist/server/components/Select.js",
-      "import": "./dist/client/components/Select.js"
+      "default": "./dist/components/Select.js"
     },
     "./combobox": {
-      "types": "./dist/client/components/Combobox.d.ts",
+      "types": "./dist/components/Combobox.d.ts",
       "wfe-source": "./src/components/Combobox.tsx",
-      "solid": "./dist/source/components/Combobox.jsx",
+      "solid": "./dist/components/Combobox.jsx",
       "node": "./dist/server/components/Combobox.js",
-      "import": "./dist/client/components/Combobox.js"
+      "default": "./dist/components/Combobox.js"
     },
     "./fields": {
-      "types": "./dist/client/components/NativeFields.d.ts",
+      "types": "./dist/components/NativeFields.d.ts",
       "wfe-source": "./src/components/NativeFields.tsx",
-      "solid": "./dist/source/components/NativeFields.jsx",
+      "solid": "./dist/components/NativeFields.jsx",
       "node": "./dist/server/components/NativeFields.js",
-      "import": "./dist/client/components/NativeFields.js"
+      "default": "./dist/components/NativeFields.js"
     },
     "./checkbox": {
-      "types": "./dist/client/components/Checkbox.d.ts",
+      "types": "./dist/components/Checkbox.d.ts",
       "wfe-source": "./src/components/Checkbox.tsx",
-      "solid": "./dist/source/components/Checkbox.jsx",
+      "solid": "./dist/components/Checkbox.jsx",
       "node": "./dist/server/components/Checkbox.js",
-      "import": "./dist/client/components/Checkbox.js"
+      "default": "./dist/components/Checkbox.js"
     },
     "./switch": {
-      "types": "./dist/client/components/Switch.d.ts",
+      "types": "./dist/components/Switch.d.ts",
       "wfe-source": "./src/components/Switch.tsx",
-      "solid": "./dist/source/components/Switch.jsx",
+      "solid": "./dist/components/Switch.jsx",
       "node": "./dist/server/components/Switch.js",
-      "import": "./dist/client/components/Switch.js"
+      "default": "./dist/components/Switch.js"
     },
     "./radio-group": {
-      "types": "./dist/client/components/RadioGroup.d.ts",
+      "types": "./dist/components/RadioGroup.d.ts",
       "wfe-source": "./src/components/RadioGroup.tsx",
-      "solid": "./dist/source/components/RadioGroup.jsx",
+      "solid": "./dist/components/RadioGroup.jsx",
       "node": "./dist/server/components/RadioGroup.js",
-      "import": "./dist/client/components/RadioGroup.js"
+      "default": "./dist/components/RadioGroup.js"
     },
     "./dialog": {
-      "types": "./dist/client/components/Dialog.d.ts",
+      "types": "./dist/components/Dialog.d.ts",
       "wfe-source": "./src/components/Dialog.tsx",
-      "solid": "./dist/source/components/Dialog.jsx",
+      "solid": "./dist/components/Dialog.jsx",
       "node": "./dist/server/components/Dialog.js",
-      "import": "./dist/client/components/Dialog.js"
+      "default": "./dist/components/Dialog.js"
     },
     "./alert-dialog": {
-      "types": "./dist/client/components/AlertDialog.d.ts",
+      "types": "./dist/components/AlertDialog.d.ts",
       "wfe-source": "./src/components/AlertDialog.tsx",
-      "solid": "./dist/source/components/AlertDialog.jsx",
+      "solid": "./dist/components/AlertDialog.jsx",
       "node": "./dist/server/components/AlertDialog.js",
-      "import": "./dist/client/components/AlertDialog.js"
+      "default": "./dist/components/AlertDialog.js"
     },
     "./sheet": {
-      "types": "./dist/client/components/Sheet.d.ts",
+      "types": "./dist/components/Sheet.d.ts",
       "wfe-source": "./src/components/Sheet.tsx",
-      "solid": "./dist/source/components/Sheet.jsx",
+      "solid": "./dist/components/Sheet.jsx",
       "node": "./dist/server/components/Sheet.js",
-      "import": "./dist/client/components/Sheet.js"
+      "default": "./dist/components/Sheet.js"
     },
     "./popover": {
-      "types": "./dist/client/components/Popover.d.ts",
+      "types": "./dist/components/Popover.d.ts",
       "wfe-source": "./src/components/Popover.tsx",
-      "solid": "./dist/source/components/Popover.jsx",
+      "solid": "./dist/components/Popover.jsx",
       "node": "./dist/server/components/Popover.js",
-      "import": "./dist/client/components/Popover.js"
+      "default": "./dist/components/Popover.js"
     },
     "./dropdown-menu": {
-      "types": "./dist/client/components/DropdownMenu.d.ts",
+      "types": "./dist/components/DropdownMenu.d.ts",
       "wfe-source": "./src/components/DropdownMenu.tsx",
-      "solid": "./dist/source/components/DropdownMenu.jsx",
+      "solid": "./dist/components/DropdownMenu.jsx",
       "node": "./dist/server/components/DropdownMenu.js",
-      "import": "./dist/client/components/DropdownMenu.js"
+      "default": "./dist/components/DropdownMenu.js"
     },
     "./tooltip": {
-      "types": "./dist/client/components/Tooltip.d.ts",
+      "types": "./dist/components/Tooltip.d.ts",
       "wfe-source": "./src/components/Tooltip.tsx",
-      "solid": "./dist/source/components/Tooltip.jsx",
+      "solid": "./dist/components/Tooltip.jsx",
       "node": "./dist/server/components/Tooltip.js",
-      "import": "./dist/client/components/Tooltip.js"
+      "default": "./dist/components/Tooltip.js"
     },
     "./display": {
-      "types": "./dist/client/components/Display.d.ts",
+      "types": "./dist/components/Display.d.ts",
       "wfe-source": "./src/components/Display.tsx",
-      "solid": "./dist/source/components/Display.jsx",
+      "solid": "./dist/components/Display.jsx",
       "node": "./dist/server/components/Display.js",
-      "import": "./dist/client/components/Display.js"
+      "default": "./dist/components/Display.js"
     },
     "./toast": {
-      "types": "./dist/client/components/Toast.d.ts",
+      "types": "./dist/components/Toast.d.ts",
       "wfe-source": "./src/components/Toast.tsx",
-      "solid": "./dist/source/components/Toast.jsx",
+      "solid": "./dist/components/Toast.jsx",
       "node": "./dist/server/components/Toast.js",
-      "import": "./dist/client/components/Toast.js"
+      "default": "./dist/components/Toast.js"
     },
     "./layout": {
-      "types": "./dist/client/layout/index.d.ts",
+      "types": "./dist/layout/index.d.ts",
       "wfe-source": "./src/layout/index.ts",
-      "solid": "./dist/source/layout/index.js",
+      "solid": "./dist/layout/index.jsx",
       "node": "./dist/server/layout/index.js",
-      "import": "./dist/client/layout/index.js"
+      "default": "./dist/layout/index.js"
     },
     "./collapsible": {
-      "types": "./dist/client/components/Collapsible.d.ts",
+      "types": "./dist/components/Collapsible.d.ts",
       "wfe-source": "./src/components/Collapsible.tsx",
-      "solid": "./dist/source/components/Collapsible.jsx",
+      "solid": "./dist/components/Collapsible.jsx",
       "node": "./dist/server/components/Collapsible.js",
-      "import": "./dist/client/components/Collapsible.js"
+      "default": "./dist/components/Collapsible.js"
     },
     "./number-input": {
-      "types": "./dist/client/components/NumberInput.d.ts",
+      "types": "./dist/components/NumberInput.d.ts",
       "wfe-source": "./src/components/NumberInput.tsx",
-      "solid": "./dist/source/components/NumberInput.jsx",
+      "solid": "./dist/components/NumberInput.jsx",
       "node": "./dist/server/components/NumberInput.js",
-      "import": "./dist/client/components/NumberInput.js"
+      "default": "./dist/components/NumberInput.js"
     },
     "./tabs": {
-      "types": "./dist/client/components/Tabs.d.ts",
+      "types": "./dist/components/Tabs.d.ts",
       "wfe-source": "./src/components/Tabs.tsx",
-      "solid": "./dist/source/components/Tabs.jsx",
+      "solid": "./dist/components/Tabs.jsx",
       "node": "./dist/server/components/Tabs.js",
-      "import": "./dist/client/components/Tabs.js"
+      "default": "./dist/components/Tabs.js"
     },
     "./breadcrumbs": {
-      "types": "./dist/client/components/Breadcrumbs.d.ts",
+      "types": "./dist/components/Breadcrumbs.d.ts",
       "wfe-source": "./src/components/Breadcrumbs.tsx",
-      "solid": "./dist/source/components/Breadcrumbs.jsx",
+      "solid": "./dist/components/Breadcrumbs.jsx",
       "node": "./dist/server/components/Breadcrumbs.js",
-      "import": "./dist/client/components/Breadcrumbs.js"
+      "default": "./dist/components/Breadcrumbs.js"
     },
     "./accordion": {
-      "types": "./dist/client/components/Accordion.d.ts",
+      "types": "./dist/components/Accordion.d.ts",
       "wfe-source": "./src/components/Accordion.tsx",
-      "solid": "./dist/source/components/Accordion.jsx",
+      "solid": "./dist/components/Accordion.jsx",
       "node": "./dist/server/components/Accordion.js",
-      "import": "./dist/client/components/Accordion.js"
+      "default": "./dist/components/Accordion.js"
     },
     "./resizable": {
-      "types": "./dist/client/components/Resizable.d.ts",
+      "types": "./dist/components/Resizable.d.ts",
       "wfe-source": "./src/components/Resizable.tsx",
-      "solid": "./dist/source/components/Resizable.jsx",
+      "solid": "./dist/components/Resizable.jsx",
       "node": "./dist/server/components/Resizable.js",
-      "import": "./dist/client/components/Resizable.js"
+      "default": "./dist/components/Resizable.js"
     },
     "./file-input": {
-      "types": "./dist/client/components/FileInput.d.ts",
+      "types": "./dist/components/FileInput.d.ts",
       "wfe-source": "./src/components/FileInput.tsx",
-      "solid": "./dist/source/components/FileInput.jsx",
+      "solid": "./dist/components/FileInput.jsx",
       "node": "./dist/server/components/FileInput.js",
-      "import": "./dist/client/components/FileInput.js"
+      "default": "./dist/components/FileInput.js"
     },
     "./chart": {
-      "types": "./dist/client/chart/index.d.ts",
+      "types": "./dist/chart/index.d.ts",
       "wfe-source": "./src/chart/index.ts",
-      "solid": "./dist/source/chart/index.js",
+      "solid": "./dist/chart/index.jsx",
       "node": "./dist/server/chart/index.js",
-      "import": "./dist/client/chart/index.js"
+      "default": "./dist/chart/index.js"
     },
     "./theme": {
-      "types": "./dist/client/theme/index.d.ts",
+      "types": "./dist/theme/index.d.ts",
       "wfe-source": "./src/theme/index.ts",
-      "solid": "./dist/source/theme/index.js",
+      "solid": "./dist/theme/index.jsx",
       "node": "./dist/server/theme/index.js",
-      "import": "./dist/client/theme/index.js"
+      "default": "./dist/theme/index.js"
     },
     "./search": {
-      "types": "./dist/client/search/index.d.ts",
+      "types": "./dist/search/index.d.ts",
       "wfe-source": "./src/search/index.ts",
-      "solid": "./dist/source/search/index.js",
+      "solid": "./dist/search/index.jsx",
       "node": "./dist/server/search/index.js",
-      "import": "./dist/client/search/index.js"
+      "default": "./dist/search/index.js"
     },
     "./icons": {
-      "types": "./dist/client/icons/index.d.ts",
+      "types": "./dist/icons/index.d.ts",
       "wfe-source": "./src/icons/index.ts",
-      "solid": "./dist/source/icons/index.js",
+      "solid": "./dist/icons/index.jsx",
       "node": "./dist/server/icons/index.js",
-      "import": "./dist/client/icons/index.js"
+      "default": "./dist/icons/index.js"
     },
     "./dnd": {
-      "types": "./dist/client/dnd/index.d.ts",
+      "types": "./dist/dnd/index.d.ts",
       "wfe-source": "./src/dnd/index.ts",
-      "solid": "./dist/source/dnd/index.js",
+      "solid": "./dist/dnd/index.jsx",
       "node": "./dist/server/dnd/index.js",
-      "import": "./dist/client/dnd/index.js"
+      "default": "./dist/dnd/index.js"
     },
     "./sortable": {
-      "types": "./dist/client/sortable/index.d.ts",
+      "types": "./dist/sortable/index.d.ts",
       "wfe-source": "./src/sortable/index.ts",
-      "solid": "./dist/source/sortable/index.js",
+      "solid": "./dist/sortable/index.jsx",
       "node": "./dist/server/sortable/index.js",
-      "import": "./dist/client/sortable/index.js"
+      "default": "./dist/sortable/index.js"
     },
     "./kanban": {
-      "types": "./dist/client/kanban/index.d.ts",
+      "types": "./dist/kanban/index.d.ts",
       "wfe-source": "./src/kanban/index.tsx",
-      "solid": "./dist/source/kanban/index.jsx",
+      "solid": "./dist/kanban/index.jsx",
       "node": "./dist/server/kanban/index.js",
-      "import": "./dist/client/kanban/index.js"
+      "default": "./dist/kanban/index.js"
     },
     "./gantt": {
-      "types": "./dist/client/gantt/index.d.ts",
+      "types": "./dist/gantt/index.d.ts",
       "wfe-source": "./src/gantt/index.ts",
-      "solid": "./dist/source/gantt/index.js",
+      "solid": "./dist/gantt/index.jsx",
       "node": "./dist/server/gantt/index.js",
-      "import": "./dist/client/gantt/index.js"
+      "default": "./dist/gantt/index.js"
     },
     "./command": {
-      "types": "./dist/client/command/index.d.ts",
+      "types": "./dist/command/index.d.ts",
       "wfe-source": "./src/command/index.ts",
-      "solid": "./dist/source/command/index.js",
+      "solid": "./dist/command/index.jsx",
       "node": "./dist/server/command/index.js",
-      "import": "./dist/client/command/index.js"
+      "default": "./dist/command/index.js"
     }
   },
   "sideEffects": [
     "**/*.css"
   ],
   "scripts": {
-    "build": "tsdown && node ../../scripts/build-source.mjs",
+    "build": "tsdown",
+    "prepare": "node ../../scripts/prepare-package.mjs",
     "types": "tsc --project tsconfig.json"
   },
   "dependencies": {
@@ -301,5 +301,17 @@
   ],
   "engines": {
     "node": ">=22.12.0"
-  }
+  },
+  "devDependencies": {
+    "@solidjs/vite-plugin": "3.0.0-next.50",
+    "@solidjs/web": "2.0.0-rc.18",
+    "@types/d3-shape": "3.1.8",
+    "solid-js": "2.0.0-rc.18",
+    "tsdown": "0.23.0",
+    "typescript": "6.0.3",
+    "vite": "8.3.0"
+  },
+  "wfeBuildInputs": [
+    "../../scripts/vendor-transforms.mjs"
+  ]
 }

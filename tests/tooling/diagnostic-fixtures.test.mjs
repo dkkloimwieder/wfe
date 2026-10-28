@@ -7,7 +7,7 @@ import { build } from 'vite'
 import { cssAbsent } from '../../scripts/css-provenance.mjs'
 import { assertEditingControlModules } from '../../examples/shared/editing-module-audit.mjs'
 
-for (const directory of ['src', 'dist/source']) {
+for (const directory of ['src', 'dist']) {
   test(`editing module guard accepts its owned ${directory} families and rejects external or unexpected modules`, () => {
     const base = `/wfe/packages/components/${directory}/vendor/kobalte/`
     const extension = directory === 'src' ? 'tsx' : 'jsx'

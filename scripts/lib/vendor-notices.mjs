@@ -20,7 +20,8 @@ export const vendorNotices = {
   dnd: ['vendor/dnd-kit/LICENSE'],
 }
 export const vendorNoticePaths = Object.values(vendorNotices).flat()
-export const componentDeliveryModes = ['source', 'client', 'server']
+// Compiled and preserved JSX modules share the flat directory.
+export const componentDeliveryModes = ['', 'server']
 
 export async function copyVendorNotices(source, outputs) {
   for (const path of vendorNoticePaths) {

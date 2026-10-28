@@ -9,6 +9,21 @@ import { fileURLToPath } from 'node:url'
 const root = fileURLToPath(new URL('../../', import.meta.url))
 const check = fileURLToPath(new URL('../../scripts/check.mjs', import.meta.url))
 
+const expectedStages = [
+  'format:check',
+  'lint',
+  'test:integrity',
+  'build',
+  'test:consumers',
+  'types',
+  'types:unit',
+  'types:examples',
+  'test:unit',
+  'test:ssr',
+  'test:contracts',
+  'test',
+]
+
 async function withFakePnpm(failStage, work) {
   const directory = await mkdtemp(join(tmpdir(), 'wfe-check-test-'))
   const log = join(directory, 'calls.jsonl')
@@ -48,6 +63,10 @@ if (process.env.WFE_CHECK_FAIL_STAGE && args.includes(process.env.WFE_CHECK_FAIL
 test('the required gate runs unit tests in test mode before the serial Node suite', () =>
   withFakePnpm(undefined, async (result, calls) => {
     assert.equal(result.status, 0, result.stderr)
+    assert.deepEqual(
+      calls.map(({ args }) => args),
+      expectedStages.map((stage) => [stage]),
+    )
     const units = calls.filter(({ args }) => args.includes('test:unit'))
     assert.equal(units.length, 1)
     assert.equal(units[0].nodeEnv, 'test')
@@ -64,6 +83,12 @@ test('the required gate runs unit tests in test mode before the serial Node suit
     )
     assert.match(scripts.test, /(?:^|\s)--test(?:\s|$)/)
     assert.match(scripts.test, /(?:^|\s)--test-concurrency(?:=|\s+)1(?:\s|$)/)
+    assert.equal(scripts['test:consumers'], 'node tests/consumers/run.mjs')
+    assert.equal(
+      scripts['types:examples'],
+      'node scripts/typecheck-examples.mjs',
+    )
+    assert.equal(scripts['types:sync-consumer'], undefined)
   }))
 
 test('a failed unit suite fails the required gate and prevents later stages', () =>
@@ -117,7 +142,13 @@ test('SSR and documentation contracts run once after builds and types before Nod
         1,
         script,
       )
-    for (const script of ['build', 'types', 'types:examples', 'types:unit']) {
+    for (const script of [
+      'build',
+      'test:consumers',
+      'types',
+      'types:examples',
+      'types:unit',
+    ]) {
       assert.ok(position(script) >= 0, `Missing prerequisite: ${script}`)
       assert.ok(server > position(script), `SSR must follow ${script}`)
       assert.ok(contracts > position(script), `Contracts must follow ${script}`)
@@ -126,11 +157,17 @@ test('SSR and documentation contracts run once after builds and types before Nod
     assert.ok(nodeTests > contracts, 'Node tests follow both required gates')
   }))
 
-for (const script of ['test:ssr', 'test:contracts'])
+for (const script of ['test:consumers', 'test:ssr', 'test:contracts'])
   test(`a failed ${script} stops the required gate and prevents later stages`, () =>
     withFakePnpm(script, async (result, calls) => {
       assert.equal(result.status, 7, result.stderr)
       assert.deepEqual(calls.at(-1).args, [script])
+      assert.deepEqual(
+        calls.map(({ args }) => args),
+        expectedStages
+          .slice(0, expectedStages.indexOf(script) + 1)
+          .map((stage) => [stage]),
+      )
       assert.equal(calls.filter(({ args }) => args.includes(script)).length, 1)
       assert.equal(
         calls.some(({ args }) => args.includes('test')),

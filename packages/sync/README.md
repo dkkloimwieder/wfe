@@ -4,17 +4,233 @@ This private package holds a browser store for rows that a change feed keeps cur
 It wraps `@tanstack/db` collections and adds a Solid 2 adapter.
 The application supplies a `Feed`, a scope, and a key. The package never builds a URL, reads a token, or names a header.
 
-Import `collection`, `liveRows`, `liveList`, and `syncStatus` from `@wfe/sync`.
-`collection(feed, scope, options)` returns a collection keyed by `row.id`.
-It calls `feed.list(scope)` once and marks the collection ready.
+Import `collection`, `liveRows`, `liveList`, `syncStatus`, `syncComplete`, `shell`, and `CursorExpired` from `@wfe/sync`, and `precache` from `@wfe/sync/worker`.
+If the host no longer holds a cursor, `feed.changes` must throw `CursorExpired`. The package inspects no other error shape.
+`collection(feed, scope, options)` returns a collection keyed by `row.id` by default. Row ids can be strings or numbers.
+If the `persistence` option is given, the collection first loads the saved rows for the key. Saved rows land as one transaction, and the collection is ready.
+It then calls `feed.list(scope)` and reconciles the page. If the list fails after saved rows landed, the status stays `ready` and `utils.error()` holds the failure.
+`Feed.list` resolves `{ rows: T[]; cursor: string; complete?: boolean }`. A host sets `complete: false` when it stops the list at a row cap. An absent `complete` means true. An incomplete list still supplies the cursor, marks the collection ready, saves the rows, and starts follow.
+A rejecting load counts as no saved rows. `utils.error()` holds the load error until a list succeeds.
 `utils.refill()` reads the list again and reconciles it. Rows absent from the new page leave. Rows with a higher `row_version` land. Equal or lower versions are ignored.
-`utils.error()` returns the error of the last failed list.
-The `persistence`, `trigger`, and `pollMs` options are accepted and unused until the feed follow epic.
+The collection reads the key of a row through `options.getKey`. The default is `row => row.id`. A consumer whose rows use `code` as the key passes `getKey: r => r.code` and does not copy its rows.
+The required `options.key` string remains the persistence and trigger key.
+The feed supplies `Change.id` as a string or number that equals the collection key. For upserts, `change.id` must equal `getKey(change.data)`, including its type. Deletes use `change.id` directly as that key. A mismatched upsert rejects the whole batch before any writes. The package preserves the id stored in each row.
+The collection reads the version of a row through `options.version`. The default is `row => row.row_version`. A consumer whose rows carry `rowVersion` passes `version: r => r.rowVersion` and does not copy its rows.
+`utils.error()` returns the error of the last failed read.
+`utils.currentAt()` returns the ISO time of the last successful list or change read, or undefined before one.
+`utils.complete()` returns false only when the last successful list reports `complete: false`. It returns true before any successful list. A later successful refill with `complete: true` or absent resets it to true. Failed reads and saved rows loaded from Persistence do not change it.
 
-`liveRows(c)` returns a store keyed by id. Each change batch lands in one store write.
-`liveList(c)` returns a store array reconciled by id, in the key order of the collection. Use it for small sets.
-`syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`.
+## Package exports
+
+Each entry lists conditions in this order: `types` selects `dist/*.d.ts`, `wfe-source` selects `src/*.ts`, and `default` selects `dist/*.js`.
+The `wfe-source` condition is only for wfe's own examples and checks.
+`pnpm install` runs `prepare`, which builds `dist`.
+
+## TypeScript consumers
+
+A consumer type-checks the built `dist` through the `"types"` condition, which selects the package declarations.
+Build the package first with `pnpm --filter @wfe/sync build`.
+The `tests/sync-consumer` fixture checks `dist` with a strict NodeNext consumer's flags and no `paths`.
+
+## Follow
+
+After the first successful list, or after saved rows when the list failed, the collection follows the change feed.
+A timer runs a pass every `pollMs`, default 10000. If `trigger` is given, the collection subscribes with the key, and each fire runs a pass.
+`utils.pull()` runs a pass now and resolves when it ends. `utils.refill()` lists again.
+Passes and lists run one at a time, after the start. A fire or refill during one runs once after it, and a waiting list runs first.
+
+In one pass, the collection first calls `feed.moved(scope, cursor)` if the feed has it. A false result ends the pass.
+The collection then calls `feed.changes(scope, cursor, pageSize)` and applies each page as one transaction, until a page is complete.
+`utils.watchFollow(fn)` observes each pass through a `FollowPass` event.
+It returns an unsubscribe function.
+A start event is `{ type: 'start', id }`.
+An end event is `{ type: 'end', id, complete }`.
+The id increases within the collection, including across restarts.
+If a pass is active, a new subscriber receives its start event at once.
+Only a pass whose final `changes` page reports `complete: true` ends complete.
+Errors, cleanup, and a false `moved` result end the pass with `complete: false`.
+Lists emit no follow events.
+
+The cursor moves to `next_cursor` after every page. The package never parses a cursor.
+The status stays `ready` during a pass. If `changes` throws `CursorExpired`, the collection lists again and goes on following.
+Any other error sets the status to `error`, keeps the rows, and sets `utils.error()`. The next successful pass sets `ready` and clears the error.
+
+With `persistence`, the collection saves its rows and cursor after a successful list and after every change page.
+A save waits 250 ms, and a later save in that wait replaces it. A failed save changes no status. The package never calls `remove`.
+`c.cleanup()` writes a waiting save at once, stops the timer, unsubscribes the trigger, and aborts the pass in flight.
+A later subscriber restarts the collection. The restart loads, lists, and follows again.
+
+The read adapters take any keyed collection: one made by `collection()`, a live query result such as a `groupBy`, or any other `@tanstack/db` collection. The rows need no id and no version.
+
+`liveRows(c)` returns a store keyed by the collection's own key, as a string. Each change batch lands in one store write.
+`liveRows` is an object keyed by property name, so a collection must not hold both `1` and `'1'`. One model has one key type.
+`liveList(c)` returns a store array reconciled by the collection's own key, in the order of the collection. Use it for small sets.
+`syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`. For a collection made by `collection()`, it reads the status of the sync source. For any other collection, it maps `c.status`: `ready` and `error` stay as they are, and every other status is `loading`.
+`syncComplete(c)` returns a reactive accessor with the same value as `utils.complete()` for a collection made by `collection()`. For any other collection, it returns true.
+`syncCurrentAt(c)` returns a reactive accessor with the same value as `utils.currentAt()` for a collection made by `collection()`. For any other collection, it returns undefined.
 Create the adapters inside a Solid owner. When that owner disposes, the adapters unsubscribe.
+
+## Outbox
+
+`outbox({ database, send, probe, concurrency })` keeps writes in the IndexedDB database that the caller names, in the object store `outbox`.
+The consumer supplies `send` and `probe`. The package never builds a request, a hash, a URL, or a header.
+
+- `enqueue(call, expected?)` saves the expected row with the entry. It resolves after the IndexedDB put commits and starts a replay.
+- `replay()` sends pending entries. An ok reply removes the entry. A retriable reply puts it back to `pending` and ends the replay. Any other reply marks it `refused` with the refusal.
+- `resubmit(seq)` puts a refused entry back to `pending` and starts a replay. `discard(seq)` removes the entry.
+- `entries()` returns the entries that this page holds, in `seq` order. `watch(fn)` calls `fn` with the counts now and after each change.
+- `close()` aborts the sends in flight, leaves their entries `pending`, and closes the database.
+
+IndexedDB stores `expected` through structured clone, a copy that preserves supported data types. The value survives close and reopen.
+Older entries without this field return `undefined` for `expected`. `OperationCall` stays unchanged.
+
+Replay sends the entries of one record (`expect.id`) in `seq` order, one at a time. Up to `concurrency` records, default 4, send at the same time.
+A refused entry holds the later entries of its record as `pending`, except `append_only` entries.
+A retriable reply stops the whole replay. The entry waits for the next trigger.
+Every send gets an `AbortSignal`, and a `send` that throws counts as retriable.
+
+A replay runs on open, after each `enqueue`, after a successful probe, and every 30 s while an entry is pending.
+The probe runs before each replay, on the `online` event, and every 15 s while the last probe failed. The package never reads `navigator.onLine`.
+A replay asked for during a replay runs once after it.
+
+One tab replays at a time: a replay holds the Web Lock `${database}:outbox`.
+In the lock, the outbox reads the store again, because another tab can change it. A stored `sending` entry lost its tab, so it goes back to `pending`.
+The open does this reset in the lock before the first replay.
+If `navigator.locks` is absent, replay runs without the lock. Two tabs can then send the same entry, and the write log dedupes on `request_hash`.
+`watchSent(fn)` calls `fn(seq)` after each successful send reply, before the outbox removes the entry.
+It returns an unsubscribe function and sends no initial event.
+
+`lastSentAt` is the ISO time of the last ok reply in this page, or undefined.
+`outboxStatus(o)` returns an accessor with the counts.
+
+## Writes
+
+Outbox types default to string ids for existing callers. For numeric ids, use `outbox<number>(...)` and the matching `OperationCall<number>`, `OutboxEntry<number>`, and `Send<number>` types.
+
+`recordWrite(c, o)` takes a `SyncCollection` from `collection()` and returns `{ rows, write }`. `rows` is an optimistic store keyed by the collection accessor: the rows of the collection with the guesses of open writes on top.
+`write(call, expected)` is a Solid action:
+
+1. It merges `expected` into `rows[getKey(expected)]` as a guess.
+2. It enqueues `call` and `expected` in the outbox.
+3. It waits with `until` for a successful send and a complete follow pass that starts after the reply.
+
+The outbox must also remove the sent entry before the action ends.
+A pass that starts before the reply cannot end the wait, even if it ends complete.
+A pass that ends without complete also cannot end the wait.
+Expected rows must include the fields that `options.getKey` reads, including restored rows from the outbox.
+The wait compares no row versions and requires no row with the expected key.
+A joined write can change a result without a root revision that the browser can expect.
+
+Follow events and outbox changes update the wait.
+The optimistic row never ends it.
+If the entry is refused, the wait throws `OutboxRefused` with the `code`, the `text` and the `seq`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.
+The action then rejects, and the guess reverts.
+The wait has no timeout, because a page can stay offline for hours. One action stays open for each unsent entry.
+
+`recordWrite(c, o, { model })` also restores tentative rows from stored entries whose `expect.model` matches `model`.
+It restores each entry once, including entries that load later from IndexedDB. It skips entries without `expected` and its own new writes.
+Without `model`, it restores no entries.
+
+Each restored action shows the stored expected row and waits for the same send and collection conditions as a new write.
+A restored refused entry keeps its tentative row. The consumer reads the refusal from `o.entries()`.
+`resubmit(seq)` returns the entry to `pending`, and the same action continues its wait.
+
+`discard(seq)` throws `OutboxDiscarded` at that wait and removes the tentative row. The adapter catches restored action rejections.
+New writes still reject and revert on refusal.
 
 `@wfe/sync/internal` exports `applyChanges(c, changes)` for tests and the gallery.
 It applies one batch of changes as one transaction with the same `row_version` rule.
+
+## Shell
+
+`shell({ persist, onUpdate, workerUrl })` prepares the page for offline use. It never imports Solid and never throws.
+
+1. If `workerUrl` is given and `navigator.serviceWorker` exists, it registers the worker at that URL.
+2. If `persist` is true, the default, and `navigator.storage.persist` exists, it asks for persistent storage once. With `persist: false`, it reads `navigator.storage.persisted()`.
+3. If `navigator.storage.estimate` exists, it reads the storage estimate.
+
+It resolves `{ worker, persisted, quota: { usage, quota } }`. A missing or failing API gives `false` or zeros.
+
+When a new worker waits behind an active one, the package calls `onUpdate(reload)`. The first install does not call it.
+`reload()` posts the skip-waiting message to the waiting worker and reloads the page once that worker controls it.
+The package never reloads on its own. The consumer chooses the time to call `reload`, for example after the outbox is empty.
+
+## Worker
+
+`@wfe/sync/worker` exports `precache(manifest, { buildId, bypassPrefixes, apiPrefix, navigationFallback })`. The consumer imports it into its own worker entry. The module has no imports and never imports Solid.
+
+The manifest lists the files to cache. The navigation fallback is the page that handles deep routes offline. The worker uses these rules:
+
+- Each manifest entry is a URL relative to the worker scope, for example `./`, `index.html` or `assets/index-abc.js`.
+- Install caches every manifest URL and `navigationFallback`, even when the manifest omits the fallback. The fallback defaults to `index.html` and resolves relative to the worker scope.
+- The cache name holds the scope and the build id. The default build id is a hash of the manifest and the fallback name.
+- A GET for a manifest URL uses the cache first. The worker ignores the query, so `./?tab=2` gets the cached `./`. On a miss, the request goes to the network.
+- Other GET navigations use the network first. The worker returns the server response, including HTTP errors such as 404. Only a network failure uses the cached fallback. If the fallback is missing, the request fails with the network error. The consuming app handles deep routes.
+- The worker leaves other requests to the network without interception. This includes requests outside the manifest that are not navigations.
+- Each entry in `bypassPrefixes` matches the exact path or the path followed by '/'. The worker strips trailing slashes from each entry. '/' matches every path. Matching requests never use the cache or the fallback, and the worker never calls `respondWith` for them. The worker never caches a manifest URL or fallback under any matching prefix.
+- Activate deletes the older caches of the same scope and claims the open pages.
+- The skip-waiting message from `reload()` of `shell()` makes a waiting worker take over.
+
+The worker starts with `bypassPrefixes` when given, including an empty list.
+Otherwise, it starts with `[]` when `apiPrefix` is given, or `['/api']` by default.
+The `apiPrefix` alias then adds one entry. The worker normalizes each prefix and removes duplicates.
+With `bypassPrefixes: []` and no `apiPrefix`, the worker bypasses nothing.
+
+For example, `precache(m)` bypasses `['/api']`, and `precache(m, { apiPrefix: '/v2' })` bypasses only `['/v2']`.
+With `{ bypassPrefixes: ['/api', '/auth'], apiPrefix: '/v2' }`, the worker bypasses all three prefixes.
+The bypass configuration does not change the default build id.
+
+The package does not ship a Vite plugin. The consumer writes the manifest with this recipe in its Vite configuration. The worker entry calls `precache(__PRECACHE_MANIFEST__)`, and the recipe replaces that name with the list of built files.
+
+```ts
+import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vite'
+import type { Plugin } from 'vite'
+
+/**
+ * Builds the worker entry as sw.js beside index.html and writes the list of
+ * built files into it. Both paths are absolute. This is the recipe in
+ * packages/sync/README.md.
+ */
+function precacheManifest(html: string, worker: string): Plugin {
+  return {
+    name: 'precache-manifest',
+    enforce: 'post',
+    config: () => ({
+      build: {
+        rollupOptions: {
+          input: { index: html, sw: worker },
+          output: {
+            entryFileNames: (chunk) =>
+              chunk.name === 'sw' ? 'sw.js' : 'assets/[name]-[hash].js',
+          },
+        },
+      },
+    }),
+    generateBundle(_options, bundle) {
+      const chunk = bundle['sw.js']
+      if (chunk?.type !== 'chunk') throw new Error('sw.js was not built')
+      const files = Object.keys(bundle).filter((name) => name !== 'sw.js')
+      chunk.code = chunk.code.replace(
+        '__PRECACHE_MANIFEST__',
+        JSON.stringify(['./', ...files]),
+      )
+    },
+  }
+}
+
+const path = (name: string) => fileURLToPath(new URL(name, import.meta.url))
+
+export default defineConfig({
+  plugins: [precacheManifest(path('index.html'), path('sw.ts'))],
+})
+```
+
+```ts
+// sw.ts
+import { precache } from '@wfe/sync/worker'
+declare const __PRECACHE_MANIFEST__: string[]
+precache(__PRECACHE_MANIFEST__)
+```
+
+The page then calls `shell({ workerUrl: import.meta.env.BASE_URL + 'sw.js' })`. This resolves the worker from the Vite base on deep routes. The gallery in `examples/sync` uses the same recipe.

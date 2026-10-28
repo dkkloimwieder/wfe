@@ -5,7 +5,7 @@ const packageRoot = new URL('../packages/components/', import.meta.url)
 const manifest = JSON.parse(
   await readFile(new URL('package.json', packageRoot)),
 )
-for (const condition of ['solid', 'node', 'import', 'types']) {
+for (const condition of ['solid', 'node', 'default', 'types']) {
   const entry = manifest.exports['./table'][condition]
   const visited = new Set()
   async function inspect(url) {
@@ -28,7 +28,7 @@ for (const condition of ['solid', 'node', 'import', 'types']) {
   for (const file of ['table', 'aggregations']) {
     await inspect(
       new URL(
-        entry.replace(/index\.(js|d\.ts)$/, `engine/${file}.$1`),
+        entry.replace(/index\.(jsx?|d\.ts)$/, `engine/${file}.$1`),
         packageRoot,
       ),
     )

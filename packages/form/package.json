@@ -8,12 +8,13 @@
     ".": {
       "types": "./dist/index.d.ts",
       "wfe-source": "./src/index.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
     }
   },
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
+    "prepare": "node ../../scripts/prepare-package.mjs",
     "types": "tsc --project tsconfig.json"
   },
   "peerDependencies": {
@@ -25,5 +26,10 @@
   ],
   "engines": {
     "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "solid-js": "2.0.0-rc.18",
+    "tsdown": "0.23.0",
+    "typescript": "6.0.3"
   }
 }

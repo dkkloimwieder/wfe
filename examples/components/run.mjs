@@ -86,7 +86,7 @@ await withArtifactRun(
           modules.some((id) =>
             id.includes(
               process.env.BENCH_DISTRIBUTION
-                ? '/components/dist/source/table/Table.jsx'
+                ? '/components/dist/table/Table.jsx'
                 : '/components/src/table/Table.tsx',
             ),
           ),
@@ -104,7 +104,7 @@ await withArtifactRun(
           modules.some((id) =>
             id.includes(
               process.env.BENCH_DISTRIBUTION
-                ? '/components/dist/source/vendor/kobalte/core/src/select/'
+                ? '/components/dist/vendor/kobalte/core/src/select/'
                 : '/components/src/vendor/kobalte/core/src/select/',
             ),
           ),

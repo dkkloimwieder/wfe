@@ -51,3 +51,10 @@ The [six-route example](../../examples/shell/README.md) demonstrates application
 Its browser cases cover source, built exports, development rendering, and hydration.
 
 ShellView supports caller-owned reactive UI messages. See [view messages](../../docs/view-messages.md) for defaults and explicit-label precedence.
+
+## Package exports
+
+JavaScript conditions select files in this order: `types`, `wfe-source`, `solid`, `node`, then `default`.
+The `solid` condition preserves JSX for the consumer compiler, and `node` is the exception for plain Node server rendering.
+The `wfe-source` condition is only for wfe's own examples and checks.
+`pnpm install` runs `prepare`, which builds `dist`.

@@ -5,7 +5,7 @@ import solid from '@solidjs/vite-plugin'
 import { fileURLToPath } from 'node:url'
 
 const chartModule = (id) =>
-  /\/components\/(?:src\/chart\/|src\/vendor\/charts\/|dist\/(?:client|server|source)\/chart\/)/.test(
+  /\/components\/(?:src|dist(?:\/server)?)\/(?:chart|vendor\/charts)\//.test(
     id,
   ) || /\/node_modules\/(?:\.pnpm\/)?(?:d3-|@types\/d3-)/.test(id)
 

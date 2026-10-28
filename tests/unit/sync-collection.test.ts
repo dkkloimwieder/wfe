@@ -1,47 +1,17 @@
 import { expect, test, vi } from 'vitest'
-import { collection } from '@wfe/sync'
+import { CursorExpired, collection } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
-import type { Change, Feed, Row } from '@wfe/sync'
+import type { Change, Feed } from '@wfe/sync'
+import {
+  deferred,
+  feedOf,
+  order,
+  persistenceOf,
+  tick,
+  triggerOf,
+} from './sync-fixtures'
+import type { Order } from './sync-fixtures'
 
-type Order = Row & { name: string; quantity: number }
-
-export function deferred<T>() {
-  let resolve!: (value: T) => void
-  let reject!: (error: unknown) => void
-  const promise = new Promise<T>((yes, no) => {
-    resolve = yes
-    reject = no
-  })
-  return { promise, resolve, reject }
-}
-export const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
-export const order = (
-  id: string,
-  row_version: number,
-  quantity = 1,
-): Order => ({
-  id,
-  row_version,
-  name: `Order ${id}`,
-  quantity,
-})
-/** A feed whose pages come from a queue; an Error entry rejects. */
-export function feedOf(pages: (Order[] | Error)[]) {
-  const queue = [...pages]
-  const feed: Feed<Order, string> = {
-    list: vi.fn(async () => {
-      const page = queue.shift()
-      if (page instanceof Error) throw page
-      return { rows: page ?? [], cursor: 'end' }
-    }),
-    changes: vi.fn(async () => ({
-      rows: [],
-      next_cursor: 'end',
-      complete: true,
-    })),
-  }
-  return feed
-}
 const ids = (c: { toArray: Order[] }) => c.toArray.map((row) => row.id).sort()
 const change = (
   id: string,
@@ -66,17 +36,126 @@ test('fill calls list once and marks the collection ready', async () => {
   }))
   const c = collection(feed, 'all', { key: 'orders:all' })
   expect(feed.list).toHaveBeenCalledTimes(1)
-  expect(feed.list).toHaveBeenCalledWith('all')
+  expect(feed.list).toHaveBeenCalledWith('all', expect.any(AbortSignal))
   expect(c.status).toBe('loading')
   expect(c.size).toBe(0)
+  expect(c.utils.complete()).toBe(true)
   page.resolve([order('a', 1), order('b', 1)])
   await tick()
   expect(c.status).toBe('ready')
+  expect(c.utils.complete()).toBe(true)
   expect(ids(c)).toEqual(['a', 'b'])
   expect(c.get('a')?.quantity).toBe(1)
   expect(c.utils.error()).toBeUndefined()
   expect(feed.list).toHaveBeenCalledTimes(1)
   expect(feed.changes).not.toHaveBeenCalled()
+})
+
+test('an incomplete list saves its cursor and rows and still follows changes', async () => {
+  const feed = feedOf([
+    { rows: [order('a', 1)], cursor: 'capped', complete: false },
+  ])
+  vi.mocked(feed.changes).mockResolvedValueOnce({
+    rows: [change('a', 2, 5)],
+    next_cursor: 'followed',
+    complete: true,
+  })
+  const persistence = persistenceOf(async () => undefined)
+  const { trigger, fire } = triggerOf()
+  const c = collection(feed, 'all', {
+    key: 'orders:all',
+    trigger,
+    persistence,
+  })
+  try {
+    await tick()
+    expect(c.utils.complete()).toBe(false)
+    expect(c.status).toBe('ready')
+    await vi.waitFor(() =>
+      expect(persistence.save).toHaveBeenCalledWith(
+        'orders:all',
+        [expect.objectContaining(order('a', 1))],
+        'capped',
+      ),
+    )
+    fire('orders:all')
+    await tick()
+    expect(feed.changes).toHaveBeenCalledWith(
+      'all',
+      'capped',
+      undefined,
+      expect.any(AbortSignal),
+    )
+    expect(c.get('a')?.quantity).toBe(5)
+    expect(c.utils.complete()).toBe(false)
+  } finally {
+    await c.cleanup()
+  }
+})
+
+test.each([true, undefined])(
+  'a refill with complete %s resets completeness and failed refills preserve it',
+  async (complete) => {
+    const failure = new Error('offline')
+    const c = collection(
+      feedOf([
+        { rows: [], cursor: 'partial', complete: false },
+        failure,
+        {
+          rows: [],
+          cursor: 'full',
+          ...(complete === undefined ? {} : { complete }),
+        },
+        failure,
+      ]),
+      'all',
+      { key: 'orders:all' },
+    )
+    try {
+      await tick()
+      expect(c.utils.complete()).toBe(false)
+      await c.utils.refill()
+      expect(c.utils.error()).toBe(failure)
+      expect(c.utils.complete()).toBe(false)
+      await c.utils.refill()
+      expect(c.utils.complete()).toBe(true)
+      await c.utils.refill()
+      expect(c.utils.error()).toBe(failure)
+      expect(c.utils.complete()).toBe(true)
+    } finally {
+      await c.cleanup()
+    }
+  },
+)
+
+test('saved rows do not change completeness before a list or on restart', async () => {
+  const page = deferred<Awaited<ReturnType<Feed<Order, string>['list']>>>()
+  const failure = new Error('offline')
+  const feed = feedOf([failure])
+  vi.mocked(feed.list).mockReturnValueOnce(page.promise)
+  const persistence = persistenceOf(async () => ({
+    rows: [order('a', 1)],
+    cursor: 'saved',
+    saved_at: '2026-10-25T00:00:00.000Z',
+  }))
+  const c = collection(feed, 'all', { key: 'orders:all', persistence })
+  try {
+    await tick()
+    expect(c.get('a')).toMatchObject(order('a', 1))
+    expect(c.status).toBe('ready')
+    expect(c.utils.complete()).toBe(true)
+    page.resolve({ rows: [], cursor: 'partial', complete: false })
+    await tick()
+    expect(c.utils.complete()).toBe(false)
+    await c.cleanup()
+    await c.preload()
+    await tick()
+    expect(c.get('a')).toMatchObject(order('a', 1))
+    expect(c.utils.error()).toBe(failure)
+    expect(c.utils.complete()).toBe(false)
+  } finally {
+    await c.cleanup()
+  }
 })
 
 test('a rejecting list sets error and leaves the collection empty', async () => {
@@ -86,6 +165,7 @@ test('a rejecting list sets error and leaves the collection empty', async () => 
   expect(c.status).toBe('error')
   expect(c.utils.error()).toBe(failure)
   expect(c.size).toBe(0)
+  expect(c.utils.complete()).toBe(true)
 })
 
 test('refill removes absent rows and applies the row_version rule', async () => {
@@ -155,4 +235,78 @@ test('applyChanges deletes, inserts, and updates by the row_version rule', async
   expect(c.has('b')).toBe(false)
   expect(batches).toHaveLength(2)
   subscription.unsubscribe()
+})
+
+test('a restart after cleanup fills again and applyChanges writes through the new run', async () => {
+  const feed = feedOf([[order('a', 1)], [order('b', 1)]])
+  const c = collection(feed, 'all', { key: 'orders' })
+  await tick()
+  await c.cleanup()
+  expect(c.status).toBe('cleaned-up')
+  const subscription = c.subscribeChanges(() => {})
+  await tick()
+  expect(feed.list).toHaveBeenCalledTimes(2)
+  expect(ids(c)).toEqual(['b'])
+  applyChanges(c, [change('c', 1, 3)])
+  expect(ids(c)).toEqual(['b', 'c'])
+  subscription.unsubscribe()
+})
+
+test('CursorExpired is an Error with its own name and cause', () => {
+  const cause = new Error('gone')
+  const expired = new CursorExpired(undefined, { cause })
+  expect(expired).toBeInstanceOf(Error)
+  expect(expired).toBeInstanceOf(CursorExpired)
+  expect(expired.name).toBe('CursorExpired')
+  expect(expired.message).toBe('The host no longer holds this cursor')
+  expect(expired.cause).toBe(cause)
+})
+
+test('a collection over rows with rowVersion applies the version rule through options.version', async () => {
+  type Camel = { id: string; rowVersion: number; quantity: number }
+  const camel = (id: string, rowVersion: number, quantity = 1): Camel => ({
+    id,
+    rowVersion,
+    quantity,
+  })
+  const pages = [
+    [camel('a', 1), camel('b', 2), camel('c', 1)],
+    [camel('a', 2, 5), camel('b', 1, 9), camel('c', 1, 9)],
+  ]
+  const feed: Feed<Camel, string> = {
+    list: vi.fn(async () => ({ rows: pages.shift() ?? [], cursor: 'end' })),
+    changes: vi.fn(async () => ({
+      rows: [],
+      next_cursor: 'end',
+      complete: true,
+    })),
+  }
+  const persistence = persistenceOf(async () => ({
+    rows: [camel('a', 1, 3), camel('s', 4)],
+    cursor: 'saved',
+    saved_at: '2026-10-24T00:00:00.000Z',
+  }))
+  const c = collection(feed, 'all', {
+    key: 'camel:all',
+    persistence,
+    version: (row) => row.rowVersion,
+  })
+  await tick()
+  // An equal version from the list leaves the saved row; absent rows leave.
+  expect(c.get('a')).toMatchObject(camel('a', 1, 3))
+  expect(c.has('s')).toBe(false)
+  await c.utils.refill()
+  expect(c.get('a')).toMatchObject(camel('a', 2, 5))
+  expect(c.get('b')).toMatchObject(camel('b', 2))
+  expect(c.get('c')).toMatchObject(camel('c', 1))
+  applyChanges(c, [
+    { id: 'a', row_version: 3, deleted: false, data: camel('a', 3, 7) },
+    { id: 'b', row_version: 2, deleted: false, data: camel('b', 2, 8) },
+    { id: 'c', row_version: 0, deleted: false, data: camel('c', 0, 8) },
+    { id: 'd', row_version: 1, deleted: false, data: camel('d', 1) },
+  ])
+  expect(c.get('a')).toMatchObject(camel('a', 3, 7))
+  expect(c.get('b')).toMatchObject(camel('b', 2))
+  expect(c.get('c')).toMatchObject(camel('c', 1))
+  expect(c.get('d')).toMatchObject(camel('d', 1))
 })

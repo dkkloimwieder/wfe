@@ -1,11 +1,33 @@
 # Sync store example
 
-The example fills one `@wfe/sync` collection from a fake feed and reads it through both adapters.
+The example fills one `@wfe/sync` collection from a fake server and reads it through both adapters.
+The fake server holds the rows, a change log, and a trigger. The collection follows the log through the trigger.
 Synthetic rows carry a UUIDv7 id, `row_version` 1, a name, a quantity, a status, and a time.
 The buttons choose 10,000 or 100,000 rows. The apply button sends 100 random changes through `applyChanges`.
+The server button appends 100 random changes to the log and fires the trigger. A follow pass then reads them in pages of 50.
 Each batch holds 70 updates, 20 inserts, and 10 deletes, so the row count grows by 10.
-`liveRows` fills a plain table. `liveList` fills a list limited to the first 200 rows.
-The page shows `syncStatus` above both shapes. It has no timing instrumentation.
+`liveRows` fills a plain table, and `liveList` fills a list. Each shape renders the first 200 rows.
+The page shows `syncStatus` and the current-as-of time above both shapes. It has no timing instrumentation.
+A third section shows `ReadOnlyTable` over the same `liveRows` store, with virtual rows through its `renderBody` slot.
+The slot renders `VirtualRows` with `TableRow`, so the table mounts only the rows in its scroll window. The header and the sorting stay with `ReadOnlyTable`.
+
+The recordWrite panel writes through an outbox in the IndexedDB database `wfe-sync-gallery:<size>`.
+Add row records a create with a new UUIDv7 id. The page computes the request hash as SHA-256 of the request JSON.
+The fake server applies each request hash once, appends the row to the log, and fires the trigger, so the follow pass brings the row back.
+The Offline button makes the probe false and every send retriable. A second click goes online and asks for a replay.
+Refuse next send makes the server refuse one send. The refused entry shows under Not uploaded, with Resubmit and Discard.
+The status line shows the pending and refused counts and the last send time from `outboxStatus`.
+A written row shows "recorded, not uploaded" while its entry is pending.
+
+The build also writes `sw.js` from `sw.ts` with the manifest recipe in `vite.config.ts`. The recipe is the one in the `@wfe/sync` README.
+The page calls `shell({ workerUrl: import.meta.env.BASE_URL + 'sw.js', onUpdate })`. The Vite base keeps the worker path stable on deep routes. When a new worker waits, the page shows "Update available, reload". The page never reloads on its own.
+The runner tests the worker in a second browser context. With the network blocked, a reload renders the page from the worker cache. An offline navigation and reload at `pallets/42` under the gallery base render the app through the cached fallback. A blocked `/api` request fails, and no cache holds an `/api` URL. A changed `sw.js` shows the update button, and the button hands over to the new worker.
+
+The Shell section shows the `shell()` result: whether the worker is installed, whether storage is protected, and the storage use and quota.
+The gallery saves the rows of each size through its own IndexedDB Persistence in the database `wfe-sync-gallery-rows`, object store `collections`. The package exports no Persistence.
+If the page loads with no network, the fake server cannot be reached, so the saved rows fill the collection. The status line shows the failed read. The next `online` event reads the list again.
+The Reload page button reloads the page. With the network off, the worker cache serves the page, and the rows come from this device.
+The runner checks this path: it changes the rows on the server, waits for the save, blocks the network, and reloads. The page shows the 10,010 saved rows, not the 10,000 rows of a fresh fake server.
 
 ## Preview
 
@@ -30,5 +52,5 @@ node examples/sync/run.mjs
 
 Set `BENCH_DISTRIBUTION=1` for every command to test built exports.
 Set `BENCH_DEVELOPMENT=1` and `NODE_ENV=development` for every command to test the development runtime.
-The browser cases cover the ready status, both row counts, one change batch at each size, and disposal.
+The browser cases cover the ready status, both row counts, one server change batch, one direct change batch at each size, an online write, an offline write and the reconnect, a refusal with resubmit and discard, and disposal.
 Reports remain under `test-results/sync` unless `BENCH_OUTPUT` supplies another path.

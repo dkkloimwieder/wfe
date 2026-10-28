@@ -26,12 +26,14 @@ for (const family of [
     const original = inventory.classify(resolve(root, artifact.path))
     assert.equal(original.origin, family)
     assert.equal(original.artifact, artifact)
-    for (const mode of ['source', 'client', 'server']) {
+    for (const mode of ['', 'server', 'source', 'client']) {
       const built = artifact.path
-        .replace('/src/', `/dist/${mode}/`)
+        .replace('/src/', mode ? `/dist/${mode}/` : '/dist/')
         .replace(
           /\.tsx?$/,
-          mode === 'source' && artifact.path.endsWith('.tsx') ? '.jsx' : '.js',
+          mode === '' || (mode === 'source' && artifact.path.endsWith('.tsx'))
+            ? '.jsx'
+            : '.js',
         )
       assert.equal(
         inventory.classify(resolve(root, built) + '?v=review').artifact,
@@ -125,7 +127,7 @@ test('unknown vendor modules fail closed in source and built paths; similarly na
     assert.throws(
       () =>
         inventory.classify(
-          `packages/components/dist/source/${path.replace('.ts', '.js')}`,
+          `packages/components/dist/${path.replace('.ts', '.js')}`,
         ),
       /Unregistered vendor artifact/,
     )

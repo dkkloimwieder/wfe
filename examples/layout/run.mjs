@@ -38,7 +38,7 @@ await withArtifactRun(
         modules.some((id) =>
           id.includes(
             process.env.BENCH_DISTRIBUTION
-              ? '/components/dist/source/layout/Dashboard.jsx'
+              ? '/components/dist/layout/Dashboard.jsx'
               : '/components/src/layout/Dashboard.tsx',
           ),
         ),
@@ -334,7 +334,9 @@ await withArtifactRun(
             .catch((diagnosticError) => ({ error: String(diagnosticError) }))
           throw error
         }
-        assert.equal((await main.boundingBox()).width, 390)
+        await expect
+          .poll(async () => (await main.boundingBox()).width)
+          .toBe(390)
         assert.equal(await navigation.count(), 0)
       })
       await test('A large virtual Table keeps bounded rows and scrolls within the dashboard', async () => {
@@ -517,7 +519,9 @@ await withArtifactRun(
           window.layoutFixture.configure({ density: 'compact' }),
         )
         await desktopReady()
-        assert.deepEqual(await page.locator('#results').boundingBox(), before)
+        await expect
+          .poll(() => page.locator('#results').boundingBox())
+          .toEqual(before)
       })
       await test('Disposal with an open dialog releases portals and page locks', async () => {
         await page

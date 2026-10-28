@@ -8,17 +8,23 @@
     ".": {
       "types": "./dist/index.d.ts",
       "wfe-source": "./src/index.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
+    },
+    "./worker": {
+      "types": "./dist/worker.d.ts",
+      "wfe-source": "./src/worker.ts",
+      "default": "./dist/worker.js"
     },
     "./internal": {
       "types": "./dist/internal.d.ts",
       "wfe-source": "./src/internal.ts",
-      "import": "./dist/internal.js"
+      "default": "./dist/internal.js"
     }
   },
   "sideEffects": false,
   "scripts": {
     "build": "tsdown",
+    "prepare": "node ../../scripts/prepare-package.mjs",
     "types": "tsc --project tsconfig.json"
   },
   "dependencies": {
@@ -34,5 +40,10 @@
   ],
   "engines": {
     "node": ">=22.12.0"
+  },
+  "devDependencies": {
+    "solid-js": "2.0.0-rc.18",
+    "tsdown": "0.23.0",
+    "typescript": "6.0.3"
   }
 }

@@ -69,7 +69,7 @@ await withArtifactRun(
           modules.some((id) =>
             id.includes(
               process.env.BENCH_DISTRIBUTION
-                ? '/components/dist/source/table/Table.jsx'
+                ? '/components/dist/table/Table.jsx'
                 : '/components/src/table/Table.tsx',
             ),
           ),
@@ -108,7 +108,7 @@ await withArtifactRun(
           modules.some((path) =>
             path.includes(
               process.env.BENCH_DISTRIBUTION
-                ? '/components/dist/source/vendor/virtual-core/index.js'
+                ? '/components/dist/vendor/virtual-core/index.js'
                 : '/components/src/vendor/virtual-core/index.ts',
             ),
           ),

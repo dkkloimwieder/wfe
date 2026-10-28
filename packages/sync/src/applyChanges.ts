@@ -4,19 +4,27 @@ import type { Change, Row } from './types'
 
 /**
  * Apply one feed batch as one sync transaction. A deleted change removes the
- * row. Any other change inserts or updates by the row_version rule: equal or
- * lower versions are ignored. Epic 2a `follow` calls this per batch.
+ * row. Any other change inserts or updates by the version rule: equal or
+ * lower versions are ignored. The version of `data` is read through the
+ * accessor of the collection. Each upsert id must equal `getKey(data)`.
+ * A delete id is the collection key. A mismatched batch throws before writes.
+ * Epic 2a `follow` calls this per batch.
  */
 export function applyChanges<T extends Row>(
   c: AnyCollection<T>,
   changes: Change<T>[],
 ): void {
-  const { writer } = source(c)
+  const { version, getKey } = source(c)
+  for (const change of changes) {
+    if (!change.deleted && change.id !== getKey(change.data))
+      throw new Error('Change id must equal the collection key of its data')
+  }
+  const writer = source(c).writer()
   const batch: Batch = new Map()
   writer.begin()
   for (const change of changes) {
     if (change.deleted) remove(c, writer, change.id, batch)
-    else upsert(c, writer, change.data, batch)
+    else upsert(c, writer, change.data, batch, version, getKey)
   }
   writer.commit()
 }

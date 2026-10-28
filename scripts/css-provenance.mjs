@@ -19,7 +19,7 @@ export function cssInputs(root, directory) {
   return files
 }
 export function cssProvenance(root, distribution = false) {
-  const directory = `packages/components/${distribution ? 'dist/source' : 'src'}/styles`
+  const directory = `packages/components/${distribution ? 'dist' : 'src'}/styles`
   const entry = resolve(root, directory, 'styles.css')
   let serverBuild = false
   const compilations = new Map(),

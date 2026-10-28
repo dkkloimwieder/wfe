@@ -149,7 +149,7 @@ export async function vendorInventory(root) {
       ? normalize(relative(root, clean))
       : clean.replace(/^\.\//, '')
     path = path.replace(
-      /^packages\/components\/dist\/(?:source|client|server)\//,
+      /^packages\/components\/dist\/(?:(?:source|client|server)\/)?/,
       componentSource,
     )
     const candidates = [path]

@@ -10,7 +10,8 @@ body {
   gap: var(--ui-gap, 6px);
 }
 .sync-title,
-.sync-shape h2 {
+.sync-shape h2,
+.sync-shell h2 {
   margin: 0;
   font: inherit;
   font-weight: 600;
@@ -31,14 +32,35 @@ body {
   gap: var(--ui-gap, 6px);
   min-width: 0;
 }
-.sync-shape {
+.sync-shape,
+.sync-shell,
+.sync-writes {
   display: flex;
   flex-direction: column;
   gap: var(--ui-gap, 6px);
   min-width: 0;
 }
-.sync-shape p {
+.sync-shape p,
+.sync-shell p {
   margin: 0;
+}
+.sync-writes h3 {
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+}
+.sync-written,
+.sync-refused {
+  margin: 0;
+  padding-inline-start: 1.5rem;
+  max-height: 12rem;
+  overflow: auto;
+}
+.sync-refused li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
 }
 .sync-scroll {
   max-height: 60dvh;
@@ -62,4 +84,17 @@ body {
 .sync-list {
   margin: 0;
   padding-inline-start: 3.5rem;
+}
+.sync-virtual {
+  display: flex;
+  flex-direction: column;
+  height: 26rem;
+  min-height: 0;
+}
+.sync-virtual > * {
+  flex: 1;
+  min-height: 0;
+}
+.sync-virtual tbody tr {
+  height: 32px;
 }

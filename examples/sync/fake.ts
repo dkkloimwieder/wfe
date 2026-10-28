@@ -1,7 +1,8 @@
-import type { Change, Feed, Row } from '@wfe/sync'
+import type { Change, Feed, Reply, Row, Send, Trigger } from '@wfe/sync'
 
 export type OrderStatus = 'open' | 'picked' | 'shipped'
 export type Order = Row & {
+  row_version: number
   name: string
   quantity: number
   status: OrderStatus
@@ -44,17 +45,100 @@ export function makeRows(count: number): Order[] {
   return Array.from({ length: count }, (_, index) => order(index, now))
 }
 
-/** A feed that answers `list` from memory after a short delay. */
-export function fakeFeed(rows: () => Order[]): Feed<Order, Scope> {
-  return {
+/** The request of the gallery create operation. */
+export type CreateRequest = { id: string; name: string; quantity: number }
+
+/**
+ * A fake host for one scope: a row table, a change log, and a trigger. The
+ * cursor 'cN' means the first N log entries. `changes` pages the log, 50
+ * entries by default. `send` takes create writes, and `net` switches the
+ * network off or refuses the next send. While `net.reachable` is false, as
+ * after a page load with no network, `list` and `changes` reject.
+ */
+export function fakeServer(count: number) {
+  let rows = makeRows(count)
+  const log: Change<Order>[] = []
+  const net = { online: true, refuseNext: false, reachable: true }
+  const listing: { cap?: number } = {}
+  const fires = new Map<string, Set<() => void>>()
+  const feed: Feed<Order, Scope> = {
     async list() {
       await new Promise((resolve) => setTimeout(resolve, 100))
-      return { rows: rows(), cursor: 'end' }
+      if (!net.reachable) throw new Error('The server cannot be reached')
+      return {
+        rows: rows.slice(0, listing.cap),
+        cursor: `c${log.length}`,
+        complete: listing.cap === undefined || rows.length <= listing.cap,
+      }
     },
-    async changes(_scope, cursor) {
-      return { rows: [], next_cursor: cursor, complete: true }
+    async changes(_scope, cursor, limit = 50) {
+      if (!net.reachable) throw new Error('The server cannot be reached')
+      const start = Number(cursor.slice(1))
+      const page = log.slice(start, start + limit)
+      const next = start + page.length
+      return {
+        rows: page,
+        next_cursor: `c${next}`,
+        complete: next >= log.length,
+      }
     },
   }
+  const trigger: Trigger = {
+    subscribe(key, fire) {
+      const set = fires.get(key) ?? new Set()
+      set.add(fire)
+      fires.set(key, set)
+      return () => {
+        set.delete(fire)
+      }
+    },
+  }
+  /** Append 100 random changes to the log, then fire the trigger for the key. */
+  function change(key: string): void {
+    const batch = randomChanges(rows)
+    log.push(...batch)
+    const byId = new Map(rows.map((row) => [row.id, row]))
+    for (const entry of batch) {
+      if (entry.deleted) byId.delete(entry.id)
+      else byId.set(entry.id, entry.data)
+    }
+    rows = [...byId.values()]
+    for (const fire of [...(fires.get(key) ?? [])]) fire()
+  }
+  const applied = new Set<string>()
+  const probe = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    return net.online
+  }
+  /** Apply a create once per request_hash, append it to the log, and fire. */
+  const send: Send = async (entry) => {
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    if (!net.online) return { ok: false, retriable: true }
+    if (net.refuseNext) {
+      net.refuseNext = false
+      return refusal
+    }
+    if (applied.has(entry.request_hash)) return { ok: true }
+    applied.add(entry.request_hash)
+    const request = entry.request as CreateRequest
+    const row: Order = {
+      ...request,
+      row_version: 1,
+      status: 'open',
+      updated_at: new Date().toISOString(),
+    }
+    log.push({ id: row.id, row_version: 1, deleted: false, data: row })
+    rows = [...rows, row]
+    for (const set of fires.values()) for (const fire of [...set]) fire()
+    return { ok: true }
+  }
+  return { feed, trigger, change, send, probe, net, listing }
+}
+
+const refusal: Reply = {
+  ok: false,
+  retriable: false,
+  refusal: { code: 'refused', text: 'The server refused this write' },
 }
 
 /**
