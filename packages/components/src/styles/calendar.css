@@ -19,7 +19,7 @@
   margin: var(--ui-gap, 6px) 0 0;
   table-layout: fixed;
 }
-:where([data-ui]) .ui-calendar :is(th, td) {
+:where([data-ui]) .ui-calendar .ui-table :is(th, td) {
   padding: 1px;
   text-align: center;
   border: 0;

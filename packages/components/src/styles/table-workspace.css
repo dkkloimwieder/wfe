@@ -46,6 +46,9 @@
   background: var(--ui-pane-surface, var(--ui-surface, white));
   box-shadow: none;
 }
+:where([data-ui]) .table-workspace-results {
+  background: var(--ui-surface, white);
+}
 :where([data-ui]) .table-workspace-controls {
   grid-area: controls;
   border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);

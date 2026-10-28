@@ -187,3 +187,51 @@
     stroke-width: var(--ui-border-width);
   }
 }
+
+/* Embedded actions do not inherit standalone button outlines in Vanilla. */
+@scope (.ui-theme[data-ui-preset='vanilla']) to (.ui-theme) {
+  @media (forced-colors: none) {
+    :scope
+      :is(
+        .sub-table-toggle,
+        .table-page-action,
+        .column-sort,
+        .header-sort,
+        .column-move,
+        .group-heading button[data-group-toggle],
+        .ui-sidebar-context-parent,
+        .ui-calendar-navigation > button,
+        .ui-calendar td button,
+        .ui-datetime-back
+      ) {
+      --ui-control-border: transparent;
+      --ui-button-border: transparent;
+      border-color: transparent;
+      border-radius: 0;
+    }
+    :scope
+      :is(
+        .sub-table-toggle,
+        .table-page-action,
+        .column-sort,
+        .header-sort,
+        .column-move,
+        .group-heading button[data-group-toggle],
+        .ui-calendar-navigation > button,
+        .ui-datetime-back
+      ),
+    :scope
+      :is(
+        .sub-table-toggle,
+        .table-page-action,
+        .column-sort,
+        .header-sort,
+        .column-move,
+        .group-heading button[data-group-toggle],
+        .ui-calendar-navigation > button,
+        .ui-datetime-back
+      ):hover {
+      background: transparent;
+    }
+  }
+}

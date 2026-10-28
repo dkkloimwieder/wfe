@@ -164,6 +164,14 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
             options.layers,
             options.dividers,
           ),
+          // Vanilla surfaces 2–4 use 98.5% of their original sRGB channels.
+          ...(mode === 'monochrome'
+            ? {}
+            : {
+                '--ui-surface-2': mode === 'dark' ? '#1b1b1b' : '#f8f8f9',
+                '--ui-surface-3': mode === 'dark' ? '#252525' : '#f1f1f1',
+                '--ui-surface-4': mode === 'dark' ? '#3f3f3f' : '#e2e2e2',
+              }),
           ...(options.accent === undefined
             ? {
                 '--ui-accent': vanillaPrimary,

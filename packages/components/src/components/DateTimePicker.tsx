@@ -415,7 +415,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
                 <div>
                   <Button
                     type="button"
-                    class="ui-icon-button"
+                    class="ui-icon-button ui-datetime-back"
                     aria-label={messages.backToDate}
                     onClick={() => setStep('date')}
                   >

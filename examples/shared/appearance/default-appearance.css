@@ -13,7 +13,6 @@ body:has(.component-preview) {
   margin: 0;
 }
 .component-preview > .ui-card {
-  background: var(--ui-pane-surface);
   box-shadow: var(--ui-panel-shadow);
 }
 #resizable-review {
