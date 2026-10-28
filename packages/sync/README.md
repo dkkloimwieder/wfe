@@ -13,9 +13,11 @@ It then calls `feed.list(scope)` and reconciles the page. If the list fails afte
 A rejecting load counts as no saved rows. `utils.error()` holds the load error until a list succeeds.
 `utils.refill()` reads the list again and reconciles it. Rows absent from the new page leave. An incoming row with an equal or greater version replaces the held row. The collection ignores lower versions. This rule also applies to changes and saved rows.
 The version is the reading statement's snapshot xmin, a transaction ID from its database snapshot. Two reads can carry equal versions, so the later read wins. A replacement with identical values keeps the `liveRows` row identity and sends no row change to subscribers.
-The collection reads the key of a row through `options.getKey`. The default is `row => row.id`. A consumer whose rows use `code` as the key passes `getKey: r => r.code` and does not copy its rows.
+The collection reads the key of a row through `options.getKey`. The default is `row => row.id`. With `getKey`, the row type can be any object and needs no `id` field.
+Without `getKey`, the row type must extend `Row`, with an `id` that is a string or number.
+For rows keyed by `line_id`, pass `getKey: row => row.line_id`. Keep the original field name.
 The required `options.key` string remains the persistence and trigger key.
-The feed supplies `Change.id` as a string or number that equals the collection key. For upserts, `change.id` must equal `getKey(change.data)`, including its type. Deletes use `change.id` directly as that key. A mismatched upsert rejects the whole batch before any writes. The package preserves the id stored in each row.
+The feed supplies `Change.id` as a string or number that equals the collection key. For upserts, `change.id` must equal `getKey(change.data)`, including its type. Deletes use `change.id` directly as that key. A mismatched upsert rejects the whole batch before any writes. The package preserves the original fields in each row.
 The collection reads the version of a row through `options.version`. The default is `row => row.row_version`. A consumer whose rows carry `rowVersion` passes `version: r => r.rowVersion` and does not copy its rows.
 `utils.error()` returns the error of the last failed read.
 `utils.currentAt()` returns the ISO time of the last successful list or change read, or undefined before one.
@@ -118,7 +120,10 @@ Outbox types default to string ids for existing callers. For numeric ids, use `o
 The outbox must also remove the sent entry before the action ends.
 A pass that starts before the reply cannot end the wait, even if it ends complete.
 A pass that ends without complete also cannot end the wait.
-Expected rows must include the fields that `options.getKey` reads, including restored rows from the outbox.
+The expected row has type `Partial<T>`. It must include the fields that `options.getKey` reads and needs no `id` alias.
+The adapter derives the tentative key through `getKey(expected)` for new writes and restored entries.
+The outbox stores the expected row with its original fields, so older stored entries keep the same format.
+`call.expect.id` remains the operation target for replay order. A joined write can target a different key from the tentative row.
 The wait compares no row versions and requires no row with the expected key.
 A joined write can change a result without a root revision that the browser can expect.
 

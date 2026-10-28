@@ -17,13 +17,12 @@ import type { Collection } from '@tanstack/db'
 import type { Accessor, Store } from 'solid-js'
 import { OutboxDiscarded, OutboxRefused } from './errors'
 import { discarded } from './outbox'
-import { peek } from './writer'
+import { peek, source } from './writer'
 import type { OperationCall, Outbox, OutboxCounts, OutboxEntry } from './outbox'
 import { createSourceSignal } from './status'
 import type { Status } from './status'
 import type { SyncCollection } from './collection'
-import { rowKey } from './types'
-import type { Key, Row } from './types'
+import type { Key } from './types'
 
 /**
  * Any collection the read adapters take: one made by `collection()`, a live
@@ -189,7 +188,7 @@ export function outboxStatus(
 }
 
 /** The rows of each pushed array, keyed by the collection accessor. */
-async function* keyed<T extends Row>(
+async function* keyed<T extends object>(
   lists: AsyncIterable<T[]>,
   getKey: Key<T>,
 ): AsyncIterable<Record<string, T>> {
@@ -201,7 +200,7 @@ async function* keyed<T extends Row>(
 }
 
 /** Subscribe before enqueue, so even an immediate reply records the pass boundary. */
-function confirmation<T extends Row>(
+function confirmation<T extends object>(
   c: SyncCollection<T>,
   o: Outbox<string | number>,
 ): (entry: OutboxEntry<string | number>, restored?: boolean) => boolean {
@@ -260,21 +259,22 @@ function confirmation<T extends Row>(
  * wait, and the guess reverts. The wait has no timeout, so one action stays
  * open for each unsent entry.
  * Expected rows must contain the fields that `options.getKey` reads.
+ * They need no id field. The outbox stores them without key aliases.
  * With a model, stored expected rows return as entries load. Restored refusals
  * keep their overlay until discard or successful resubmission.
  */
-export function recordWrite<T extends Row, K extends string | number = string>(
+export function recordWrite<
+  T extends object,
+  K extends string | number = string,
+>(
   c: SyncCollection<T>,
   o: Outbox<K>,
   options?: { model?: string },
 ): {
   rows: Store<Record<string, T>>
-  write: (
-    op: OperationCall<K>,
-    expected: Partial<T> & { id: string | number },
-  ) => Promise<void>
+  write: (op: OperationCall<K>, expected: Partial<T>) => Promise<void>
 } {
-  const getKey = peek<T>(c)?.getKey ?? rowKey
+  const getKey = source(c).getKey
   const [rows, setRows] = createOptimisticStore<Record<string, T>>(
     () => keyed(from(subscribe(c)), getKey),
     undefined,
@@ -286,14 +286,14 @@ export function recordWrite<T extends Row, K extends string | number = string>(
   let enqueuing = 0
   let disposed = false
   let settled = false
-  const apply = (expected: Partial<T> & { id: string | number }) => {
+  const apply = (expected: Partial<T>) => {
     const id = getKey(expected as T)
     setRows((draft) => {
       draft[id] = { ...draft[id], ...expected } as T
     })
   }
   const restoreEntry = action(function* (entry: OutboxEntry<K>) {
-    const expected = entry.expected as Partial<T> & { id: string | number }
+    const expected = entry.expected as Partial<T>
     apply(expected)
     yield until(() => confirmed(entry, true))
   })
@@ -317,7 +317,7 @@ export function recordWrite<T extends Row, K extends string | number = string>(
   }
   async function enqueue(
     op: OperationCall<K>,
-    expected: Partial<T> & { id: string | number },
+    expected: Partial<T>,
   ): Promise<OutboxEntry<K>> {
     enqueuing++
     try {
@@ -329,10 +329,7 @@ export function recordWrite<T extends Row, K extends string | number = string>(
       restore()
     }
   }
-  const write = action(function* (
-    op: OperationCall<K>,
-    expected: Partial<T> & { id: string | number },
-  ) {
+  const write = action(function* (op: OperationCall<K>, expected: Partial<T>) {
     apply(expected)
     const entry = (yield enqueue(op, expected)) as OutboxEntry<K>
     yield until(() => confirmed(entry))

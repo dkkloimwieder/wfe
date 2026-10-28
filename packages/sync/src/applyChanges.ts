@@ -1,6 +1,6 @@
 import { remove, source, upsert } from './writer'
 import type { AnyCollection, Batch } from './writer'
-import type { Change, Row } from './types'
+import type { Change } from './types'
 
 /**
  * Apply one feed batch as one sync transaction. A deleted change removes the
@@ -10,7 +10,7 @@ import type { Change, Row } from './types'
  * A delete id is the collection key. A mismatched batch throws before writes.
  * Epic 2a `follow` calls this per batch.
  */
-export function applyChanges<T extends Row>(
+export function applyChanges<T extends object>(
   c: AnyCollection<T>,
   changes: Change<T>[],
 ): void {

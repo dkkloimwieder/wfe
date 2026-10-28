@@ -27,7 +27,7 @@ type Utils = {
   complete: () => boolean
 }
 
-export type SyncCollection<T extends Row> = Collection<
+export type SyncCollection<T extends object> = Collection<
   T,
   string | number,
   Utils,
@@ -40,7 +40,7 @@ const pollDefault = 10_000
 const saveDelay = 250
 
 /** One run of the sync function. A restart after cleanup() makes a new run. */
-interface Run<T extends Row> {
+interface Run<T extends object> {
   writer: Writer<T>
   abort: AbortController
   stopped: boolean
@@ -60,17 +60,16 @@ interface Run<T extends Row> {
 
 /**
  * A collection keyed by `options.getKey`, default `row => row.id`.
+ * Rows without an id require `options.getKey`.
  * It loads saved rows from persistence when given, fills from `feed.list(scope)`,
  * then follows `feed.changes` from the cursor.
  */
-export function collection<T extends Row, S>(
+export function collection<T extends object, S>(
   feed: Feed<T, S>,
   scope: S,
   options: {
     /** (model, scope) encoded by the caller; the persistence key. */
     key: string
-    /** Reads the key of a row; default `row => row.id`. */
-    getKey?: Key<T>
     /** Saved rows load from here before the list; rows save after writes. */
     persistence?: Persistence
     /** A follow pass runs when the trigger fires. */
@@ -81,9 +80,10 @@ export function collection<T extends Row, S>(
     pageSize?: number
     /** Reads the version of a row; default `row => row.row_version`. */
     version?: Version<T>
-  },
+  } & ([T] extends [Row] ? { getKey?: Key<T> } : { getKey: Key<T> }),
 ): SyncCollection<T> {
-  const getKey: Key<T> = options.getKey ?? rowKey
+  // The public options require getKey unless T has the default id field.
+  const getKey: Key<T> = options.getKey ?? ((row) => rowKey(row as Row))
   const version: Version<T> = options.version ?? rowVersion
   const status = createStatus('loading')
   const complete = createSourceSignal(true)
@@ -313,7 +313,7 @@ export function collection<T extends Row, S>(
 }
 
 /** Write one page as one transaction: absent rows leave, equal or newer rows land. */
-function reconcile<T extends Row>(
+function reconcile<T extends object>(
   c: AnyCollection<T>,
   writer: Writer<T>,
   rows: T[],

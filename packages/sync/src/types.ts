@@ -1,6 +1,7 @@
 /**
- * A row has a string or number id. Its integer version is `row_version`
- * unless the collection reads it through `options.version`.
+ * A row for the default key accessor has a string or number id.
+ * Its integer version is `row_version` unless the collection reads it through
+ * `options.version`. Collections with `options.getKey` accept any object row.
  */
 export interface Row {
   id: string | number
@@ -8,28 +9,29 @@ export interface Row {
 }
 
 /** Reads the key of a row. */
-export type Key<T extends Row> = (row: T) => string | number
+export type Key<T extends object> = (row: T) => string | number
 
 /** The default key accessor. */
 export const rowKey = (row: Row): string | number => row.id
 
 /** Reads the integer version of a row. */
-export type Version<T extends Row> = (row: T) => number
+export type Version<T extends object> = (row: T) => number
 
 /** The default version accessor. */
-export const rowVersion = (row: Row): number => row.row_version as number
+export const rowVersion = (row: object): number =>
+  (row as { row_version?: number }).row_version as number
 
 /**
  * A change is deleted or carries data. `id` and `row_version` are feed fields.
  * The id identifies the collection key, including its string or number type.
  * For an upsert, `id` must equal `getKey(data)`. A delete needs only that key.
  */
-export type Change<T extends Row> =
+export type Change<T extends object> =
   | { id: string | number; row_version: number; deleted: true }
   | { id: string | number; row_version: number; deleted: false; data: T }
 
 /** The consumer supplies the reads; the package never builds a URL. */
-export interface Feed<T extends Row, S> {
+export interface Feed<T extends object, S> {
   /** `complete: false` reports a list stopped at a cap. Absent means true. */
   list(
     scope: S,

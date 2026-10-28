@@ -140,7 +140,7 @@ for (const { name } of packages) {
   const expected = entries
     .filter((entry) => entry.name === name)
     .map(({ file }) => file)
-  if (name === 'sync') expected.push('contracts.ts')
+  if (name === 'sync') expected.push('contracts.ts', 'keyed.ts')
   const actual = readdirSync(resolve(root, 'tests/consumers', name)).filter(
     (file) => file.endsWith('.ts'),
   )

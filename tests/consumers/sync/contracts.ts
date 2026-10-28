@@ -207,7 +207,28 @@ export type KeyContract = [
   Assert<
     Equal<
       Parameters<ReturnType<typeof recordWrite<IntegerRow>>['write']>[1]['id'],
-      number
+      number | undefined
     >
   >,
+]
+
+// Custom-key rows keep their own field names throughout the public API.
+type Line = { line_id: number; row_version: number; quantity: number }
+type LineOptions = Parameters<typeof collection<Line, string>>[2]
+export type IdlessRowContract = [
+  Assert<Equal<LineOptions['getKey'], (row: Line) => string | number>>,
+  Assert<Equal<Change<Line>['id'], string | number>>,
+  Assert<
+    Equal<
+      Pick<NonNullable<ReturnType<SyncCollection<Line>['get']>>, keyof Line>,
+      Line
+    >
+  >,
+  Assert<
+    Equal<
+      Parameters<ReturnType<typeof recordWrite<Line, number>>['write']>[1],
+      Partial<Line>
+    >
+  >,
+  Assert<Equal<Parameters<typeof applyChanges<Line>>[1], Change<Line>[]>>,
 ]

@@ -1,19 +1,19 @@
 import type { Collection, SyncConfig, UtilsRecord } from '@tanstack/db'
-import type { Key, Row, Version } from './types'
+import type { Key, Version } from './types'
 import type { SourceSignal, StatusSignal } from './status'
 
 /** The sync hooks `@tanstack/db` hands to a custom sync source. */
-export type SyncParams<T extends Row> = Parameters<
+export type SyncParams<T extends object> = Parameters<
   SyncConfig<T, string | number>['sync']
 >[0]
 
-export type Writer<T extends Row> = Pick<
+export type Writer<T extends object> = Pick<
   SyncParams<T>,
   'begin' | 'write' | 'commit' | 'markReady' | 'markError'
 >
 
 /** Any collection the adapters can read. */
-export type AnyCollection<T extends Row> = Collection<
+export type AnyCollection<T extends object> = Collection<
   T,
   string | number,
   UtilsRecord,
@@ -21,7 +21,7 @@ export type AnyCollection<T extends Row> = Collection<
 >
 
 /** What `collection()` registers so other modules can write and read status. */
-export interface Source<T extends Row> {
+export interface Source<T extends object> {
   /** The current sync params. A restarted sync run hands over new ones. */
   writer(): Writer<T>
   status: StatusSignal
@@ -34,22 +34,24 @@ export interface Source<T extends Row> {
   getKey: Key<T>
 }
 
-const sources = new WeakMap<object, Source<Row>>()
+const sources = new WeakMap<object, Source<object>>()
 
-export function register<T extends Row>(
+export function register<T extends object>(
   c: AnyCollection<T>,
   source: Source<T>,
 ): void {
-  sources.set(c, source as Source<Row>)
+  sources.set(c, source as Source<object>)
 }
 
 /** The source behind a collection made by `collection()`, or undefined. */
-export function peek<T extends Row = Row>(c: object): Source<T> | undefined {
+export function peek<T extends object = object>(
+  c: object,
+): Source<T> | undefined {
   return sources.get(c) as Source<T> | undefined
 }
 
-export function source<T extends Row>(c: AnyCollection<T>): Source<T> {
-  const found = peek(c)
+export function source<T extends object>(c: AnyCollection<T>): Source<T> {
+  const found = peek<T>(c)
   if (!found)
     throw new Error('This collection was not created by @wfe/sync collection()')
   return found
@@ -62,7 +64,7 @@ export function source<T extends Row>(c: AnyCollection<T>): Source<T> {
 export type Batch = Map<string | number, number | null>
 
 /** Insert or replace one row; only a lower version is ignored. */
-export function upsert<T extends Row>(
+export function upsert<T extends object>(
   c: AnyCollection<T>,
   writer: Writer<T>,
   row: T,
@@ -91,7 +93,7 @@ export function upsert<T extends Row>(
 }
 
 /** Delete one row when the collection holds it. */
-export function remove<T extends Row>(
+export function remove<T extends object>(
   c: AnyCollection<T>,
   writer: Writer<T>,
   id: string | number,

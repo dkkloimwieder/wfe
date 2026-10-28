@@ -25,7 +25,7 @@ export interface Send<K extends string | number = string> {
 
 export type OutboxEntry<K extends string | number = string> =
   OperationCall<K> & {
-    /** The tentative row; undefined for entries recorded without one. */
+    /** The tentative row, with its original key fields; undefined when absent. */
     expected: unknown
     /** Local and monotonic; the replay order. */
     seq: number

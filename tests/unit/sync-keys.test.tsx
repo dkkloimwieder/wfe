@@ -3,7 +3,7 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { For, Loading, flush, snapshot } from 'solid-js'
 import { collection, liveList, liveRows, outbox, recordWrite } from '@wfe/sync'
-import type { Change, Feed, Row } from '@wfe/sync'
+import type { Change, Feed } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
 import { source } from '../../packages/sync/src/writer'
 import {
@@ -24,7 +24,7 @@ const item = (id: number, revision = 1, quantity = 1): Item => ({
   quantity,
 })
 
-function feedOf<T extends Row>(initial: T[]) {
+function feedOf<T extends object>(initial: T[]) {
   const page = deferred<{ rows: T[]; cursor: string }>()
   const feed: Feed<T, string> = {
     list: vi
@@ -38,6 +38,167 @@ function feedOf<T extends Row>(initial: T[]) {
   }
   return { feed, fill: () => page.resolve({ rows: initial, cursor: 'list' }) }
 }
+
+type Line = {
+  line_id: string | number
+  row_version: number
+  quantity: number
+}
+
+test.each([42, 'line-42'])(
+  'id-less rows keyed by line_id fill, apply, render, and confirm for %s',
+  async (line_id) => {
+    const initial: Line = { line_id, row_version: 1, quantity: 1 }
+    const { feed, fill } = feedOf([initial])
+    const c = collection(feed, 'all', {
+      key: 'lines:all',
+      getKey: (row) => row.line_id,
+    })
+    const host = hostOf<string | number>()
+    const o = outbox({
+      database: `idless-write-${typeof line_id}`,
+      send: host.send,
+      probe: async () => true,
+    })
+    let record!: ReturnType<typeof recordWrite<Line, string | number>>
+    const h = render(() => {
+      const rows = liveRows(c)
+      const list = liveList(c)
+      record = recordWrite(c, o)
+      return (
+        <Loading fallback="loading">
+          <div data-map>{rows[line_id]?.quantity}</div>
+          <div data-list>
+            <For each={list}>{(row) => <span>{row.quantity}</span>}</For>
+          </div>
+          <div data-write>{record.rows[line_id]?.quantity}</div>
+        </Loading>
+      )
+    })
+    fill()
+    const text = (selector: string) =>
+      h.container.querySelector(selector)?.textContent
+    await vi.waitFor(() => expect(text('[data-map]')).toBe('1'))
+    expect(text('[data-list]')).toBe('1')
+    const changed: Line = { line_id, row_version: 2, quantity: 3 }
+    applyChanges(c, [
+      { id: line_id, row_version: 2, deleted: false, data: changed },
+    ])
+    await vi.waitFor(() => expect(text('[data-map]')).toBe('3'))
+    expect(text('[data-list]')).toBe('3')
+    expect(c.get(line_id)).toMatchObject(changed)
+
+    let done = false
+    const expected = { line_id, quantity: 9 }
+    const write = record
+      .write(
+        {
+          operation: 'lines.update',
+          request: { line_id, quantity: 9 },
+          request_hash: 'idless',
+          expect: { model: 'lines', id: line_id },
+          append_only: false,
+        },
+        expected,
+      )
+      .then(() => {
+        done = true
+      })
+    flush()
+    expect(text('[data-write]')).toBe('9')
+    expect(text('[data-map]')).toBe('3')
+    expect(record.rows[line_id]?.line_id).toBe(line_id)
+    expect(record.rows[line_id]?.row_version).toBe(2)
+    expect(record.rows[line_id]).not.toHaveProperty('id')
+    await vi.waitFor(() => expect(host.sent).toEqual(['idless']))
+    expect(o.entries()[0]?.expected).toEqual(expected)
+    expect(o.entries()[0]?.expect.id).toBe(line_id)
+    host.answer('idless')
+    await vi.waitFor(() => expect(o.entries()).toEqual([]))
+    expect(done).toBe(false)
+    vi.mocked(feed.changes).mockResolvedValueOnce({
+      rows: [
+        {
+          id: line_id,
+          row_version: 3,
+          deleted: false,
+          data: { line_id, row_version: 3, quantity: 9 },
+        },
+      ],
+      next_cursor: 'confirmed',
+      complete: true,
+    })
+    await c.utils.pull()
+    await vi.waitFor(() => expect(done).toBe(true))
+    await write
+    expect(text('[data-map]')).toBe('9')
+    expect(text('[data-write]')).toBe('9')
+    expect(record.rows[line_id]?.row_version).toBe(3)
+    applyChanges(c, [{ id: line_id, row_version: 4, deleted: true }])
+    await vi.waitFor(() => expect(text('[data-map]')).toBe(''))
+    expect(c.has(line_id)).toBe(false)
+    h.unmount()
+    o.close()
+    await c.cleanup()
+  },
+)
+
+test.each([false, true])(
+  'id-less rows restore persisted expected rows with a legacy id alias: %s',
+  async (legacy) => {
+    const database = `idless-restored-${legacy}`
+    const host = hostOf<number>()
+    const first = outbox({
+      database,
+      send: host.send,
+      probe: async () => false,
+    })
+    const expected = {
+      line_id: 42,
+      quantity: 8,
+      ...(legacy ? { id: 'old-alias' } : {}),
+    }
+    await first.enqueue(
+      {
+        operation: 'lines.update',
+        request: {},
+        request_hash: 'restored-idless',
+        expect: { model: 'lines', id: 42 },
+        append_only: false,
+      },
+      expected,
+    )
+    first.close()
+    const { feed, fill } = feedOf<Line>([
+      { line_id: 42, row_version: 1, quantity: 1 },
+    ])
+    const c = collection(feed, 'all', {
+      key: 'lines:all',
+      getKey: (row) => row.line_id,
+    })
+    fill()
+    await tick()
+    const o = outbox({ database, send: host.send, probe: async () => false })
+    const h = render(() => {
+      const record = recordWrite(c, o, { model: 'lines' })
+      return (
+        <Loading fallback="loading">
+          <span>{record.rows[42]?.quantity}</span>
+          <span data-wrong-key>{record.rows['old-alias']?.quantity}</span>
+        </Loading>
+      )
+    })
+    await vi.waitFor(() => expect(h.container.textContent).toBe('8'))
+    expect(h.container.querySelector('[data-wrong-key]')?.textContent).toBe('')
+    const entry = o.entries()[0]!
+    expect(entry.expected).toEqual(expected)
+    await o.discard(entry.seq)
+    await vi.waitFor(() => expect(h.container.textContent).toBe('1'))
+    h.unmount()
+    o.close()
+    await c.cleanup()
+  },
+)
 
 test.each([false, true])(
   'integer rows fill, follow, refill, and render with custom key %s',
