@@ -312,7 +312,7 @@ export function collection<T extends Row, S>(
   return c
 }
 
-/** Write one page as one transaction: absent rows leave, newer rows land. */
+/** Write one page as one transaction: absent rows leave, equal or newer rows land. */
 function reconcile<T extends Row>(
   c: AnyCollection<T>,
   writer: Writer<T>,

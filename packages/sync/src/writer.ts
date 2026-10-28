@@ -61,7 +61,7 @@ export function source<T extends Row>(c: AnyCollection<T>): Source<T> {
  */
 export type Batch = Map<string | number, number | null>
 
-/** Insert or update one row; an equal or lower version is ignored. */
+/** Insert or replace one row; only a lower version is ignored. */
 export function upsert<T extends Row>(
   c: AnyCollection<T>,
   writer: Writer<T>,
@@ -83,7 +83,9 @@ export function upsert<T extends Row>(
         : pending
   const incoming = version(row)
   if (stored === undefined) writer.write({ type: 'insert', value: row })
-  else if (incoming > stored) writer.write({ type: 'update', value: row })
+  // Equal snapshot xmin values can come from different reads. The later row
+  // wins; TanStack DB suppresses change events when its values are identical.
+  else if (incoming >= stored) writer.write({ type: 'update', value: row })
   else return
   batch.set(id, incoming)
 }

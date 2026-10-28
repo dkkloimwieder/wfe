@@ -179,7 +179,7 @@ test('refill removes absent rows and applies the row_version rule', async () => 
   expect(feed.list).toHaveBeenCalledTimes(2)
   expect(ids(c)).toEqual(['a', 'b', 'd', 'e'])
   expect(c.get('a')).toMatchObject({ row_version: 2, quantity: 5 })
-  expect(c.get('b')).toMatchObject({ row_version: 1, quantity: 1 })
+  expect(c.get('b')).toMatchObject({ row_version: 1, quantity: 9 })
   expect(c.get('e')).toMatchObject({ row_version: 3, quantity: 1 })
   expect(c.get('d')?.row_version).toBe(1)
   expect(c.status).toBe('ready')
@@ -227,9 +227,9 @@ test('applyChanges deletes, inserts, and updates by the row_version rule', async
   ])
   expect(ids(c)).toEqual(['b', 'c', 'd'])
   expect(c.get('b')).toMatchObject({ row_version: 2, quantity: 7 })
-  expect(c.get('c')).toMatchObject({ row_version: 2, quantity: 1 })
+  expect(c.get('c')).toMatchObject({ row_version: 2, quantity: 9 })
   expect(c.get('d')).toMatchObject({ row_version: 1, quantity: 4 })
-  expect(batches).toEqual([['delete:a', 'insert:d', 'update:b']])
+  expect(batches).toEqual([['delete:a', 'insert:d', 'update:b', 'update:c']])
   applyChanges(c, [change('d', 2, 5), change('d', 3, 6), change('b', 3)])
   expect(c.get('d')).toMatchObject({ row_version: 3, quantity: 6 })
   expect(c.has('b')).toBe(false)
@@ -250,6 +250,40 @@ test('a restart after cleanup fills again and applyChanges writes through the ne
   applyChanges(c, [change('c', 1, 3)])
   expect(ids(c)).toEqual(['b', 'c'])
   subscription.unsubscribe()
+})
+
+test('applyChanges compares repeated keys with the last accepted version in the batch', async () => {
+  const c = collection(feedOf([[order('a', 2)]]), 'all', { key: 'orders' })
+  await tick()
+  const notify = vi.fn()
+  const subscription = c.subscribeChanges(notify, {
+    includeInitialState: false,
+  })
+  try {
+    applyChanges(c, [change('a', 2, 5), change('a', 2, 1), change('a', 1, 99)])
+    expect(c.get('a')).toMatchObject(order('a', 2))
+    expect(notify).not.toHaveBeenCalled()
+
+    applyChanges(c, [
+      change('a', 3, 5),
+      change('a', 2, 99),
+      change('a', 3, 7),
+      change('b', 2, 1),
+      change('b', 2, 9),
+      change('b', 1, 99),
+      change('c', 4, 1),
+      change('c', 4),
+      change('c', 2, 5),
+      change('c', 2, 8),
+    ])
+    expect(c.get('a')).toMatchObject(order('a', 3, 7))
+    expect(c.get('b')).toMatchObject(order('b', 2, 9))
+    expect(c.get('c')).toMatchObject(order('c', 2, 8))
+    expect(notify).toHaveBeenCalledTimes(1)
+  } finally {
+    subscription.unsubscribe()
+    await c.cleanup()
+  }
 })
 
 test('CursorExpired is an Error with its own name and cause', () => {
@@ -292,13 +326,13 @@ test('a collection over rows with rowVersion applies the version rule through op
     version: (row) => row.rowVersion,
   })
   await tick()
-  // An equal version from the list leaves the saved row; absent rows leave.
-  expect(c.get('a')).toMatchObject(camel('a', 1, 3))
+  // An equal version from the list replaces the saved row; absent rows leave.
+  expect(c.get('a')).toMatchObject(camel('a', 1))
   expect(c.has('s')).toBe(false)
   await c.utils.refill()
   expect(c.get('a')).toMatchObject(camel('a', 2, 5))
   expect(c.get('b')).toMatchObject(camel('b', 2))
-  expect(c.get('c')).toMatchObject(camel('c', 1))
+  expect(c.get('c')).toMatchObject(camel('c', 1, 9))
   applyChanges(c, [
     { id: 'a', row_version: 3, deleted: false, data: camel('a', 3, 7) },
     { id: 'b', row_version: 2, deleted: false, data: camel('b', 2, 8) },
@@ -306,7 +340,7 @@ test('a collection over rows with rowVersion applies the version rule through op
     { id: 'd', row_version: 1, deleted: false, data: camel('d', 1) },
   ])
   expect(c.get('a')).toMatchObject(camel('a', 3, 7))
-  expect(c.get('b')).toMatchObject(camel('b', 2))
-  expect(c.get('c')).toMatchObject(camel('c', 1))
+  expect(c.get('b')).toMatchObject(camel('b', 2, 8))
+  expect(c.get('c')).toMatchObject(camel('c', 1, 9))
   expect(c.get('d')).toMatchObject(camel('d', 1))
 })

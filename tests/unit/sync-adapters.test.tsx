@@ -92,6 +92,87 @@ test('liveRows is complete at return for a filled collection', async () => {
   })
 })
 
+test.each(['applyChanges', 'refill'] as const)(
+  '%s preserves liveRows identity, mounts, and subscribers for identical or lower rows',
+  async (path) => {
+    const feed = feedOf([[order('a', 2)]])
+    const c = collection(feed, 'all', { key: 'orders' })
+    await tick()
+    const notify = vi.fn()
+    const subscription = c.subscribeChanges(notify, {
+      includeInitialState: false,
+    })
+    const mounted = vi.fn()
+    const observed = vi.fn()
+    let rows!: ReturnType<typeof liveRows<Order>>
+    const h = render(() => {
+      rows = liveRows(c)
+      createEffect(() => rows.a, observed)
+      return (
+        <For each={Object.values(rows)}>
+          {(row) => {
+            mounted()
+            return <span>{row.quantity}</span>
+          }}
+        </For>
+      )
+    })
+    const held = rows.a
+    const node = h.container.firstElementChild
+    const replace = async (row: Order) => {
+      if (path === 'applyChanges')
+        applyChanges(c, [
+          {
+            id: row.id,
+            row_version: row.row_version,
+            deleted: false,
+            data: row,
+          },
+        ])
+      else {
+        vi.mocked(feed.list).mockResolvedValueOnce({
+          rows: [row],
+          cursor: 'next',
+        })
+        await c.utils.refill()
+      }
+      flush()
+    }
+    try {
+      flush()
+      expect(mounted).toHaveBeenCalledTimes(1)
+      expect(observed).toHaveBeenCalledTimes(1)
+      await replace(order('a', 2))
+      await replace(order('a', 1, 99))
+      expect(rows.a).toBe(held)
+      expect(h.container.firstElementChild).toBe(node)
+      expect(h.container.textContent).toBe('1')
+      expect(mounted).toHaveBeenCalledTimes(1)
+      expect(observed).toHaveBeenCalledTimes(1)
+      expect(notify).not.toHaveBeenCalled()
+
+      await replace(order('a', 2, 9))
+      expect(rows.a?.quantity).toBe(9)
+      expect(h.container.textContent).toBe('9')
+      expect(notify).toHaveBeenCalledTimes(1)
+      const replaced = rows.a
+      const replacementNode = h.container.firstElementChild
+      const mounts = mounted.mock.calls.length
+      const observations = observed.mock.calls.length
+      await replace(order('a', 2, 9))
+      expect(rows.a).toBe(replaced)
+      expect(h.container.firstElementChild).toBe(replacementNode)
+      expect(mounted).toHaveBeenCalledTimes(mounts)
+      expect(observed).toHaveBeenCalledTimes(observations)
+      expect(notify).toHaveBeenCalledTimes(1)
+    } finally {
+      h.unmount()
+      subscription.unsubscribe()
+      await c.cleanup()
+    }
+  },
+)
+
 test('liveList reconciles by id when the key order shifts and keeps surviving identity', async () => {
   const c = await filled([order('b', 1), order('c', 1), order('d', 1)])
   const { list, dispose } = createRoot((dispose) => ({

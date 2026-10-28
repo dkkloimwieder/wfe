@@ -11,7 +11,8 @@ If the `persistence` option is given, the collection first loads the saved rows 
 It then calls `feed.list(scope)` and reconciles the page. If the list fails after saved rows landed, the status stays `ready` and `utils.error()` holds the failure.
 `Feed.list` resolves `{ rows: T[]; cursor: string; complete?: boolean }`. A host sets `complete: false` when it stops the list at a row cap. An absent `complete` means true. An incomplete list still supplies the cursor, marks the collection ready, saves the rows, and starts follow.
 A rejecting load counts as no saved rows. `utils.error()` holds the load error until a list succeeds.
-`utils.refill()` reads the list again and reconciles it. Rows absent from the new page leave. Rows with a higher `row_version` land. Equal or lower versions are ignored.
+`utils.refill()` reads the list again and reconciles it. Rows absent from the new page leave. An incoming row with an equal or greater version replaces the held row. The collection ignores lower versions. This rule also applies to changes and saved rows.
+The version is the reading statement's snapshot xmin, a transaction ID from its database snapshot. Two reads can carry equal versions, so the later read wins. A replacement with identical values keeps the `liveRows` row identity and sends no row change to subscribers.
 The collection reads the key of a row through `options.getKey`. The default is `row => row.id`. A consumer whose rows use `code` as the key passes `getKey: r => r.code` and does not copy its rows.
 The required `options.key` string remains the persistence and trigger key.
 The feed supplies `Change.id` as a string or number that equals the collection key. For upserts, `change.id` must equal `getKey(change.data)`, including its type. Deletes use `change.id` directly as that key. A mismatched upsert rejects the whole batch before any writes. The package preserves the id stored in each row.

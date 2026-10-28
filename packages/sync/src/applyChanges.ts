@@ -4,7 +4,7 @@ import type { Change, Row } from './types'
 
 /**
  * Apply one feed batch as one sync transaction. A deleted change removes the
- * row. Any other change inserts or updates by the version rule: equal or
+ * row. Any other change inserts or replaces by the version rule: only
  * lower versions are ignored. The version of `data` is read through the
  * accessor of the collection. Each upsert id must equal `getKey(data)`.
  * A delete id is the collection key. A mismatched batch throws before writes.
