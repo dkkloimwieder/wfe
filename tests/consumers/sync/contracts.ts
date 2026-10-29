@@ -155,7 +155,9 @@ export type OutboxContract = [
   Assert<Equal<Parameters<Send>[0], OutboxEntry>>,
   Assert<Equal<Awaited<ReturnType<Send>>, Reply>>,
   Assert<Equal<Awaited<ReturnType<Outbox['enqueue']>>, OutboxEntry>>,
-  Assert<Equal<OutboxEntry['state'], 'pending' | 'sending' | 'refused'>>,
+  Assert<
+    Equal<OutboxEntry['state'], 'pending' | 'sending' | 'refused' | 'expired'>
+  >,
   Assert<Equal<OutboxEntry['seq'], number>>,
   Assert<Equal<OutboxEntry['expected'], unknown>>,
   Assert<

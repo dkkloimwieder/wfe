@@ -10,7 +10,7 @@ export type OperationCall<K extends string | number = string> = {
   request_hash: string
   /** The record that the write changes, for replay order and `until`. */
   expect: { model: string; id: K }
-  /** A refusal of an earlier entry for the same id does not hold this one. */
+  /** A refused or expired entry for the same id does not hold this one. */
   append_only: boolean
 }
 
@@ -29,9 +29,11 @@ export type OutboxEntry<K extends string | number = string> =
     expected: unknown
     /** Local and monotonic; the replay order. */
     seq: number
-    /** ISO, browser clock; a display value only. */
+    /** ISO browser time for the original display and initial age. */
     recorded_at: string
-    state: 'pending' | 'sending' | 'refused'
+    /** ISO browser time for the age after the latest resubmit. */
+    resubmitted_at?: string
+    state: 'pending' | 'sending' | 'refused' | 'expired'
     refusal?: { code: string; text: string }
   }
 
@@ -39,6 +41,7 @@ export type OutboxCounts = {
   pending: number
   sending: number
   refused: number
+  expired: number
   /** ISO time of the last ok reply in this page, or undefined. */
   lastSentAt: string | undefined
 }
@@ -48,7 +51,7 @@ export interface Outbox<K extends string | number = string> {
   enqueue(op: OperationCall<K>, expected?: unknown): Promise<OutboxEntry<K>>
   /** Sends pending entries to the end of the queue or the first retriable failure. */
   replay(): Promise<void>
-  /** A refused entry goes back to pending, and a replay starts. */
+  /** A refused or expired entry goes back to pending with a fresh age, then replays. */
   resubmit(seq: number): Promise<void>
   /** Removes the entry. */
   discard(seq: number): Promise<void>
@@ -116,6 +119,8 @@ export function outbox<K extends string | number = string>(options: {
   probe: () => Promise<boolean>
   /** Sends at once across records; one at a time within a record. Default 4. */
   concurrency?: number
+  /** Maximum entry age in milliseconds. Undefined means entries never expire. */
+  maxAge?: number
 }): Outbox<K> {
   const memory = new Map<number, OutboxEntry<K>>()
   const listeners = new Set<(counts: OutboxCounts) => void>()
@@ -149,7 +154,13 @@ export function outbox<K extends string | number = string>(options: {
   }
 
   function counts(): OutboxCounts {
-    const result = { pending: 0, sending: 0, refused: 0, lastSentAt }
+    const result = {
+      pending: 0,
+      sending: 0,
+      refused: 0,
+      expired: 0,
+      lastSentAt,
+    }
     for (const entry of memory.values()) result[entry.state]++
     return result
   }
@@ -190,16 +201,36 @@ export function outbox<K extends string | number = string>(options: {
     }
   }
 
+  function tooOld(entry: OutboxEntry<K>): boolean {
+    return (
+      options.maxAge !== undefined &&
+      Date.now() - Date.parse(entry.resubmitted_at ?? entry.recorded_at) >
+        options.maxAge
+    )
+  }
+
+  async function expire(entries: OutboxEntry<K>[]): Promise<void> {
+    if (entries.length === 0) return
+    for (const entry of entries) entry.state = 'expired'
+    await put(entries)
+    notify()
+  }
+
   /**
-   * Send the entries of one record in seq order, one at a time. A refused
-   * entry holds the later entries of the record, except append-only ones.
+   * Send the entries of one record in seq order, one at a time. A refused or
+   * expired entry holds later entries of the record, except append-only ones.
    */
   async function lane(entries: OutboxEntry<K>[], halt: { now: boolean }) {
     let held = false
     for (const entry of entries) {
       if (closed || halt.now) return
-      if (entry.state === 'refused') held = true
+      if (entry.state === 'refused' || entry.state === 'expired') held = true
       if (entry.state !== 'pending' || (held && !entry.append_only)) continue
+      if (tooOld(entry)) {
+        await expire([entry])
+        held = true
+        continue
+      }
       entry.state = 'sending'
       await put([entry])
       notify()
@@ -303,8 +334,17 @@ export function outbox<K extends string | number = string>(options: {
     })
   }
   globalThis.addEventListener?.('online', online)
-  // On open, lost 'sending' entries go back to pending before the first replay.
-  void database.then(() => locked(reload)).then(kick, () => undefined)
+  // Recover lost sends, then expire old entries before the first replay.
+  void database
+    .then(() =>
+      locked(async () => {
+        await reload()
+        await expire(
+          ordered().filter((e) => e.state === 'pending' && tooOld(e)),
+        )
+      }),
+    )
+    .then(kick, () => undefined)
 
   const o: Outbox<K> = {
     async enqueue(op, expected) {
@@ -331,9 +371,11 @@ export function outbox<K extends string | number = string>(options: {
     replay,
     async resubmit(seq) {
       const entry = memory.get(seq)
-      if (!entry || entry.state !== 'refused') return
+      if (!entry || (entry.state !== 'refused' && entry.state !== 'expired'))
+        return
       entry.state = 'pending'
       delete entry.refusal
+      entry.resubmitted_at = new Date().toISOString()
       await put([entry])
       notify()
       kick()

@@ -261,7 +261,7 @@ function confirmation<T extends object>(
  * Expected rows must contain the fields that `options.getKey` reads.
  * They need no id field. The outbox stores them without key aliases.
  * With a model, stored expected rows return as entries load. Restored refusals
- * keep their overlay until discard or successful resubmission.
+ * and expired entries keep their overlay until discard or successful resubmission.
  */
 export function recordWrite<
   T extends object,

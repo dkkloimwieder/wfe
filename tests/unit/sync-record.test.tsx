@@ -25,13 +25,16 @@ import {
 import type { Order } from './sync-fixtures'
 import type { Change, Feed } from '@wfe/sync'
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.useRealTimers()
+})
 
 let count = 0
 const name = () => `record-test-${++count}`
 
 /** A filled collection, an outbox, and a rendered list over recordWrite. */
-async function mounted(up = true, model?: string) {
+async function mounted(up = true, model?: string, maxAge?: number) {
   const feed = feedOf([[order('a', 1), order('b', 1)]])
   const c = collection(feed, 'all', {
     key: 'orders:all',
@@ -41,7 +44,7 @@ async function mounted(up = true, model?: string) {
   const net = { up }
   const probe = vi.fn(async () => net.up)
   const database = name()
-  const o = outbox({ database, send: host.send, probe })
+  const o = outbox({ database, send: host.send, probe, maxAge })
   const view = mountedRecord(c, o, model)
   await tick()
   flush()
@@ -286,6 +289,70 @@ test('a discard rejects the write with OutboxDiscarded and the seq', async () =>
   expect(item('a')?.textContent).toBe('a:1')
 })
 
+test.each(['discard', 'resubmit'] as const)(
+  'an expired write keeps its tentative row until %s',
+  async (next) => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(0)
+    const { c, o, host, net, record, item, feed } = await mounted(
+      false,
+      'orders',
+      1000,
+    )
+    const write = track(record.write(call('a', 'h1'), { id: 'a', quantity: 9 }))
+    await vi.waitFor(() => expect(o.entries()).toHaveLength(1))
+    const seq = o.entries()[0]!.seq
+    vi.setSystemTime(1001)
+    net.up = true
+    await o.replay()
+    expect(o.entries()[0]?.state).toBe('expired')
+    expect(host.sent).toEqual([])
+    await follow(c, feed, [changed('a', 2, 8)])
+    flush()
+    expect(item('a')?.textContent).toBe('a:9')
+    expect(write.done).toBe(false)
+    if (next === 'discard') {
+      await o.discard(seq)
+      await vi.waitFor(() => expect(write.done).toBe(true))
+      expect(write.error).toBeInstanceOf(OutboxDiscarded)
+      expect((write.error as OutboxDiscarded).seq).toBe(seq)
+    } else {
+      await o.resubmit(seq)
+      await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
+      host.answer('h1')
+      await o.replay()
+      expect(write.done).toBe(false)
+      expect(item('a')?.textContent).toBe('a:9')
+      await follow(c, feed)
+      await vi.waitFor(() => expect(write.done).toBe(true))
+      expect(write.error).toBeUndefined()
+    }
+    flush()
+    expect(item('a')?.textContent).toBe('a:8')
+    o.close()
+  },
+)
+
+test('a restored expired entry keeps its tentative row until discard', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(0)
+  const first = await mounted(false)
+  const entry = await first.o.enqueue(call('a', 'h1'), { id: 'a', quantity: 9 })
+  await first.o.replay()
+  vi.setSystemTime(1001)
+  const next = reload(first, 'orders', 1000)
+  await vi.waitFor(() => expect(next.o.entries()[0]?.state).toBe('expired'))
+  await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:9'))
+  await follow(first.c, first.feed)
+  flush()
+  expect(next.item('a')?.textContent).toBe('a:9')
+  expect(first.host.sent).toEqual([])
+  await next.o.discard(entry.seq)
+  await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:1'))
+  expect(next.o.entries()).toEqual([])
+  next.o.close()
+})
+
 test('two overlapping writes keep both guesses, and neither row remounts', async () => {
   const { c, o, host, record, item, feed } = await mounted()
   const a = item('a')
@@ -413,6 +480,7 @@ test('a complete pass can confirm without the expected row in the collection', a
 function reload(
   previous: Awaited<ReturnType<typeof mounted>>,
   model = 'orders',
+  maxAge?: number,
 ) {
   previous.o.close()
   previous.dispose()
@@ -420,6 +488,7 @@ function reload(
     database: previous.database,
     send: previous.host.send,
     probe: previous.probe,
+    maxAge,
   })
   expect(o.entries()).toEqual([])
   return { o, ...mountedRecord(previous.c, o, model) }

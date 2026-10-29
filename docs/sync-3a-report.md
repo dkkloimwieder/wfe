@@ -21,7 +21,7 @@ Values: `CursorExpired`, `OutboxDiscarded`, `collection`, `outbox`, `liveRows`, 
 
 - `OutboxEntry` is `OperationCall` plus `seq`, `recorded_at`, `state` and `refusal?`. It has `append_only` and no `release`.
 - `Outbox` has `enqueue`, `replay`, `resubmit`, `discard`, `entries`, `watch` and `close`.
-- `OutboxCounts` is `{ pending, sending, refused, lastSentAt }`.
+- `OutboxCounts` is `{ pending, sending, refused, expired, lastSentAt }`.
 - `recordWrite(c, o)` returns `{ rows, write }`. `write(call, expected)` returns a promise, and `expected` is `Partial<T> & { id; row_version? }`.
 
 ## Spec-versus-types deviations

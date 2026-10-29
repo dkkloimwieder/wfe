@@ -75,12 +75,16 @@ Create the adapters inside a Solid owner. When that owner disposes, the adapters
 
 ## Outbox
 
-`outbox({ database, send, probe, concurrency })` keeps writes in the IndexedDB database that the caller names, in the object store `outbox`.
+`outbox({ database, send, probe, concurrency, maxAge })` keeps writes in the IndexedDB database that the caller names, in the object store `outbox`.
 The consumer supplies `send` and `probe`. The package never builds a request, a hash, a URL, or a header.
+`maxAge` sets the maximum entry age in milliseconds. If `maxAge` is undefined, entries never expire.
+Age starts at `recorded_at`, or at `resubmitted_at` after a resubmit. `recorded_at` keeps its original display value.
+An entry older than `maxAge` becomes `expired` and never sends until resubmit.
+The outbox stores that state and notifies watchers at open, after it recovers lost sends, and before each send.
 
 - `enqueue(call, expected?)` saves the expected row with the entry. It resolves after the IndexedDB put commits and starts a replay.
 - `replay()` sends pending entries. An ok reply removes the entry. A retriable reply puts it back to `pending` and ends the replay. Any other reply marks it `refused` with the refusal.
-- `resubmit(seq)` puts a refused entry back to `pending` and starts a replay. `discard(seq)` removes the entry.
+- `resubmit(seq)` puts a refused or expired entry back to `pending` and starts a replay. It keeps the `seq`, deletes the refusal, and stamps `resubmitted_at` to restart its age. Other states do nothing. `discard(seq)` removes the entry.
 - `entries()` returns the entries that this page holds, in `seq` order. `watch(fn)` calls `fn` with the counts now and after each change.
 - `close()` aborts the sends in flight, leaves their entries `pending`, and closes the database.
 
@@ -88,7 +92,7 @@ IndexedDB stores `expected` through structured clone, a copy that preserves supp
 Older entries without this field return `undefined` for `expected`. `OperationCall` stays unchanged.
 
 Replay sends the entries of one record (`expect.id`) in `seq` order, one at a time. Up to `concurrency` records, default 4, send at the same time.
-A refused entry holds the later entries of its record as `pending`, except `append_only` entries.
+A refused or expired entry holds the later entries of its record as `pending`, except `append_only` entries.
 A retriable reply stops the whole replay. The entry waits for the next trigger.
 Every send gets an `AbortSignal`, and a `send` that throws counts as retriable.
 
@@ -104,7 +108,7 @@ If `navigator.locks` is absent, replay runs without the lock. Two tabs can then 
 It returns an unsubscribe function and sends no initial event.
 
 `lastSentAt` is the ISO time of the last ok reply in this page, or undefined.
-`outboxStatus(o)` returns an accessor with the counts.
+`outboxStatus(o)` returns an accessor with the `pending`, `sending`, `refused`, and `expired` counts and `lastSentAt`.
 
 ## Writes
 
@@ -131,6 +135,7 @@ Follow events and outbox changes update the wait.
 The optimistic row never ends it.
 If the entry is refused, the wait throws `OutboxRefused` with the `code`, the `text` and the `seq`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.
 The action then rejects, and the guess reverts.
+An expired entry keeps its tentative row and waits until discard or successful resubmission and a later complete follow pass.
 The wait has no timeout, because a page can stay offline for hours. One action stays open for each unsent entry.
 
 `recordWrite(c, o, { model })` also restores tentative rows from stored entries whose `expect.model` matches `model`.
@@ -138,7 +143,7 @@ It restores each entry once, including entries that load later from IndexedDB. I
 Without `model`, it restores no entries.
 
 Each restored action shows the stored expected row and waits for the same send and collection conditions as a new write.
-A restored refused entry keeps its tentative row. The consumer reads the refusal from `o.entries()`.
+A restored refused or expired entry keeps its tentative row. The consumer reads the state and any refusal from `o.entries()`.
 `resubmit(seq)` returns the entry to `pending`, and the same action continues its wait.
 
 `discard(seq)` throws `OutboxDiscarded` at that wait and removes the tentative row. The adapter catches restored action rejections.

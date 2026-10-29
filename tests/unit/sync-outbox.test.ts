@@ -87,6 +87,7 @@ test('ok removes the entry and sets lastSentAt; watch reports counts', async () 
     pending: 0,
     sending: 0,
     refused: 0,
+    expired: 0,
     lastSentAt: undefined,
   })
   await o.enqueue(call('a', 'h1'))
@@ -129,6 +130,195 @@ test('a refusal keeps the entry; resubmit sends it again and discard removes it'
   expect(o.entries()).toEqual([])
   expect(await stored(database)).toEqual([])
   expect(sent).not.toHaveBeenCalled()
+  o.close()
+})
+
+test('on open, an old entry expires even while the probe fails', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(0)
+  const database = name()
+  const send = vi.fn(async (): Promise<Reply> => ({ ok: true }))
+  const net = probeOf(false)
+  const first = outbox({ database, send, probe: net.probe })
+  const entry = await first.enqueue(call('a', 'h1'))
+  await first.replay()
+  first.close()
+  await tick()
+  vi.setSystemTime(1001)
+  const o = outbox({ database, send, probe: net.probe, maxAge: 1000 })
+  const seen: OutboxCounts[] = []
+  o.watch((counts) => seen.push(counts))
+  const { status, dispose } = createRoot((dispose) => ({
+    status: outboxStatus(o),
+    dispose,
+  }))
+  await vi.waitFor(() => expect(seen.at(-1)?.expired).toBe(1))
+  expect(o.entries()).toMatchObject([{ seq: entry.seq, state: 'expired' }])
+  expect(await stored(database)).toMatchObject([{ state: 'expired' }])
+  flush()
+  expect(status()).toMatchObject({
+    pending: 0,
+    sending: 0,
+    refused: 0,
+    expired: 1,
+  })
+  net.state.up = true
+  await o.replay()
+  expect(send).not.toHaveBeenCalled()
+  dispose()
+  o.close()
+})
+
+test('on open, an old refused entry stays refused', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(0)
+  const database = name()
+  const send = vi.fn(async () => refused)
+  const first = outbox({ database, send, probe })
+  await first.enqueue(call('a', 'h1'))
+  await vi.waitFor(() => expect(first.entries()[0]?.state).toBe('refused'))
+  first.close()
+  await tick()
+  vi.setSystemTime(1001)
+  const o = outbox({ database, send, probe, maxAge: 1000 })
+  await vi.waitFor(() => expect(o.entries()).toHaveLength(1))
+  await o.replay()
+  expect(o.entries()).toMatchObject([{ state: 'refused' }])
+  expect(await stored(database)).toMatchObject([{ state: 'refused' }])
+  o.close()
+})
+
+test('expiry before a send holds later entries, except append-only ones', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(0)
+  const host = hostOf()
+  const net = probeOf(false)
+  const database = name()
+  const o = outbox({
+    database,
+    send: host.send,
+    probe: net.probe,
+    maxAge: 1000,
+  })
+  await o.enqueue(call('a', 'a1'))
+  await o.enqueue(call('a', 'a2'))
+  await o.replay()
+  vi.setSystemTime(1000)
+  await o.enqueue(call('a', 'a3'))
+  await o.enqueue(call('a', 'a4', true))
+  net.state.up = true
+  const done = o.replay()
+  // Age equal to maxAge still sends.
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1']), { interval: 0 })
+  vi.setSystemTime(1001)
+  host.answer('a1')
+  await vi.waitFor(() => expect(host.sent).toEqual(['a1', 'a4']))
+  host.answer('a4')
+  await done
+  expect(o.entries().map((e) => [e.request_hash, e.state])).toEqual([
+    ['a2', 'expired'],
+    ['a3', 'pending'],
+  ])
+  expect(await stored(database)).toMatchObject([
+    { request_hash: 'a2', state: 'expired' },
+    { request_hash: 'a3', state: 'pending' },
+  ])
+  await o.replay()
+  expect(host.sent).toEqual(['a1', 'a4'])
+  o.close()
+})
+
+test.each(['expired', 'refused'] as const)(
+  'resubmit gives a %s entry a fresh age and sends it once with the same seq',
+  async (state) => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(0)
+    const host = hostOf()
+    const net = probeOf(state === 'refused')
+    const o = outbox({
+      database: name(),
+      send: host.send,
+      probe: net.probe,
+      maxAge: 1000,
+    })
+    const entry = await o.enqueue(call('a', 'h1'))
+    if (state === 'refused') {
+      await vi.waitFor(() => expect(host.sent).toEqual(['h1']))
+      host.answer('h1', refused)
+    }
+    await o.replay()
+    vi.setSystemTime(1001)
+    net.state.up = true
+    if (state === 'expired') await o.replay()
+    expect(o.entries()[0]?.state).toBe(state)
+    host.send.mockClear()
+    await o.resubmit(entry.seq)
+    await vi.waitFor(() => expect(host.send).toHaveBeenCalledTimes(1))
+    const sent = host.send.mock.calls[0]![0]
+    expect(sent).toMatchObject({
+      seq: entry.seq,
+      recorded_at: entry.recorded_at,
+      resubmitted_at: new Date(1001).toISOString(),
+      state: 'sending',
+    })
+    expect(sent.refusal).toBeUndefined()
+    host.answer('h1')
+    await o.replay()
+    expect(host.send).toHaveBeenCalledTimes(1)
+    expect(o.entries()).toEqual([])
+    o.close()
+  },
+)
+
+test('the resubmit time survives a reopen and becomes the age origin', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(0)
+  const database = name()
+  const net = probeOf(false)
+  const send = vi.fn(async (): Promise<Reply> => ({ ok: true }))
+  const first = outbox({ database, send, probe: net.probe, maxAge: 1000 })
+  const entry = await first.enqueue(call('a', 'h1'))
+  await first.replay()
+  vi.setSystemTime(1001)
+  net.state.up = true
+  await first.replay()
+  net.state.up = false
+  await first.resubmit(entry.seq)
+  await first.replay()
+  first.close()
+  await tick()
+  vi.setSystemTime(2001)
+  const o = outbox({ database, send, probe: net.probe, maxAge: 1000 })
+  await vi.waitFor(() => expect(o.entries()).toHaveLength(1), { interval: 0 })
+  await o.replay()
+  expect(o.entries()[0]).toMatchObject({
+    seq: entry.seq,
+    recorded_at: entry.recorded_at,
+    resubmitted_at: new Date(1001).toISOString(),
+    state: 'pending',
+  })
+  net.state.up = true
+  await o.replay()
+  expect(send).toHaveBeenCalledTimes(1)
+  expect(o.entries()).toEqual([])
+  o.close()
+})
+
+test('without maxAge, an old entry still sends after a reopen', async () => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(0)
+  const database = name()
+  const send = vi.fn(async (): Promise<Reply> => ({ ok: true }))
+  const first = outbox({ database, send, probe: async () => false })
+  await first.enqueue(call('a', 'h1'))
+  await first.replay()
+  first.close()
+  await tick()
+  vi.setSystemTime(365 * 24 * 60 * 60 * 1000)
+  const o = outbox({ database, send, probe })
+  await o.replay()
+  expect(send).toHaveBeenCalledTimes(1)
+  expect(o.entries()).toEqual([])
   o.close()
 })
 
@@ -281,23 +471,35 @@ test('a 30 s timer replays while an entry is pending, and close stops it', async
   expect(vi.getTimerCount()).toBe(0)
 })
 
-test('on open, an entry left sending by a lost tab goes back to pending', async () => {
-  const database = name()
-  const lost = hostOf()
-  const a = outbox({ database, send: lost.send, probe })
-  await a.enqueue(call('a', 'a1'))
-  await vi.waitFor(async () =>
-    expect(await stored(database)).toMatchObject([{ state: 'sending' }]),
-  )
-  const net = probeOf(false)
-  const b = outbox({ database, send: vi.fn(offline), probe: net.probe })
-  await vi.waitFor(async () =>
-    expect(await stored(database)).toMatchObject([{ state: 'pending' }]),
-  )
-  expect(b.entries()[0]?.state).toBe('pending')
-  b.close()
-  a.close()
-})
+test.each([undefined, 1000])(
+  'on open, a lost sending entry recovers, then expires only with maxAge: %s',
+  async (maxAge) => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(0)
+    const database = name()
+    const lost = hostOf()
+    const a = outbox({ database, send: lost.send, probe })
+    await a.enqueue(call('a', 'a1'))
+    await vi.waitFor(async () =>
+      expect(await stored(database)).toMatchObject([{ state: 'sending' }]),
+    )
+    vi.setSystemTime(1001)
+    const net = probeOf(false)
+    const b = outbox({
+      database,
+      send: vi.fn(offline),
+      probe: net.probe,
+      maxAge,
+    })
+    const state = maxAge === undefined ? 'pending' : 'expired'
+    await vi.waitFor(async () =>
+      expect(await stored(database)).toMatchObject([{ state }]),
+    )
+    expect(b.entries()[0]?.state).toBe(state)
+    b.close()
+    a.close()
+  },
+)
 
 test('a lost reply sends the same request_hash again, and the host keeps one effect', async () => {
   const host = hostOf()
