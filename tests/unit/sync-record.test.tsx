@@ -388,6 +388,128 @@ test('two overlapping writes keep both guesses, and neither row remounts', async
   expect(item('b')).toBe(b)
 })
 
+test.each([false, true])(
+  'the first of two offline entries clears while the second is pending, restored: %s',
+  async (restored) => {
+    const first = await mounted(false, 'orders')
+    const a = track(
+      first.record.write(call('a', 'h1'), { id: 'a', quantity: 9 }),
+    )
+    const b = track(
+      first.record.write(call('b', 'h2'), { id: 'b', quantity: 8 }),
+    )
+    await vi.waitFor(() => expect(first.o.entries()).toHaveLength(2))
+    const next = restored ? reload(first) : first
+    try {
+      await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:9'))
+      expect(next.item('b')?.textContent).toBe('b:8')
+      first.net.up = true
+      const replay = next.o.replay()
+      await vi.waitFor(() => expect(first.host.sent).toEqual(['h1', 'h2']))
+      first.host.answer('h1')
+      first.host.answer('h2', { ok: false, retriable: true })
+      await replay
+      expect(next.o.entries()).toHaveLength(1)
+      expect(next.o.entries()[0]?.state).toBe('pending')
+      await follow(first.c, first.feed, [
+        changed('a', 2, 7),
+        changed('b', 2, 6),
+      ])
+      await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:7'))
+      expect(next.item('b')?.textContent).toBe('b:8')
+      expect(next.o.entries()[0]?.request_hash).toBe('h2')
+      if (!restored) {
+        expect(a.done).toBe(true)
+        expect(a.error).toBeUndefined()
+        expect(b.done).toBe(false)
+      }
+      const secondReplay = next.o.replay()
+      await vi.waitFor(() =>
+        expect(first.host.sent).toEqual(['h1', 'h2', 'h2']),
+      )
+      first.host.answer('h2')
+      await secondReplay
+      await follow(first.c, first.feed)
+      await vi.waitFor(() => expect(next.item('b')?.textContent).toBe('b:6'))
+    } finally {
+      next.o.close()
+    }
+  },
+)
+
+test.each([false, true])(
+  'overlays on one row follow seq order and discard independently, restored: %s',
+  async (restored) => {
+    const first = await mounted(false, 'orders')
+    track(
+      first.record.write(call('a', 'h1'), {
+        id: 'a',
+        name: 'Edited',
+        quantity: 9,
+      }),
+    )
+    track(first.record.write(call('a', 'h2'), { id: 'a', quantity: 8 }))
+    flush()
+    expect(first.item('a')?.textContent).toBe('a:8')
+    await vi.waitFor(() => expect(first.o.entries()).toHaveLength(2))
+    const next = restored ? reload(first) : first
+    try {
+      await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:8'))
+      expect(next.record.rows.a?.name).toBe('Edited')
+      await follow(first.c, first.feed, [changed('a', 2, 7)])
+      expect(next.item('a')?.textContent).toBe('a:8')
+      const [a, b] = next.o.entries()
+      await next.o.discard(a!.seq)
+      await vi.waitFor(() => expect(next.record.rows.a?.name).toBe('Order a'))
+      expect(next.item('a')?.textContent).toBe('a:8')
+      await next.o.discard(b!.seq)
+      await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:7'))
+    } finally {
+      next.o.close()
+    }
+  },
+)
+
+test.each([false, true])(
+  'an expired entry stays tentative without holding another row, restored: %s',
+  async (restored) => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(0)
+    const first = await mounted(false, 'orders', 1000)
+    const expired = track(
+      first.record.write(call('a', 'h1'), { id: 'a', quantity: 9 }),
+    )
+    await vi.waitFor(() => expect(first.o.entries()).toHaveLength(1))
+    vi.setSystemTime(1001)
+    const next = restored ? reload(first, 'orders', 1000) : first
+    try {
+      await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:9'))
+      first.net.up = true
+      await next.o.replay()
+      expect(next.o.entries()[0]?.state).toBe('expired')
+      const write = track(
+        next.record.write(call('b', 'h2'), { id: 'b', quantity: 8 }),
+      )
+      await vi.waitFor(() => expect(first.host.sent).toEqual(['h2']))
+      first.host.answer('h2')
+      await vi.waitFor(() => expect(next.o.entries()).toHaveLength(1))
+      await follow(first.c, first.feed, [
+        changed('a', 2, 7),
+        changed('b', 2, 6),
+      ])
+      await vi.waitFor(() => expect(next.item('b')?.textContent).toBe('b:6'))
+      expect(next.item('a')?.textContent).toBe('a:9')
+      expect(write.done).toBe(true)
+      expect(write.error).toBeUndefined()
+      if (!restored) expect(expired.done).toBe(false)
+      await next.o.discard(next.o.entries()[0]!.seq)
+      await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:7'))
+    } finally {
+      next.o.close()
+    }
+  },
+)
+
 test('offline, the write stays tentative until replay and a later complete pass', async () => {
   const { c, o, host, net, record, item, feed } = await mounted(false)
   const write = track(
@@ -524,7 +646,7 @@ test('an offline write restores before network activity and clears after the sen
   next.o.close()
 })
 
-test('an offline reopen renders saved rows while a restored action waits for replay and the feed', async () => {
+test('an offline reopen renders saved rows while a restored entry waits for replay and the feed', async () => {
   const database = name()
   const host = hostOf()
   let online = false
@@ -583,7 +705,7 @@ test('an offline reopen renders saved rows while a restored action waits for rep
     flush()
     expect(host.sent).toEqual([])
     expect(o.entries()[0]).toMatchObject({ seq: entry.seq, state: 'pending' })
-    // Optimistic values revert when their action settles. This one stays open.
+    // The pending entry keeps its overlay until replay and confirmation.
     expect(record.rows.a?.quantity).toBe(9)
     expect(c.get('a')?.quantity).toBe(1)
 
@@ -717,7 +839,7 @@ test('a model adapter never restores its own write, even across overlapping enqu
   await vi.waitFor(() => expect(first.done && second.done).toBe(true))
   expect(first.error).toBeInstanceOf(OutboxRefused)
   expect(second.error).toBeInstanceOf(OutboxRefused)
-  // A duplicate restored action would retain each refused row.
+  // A duplicate restored entry would retain each refused row.
   expect(item('a')?.textContent).toBe('a:1')
   expect(item('b')?.textContent).toBe('b:1')
   o.close()

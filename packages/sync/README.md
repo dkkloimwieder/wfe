@@ -115,14 +115,17 @@ It returns an unsubscribe function and sends no initial event.
 
 Outbox types default to string ids for existing callers. For numeric ids, use `outbox<number>(...)` and the matching `OperationCall<number>`, `OutboxEntry<number>`, and `Send<number>` types.
 
-`recordWrite(c, o)` takes a `SyncCollection` from `collection()` and returns `{ rows, write }`. `rows` is an optimistic store keyed by the collection accessor: the rows of the collection with the guesses of open writes on top.
-`write(call, expected)` is a Solid action:
+`recordWrite(c, o)` takes a `SyncCollection` from `collection()` and returns `{ rows, write }`.
+An overlay is the expected row data for unconfirmed entries.
+`rows` contains the collection rows with the overlay applied in `seq` order, keyed by the collection accessor.
+Each entry clears independently on confirmation or discard.
+`write(call, expected)` returns a promise:
 
 1. It merges `expected` into `rows[getKey(expected)]` as a guess.
 2. It enqueues `call` and `expected` in the outbox.
 3. It waits with `until` for a successful send and a complete follow pass that starts after the reply.
 
-The outbox must also remove the sent entry before the action ends.
+The outbox must also remove the sent entry before the promise resolves.
 A pass that starts before the reply cannot end the wait, even if it ends complete.
 A pass that ends without complete also cannot end the wait.
 The expected row has type `Partial<T>`. It must include the fields that `options.getKey` reads and needs no `id` alias.
@@ -135,19 +138,20 @@ A joined write can change a result without a root revision that the browser can 
 Follow events and outbox changes update the wait.
 The optimistic row never ends it.
 If the entry is refused, the wait throws `OutboxRefused` with the `code`, the `text` and the `seq`. If the entry is discarded, it throws `OutboxDiscarded` with the `seq`.
-The action then rejects, and the guess reverts.
+The promise then rejects, and that write's guess reverts.
 An expired entry keeps its tentative row and waits until discard or successful resubmission and a later complete follow pass.
-The wait has no timeout, because a page can stay offline for hours. One action stays open for each unsent entry.
+The wait has no timeout, because a page can stay offline for hours.
+An entry that still waits does not hold another entry's overlay.
 
 `recordWrite(c, o, { model })` also restores tentative rows from stored entries whose `expect.model` matches `model`.
 It restores each entry once, including entries that load later from IndexedDB. It skips entries without `expected` and its own new writes.
 Without `model`, it restores no entries.
 
-Each restored action shows the stored expected row and waits for the same send and collection conditions as a new write.
+Each restored entry shows the stored expected row and waits for the same send and collection conditions as a new write.
 A restored refused or expired entry keeps its tentative row. The consumer reads the state and any refusal from `o.entries()`.
-`resubmit(seq)` returns the entry to `pending`, and the same action continues its wait.
+`resubmit(seq)` returns the entry to `pending`, and the same entry continues its wait.
 
-`discard(seq)` throws `OutboxDiscarded` at that wait and removes the tentative row. The adapter catches restored action rejections.
+`discard(seq)` throws `OutboxDiscarded` at that wait and removes the tentative row. The adapter catches rejections for restored entries.
 New writes still reject and revert on refusal.
 
 `@wfe/sync/internal` exports `applyChanges(c, changes)` for tests and the gallery.

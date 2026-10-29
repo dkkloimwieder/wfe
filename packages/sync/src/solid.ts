@@ -1,10 +1,7 @@
 // The only module that imports solid-js. It uses createStore, createProjection,
-// createOptimisticStore, action, until, from, createMemo, runWithOwner,
-// onSettled and onCleanup.
+// until, from, createMemo, runWithOwner, onSettled and onCleanup.
 import {
-  action,
   createMemo,
-  createOptimisticStore,
   createProjection,
   createStore,
   from,
@@ -253,11 +250,11 @@ function confirmation<T extends object>(
 }
 
 /**
- * The rows of the collection with an optimistic overlay, and a write action.
- * The write shows the expected row at once, enqueues the call, and waits
- * until a later follow pass ends complete. A refusal or a discard throws at the
- * wait, and the guess reverts. The wait has no timeout, so one action stays
- * open for each unsent entry.
+ * The rows of the collection with expected rows applied in seq order.
+ * Each entry clears independently on confirmation or discard. The write
+ * shows the expected row at once, enqueues the call, and returns a promise
+ * that waits until a later follow pass ends complete. A refusal or a discard
+ * rejects the promise and reverts that write's guess. The wait has no timeout.
  * Expected rows must contain the fields that `options.getKey` reads.
  * They need no id field. The outbox stores them without key aliases.
  * With a model, stored expected rows return as entries load. Restored refusals
@@ -275,8 +272,25 @@ export function recordWrite<
   write: (op: OperationCall<K>, expected: Partial<T>) => Promise<void>
 } {
   const getKey = source(c).getKey
-  const [rows, setRows] = createOptimisticStore<Record<string, T>>(
+  const base = createProjection<Record<string, T>>(
     () => keyed(from(subscribe(c)), getKey),
+    undefined,
+    { key: (item: object) => getKey(item as T) },
+  )
+  const [overlay, setOverlay] = createStore<Record<number, Partial<T>>>({})
+  const rows = createProjection<Record<string, T>>(
+    () => {
+      const result = { ...base }
+      const seqs = Object.keys(overlay)
+        .map(Number)
+        .sort((a, b) => (a < 0 ? (b < 0 ? b - a : 1) : b < 0 ? -1 : a - b))
+      for (const seq of seqs) {
+        const expected = overlay[seq]!
+        const id = getKey(expected as T)
+        result[id] = { ...result[id], ...expected } as T
+      }
+      return result
+    },
     undefined,
     { key: (item: object) => getKey(item as T) },
   )
@@ -286,17 +300,23 @@ export function recordWrite<
   let enqueuing = 0
   let disposed = false
   let settled = false
-  const apply = (expected: Partial<T>) => {
-    const id = getKey(expected as T)
-    setRows((draft) => {
-      draft[id] = { ...draft[id], ...expected } as T
+  // Negative keys show writes before IndexedDB assigns their durable seqs.
+  let provisional = 0
+  const remove = (seq: number) => {
+    setOverlay((draft) => {
+      delete draft[seq]
     })
   }
-  const restoreEntry = action(function* (entry: OutboxEntry<K>) {
-    const expected = entry.expected as Partial<T>
-    apply(expected)
-    yield until(() => confirmed(entry, true))
-  })
+  async function restoreEntry(entry: OutboxEntry<K>): Promise<void> {
+    setOverlay((draft) => {
+      draft[entry.seq] = entry.expected as Partial<T>
+    })
+    try {
+      await until(() => confirmed(entry, true))
+    } finally {
+      remove(entry.seq)
+    }
+  }
   function restore(): void {
     // enqueue notifies before its promise returns the seq. Wait for all local
     // enqueues to register their seqs before scanning that notification.
@@ -329,11 +349,26 @@ export function recordWrite<
       restore()
     }
   }
-  const write = action(function* (op: OperationCall<K>, expected: Partial<T>) {
-    apply(expected)
-    const entry = (yield enqueue(op, expected)) as OutboxEntry<K>
-    yield until(() => confirmed(entry))
-  })
+  async function write(
+    op: OperationCall<K>,
+    expected: Partial<T>,
+  ): Promise<void> {
+    let seq = --provisional
+    setOverlay((draft) => {
+      draft[seq] = expected
+    })
+    try {
+      const entry = await enqueue(op, expected)
+      setOverlay((draft) => {
+        delete draft[seq]
+        draft[entry.seq] = expected
+      })
+      seq = entry.seq
+      await until(() => confirmed(entry))
+    } finally {
+      remove(seq)
+    }
+  }
   // onSettled can run while persistence is still loading under a Loading
   // boundary. Read the store so restoration waits for its first committed
   // value. until reads authoritative state without adding a render effect
