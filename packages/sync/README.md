@@ -81,6 +81,7 @@ The consumer supplies `send` and `probe`. The package never builds a request, a 
 Age starts at `recorded_at`, or at `resubmitted_at` after a resubmit. `recorded_at` keeps its original display value.
 An entry older than `maxAge` becomes `expired` and never sends until resubmit.
 The outbox stores that state and notifies watchers at open, after it recovers lost sends, and before each send.
+It also expires old `pending` entries every 30 seconds while an entry is pending, even if the probe fails. It never expires a `refused` or `sending` entry.
 
 - `enqueue(call, expected?)` saves the expected row with the entry. It resolves after the IndexedDB put commits and starts a replay.
 - `replay()` sends pending entries. An ok reply removes the entry. A retriable reply puts it back to `pending` and ends the replay. Any other reply marks it `refused` with the refusal.

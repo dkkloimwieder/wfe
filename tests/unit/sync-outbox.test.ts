@@ -169,6 +169,34 @@ test('on open, an old entry expires even while the probe fails', async () => {
   o.close()
 })
 
+test('offline, the replay timer expires a pending entry that crosses maxAge', async () => {
+  vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] })
+  vi.setSystemTime(0)
+  const send = vi.fn(async (): Promise<Reply> => ({ ok: true }))
+  const net = probeOf(false)
+  const o = outbox({ database: name(), send, probe: net.probe, maxAge: 40_000 })
+  const { status, dispose } = createRoot((dispose) => ({
+    status: outboxStatus(o),
+    dispose,
+  }))
+  await o.enqueue(call('a', 'h1'))
+  await vi.advanceTimersByTimeAsync(30_000)
+  await tick()
+  flush()
+  expect(status()).toMatchObject({ pending: 1, expired: 0 })
+  await vi.advanceTimersByTimeAsync(30_000)
+  await vi.waitFor(() => {
+    flush()
+    expect(status()).toMatchObject({ pending: 0, expired: 1 })
+  })
+  expect(o.entries()).toMatchObject([{ state: 'expired' }])
+  net.state.up = true
+  await o.replay()
+  expect(send).not.toHaveBeenCalled()
+  dispose()
+  o.close()
+})
+
 test('on open, an old refused entry stays refused', async () => {
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(0)

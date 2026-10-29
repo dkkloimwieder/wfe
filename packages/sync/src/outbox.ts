@@ -110,6 +110,8 @@ function open(name: string): Promise<IDBDatabase> {
  * unlocked. A replay runs on open, after each enqueue, after a successful
  * probe, and every 30 s while an entry is pending. The probe runs before each
  * replay, on the 'online' event, and every 15 s while the last probe failed.
+ * With maxAge, old pending entries expire on open, on the 30 s timer even
+ * while the probe fails, and before each send.
  */
 export function outbox<K extends string | number = string>(options: {
   /** IndexedDB name, chosen by the caller. */
@@ -214,6 +216,12 @@ export function outbox<K extends string | number = string>(options: {
     for (const entry of entries) entry.state = 'expired'
     await put(entries)
     notify()
+  }
+
+  /** Inside the lock: pending entries past maxAge expire. */
+  async function stale(): Promise<void> {
+    await reload()
+    await expire(ordered().filter((e) => e.state === 'pending' && tooOld(e)))
   }
 
   /**
@@ -326,7 +334,10 @@ export function outbox<K extends string | number = string>(options: {
   const kick = () => void replay().catch(() => undefined)
 
   const timer = setInterval(() => {
-    if (counts().pending > 0) kick()
+    if (counts().pending === 0) return
+    // Expiry runs whether or not the probe answers.
+    if (options.maxAge !== undefined) void locked(stale).catch(() => undefined)
+    kick()
   }, replayEvery)
   const online = () => {
     void probe().then((answered) => {
@@ -335,16 +346,7 @@ export function outbox<K extends string | number = string>(options: {
   }
   globalThis.addEventListener?.('online', online)
   // Recover lost sends, then expire old entries before the first replay.
-  void database
-    .then(() =>
-      locked(async () => {
-        await reload()
-        await expire(
-          ordered().filter((e) => e.state === 'pending' && tooOld(e)),
-        )
-      }),
-    )
-    .then(kick, () => undefined)
+  void database.then(() => locked(stale)).then(kick, () => undefined)
 
   const o: Outbox<K> = {
     async enqueue(op, expected) {
