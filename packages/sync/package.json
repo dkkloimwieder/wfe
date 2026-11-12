@@ -32,7 +32,7 @@
     "@tanstack/db-ivm": "0.2.0"
   },
   "peerDependencies": {
-    "solid-js": ">=2.0.0-rc.18 <3.0.0"
+    "solid-js": ">=2.0.0-rc.21 <3.0.0"
   },
   "files": [
     "dist",
@@ -42,7 +42,7 @@
     "node": ">=22.12.0"
   },
   "devDependencies": {
-    "solid-js": "2.0.0-rc.18",
+    "solid-js": "2.0.0-rc.21",
     "tsdown": "0.23.0",
     "typescript": "6.0.3"
   }

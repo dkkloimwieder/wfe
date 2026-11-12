@@ -259,6 +259,48 @@
       "solid": "./dist/command/index.jsx",
       "node": "./dist/server/command/index.js",
       "default": "./dist/command/index.js"
+    },
+    "./context-menu": {
+      "types": "./dist/context-menu/index.d.ts",
+      "wfe-source": "./src/context-menu/index.ts",
+      "solid": "./dist/context-menu/index.jsx",
+      "node": "./dist/server/context-menu/index.js",
+      "default": "./dist/context-menu/index.js"
+    },
+    "./slider": {
+      "types": "./dist/slider/index.d.ts",
+      "wfe-source": "./src/slider/index.ts",
+      "solid": "./dist/slider/index.jsx",
+      "node": "./dist/server/slider/index.js",
+      "default": "./dist/slider/index.js"
+    },
+    "./toggle": {
+      "types": "./dist/toggle/index.d.ts",
+      "wfe-source": "./src/toggle/index.ts",
+      "solid": "./dist/toggle/index.jsx",
+      "node": "./dist/server/toggle/index.js",
+      "default": "./dist/toggle/index.js"
+    },
+    "./calendar": {
+      "types": "./dist/calendar/index.d.ts",
+      "wfe-source": "./src/calendar/index.ts",
+      "solid": "./dist/calendar/index.jsx",
+      "node": "./dist/server/calendar/index.js",
+      "default": "./dist/calendar/index.js"
+    },
+    "./diagram": {
+      "types": "./dist/diagram/index.d.ts",
+      "wfe-source": "./src/diagram/index.ts",
+      "solid": "./dist/diagram/index.jsx",
+      "node": "./dist/server/diagram/index.js",
+      "default": "./dist/diagram/index.js"
+    },
+    "./tree": {
+      "types": "./dist/tree/Tree.d.ts",
+      "wfe-source": "./src/tree/Tree.tsx",
+      "solid": "./dist/tree/Tree.jsx",
+      "node": "./dist/server/tree/Tree.js",
+      "default": "./dist/tree/Tree.js"
     }
   },
   "sideEffects": [
@@ -288,12 +330,15 @@
     "@solid-primitives/scroll": "3.0.0-next.4",
     "@solid-primitives/utils": "7.0.0-next.4",
     "@types/d3-scale": "4.0.9",
+    "@types/d3-shape": "3.1.8",
+    "@xyflow/system": "0.0.83",
+    "d3-array": "3.2.4",
     "d3-scale": "4.0.2",
     "d3-shape": "3.2.0"
   },
   "peerDependencies": {
-    "@solidjs/web": ">=2.0.0-rc.18 <3.0.0",
-    "solid-js": ">=2.0.0-rc.18 <3.0.0"
+    "@solidjs/web": ">=2.0.0-rc.21 <3.0.0",
+    "solid-js": ">=2.0.0-rc.21 <3.0.0"
   },
   "files": [
     "dist",
@@ -303,10 +348,10 @@
     "node": ">=22.12.0"
   },
   "devDependencies": {
-    "@solidjs/vite-plugin": "3.0.0-next.50",
-    "@solidjs/web": "2.0.0-rc.18",
-    "@types/d3-shape": "3.1.8",
-    "solid-js": "2.0.0-rc.18",
+    "@solidjs/vite-plugin": "3.0.0-next.56",
+    "@solidjs/web": "2.0.0-rc.21",
+    "@types/d3-array": "3.2.2",
+    "solid-js": "2.0.0-rc.21",
     "tsdown": "0.23.0",
     "typescript": "6.0.3",
     "vite": "8.3.0"
