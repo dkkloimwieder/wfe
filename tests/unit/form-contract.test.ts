@@ -1,4 +1,11 @@
-import { action, createRoot, createSignal, flush, untrack } from 'solid-js'
+import {
+  action,
+  createRoot,
+  createSignal,
+  createStore,
+  flush,
+  untrack,
+} from 'solid-js'
 import { describe, expect, it, vi } from 'vitest'
 import { createForm } from '@wfe/form'
 import { initialValues } from '../../examples/form-contract/values'
@@ -89,23 +96,24 @@ function genericHarness<T extends object & { [K in keyof T]: FormScalar }>(
   }
 }
 async function settle() {
-  await Promise.resolve()
-  await Promise.resolve()
+  for (let turn = 0; turn < 6; turn++) await Promise.resolve()
   flush()
 }
 
 describe('public form contract', () => {
-  it('reads only accepted application values and resets to the latest defaults', () => {
+  it('reads only accepted application values and resets to the latest defaults', async () => {
     const h = harness()
     try {
       h.reject(true)
       h.form.setValue('name', 'Rejected')
       h.form.setValue('category', 'Research')
       h.form.setValue('enabled', true)
+      await settle()
       expect(h.read(() => h.form.values)).toEqual(initialValues)
       expect(h.read(() => h.form.dirty)).toBe(false)
       h.reject(false)
       h.form.setValue('enabled', true)
+      await settle()
       expect(h.read(() => h.form.values.enabled)).toBe(true)
       expect(h.read(() => h.form.dirty)).toBe(true)
       h.setDefaults({
@@ -115,6 +123,7 @@ describe('public form contract', () => {
       })
       flush()
       h.form.reset()
+      await settle()
       expect(h.read(() => h.form.values)).toEqual(h.read(h.defaults))
       expect(h.read(() => h.form.dirty)).toBe(false)
     } finally {
@@ -232,6 +241,8 @@ describe('public form contract', () => {
     try {
       h.form.setValue('name', 'Changed')
       const pending = h.begin()
+      await settle()
+      expect(h.validate).toHaveBeenCalledTimes(1)
       h.reject(true)
       h.form.reset()
       expect(await pending).toEqual({ status: 'cancelled' })
@@ -293,14 +304,15 @@ const inventory: InventoryValues = {
 }
 
 describe('generic field records', () => {
-  it('supports interfaces, optional fields and scalar equality without a declared key list', () => {
+  it('supports interfaces, optional fields and scalar equality without a declared key list', async () => {
     const h = genericHarness(inventory)
     try {
       h.form.setValue('quantity', 12)
-      flush()
+      await settle()
       h.form.setValue('available', true)
-      flush()
+      await settle()
       h.form.setValue('note', null)
+      await settle()
       expect(h.read(() => h.form.values)).toEqual({
         ...inventory,
         quantity: 12,
@@ -309,19 +321,23 @@ describe('generic field records', () => {
       })
       expect(h.read(() => h.form.dirty)).toBe(true)
       h.form.reset()
+      await settle()
       expect(h.read(() => h.form.dirty)).toBe(false)
       h.form.setValue('note', undefined)
+      await settle()
       expect(h.read(() => h.form.dirty)).toBe(true)
       h.setDefaults({ ...inventory, note: undefined })
       expect(h.read(() => h.form.dirty)).toBe(false)
       h.setDefaults(inventory)
-      flush()
+      await settle()
       h.form.reset()
-      flush()
+      await settle()
       h.form.setValue('quantity', -0)
+      await settle()
       expect(h.read(() => h.form.dirty)).toBe(true)
       h.setDefaults({ ...inventory, quantity: NaN })
       h.form.setValue('quantity', NaN)
+      await settle()
       expect(h.read(() => h.form.dirty)).toBe(false)
     } finally {
       h.stop()
@@ -391,3 +407,268 @@ it('disposal releases value subscriptions and stale methods do not read or reque
   expect(h.readValues).toHaveBeenCalledTimes(reads)
   expect(h.change).not.toHaveBeenCalled()
 })
+
+describe.each(['signal', 'store'] as const)(
+  'same-event accepted %s values',
+  (kind) => {
+    function stagedHarness() {
+      const h = createRoot((dispose) => {
+        const initial = { title: 'Initial', quantity: 0 }
+        const [signal, setSignal] = createSignal(initial)
+        const [store, setStore] = createStore(initial)
+        let reject = false
+        const submitted = vi.fn(
+          (_snapshot: Readonly<{ title: string; quantity: number }>) => ({
+            ok: true as const,
+          }),
+        )
+        const validation = vi.fn(
+          (_snapshot: Readonly<{ title: string; quantity: number }>) => ({}),
+        )
+        const form = createForm({
+          values: kind === 'signal' ? signal : () => store,
+          defaults: () => initial,
+          onValuesChange: (next) => {
+            if (reject) return
+            const accepted = { ...next, title: next.title.trim() }
+            if (kind === 'signal') setSignal(accepted)
+            else setStore(() => accepted)
+          },
+          validate: validation,
+          onSubmit: submitted,
+        })
+        return {
+          form,
+          dispose,
+          submitted,
+          validation,
+          reject: (next: boolean) => {
+            reject = next
+          },
+        }
+      })
+      flush()
+      return h
+    }
+    it('composes transformed edits and immediately submits the accepted snapshot', async () => {
+      const h = stagedHarness()
+      try {
+        h.form.setValue('title', '  Accepted  ')
+        h.form.setValue('quantity', 2)
+        const pending = h.form.submit()
+        await settle()
+        expect(h.validation.mock.calls[0]?.[0]).toEqual({
+          title: 'Accepted',
+          quantity: 2,
+        })
+        flush()
+        expect(await pending).toEqual({ status: 'success' })
+        expect(h.submitted.mock.calls[0]?.[0]).toEqual({
+          title: 'Accepted',
+          quantity: 2,
+        })
+      } finally {
+        h.dispose()
+      }
+    })
+    it('composes edits and submits inside a Solid action without flushing its transaction', async () => {
+      const h = stagedHarness()
+      try {
+        const run = action(function* () {
+          h.form.setValue('title', '  Action  ')
+          h.form.setValue('quantity', 5)
+          return yield h.form.submit()
+        })
+        expect(await run()).toEqual({ status: 'success' })
+        expect(h.submitted.mock.calls[0]?.[0]).toEqual({
+          title: 'Action',
+          quantity: 5,
+        })
+      } finally {
+        h.dispose()
+      }
+    })
+    it('ignores rejected edits and composes reset with an immediate edit and submit', async () => {
+      const h = stagedHarness()
+      try {
+        h.reject(true)
+        h.form.setValue('title', 'Rejected')
+        h.reject(false)
+        h.form.setValue('quantity', 3)
+        h.form.reset()
+        h.form.setValue('quantity', 4)
+        const pending = h.form.submit()
+        flush()
+        expect(await pending).toEqual({ status: 'success' })
+        expect(h.submitted.mock.calls[0]?.[0]).toEqual({
+          title: 'Initial',
+          quantity: 4,
+        })
+      } finally {
+        h.dispose()
+      }
+    })
+  },
+)
+
+it('cancels a pending attempt on an accepted staged edit before the next flush', async () => {
+  const validation = deferred<FormErrors<ExampleValues>>()
+  const h = harness({ validate: () => validation.promise })
+  try {
+    const pending = h.form.submit()
+    h.reject(true)
+    h.form.setValue('name', 'Rejected')
+    await settle()
+    expect(h.validate.mock.calls[0]![1].signal.aborted).toBe(false)
+    h.reject(false)
+    h.form.setValue('name', 'Accepted')
+    await settle()
+    expect(h.validate.mock.calls[0]![1].signal.aborted).toBe(true)
+    expect(await pending).toEqual({ status: 'cancelled' })
+    validation.resolve({})
+    await settle()
+    expect(h.submit).not.toHaveBeenCalled()
+  } finally {
+    h.stop()
+  }
+})
+
+it('keeps one submission promise while queued edits settle and validation remains pending', async () => {
+  const validation = deferred<FormErrors<ExampleValues>>()
+  const h = harness({ validate: () => validation.promise })
+  try {
+    h.form.setValue('name', 'Queued')
+    const pending = h.form.submit()
+    expect(h.form.submit()).toBe(pending)
+    await settle()
+    expect(h.validate).toHaveBeenCalledTimes(1)
+    expect(h.form.submit()).toBe(pending)
+    validation.resolve({})
+    expect(await pending).toEqual({ status: 'success' })
+  } finally {
+    h.stop()
+  }
+})
+
+it('reset cancels a queued submission and applies defaults after prior edits', async () => {
+  const h = harness()
+  try {
+    h.form.setValue('name', 'Queued')
+    h.form.setValue('category', 'Research')
+    const pending = h.form.submit()
+    h.form.reset()
+    expect(await pending).toEqual({ status: 'cancelled' })
+    await settle()
+    await settle()
+    expect(h.validate).not.toHaveBeenCalled()
+    expect(h.read(h.values)).toEqual(initialValues)
+  } finally {
+    h.stop()
+  }
+})
+
+it('disposal settles a queued submission and drops value requests that have not run', async () => {
+  const h = harness()
+  h.form.setValue('name', 'First')
+  h.form.setValue('category', 'Research')
+  const pending = h.form.submit()
+  expect(h.change).toHaveBeenCalledTimes(1)
+  h.stop()
+  expect(await pending).toEqual({ status: 'disposed' })
+  await settle()
+  expect(h.change).toHaveBeenCalledTimes(1)
+  expect(h.validate).not.toHaveBeenCalled()
+})
+
+it('serializes value requests made reentrantly by the application callback', async () => {
+  const h = harness()
+  try {
+    h.change.mockImplementationOnce((next) => {
+      h.form.setValue('enabled', true)
+      h.setValues(next)
+    })
+    h.form.setValue('name', 'Reentrant')
+    const pending = h.form.submit()
+    expect(await pending).toEqual({ status: 'success' })
+    expect(h.submit.mock.calls[0]?.[0]).toEqual({
+      ...initialValues,
+      name: 'Reentrant',
+      enabled: true,
+    })
+  } finally {
+    h.stop()
+  }
+})
+
+it('does not wedge later requests when an application value callback throws', async () => {
+  const h = harness()
+  try {
+    h.change.mockImplementationOnce(() => {
+      throw new Error('Application rejected callback')
+    })
+    expect(() => h.form.setValue('name', 'Thrown')).toThrow(
+      'Application rejected callback',
+    )
+    h.form.setValue('enabled', true)
+    const pending = h.form.submit()
+    expect(await pending).toEqual({ status: 'success' })
+    expect(h.submit.mock.calls[0]?.[0]).toEqual({
+      ...initialValues,
+      enabled: true,
+    })
+  } finally {
+    h.stop()
+  }
+})
+
+it('reports a deferred value callback error without an unhandled exception and allows retry', async () => {
+  const h = harness()
+  const error = new Error('Deferred application callback failed')
+  try {
+    h.form.setValue('name', 'First')
+    h.change.mockImplementationOnce(() => {
+      throw error
+    })
+    h.form.setValue('enabled', true)
+    const pending = h.form.submit()
+    expect(await pending).toEqual({ status: 'error', error })
+    await settle()
+    expect(h.read(() => h.form.phase)).toBe('error')
+    expect(h.read(() => h.form.failure)).toBe(error)
+    expect(h.validate).not.toHaveBeenCalled()
+    h.form.setValue('enabled', true)
+    expect(await h.form.submit()).toEqual({ status: 'success' })
+    expect(h.submit.mock.calls[0]?.[0]).toEqual({
+      ...initialValues,
+      name: 'First',
+      enabled: true,
+    })
+  } finally {
+    h.stop()
+  }
+})
+
+it.each(['equivalent', 'rejected'] as const)(
+  'deduplicates an active submission after a %s queued edit',
+  async (mode) => {
+    const validation = deferred<FormErrors<ExampleValues>>()
+    const h = harness({ validate: () => validation.promise })
+    try {
+      const pending = h.begin()
+      h.reject(mode === 'rejected')
+      h.form.setValue(
+        'name',
+        mode === 'rejected' ? 'Rejected' : initialValues.name,
+      )
+      expect(h.form.submit()).toBe(pending)
+      await settle()
+      expect(h.form.submit()).toBe(pending)
+      expect(h.validate).toHaveBeenCalledTimes(1)
+      validation.resolve({})
+      expect(await pending).toEqual({ status: 'success' })
+      expect(h.submit).toHaveBeenCalledTimes(1)
+    } finally {
+      h.stop()
+    }
+  },
+)

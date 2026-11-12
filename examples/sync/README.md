@@ -14,6 +14,10 @@ The slot renders `VirtualRows` with `TableRow`, so the table mounts only the row
 The recordWrite panel writes through an outbox in the IndexedDB database `wfe-sync-gallery:<size>`.
 Add row records a create with a new UUIDv7 id. The page computes the request hash as SHA-256 of the request JSON.
 The fake server applies each request hash once, appends the row to the log, and fires the trigger, so the follow pass brings the row back.
+The example requests another feed pass after each successful send acknowledgment.
+The queued request starts after the acknowledgment observers run.
+This lets the written row adopt the server value without waiting for the normal ten-second poll.
+Scope disposal removes the observer and prevents queued requests from starting.
 The Offline button makes the probe false and every send retriable. A second click goes online and asks for a replay.
 Refuse next send makes the server refuse one send. The refused entry shows under Not uploaded, with Resubmit and Discard.
 The status line shows the pending and refused counts and the last send time from `outboxStatus`.

@@ -11,10 +11,10 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  createUniqueId,
   untrack,
 } from 'solid-js'
 import { Button, Input } from '../components/NativeFields'
+import { NumberInput } from '../components/NumberInput'
 import { Select, SelectField } from '../components/Select'
 import { nativeEvents } from '../utils/nativeEvents'
 import type { TableChoice } from './TableChoiceEditor'
@@ -446,31 +446,12 @@ function NumberBounds(props: {
   controlRef?: (node: HTMLInputElement) => void
 }) {
   const messages = resolveTableMessages(() => props.messages)
-  const [invalid, setInvalid] = createSignal({ min: false, max: false })
-  const errorId = createUniqueId()
-  const inputs: Partial<Record<'min' | 'max', HTMLInputElement>> = {}
-  createEffect(
-    () =>
-      props.value ? { min: props.value.min, max: props.value.max } : undefined,
-    (value) => {
-      setInvalid({ min: false, max: false })
-      for (const key of ['min', 'max'] as const) {
-        const node = inputs[key]
-        if (node) node.value = String(value?.[key] ?? '')
-      }
-    },
-  )
-  function change(boundary: 'min' | 'max', input: HTMLInputElement) {
+  function change(boundary: 'min' | 'max', value: number | undefined) {
     if (props.disabled) return
-    const bad =
-      input.validity.badInput ||
-      (input.value !== '' && !Number.isFinite(input.valueAsNumber))
-    setInvalid((old) => ({ ...old, [boundary]: bad }))
-    if (bad) return
     const next = {
       operator: 'between' as const,
       ...props.value,
-      [boundary]: input.value === '' ? undefined : input.valueAsNumber,
+      [boundary]: value,
     }
     props.onValueChange(
       next.min !== undefined || next.max !== undefined ? next : undefined,
@@ -484,46 +465,23 @@ function NumberBounds(props: {
             <span class="ui-label">
               {boundary === 'min' ? messages.minimum : messages.maximum}
             </span>
-            <Input
-              type="number"
-              step="any"
+            <NumberInput
+              messages={{ invalidError: messages.invalidNumber }}
               aria-label={
                 boundary === 'min'
                   ? messages.numberMinimum(props.label)
                   : messages.numberMaximum(props.label)
               }
-              aria-invalid={invalid()[boundary] ? 'true' : undefined}
-              aria-describedby={invalid()[boundary] ? errorId : undefined}
-              value={props.value?.[boundary] ?? ''}
+              value={props.value?.[boundary]}
               disabled={props.disabled}
-              ref={[
-                (node) => {
-                  inputs[boundary] = node
-                  if (boundary === 'min') props.controlRef?.(node)
-                },
-                nativeEvents<HTMLInputElement>({
-                  input: (event) => change(boundary, event.currentTarget),
-                  keydown: (event) => {
-                    if (event.key === 'Escape' && !event.isComposing) {
-                      event.preventDefault()
-                      event.stopPropagation()
-                      event.currentTarget.value = String(
-                        props.value?.[boundary] ?? '',
-                      )
-                      setInvalid((old) => ({ ...old, [boundary]: false }))
-                    }
-                  },
-                }),
-              ]}
+              ref={(node) => {
+                if (boundary === 'min') props.controlRef?.(node)
+              }}
+              onValueChange={(value) => change(boundary, value)}
             />
           </label>
         )}
       </For>
-      <Show when={invalid().min || invalid().max}>
-        <span id={errorId} class="ui-field-error">
-          {messages.invalidNumber}
-        </span>
-      </Show>
     </div>
   )
 }

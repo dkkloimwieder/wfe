@@ -79,7 +79,16 @@ export function App() {
       send: server.send,
       probe: async () => navigator.onLine && server.probe(),
     })
+    let disposed = false
+    const stopSent = o.watchSent(() => {
+      // Let all acknowledgment observers record their boundary before the pull.
+      queueMicrotask(() => {
+        if (!disposed) void c.utils.pull()
+      })
+    })
     onCleanup(() => {
+      disposed = true
+      stopSent()
       window.removeEventListener('online', reach)
       o.close()
       queueMicrotask(() => void c.cleanup())

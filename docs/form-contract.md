@@ -28,6 +28,22 @@ The application supplies accepted values through the `values()` accessor.
 It replaces immutable objects when values change.
 `setValue(field, value)` requests a complete next object through `onValuesChange`.
 A callback does not prove acceptance.
+The first value request runs immediately. Further requests in the same event
+wait for the preceding application update to flush, then use its accepted values.
+This also preserves application transformations and rejected requests.
+`submit()` waits for earlier form requests before it captures the accepted snapshot.
+It returns the same promise for repeated submissions during that wait.
+Applications do not need to call `flush()`, including inside a Solid action.
+`cancel()`, `reset()`, and owner disposal cancel a submission that is still waiting.
+Queued value requests stop when the owner disposes.
+If validation or submission is already active, another `submit()` returns that
+attempt's promise, including while an edit awaits acceptance. An accepted change
+cancels that attempt. Call `submit()` again after acceptance to validate the new values.
+A throwing queued value callback stops the remaining requests and fails its
+waiting submission with an `error` outcome. The form can then retry.
+A first callback that runs immediately still throws to the caller.
+An application that writes its own signal or store directly must wait for that
+write to flush before calling `submit()`. Only form methods serialize requests.
 Controls continue to show the current application values if the application rejects a request.
 
 The form does not keep another editable value store.
@@ -336,7 +352,9 @@ interface Values {
   entries: readonly Entry[]
 }
 export function RepeatedEditor() {
-  const initial: Values = { entries: [{ key: 'first', name: '', quantity: 0 }] }
+  const initial: Values = {
+    entries: [{ key: 'first', name: '', quantity: 0 }],
+  }
   const [values, setValues] = createSignal<Readonly<Values>>(initial)
   let sequence = 0
   const form = createForm<Values>({

@@ -1,4 +1,8 @@
 import {
+  createEditableDraft,
+  createDraftValidity,
+} from '../internal/editableDraft'
+import {
   resolveDateTimePickerMessages,
   dateTimePickerMessages,
   type DateTimePickerMessages,
@@ -13,7 +17,6 @@ import {
   createSignal,
   createUniqueId,
   onCleanup,
-  untrack,
   useContext,
   Show,
 } from 'solid-js'
@@ -97,33 +100,24 @@ export function DateTimePicker(props: DateTimePickerProps) {
     const parts = dateTimeParts(value, timeZone)
     return `${formatDateInput(parts.date, props.dateFormat, props.locale)} ${formatTimeInput(parts, props.timeFormat, props.locale)}`
   }
-  const presentation = createMemo(
-    () =>
-      [
-        display(),
-        accepted(),
-        zone(),
-        datePattern(),
-        timePattern(),
-        props.locale,
-      ] as const,
-    {
-      equals: (left, right) =>
-        left.every((value, index) => value === right[index]),
-    },
-  )
-  const [draft, setDraft] = createSignal(untrack(display))
   const [open, setOpen] = createSignal(false)
+  const [draft, setDraft] = createEditableDraft(
+    () => [
+      display(),
+      accepted(),
+      zone(),
+      datePattern(),
+      timePattern(),
+      props.locale,
+    ],
+    () => setOpen(false),
+  )
   const [step, setStep] = createSignal<'date' | 'time'>('date')
   const [popupDate, setPopupDate] = createSignal('1970-01-01')
   const [clock, setClock] = createSignal<ClockValue>({
     hour: 0,
     minute: 0,
     second: 0,
-  })
-  createEffect(presentation, ([value]) => {
-    setDraft(value)
-    setOpen(false)
   })
   createEffect(locked, (value) => {
     if (value) setOpen(false)
@@ -181,19 +175,15 @@ export function DateTimePicker(props: DateTimePickerProps) {
   onCleanup(() => {
     alive = false
   })
-  createEffect(
-    () =>
-      invalid()
-        ? messages.invalidDateTime || dateTimePickerMessages.invalidDateTime
-        : '',
-    (message) => input?.setCustomValidity(message),
-  )
-  createEffect(
-    () => Boolean(disabled() || readonly() || !invalid()),
-    (valid) => {
-      untrack(() => props.onValidityChange?.(valid))
-    },
-  )
+  createDraftValidity({
+    input: () => input,
+    invalid,
+    locked: () => Boolean(disabled() || readonly()),
+    message: () =>
+      messages.invalidDateTime || dateTimePickerMessages.invalidDateTime,
+    nativeWhenLocked: 'preserve',
+    onValidityChange: (valid) => props.onValidityChange?.(valid),
+  })
   function restoreOutside(event: FocusEvent) {
     const next = event.relatedTarget
     if (next instanceof Node) {

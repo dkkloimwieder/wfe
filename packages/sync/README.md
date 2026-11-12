@@ -143,6 +143,11 @@ An expired entry keeps its tentative row and waits until discard or successful r
 The wait has no timeout, because a page can stay offline for hours.
 An entry that still waits does not hold another entry's overlay.
 
+When the adapter's Solid owner disposes, pending confirmation waits reject with `AbortError` and release their observers.
+Disposal does not discard or cancel durable outbox entries. Another adapter can restore those entries and follow their replay.
+An enqueue already in progress finishes persistence, then rejects its adapter promise with `AbortError`.
+Calls to `write` after disposal reject before enqueue.
+
 `recordWrite(c, o, { model })` also restores tentative rows from stored entries whose `expect.model` matches `model`.
 It restores each entry once, including entries that load later from IndexedDB. It skips entries without `expected` and its own new writes.
 Without `model`, it restores no entries.

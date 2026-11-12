@@ -1,13 +1,6 @@
 import { choiceContentHandlers, choiceContentSlots } from './choiceContent'
 import { renderCompoundFieldRoot } from '../internal/fieldRendering'
-import {
-  createHiddenSelectChange,
-  guardHiddenSelection,
-} from '../internal/hiddenSelectChange'
-import {
-  HiddenSelectBase,
-  useFormControlContext,
-} from '../internal/controls/hidden-select'
+import { HiddenChoiceSelect } from '../internal/HiddenChoiceSelect'
 import {
   createCompoundField,
   createCompoundFieldTarget,
@@ -23,7 +16,7 @@ import { DisclosureIndicator } from './DisclosureIndicator'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import * as Core from '../internal/controls/combobox'
 import { callHandler } from '../internal/events'
-import { createMemo, omit, untrack } from 'solid-js'
+import { omit, untrack } from 'solid-js'
 import { ChoiceScope, createChoiceScope, useChoiceScope } from './choiceScope'
 import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
@@ -138,7 +131,11 @@ export function ComboboxItem<T extends ValidComponent = 'li'>(
 ) {
   const Primitive = Core.Item as Component<typeof props>
   return (
-    <Primitive {...props} class={styledClasses('popup-option', props.class)} />
+    <Primitive
+      {...props}
+      data-ui-section-decoration="accent"
+      class={styledClasses('popup-option', props.class)}
+    />
   )
 }
 /** Fixed-size selection marker shared by every choice popup. */
@@ -281,26 +278,15 @@ export function ComboboxErrorMessage<T extends ValidComponent = 'div'>(
 
 export function ComboboxHiddenSelect(props: ComboboxHiddenSelectProps) {
   const context = Core.useComboboxContext()
-  const form = useFormControlContext()
-  const locked = () => Boolean(form.isReadOnly() || form.isDisabled())
-  const manager = createMemo(() =>
-    guardHiddenSelection(context.listState().selectionManager(), locked),
-  )
-  const change = createHiddenSelectChange(
-    props,
-    () => context.listState().selectionManager().selectedKeys(),
-    locked,
-  )
   return (
-    <HiddenSelectBase
+    <HiddenChoiceSelect
+      nativeProps={props}
       collection={context.listState().collection()}
-      selectionManager={manager()}
+      selectionManager={context.listState().selectionManager()}
       isOpen={context.isOpen()}
       isMultiple={context.isMultiple()}
       isVirtualized={context.isVirtualized()}
       focusTrigger={() => context.inputRef()?.focus({ preventScroll: true })}
-      {...props}
-      onChange={change}
     />
   )
 }

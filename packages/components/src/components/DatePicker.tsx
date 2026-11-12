@@ -1,4 +1,8 @@
 import {
+  createEditableDraft,
+  createDraftValidity,
+} from '../internal/editableDraft'
+import {
   resolveDatePickerMessages,
   datePickerMessages,
   type DatePickerMessages,
@@ -66,7 +70,11 @@ export function DatePicker(props: DatePickerProps) {
     formatDateInput(props.value, props.dateFormat, props.locale)
   const pattern = () => dateInputPattern(props.dateFormat, props.locale)
   const errorId = createUniqueId()
-  const [draft, setDraft] = createSignal(untrack(display))
+  const [draft, setDraft] = createEditableDraft(() => [
+    display(),
+    props.dateFormat,
+    props.locale,
+  ])
   const invalid = createMemo(() => {
     if (!draft().trim()) return false
     const parsed = parseDateInput(draft(), props.dateFormat, props.locale)
@@ -83,32 +91,18 @@ export function DatePicker(props: DatePickerProps) {
     alive = false
   })
   let calendar: HTMLDivElement | undefined
-  const presentation = createMemo(
-    () => [display(), props.dateFormat, props.locale] as const,
-    {
-      equals: (left, right) =>
-        left.every((value, index) => value === right[index]),
-    },
-  )
-  createEffect(presentation, ([value]) => {
-    setDraft(value)
-  })
   const displayPattern = () =>
     pattern().replace(/yyyy|dd/g, (token) => token.toUpperCase())
   const errorMessage = () => messages.invalidDate(displayPattern())
-  createEffect(
-    () =>
-      invalid()
-        ? errorMessage() || datePickerMessages.invalidDate(displayPattern())
-        : '',
-    (message) => input?.setCustomValidity(message),
-  )
-  createEffect(
-    () => Boolean(disabled() || readonly() || !invalid()),
-    (valid) => {
-      untrack(() => props.onValidityChange?.(valid))
-    },
-  )
+  createDraftValidity({
+    input: () => input,
+    invalid,
+    locked: () => Boolean(disabled() || readonly()),
+    message: () =>
+      errorMessage() || datePickerMessages.invalidDate(displayPattern()),
+    nativeWhenLocked: 'preserve',
+    onValidityChange: (valid) => props.onValidityChange?.(valid),
+  })
   createEffect(
     () => Boolean(disabled() || readonly()),
     (locked) => {

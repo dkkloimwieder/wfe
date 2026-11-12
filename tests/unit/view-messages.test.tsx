@@ -103,7 +103,7 @@ test('generated form translates only owned failure/status text while retaining d
   expect(save).toHaveBeenCalledTimes(1)
 })
 
-test('repeated row translations retain keys and focused controls while add/remove keep application acceptance', () => {
+test('repeated row translations retain keys and focused controls while add/remove keep application acceptance', async () => {
   const [messages, setMessages] = createSignal<Partial<GeneratorMessages>>({
     addRow: 'Agregar',
     removeRow: 'Quitar',
@@ -161,10 +161,14 @@ test('repeated row translations retain keys and focused controls while add/remov
   expect(document.activeElement).toBe(input)
   fireEvent.click(h.getByRole('button', { name: 'Ajouter' }))
   flush()
-  expect(h.getAllByRole('textbox', { name: 'Name' })).toHaveLength(2)
+  await waitFor(() =>
+    expect(h.getAllByRole('textbox', { name: 'Name' })).toHaveLength(2),
+  )
   fireEvent.click(h.getByRole('button', { name: 'Retirer People 2' }))
   flush()
-  expect(h.getAllByRole('textbox', { name: 'Name' })).toHaveLength(1)
+  await waitFor(() =>
+    expect(h.getAllByRole('textbox', { name: 'Name' })).toHaveLength(1),
+  )
   expect(h.getByRole('textbox', { name: 'Name' }) === input).toBe(true)
 })
 

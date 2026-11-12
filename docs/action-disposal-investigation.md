@@ -9,7 +9,21 @@ The helper preserves the generator action; each caller retains its existing outs
 See [shared example support](../examples/shared/README.md#fixture-disposal) for consumers and deliberate diagnostic exceptions.
 This extraction does not retire the workaround or change the independent runtime-only reproduction.
 
-## Current result
+## RC21 result
+
+The November 4, 2026 comparison uses exact RC18 and RC21 packages with the same fixture, runner, inspector, and browser.
+Each version runs six cases twice with 1,000 records per case and captures 24 actual heaps.
+RC18 retains 1,000 tagged records in each plain `onSettled` disposal case.
+RC21 retains zero tagged records in all twelve cases.
+The action and direct-cleanup controls retain zero records on both versions, with no browser or cleanup errors.
+
+The runtime-only result makes RC21 a candidate for fixture qualification.
+The upgrade retains the action wrapper until actual component heaps and reactive resources qualify its removal.
+Beads `wfe-0dj.4` remains open for that separate work.
+Reports, compressed heaps, exact hashes, and module inventories reside under `test-results/solid-rc21/disposal-rc18` and `test-results/solid-rc21/disposal-rc21`.
+The dependency archive records reside under `test-results/solid-rc21/setup/baseline-archives.json`.
+
+## Earlier results
 
 The matched rc.13, rc.16, and rc.18 comparisons retain all 1,000 records after plain disposal in both `onSettled` cases.
 The action wrapper releases all tagged records in those cases.

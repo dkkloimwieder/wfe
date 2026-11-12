@@ -475,3 +475,72 @@ for (const placement of ['header', 'panel'] as const) {
       expect(h.getByRole('button', { name: 'Filter Date' })).toBeTruthy()
   })
 }
+
+for (const placement of ['header', 'panel'] as const) {
+  test(`${placement} numeric drafts survive sibling edits, expose invalidity and reset with Escape or replacement`, () => {
+    const h = mount(
+      placement,
+      { kind: 'number-range' },
+      {
+        operator: 'between',
+        min: 2,
+        max: 20,
+      },
+    )
+    const min = h.getByLabelText<HTMLInputElement>('Value minimum')
+    const max = h.getByLabelText<HTMLInputElement>('Value maximum')
+    fireEvent.input(min, { target: { value: '1e-' } })
+    flush()
+    expect(min.value).toBe('1e-')
+    expect(min.validity.customError).toBe(true)
+    fireEvent.input(max, { target: { value: '30' } })
+    flush()
+    expect(min.value).toBe('1e-')
+    expect(untrack(() => h.draft.getValue('value'))).toEqual({
+      operator: 'between',
+      min: 2,
+      max: 30,
+    })
+    expect(h.applied).not.toHaveBeenCalled()
+    // Both placements expose the same validity marker used by APPLY/reveal.
+    expect(min.hasAttribute('data-ui-invalid-input')).toBe(true)
+    fireEvent.keyDown(min, { key: 'Escape' })
+    flush()
+    expect(min.value).toBe('2')
+    expect(min.validity.customError).toBe(false)
+    fireEvent.input(min, { target: { value: '-0.50' } })
+    flush()
+    expect(min.value).toBe('-0.50')
+    expect(untrack(() => h.draft.getValue('value'))).toEqual({
+      operator: 'between',
+      min: -0.5,
+      max: 30,
+    })
+    fireEvent.input(min, { target: { value: 'bad' } })
+    flush()
+    h.draft.setValue('value', { operator: 'between', min: 7, max: 40 })
+    flush()
+    expect(min.value).toBe('7')
+    expect(min.validity.customError).toBe(false)
+  })
+}
+
+test('numeric bounds retain rejected valid requests locally until Escape', () => {
+  const requested = vi.fn()
+  const h = render(() => (
+    <TableColumnFilter
+      label="Rejected"
+      config={{ kind: 'number-range' }}
+      value={{ operator: 'between', min: 2 }}
+      onValueChange={requested}
+    />
+  ))
+  const input = h.getByLabelText<HTMLInputElement>('Rejected minimum')
+  fireEvent.input(input, { target: { value: '.25' } })
+  flush()
+  expect(requested).toHaveBeenLastCalledWith({ operator: 'between', min: 0.25 })
+  expect(input.value).toBe('.25')
+  fireEvent.keyDown(input, { key: 'Escape' })
+  flush()
+  expect(input.value).toBe('2')
+})

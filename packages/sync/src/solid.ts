@@ -184,16 +184,11 @@ export function outboxStatus(
   )
 }
 
-/** The rows of each pushed array, keyed by the collection accessor. */
-async function* keyed<T extends object>(
-  lists: AsyncIterable<T[]>,
-  getKey: Key<T>,
-): AsyncIterable<Record<string, T>> {
-  for await (const list of lists) {
-    const rows: Record<string, T> = {}
-    for (const row of list) rows[getKey(row)] = row
-    yield rows
-  }
+/** The authoritative array, keyed by the collection accessor. */
+function keyed<T extends object>(list: T[], getKey: Key<T>): Record<string, T> {
+  const rows: Record<string, T> = {}
+  for (const row of list) rows[getKey(row)] = row
+  return rows
 }
 
 /** Subscribe before enqueue, so even an immediate reply records the pass boundary. */
@@ -272,15 +267,11 @@ export function recordWrite<
   write: (op: OperationCall<K>, expected: Partial<T>) => Promise<void>
 } {
   const getKey = source(c).getKey
-  const base = createProjection<Record<string, T>>(
-    () => keyed(from(subscribe(c)), getKey),
-    undefined,
-    { key: (item: object) => getKey(item as T) },
-  )
+  const base = createMemo<T[]>(() => from(subscribe(c)))
   const [overlay, setOverlay] = createStore<Record<number, Partial<T>>>({})
   const rows = createProjection<Record<string, T>>(
     () => {
-      const result = { ...base }
+      const result = keyed(base(), getKey)
       const seqs = Object.keys(overlay)
         .map(Number)
         .sort((a, b) => (a < 0 ? (b < 0 ? b - a : 1) : b < 0 ? -1 : a - b))
@@ -300,9 +291,11 @@ export function recordWrite<
   let enqueuing = 0
   let disposed = false
   let settled = false
+  const lifetime = new AbortController()
   // Negative keys show writes before IndexedDB assigns their durable seqs.
   let provisional = 0
   const remove = (seq: number) => {
+    if (disposed) return
     setOverlay((draft) => {
       delete draft[seq]
     })
@@ -312,7 +305,7 @@ export function recordWrite<
       draft[entry.seq] = entry.expected as Partial<T>
     })
     try {
-      await until(() => confirmed(entry, true))
+      await until(() => confirmed(entry, true), { signal: lifetime.signal })
     } finally {
       remove(entry.seq)
     }
@@ -353,18 +346,20 @@ export function recordWrite<
     op: OperationCall<K>,
     expected: Partial<T>,
   ): Promise<void> {
+    lifetime.signal.throwIfAborted()
     let seq = --provisional
     setOverlay((draft) => {
       draft[seq] = expected
     })
     try {
       const entry = await enqueue(op, expected)
+      lifetime.signal.throwIfAborted()
       setOverlay((draft) => {
         delete draft[seq]
         draft[entry.seq] = expected
       })
       seq = entry.seq
-      await until(() => confirmed(entry))
+      await until(() => confirmed(entry), { signal: lifetime.signal })
     } finally {
       remove(seq)
     }
@@ -400,6 +395,7 @@ export function recordWrite<
     })
   onCleanup(() => {
     disposed = true
+    lifetime.abort()
   })
   return {
     rows,

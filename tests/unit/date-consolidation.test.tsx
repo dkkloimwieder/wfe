@@ -134,3 +134,51 @@ test('formatting machinery is reused by key and evicted without retaining record
     new Intl.DateTimeFormat('fr-FR', options).format(parseDate('0099-02-28')),
   )
 })
+
+test('formatted picker drafts preserve local errors through lock changes and reset only for presentation changes', () => {
+  const [locked, setLocked] = createSignal(false)
+  const [value, setValue] = createSignal('2024-02-29')
+  const [format, setFormat] = createSignal<'yyyy-MM-dd' | 'dd/MM/yyyy'>(
+    'yyyy-MM-dd',
+  )
+  const validity = vi.fn()
+  const changed = vi.fn()
+  const h = render(() => (
+    <DatePicker
+      label="Retained date"
+      value={value()}
+      dateFormat={format()}
+      readonly={locked()}
+      onValueChange={changed}
+      onValidityChange={validity}
+    />
+  ))
+  const input = h.getByLabelText<HTMLInputElement>('Retained date')
+  fireEvent.input(input, { target: { value: '2024-02-' } })
+  flush()
+  expect(input.value).toBe('2024-02-')
+  expect(input.validity.customError).toBe(true)
+  expect(validity).toHaveBeenLastCalledWith(false)
+  setLocked(true)
+  flush()
+  expect(input.value).toBe('2024-02-')
+  expect(input.validity.customError).toBe(true)
+  expect(validity).toHaveBeenLastCalledWith(true)
+  setLocked(false)
+  flush()
+  expect(validity).toHaveBeenLastCalledWith(false)
+  setFormat('dd/MM/yyyy')
+  flush()
+  expect(input.value).toBe('29/02/2024')
+  expect(input.validity.customError).toBe(false)
+  fireEvent.input(input, { target: { value: '01/03/2024' } })
+  flush()
+  expect(changed).toHaveBeenLastCalledWith('2024-03-01')
+  expect(input.value).toBe('01/03/2024')
+  fireEvent.blur(input)
+  flush()
+  expect(input.value).toBe('29/02/2024')
+  setValue('2024-04-02')
+  flush()
+  expect(input.value).toBe('02/04/2024')
+})

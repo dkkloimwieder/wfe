@@ -1,4 +1,4 @@
-import { untrack } from 'solid-js'
+import { createMemo, untrack } from 'solid-js'
 import { createNativeListenerRef } from './nativeListenerLifetime'
 import type { JSX } from '@solidjs/web'
 
@@ -75,18 +75,22 @@ export function ownedElementEvents(source: object) {
 function ownedEvents(source: object, eventProps: ReadonlyArray<string>) {
   const props = source as Record<string, unknown>
   return createNativeListenerRef<HTMLElement>(() => {
-    const keys = untrack(() => eventProps.filter((key) => key in props))
-    const handlers: Array<[string, EventListener]> = keys.map((key) => [
-      key.slice(2).toLowerCase(),
-      (event) =>
-        untrack(() => {
-          const handler = props[key]
-          if (typeof handler === 'function') handler(event)
-          else if (Array.isArray(handler)) handler[0](handler[1], event)
-        }),
-    ])
-    return () => handlers
-  })
+    const names = createMemo(() => eventProps.filter((key) => key in props), {
+      equals: (left, right) =>
+        left.length === right.length &&
+        left.every((key, index) => key === right[index]),
+    })
+    return () =>
+      names().map<[string, EventListener]>((key) => [
+        key.slice(2).toLowerCase(),
+        (event) =>
+          untrack(() => {
+            const handler = props[key]
+            if (typeof handler === 'function') handler(event)
+            else if (Array.isArray(handler)) handler[0](handler[1], event)
+          }),
+      ])
+  }, true)
 }
 
 /** Call a JSX.EventHandlerUnion with the event. */

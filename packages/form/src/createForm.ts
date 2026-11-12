@@ -1,4 +1,11 @@
-import { createEffect, createSignal, onCleanup, untrack } from 'solid-js'
+import {
+  createEffect,
+  createSignal,
+  latest,
+  onCleanup,
+  onFlush,
+  untrack,
+} from 'solid-js'
 import type {
   FormBindings,
   FormContract,
@@ -32,7 +39,52 @@ export function createForm<T extends object & FormShape<T>>(
   let alive = true
   let sequence = 0
   let active: Attempt<T> | undefined
-  let accepted = copyValues(untrack(bindings.values))
+  let awaitingValues = false
+  let requestRevision = 0
+  const requests: Array<() => void> = []
+  let queuedSubmission: Attempt<T> | undefined
+  function cancelQueued(status: 'cancelled' | 'disposed' = 'cancelled') {
+    queuedSubmission?.resolve({ status })
+    queuedSubmission?.controller.abort()
+    queuedSubmission = undefined
+  }
+  function drain() {
+    if (!alive || awaitingValues) return
+    requests.shift()?.()
+  }
+  function requestValues(request: () => void) {
+    requests.push(() => {
+      synchronize()
+      awaitingValues = true
+      const revision = ++requestRevision
+      try {
+        request()
+      } finally {
+        onFlush(() => {
+          if (!alive || revision !== requestRevision) return
+          try {
+            synchronize()
+            awaitingValues = false
+            drain()
+          } catch (error) {
+            // A queued callback has no synchronous caller left to receive it.
+            // Fail its queued submission and leave the form available for retry.
+            awaitingValues = false
+            requestRevision++
+            requests.length = 0
+            cancel()
+            queuedSubmission?.resolve({ status: 'error', error })
+            queuedSubmission?.controller.abort()
+            queuedSubmission = undefined
+            setFailure(() => error)
+            setPhase('error')
+          }
+        })
+      }
+    })
+    drain()
+  }
+  let accepted = untrack(() => copyValues(bindings.values()))
   function clear() {
     setPhase('idle')
     setErrors({})
@@ -53,7 +105,9 @@ export function createForm<T extends object & FormShape<T>>(
     cancel()
   }
   function synchronize() {
-    accept(untrack(bindings.values))
+    // Copy inside latest so store fields, as well as signal values, see accepted
+    // application writes from this event. Requests alone never imply acceptance.
+    accept(untrack(() => latest(() => copyValues(bindings.values()))))
   }
   createEffect(
     () => copyValues(bindings.values()),
@@ -65,6 +119,8 @@ export function createForm<T extends object & FormShape<T>>(
   onCleanup(() => {
     alive = false
     cancel('disposed')
+    cancelQueued('disposed')
+    requests.length = 0
   })
   function current(run: Attempt<T>) {
     if (!alive || active !== run) return false
@@ -111,7 +167,7 @@ export function createForm<T extends object & FormShape<T>>(
       finish(run, { status: 'error', error })
     }
   }
-  return {
+  const contract: FormContract<T> = {
     get values() {
       return bindings.values()
     },
@@ -132,23 +188,29 @@ export function createForm<T extends object & FormShape<T>>(
     },
     setValue(field, value) {
       if (!alive) return
-      synchronize()
-      bindings.onValuesChange(
-        copyValues<T>({ ...untrack(bindings.values), [field]: value }),
-      )
-      synchronize()
+      requestValues(() => {
+        bindings.onValuesChange(copyValues<T>({ ...accepted, [field]: value }))
+      })
     },
     reset() {
       if (!alive) return
       cancel()
-      bindings.onValuesChange(copyValues(untrack(bindings.defaults)))
-      synchronize()
+      cancelQueued()
+      requestValues(() => {
+        bindings.onValuesChange(
+          untrack(() => latest(() => copyValues(bindings.defaults()))),
+        )
+      })
     },
     cancel() {
-      if (alive) cancel()
+      if (alive) {
+        cancel()
+        cancelQueued()
+      }
     },
     submit() {
       if (!alive) return Promise.resolve({ status: 'disposed' })
+      if (queuedSubmission) return queuedSubmission.promise
       synchronize()
       if (active) return active.promise
       let resolve!: Attempt<T>['resolve']
@@ -157,17 +219,33 @@ export function createForm<T extends object & FormShape<T>>(
       })
       const run: Attempt<T> = {
         id: ++sequence,
-        snapshot: copySnapshot(untrack(bindings.values)),
+        snapshot: copySnapshot(accepted),
         controller: new AbortController(),
         promise,
         resolve,
       }
-      active = run
-      setErrors({})
-      setFailure(undefined)
-      setPhase('validating')
-      void execute(run)
+      const start = () => {
+        if (!alive) return
+        synchronize()
+        run.snapshot = copySnapshot(accepted)
+        active = run
+        setErrors({})
+        setFailure(undefined)
+        setPhase('validating')
+        void execute(run)
+      }
+      if (awaitingValues) {
+        queuedSubmission = run
+        requests.push(() => {
+          if (queuedSubmission === run) {
+            start()
+            queuedSubmission = undefined
+          }
+          drain()
+        })
+      } else start()
       return promise
     },
   }
+  return contract
 }

@@ -1,13 +1,6 @@
 import { choiceContentHandlers, choiceContentSlots } from './choiceContent'
 import { renderCompoundFieldRoot } from '../internal/fieldRendering'
-import {
-  createHiddenSelectChange,
-  guardHiddenSelection,
-} from '../internal/hiddenSelectChange'
-import {
-  HiddenSelectBase,
-  useFormControlContext,
-} from '../internal/controls/hidden-select'
+import { HiddenChoiceSelect } from '../internal/HiddenChoiceSelect'
 import {
   createCompoundField,
   createCompoundFieldTarget,
@@ -22,14 +15,7 @@ import { DisclosureIndicator } from './DisclosureIndicator'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { FieldContext } from '../internal/fieldContext'
 import * as Core from '../internal/controls/select'
-import {
-  Show,
-  createMemo,
-  createUniqueId,
-  omit,
-  untrack,
-  useContext,
-} from 'solid-js'
+import { Show, createUniqueId, omit, untrack, useContext } from 'solid-js'
 import { ChoiceScope, createChoiceScope, useChoiceScope } from './choiceScope'
 import type { Component } from 'solid-js'
 import type { JSX, ValidComponent } from '@solidjs/web'
@@ -155,7 +141,11 @@ export function SelectItem<T extends ValidComponent = 'li'>(
 ) {
   const Primitive = Core.Item as Component<typeof props>
   return (
-    <Primitive {...props} class={styledClasses('popup-option', props.class)} />
+    <Primitive
+      {...props}
+      data-ui-section-decoration="accent"
+      class={styledClasses('popup-option', props.class)}
+    />
   )
 }
 /** Fixed-size selection marker shared by every choice popup. */
@@ -358,26 +348,15 @@ export function SelectErrorMessage<T extends ValidComponent = 'div'>(
 
 export function SelectHiddenSelect(props: SelectHiddenSelectProps) {
   const context = Core.useSelectContext()
-  const form = useFormControlContext()
-  const locked = () => Boolean(form.isReadOnly() || form.isDisabled())
-  const manager = createMemo(() =>
-    guardHiddenSelection(context.listState().selectionManager(), locked),
-  )
-  const change = createHiddenSelectChange(
-    props,
-    () => context.listState().selectionManager().selectedKeys(),
-    locked,
-  )
   return (
-    <HiddenSelectBase
+    <HiddenChoiceSelect
+      nativeProps={props}
       collection={context.listState().collection()}
-      selectionManager={manager()}
+      selectionManager={context.listState().selectionManager()}
       isOpen={context.isOpen()}
       isMultiple={context.isMultiple()}
       isVirtualized={context.isVirtualized()}
       focusTrigger={() => context.triggerRef()?.focus()}
-      {...props}
-      onChange={change}
     />
   )
 }

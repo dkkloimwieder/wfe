@@ -1,11 +1,14 @@
 import {
+  createEditableDraft,
+  createDraftValidity,
+} from '../internal/editableDraft'
+import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
   onCleanup,
   Show,
-  untrack,
   useContext,
 } from 'solid-js'
 import {
@@ -96,18 +99,11 @@ export function TimePicker(props: TimePickerProps) {
     const value = accepted()
     return value ? format(value, pattern(), props.locale) : ''
   }
-  const [localDraft, setLocalDraft] = createSignal(untrack(display))
-  const draft = localDraft
-  const presentation = createMemo(
-    () => [display(), props.timeFormat, props.locale] as const,
-    {
-      equals: (left, right) =>
-        left.every((value, index) => value === right[index]),
-    },
-  )
-  createEffect(presentation, ([value]) => {
-    setLocalDraft(value)
-  })
+  const [draft, setLocalDraft] = createEditableDraft(() => [
+    display(),
+    props.timeFormat,
+    props.locale,
+  ])
   function withPrecision(value: Clock): Clock {
     return { ...value, second: value.second ?? accepted()?.second }
   }
@@ -132,21 +128,13 @@ export function TimePicker(props: TimePickerProps) {
   onCleanup(() => {
     alive = false
   })
-  createEffect(
-    () => ({
-      message: localInvalid()
-        ? error() || timePickerMessages.invalidTime(pattern())
-        : '',
-    }),
-    ({ message }) => {
-      input?.setCustomValidity(message)
-    },
-  )
-  const valid = createMemo(() =>
-    Boolean(disabled() || readonly() || !invalid()),
-  )
-  createEffect(valid, (value) => {
-    props.onValidityChange?.(value)
+  createDraftValidity({
+    input: () => input,
+    invalid: localInvalid,
+    locked: () => Boolean(disabled() || readonly()),
+    message: () => error() || timePickerMessages.invalidTime(pattern()),
+    nativeWhenLocked: 'preserve',
+    onValidityChange: (valid) => props.onValidityChange?.(valid),
   })
   const [open, setOpen] = createSignal(false)
   const [hour, setHour] = createSignal(0)

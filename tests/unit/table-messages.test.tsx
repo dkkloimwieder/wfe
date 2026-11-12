@@ -215,11 +215,11 @@ test('filter and formatting messages update choice labels without changing value
       />
     </>
   ))
-  const minimum = h.getByRole('spinbutton', { name: 'Price minimum' })
+  const minimum = h.getByRole('textbox', { name: 'Price minimum' })
   const format = h.getByRole('button', { name: /^Amount/ })
   setMessages(spanishTableMessages)
   flush()
-  expect(h.getByRole('spinbutton', { name: 'Mínimo de Price' })).toBe(minimum)
+  expect(h.getByRole('textbox', { name: 'Mínimo de Price' })).toBe(minimum)
   expect((minimum as HTMLInputElement).value).toBe('2')
   expect(h.getByRole('button', { name: /^Amount/ })).toBe(format)
   expect(format.textContent).toContain('Número simple')

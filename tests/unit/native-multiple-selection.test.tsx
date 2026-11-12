@@ -334,3 +334,27 @@ test.each(['select', 'combobox'] as const)(
     expect(h.requested).toHaveBeenCalledTimes(calls)
   },
 )
+
+test.each(['select', 'combobox'] as const)(
+  '%s native form navigation returns focus to its own visible control',
+  async (family) => {
+    const h = mount(family)
+    await settle()
+    const target = h.getByRole(family === 'select' ? 'button' : 'combobox', {
+      name: family === 'select' ? 'Choices Alpha' : 'Choices',
+    })
+    const focus = vi.spyOn(target, 'focus')
+    const bridge = h.form.querySelector<HTMLInputElement>(
+      '[aria-hidden="true"] > input[type="text"]',
+    )!
+    expect(bridge).not.toBeNull()
+    fireEvent.focus(bridge)
+    await settle()
+    if (family === 'combobox')
+      expect(focus).toHaveBeenCalledWith({ preventScroll: true })
+    else expect(focus).toHaveBeenCalledWith()
+    expect(document.activeElement).toBe(target)
+    expect(h.submitted()).toEqual(['Alpha'])
+    h.unmount()
+  },
+)

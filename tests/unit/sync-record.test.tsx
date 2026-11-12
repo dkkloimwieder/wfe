@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
-import { For, Loading, createRoot, flush, snapshot } from 'solid-js'
+import { OBSERVE, For, Loading, createRoot, flush, snapshot } from 'solid-js'
 import {
   CursorExpired,
   OutboxDiscarded,
@@ -102,6 +102,61 @@ async function follow(
   })
   await c.utils.pull()
 }
+
+test('large record maps retain identity and confirm writes without broad tracking', async () => {
+  const seed = Array.from({ length: 2100 }, (_, index) =>
+    order(`large-${index}`, 1),
+  )
+  const feed = feedOf([seed])
+  const c = collection(feed, 'all', { key: 'large-records' })
+  await tick()
+  const host = hostOf()
+  const o = outbox({
+    database: name(),
+    send: host.send,
+    probe: async () => true,
+  })
+  const capture = OBSERVE!.diagnostics.capture()
+  let record!: ReturnType<typeof recordWrite<Order>>
+  let view: ReturnType<typeof render> | undefined
+  let diagnostics: ReadonlyArray<{ code: string }> = []
+  try {
+    view = render(() => {
+      record = recordWrite(c, o)
+      return (
+        <Loading>
+          <span>{record.rows['large-0']?.quantity}</span>
+        </Loading>
+      )
+    })
+    await vi.waitFor(() => expect(view!.container.textContent).toBe('1'))
+    const untouched = record.rows['large-1']
+    applyChanges(c, [changed('large-0', 2, 5)])
+    await vi.waitFor(() => expect(view!.container.textContent).toBe('5'))
+    expect(record.rows['large-1']).toBe(untouched)
+
+    const write = track(
+      record.write(call('large-0', 'large-write'), {
+        id: 'large-0',
+        quantity: 9,
+      }),
+    )
+    await vi.waitFor(() => expect(view!.container.textContent).toBe('9'))
+    await vi.waitFor(() => expect(host.sent).toEqual(['large-write']))
+    host.answer('large-write')
+    await vi.waitFor(() => expect(o.entries()).toEqual([]))
+    await follow(c, feed, [changed('large-0', 3, 8)])
+    await vi.waitFor(() => expect(write.done).toBe(true))
+    expect(write.error).toBeUndefined()
+    expect(view.container.textContent).toBe('8')
+    expect(record.rows['large-1']).toBe(untouched)
+  } finally {
+    view?.unmount()
+    o.close()
+    diagnostics = capture.stop()
+  }
+  expect(diagnostics).toEqual([])
+})
 
 test('a joined write confirms after a later complete pass without comparing the expected version', async () => {
   const { c, o, host, record, item, feed } = await mounted()
@@ -864,4 +919,70 @@ test('already loaded entries restore and writes can start inside an owned scope'
   await vi.waitFor(() => expect(next.item('a')?.textContent).toBe('a:1'))
   owned.dispose()
   first.o.close()
+})
+
+test('disposing an offline record adapter settles its wait without discarding the write', async () => {
+  const view = await mounted(false, 'orders')
+  const write = track(
+    view.record.write(call('a', 'dispose-pending'), { id: 'a', quantity: 9 }),
+  )
+  try {
+    await vi.waitFor(() => expect(view.o.entries()).toHaveLength(1))
+    await tick()
+    flush()
+    expect(write.done).toBe(false)
+    view.dispose()
+    await vi.waitFor(() => expect(write.done).toBe(true))
+    expect(write.error).toMatchObject({ name: 'AbortError' })
+    expect(view.o.entries()).toHaveLength(1)
+    const restored = mountedRecord(view.c, view.o, 'orders')
+    await vi.waitFor(() => expect(restored.item('a')?.textContent).toBe('a:9'))
+    await view.o.discard(view.o.entries()[0]!.seq)
+    await vi.waitFor(() => expect(restored.item('a')?.textContent).toBe('a:1'))
+    restored.dispose()
+  } finally {
+    view.dispose()
+    view.o.close()
+  }
+})
+
+test('a disposed record adapter rejects new writes before enqueue', async () => {
+  const view = await mounted(false)
+  const enqueue = vi.spyOn(view.o, 'enqueue')
+  view.dispose()
+  try {
+    await expect(
+      view.record.write(call('a', 'after-dispose'), { id: 'a', quantity: 9 }),
+    ).rejects.toMatchObject({ name: 'AbortError' })
+    expect(enqueue).not.toHaveBeenCalled()
+    expect(view.o.entries()).toEqual([])
+  } finally {
+    view.o.close()
+  }
+})
+
+test('disposal during enqueue keeps the durable entry without starting a confirmation wait', async () => {
+  const view = await mounted(false, 'orders')
+  const release = deferred<void>()
+  const enqueue = view.o.enqueue.bind(view.o)
+  vi.spyOn(view.o, 'enqueue').mockImplementation(async (...args) => {
+    const entry = await enqueue(...args)
+    await release.promise
+    return entry
+  })
+  const write = track(
+    view.record.write(call('a', 'dispose-enqueue'), { id: 'a', quantity: 9 }),
+  )
+  try {
+    await vi.waitFor(() => expect(view.o.entries()).toHaveLength(1))
+    view.dispose()
+    release.resolve()
+    await vi.waitFor(() => expect(write.done).toBe(true))
+    expect(write.error).toMatchObject({ name: 'AbortError' })
+    expect(view.o.entries()).toHaveLength(1)
+  } finally {
+    release.resolve()
+    view.dispose()
+    view.o.close()
+  }
 })

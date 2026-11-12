@@ -76,7 +76,7 @@ test('owned props dispatch the latest function or tuple once with the same nativ
   expect(latest).toHaveBeenCalledTimes(1)
 })
 
-test('owned props keep their initial event-name inventory without reading handler values at setup', () => {
+test('owned props read event names without reading handler values at setup', () => {
   const clicked = vi.fn()
   const read = vi.fn(() => clicked)
   const present = Object.defineProperty({}, 'onClick', {
@@ -148,4 +148,48 @@ test('owned props reject unowned setup before reading props and add nothing if d
   lifetime.dispose()
   flush()
   expect(add).not.toHaveBeenCalled()
+})
+
+test('reactive spreads add, replace and remove event names without replacing the control', () => {
+  const clicked = vi.fn()
+  const replacement = vi.fn()
+  const focused = vi.fn()
+  const [props, setProps] = createSignal<
+    JSX.ButtonHTMLAttributes<HTMLButtonElement>
+  >({})
+  const view = render(() => <Button {...props()}>Dynamic events</Button>)
+  flush()
+  const node = view.getByRole('button')
+  const add = vi.spyOn(node, 'addEventListener')
+  const remove = vi.spyOn(node, 'removeEventListener')
+  node.click()
+  expect(clicked).not.toHaveBeenCalled()
+  setProps({ onClick: clicked, onFocus: focused })
+  flush()
+  node.click()
+  node.dispatchEvent(new FocusEvent('focus'))
+  expect(clicked).toHaveBeenCalledTimes(1)
+  expect(focused).toHaveBeenCalledTimes(1)
+  const registrations = add.mock.calls.length
+  setProps({ onClick: replacement, onFocus: focused })
+  flush()
+  expect(add).toHaveBeenCalledTimes(registrations)
+  expect(remove).not.toHaveBeenCalled()
+  setProps({ onClick: replacement })
+  flush()
+  node.click()
+  node.dispatchEvent(new FocusEvent('focus'))
+  expect(clicked).toHaveBeenCalledTimes(1)
+  expect(replacement).toHaveBeenCalledTimes(1)
+  expect(focused).toHaveBeenCalledTimes(1)
+  setProps({})
+  flush()
+  node.click()
+  expect(replacement).toHaveBeenCalledTimes(1)
+  setProps({ onClick: replacement })
+  flush()
+  expect(view.getByRole('button')).toBe(node)
+  view.unmount()
+  node.click()
+  expect(replacement).toHaveBeenCalledTimes(1)
 })
