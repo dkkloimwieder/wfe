@@ -596,3 +596,27 @@ To undo this upgrade before a commit, restore only its changed files from the re
 Preserve unrelated edits and all test evidence.
 Then run `pnpm install --frozen-lockfile` from the repository root.
 Rebuild the workspace before reviewing the restored previews.
+
+## v0.0.10 release
+
+The implementation is recorded through commit `a643231fb67e1dd3003171a57a61b68fbabf6139`.
+The release commit adds the README and adoption references and this verification record.
+The eight implementation commits preserve the tested working-tree contents.
+They include the Solid RC21 upgrade, chart extensions, new controls, diagrams and Tree, layout repairs, and the codebase and theme audit fixes.
+
+The required `pnpm check` run passed 1,586 unit tests across 155 files, 165 Node tests, SSR, and 35 UI documentation contracts.
+Formatting, lint, integrity, package and example types, builds, and consumer checks also passed.
+Two final CSS-only guards then preserved compound error cues and glyph-only action backgrounds.
+After those guards, formatting, lint, builds, and 86 gallery cases each against source and built packages passed with no browser warnings or errors.
+Earlier audit-repair validation also passed 26 serial affected-example build, browser, and hydration stages in source and package modes.
+
+Visual review used fresh static builds, 60 representative gallery captures across three presets and light/dark modes, and targeted field, error, glyph, and role-override captures.
+These captures do not certify every component, state, and viewport combination.
+The broader source review and its three fixes are tracked in `wfe-w2y.60.45`.
+The standalone disabled-clock comparison remains open as `wfe-w2y.60.46`.
+Live gallery module-fetch instability remains tracked in `wfe-w2y.61`; it interrupted preliminary captures, so final visual review used static builds.
+
+Local evidence is recorded in `test-results/theme-cohesion/verification.json`, `test-results/codebase-repairs/verification.json`, and `test-results/commit-completed/commits.json`.
+These ignored local files are not distributed release artifacts.
+No fresh full qualification campaign or performance benchmark accompanies this tag.
+The tag does not publish npm packages or assert that earlier qualification limitations are resolved.

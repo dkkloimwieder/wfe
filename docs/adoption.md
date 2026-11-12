@@ -1,14 +1,31 @@
 # Adopt the components
 
-The working tree targets Solid `2.0.0-rc.21` with matching runtime and compiler packages.
+The current release targets Solid `2.0.0-rc.21` with matching runtime and compiler packages.
 Its Vite plugin is `3.0.0-next.56`, and its testing library is `1.0.0-rc.2`.
 All five workspace packages require Solid RC21 or later within version 2.
 The tagged release records below retain their original dependency versions.
 See [the RC21 upgrade record](qualification.md#solid-rc21-upgrade) for test results and limits.
 
+## v0.0.10
+
+Use Git tag `v0.0.10` for the current library.
+This release adds read-only workflow and ERD diagrams, Tree navigation, calendar ranges, sliders, toggles, and context menus.
+Charts gain layered, polar, transformed, financial, statistical, and time-series examples, with compact overlay placement.
+Applications continue to own records, accepted values, diagram content, and persistence.
+
+Solid runtime and compiler packages now use `2.0.0-rc.21`.
+Sketchy, Vanilla, and Laser share configurable choice roles; Laser controls use the common soft glow while glyph-only actions retain their own treatment.
+See [theme customization](theme.md) for choice, decoration, geometry, and glow overrides.
+
+Same-turn form edits are serialized against application acceptance before submission.
+See [the form contract](form-contract.md) for callback timing and direct external updates.
+Disposing a sync record-write adapter rejects its confirmation waits with `AbortError`; durable outbox entries remain available for replay.
+The [release record](qualification.md#v0010-release) identifies the checks and their limits.
+All workspace packages remain private. This tag does not publish packages.
+
 ## v0.0.9
 
-Use Git tag `v0.0.9` for the current library.
+Git tag `v0.0.9` records the preceding library.
 This release includes reusable drag and drop, sortable controls, Kanban presentation, and the controlled Gantt component.
 Applications retain records, ordering, schedules, requests, and persistence.
 
