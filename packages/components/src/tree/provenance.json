@@ -1,0 +1,16 @@
+{
+  "project": "Terracotta",
+  "revision": "c2569bb06be036f5a888ebbabdb24b580e24e7a7",
+  "license": "MIT",
+  "sources": [
+    {
+      "url": "https://github.com/lxsmnsyc/terracotta/blob/c2569bb06be036f5a888ebbabdb24b580e24e7a7/packages/terracotta/src/components/tree/Tree.tsx",
+      "sha256": "2229d6c1e1fde2d0fee4b9db59c078c8933f9cf54922204fb4c10cae971874b0"
+    },
+    {
+      "url": "https://github.com/lxsmnsyc/terracotta/blob/c2569bb06be036f5a888ebbabdb24b580e24e7a7/packages/terracotta/src/components/tree/TreeItem.tsx",
+      "sha256": "15d2a7f8b5bdcfb66c27f2675424cbe79a4beeda29d18112a2af324135dafbc3"
+    }
+  ],
+  "adaptation": "Owned controlled record API with stable string IDs, explicit SSR tree metadata, shared controls and theme CSS. Keyboard tree navigation adapted from the retained originals. No Terracotta or solid-use dependency. Optional range selection and virtualization are outside this prototype."
+}

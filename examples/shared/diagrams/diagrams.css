@@ -1,0 +1,46 @@
+.diagram-example {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+.diagram-example > h2,
+.diagram-example > p {
+  margin: 0;
+}
+.diagram-example-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.diagram-example-controls input:not([type='checkbox']) {
+  max-width: 100%;
+}
+.diagram-entity-field {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  white-space: nowrap;
+}
+.diagram-entity-field span:last-child {
+  color: var(--ui-muted-text);
+}
+.diagram-example .ui-diagram-node-content p {
+  margin: 4px 0;
+}
+.diagram-stage-status {
+  color: var(--ui-accent);
+  font-weight: 600;
+}
+.diagram-inspection {
+  border: 1px solid var(--ui-border);
+  padding: 8px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.diagram-inspection h3,
+.diagram-inspection p {
+  margin: 0 0 4px;
+}
