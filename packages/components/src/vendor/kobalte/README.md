@@ -19,6 +19,12 @@ Focus handlers use `untrack` when synchronous DOM events read current state.
 Combobox initial snapshots and imperative effect callbacks also use explicit untracked reads.
 Effect computation functions retain their tracked dependencies.
 Selectable collections scroll their own viewport instead of the document.
+Menu focus traps preserve focus already established inside the menu before delayed initial focus runs.
+This prevents an earlier empty focusable snapshot from moving focus off the first item.
+Caller initial-focus callbacks still run before the preservation guard.
+Menus use direct presence because their transition duration is zero.
+This avoids the animation helper's forced body measurement and preserves `forceMount` for caller-owned transitions.
+Popper keeps anchor layout observation by default and exposes `observeAnchorLayout` for fixed viewport-point anchors.
 Native polymorphic elements and dismissable layers use owned DOM listeners from `src/ownedEvents.ts`.
 Custom component rendering through `as` retains the upstream forwarding branch.
 Select and Combobox reference arrays avoid outer TypeScript assertions that the current compiler drops.

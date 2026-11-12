@@ -6,7 +6,6 @@
  * https://github.com/radix-ui/primitives/blob/81b25f4b40c54f72aeb106ca0e64e1e09655153e/packages/react/menu/src/Menu.tsx
  */
 
-import { createPresence } from '@solid-primitives/presence'
 import {
   Show,
   createEffect,
@@ -122,9 +121,10 @@ export function Menu(props: MenuProps) {
     onOpenChange: (isOpen) => mergedProps.onOpenChange?.(isOpen),
   })
 
-  const { isMounted: contentPresent } = createPresence(
-    () => rootContext.forceMount() || disclosureState.isOpen() || undefined,
-    { transitionDuration: 0 },
+  // Menus have no presence transition. Avoid the animation helper's body-size
+  // read and extra mount/unmount tasks; forceMount retains caller-owned exits.
+  const contentPresent = createMemo(
+    () => rootContext.forceMount() || disclosureState.isOpen(),
   )
 
   const listState = createListState({

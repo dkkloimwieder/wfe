@@ -51,6 +51,9 @@ export interface PopperRootOptions {
    */
   getAnchorRect?: (anchor?: HTMLElement) => AnchorRect | undefined
 
+  /** Observe element layout shifts. Disable for fixed viewport-point anchors. */
+  observeAnchorLayout?: boolean
+
   /**
    * Event handler called when the popper placement changes.
    * It returns the current temporary placement of the popper.
@@ -338,6 +341,7 @@ export function PopperRoot(props: PopperRootProps) {
 
     // https://floating-ui.com/docs/autoUpdate
     return autoUpdate(referenceEl, floatingEl, updatePosition, {
+      layoutShift: mergedProps.observeAnchorLayout !== false,
       // JSDOM doesn't support ResizeObserver
       elementResize: typeof ResizeObserver === 'function',
     })

@@ -176,6 +176,11 @@ export function MenuContentBase<T extends ValidComponent = 'div'>(
     onInitialFocus: (event) => {
       if (optionalMenubarContext === undefined)
         untrack(() => mergedProps.onOpenAutoFocus?.(event))
+      // The menu can establish item focus before the trap's deferred task.
+      // Preserve that focus instead of applying its earlier empty snapshot.
+      const element = untrack(ref)
+      if (element?.contains(element.ownerDocument.activeElement))
+        event.preventDefault()
     },
     onFinalFocus: (event) =>
       untrack(() => mergedProps.onCloseAutoFocus?.(event)),

@@ -255,7 +255,7 @@
     },
     "core/src/popper/popper-root.tsx": {
       "upstreamSha256": "1a1e65b6cb0204c6194050e74a385756f49937cdf4fb1fb1d3d0a6671dd0d7ee",
-      "localSha256": "0553be1d75998cc6a93ffc747ec26921b1382bdd3dff4bec2f4a20edd46f5dff"
+      "localSha256": "a76a4a0692a2b480d69dad12b4536bab2be59f5596537524e682051f86339970"
     },
     "core/src/popper/utils.ts": {
       "upstreamSha256": "07d61d76d4eee8d2f5428ec06104a607417a4f246f068dd9ec634ffddf2d7f06",
@@ -703,7 +703,7 @@
     },
     "core/src/menu/menu.tsx": {
       "upstreamSha256": "883f8180b27c97fc5682dbefe77f20a6b8f19957fc8ff3985a277e0cb69fda24",
-      "localSha256": "07772315c5c7894172b05ef4662010f9d33b72d25770dbec033b9c2b23c8d625"
+      "localSha256": "987b68e1051bd2171346ba75d870965a468f53b7f75ad279a8b6b44647aa66f6"
     },
     "core/src/menu/menu-item.context.tsx": {
       "upstreamSha256": "93dff793f383ec183fb0d8720aa51b51e0982e931c38b15fe0a36c5d9f6752c0",
@@ -723,7 +723,7 @@
     },
     "core/src/menu/menu-content-base.tsx": {
       "upstreamSha256": "11a1a2cafbcacdcd467319e7113d1ebed1b70292b54e38612efe1be6d9d98cfd",
-      "localSha256": "e4ee6ee811b216db24be5abf06dd3cc9d62fe4955a46c77c643c5353fa45d478"
+      "localSha256": "4cbe1439fd3660e6423ef0b6476a4a416741af69a5b267f1251fb7fdc74fd680"
     },
     "core/src/menu/menu-content.tsx": {
       "upstreamSha256": "7e82fab333ca2d2dbf691677bf6107be457a0eae26fc99dc791194557b046f73",
