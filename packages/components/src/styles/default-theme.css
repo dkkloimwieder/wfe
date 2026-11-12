@@ -413,7 +413,8 @@
       .ui-dashboard-menu a[href],
       .ui-entry-panel-surface,
       [data-ui-control-surface],
-      [data-ui-section-decoration]
+      [data-ui-section-decoration],
+      [data-popper-positioner]:has(> .ui-menu[data-ui-section-decoration])
     )::before {
     transform: var(
       --ui-action-decoration-transform,
@@ -475,7 +476,11 @@
     position: relative;
   }
   :scope [data-ui-control-surface]::before,
-  :scope [data-ui-section-decoration]::before {
+  :scope [data-ui-section-decoration]::before,
+  :scope
+    [data-popper-positioner]:has(
+      > .ui-menu[data-ui-section-decoration]
+    )::before {
     content: '';
     display: var(--ui-input-decoration-display, block);
     position: absolute;
@@ -525,7 +530,11 @@
   }
   @media (forced-colors: active) {
     :scope [data-ui-control-surface]::before,
-    :scope [data-ui-section-decoration]::before {
+    :scope [data-ui-section-decoration]::before,
+    :scope
+      [data-popper-positioner]:has(
+        > .ui-menu[data-ui-section-decoration]
+      )::before {
       display: none;
     }
   }
@@ -547,17 +556,29 @@
   }
 
   /* Section roles stay on the backing so that inner controls remain independent. */
-  :scope [data-ui-section-decoration]::before {
+  :scope [data-ui-section-decoration]::before,
+  :scope
+    [data-popper-positioner]:has(
+      > .ui-menu[data-ui-section-decoration]
+    )::before {
     --ui-input-decoration-display: block;
     --ui-input-disclosure-arrow-visibility: hidden;
     --ui-input-decoration-dot-color: var(--ui-accent);
     --ui-input-decoration-border-color: var(--ui-accent);
   }
-  :scope [data-ui-section-decoration='neutral']::before {
+  :scope [data-ui-section-decoration='neutral']::before,
+  :scope
+    [data-popper-positioner]:has(
+      > .ui-menu[data-ui-section-decoration='neutral']
+    )::before {
     --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
     --ui-input-decoration-border-color: var(--ui-neutral-border-color);
   }
-  :scope [data-ui-section-decoration='secondary']::before {
+  :scope [data-ui-section-decoration='secondary']::before,
+  :scope
+    [data-popper-positioner]:has(
+      > .ui-menu[data-ui-section-decoration='secondary']
+    )::before {
     --ui-input-decoration-dot-color: var(--ui-secondary-accent);
     --ui-input-decoration-border-color: var(--ui-secondary-accent);
   }
@@ -567,6 +588,22 @@
   :scope
     [data-ui-section-decoration][data-ui-section-focus]:focus-within::before {
     opacity: 1;
+  }
+  :scope
+    [data-popper-positioner]:has(
+      > .ui-menu[data-ui-section-decoration][data-ui-section-always]:not(
+          [data-closed]
+        )
+    )::before {
+    opacity: 1;
+  }
+  /* The positioner owns the backing outside the menu's scrolling surface. */
+  :scope .ui-menu[data-ui-section-decoration]::before,
+  :scope
+    [data-popper-positioner]:has(
+      > .ui-menu[data-ui-section-decoration='none']
+    )::before {
+    display: none;
   }
   :scope [data-ui-section-decoration='none']::before,
   :scope [data-ui-section-decoration]:disabled::before {
@@ -609,6 +646,82 @@
       transparent 0.75px
     );
     background-size: var(--ui-canvas-pattern-size, 0.35em 0.35em);
+  }
+  @media (forced-colors: none) {
+    :scope .ui-calendar[data-range] {
+      isolation: isolate;
+    }
+    :scope
+      .ui-calendar[data-range]
+      td:has(> .ui-button:is([data-range-start], [data-range-end])) {
+      position: relative;
+      z-index: 1;
+    }
+    :scope .ui-calendar[data-range] td:focus-within {
+      position: relative;
+      z-index: 2;
+    }
+    :scope .ui-calendar[data-range] [data-selected] {
+      background-color: var(--ui-canvas-surface);
+      background-image: radial-gradient(
+        circle,
+        color-mix(
+            in srgb,
+            var(--ui-neutral-dot-color, var(--ui-muted-text))
+              var(--ui-decoration-dot-opacity, 50%),
+            transparent
+          )
+          0.75px,
+        transparent 0.75px
+      );
+      background-size: var(--ui-canvas-pattern-size);
+    }
+    :scope .ui-calendar[data-range] [data-selected] .ui-calendar-day-number {
+      display: inline-block;
+      min-inline-size: 2ch;
+      padding-inline: 0.15em;
+      background: var(--ui-canvas-surface, var(--ui-surface));
+      text-decoration: inherit;
+    }
+    :scope
+      .ui-calendar[data-range]
+      .ui-button:is([data-range-start], [data-range-end]) {
+      --ui-decoration-border: color-mix(
+        in srgb,
+        var(--ui-accent) var(--ui-decoration-border-opacity, 100%),
+        transparent
+      );
+      --ui-canvas-pattern: radial-gradient(
+        circle,
+        color-mix(
+            in srgb,
+            var(--ui-accent) var(--ui-decoration-dot-opacity, 50%),
+            transparent
+          )
+          0.75px,
+        transparent 0.75px
+      );
+    }
+    :scope
+      .ui-calendar[data-range]
+      .ui-button:is([data-range-start], [data-range-end])::before {
+      opacity: 1;
+    }
+    :scope .ui-slider-thumb {
+      border-color: var(--ui-accent);
+      background-color: var(--ui-canvas-surface);
+      background-image: radial-gradient(
+        circle,
+        color-mix(
+            in srgb,
+            var(--ui-accent) var(--ui-decoration-dot-opacity, 50%),
+            transparent
+          )
+          0.75px,
+        transparent 0.75px
+      );
+      background-size: var(--ui-canvas-pattern-size);
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     :scope {

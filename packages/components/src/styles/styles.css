@@ -22,6 +22,7 @@
 @import './resizable.css';
 
 @import './charts.css';
+@import './diagrams.css';
 
 @import './status-tiles.css';
 
@@ -35,3 +36,7 @@
 @import './laser-theme.css';
 
 @import './command-palette.css';
+
+@import './tree.css';
+
+@import './choice-selection.css';

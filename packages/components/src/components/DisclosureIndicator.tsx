@@ -5,7 +5,10 @@ import { createUniqueId } from 'solid-js'
 import { styledClasses, type ClassValue } from '../internal/classes'
 
 /** Decorative disclosure glyph. Its surrounding control owns interaction and state. */
-export function DisclosureIndicator(props: { class?: ClassValue }) {
+export function DisclosureIndicator(props: {
+  class?: ClassValue
+  shape?: 'plus' | 'minus'
+}) {
   const decorationPattern = createUniqueId()
   const preset = useThemePreset()
   return (
@@ -13,7 +16,7 @@ export function DisclosureIndicator(props: { class?: ClassValue }) {
       class={styledClasses('ui-disclosure-indicator', props.class)}
       width="8"
       height="12"
-      viewBox="0 0 12 18"
+      viewBox={props.shape ? '0 0 18 18' : '0 0 12 18'}
       aria-hidden="true"
       {...{ focusable: 'false' }}
     >
@@ -22,7 +25,13 @@ export function DisclosureIndicator(props: { class?: ClassValue }) {
         fallback={
           <path
             class="ui-disclosure-chevron"
-            d="M4 4 9 9 4 14"
+            d={
+              props.shape
+                ? props.shape === 'plus'
+                  ? 'M4 9H14M9 4V14'
+                  : 'M4 9H14'
+                : 'M4 4 9 9 4 14'
+            }
             fill="none"
             vector-effect="non-scaling-stroke"
           />
@@ -53,16 +62,28 @@ export function DisclosureIndicator(props: { class?: ClassValue }) {
         </defs>
         <path
           class="ui-disclosure-decoration"
-          d="M-2.150625 -2.64375 14.150625 9 -2.150625 20.64375Z"
+          d={
+            props.shape
+              ? props.shape === 'plus'
+                ? 'M6 0H12V6H18V12H12V18H6V12H0V6H6Z'
+                : 'M0 6H18V12H0Z'
+              : 'M-2.150625 -2.64375 14.150625 9 -2.150625 20.64375Z'
+          }
           fill={`url(#${decorationPattern})`}
           stroke="var(--ui-sidebar-accent, var(--ui-accent))"
           stroke-opacity="var(--ui-decoration-border-opacity, 100%)"
           vector-effect="non-scaling-stroke"
         />
-        <g transform="translate(0.4375 0)">
+        <g transform={props.shape ? undefined : 'translate(0.4375 0)'}>
           <path
             class="ui-disclosure-arrow"
-            d={trianglePath}
+            d={
+              props.shape
+                ? props.shape === 'plus'
+                  ? 'M4 9H14M9 4V14'
+                  : 'M4 9H14'
+                : trianglePath
+            }
             vector-effect="non-scaling-stroke"
           />
         </g>

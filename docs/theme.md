@@ -228,12 +228,12 @@ Review nested presets and a custom extension at `?gallery=themes`.
 ## Laser
 
 Laser uses the shared controls with pill-shaped inputs and buttons, rounded panels, and smooth disclosure icons.
-A broad dark shadow provides elevation. A tighter accent glow marks hovered, focused, and selected controls.
-Compound inputs keep one outer shape. Their internal button corners stay square.
+Light mode adds a soft white elevation layer. Dark mode adds no dark shadow. A tighter accent glow marks hovered, focused, and selected controls.
+Compound inputs keep one outer shape and one glow. Hover and focus soften resting native borders without changing their width or layout. Invalid controls retain their error borders, and disabled or read-only fields do not acquire an active glow. Their internal button corners stay square.
 Form sections share the cards’ border and resting shadow. Board headers use the same shadow.
 Issue cards add an accent glow on hover and keyboard focus.
-Sidebar groups omit the enclosing hover glow. Their headings and child links use neon text on hover and keyboard focus. Selection alone does not add text glow.
-Standalone icon actions keep their border for selection. Hover illuminates the glyph with a small shadow.
+Sidebar groups omit the enclosing hover glow. Their headings, child links, and context navigation use text or glyph feedback rather than a glowing container. Keyboard focus remains visible independently of those effects.
+Standalone icon actions keep transparent borders. Hover illuminates the glyph with a small shadow. Keyboard focus adds a separate outline in the focus color, including monochrome mode and configurations with glow disabled. This outline appears only for keyboard focus; hover and selection keep the soft glow without a hard border.
 Icons inside compound inputs retain the shared input outline.
 The theme adds no randomized dots or decoration listeners.
 
@@ -299,3 +299,20 @@ Explicit `--ui-popup-shadow` or complete Laser effect overrides replace these co
 `--ui-laser-shadow-y`, `--ui-laser-shadow-blur`, `--ui-laser-shadow-spread`, and `--ui-laser-shadow-color` supply the shared elevation geometry.
 These inputs feed both resting shadows and the broad layer behind glow.
 Set the shadow color to `transparent` to remove that layer from both effects.
+
+Custom Tree, Select, and Combobox choices share `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
+These roles override selected and highlighted paint in every preset. Their defaults remain decorated Sketchy, neutral Vanilla, and translucent primary-accent Laser.
+Sketchy also accepts `--ui-choice-decoration-color`, `--ui-choice-decoration-opacity`, and `--ui-choice-decoration-surface` for the dotted backing and its inner mask.
+The existing `--ui-selection` and `--ui-on-selection` roles continue to control the compatibility native picker. They do not override custom choice paint; use the choice roles above for that purpose.
+Preset choice defaults resolve at each choice, so a local accent colors Laser glow and translucent selection without replacing the owning Theme.
+
+`--ui-tree-row-min-height`, `--ui-tree-toggle-size`, `--ui-tree-symbol-size`, and `--ui-tree-indent` control Tree geometry.
+The default profile preserves the compact Tree presentation. Explicit compact and comfortable densities derive these defaults from shared row and control dimensions.
+Diagram surfaces and nodes use `--ui-border-width`, headers use `--ui-divider-width`, and keyboard edge focus uses `--ui-focus-ring` with the usual focus-color fallback. Edge hit areas remain independent of these visual widths.
+
+`--ui-laser-glow-strength` scales every control-glow layer and the text and icon glows.
+`--ui-laser-text-glow-strength` and `--ui-laser-icon-glow-strength` optionally override that scale for text and icons.
+Elevation remains separate from glow strength. Complete effect overrides still replace the computed effect.
+Keyboard focus remains visible when glow strength is zero or all effect overrides are `none`.
+
+Optional choice paint, choice decoration, Laser action-surface, and Laser strength overrides belong to their nearest Theme owner. A nested Theme resets those overrides to its own preset defaults. Apply a consumer class or inline style to the nested Theme to customize it independently. Descendants and automatic portals inherit their owning Theme's overrides.

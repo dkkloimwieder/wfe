@@ -26,6 +26,10 @@ export const themeSizing: JSX.CSSProperties = {
   '--ui-field-max-width': '30rem',
   '--ui-form-max-width': '30rem',
   '--ui-table-control-height': '26px',
+  '--ui-tree-row-min-height': '30px',
+  '--ui-tree-toggle-size': '24px',
+  '--ui-tree-symbol-size': '18px',
+  '--ui-tree-indent': '20px',
 }
 
 /** Keep the approved mixed profile; explicit densities own all density tokens. */
@@ -34,5 +38,12 @@ export function resolveThemeSizing(
 ): JSX.CSSProperties {
   return density === 'default'
     ? { ...uiScope().style, ...themeSizing }
-    : { ...themeSizing, ...uiScope(density).style }
+    : {
+        ...themeSizing,
+        ...uiScope(density).style,
+        '--ui-tree-row-min-height': 'var(--ui-row-height)',
+        '--ui-tree-toggle-size': 'calc(var(--ui-control-height) - 2px)',
+        '--ui-tree-symbol-size': 'calc(var(--ui-control-height) - 8px)',
+        '--ui-tree-indent': 'calc(var(--ui-control-height) - 6px)',
+      }
 }

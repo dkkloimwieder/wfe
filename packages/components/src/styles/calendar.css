@@ -103,3 +103,45 @@
     flex-direction: column;
   }
 }
+
+:where([data-ui]) .ui-calendar[data-multiple-months] {
+  width: calc(18rem * var(--ui-calendar-month-count, 2));
+}
+:where([data-ui]) .ui-calendar-pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: var(--ui-gap, 6px);
+}
+:where([data-ui]) .ui-calendar-pages > table {
+  flex: 1 1 16rem;
+  inline-size: 16rem;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-calendar :is([data-range-start], [data-range-end]) {
+  font-weight: var(--ui-strong-font-weight, 700);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+:where([data-ui]) .ui-date-range-picker {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap, 6px);
+  max-inline-size: 100%;
+}
+:where([data-ui]) .ui-date-range-picker > .ui-button {
+  max-inline-size: 100%;
+  white-space: normal;
+}
+
+:where([data-ui]) .ui-date-range-popup {
+  width: calc(18rem * var(--ui-calendar-month-count, 2));
+  max-width: calc(100dvw - 16px);
+  grid-template-columns: minmax(0, 1fr);
+}
+:where([data-ui]) .ui-date-range-popup > .ui-calendar {
+  width: 100%;
+  min-width: 0;
+}

@@ -89,12 +89,10 @@ export function laserStyle(
     '--ui-hover': 'var(--ui-highlight)',
     '--ui-control-hover': 'var(--ui-highlight)',
     '--ui-muted-surface': 'var(--ui-highlight)',
-    '--ui-laser-shadow-y': dark ? '12px' : '8px',
-    '--ui-laser-shadow-blur': dark ? '28px' : '20px',
-    '--ui-laser-shadow-spread': '-8px',
-    '--ui-laser-shadow-color': dark
-      ? 'rgb(0 0 0 / 75%)'
-      : 'rgb(25 45 80 / 24%)',
+    '--ui-laser-shadow-y': '2px',
+    '--ui-laser-shadow-blur': '12px',
+    '--ui-laser-shadow-spread': '4px',
+    '--ui-laser-shadow-color': dark ? 'transparent' : 'rgb(255 255 255 / 70%)',
     '--ui-laser-elevation': monochrome ? 'none' : shadow,
     // Full-effect overrides remain optional; CSS resolves defaults at each consumer.
     '--ui-laser-glow': monochrome ? 'none' : 'initial',
@@ -106,7 +104,9 @@ export function laserStyle(
     '--ui-laser-glow-opacity': dark ? '40%' : '16%',
     '--ui-laser-text-glow-blur': dark ? '10px' : '6px',
     '--ui-laser-text-glow-opacity': dark ? '55%' : '22%',
-    '--ui-laser-icon-elevation': `0 3px 3px rgb(0 0 0 / ${dark ? 65 : 25}%)`,
+    '--ui-laser-icon-elevation': dark
+      ? '0 0 0 transparent'
+      : '0 3px 3px rgb(255 255 255 / 95%)',
     '--ui-laser-icon-glow-blur': '4px',
     '--ui-laser-icon-glow-opacity': dark ? '65%' : '40%',
     '--ui-panel-shadow': 'var(--ui-laser-elevation)',

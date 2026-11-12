@@ -10,6 +10,8 @@
       img,
       .ui-card,
       .ui-menu-item,
+      .ui-tree-item,
+      .popup-option,
       .table-workspace-title-face,
       .popup-trigger,
       .ui-control-frame,
@@ -31,25 +33,57 @@
       .ui-chart,
       [data-ui-chart-tooltip]
     ) {
+    --_ui-laser-ring-glow: 0 0 3px var(--ui-laser-glow-width)
+      color-mix(
+        in srgb,
+        var(--ui-accent)
+          calc(
+            var(--ui-laser-glow-ring-opacity) * var(--ui-laser-glow-strength, 1)
+          ),
+        transparent
+      );
+    --_ui-laser-halo: 0 0 var(--ui-laser-glow-blur)
+      color-mix(
+        in srgb,
+        var(--ui-accent)
+          calc(var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1)),
+        transparent
+      );
     --_ui-laser-glow:
-      0 var(--ui-laser-shadow-y) var(--ui-laser-shadow-blur)
-        var(--ui-laser-shadow-spread) var(--ui-laser-shadow-color),
-      0 0 0 var(--ui-laser-glow-width)
+      inset 0 0 var(--ui-laser-glow-blur)
         color-mix(
           in srgb,
-          var(--ui-accent) var(--ui-laser-glow-ring-opacity),
+          var(--ui-accent)
+            calc(
+              var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1) *
+                0.6
+            ),
           transparent
         ),
-      0 0 var(--ui-laser-glow-blur)
+      var(--_ui-laser-ring-glow),
+      var(--ui-laser-control-shadow, var(--ui-laser-elevation)),
+      var(--_ui-laser-halo),
+      0 0 calc(var(--ui-laser-glow-blur) * 2) 3px
         color-mix(
           in srgb,
-          var(--ui-accent) var(--ui-laser-glow-opacity),
+          var(--ui-accent)
+            calc(
+              var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1) *
+                0.4
+            ),
           transparent
         );
     --_ui-laser-text-glow: 0 0 var(--ui-laser-text-glow-blur)
       color-mix(
         in srgb,
-        var(--ui-accent) var(--ui-laser-text-glow-opacity),
+        var(--ui-accent)
+          calc(
+            var(--ui-laser-text-glow-opacity) *
+              var(
+                --ui-laser-text-glow-strength,
+                var(--ui-laser-glow-strength, 1)
+              )
+          ),
         transparent
       );
     --_ui-laser-icon-shadow: drop-shadow(var(--ui-laser-icon-elevation))
@@ -57,7 +91,14 @@
         0 0 var(--ui-laser-icon-glow-blur)
           color-mix(
             in srgb,
-            var(--ui-accent) var(--ui-laser-icon-glow-opacity),
+            var(--ui-accent)
+              calc(
+                var(--ui-laser-icon-glow-opacity) *
+                  var(
+                    --ui-laser-icon-glow-strength,
+                    var(--ui-laser-glow-strength, 1)
+                  )
+              ),
             transparent
           )
       );
@@ -125,7 +166,14 @@
         input:disabled,
         input[readonly],
         textarea:disabled,
-        textarea[readonly]
+        textarea[readonly],
+        select:disabled,
+        .popup-trigger:is(
+          [aria-disabled='true'],
+          [data-disabled],
+          [data-readonly]
+        ),
+        [role='slider']:is([aria-disabled='true'], [aria-readonly='true'])
       )
     ) {
     box-shadow: var(
@@ -188,6 +236,138 @@
   :scope .column-header:is(:hover, :focus-within) {
     background: var(--ui-highlight);
   }
+  /* Ordinary actions retain border geometry; glyph-only roles refine paint below. */
+  @media (forced-colors: none) {
+    :scope
+      :is(
+        .ui-button:where(
+          :not(
+            .ui-sidebar-group-panel,
+            .ui-tree-toggle,
+            .ui-icon-button,
+            [data-variant='filled'],
+            [data-variant='inverted']
+          )
+        ),
+        .popup-trigger
+      ):is(
+        :hover,
+        :focus-within,
+        [aria-pressed='true'],
+        [aria-selected='true']
+      ):not(
+        :disabled,
+        [aria-disabled='true'],
+        [data-disabled],
+        [data-readonly]
+      ) {
+      background: var(
+        --_ui-laser-control-surface,
+        var(
+          --ui-laser-action-surface,
+          color-mix(in srgb, var(--ui-accent) 12%, transparent)
+        )
+      );
+      background-clip: border-box;
+      &:not(
+        [aria-invalid='true'],
+        [data-invalid],
+        :where(
+            .ui-control-frame,
+            .ui-input-affix,
+            .filter-input,
+            .choice-control
+          ):is(
+            [aria-invalid='true'],
+            [data-invalid],
+            :has([aria-invalid='true'], [data-invalid])
+          )
+          *
+      ) {
+        border-color: transparent;
+      }
+      color: var(--ui-text);
+      box-shadow: var(
+        --ui-laser-control-glow,
+        var(--ui-laser-glow, var(--_ui-laser-glow))
+      );
+    }
+
+    /* The outer field surface owns paint; native borders keep their geometry. */
+    :scope
+      :is(
+        .ui-control-frame:has(
+          > :is(.ui-input, .ui-textarea, .ui-native-select, .choice-input)
+        ),
+        .ui-input-affix,
+        .filter-input,
+        .choice-control
+      ):is(:hover, :focus-within):not(
+        [aria-disabled='true'],
+        [data-disabled],
+        [data-readonly]
+      ):not(
+        :has(
+          :is(input, textarea, select):is(:disabled, [readonly]),
+          .popup-trigger:is(
+            [aria-disabled='true'],
+            [data-disabled],
+            [data-readonly]
+          )
+        )
+      ) {
+      background: var(
+        --ui-laser-action-surface,
+        color-mix(in srgb, var(--ui-accent) 12%, transparent)
+      );
+      &
+        :is(
+          input.ui-input,
+          textarea.ui-textarea,
+          select.ui-native-select,
+          input.choice-input,
+          .popup-trigger
+        ):not(
+          :disabled,
+          [readonly],
+          [aria-disabled='true'],
+          [data-disabled],
+          [data-readonly]
+        ) {
+        background-color: transparent;
+        &:not(
+          [aria-invalid='true'],
+          [data-invalid],
+          :where(
+              .ui-control-frame,
+              .ui-input-affix,
+              .filter-input,
+              .choice-control
+            ):is(
+              [aria-invalid='true'],
+              [data-invalid],
+              :has([aria-invalid='true'], [data-invalid])
+            )
+            *
+        ) {
+          border-color: transparent;
+        }
+      }
+      & > :is(.ui-control-frame, button) {
+        background-color: transparent;
+        box-shadow: none;
+      }
+      &:not(
+          [aria-invalid='true'],
+          [data-invalid],
+          :has([aria-invalid='true'], [data-invalid])
+        )
+        > button:not([aria-invalid='true'], [data-invalid]) {
+        border-color: transparent;
+      }
+    }
+  }
+
   /* Icon actions illuminate the glyph rather than its button box. */
   :scope
     :is(
@@ -202,6 +382,7 @@
       .ui-sidebar-group[data-compact] > button,
       .ui-calendar-navigation > button:not(.ui-calendar-heading)
     ) {
+    --_ui-laser-control-surface: transparent;
     --ui-laser-control-glow: none;
     --ui-control-border: transparent;
     --ui-button-border: transparent;
@@ -347,5 +528,14 @@
     :scope * {
       box-shadow: none;
     }
+  }
+}
+
+/* Decoration can be disabled; keyboard focus must still be visible. */
+@scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
+  :scope :is(.ui-button, .popup-trigger):focus-visible {
+    outline: var(--ui-focus-width, 1px) solid
+      var(--ui-focus-ring, var(--ui-focus));
+    outline-offset: var(--ui-focus-offset, 2px);
   }
 }

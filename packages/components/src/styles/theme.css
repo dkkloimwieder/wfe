@@ -37,3 +37,17 @@
   min-width: 0;
   background: var(--ui-canvas-surface);
 }
+
+/* An optional owner override must not replace a nested Theme's preset defaults.
+   Zero specificity leaves consumer classes and inline styles in control. */
+:where(.ui-theme) {
+  --ui-choice-selection-surface: initial;
+  --ui-choice-selection-text: initial;
+  --ui-choice-decoration-color: initial;
+  --ui-choice-decoration-opacity: initial;
+  --ui-choice-decoration-surface: initial;
+  --ui-laser-action-surface: initial;
+  --ui-laser-glow-strength: initial;
+  --ui-laser-text-glow-strength: initial;
+  --ui-laser-icon-glow-strength: initial;
+}

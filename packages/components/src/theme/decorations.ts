@@ -10,7 +10,7 @@ import type {
 /** One geometry owner per Theme. Resize keeps samples and never changes layout. */
 export function decorateActions(root: HTMLDivElement) {
   const selector =
-    '.ui-button, .ui-dashboard-navigation a[href], .ui-dashboard-menu a[href], .ui-entry-panel-surface, [data-ui-control-surface], [data-ui-section-decoration]'
+    '.ui-button, .ui-dashboard-navigation a[href], .ui-dashboard-menu a[href], .ui-entry-panel-surface, [data-ui-control-surface], [data-ui-section-decoration]:not(.ui-menu), [data-popper-positioner]:has(> .ui-menu[data-ui-section-decoration])'
   type State = {
     samples: DecorationSamples
     width: number

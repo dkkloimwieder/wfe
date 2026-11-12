@@ -118,7 +118,9 @@ A selected Switch retains its highlight and thumb position in these states.
 The default opacity is 1, so disabled actions do not acquire a gray fill.
 Unavailable choice options use full opacity and muted text.
 Unavailable action menu items use full opacity.
-Choice selection uses `--ui-selection` and `--ui-on-selection`.
+Compatibility native selection uses `--ui-selection` and `--ui-on-selection`.
+Custom Tree, Select, and Combobox selection uses `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
+Sketchy choice decoration accepts `--ui-choice-decoration-color`, `--ui-choice-decoration-opacity`, and `--ui-choice-decoration-surface`.
 Action menu focus retains the hover surface and inset focus border.
 All visible field focus uses `--ui-focus-ring` with the `--ui-focus` fallback.
 Compound filter focus surrounds the complete field and suppresses the inner input outline.

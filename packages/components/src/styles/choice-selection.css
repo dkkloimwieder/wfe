@@ -1,0 +1,144 @@
+/* Tree, Select and Combobox share selection paint; fields keep their own surface. */
+:where([data-ui])
+  :is(
+    .popup-option:is([data-selected], [data-highlighted]),
+    .ui-tree-item[aria-selected='true']
+  ) {
+  background: var(
+    --ui-choice-selection-surface,
+    var(--_ui-choice-selection-surface, var(--ui-selection, var(--ui-accent)))
+  );
+  color: var(
+    --ui-choice-selection-text,
+    var(
+      --_ui-choice-selection-text,
+      var(--ui-on-selection, var(--ui-on-accent, var(--ui-text)))
+    )
+  );
+}
+:where([data-ui]) .popup-option[data-highlighted] {
+  outline: var(--ui-focus-width, 1px) solid
+    var(--ui-focus-ring, var(--ui-focus));
+  outline-offset: -2px;
+}
+:where([data-ui])
+  .ui-tree-item[aria-selected='true']
+  .ui-button.ui-tree-toggle {
+  color: inherit;
+  background: transparent;
+}
+@scope (.ui-theme[data-ui-preset='vanilla']) to (.ui-theme) {
+  :scope :is(.popup-option, .ui-tree-item) {
+    --_ui-choice-selection-text: var(--ui-text);
+    --_ui-choice-selection-surface: var(--ui-highlight);
+  }
+  :scope
+    :is(
+      .popup-option:is([data-selected], [data-highlighted]),
+      .ui-tree-item[aria-selected='true']
+    ) {
+    border: 0;
+    outline: none;
+  }
+}
+@scope (.ui-theme:is([data-ui-preset='default'], :not([data-ui-preset]))) to (.ui-theme) {
+  :scope :is(.popup-option, .ui-tree-item) {
+    --_ui-choice-selection-text: var(--ui-text);
+    --_ui-choice-selection-surface: transparent;
+    isolation: isolate;
+    margin-block: 2px;
+  }
+  :scope
+    :is(
+      .popup-option:is([data-selected], [data-highlighted]),
+      .ui-tree-item[aria-selected='true']
+    ) {
+    z-index: 2;
+  }
+  :scope :is(.popup-option, .ui-tree-item)[data-ui-section-decoration]::before {
+    --ui-input-decoration-dot-color: var(
+      --ui-choice-decoration-color,
+      var(--ui-accent)
+    );
+    --ui-input-decoration-border-color: var(
+      --ui-choice-decoration-color,
+      var(--ui-accent)
+    );
+    inset: -2px;
+    z-index: -2;
+  }
+  :scope .popup-option[data-highlighted],
+  :scope .ui-tree-item:focus-within {
+    z-index: 3;
+  }
+  :scope .popup-listbox {
+    padding: 6px;
+    scroll-padding: 6px;
+  }
+  :scope
+    :is(
+      .popup-option:is([data-selected], [data-highlighted]),
+      .ui-tree-item[aria-selected='true']
+    )::before {
+    opacity: var(--ui-choice-decoration-opacity, 1);
+  }
+  :scope
+    :is(
+      .popup-option:is([data-selected], [data-highlighted]),
+      .ui-tree-item[aria-selected='true']
+    )::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(
+      --ui-choice-decoration-surface,
+      var(--ui-choice-selection-surface, var(--ui-surface))
+    );
+    pointer-events: none;
+  }
+}
+@scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
+  :scope :is(.popup-option, .ui-tree-item) {
+    --_ui-choice-selection-text: var(--ui-text);
+    --_ui-choice-selection-surface: color-mix(
+      in srgb,
+      var(--ui-accent) 12%,
+      transparent
+    );
+  }
+  @media (forced-colors: none) {
+    :scope
+      :is(
+        .popup-option:is([data-selected], [data-highlighted]),
+        .ui-tree-item[aria-selected='true']
+      ) {
+      border: 0;
+      outline: none;
+      box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
+    }
+  }
+  :scope .ui-tree-item[aria-selected='true'] .ui-tree-symbol {
+    color: inherit;
+  }
+}
+@media (forced-colors: active) {
+  :where([data-ui])
+    :is(
+      .popup-option:is([data-selected], [data-highlighted]),
+      .ui-tree-item[aria-selected='true']
+    ) {
+    outline: var(--ui-control-border-width, 1px) solid Highlight !important;
+    outline-offset: -1px;
+  }
+}
+
+/* Keyboard focus remains independent of every preset's persistent choice paint. */
+@scope (.ui-theme) to (.ui-theme) {
+  :scope .ui-tree-item:focus-visible {
+    outline: var(--ui-focus-width, 1px) solid
+      var(--ui-focus-ring, var(--ui-focus));
+    outline-offset: -2px;
+  }
+}

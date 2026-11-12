@@ -69,3 +69,7 @@ Server markup and the first client render must use the same preset and mode.
 Test behavior, scope inheritance, resource cleanup, retained state, and virtual measurement consistency.
 Review colors, radii, fonts, and decoration manually in the gallery. Do not assert cosmetic constants.
 Run focused checks during implementation. Run full qualification once all theme epics reach completion.
+
+Custom choice paint uses shared `--ui-choice-selection-surface` and `--ui-choice-selection-text` roles across Tree, Select, and Combobox. Presets supply local defaults; consumer overrides retain selection and node identity. Sketchy choice decoration has separate color, opacity, and mask-surface roles. Legacy selection roles retain compatibility-native-picker behavior.
+Keyboard focus is independent of selected paint and decorative glow, including monochrome and disabled effects. Focus-only outlines do not add borders to hover or selection.
+Tree geometry exposes density-derived row, toggle, symbol, and indentation roles. Diagram visual borders and keyboard focus consume shared roles without changing edge hit geometry.

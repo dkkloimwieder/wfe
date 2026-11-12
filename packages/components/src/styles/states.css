@@ -5,6 +5,8 @@
 :where([data-ui]) select:focus-visible,
 :where([data-ui]) summary:focus-visible,
 :where([data-ui]).ui-resize-handle:focus-visible,
+:where([data-ui]).ui-context-trigger:focus-visible,
+:where([data-ui]) .ui-slider-thumb:focus-visible,
 :where([data-ui]) .ui-breadcrumbs-link:focus-visible,
 :where([data-ui])
   .ui-toggle:has(.ui-toggle-input:focus-visible)
@@ -42,7 +44,8 @@
 :where([data-ui])[data-invalid],
 :where([data-ui]) .ui-check-control[data-invalid],
 :where([data-ui]) .ui-radio-control[data-invalid],
-:where([data-ui]) .ui-switch-control[data-invalid] {
+:where([data-ui]) .ui-switch-control[data-invalid],
+:where([data-ui]).ui-slider[data-invalid] .ui-slider-thumb {
   border-color: var(--ui-error, #9d251e);
 }
 :where([data-ui]) button:disabled,
