@@ -1,3 +1,4 @@
+import type { TooltipBounds } from './tooltip-placement'
 import type {
   ChartAnimationOptions,
   ChartCursorPresentation,
@@ -323,6 +324,8 @@ export interface ChartTooltipPortalPositionContext {
   scene: ChartScene<any, any, any>
   surface: ChartSurface<any, any, any>
   anchor: ChartTooltipPosition
+  /** Referenced mark bounds in scene coordinates. */
+  avoid?: TooltipBounds
   placement?: 'auto' | ChartTooltipPlacement | readonly ChartTooltipPlacement[]
   offset?: number
 }

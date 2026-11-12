@@ -1,0 +1,46 @@
+.financial-charts,
+.financial-panels,
+.financial-panel {
+  display: grid;
+  min-inline-size: 0;
+  gap: var(--ui-layout-inset, 12px);
+}
+.financial-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap, 6px);
+  align-items: center;
+}
+.financial-panels {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
+}
+.financial-panel {
+  padding: var(--ui-layout-inset, 12px);
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface);
+}
+.financial-panel h2,
+.financial-panel p,
+.financial-charts > p,
+.financial-detail p {
+  margin: 0;
+}
+.financial-panel h2 {
+  font: inherit;
+  font-weight: 700;
+}
+.financial-charts output,
+.financial-detail {
+  overflow-wrap: anywhere;
+}
+.financial-detail {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  inline-size: min(25rem, calc(100vw - 40px));
+  max-block-size: calc(100dvh - 48px);
+  overflow: auto;
+}
+.financial-panel pre {
+  overflow: auto;
+  max-inline-size: 100%;
+}

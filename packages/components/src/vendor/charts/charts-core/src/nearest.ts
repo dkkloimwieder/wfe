@@ -1,3 +1,4 @@
+import type { TooltipBounds } from './tooltip-placement'
 import type {
   ChartBounds,
   ChartPoint,
@@ -31,6 +32,62 @@ interface SceneInteractionIndex {
 }
 
 const sceneInteractionCache = new WeakMap<object, SceneInteractionIndex>()
+
+/** Bounds of the focused observations, using the same clipped geometry as hit testing. */
+export function resolveChartTooltipBounds(
+  scene: ChartScene,
+  points: readonly ChartPoint[],
+  anchor: { x: number; y: number },
+): TooltipBounds {
+  const selected = points.filter(
+    (point) => Number.isFinite(point.x) && Number.isFinite(point.y),
+  )
+  const bounds: TooltipBounds = selected.length
+    ? { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity }
+    : { left: anchor.x, top: anchor.y, right: anchor.x, bottom: anchor.y }
+  const include = (
+    left: number,
+    top: number,
+    right: number,
+    bottom: number,
+  ) => {
+    bounds.left = Math.min(bounds.left, left)
+    bounds.top = Math.min(bounds.top, top)
+    bounds.right = Math.max(bounds.right, right)
+    bounds.bottom = Math.max(bounds.bottom, bottom)
+  }
+  // Shared paths span many observations. Protect each selected observation
+  // locally rather than excluding the entire series' bounding rectangle.
+  for (const point of selected)
+    include(point.x - 4, point.y - 4, point.x + 4, point.y + 4)
+  const matches = (point: ChartPoint) =>
+    selected.some(
+      (candidate) =>
+        candidate === point ||
+        (candidate.key === point.key &&
+          candidate.markId === point.markId &&
+          candidate.datumIndex === point.datumIndex),
+    )
+  for (const target of interactionIndex(scene).targets) {
+    const interaction = target.node.interaction
+    const owned = interaction.point ? [interaction.point] : interaction.points
+    if (!owned.some(matches)) continue
+    if (
+      target.node.kind !== 'dot' &&
+      target.node.kind !== 'rect' &&
+      owned.length > 1
+    )
+      continue
+    const rectangle = target.bounds
+    include(
+      rectangle.x,
+      rectangle.y,
+      rectangle.x + rectangle.width,
+      rectangle.y + rectangle.height,
+    )
+  }
+  return bounds
+}
 
 /** Legacy point-anchor lookup used by explicit point-only indexes. */
 export function nearestPoint<

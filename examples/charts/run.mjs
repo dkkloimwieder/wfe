@@ -1,3 +1,6 @@
+import { reviewChartDescriptions } from '../shared/charts/description-review.mjs'
+import { reviewFinancial } from '../shared/charts/financial-review.mjs'
+import { reviewStatistics } from '../shared/charts/statistics-review.mjs'
 import {
   attachDiagnostics,
   errorDetails,
@@ -14,6 +17,9 @@ import { readFile } from 'node:fs/promises'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { chromium, expect } from '@playwright/test'
 import { withArtifactRun } from '../../scripts/artifacts.mjs'
+import { reviewChartGrammar } from '../shared/charts/grammar-review.mjs'
+import { reviewFocusContext } from '../shared/charts/focus-context-review.mjs'
+import { reviewTimeSeries } from '../shared/charts/time-series-review.mjs'
 
 await withArtifactRun(
   { suite: 'charts', hydration: process.argv.includes('--hydration') },
@@ -59,7 +65,7 @@ await withArtifactRun(
                 )
                 return template.replace(
                   '<div id="root"></div>',
-                  `<div id="root" data-ssr="true">${await render(new URL(url.pathname + url.search, 'http://chart.example').href)}</div><script>window.chartServerNodes={svg:document.querySelector('svg.ts-chart'),line:document.querySelector('.ts-chart__line path'),generated:document.querySelector('[data-generator-view] svg.ts-chart')}</script>`,
+                  `<div id="root" data-ssr="true">${await render(new URL(url.pathname + url.search, 'http://chart.example').href)}</div><script>window.chartServerNodes={svg:document.querySelector('svg.ts-chart'),line:document.querySelector('.ts-chart__line path'),generated:document.querySelector('[data-generator-view] svg.ts-chart')};window.chartServerGrammarNodes=[...document.querySelectorAll('[data-chart-grammar] svg.ts-chart, [data-chart-grammar] button, [data-chart-grammar] input')];window.chartServerGrammarSvgNodes=[...document.querySelectorAll('[data-chart-grammar] svg.ts-chart')];window.chartServerFinancialNodes=[...document.querySelectorAll('[data-financial-charts] svg.ts-chart, [data-financial-charts] button, [data-financial-charts] input')];window.chartServerFinancialSvgNodes=[...document.querySelectorAll('[data-financial-charts] svg.ts-chart')];window.statisticsServerSvg=document.querySelector('[data-chart-statistics] svg.ts-chart');window.statisticsServerNodes=[...document.querySelectorAll('[data-chart-statistics] svg.ts-chart, [data-chart-statistics] input')];window.chartDescriptionServerNodes=[...document.querySelectorAll('[data-chart-descriptions] svg.ts-chart, [data-chart-descriptions] input')];window.focusContextServerNodes=[...document.querySelectorAll('[data-focus-context] svg.ts-chart, [data-focus-context] input')];window.timeSeriesServerNodes=[...document.querySelectorAll('[data-time-series] svg.ts-chart, [data-time-series] button, [data-time-series] input')];window.timeSeriesServerSvg=document.querySelector('[data-time-series] svg.ts-chart')</script>`,
                 )
               }
             : undefined,
@@ -123,6 +129,37 @@ await withArtifactRun(
             line: document.querySelector('.ts-chart__line path'),
           }
         })
+      })
+      await run(
+        'grammar layers, transforms and polar charts retain server nodes and controlled state',
+        async () => {
+          await reviewChartGrammar(page, { hydration })
+        },
+      )
+      await run(
+        'operational time-series views preserve details, source records, state and server nodes',
+        async () => {
+          await reviewTimeSeries(page, { hydration })
+        },
+      )
+      await run(
+        'linked time ranges preserve accepted state and source records',
+        () => reviewFocusContext(page, { hydration }),
+      )
+      await run('generated layered and polar descriptions', () =>
+        reviewChartDescriptions(page, { hydration }),
+      )
+      await run('financial comparison recipes', () =>
+        reviewFinancial(page, { hydration }),
+      )
+      await run('statistical recipes', async () => {
+        if (hydration)
+          assert.ok(
+            await page.evaluate(() =>
+              window.statisticsServerNodes.every((node) => node.isConnected),
+            ),
+          )
+        await reviewStatistics(page, { hydration })
       })
       await run('updates preserve SVG and mark nodes', async () => {
         const before = await page

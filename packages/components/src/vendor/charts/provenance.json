@@ -1,8 +1,8 @@
 {
   "repository": "https://github.com/TanStack/charts",
-  "version": "1.1.0",
-  "revision": "57774e14a1a86081eddb3a23523724a40da05640",
-  "tagObject": "d5dec10b5a9665d992e6d4b7bca08c1d8e1142cb",
+  "version": "1.4.0",
+  "revision": "cee368233c84395eda8c80d87eb91d6e574baa2d",
+  "tagObject": "92c7fec88da6bf8f823d9f10569e0400ce011262",
   "license": "MIT",
   "entrypoints": [
     "scene",
@@ -21,9 +21,20 @@
     "tooltip-portal",
     "legend",
     "types",
-    "dom-types"
+    "dom-types",
+    "rule",
+    "text",
+    "rect",
+    "polar",
+    "transform-group",
+    "transform-bin",
+    "transform-stack",
+    "transform-rolling-window",
+    "transform-normalize",
+    "transform-select",
+    "mark-decorative"
   ],
-  "externalImports": ["d3-scale", "d3-shape"],
+  "externalImports": ["d3-array", "d3-scale", "d3-shape"],
   "files": {
     "charts-core/src/adapter-renderer.ts": {
       "source": "packages/charts-core/src/adapter-renderer.ts",
@@ -46,6 +57,11 @@
       "upstreamSha256": "71017e5a75a9cadd44a79ab15b4d553734badd317f694691fce0c96662104ad0",
       "localSha256": "37de822f627e2f8fcebddd54ac177a37b8286560996732da71d1293a7e71521c",
       "repair": "strict-types"
+    },
+    "charts-core/src/composite-motion-internal.ts": {
+      "source": "packages/charts-core/src/composite-motion-internal.ts",
+      "upstreamSha256": "b1bf7421a180be3d6fa2ac166a30ed3c1c233e003a6e077bfb0bf61a31fcf309",
+      "localSha256": "b1bf7421a180be3d6fa2ac166a30ed3c1c233e003a6e077bfb0bf61a31fcf309"
     },
     "charts-core/src/configured-scale.ts": {
       "source": "packages/charts-core/src/configured-scale.ts",
@@ -70,7 +86,8 @@
     "charts-core/src/dom-types.ts": {
       "source": "packages/charts-core/src/dom-types.ts",
       "upstreamSha256": "ec65f9426f7a6c4c17a265a9fa6d3ae6b4b9c8f4d1f3a44a07f61f9dcc04db22",
-      "localSha256": "ec65f9426f7a6c4c17a265a9fa6d3ae6b4b9c8f4d1f3a44a07f61f9dcc04db22"
+      "localSha256": "3d2f9091f5adcb14677273575fc1fd0579396806fef9719e9e217784f1e35e96",
+      "repair": "tooltip-placement"
     },
     "charts-core/src/dot-layout.ts": {
       "source": "packages/charts-core/src/dot-layout.ts",
@@ -155,6 +172,16 @@
       "localSha256": "63319126cded4618c7cd2a1e9f3bb6f3c1dd6b5ad1296ed44fb205dcf52f9d74",
       "repair": "strict-types"
     },
+    "charts-core/src/mark-decorative-internal.ts": {
+      "source": "packages/charts-core/src/mark-decorative-internal.ts",
+      "upstreamSha256": "76a11a9b4891c2ee727ffa19bc673fd303f4f814a7fdb3f5c3ecdcd52b7db98b",
+      "localSha256": "76a11a9b4891c2ee727ffa19bc673fd303f4f814a7fdb3f5c3ecdcd52b7db98b"
+    },
+    "charts-core/src/mark-decorative.ts": {
+      "source": "packages/charts-core/src/mark-decorative.ts",
+      "upstreamSha256": "5a9a94d544f8651d88aba061098cfe9f3d86e7cc2e63a1f671e5c2de5fe55298",
+      "localSha256": "5a9a94d544f8651d88aba061098cfe9f3d86e7cc2e63a1f671e5c2de5fe55298"
+    },
     "charts-core/src/mark-scene-filter-internal.ts": {
       "source": "packages/charts-core/src/mark-scene-filter-internal.ts",
       "upstreamSha256": "d54ee7c67f3a06aa52ba70f144f5a4313ced53864388f99abd54e83adcab432b",
@@ -195,8 +222,39 @@
     "charts-core/src/nearest.ts": {
       "source": "packages/charts-core/src/nearest.ts",
       "upstreamSha256": "5e818ae4ed51b86976bc2bc6a60418660829c5fa1402a9156d988aee6cb8cfdc",
-      "localSha256": "ccc3cd81277f920c42dba93e2ff7ad562356bf2b744a722cb8d99a81cdd9ea67",
+      "localSha256": "f4641e880e2e7be7e0642c224107e5a5699c91b8ad10e8dba12cf8db61537292",
+      "repair": "tooltip-placement"
+    },
+    "charts-core/src/polar-focus-internal.ts": {
+      "source": "packages/charts-core/src/polar-focus-internal.ts",
+      "upstreamSha256": "3554c8cb4d14360156e5ff89329118f3608efd3bf8a9aacb181afa7be8ce6e1c",
+      "localSha256": "3554c8cb4d14360156e5ff89329118f3608efd3bf8a9aacb181afa7be8ce6e1c"
+    },
+    "charts-core/src/polar-mark-internal.ts": {
+      "source": "packages/charts-core/src/polar-mark-internal.ts",
+      "upstreamSha256": "e85b615ba4fcac2497b28207f956eb0c77a5cbea7610882f563b247b51477059",
+      "localSha256": "e85b615ba4fcac2497b28207f956eb0c77a5cbea7610882f563b247b51477059"
+    },
+    "charts-core/src/polar-pie.ts": {
+      "source": "packages/charts-core/src/polar-pie.ts",
+      "upstreamSha256": "8a4ce51bbbc6975350b5db0b0c44db999d7f1b68def9f530918ea5608efd1a6c",
+      "localSha256": "8a4ce51bbbc6975350b5db0b0c44db999d7f1b68def9f530918ea5608efd1a6c"
+    },
+    "charts-core/src/polar-sector-internal.ts": {
+      "source": "packages/charts-core/src/polar-sector-internal.ts",
+      "upstreamSha256": "d3b3c94dde2ad2f46ee8ed1b3c151ad9c3ff2a901c959c4131d7cc6609e13f66",
+      "localSha256": "d3b3c94dde2ad2f46ee8ed1b3c151ad9c3ff2a901c959c4131d7cc6609e13f66"
+    },
+    "charts-core/src/polar.ts": {
+      "source": "packages/charts-core/src/polar.ts",
+      "upstreamSha256": "964a5c2de2ef1421458b036d89acceedded20fe3adf65af5c923955c002b9806",
+      "localSha256": "7a0e6d29ea2af179da24f56c66a3d1fb74323be0339d82898290b4ebdd5b270d",
       "repair": "strict-types"
+    },
+    "charts-core/src/proportional-interval-internal.ts": {
+      "source": "packages/charts-core/src/proportional-interval-internal.ts",
+      "upstreamSha256": "b48d68f01d0843f6acaf9bde36cc00dd46cecc90ea0ec8e71054ded972439e4e",
+      "localSha256": "b48d68f01d0843f6acaf9bde36cc00dd46cecc90ea0ec8e71054ded972439e4e"
     },
     "charts-core/src/reconcile.ts": {
       "source": "packages/charts-core/src/reconcile.ts",
@@ -214,6 +272,12 @@
       "upstreamSha256": "554fe2be6516a80ea785f4195e10878c0652ccbebde38aa71b49fc8bbb443d2e",
       "localSha256": "554fe2be6516a80ea785f4195e10878c0652ccbebde38aa71b49fc8bbb443d2e"
     },
+    "charts-core/src/rect.ts": {
+      "source": "packages/charts-core/src/rect.ts",
+      "upstreamSha256": "62d518a22926c6a45988673532d0baebeb21b99a44fe88d84fd37624e170a2cb",
+      "localSha256": "7ce7a1e1976447f8465bface146239a0a95fd29de0a641a782e46496ba156291",
+      "repair": "strict-types"
+    },
     "charts-core/src/renderer-rect.ts": {
       "source": "packages/charts-core/src/renderer-rect.ts",
       "upstreamSha256": "5999059b5560b8328b5ba941fdc6900c57eda8065f4a16bfc54d8e081a004b39",
@@ -221,13 +285,18 @@
     },
     "charts-core/src/renderer.ts": {
       "source": "packages/charts-core/src/renderer.ts",
-      "upstreamSha256": "7336d24e6ab67862ffcc349e160db653fbf7b6f4cde571a992fe3f99e6a9df3a",
-      "localSha256": "7336d24e6ab67862ffcc349e160db653fbf7b6f4cde571a992fe3f99e6a9df3a"
+      "upstreamSha256": "88f82846122831e006b8d4b5cda50d9e7e3c4dde6725e3a1545094748cba4e33",
+      "localSha256": "88f82846122831e006b8d4b5cda50d9e7e3c4dde6725e3a1545094748cba4e33"
     },
     "charts-core/src/resolved-layout-position.ts": {
       "source": "packages/charts-core/src/resolved-layout-position.ts",
       "upstreamSha256": "adf30f60ae2a15c2171b0939879972956a89254736c4b5c73815c6e777a886a7",
       "localSha256": "adf30f60ae2a15c2171b0939879972956a89254736c4b5c73815c6e777a886a7"
+    },
+    "charts-core/src/rule.ts": {
+      "source": "packages/charts-core/src/rule.ts",
+      "upstreamSha256": "b3f36261f6cb4f8d7fceee1b9a17ee2ea3d1111818c955f750a868dde989a7b4",
+      "localSha256": "b3f36261f6cb4f8d7fceee1b9a17ee2ea3d1111818c955f750a868dde989a7b4"
     },
     "charts-core/src/runtime.ts": {
       "source": "packages/charts-core/src/runtime.ts",
@@ -286,8 +355,8 @@
     },
     "charts-core/src/scene.ts": {
       "source": "packages/charts-core/src/scene.ts",
-      "upstreamSha256": "6ffb6fd17977fe48d9b334eb988e180bcf30d5c7a4271c22c94d9a885ec25456",
-      "localSha256": "6ffb6fd17977fe48d9b334eb988e180bcf30d5c7a4271c22c94d9a885ec25456"
+      "upstreamSha256": "1325b4edadb9bb5c0121f0fae481fc8c109090de4146d4d95d14eee47319ad22",
+      "localSha256": "1325b4edadb9bb5c0121f0fae481fc8c109090de4146d4d95d14eee47319ad22"
     },
     "charts-core/src/stack-ends-internal.ts": {
       "source": "packages/charts-core/src/stack-ends-internal.ts",
@@ -339,6 +408,11 @@
       "upstreamSha256": "4991d24426a2a4d995fccf491e580df2e179a46f9b0d824ae8863b3c8b9bbdec",
       "localSha256": "4991d24426a2a4d995fccf491e580df2e179a46f9b0d824ae8863b3c8b9bbdec"
     },
+    "charts-core/src/text.ts": {
+      "source": "packages/charts-core/src/text.ts",
+      "upstreamSha256": "6f5a39a870ae224aacdfd67a9126b711366fa9b5b49923611543c58c0ae2d9c9",
+      "localSha256": "6f5a39a870ae224aacdfd67a9126b711366fa9b5b49923611543c58c0ae2d9c9"
+    },
     "charts-core/src/tooltip-model.ts": {
       "source": "packages/charts-core/src/tooltip-model.ts",
       "upstreamSha256": "f03f78c105c83b757f824c6103a4d1af496610121404976edb09b1b64de300b8",
@@ -347,29 +421,88 @@
     "charts-core/src/tooltip-placement.ts": {
       "source": "packages/charts-core/src/tooltip-placement.ts",
       "upstreamSha256": "64a644eee3c6a62dcb0c3a2dd7af276856ecf94bf461996441022a57562d7d8f",
-      "localSha256": "64a644eee3c6a62dcb0c3a2dd7af276856ecf94bf461996441022a57562d7d8f"
+      "localSha256": "afe5296088cb24a02c973da2d663f3dccaa363ead4a9c7de4e9f24503d0be203",
+      "repair": "tooltip-placement"
     },
     "charts-core/src/tooltip-portal.ts": {
       "source": "packages/charts-core/src/tooltip-portal.ts",
-      "upstreamSha256": "3b83c4d23e06cd0ca73f5b33ec176305699a99d7184c113cf2e5895708d36c70",
-      "localSha256": "bfd6abd63c766122df7d3404f73602a35492e5e19a57068bf7b7c5521d654af0",
-      "repair": "portal-mount"
+      "upstreamSha256": "df109451efa99eb263762243b7fe87585be88e5a3436c05b4f95bf2774afb589",
+      "localSha256": "217fe9485a7281c155105f95782f7214fa3fd97bbe4e199119f5c1e7fe7ee6a4",
+      "repair": "tooltip-placement"
     },
     "charts-core/src/tooltip-position.ts": {
       "source": "packages/charts-core/src/tooltip-position.ts",
       "upstreamSha256": "782037d25eefa43dc53265e06bdba488871be1db228fa9d7565562f324d93a6c",
-      "localSha256": "782037d25eefa43dc53265e06bdba488871be1db228fa9d7565562f324d93a6c"
+      "localSha256": "e0706d808d30f46e7bea7f10b9855b17493dce6775de5dbf9a7be2acb5b1f277",
+      "repair": "tooltip-placement"
     },
     "charts-core/src/tooltip.ts": {
       "source": "packages/charts-core/src/tooltip.ts",
-      "upstreamSha256": "d615638f9982b2b419ff04095c0f4d58e052b5873ac80d6938a5cbb17ff9b086",
-      "localSha256": "13592e64511edc47fc97f43a949f4ee1ea056a0195de91147dd364e937ac1bfc",
+      "upstreamSha256": "9b647224edbc0c3809304816c7d5e8b974169f79b890513061882a16e7948c9f",
+      "localSha256": "9c5ff98bfca834cbedb35de900c580d3f9bbc6a8daeb8a30902d58cba006da3c",
+      "repair": "tooltip-placement"
+    },
+    "charts-core/src/transform-bin.ts": {
+      "source": "packages/charts-core/src/transform-bin.ts",
+      "upstreamSha256": "ad56f03c6b2829e37d1eba00816bb620b5d156bad3381556574943e3b57c7c39",
+      "localSha256": "ad56f03c6b2829e37d1eba00816bb620b5d156bad3381556574943e3b57c7c39"
+    },
+    "charts-core/src/transform-group.ts": {
+      "source": "packages/charts-core/src/transform-group.ts",
+      "upstreamSha256": "b5bf0fc2f755112c991a167785509e94a163d1ae9f5948dd95cd6bc6e77cbe0a",
+      "localSha256": "b5bf0fc2f755112c991a167785509e94a163d1ae9f5948dd95cd6bc6e77cbe0a"
+    },
+    "charts-core/src/transform-internal.ts": {
+      "source": "packages/charts-core/src/transform-internal.ts",
+      "upstreamSha256": "db977e7e92b14533db8ccc7b534fe0a374d0e9c29d4a8ba58fec76d5b2b201c5",
+      "localSha256": "62986b7e49d934dce71422dc335d834da8e47c20226b89d186fab408585770e0",
       "repair": "strict-types"
+    },
+    "charts-core/src/transform-normalize.ts": {
+      "source": "packages/charts-core/src/transform-normalize.ts",
+      "upstreamSha256": "7a617e2b6f66e594a41e9bd2d4e87126b50adf9c68c7e548ec55856f1291053c",
+      "localSha256": "7a617e2b6f66e594a41e9bd2d4e87126b50adf9c68c7e548ec55856f1291053c"
+    },
+    "charts-core/src/transform-reduce-internal.ts": {
+      "source": "packages/charts-core/src/transform-reduce-internal.ts",
+      "upstreamSha256": "92a4e85938faec4e80eff676ba7576bbccdbd712c3081d043fe777bf3463af3a",
+      "localSha256": "92a4e85938faec4e80eff676ba7576bbccdbd712c3081d043fe777bf3463af3a"
+    },
+    "charts-core/src/transform-reduce.ts": {
+      "source": "packages/charts-core/src/transform-reduce.ts",
+      "upstreamSha256": "ce24773d3a62d81e28a857769b1842ee1f8bb1635607ba906f92c453025b76fd",
+      "localSha256": "ce24773d3a62d81e28a857769b1842ee1f8bb1635607ba906f92c453025b76fd"
+    },
+    "charts-core/src/transform-rolling-window.ts": {
+      "source": "packages/charts-core/src/transform-rolling-window.ts",
+      "upstreamSha256": "1987000d96f1c38cbc76f7207d0a548d93595e29204b26e2b707734a44a1fc1d",
+      "localSha256": "1987000d96f1c38cbc76f7207d0a548d93595e29204b26e2b707734a44a1fc1d"
+    },
+    "charts-core/src/transform-select.ts": {
+      "source": "packages/charts-core/src/transform-select.ts",
+      "upstreamSha256": "0a18ec6e187353846ea587bd87cfeca4db3c3ce526f28f9120f292bad73bee8f",
+      "localSha256": "6023995d77cc4358a0c591d65affbd94cf4649fab2ca8793ec41943865a68be5",
+      "repair": "strict-types"
+    },
+    "charts-core/src/transform-stack.ts": {
+      "source": "packages/charts-core/src/transform-stack.ts",
+      "upstreamSha256": "dfafabcfe7e007917ffb29d24253293caf4b951008a606d4bbeba9f4cc5fb489",
+      "localSha256": "dfafabcfe7e007917ffb29d24253293caf4b951008a606d4bbeba9f4cc5fb489"
+    },
+    "charts-core/src/transform-statistics-internal.ts": {
+      "source": "packages/charts-core/src/transform-statistics-internal.ts",
+      "upstreamSha256": "5162d6ef60176341d50bba98870aefe0fcc9ae8f4aa48901227053f51ad39ff3",
+      "localSha256": "5162d6ef60176341d50bba98870aefe0fcc9ae8f4aa48901227053f51ad39ff3"
+    },
+    "charts-core/src/transform.ts": {
+      "source": "packages/charts-core/src/transform.ts",
+      "upstreamSha256": "c5294da2b29aff2f94bccbec1334a97d7f8e6abfb4d230c5cdfa2248e1bc0de4",
+      "localSha256": "c5294da2b29aff2f94bccbec1334a97d7f8e6abfb4d230c5cdfa2248e1bc0de4"
     },
     "charts-core/src/types.ts": {
       "source": "packages/charts-core/src/types.ts",
-      "upstreamSha256": "e07a239a631adce94ab2f23fde12c6b5f249b2dedd209dcdec8a5218d2162b4d",
-      "localSha256": "2e49d48662dcd70b067f8686b201c53a5126afde5e5efd023fc2fc07ab22bc31",
+      "upstreamSha256": "3066a54864ee34b2ba4d4c070efb2accb18e0e1ba44de87814ae4d66243aab0e",
+      "localSha256": "67a32c5a69e9f3938d135873ee8ee8ee14d8c6a21e4bc9bed6cf24826aa2c5f6",
       "repair": "portal-mount"
     },
     "charts-scales/src/band-kernel.ts": {
@@ -410,17 +543,25 @@
   },
   "licenseSha256": "a09cf172b475f76e0cb456e3cd346b1aa3fe5169ae5454f9f7fbe98b3e93c85f",
   "repairs": {
+    "charts-core/src/adapter-renderer.ts": "Pass optional ChartRuntimeOptions through initial and recreated runtime creation. Existing definition theme precedence remains unchanged.",
     "charts-core/src/bar.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
     "charts-core/src/interactive-legend.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
     "charts-core/src/legend-static.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
     "charts-core/src/line.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
     "charts-core/src/mark-state.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
     "charts-core/src/markup-internal.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
-    "charts-core/src/nearest.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/nearest.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Those existing type repairs are retained. The tooltip-placement repair additionally: Resolve focused tooltip exclusion bounds from the existing translated and clipped interaction index. Protect full referenced rect, dot, and single-observation area geometry; protect selected points locally on spanning paths and aggregate selected groups.",
     "charts-core/src/reconcile.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
-    "charts-core/src/tooltip.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Runtime behavior is unchanged.",
+    "charts-core/src/tooltip-portal.ts": "Preserve the optional scoped fallback mount and native popover lifecycle from the earlier portal-mount repair. Convert both exclusion-bound corners from scene to viewport coordinates for native popovers and scoped fallback mounts. Propagate placement availability and retain overflow scrolling, existing scoped mounting, and lifecycle cleanup. Hide the portal when asynchronous resize or scroll placement finds no safe region while retaining positioning listeners for recovery.",
+    "charts-core/src/tooltip.ts": "Strict TypeScript compatibility: preserve bounded array-index invariants, mark unused generic parameters, remove unused imports and unreachable duplicate tooltip helpers. Those existing type repairs are retained. The tooltip-placement repair additionally: Use the shared opaque tooltip card for default and custom bodies, with bounded dimensions and scrolling. Pass focused geometry bounds through both local and portal positioning, hide unavailable placements, and retain tooltip accessibility labels.",
     "charts-core/src/types.ts": "Strict unused generic parameter names are retained. Add a typed optional fallback portal mount so owned UI tokens and controls retain their scope.",
-    "charts-core/src/adapter-renderer.ts": "Pass optional ChartRuntimeOptions through initial and recreated runtime creation. Existing definition theme precedence remains unchanged.",
-    "charts-core/src/tooltip-portal.ts": "Allow an optional scoped fallback mount. Native popover positioning and lifecycle remain unchanged."
-  }
+    "charts-core/src/polar.ts": "Strict TypeScript compatibility: preserve bounded source-index invariants and mark unused imports or generic names. This changes no runtime behavior.",
+    "charts-core/src/rect.ts": "Strict TypeScript compatibility: preserve bounded source-index invariants and mark unused imports or generic names. This changes no runtime behavior.",
+    "charts-core/src/transform-internal.ts": "Strict TypeScript compatibility: preserve bounded source-index invariants and mark unused imports or generic names. This changes no runtime behavior.",
+    "charts-core/src/transform-select.ts": "Strict TypeScript compatibility: preserve bounded source-index invariants and mark unused imports or generic names. This changes no runtime behavior.",
+    "charts-core/src/tooltip-placement.ts": "Place tooltips in free side regions outside referenced geometry with the configured gap. Keep preferred full fits and safe alternate sides; constrain oversized cards to the largest useful free region and return no placement if none exists. Legacy callers without exclusion bounds retain point placement.",
+    "charts-core/src/tooltip-position.ts": "Apply free-region size limits and remeasure flowing custom content before final placement. Keep tooltips bounded and scrollable without clamping them across referenced geometry.",
+    "charts-core/src/dom-types.ts": "Carry optional referenced-mark exclusion bounds in scene coordinates through the tooltip portal position context without changing existing extension call requirements."
+  },
+  "repairSha256": "a86eeb36a39a7d6238aec8a72157639c7d1fe06861e5faca49f09145d7afe845"
 }

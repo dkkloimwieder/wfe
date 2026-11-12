@@ -13,8 +13,8 @@ export async function checkCharts(root) {
   const manifest = JSON.parse(
     await readFile(new URL('provenance.json', root), 'utf8'),
   )
-  assert.equal(manifest.version, '1.1.0')
-  assert.equal(manifest.revision, '57774e14a1a86081eddb3a23523724a40da05640')
+  assert.equal(manifest.version, '1.4.0')
+  assert.equal(manifest.revision, 'cee368233c84395eda8c80d87eb91d6e574baa2d')
   assert.equal(manifest.license, 'MIT')
   assert.equal(
     hashBytes(await readFile(new URL('LICENSE', root))),
@@ -23,7 +23,18 @@ export async function checkCharts(root) {
   const names = new Set(Object.keys(manifest.files))
   const imports = new Map()
   const external = new Set()
-  await exactFiles(root, [...names, 'README.md', 'provenance.json', 'LICENSE'])
+  assert.equal(
+    hashBytes(await readFile(new URL('repairs.patch', root))),
+    manifest.repairSha256,
+    'Chart repair patch differs',
+  )
+  await exactFiles(root, [
+    ...names,
+    'README.md',
+    'provenance.json',
+    'LICENSE',
+    'repairs.patch',
+  ])
   const allowedPaths = new Set(
     [...names].map((name) => fileURLToPath(new URL(name, root))),
   )
@@ -38,7 +49,12 @@ export async function checkCharts(root) {
     )
     if (item.localSha256 !== item.upstreamSha256) {
       assert.ok(
-        ['strict-types', 'runtime-theme', 'portal-mount'].includes(item.repair),
+        [
+          'strict-types',
+          'runtime-theme',
+          'portal-mount',
+          'tooltip-placement',
+        ].includes(item.repair),
       )
       assert.ok(
         manifest.repairs[name]?.length > 40,
@@ -68,7 +84,7 @@ export async function checkCharts(root) {
     }
     imports.set(name, targets)
   }
-  assert.deepEqual([...external].sort(), ['d3-scale', 'd3-shape'])
+  assert.deepEqual([...external].sort(), ['d3-array', 'd3-scale', 'd3-shape'])
   assert.deepEqual(manifest.externalImports, [...external].sort())
   const reached = new Set()
   function reach(name) {

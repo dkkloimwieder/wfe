@@ -1,0 +1,1114 @@
+--- a/charts-core/src/adapter-renderer.ts
++++ b/charts-core/src/adapter-renderer.ts
+@@ -6,7 +6,7 @@
+ } from './adapter-shared'
+ import type { ChartAdapter } from './adapter-shared'
+ import type { ChartRendererHost, ChartRendererHostOptions } from './dom-types'
+-import type { ChartRuntime, ChartValue } from './types'
++import type { ChartRuntime, ChartRuntimeOptions, ChartValue } from './types'
+ 
+ export function createChartRendererAdapter<
+   TDatum,
+@@ -14,6 +14,7 @@
+   TYValue extends ChartValue = ChartValue,
+ >(
+   initialOptions: ChartRendererHostOptions<TDatum, TXValue, TYValue>,
++  runtimeOptions: ChartRuntimeOptions = {},
+ ): ChartAdapter<
+   ChartRendererHostOptions<TDatum, TXValue, TYValue>,
+   TDatum,
+@@ -21,11 +22,11 @@
+   TYValue
+ > {
+   let runtime: ChartRuntime<TDatum, TXValue, TYValue> | undefined =
+-    createChartRuntime<TDatum, TXValue, TYValue>()
++    createChartRuntime<TDatum, TXValue, TYValue>(runtimeOptions)
+   let options = initialOptions
+   let host: ChartRendererHost<TDatum, TXValue, TYValue> | undefined
+   const getRuntime = () =>
+-    (runtime ??= createChartRuntime<TDatum, TXValue, TYValue>())
++    (runtime ??= createChartRuntime<TDatum, TXValue, TYValue>(runtimeOptions))
+ 
+   return {
+     prerender() {
+--- a/charts-core/src/bar.ts
++++ b/charts-core/src/bar.ts
+@@ -866,7 +866,7 @@
+   ].sort((a, b) => a - b)
+   let minimum = Infinity
+   for (let index = 1; index < positions.length; index += 1) {
+-    minimum = Math.min(minimum, positions[index] - positions[index - 1])
++    minimum = Math.min(minimum, positions[index]! - positions[index - 1]!)
+   }
+   return Number.isFinite(minimum)
+     ? minimum * 0.8
+--- a/charts-core/src/dom-types.ts
++++ b/charts-core/src/dom-types.ts
+@@ -1,3 +1,4 @@
++import type { TooltipBounds } from './tooltip-placement'
+ import type {
+   ChartAnimationOptions,
+   ChartCursorPresentation,
+@@ -323,6 +324,8 @@
+   scene: ChartScene<any, any, any>
+   surface: ChartSurface<any, any, any>
+   anchor: ChartTooltipPosition
++  /** Referenced mark bounds in scene coordinates. */
++  avoid?: TooltipBounds
+   placement?: 'auto' | ChartTooltipPlacement | readonly ChartTooltipPlacement[]
+   offset?: number
+ }
+--- a/charts-core/src/interactive-legend.ts
++++ b/charts-core/src/interactive-legend.ts
+@@ -434,7 +434,7 @@
+     ? 'color-mix(in srgb, CanvasText 7%, Canvas)'
+     : 'Canvas'
+   button.style.textDecoration = item.visible ? 'none' : 'line-through'
+-  button.onclick = (event) => {
++  button.onclick = () => {
+     control.toggle(item.value)
+   }
+   const swatch = button.querySelector<HTMLElement>('[data-chart-legend-swatch]')
+--- a/charts-core/src/legend-static.ts
++++ b/charts-core/src/legend-static.ts
+@@ -67,7 +67,7 @@
+ 
+ declare const colorLegendItemsBrand: unique symbol
+ 
+-export interface ColorLegendItems<in TValue extends ChartKey = ChartKey> {
++export interface ColorLegendItems<in _TValue extends ChartKey = ChartKey> {
+   readonly [colorLegendItemsBrand]: unknown
+ }
+ 
+@@ -88,7 +88,7 @@
+   placement?: ChartLegendPlacement
+ }
+ 
+-type ResolvedColorLegendItems<TValue extends ChartKey> = (
++type ResolvedColorLegendItems<_TValue extends ChartKey> = (
+   context: Parameters<ChartColorLegend['height']>[1],
+   minimumItemWidth: number,
+   label?: string,
+--- a/charts-core/src/line.ts
++++ b/charts-core/src/line.ts
+@@ -245,7 +245,7 @@
+         xValue: xValues[datumIndex],
+         yValue: yValues[datumIndex],
+         groupValue: groupValues[datumIndex],
+-        datumKey: keys[datumIndex],
++        datumKey: keys[datumIndex]!,
+       }))
+ 
+       return {
+--- a/charts-core/src/mark-state.ts
++++ b/charts-core/src/mark-state.ts
+@@ -5,7 +5,6 @@
+ } from './scene-point-ownership-internal'
+ import { matchesFocusAnchor } from './focus-layer'
+ import type {
+-  ChartFocusMatch,
+   ChartFocusState,
+   ChartMarkStateTransition,
+   ChartMarkState,
+--- a/charts-core/src/markup-internal.ts
++++ b/charts-core/src/markup-internal.ts
+@@ -23,5 +23,5 @@
+ export function escapeAttribute(value: string): string {
+   return value
+     .replace(unsafeCharacter, escapeCharacter)
+-    .replace(/"/g, entities['"'])
++    .replace(/"/g, entities['"']!)
+ }
+--- a/charts-core/src/nearest.ts
++++ b/charts-core/src/nearest.ts
+@@ -1,6 +1,6 @@
++import type { TooltipBounds } from './tooltip-placement'
+ import type {
+   ChartBounds,
+-  ChartFocusAffinity,
+   ChartPoint,
+   ChartScene,
+   ChartValue,
+@@ -32,6 +32,62 @@
+ }
+ 
+ const sceneInteractionCache = new WeakMap<object, SceneInteractionIndex>()
++
++/** Bounds of the focused observations, using the same clipped geometry as hit testing. */
++export function resolveChartTooltipBounds(
++  scene: ChartScene,
++  points: readonly ChartPoint[],
++  anchor: { x: number; y: number },
++): TooltipBounds {
++  const selected = points.filter(
++    (point) => Number.isFinite(point.x) && Number.isFinite(point.y),
++  )
++  const bounds: TooltipBounds = selected.length
++    ? { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity }
++    : { left: anchor.x, top: anchor.y, right: anchor.x, bottom: anchor.y }
++  const include = (
++    left: number,
++    top: number,
++    right: number,
++    bottom: number,
++  ) => {
++    bounds.left = Math.min(bounds.left, left)
++    bounds.top = Math.min(bounds.top, top)
++    bounds.right = Math.max(bounds.right, right)
++    bounds.bottom = Math.max(bounds.bottom, bottom)
++  }
++  // Shared paths span many observations. Protect each selected observation
++  // locally rather than excluding the entire series' bounding rectangle.
++  for (const point of selected)
++    include(point.x - 4, point.y - 4, point.x + 4, point.y + 4)
++  const matches = (point: ChartPoint) =>
++    selected.some(
++      (candidate) =>
++        candidate === point ||
++        (candidate.key === point.key &&
++          candidate.markId === point.markId &&
++          candidate.datumIndex === point.datumIndex),
++    )
++  for (const target of interactionIndex(scene).targets) {
++    const interaction = target.node.interaction
++    const owned = interaction.point ? [interaction.point] : interaction.points
++    if (!owned.some(matches)) continue
++    if (
++      target.node.kind !== 'dot' &&
++      target.node.kind !== 'rect' &&
++      owned.length > 1
++    )
++      continue
++    const rectangle = target.bounds
++    include(
++      rectangle.x,
++      rectangle.y,
++      rectangle.x + rectangle.width,
++      rectangle.y + rectangle.height,
++    )
++  }
++  return bounds
++}
+ 
+ /** Legacy point-anchor lookup used by explicit point-only indexes. */
+ export function nearestPoint<
+--- a/charts-core/src/polar.ts
++++ b/charts-core/src/polar.ts
+@@ -1229,7 +1229,7 @@
+             const group = groups[firstIndex] ?? null
+             const stroke = visualValue(
+               options.stroke,
+-              data[firstIndex],
++              data[firstIndex]!,
+               firstIndex,
+               data,
+               resolveColor(colorValues[firstIndex] ?? null),
+@@ -1285,7 +1285,7 @@
+                   markId: id,
+                   group,
+                   groupLabel: group == null ? id : String(group),
+-                  datum: data[row.datumIndex],
++                  datum: data[row.datumIndex]!,
+                   datumIndex: row.datumIndex,
+                   xValue: row.angleValue,
+                   yValue: row.radiusValue,
+@@ -1464,7 +1464,7 @@
+           for (const [groupKey, indices] of groupIndices(groups)) {
+             const firstIndex = indices[0]
+             if (firstIndex === undefined) continue
+-            const datum = data[firstIndex]
++            const datum = data[firstIndex]!
+             const group = groups[firstIndex] ?? null
+             const fallback = resolveColor(colorValues[firstIndex] ?? null)
+             const fill = visualValue(
+@@ -1534,7 +1534,7 @@
+                     markId: id,
+                     group,
+                     groupLabel: group == null ? id : String(group),
+-                    datum: data[row.datumIndex],
++                    datum: data[row.datumIndex]!,
+                     datumIndex: row.datumIndex,
+                     xValue: row.angleValue,
+                     yValue: row.radiusValue,
+--- a/charts-core/src/reconcile.ts
++++ b/charts-core/src/reconcile.ts
+@@ -122,7 +122,7 @@
+       continue
+     }
+     const nextChild = nextNode as Element
+-    const identity = nextIdentities[index++]
++    const identity = nextIdentities[index++]!
+     const matched = currentByIdentity.get(identity)
+     let rendered: Element
+ 
+@@ -284,8 +284,8 @@
+   return (progress) => {
+     let index = 0
+     return template.replaceAll(/[#!]/g, (placeholder) => {
+-      const start = previousNumbers.values[index]
+-      const end = nextNumbers.values[index]
++      const start = previousNumbers.values[index]!
++      const end = nextNumbers.values[index]!
+       index += 1
+       return formatNumber(
+         placeholder === '!' ? end : start + (end - start) * progress,
+@@ -333,7 +333,7 @@
+ function indexChildren(children: readonly Element[]) {
+   const result = new Map<string, Element>()
+   identities(children).forEach((identity, index) => {
+-    result.set(identity, children[index])
++    result.set(identity, children[index]!)
+   })
+   return result
+ }
+--- a/charts-core/src/rect.ts
++++ b/charts-core/src/rect.ts
+@@ -18,7 +18,6 @@
+   CartesianChartMark,
+   CartesianScaleBindings,
+   ChartKey,
+-  ChartMark,
+   ChartMarkMotionOptions,
+   ChartMarkState,
+   ChartRectStateStyle,
+--- a/charts-core/src/tooltip-placement.ts
++++ b/charts-core/src/tooltip-placement.ts
+@@ -19,6 +19,32 @@
+   'left',
+ ]
+ 
++export interface TooltipPlacementResult {
++  left: number
++  top: number
++  placement: ChartTooltipPlacement
++  maxWidth: number
++  maxHeight: number
++}
++
++type PlacementInput =
++  'auto' | ChartTooltipPlacement | readonly ChartTooltipPlacement[] | undefined
++
++export function resolveChartTooltipPlacement(
++  anchor: ChartTooltipPosition,
++  tooltip: TooltipSize,
++  boundary: TooltipBounds,
++  placement: PlacementInput,
++  offset: number | undefined,
++): TooltipPlacementResult
++export function resolveChartTooltipPlacement(
++  anchor: ChartTooltipPosition,
++  tooltip: TooltipSize,
++  boundary: TooltipBounds,
++  placement: PlacementInput,
++  offset: number | undefined,
++  avoid: TooltipBounds | undefined,
++): TooltipPlacementResult | null
+ /** Resolves host-local tooltip placement without reading the DOM. */
+ export function resolveChartTooltipPlacement(
+   anchor: ChartTooltipPosition,
+@@ -30,10 +56,21 @@
+     | readonly ChartTooltipPlacement[]
+     | undefined,
+   offset: number | undefined,
+-) {
++  avoid?: TooltipBounds,
++): TooltipPlacementResult | null {
+   const edge = 8
+   const gap =
+     offset !== undefined && Number.isFinite(offset) ? Math.max(0, offset) : 10
++  if (avoid)
++    return placeOutsideBounds(
++      anchor,
++      tooltip,
++      boundary,
++      placement,
++      gap,
++      avoid,
++      edge,
++    )
+   const minimumLeft = boundary.left + edge
+   const minimumTop = boundary.top + edge
+   const maxLeft = Math.max(minimumLeft, boundary.right - edge - tooltip.width)
+@@ -85,7 +122,106 @@
+     left: clamp(selected.left, minimumLeft, maxLeft),
+     top: clamp(selected.top, minimumTop, maxTop),
+     placement: selected.placement,
+-  }
++    maxWidth: Math.max(0, boundary.right - boundary.left - edge * 2),
++    maxHeight: Math.max(0, boundary.bottom - boundary.top - edge * 2),
++  }
++}
++
++function placeOutsideBounds(
++  anchor: ChartTooltipPosition,
++  tooltip: TooltipSize,
++  boundary: TooltipBounds,
++  placement: PlacementInput,
++  gap: number,
++  avoid: TooltipBounds,
++  edge: number,
++): TooltipPlacementResult | null {
++  if (
++    ![
++      anchor.x,
++      anchor.y,
++      tooltip.width,
++      tooltip.height,
++      ...Object.values(boundary),
++      ...Object.values(avoid),
++    ].every(Number.isFinite) ||
++    tooltip.width < 0 ||
++    tooltip.height < 0
++  )
++    return null
++  const inner = {
++    left: boundary.left + edge,
++    top: boundary.top + edge,
++    right: boundary.right - edge,
++    bottom: boundary.bottom - edge,
++  }
++  if (inner.right <= inner.left || inner.bottom <= inner.top) return null
++  const excluded = {
++    left: Math.min(avoid.left, avoid.right),
++    top: Math.min(avoid.top, avoid.bottom),
++    right: Math.max(avoid.left, avoid.right),
++    bottom: Math.max(avoid.top, avoid.bottom),
++  }
++  const preferred =
++    placement === undefined || placement === 'auto'
++      ? defaultPlacements
++      : Array.isArray(placement)
++        ? placement
++        : [placement as ChartTooltipPlacement]
++  const placements = [...new Set([...preferred, ...defaultPlacements])]
++  const candidates = placements.flatMap((side) => {
++    const region = { ...inner }
++    if (side.startsWith('top'))
++      region.bottom = Math.min(region.bottom, excluded.top - gap)
++    if (side.startsWith('bottom'))
++      region.top = Math.max(region.top, excluded.bottom + gap)
++    if (side.endsWith('left'))
++      region.right = Math.min(region.right, excluded.left - gap)
++    if (side.endsWith('right'))
++      region.left = Math.max(region.left, excluded.right + gap)
++    const width = region.right - region.left
++    const height = region.bottom - region.top
++    return width > 0 && height > 0 ? [{ side, region, width, height }] : []
++  })
++  const full = candidates.find(
++    (candidate) =>
++      tooltip.width <= candidate.width && tooltip.height <= candidate.height,
++  )
++  const selected =
++    full ??
++    candidates.reduce<(typeof candidates)[number] | undefined>(
++      (best, candidate) => {
++        // Prefer the region that can show the largest portion of this card.
++        const area = (region: (typeof candidates)[number]) =>
++          Math.min(tooltip.width, region.width) *
++          Math.min(tooltip.height, region.height)
++        return !best || area(candidate) > area(best) ? candidate : best
++      },
++      undefined,
++    )
++  if (!selected) return null
++  const { side, region, width, height } = selected
++  const fittedWidth = Math.min(tooltip.width, width)
++  const fittedHeight = Math.min(tooltip.height, height)
++  const left = side.endsWith('right')
++    ? region.left
++    : side.endsWith('left')
++      ? region.right - fittedWidth
++      : clamp(
++          anchor.x - fittedWidth / 2,
++          region.left,
++          region.right - fittedWidth,
++        )
++  const top = side.startsWith('bottom')
++    ? region.top
++    : side.startsWith('top')
++      ? region.bottom - fittedHeight
++      : clamp(
++          anchor.y - fittedHeight / 2,
++          region.top,
++          region.bottom - fittedHeight,
++        )
++  return { left, top, placement: side, maxWidth: width, maxHeight: height }
+ }
+ 
+ function tooltipPlacement(
+--- a/charts-core/src/tooltip-portal.ts
++++ b/charts-core/src/tooltip-portal.ts
+@@ -107,7 +107,7 @@
+       right: 'auto',
+       bottom: 'auto',
+       margin: '0',
+-      overflow: 'visible',
++      overflow: 'auto',
+     })
+   }
+ 
+@@ -136,15 +136,36 @@
+       popoverFailed = true
+       moveToFallback()
+     }
+-    placeTooltip(
++    const avoidStart =
++      next.avoid &&
++      sceneToClient(next.surface.element, next.scene.width, next.scene.height, {
++        x: next.avoid.left,
++        y: next.avoid.top,
++      })
++    const avoidEnd =
++      next.avoid &&
++      sceneToClient(next.surface.element, next.scene.width, next.scene.height, {
++        x: next.avoid.right,
++        y: next.avoid.bottom,
++      })
++    const visible = placeTooltip(
+       element,
+       anchor.x,
+       anchor.y,
+       boundary,
+       next.placement,
+       next.offset,
++      avoidStart && avoidEnd
++        ? {
++            left: avoidStart.x,
++            top: avoidStart.y,
++            right: avoidEnd.x,
++            bottom: avoidEnd.y,
++          }
++        : undefined,
+     )
+-    return true
++    if (!visible) hide(false)
++    return visible
+   }
+ 
+   function moveToFallback() {
+@@ -153,7 +174,7 @@
+     element.removeAttribute('popover')
+     element.dataset.tsChartTooltipPortal = 'fallback'
+     element.style.zIndex = '2147483647'
+-    const parent = document.body ?? document.documentElement
++    const parent = options.mount ?? document.body ?? document.documentElement
+     if (element.parentNode !== parent) parent.append(element)
+   }
+ 
+--- a/charts-core/src/tooltip-position.ts
++++ b/charts-core/src/tooltip-position.ts
+@@ -21,19 +21,31 @@
+     | readonly ChartTooltipPlacement[]
+     | undefined,
+   offset: number | undefined,
++  avoid?: TooltipBounds,
+ ) {
+-  const width = tooltip.offsetWidth
+-  const height = tooltip.offsetHeight
+-  const resolved = resolveChartTooltipPlacement(
+-    { x: anchorX, y: anchorY },
+-    { width, height },
+-    boundary,
+-    placement,
+-    offset,
+-  )
+-  tooltip.style.left = `${resolved.left}px`
+-  tooltip.style.top = `${resolved.top}px`
+-  tooltip.dataset.placement = resolved.placement
++  // Reflow long custom content into an available side instead of clamping it over data.
++  tooltip.style.maxWidth =
++    'var(--ts-chart-tooltip-max-width, min(24rem, calc(100vw - 16px)))'
++  tooltip.style.maxHeight = `${Math.max(0, boundary.bottom - boundary.top - 16)}px`
++  let preferred = placement
++  for (let pass = 0; pass < 3; pass++) {
++    const resolved = resolveChartTooltipPlacement(
++      { x: anchorX, y: anchorY },
++      { width: tooltip.offsetWidth, height: tooltip.offsetHeight },
++      boundary,
++      preferred,
++      offset,
++      avoid,
++    )
++    if (!resolved) return false
++    tooltip.style.maxWidth = `min(var(--ts-chart-tooltip-max-width, 24rem), ${resolved.maxWidth}px)`
++    tooltip.style.maxHeight = `${resolved.maxHeight}px`
++    tooltip.style.left = `${resolved.left}px`
++    tooltip.style.top = `${resolved.top}px`
++    tooltip.dataset.placement = resolved.placement
++    preferred = resolved.placement
++  }
++  return true
+ }
+ 
+ export function sceneToClient(
+--- a/charts-core/src/tooltip.ts
++++ b/charts-core/src/tooltip.ts
+@@ -1,4 +1,5 @@
+ import { placeTooltip } from './tooltip-position'
++import { resolveChartTooltipBounds } from './nearest'
+ import {
+   createChartTooltipContent,
+   orderChartTooltipPoints,
+@@ -14,12 +15,8 @@
+ } from './dom-types'
+ import type {
+   ChartPoint,
+-  ChartFocusState,
+   ChartScene,
+-  ChartTooltipChannelItem,
+   ChartTooltipContent,
+-  ChartTooltipContentContext,
+-  ChartTooltipItem,
+   ChartTooltipOptions,
+   ChartTooltipPortalOptions,
+   ChartValue,
+@@ -42,13 +39,10 @@
+ export type {
+   ChartTooltipAnchor,
+   ChartTooltipAnchorContext,
+-  ChartTooltipChannelItem,
+   ChartTooltipContent,
+-  ChartTooltipContentContext,
+   ChartTooltipDatumItem,
+   ChartTooltipDerivedItem,
+   ChartTooltipInput,
+-  ChartTooltipItem,
+   ChartTooltipItemBase,
+   ChartTooltipOptions,
+   ChartTooltipPlacement,
+@@ -70,7 +64,6 @@
+   let activeBodyChange:
+     ReturnType<typeof extensionContext.bodyChange> | undefined
+   let bodyVisible = false
+-  let customBody = false
+   let bodyScene: ChartScene<TDatum, TXValue, TYValue> | undefined
+   let bodyPoints: readonly ChartPoint<TDatum, TXValue, TYValue>[] = []
+   let bodyPinned = false
+@@ -127,13 +120,6 @@
+       resolvedContent,
+       nextContext.pinned,
+     )
+-    if (custom !== customBody) {
+-      Object.assign(
+-        tooltipElement.style,
+-        custom ? customTooltipCardStyle : tooltipCardStyle,
+-      )
+-      customBody = custom
+-    }
+     if (!custom) {
+       if (typeof resolvedContent === 'string') {
+         paintPlainTooltip(tooltipElement, resolvedContent)
+@@ -198,18 +184,24 @@
+ 
+   function position() {
+     if (!paintContext || !element || !anchor) return
++    const avoid = resolveChartTooltipBounds(
++      paintContext.scene,
++      paintContext.points,
++      anchor,
++    )
+     if (portalInstance) {
+       const visible = portalInstance.position({
+         scene: paintContext.scene,
+         surface: paintContext.surface,
+         anchor,
++        avoid,
+         placement: options.placement,
+         offset: options.offset,
+       })
+       if (!visible) element.setAttribute('hidden', '')
+       return
+     }
+-    placeTooltip(
++    const visible = placeTooltip(
+       element,
+       anchor.x,
+       anchor.y,
+@@ -221,7 +213,9 @@
+       },
+       options.placement,
+       options.offset,
+-    )
++      avoid,
++    )
++    element.hidden = !visible
+   }
+ 
+   function syncPortal() {
+@@ -388,19 +382,11 @@
+   )
+ }
+ 
+-const customTooltipCardStyle = {
+-  maxWidth: 'none',
+-  padding: '0',
+-  border: 'none',
+-  borderRadius: '0',
+-  background: 'transparent',
+-  color: 'inherit',
+-  boxShadow: 'none',
+-  font: 'inherit',
+-}
+-
+ const tooltipCardStyle = {
+-  maxWidth: 'var(--ts-chart-tooltip-max-width, min(24rem, 80%))',
++  boxSizing: 'border-box',
++  maxWidth: 'var(--ts-chart-tooltip-max-width, min(24rem, calc(100vw - 16px)))',
++  maxHeight: 'calc(100dvh - 16px)',
++  overflow: 'auto',
+   padding: 'var(--ts-chart-tooltip-padding, 0.4rem 0.55rem)',
+   border:
+     'var(--ts-chart-tooltip-border, 1px solid color-mix(in srgb, CanvasText 18%, transparent))',
+@@ -425,265 +411,6 @@
+   })
+   tooltipElement.hidden = true
+   return tooltipElement
+-}
+-
+-function createTooltipContentContext(
+-  scene: ChartScene,
+-  pinned: boolean,
+-  options?: ChartTooltipOptions<any, any, any>,
+-): ChartTooltipContentContext {
+-  const x = findTooltipChannelItem(options?.items, 'x')
+-  const y = findTooltipChannelItem(options?.items, 'y')
+-  return {
+-    pinned,
+-    xLabel: x?.label ?? findSceneLabel(scene, 'x-label') ?? 'x',
+-    yLabel: y?.label ?? findSceneLabel(scene, 'y-label') ?? 'y',
+-    formatX: formatValue,
+-    formatY: formatValue,
+-  }
+-}
+-
+-function defaultTooltipContent(
+-  points: readonly ChartPoint[],
+-  scene: ChartScene,
+-  options: ChartTooltipOptions<any, any, any> | undefined,
+-  context: ChartTooltipContentContext,
+-): ChartTooltipContent {
+-  const point = points[0]
+-  if (!point) return { rows: [] }
+-  const x = findTooltipChannelItem(options?.items, 'x')
+-  const y = findTooltipChannelItem(options?.items, 'y')
+-  const group = findTooltipChannelItem(options?.items, 'group')
+-  const sharedX =
+-    points.length > 1 &&
+-    points.every((candidate) => chartValueEqual(candidate.xValue, point.xValue))
+-  const sharedY =
+-    points.length > 1 &&
+-    points.every((candidate) => chartValueEqual(candidate.yValue, point.yValue))
+-
+-  if (sharedX || sharedY) {
+-    const axis = sharedX ? 'x' : 'y'
+-    const axisItem = sharedX ? x : y
+-    const label = axisItem?.label ?? findSceneLabel(scene, `${axis}-label`)
+-    const value = formatPointAxis(point, axis, axisItem, context)
+-    return {
+-      title: label ? `${label}: ${value}` : value,
+-      rows: points.map((candidate) => ({
+-        label: formatTooltipGroup(candidate, group, context),
+-        value: formatPointAxis(
+-          candidate,
+-          sharedX ? 'y' : 'x',
+-          sharedX ? y : x,
+-          context,
+-        ),
+-        color: candidate.color,
+-      })),
+-    }
+-  }
+-
+-  if (points.length > 1) {
+-    return {
+-      rows: points.map((candidate) => ({
+-        label: formatTooltipGroup(candidate, group, context),
+-        value: `${formatPointAxis(candidate, 'x', x, context)} · ${formatPointAxis(candidate, 'y', y, context)}`,
+-        color: candidate.color,
+-      })),
+-    }
+-  }
+-
+-  const items = options?.items
+-  return {
+-    title:
+-      point.group == null || items?.some(isTooltipGroupItem)
+-        ? undefined
+-        : formatTooltipGroup(point, group, context),
+-    color:
+-      point.group == null || items?.some(isTooltipGroupItem)
+-        ? undefined
+-        : point.color,
+-    rows: items
+-      ? tooltipItemRows(point, items, context)
+-      : [
+-          {
+-            label: context.xLabel,
+-            value: formatPointAxis(point, 'x', x, context),
+-          },
+-          {
+-            label: context.yLabel,
+-            value: formatPointAxis(point, 'y', y, context),
+-          },
+-        ],
+-  }
+-}
+-
+-function orderTooltipPoints<
+-  TDatum,
+-  TXValue extends ChartValue,
+-  TYValue extends ChartValue,
+->(
+-  points: readonly ChartPoint<TDatum, TXValue, TYValue>[],
+-  scene: ChartScene<TDatum, TXValue, TYValue>,
+-  sort: ChartTooltipOptions<TDatum, TXValue, TYValue>['sort'],
+-) {
+-  if (sort === 'focus') return [...points]
+-  if (typeof sort === 'function') return [...points].sort(sort)
+-  if (sort !== 'color-domain') {
+-    const first = points[0]
+-    const sharedX =
+-      first !== undefined &&
+-      points.every((point) => chartValueEqual(point.xValue, first.xValue))
+-    const sharedY =
+-      first !== undefined &&
+-      points.every((point) => chartValueEqual(point.yValue, first.yValue))
+-    return [...points].sort((left, right) =>
+-      sharedY && !sharedX
+-        ? left.x - right.x || left.y - right.y
+-        : left.y - right.y || left.x - right.x,
+-    )
+-  }
+-  return [...points].sort(
+-    (left, right) =>
+-      colorOrder(scene, left.group) - colorOrder(scene, right.group),
+-  )
+-}
+-
+-function colorOrder(scene: ChartScene, group: ChartPoint['group']) {
+-  const index = group == null ? -1 : scene.colors.domain.indexOf(group)
+-  return index < 0 ? Number.MAX_SAFE_INTEGER : index
+-}
+-
+-function tooltipItemRows(
+-  point: ChartPoint,
+-  items: readonly ChartTooltipItem<any, any, any>[],
+-  context: ChartTooltipContentContext,
+-) {
+-  return items.flatMap((item) => {
+-    if (typeof item === 'string') {
+-      if (item === 'group') {
+-        return [
+-          {
+-            label: 'Group',
+-            value: point.groupLabel,
+-            color: point.color,
+-          },
+-        ]
+-      }
+-      return [
+-        {
+-          label: item === 'x' ? context.xLabel : context.yLabel,
+-          value: formatPointAxis(point, item, undefined, context),
+-        },
+-      ]
+-    }
+-    if ('channel' in item) {
+-      const text = item.text?.(point, context)
+-      if (item.text && text == null) return []
+-      if (item.channel === 'group') {
+-        return [
+-          {
+-            label: item.label ?? 'Group',
+-            value: text ?? point.groupLabel,
+-            color: point.color,
+-          },
+-        ]
+-      }
+-      return [
+-        {
+-          label:
+-            item.label ??
+-            (item.channel === 'x' ? context.xLabel : context.yLabel),
+-          value:
+-            text ?? formatPointAxis(point, item.channel, undefined, context),
+-        },
+-      ]
+-    }
+-    if ('field' in item) {
+-      const value = (point.datum as Record<string, ChartValue | null>)[
+-        item.field
+-      ]
+-      if (value == null) return []
+-      const text = item.text?.(point, context)
+-      if (item.text && text == null) return []
+-      return [
+-        {
+-          label: item.label ?? item.field,
+-          value: text ?? formatValue(value),
+-        },
+-      ]
+-    }
+-    const value = item.text(point, context)
+-    return value == null ? [] : [{ label: item.label ?? item.id, value }]
+-  })
+-}
+-
+-function findTooltipChannelItem(
+-  items: readonly ChartTooltipItem<any, any, any>[] | undefined,
+-  channel: 'x' | 'y' | 'group',
+-): ChartTooltipChannelItem<any, any, any> | undefined {
+-  const item = items?.find(
+-    (candidate) => tooltipItemChannel(candidate) === channel,
+-  )
+-  return typeof item === 'object' && 'channel' in item
+-    ? (item as ChartTooltipChannelItem<any, any, any>)
+-    : undefined
+-}
+-
+-function tooltipItemChannel(item: ChartTooltipItem<any, any, any>) {
+-  return typeof item === 'string'
+-    ? item
+-    : 'channel' in item
+-      ? item.channel
+-      : undefined
+-}
+-
+-function isTooltipGroupItem(item: ChartTooltipItem<any, any, any>) {
+-  return tooltipItemChannel(item) === 'group'
+-}
+-
+-function formatTooltipGroup(
+-  point: ChartPoint,
+-  item: ChartTooltipChannelItem<any, any, any> | undefined,
+-  context: ChartTooltipContentContext,
+-) {
+-  return item?.text?.(point, context) ?? point.groupLabel
+-}
+-
+-function formatPointAxis(
+-  point: ChartPoint,
+-  axis: 'x' | 'y',
+-  item: ChartTooltipChannelItem<any, any, any> | undefined,
+-  context: ChartTooltipContentContext,
+-) {
+-  const itemText = item?.text?.(point, context)
+-  if (itemText != null) return itemText
+-  const start = axis === 'x' ? point.x1Value : point.y1Value
+-  const end = axis === 'x' ? point.x2Value : point.y2Value
+-  const interval = axis === 'x' ? point.xInterval : point.yInterval
+-  if (
+-    interval === 'difference' &&
+-    typeof start === 'number' &&
+-    typeof end === 'number'
+-  ) {
+-    return formatValue(end - start)
+-  }
+-  if (
+-    interval === 'range' &&
+-    start !== undefined &&
+-    end !== undefined &&
+-    !chartValueEqual(start, end)
+-  ) {
+-    return `${formatValue(start)}–${formatValue(end)}`
+-  }
+-  return formatValue(axis === 'x' ? point.xValue : point.yValue)
+-}
+-
+-function findSceneLabel(scene: ChartScene, key: string) {
+-  const axes = scene.nodes.find(
+-    (node) => node.kind === 'group' && node.key === 'axes',
+-  )
+-  if (axes?.kind !== 'group') return undefined
+-  const label = axes.children.find((node) => node.key === key)
+-  return label?.kind === 'label' ? label.text : undefined
+ }
+ 
+ function paintPlainTooltip(tooltipElement: HTMLElement, text: string) {
+@@ -791,125 +518,3 @@
+   swatch.style.background = color
+   return swatch
+ }
+-
+-function formatValue(value: ChartValue) {
+-  return value instanceof Date
+-    ? Number.isNaN(+value)
+-      ? 'Invalid Date'
+-      : value.toISOString().replace('T00:00:00.000Z', '')
+-    : typeof value === 'number'
+-      ? value.toLocaleString()
+-      : String(value)
+-}
+-
+-function resolveTooltipAnchor(
+-  point: ChartPoint,
+-  points: readonly ChartPoint[],
+-  scene: ChartScene,
+-  pointer: { x: number; y: number } | null,
+-  options?: ChartTooltipOptions<any, any, any>,
+-  focus: ChartFocusState = {
+-    primary: point,
+-    group: points,
+-    source: 'programmatic' as const,
+-    pinned: false,
+-  },
+-): { x: number; y: number } {
+-  const fallback = { x: point.x, y: point.y }
+-  const anchor = options?.anchor ?? 'point'
+-  if (anchor === 'point') return fallback
+-  if (anchor === 'pointer') return pointer ?? fallback
+-  if (anchor === 'group-center') {
+-    let x1 = point.x
+-    let x2 = point.x
+-    let y1 = point.y
+-    let y2 = point.y
+-    for (const candidate of points) {
+-      x1 = Math.min(x1, candidate.x)
+-      x2 = Math.max(x2, candidate.x)
+-      y1 = Math.min(y1, candidate.y)
+-      y2 = Math.max(y2, candidate.y)
+-    }
+-    return { x: (x1 + x2) / 2, y: (y1 + y2) / 2 }
+-  }
+-  if (typeof anchor === 'object') {
+-    return {
+-      x: resolveTooltipCoordinate(
+-        'x',
+-        anchor.x,
+-        point,
+-        points,
+-        scene,
+-        pointer,
+-        fallback.x,
+-      ),
+-      y: resolveTooltipCoordinate(
+-        'y',
+-        anchor.y,
+-        point,
+-        points,
+-        scene,
+-        pointer,
+-        fallback.y,
+-      ),
+-    }
+-  }
+-  const resolved = anchor(points, {
+-    focus,
+-    pointer,
+-    plot: scene.chart,
+-    surface: { width: scene.width, height: scene.height },
+-    scales: scene.scales,
+-  })
+-  return resolved && Number.isFinite(resolved.x) && Number.isFinite(resolved.y)
+-    ? resolved
+-    : fallback
+-}
+-
+-function resolveTooltipCoordinate(
+-  axis: 'x' | 'y',
+-  source: string,
+-  point: ChartPoint,
+-  points: readonly ChartPoint[],
+-  scene: ChartScene,
+-  pointer: { x: number; y: number } | null,
+-  fallback: number,
+-): number {
+-  if (source === 'point') return axis === 'x' ? point.x : point.y
+-  if (source === 'pointer') return pointer?.[axis] ?? fallback
+-  if (source === 'value') {
+-    const value = axis === 'x' ? point.xValue : point.yValue
+-    const scale = scene.scales[axis]
+-    const position = (scale?.viewport?.map ?? scale?.map)?.(value)
+-    return position !== undefined && Number.isFinite(position)
+-      ? position
+-      : fallback
+-  }
+-  if (source === 'group-center') {
+-    let minimum = axis === 'x' ? point.x : point.y
+-    let maximum = minimum
+-    for (const candidate of points) {
+-      const position = axis === 'x' ? candidate.x : candidate.y
+-      minimum = Math.min(minimum, position)
+-      maximum = Math.max(maximum, position)
+-    }
+-    return (minimum + maximum) / 2
+-  }
+-  const plot = scene.chart
+-  if (axis === 'x') {
+-    if (source === 'plot-left') return plot.x
+-    if (source === 'plot-center') return plot.x + plot.width / 2
+-    if (source === 'plot-right') return plot.x + plot.width
+-  } else {
+-    if (source === 'plot-top') return plot.y
+-    if (source === 'plot-center') return plot.y + plot.height / 2
+-    if (source === 'plot-bottom') return plot.y + plot.height
+-  }
+-  return fallback
+-}
+-
+-function chartValueEqual(left: ChartValue, right: ChartValue) {
+-  return left instanceof Date && right instanceof Date
+-    ? left.getTime() === right.getTime()
+-    : left === right
+-}
+--- a/charts-core/src/transform-internal.ts
++++ b/charts-core/src/transform-internal.ts
+@@ -103,8 +103,8 @@
+   const values = transformValues(data, orderBy)
+   const direction = order === 'descending' ? -1 : 1
+   return [...indexes].sort((left, right) => {
+-    const a = values[left]
+-    const b = values[right]
++    const a = values[left]!
++    const b = values[right]!
+     const compared = compareChartValues(a, b)
+     return compared === 0 ? left - right : compared * direction
+   })
+--- a/charts-core/src/transform-select.ts
++++ b/charts-core/src/transform-select.ts
+@@ -14,7 +14,7 @@
+   group: Readonly<Record<string, unknown>>
+ }
+ 
+-interface SelectOptionsBase<TDatum, TBy> {
++interface SelectOptionsBase<_TDatum, TBy> {
+   by?: TBy
+ }
+ 
+--- a/charts-core/src/types.ts
++++ b/charts-core/src/types.ts
+@@ -1244,9 +1244,9 @@
+ >
+ 
+ interface InitializedMarkBase<
+-  TDatum = unknown,
+-  TXValue extends ChartValue = ChartValue,
+-  TYValue extends ChartValue = ChartValue,
++  _TDatum = unknown,
++  _TXValue extends ChartValue = ChartValue,
++  _TYValue extends ChartValue = ChartValue,
+ > {
+   id: string
+   channels: Readonly<Record<string, MaterializedChannel>>
+@@ -1708,7 +1708,10 @@
+   ChartTooltipOptions<TDatum, TXValue, TYValue>
+ >
+ 
+-export type ChartTooltipPortalOptions = Record<never, never>
++export interface ChartTooltipPortalOptions {
++  /** Optional owned fallback mount that preserves the surrounding UI scope. */
++  mount?: HTMLElement
++}
+ 
+ export interface ChartTooltipPortalExtensionToken {
+   readonly id: string
+@@ -1872,7 +1875,7 @@
+ }
+ 
+ export interface ChartFocusCursorBinding<
+-  TDatum = unknown,
++  _TDatum = unknown,
+   TXValue extends ChartValue = ChartValue,
+   TYValue extends ChartValue = ChartValue,
+ > {

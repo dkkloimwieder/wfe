@@ -40,14 +40,14 @@ void scaleUtc
 void description
 void bindings
 
-// @ts-expect-error Numeric axes cannot read text fields.
 const textAsNumber: ChartDescription<Row>['x'] = {
   field: 'label',
+  // @ts-expect-error Numeric axes cannot read text fields.
   scale: 'linear',
 }
-// @ts-expect-error UTC axes require Date fields.
 const numberAsDate: ChartDescription<Row>['x'] = {
   field: 'count',
+  // @ts-expect-error UTC axes require Date fields.
   scale: 'utc',
 }
 // @ts-expect-error Numeric y values cannot read Date fields.
@@ -55,10 +55,10 @@ const dateAsValue: ChartDescription<Row>['y'] = { field: 'at' }
 // @ts-expect-error Record identity cannot come from a Date field.
 const dateKey: ChartDescription<Row>['key'] = 'at'
 // @ts-expect-error Unsupported generated chart kind.
-const pie: ChartDescription<Row>['kind'] = 'pie'
+const unsupported: ChartDescription<Row>['kind'] = 'radar'
 // @ts-expect-error Local-time generation requires an explicit future contract.
 const local: ChartDescription<Row>['x'] = { field: 'at', scale: 'time' }
-void [textAsNumber, numberAsDate, dateAsValue, dateKey, pie, local]
+void [textAsNumber, numberAsDate, dateAsValue, dateKey, unsupported, local]
 
 type BarAxis = Extract<ChartDescription<Row>, { kind: 'bar' }>['x']
 // @ts-expect-error Generated bar charts require a band scale.
@@ -98,4 +98,46 @@ void [
   missingFormatter,
   misspelledFormatter,
   broadLegacyBindings,
+]
+
+const layeredDescription = {
+  id: 'layered',
+  kind: 'layers',
+  ariaLabel: 'Layered records',
+  x: { field: 'at', scale: 'utc' },
+  y: { formatter: 'axis' },
+  layers: [
+    { id: 'line', kind: 'line', y: { field: 'count', formatter: 'layer' } },
+  ],
+} as const satisfies ChartDescription<Row>
+const layeredBindings: ChartViewBindings<Row, typeof layeredDescription> = {
+  rows: () => rows,
+  formatters: { axis: String, layer: String },
+}
+const incompleteLayers: ChartViewBindings<Row, typeof layeredDescription> = {
+  rows: () => rows,
+  // @ts-expect-error Every layer formatter is required.
+  formatters: { axis: String },
+}
+const pieDescription = {
+  id: 'pie',
+  kind: 'pie',
+  ariaLabel: 'Composition',
+  value: { field: 'count', formatter: 'slice' },
+} as const satisfies ChartDescription<Row>
+const pieBindings: ChartViewBindings<Row, typeof pieDescription> = {
+  rows: () => rows,
+  formatters: { slice: String },
+}
+const badPie: Extract<ChartDescription<Row>, { kind: 'pie' }>['value'] = {
+  // @ts-expect-error Pie values require numeric fields.
+  field: 'label',
+}
+void [
+  layeredDescription,
+  pieDescription,
+  layeredBindings,
+  incompleteLayers,
+  pieBindings,
+  badPie,
 ]

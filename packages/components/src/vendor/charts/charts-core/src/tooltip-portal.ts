@@ -107,6 +107,7 @@ function createPortal(
       right: 'auto',
       bottom: 'auto',
       margin: '0',
+      overflow: 'auto',
     })
   }
 
@@ -135,15 +136,36 @@ function createPortal(
       popoverFailed = true
       moveToFallback()
     }
-    placeTooltip(
+    const avoidStart =
+      next.avoid &&
+      sceneToClient(next.surface.element, next.scene.width, next.scene.height, {
+        x: next.avoid.left,
+        y: next.avoid.top,
+      })
+    const avoidEnd =
+      next.avoid &&
+      sceneToClient(next.surface.element, next.scene.width, next.scene.height, {
+        x: next.avoid.right,
+        y: next.avoid.bottom,
+      })
+    const visible = placeTooltip(
       element,
       anchor.x,
       anchor.y,
       boundary,
       next.placement,
       next.offset,
+      avoidStart && avoidEnd
+        ? {
+            left: avoidStart.x,
+            top: avoidStart.y,
+            right: avoidEnd.x,
+            bottom: avoidEnd.y,
+          }
+        : undefined,
     )
-    return true
+    if (!visible) hide(false)
+    return visible
   }
 
   function moveToFallback() {

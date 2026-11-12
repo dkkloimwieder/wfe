@@ -1,3 +1,6 @@
+import { FinancialCharts } from '../shared/charts/Financial'
+import { Statistics } from '../shared/charts/Statistics'
+import { ChartDescriptions } from '../shared/charts/DescriptionExample'
 import { Theme } from '@wfe/components/theme'
 import { createMemo, createSignal, Show, untrack } from 'solid-js'
 import { Button, Input, Card, EmptyState, InlineAlert } from '@wfe/components'
@@ -29,6 +32,9 @@ import type { Depth, SurfaceLayers } from '../shared/appearance/appearance'
 import '@wfe/components/styles.css'
 import '../shared/appearance/style.css'
 import './style.css'
+import { ChartGrammar } from '../shared/charts/Grammar'
+import { FocusContext } from '../shared/charts/FocusContext'
+import { TimeSeries } from '../shared/charts/TimeSeries'
 
 type Row = { id: string; x: number; y: number }
 type Context = Parameters<
@@ -222,6 +228,12 @@ export function App(props: {
         </section>
         <ForCharts revision={revision()} />
       </main>
+      <ChartGrammar />
+      <TimeSeries />
+      <FocusContext />
+      <FinancialCharts />
+      <Statistics />
+      <ChartDescriptions />
     </Theme>
   )
 }

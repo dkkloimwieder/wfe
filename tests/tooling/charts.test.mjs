@@ -12,7 +12,7 @@ const source = new URL(
   import.meta.url,
 )
 test('chart capture verifies imports, file closure and explicit local repairs', async () => {
-  assert.equal(await checkCharts(source), 74)
+  assert.equal(await checkCharts(source), 97)
   const temporary = await mkdtemp(join(tmpdir(), 'wfe-chart-integrity-'))
   const root = pathToFileURL(temporary + '/')
   try {

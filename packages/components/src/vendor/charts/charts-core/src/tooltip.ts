@@ -1,4 +1,5 @@
 import { placeTooltip } from './tooltip-position'
+import { resolveChartTooltipBounds } from './nearest'
 import {
   createChartTooltipContent,
   orderChartTooltipPoints,
@@ -63,7 +64,6 @@ function createTooltipExtension<
   let activeBodyChange:
     ReturnType<typeof extensionContext.bodyChange> | undefined
   let bodyVisible = false
-  let customBody = false
   let bodyScene: ChartScene<TDatum, TXValue, TYValue> | undefined
   let bodyPoints: readonly ChartPoint<TDatum, TXValue, TYValue>[] = []
   let bodyPinned = false
@@ -120,13 +120,6 @@ function createTooltipExtension<
       resolvedContent,
       nextContext.pinned,
     )
-    if (custom !== customBody) {
-      Object.assign(
-        tooltipElement.style,
-        custom ? customTooltipCardStyle : tooltipCardStyle,
-      )
-      customBody = custom
-    }
     if (!custom) {
       if (typeof resolvedContent === 'string') {
         paintPlainTooltip(tooltipElement, resolvedContent)
@@ -191,18 +184,24 @@ function createTooltipExtension<
 
   function position() {
     if (!paintContext || !element || !anchor) return
+    const avoid = resolveChartTooltipBounds(
+      paintContext.scene,
+      paintContext.points,
+      anchor,
+    )
     if (portalInstance) {
       const visible = portalInstance.position({
         scene: paintContext.scene,
         surface: paintContext.surface,
         anchor,
+        avoid,
         placement: options.placement,
         offset: options.offset,
       })
       if (!visible) element.setAttribute('hidden', '')
       return
     }
-    placeTooltip(
+    const visible = placeTooltip(
       element,
       anchor.x,
       anchor.y,
@@ -214,7 +213,9 @@ function createTooltipExtension<
       },
       options.placement,
       options.offset,
+      avoid,
     )
+    element.hidden = !visible
   }
 
   function syncPortal() {
@@ -381,19 +382,11 @@ function samePointList(
   )
 }
 
-const customTooltipCardStyle = {
-  maxWidth: 'none',
-  padding: '0',
-  border: 'none',
-  borderRadius: '0',
-  background: 'transparent',
-  color: 'inherit',
-  boxShadow: 'none',
-  font: 'inherit',
-}
-
 const tooltipCardStyle = {
-  maxWidth: 'var(--ts-chart-tooltip-max-width, min(24rem, 80%))',
+  boxSizing: 'border-box',
+  maxWidth: 'var(--ts-chart-tooltip-max-width, min(24rem, calc(100vw - 16px)))',
+  maxHeight: 'calc(100dvh - 16px)',
+  overflow: 'auto',
   padding: 'var(--ts-chart-tooltip-padding, 0.4rem 0.55rem)',
   border:
     'var(--ts-chart-tooltip-border, 1px solid color-mix(in srgb, CanvasText 18%, transparent))',
@@ -514,9 +507,6 @@ function configureTooltipSemantics(
   tooltipElement.setAttribute('role', 'status')
   tooltipElement.setAttribute('aria-live', 'polite')
   tooltipElement.removeAttribute('aria-modal')
-  if (!custom && typeof content === 'string') {
-    tooltipElement.removeAttribute('aria-label')
-  }
 }
 
 function createTooltipSwatch(document: Document, color: string) {

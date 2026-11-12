@@ -17,38 +17,71 @@ export type ChartAxisDescription<
   label?: string
   formatter?: string
 }>
+/** A record-backed Cartesian layer. Layer order is paint order. */
+export type ChartLayerDescription<Row extends object> = Readonly<{
+  id: string
+  kind: 'line' | 'area' | 'bar' | 'scatter'
+  y: ChartAxisDescription<Row, number>
+}>
+type ChartBaseDescription<Row extends object> = Readonly<{
+  id: string
+  title?: string
+  ariaLabel: string
+  key?: ChartField<Row, string | number>
+  height?: number
+  aspectRatio?: number
+  tooltip?: boolean
+}>
+type ChartXDescription<Row extends object> =
+  | (ChartAxisDescription<Row, number> & Readonly<{ scale: 'linear' }>)
+  | (ChartAxisDescription<Row, Date> & Readonly<{ scale: 'utc' }>)
+  | (ChartAxisDescription<Row> & Readonly<{ scale: 'band' | 'point' }>)
 export type ChartDescription<Row extends object = Record<string, unknown>> =
-  Readonly<{
-    id: string
-    title?: string
-    ariaLabel: string
-    key?: ChartField<Row, string | number>
-    y: ChartAxisDescription<Row, number> & Readonly<{ scale?: 'linear' }>
-    height?: number
-    aspectRatio?: number
-    tooltip?: boolean
-  }> &
+  ChartBaseDescription<Row> &
     (
+      | (Readonly<{
+          y: ChartAxisDescription<Row, number> & Readonly<{ scale?: 'linear' }>
+        }> &
+          (
+            | Readonly<{
+                kind: 'bar'
+                x: ChartAxisDescription<Row> & Readonly<{ scale: 'band' }>
+              }>
+            | Readonly<{
+                kind: 'line' | 'area' | 'scatter'
+                x: ChartXDescription<Row>
+              }>
+          ))
       | Readonly<{
-          kind: 'bar'
-          x: ChartAxisDescription<Row> & Readonly<{ scale: 'band' }>
+          kind: 'layers'
+          x: ChartXDescription<Row>
+          /** Shared linear axis; layer fields provide its domain. */
+          y: Readonly<{ label?: string; formatter?: string; scale?: 'linear' }>
+          layers: readonly ChartLayerDescription<Row>[]
         }>
       | Readonly<{
-          kind: 'line' | 'area' | 'scatter'
-          x:
-            | (ChartAxisDescription<Row, number> &
-                Readonly<{ scale: 'linear' }>)
-            | (ChartAxisDescription<Row, Date> & Readonly<{ scale: 'utc' }>)
-            | (ChartAxisDescription<Row> &
-                Readonly<{ scale: 'band' | 'point' }>)
+          kind: 'pie'
+          x?: never
+          y?: never
+          value: ChartAxisDescription<Row, number>
+          /** Inner radius as a fraction of the available radius (0..1). */
+          innerRadius?: number
         }>
     )
 type AxisFormatter<Axis> = Axis extends { formatter?: infer Name }
   ? Extract<Name, string>
   : never
-type FormatterNames<D> = D extends { x: infer X; y: infer Y }
-  ? AxisFormatter<X> | AxisFormatter<Y>
-  : never
+type FormatterNames<D> = D extends { kind: 'pie'; value: infer V }
+  ? AxisFormatter<V>
+  : D extends { x: infer X; y: infer Y }
+    ? | AxisFormatter<X>
+      | AxisFormatter<Y>
+      | (D extends { layers: readonly (infer L)[] }
+          ? L extends { y: infer Y }
+            ? AxisFormatter<Y>
+            : never
+          : never)
+    : never
 type Formatter = (value: ChartValue) => string
 type FormatterBindings<D> =
   string extends FormatterNames<D>

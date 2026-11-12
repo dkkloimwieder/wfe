@@ -1,0 +1,34 @@
+.chart-grammar {
+  display: grid;
+  gap: var(--ui-layout-inset, 12px);
+  min-inline-size: 0;
+  inline-size: 100%;
+}
+.chart-grammar-controls {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  min-inline-size: 0;
+}
+.chart-grammar-panel {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  min-inline-size: 0;
+  padding: var(--ui-layout-inset, 12px);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
+  background: var(--ui-surface);
+}
+.chart-grammar-panel h2,
+.chart-grammar-panel p {
+  margin: 0;
+}
+.chart-grammar-panel h2 {
+  font: inherit;
+  font-weight: 700;
+}
+.chart-grammar-panel table {
+  inline-size: 100%;
+  table-layout: fixed;
+}
+.chart-grammar-panel td {
+  overflow-wrap: anywhere;
+}

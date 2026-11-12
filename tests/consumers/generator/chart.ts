@@ -3,6 +3,7 @@
 import type {
   ChartAxisDescription,
   ChartDescription,
+  ChartLayerDescription,
   ChartView,
   ChartViewBindings,
 } from '@wfe/generator/chart'
@@ -12,6 +13,7 @@ export type ExportedTypes = Assert<
   AllTyped<{
     ChartAxisDescription: ChartAxisDescription<{ id: string; value: string }>
     ChartDescription: ChartDescription
+    ChartLayerDescription: ChartLayerDescription<{ id: string; value: string }>
     ChartView: typeof ChartView
     ChartViewBindings: ChartViewBindings<{ id: string; value: string }>
   }>

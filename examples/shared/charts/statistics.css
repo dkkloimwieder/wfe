@@ -1,0 +1,26 @@
+.chart-statistics {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--ui-layout-inset, 12px);
+  min-width: 0;
+}
+.chart-statistics-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-layout-inset, 12px);
+  align-items: center;
+}
+.chart-statistics-table {
+  max-width: 100%;
+  overflow: auto;
+}
+.chart-statistics .ui-toggle-group {
+  flex-wrap: wrap;
+}
+
+.chart-statistics > * {
+  min-inline-size: 0;
+}
+.chart-statistics .ui-collapsible-content {
+  min-inline-size: 0;
+}

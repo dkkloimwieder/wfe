@@ -2,6 +2,11 @@
 
 This gallery uses the public chart and generator exports.
 It shows line, area, bar, scatter, and generated bar charts.
+The shared grammar section adds layered uncertainty, rolling averages, annotations, histograms, grouped and normalized stacks, heatmaps, pie/donut charts, radar, and radial bars.
+Source tables provide an alternative to inspecting chart geometry.
+The component gallery loads the same recipes through its Charts category.
+The Time-series charts route adds ten operational views with UTC windows, controlled service legends, missing intervals, and pinned detail popups.
+Its details include service totals, shares, errors, latency percentiles, annotations, and original hourly records.
 The application owns records, series visibility, loading state, and all callbacks.
 The area plot demonstrates a UTC time series.
 The default tooltip contains data. Toggle the custom tooltip to test persistent controls and explicit dismissal.
@@ -44,3 +49,10 @@ The runner rejects browser errors and warnings. Host timing notices remain advis
 The standard qualification runner includes this matrix.
 `node scripts/check-chart-imports.mjs` tests source and built import boundaries.
 `pnpm test:contracts` also tests the chart declarations and documented examples.
+
+## Additional recipes
+
+The shared gallery includes financial comparisons, statistical distributions, linked time ranges, and generated chart descriptions.
+The standalone chart example renders the same components for source, package, and hydration tests.
+Applications own the data, accepted range changes, and source inspection.
+See [chart documentation](../../docs/charts.md) for the supported boundaries.

@@ -3,7 +3,7 @@
 }
 :where([data-ui]) .ui-chart-tooltip-body {
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-chart-tooltip-gap, 2px);
 }
 :where([data-ui]) .ui-chart-tooltip-title {
   font-weight: var(
@@ -91,4 +91,46 @@
   inline-size: 16px;
   block-size: 0;
   border-block-start: 2px solid var(--ui-chart-series-color);
+}
+
+/* One compact surface for both engine content and application content. */
+:where([data-ui]).ts-chart-tooltip,
+:where([data-ui]) .ts-chart-tooltip {
+  --ts-chart-tooltip-padding: var(--ui-chart-tooltip-padding, 4px 6px);
+  overscroll-behavior: contain;
+}
+:where([data-ui]).ts-chart-tooltip :is(p, h1, h2, h3, h4, dl, dd, ul, ol),
+:where([data-ui]) .ts-chart-tooltip :is(p, h1, h2, h3, h4, dl, dd, ul, ol) {
+  margin: 0;
+}
+[data-ui-chart-tooltip] .ts-chart-tooltip__body,
+[data-ui-chart-tooltip] .ts-chart-tooltip__body > * {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+[data-ui-chart-tooltip] .ts-chart-tooltip__body > * {
+  display: grid;
+  gap: var(--ui-chart-tooltip-gap, 2px);
+  inline-size: auto;
+}
+[data-ui-chart-tooltip] .ts-chart-tooltip__body > .ui-card {
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+[data-ui-chart-tooltip] dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 8px;
+}
+[data-ui-chart-tooltip] dl > div {
+  grid-column: 1 / -1;
+}
+[data-ui-chart-tooltip] dd {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+[data-ui-chart-tooltip] .ui-collapsible-content {
+  padding: 2px 0 0;
 }

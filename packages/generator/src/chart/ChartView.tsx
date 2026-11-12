@@ -18,8 +18,11 @@ import {
   scaleUtc,
   tooltip,
   tooltipPortal,
+  polar,
+  pie,
+  radialArc,
 } from '@wfe/components/chart'
-import type { ChartValue } from '@wfe/components/chart'
+import type { ChartProps, ChartValue } from '@wfe/components/chart'
 import { requireValue, uniqueIds, StatusView } from '../shared'
 import type { ChartDescription, ChartViewBindings } from './types'
 
@@ -65,6 +68,9 @@ export function ChartView<
         'height',
         'aspectRatio',
         'tooltip',
+        'layers',
+        'value',
+        'innerRadius',
       ],
       'chart',
     )
@@ -77,33 +83,97 @@ export function ChartView<
     text(value.ariaLabel, 'chart accessible label')
     text(value.key, 'chart key field', true)
     requireValue(
-      ['line', 'area', 'bar', 'scatter'].includes(value.kind),
+      ['line', 'area', 'bar', 'scatter', 'layers', 'pie'].includes(value.kind),
       'unsupported chart kind',
     )
-    for (const axis of ['x', 'y'] as const) {
-      const field = value[axis]
-      object(field, `chart ${axis} axis`)
+    const axisDescription = (
+      field: unknown,
+      label: string,
+      withField = true,
+    ) => {
+      object(field, label)
       keys(
         field,
-        ['field', 'label', 'formatter', 'scale'],
-        `chart ${axis} axis`,
+        withField
+          ? ['field', 'label', 'formatter', 'scale']
+          : ['label', 'formatter', 'scale'],
+        label,
       )
-      text(field.field, `chart ${axis} field`)
-      text(field.label, `chart ${axis} label`, true)
-      text(field.formatter, `chart ${axis} formatter`, true)
+      if (withField) text(field.field, `${label} field`)
+      text(field.label, `${label} label`, true)
+      text(field.formatter, `${label} formatter`, true)
     }
-    requireValue(
-      ['linear', 'band', 'point', 'utc'].includes(value.x.scale),
-      'unsupported chart x scale',
-    )
-    requireValue(
-      value.y.scale === undefined || value.y.scale === 'linear',
-      'unsupported chart y scale',
-    )
-    requireValue(
-      value.kind !== 'bar' || value.x.scale === 'band',
-      'generated bar charts require a band x scale',
-    )
+    if (value.kind === 'pie') {
+      requireValue(
+        !('x' in value) && !('y' in value) && !('layers' in value),
+        'pie descriptions require value only',
+      )
+      axisDescription(value.value, 'chart value')
+      requireValue(
+        !('scale' in value.value),
+        'pie values do not use an axis scale',
+      )
+      requireValue(
+        value.innerRadius === undefined ||
+          (finite(value.innerRadius) &&
+            value.innerRadius >= 0 &&
+            value.innerRadius < 1),
+        'invalid chart inner radius',
+      )
+    } else {
+      requireValue(
+        !('value' in value) && !('innerRadius' in value),
+        'Cartesian descriptions do not use polar properties',
+      )
+      axisDescription(value.x, 'chart x axis')
+      axisDescription(value.y, 'chart y axis', value.kind !== 'layers')
+      requireValue(
+        ['linear', 'band', 'point', 'utc'].includes(value.x.scale),
+        'unsupported chart x scale',
+      )
+      requireValue(
+        value.y.scale === undefined || value.y.scale === 'linear',
+        'unsupported chart y scale',
+      )
+      if (value.kind === 'layers') {
+        requireValue(
+          Array.isArray(value.layers) && value.layers.length > 0,
+          'chart layers must be a nonempty array',
+        )
+        for (const layer of value.layers) object(layer, 'chart layer')
+        uniqueIds(
+          value.layers.map((layer) => layer.id),
+          'chart layer',
+        )
+        for (const layer of value.layers) {
+          object(layer, 'chart layer')
+          keys(layer, ['id', 'kind', 'y'], 'chart layer')
+          requireValue(
+            ['line', 'area', 'bar', 'scatter'].includes(String(layer.kind)),
+            'unsupported chart layer kind',
+          )
+          axisDescription(layer.y, 'chart layer y axis')
+          object(layer.y, 'chart layer y axis')
+          requireValue(
+            !('scale' in layer.y),
+            'chart layers share the y axis scale',
+          )
+          requireValue(
+            layer.kind !== 'bar' || value.x.scale === 'band',
+            'generated bar charts require a band x scale',
+          )
+        }
+      } else {
+        requireValue(
+          !('layers' in value),
+          'single mark descriptions do not use layers',
+        )
+        requireValue(
+          value.kind !== 'bar' || value.x.scale === 'band',
+          'generated bar charts require a band x scale',
+        )
+      }
+    }
     for (const name of ['height', 'aspectRatio'] as const)
       requireValue(
         value[name] === undefined || (finite(value[name]) && value[name]! > 0),
@@ -120,6 +190,19 @@ export function ChartView<
     const rows = props.bindings.rows()
     requireValue(Array.isArray(rows), 'chart rows must be an array')
     const rowKeys = new Set<string | number>()
+    const fields =
+      d.kind === 'pie'
+        ? [{ axis: d.value, scale: 'linear', name: 'value' }]
+        : [
+            { axis: d.x, scale: d.x.scale, name: 'x' },
+            ...(d.kind === 'layers'
+              ? d.layers.map((layer) => ({
+                  axis: layer.y,
+                  scale: 'linear',
+                  name: 'y',
+                }))
+              : [{ axis: d.y, scale: 'linear', name: 'y' }]),
+          ]
     for (const row of rows) {
       object(row, 'chart row')
       if (d.key) {
@@ -131,26 +214,27 @@ export function ChartView<
         requireValue(!rowKeys.has(value), 'duplicate chart record key')
         rowKeys.add(value)
       }
-      const x = row[d.x.field]
-      const y = row[d.y.field]
-      requireValue(
-        x == null ||
-          (d.x.scale === 'linear'
-            ? finite(x)
-            : d.x.scale === 'utc'
-              ? date(x)
-              : typeof x === 'string' || finite(x) || date(x)),
-        `invalid chart x value for "${d.x.field}"`,
-      )
-      requireValue(
-        y == null || finite(y),
-        `invalid chart y value for "${d.y.field}"`,
-      )
+      for (const { axis, scale, name } of fields) {
+        const value = row[axis.field]
+        requireValue(
+          d.kind === 'pie'
+            ? finite(value) && value >= 0
+            : value == null ||
+                (scale === 'linear'
+                  ? finite(value)
+                  : scale === 'utc'
+                    ? date(value)
+                    : typeof value === 'string' ||
+                      finite(value) ||
+                      date(value)),
+          `invalid chart ${name} value for "${axis.field}"`,
+        )
+      }
     }
-    for (const axis of ['x', 'y'] as const)
+    for (const { axis, name } of fields)
       requireValue(
-        rows.length === 0 || rows.some((row) => d[axis].field in row),
-        `unknown chart ${axis} field "${d[axis].field}"`,
+        rows.length === 0 || rows.some((row) => axis.field in row),
+        `unknown chart ${name} field "${axis.field}"`,
       )
     const format = (axis: { formatter?: string }) => {
       if (!axis.formatter) return undefined
@@ -167,22 +251,79 @@ export function ChartView<
       )
       return value
     }
+    if (d.kind === 'pie') {
+      const formatter = format(d.value)
+      return defineChart({
+        marks: [
+          polar({
+            id: d.id,
+            scales: { angle: null, radius: null },
+            marks: [
+              radialArc(
+                pie(rows, { value: (row) => row[d.value.field] as number }),
+                {
+                  id: `${d.id}-slices`,
+                  key: d.key
+                    ? (row) => row.source[0]![d.key!] as string | number
+                    : undefined,
+                  z: (row) =>
+                    d.key
+                      ? (row.source[0]![d.key] as string | number)
+                      : row.index,
+                  stroke: 'var(--ui-surface)',
+                  strokeWidth: 1,
+                  innerRadius: ({ radius }) => radius * (d.innerRadius ?? 0),
+                },
+              ),
+            ],
+          }),
+        ],
+        scales: { x: null, y: null },
+        guides: false,
+        theme: props.bindings.theme?.(),
+        tooltip:
+          d.tooltip === false
+            ? undefined
+            : {
+                use: tooltip,
+                portal: tooltipPortal,
+                items: [
+                  { channel: 'group', label: d.key ?? 'Record' },
+                  {
+                    channel: 'y',
+                    label: d.value.label ?? d.value.field,
+                    text: (point) =>
+                      formatter
+                        ? formatter(
+                            point.datum.source[0]![d.value.field] as number,
+                          )
+                        : String(point.datum.source[0]![d.value.field]),
+                  },
+                ],
+              },
+      })
+    }
     const formatX = format(d.x)
     const formatY = format(d.y)
-    const channels = {
-      id: d.id,
-      key: d.key ? (row: Row) => row[d.key!] as string | number : undefined,
-      x: (row: Row) => row[d.x.field] as ChartValue | null | undefined,
-      y: (row: Row) => row[d.y.field] as number | null | undefined,
-    }
-    const mark =
-      d.kind === 'line'
+    const layers =
+      d.kind === 'layers' ? d.layers : [{ id: d.id, kind: d.kind, y: d.y }]
+    const marks = layers.map((layer) => {
+      // Resolve every declared formatter before rendering, even with no rows.
+      format(layer.y)
+      const channels = {
+        id: layer.id,
+        key: d.key ? (row: Row) => row[d.key!] as string | number : undefined,
+        x: (row: Row) => row[d.x.field] as ChartValue | null | undefined,
+        y: (row: Row) => row[layer.y.field] as number | null | undefined,
+      }
+      return layer.kind === 'line'
         ? lineY(rows, channels)
-        : d.kind === 'area'
+        : layer.kind === 'area'
           ? areaY(rows, channels)
-          : d.kind === 'bar'
+          : layer.kind === 'bar'
             ? barY(rows, channels)
             : dot(rows, channels)
+    })
     const xScale =
       d.x.scale === 'band'
         ? () => scaleBand().padding(0.15)
@@ -192,7 +333,7 @@ export function ChartView<
             ? scaleUtc
             : scaleLinear
     return defineChart({
-      marks: [mark],
+      marks,
       scales: {
         x: {
           scale: xScale,
@@ -216,15 +357,30 @@ export function ChartView<
                   label: d.x.label ?? d.x.field,
                   text: formatX ? (point) => formatX(point.xValue) : undefined,
                 },
-                {
-                  channel: 'y',
-                  label: d.y.label ?? d.y.field,
-                  text: formatY ? (point) => formatY(point.yValue) : undefined,
-                },
+                ...layers.map((layer) => ({
+                  channel: 'y' as const,
+                  label: layer.y.label ?? d.y.label ?? layer.y.field,
+                  text: (point: { markId: string; yValue: number }) => {
+                    if (point.markId !== layer.id) return null
+                    const formatter = format(layer.y) ?? formatY
+                    return formatter
+                      ? formatter(point.yValue)
+                      : String(point.yValue)
+                  },
+                })),
               ],
             },
     })
   })
+  function sourcePoint(
+    point: NonNullable<Parameters<NonNullable<ChartProps<Row>['onSelect']>>[0]>,
+  ) {
+    if (description().kind !== 'pie') return point
+    const derived = point.datum as { source?: readonly Row[] }
+    const datum = derived.source?.[0]
+    requireValue(datum !== undefined, 'missing chart source record')
+    return { ...point, datum }
+  }
   return (
     <section
       data-ui=""
@@ -248,13 +404,19 @@ export function ChartView<
         )}
       </Show>
       <StatusView messages={props.messages} status={props.bindings.status} />
-      <Chart
-        definition={definition()}
+      <Chart<Row>
+        // The pie transform adds source lineage internally. Public callbacks below
+        // restore the original application record before crossing this boundary.
+        definition={definition() as ChartProps<Row>['definition']}
         ariaLabel={description().ariaLabel}
         height={description().height}
         aspectRatio={description().aspectRatio}
-        onSelect={props.bindings.onSelect}
-        onFocusChange={props.bindings.onFocusChange}
+        onSelect={(point) => {
+          props.bindings.onSelect?.(point ? sourcePoint(point) : null)
+        }}
+        onFocusChange={(point) => {
+          props.bindings.onFocusChange?.(point ? sourcePoint(point) : null)
+        }}
       />
     </section>
   )

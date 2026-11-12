@@ -21,19 +21,31 @@ export function placeTooltip(
     | readonly ChartTooltipPlacement[]
     | undefined,
   offset: number | undefined,
+  avoid?: TooltipBounds,
 ) {
-  const width = tooltip.offsetWidth
-  const height = tooltip.offsetHeight
-  const resolved = resolveChartTooltipPlacement(
-    { x: anchorX, y: anchorY },
-    { width, height },
-    boundary,
-    placement,
-    offset,
-  )
-  tooltip.style.left = `${resolved.left}px`
-  tooltip.style.top = `${resolved.top}px`
-  tooltip.dataset.placement = resolved.placement
+  // Reflow long custom content into an available side instead of clamping it over data.
+  tooltip.style.maxWidth =
+    'var(--ts-chart-tooltip-max-width, min(24rem, calc(100vw - 16px)))'
+  tooltip.style.maxHeight = `${Math.max(0, boundary.bottom - boundary.top - 16)}px`
+  let preferred = placement
+  for (let pass = 0; pass < 3; pass++) {
+    const resolved = resolveChartTooltipPlacement(
+      { x: anchorX, y: anchorY },
+      { width: tooltip.offsetWidth, height: tooltip.offsetHeight },
+      boundary,
+      preferred,
+      offset,
+      avoid,
+    )
+    if (!resolved) return false
+    tooltip.style.maxWidth = `min(var(--ts-chart-tooltip-max-width, 24rem), ${resolved.maxWidth}px)`
+    tooltip.style.maxHeight = `${resolved.maxHeight}px`
+    tooltip.style.left = `${resolved.left}px`
+    tooltip.style.top = `${resolved.top}px`
+    tooltip.dataset.placement = resolved.placement
+    preferred = resolved.placement
+  }
+  return true
 }
 
 export function sceneToClient(
