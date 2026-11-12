@@ -318,6 +318,14 @@ export async function finalizeReport({
         await mkdir(dirname(file), { recursive: true })
         await writeFile(file, text)
       }
+  report.cleanupComplete = false
+  if (report.failure !== undefined) {
+    try {
+      await write(output, JSON.stringify(report, null, 2) + '\n')
+    } catch (error) {
+      report.outputFailure = errorDetails(error)
+    }
+  }
   for (const { name, close } of cleanup) {
     try {
       await close()
@@ -327,10 +335,11 @@ export async function finalizeReport({
       report.cleanupFailure ??= errorText(error)
     }
   }
+  report.cleanupComplete = true
   try {
     await write(output, JSON.stringify(report, null, 2) + '\n')
   } catch (error) {
-    report.outputFailure = errorDetails(error)
+    report.outputFailure ??= errorDetails(error)
   }
   try {
     log(JSON.stringify(report, null, 2))

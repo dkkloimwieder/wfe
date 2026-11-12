@@ -1,5 +1,6 @@
 import {
   attachDiagnostics,
+  captureDiagnostic,
   errorDetails,
   errorText,
   finalizeReport,
@@ -68,7 +69,6 @@ await withArtifactRun(
       timing: [],
     }
     let browser, server
-    const sessions = new Set()
     const detachDiagnostics = []
     const output = artifacts.reportPath
     try {
@@ -120,12 +120,14 @@ await withArtifactRun(
           id.includes('virtual-core'),
         )
         assert.ok(
+          virtualModules.length > 0,
+          'fixture uses the owned virtual engine',
+        )
+        assert.ok(
           virtualModules.every(
             (id) =>
               !id.includes('/node_modules/') &&
-              /\/components\/(?:src|dist\/source)\/vendor\/virtual-core\//.test(
-                id,
-              ),
+              /\/components\/(?:src|dist)\/vendor\/virtual-core\//.test(id),
           ),
           'virtual rendering uses only owned source or distribution virtual-core modules',
         )
@@ -157,8 +159,6 @@ await withArtifactRun(
         })
         page.setDefaultTimeout(7000)
         const accessibility = await page.context().newCDPSession(page)
-        sessions.add(accessibility)
-        page.once('close', () => sessions.delete(accessibility))
         await accessibility.send('Accessibility.enable')
         await page.addInitScript(() => {
           window.hiddenFocusViolations = []
@@ -193,7 +193,50 @@ await withArtifactRun(
         )
         return page
       }
-      const page = await createPage()
+      let page = await createPage()
+      const reviewFocus = async (target) =>
+        assert.deepEqual(
+          await target.evaluate(() => window.hiddenFocusViolations ?? []),
+          [],
+          'focus never enters a newly hidden accessibility subtree',
+        )
+      async function reviewPage(work) {
+        const target = await createPage()
+        await withCleanup(async () => {
+          try {
+            await work(target)
+            await reviewFocus(target)
+          } catch (error) {
+            let timer
+            const state = await captureDiagnostic(
+              report,
+              'independent gallery page',
+              () =>
+                Promise.race([
+                  target.evaluate(() => ({
+                    url: location.href,
+                    readyState: document.readyState,
+                    preview: Boolean(
+                      document.querySelector('.gallery-preview'),
+                    ),
+                    host: document
+                      .querySelector('.gallery-example-host')
+                      ?.outerHTML.slice(0, 6000),
+                  })),
+                  new Promise((_, reject) => {
+                    timer = setTimeout(
+                      () => reject(new Error('Gallery diagnostic deadline')),
+                      1000,
+                    )
+                  }),
+                ]).finally(() => clearTimeout(timer)),
+            )
+            report.galleryPageFailures ??= []
+            report.galleryPageFailures.push(state ?? { url: target.url() })
+            throw error
+          }
+        }, [{ name: 'independent gallery page', close: () => target.close() }])
+      }
       const call = (name, ...args) =>
         page.evaluate(
           ({ name, args }) => window.editingFixture[name](...args),
@@ -263,11 +306,7 @@ await withArtifactRun(
         try {
           await work()
           await settle()
-          assert.deepEqual(
-            await page.evaluate(() => window.hiddenFocusViolations ?? []),
-            [],
-            'focus never enters a newly hidden accessibility subtree',
-          )
+          await reviewFocus(page)
           assert.deepEqual(report.errors.slice(errors), [])
           assert.deepEqual(report.warnings.slice(warnings), [])
           report.cases.push(name)
@@ -287,7 +326,11 @@ await withArtifactRun(
         },
       )
       await matchingCases({ page, url, record })
-      await galleryCases({ page, url, record, settle })
+      await galleryCases({ page, url, record, settle, reviewPage })
+      // Gallery documents and the following control fixtures own separate pages.
+      await reviewFocus(page)
+      await page.close()
+      page = await createPage()
       await entryPanelCases({ page, url, record })
       await subtableCases({ page, url, record })
       await tableTitleCases({ page, url, record })
@@ -823,7 +866,6 @@ await withArtifactRun(
         )
       if (process.env.BENCH_WORKLOAD === '1') {
         const cdp = await page.context().newCDPSession(page)
-        sessions.add(cdp)
         await cdp.send('Performance.enable')
         async function heap(name) {
           await settle()
@@ -978,15 +1020,23 @@ await withArtifactRun(
     } catch (error) {
       report.failure = errorText(error)
       report.failureDetails = errorDetails(error)
+      report.failurePages =
+        browser?.contexts().flatMap((context) =>
+          context.pages().map((page) => ({
+            url: page.url(),
+            closed: page.isClosed(),
+            frames: page
+              .frames()
+              .map((frame) => ({ url: frame.url(), name: frame.name() })),
+          })),
+        ) ?? []
     } finally {
       const failed = await finalizeReport({
         report,
         output,
         cleanup: [
-          ...[...sessions].map((session, index) => ({
-            name: `CDP session ${index + 1}`,
-            close: () => session.detach(),
-          })),
+          // Closing the owned browser also releases its protocol sessions.
+          // Detaching a target during an interrupted navigation can stall.
           { name: 'browser', close: () => browser?.close() },
           ...detachDiagnostics.map((detach, index) => ({
             name: `page diagnostics ${index + 1}`,

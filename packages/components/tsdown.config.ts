@@ -9,6 +9,9 @@ async function copyAssets(outDir: string) {
     recursive: true,
     filter: (path) => !/\.tsx?$/.test(path),
   })
+  await mkdir(resolve(outDir, 'tree'), { recursive: true })
+  await cp('src/tree/LICENSE', resolve(outDir, 'tree/LICENSE'))
+  await cp('src/tree/provenance.json', resolve(outDir, 'tree/provenance.json'))
   for (const file of await readdir('src/vendor', { recursive: true })) {
     if (!/\/LICENSE[^/]*$/.test(file)) continue
     const destination = resolve(outDir, 'vendor', file)
@@ -19,7 +22,13 @@ async function copyAssets(outDir: string) {
 
 const shared = {
   entry: [
+    './src/tree/Tree.tsx',
+    './src/slider/index.ts',
+    './src/toggle/index.ts',
+    './src/calendar/index.ts',
+    './src/context-menu/index.ts',
     './src/chart/index.ts',
+    './src/diagram/index.ts',
     './src/gantt/index.ts',
     './src/dnd/index.ts',
     './src/sortable/index.ts',

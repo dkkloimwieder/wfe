@@ -1,4 +1,5 @@
 import { captureNavigation } from '../shared/browser/navigation-diagnostics.mjs'
+import { warmupExample } from '../shared/browser/warmup.mjs'
 import { readFile } from 'node:fs/promises'
 import {
   attachDiagnostics,
@@ -12,6 +13,7 @@ import { reviewImportedCssUpdates } from '../shared/controls/css-hot-update-revi
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { createServer } from 'vite'
 import { chromium } from '@playwright/test'
 import { withArtifactRun } from '../../scripts/artifacts.mjs'
@@ -139,9 +141,11 @@ await withArtifactRun(
       report.groups = selectGroups({ 'components-live': true })
       server = await createServer({
         configFile: fileURLToPath(new URL('./vite.config.ts', import.meta.url)),
+        cacheDir: resolve(artifacts.directory, 'vite-cache'),
         server: { host: '127.0.0.1', port: 0, strictPort: true },
       })
       await server.listen()
+      report.warmup = await warmupExample(server)
       const url = `http://127.0.0.1:${server.httpServer.address().port}/`
       browser = await launchBrowser({ chromium })
       const page = await browser.newPage()
@@ -164,7 +168,6 @@ await withArtifactRun(
         navigation.stop(error)
         throw error
       }
-      await navigation.dispose()
       await page
         .getByRole('textbox', { name: 'Display name', exact: true })
         .fill('Refresh draft')
@@ -238,10 +241,9 @@ await withArtifactRun(
       })
       assert.deepEqual(report.errors, [])
       assert.deepEqual(report.warnings, [])
-      await accessibility.detach()
-      accessibility = undefined
       await browser.close()
       browser = undefined
+      accessibility = undefined
       const requested = process.env.BENCH_OUTPUT
       const interactionsOutput = requested
         ? /\.json$/.test(requested)
@@ -288,11 +290,8 @@ await withArtifactRun(
         report,
         output,
         cleanup: [
-          { name: 'navigation capture', close: () => navigation?.dispose() },
-          {
-            name: 'accessibility CDP session',
-            close: () => accessibility?.detach(),
-          },
+          { name: 'navigation capture', close: () => navigation?.stop() },
+          // Browser ownership includes the navigation and accessibility sessions.
           { name: 'browser', close: () => browser?.close() },
           { name: 'diagnostic listeners', close: () => detachDiagnostics?.() },
           { name: 'Vite server', close: () => server?.close() },

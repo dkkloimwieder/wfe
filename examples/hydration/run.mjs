@@ -110,7 +110,7 @@ await withArtifactRun(
         assets + 'index.html',
         html.replace(
           '</body>',
-          '<script>window.serverCommandNodes = [...document.querySelectorAll("#command-hydration-review input, #command-hydration-review [role=listbox], #command-hydration-review [role=option], #command-hydration-review button")]; window.serverCommandRelations = [...document.querySelectorAll("#command-hydration-review input")].map(node => [node.id, node.getAttribute("aria-controls"), node.getAttribute("aria-activedescendant")]); window.serverGanttNodes = [...document.querySelectorAll("#gantt-review .ui-gantt, #gantt-review .ui-gantt-axis, #gantt-review [data-interval]")]; window.serverDragNodes = [...document.querySelectorAll("#drag-board-review [data-drag-adopt], #drag-board-review button, #drag-board-review input")]; window.serverDisplayMessageNodes = [...document.querySelectorAll("#display-messages-review [role=img], #display-messages-review [role=group], #display-messages-review [role=region], #display-messages-review [role=status], #display-messages-review button")]; window.serverCompoundNodes = [...document.querySelectorAll("#compound-field-review input, #compound-field-review [id^=compound-], #compound-field-review label")]; window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverGlyphNodes = [...document.querySelectorAll("#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle")]; window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode, #theme-preset, #nested-theme, #nested-theme-action, #vanilla-theme, #vanilla-theme-draft, #vanilla-theme-trigger, #vanilla-nested-default, #vanilla-nested-draft, #vanilla-nested-trigger, #container-dashboard, #container-host")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
+          '<script>window.serverRangeDayNodes = [...document.querySelectorAll("#adopt-calendar-range [data-date]")]; window.serverRangePicker = document.getElementById("adopt-range-picker"); window.serverToggleNodes = [...document.querySelectorAll("#adopt-toggles button")]; window.serverSliderNodes = [...document.querySelectorAll("#adopt-sliders [role=slider]")]; window.serverContextMenuRegion = document.getElementById("adopt-context-menu"); window.serverCommandNodes = [...document.querySelectorAll("#command-hydration-review input, #command-hydration-review [role=listbox], #command-hydration-review [role=option], #command-hydration-review button")]; window.serverCommandRelations = [...document.querySelectorAll("#command-hydration-review input")].map(node => [node.id, node.getAttribute("aria-controls"), node.getAttribute("aria-activedescendant")]); window.serverGanttNodes = [...document.querySelectorAll("#gantt-review .ui-gantt, #gantt-review .ui-gantt-axis, #gantt-review [data-interval]")]; window.serverDragNodes = [...document.querySelectorAll("#drag-board-review [data-drag-adopt], #drag-board-review button, #drag-board-review input")]; window.serverDisplayMessageNodes = [...document.querySelectorAll("#display-messages-review [role=img], #display-messages-review [role=group], #display-messages-review [role=region], #display-messages-review [role=status], #display-messages-review button")]; window.serverCompoundNodes = [...document.querySelectorAll("#compound-field-review input, #compound-field-review [id^=compound-], #compound-field-review label")]; window.serverContextTrigger = document.querySelector(".ui-sidebar-context-trigger"); window.serverPaginationButtons = [...document.querySelectorAll("#paged-records .table-pagination button")]; window.serverSidebarIcon = document.querySelector("#sidebar-review .ui-sidebar-group-icon svg"); window.serverSidebarTextSummary = document.querySelector("#sidebar-review [data-text-only] summary"); window.serverMatchingInput = document.querySelector("#adopt-matching input[role=combobox]"); window.serverGlyphNodes = [...document.querySelectorAll("#adopt-entry-actions svg, #adopt-entry-actions svg path, #adopt-entry-actions svg circle")]; window.serverEntryNodes = [...document.querySelectorAll("#adopt-entry-panel, #adopt-entry-input, #adopt-entry-actions")]; window.serverThemeNodes = [...document.querySelectorAll("#theme-consumer, #theme-name, #theme-mode, #theme-preset, #nested-theme, #nested-theme-action, #vanilla-theme, #vanilla-theme-draft, #vanilla-theme-trigger, #vanilla-nested-default, #vanilla-nested-draft, #vanilla-nested-trigger, #container-dashboard, #container-host")]; window.serverButtonLink = document.getElementById("button-link-outline"); window.serverNodes = [document.querySelector("#name"), document.querySelector("#rename"), document.querySelector("#adopt-name"), document.querySelector("#adopt-check-input"), document.querySelector("#adopt-table tbody td"), document.querySelector("#adopt-trigger"), document.querySelector("#adopt-layout-header"), document.querySelector("#adopt-layout-draft"), document.querySelector("#adopt-table .table-workspace"), document.querySelector("#adopt-table .table-workspace-controls"), ...document.querySelectorAll("#adopt-filters select, #adopt-filters input"), ...document.querySelectorAll("#adopt-extra-filters input, #adopt-extra-filters select, #adopt-extra-filters [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-value-formats [aria-haspopup=listbox]"), ...document.querySelectorAll("#adopt-table .table-filter-actions button, #adopt-table .column-filters input")]; window.serverFileNodes = [...document.querySelectorAll("[data-file-review] input, [data-file-review] button, [data-file-review] .ui-file-input")]; window.serverResizableNodes = [...document.querySelectorAll("[data-resizable-review] .ui-resizable, [data-resizable-review] .ui-resize-handle, [data-resizable-review] input, [data-resizable-review] .table-workspace-controls, [data-resizable-review] .table-workspace-results")]; window.serverAccordionNodes = [...document.querySelectorAll("[data-accordion-review] details, [data-accordion-review] summary, [data-accordion-review] input")]; window.serverBreadcrumbNodes = [...document.querySelectorAll("#breadcrumb-review, #breadcrumb-review a, #breadcrumb-review [aria-current]")]; window.serverTabNodes = [...document.querySelectorAll("[data-tabs-review] [role=tab], [data-tabs-review] [role=tabpanel], [data-tabs-review] input")]; window.serverClassNodes = [...document.querySelectorAll("[data-class-base]")]; window.serverNumberNodes = [...document.querySelectorAll("#number-review input")]; window.serverDisclosureNodes = [...document.querySelectorAll("[data-collapsible-review] details, [data-collapsible-review] summary, [data-collapsible-review] input")];</script></body>',
         ),
       )
       if (!process.env.BENCH_URL)
@@ -288,6 +288,153 @@ await withArtifactRun(
       )
       report.assertions.push(
         'Command hydrates existing input/results with stable ARIA IDs; palette shortcut and actions run once, close, and restore focus',
+      )
+
+      const contextRegion = page.getByRole('group', {
+        name: 'Hydrated record',
+        exact: true,
+      })
+      assert.equal(
+        await contextRegion.evaluate(
+          (node) => node === window.serverContextMenuRegion,
+        ),
+        true,
+      )
+      await contextRegion.click({ button: 'right' })
+      await page
+        .getByRole('menuitem', { name: 'Inspect hydrated record', exact: true })
+        .click()
+      await expect(page.locator('#adopt-context-actions')).toHaveText('1')
+      await expect(contextRegion).toBeFocused()
+      await page.keyboard.press('Shift+F10')
+      await expect(
+        page.getByRole('menu', {
+          name: 'Hydrated record',
+          exact: true,
+        }),
+      ).toBeVisible()
+      await page.keyboard.press('Escape')
+      await expect(contextRegion).toBeFocused()
+      await expect(page.locator('#adopt-context-actions')).toHaveText('1')
+      report.assertions.push(
+        'Context menus adopt the server region, dispatch each action once, and restore keyboard focus',
+      )
+
+      const sliderThumbs = page.locator('#adopt-sliders [role=slider]')
+      assert.equal(
+        await sliderThumbs.evaluateAll(
+          (nodes) =>
+            nodes.length === 3 &&
+            nodes.every(
+              (node, index) => node === window.serverSliderNodes[index],
+            ),
+        ),
+        true,
+      )
+      await page
+        .getByRole('slider', { name: 'Hydrated volume', exact: true })
+        .press('ArrowRight')
+      await expect(
+        page.getByRole('slider', { name: 'Hydrated volume', exact: true }),
+      ).toHaveAttribute('aria-valuenow', '31')
+      await expect(page.locator('#adopt-slider-requests')).toHaveText('1')
+      await page
+        .getByRole('slider', { name: 'Hydrated range Minimum', exact: true })
+        .press('End')
+      await expect(
+        page.getByRole('slider', {
+          name: 'Hydrated range Maximum',
+          exact: true,
+        }),
+      ).toHaveAttribute('aria-valuemin', '80')
+      await expect(page.locator('#adopt-slider-requests')).toHaveText('2')
+      report.assertions.push(
+        'Sliders adopt server thumbs, preserve field names and request accepted values once',
+      )
+
+      const toggleButtons = page.locator('#adopt-toggles button')
+      assert.equal(
+        await toggleButtons.evaluateAll(
+          (nodes) =>
+            nodes.length === 3 &&
+            nodes.every(
+              (node, index) => node === window.serverToggleNodes[index],
+            ),
+        ),
+        true,
+      )
+      await page
+        .getByRole('button', { name: 'Hydrated pin', exact: true })
+        .press('Space')
+      await expect(
+        page.getByRole('button', { name: 'Hydrated pin', exact: true }),
+      ).toHaveAttribute('aria-pressed', 'true')
+      await expect(page.locator('#adopt-toggle-requests')).toHaveText('1')
+      const hydratedViews = page.getByRole('group', {
+        name: 'Hydrated view',
+        exact: true,
+      })
+      await hydratedViews
+        .getByRole('button', { name: 'List', exact: true })
+        .press('ArrowRight')
+      await expect(
+        hydratedViews.getByRole('button', { name: 'Board', exact: true }),
+      ).toBeFocused()
+      await hydratedViews
+        .getByRole('button', { name: 'Board', exact: true })
+        .press('Enter')
+      await expect(
+        hydratedViews.getByRole('button', { name: 'Board', exact: true }),
+      ).toHaveAttribute('aria-pressed', 'true')
+      await expect(page.locator('#adopt-toggle-requests')).toHaveText('2')
+      report.assertions.push(
+        'Toggles adopt server buttons, keep roving focus and emit accepted changes once',
+      )
+
+      const rangeDays = page.locator('#adopt-calendar-range [data-date]')
+      assert.equal(
+        await rangeDays.evaluateAll(
+          (nodes) =>
+            nodes.length > 0 &&
+            nodes.every(
+              (node, index) => node === window.serverRangeDayNodes[index],
+            ),
+        ),
+        true,
+      )
+      await page
+        .locator('#adopt-calendar-range [data-date="2026-01-10"]')
+        .click()
+      await expect(
+        page.locator('#adopt-calendar-range [aria-selected="true"]'),
+      ).toHaveCount(6)
+      await expect(page.locator('#adopt-range-requests')).toHaveText('1')
+      const rangePicker = page.getByRole('button', {
+        name: /^Hydrated booking/,
+      })
+      assert.equal(
+        await rangePicker.evaluate((node) => node === window.serverRangePicker),
+        true,
+      )
+      await rangePicker.click()
+      const rangeDialog = page.getByRole('dialog', {
+        name: 'Hydrated booking calendar',
+        exact: true,
+      })
+      await rangeDialog.locator('[data-date="2026-01-15"]').click()
+      await expect(rangeDialog).toBeVisible()
+      await rangeDialog.locator('[data-date="2026-01-20"]').click()
+      await expect(rangeDialog).toHaveCount(0)
+      await expect(rangePicker).toBeFocused()
+      await expect(page.locator('#adopt-range-requests')).toHaveText('3')
+      assert.deepEqual(
+        await page
+          .locator('#adopt-range-form')
+          .evaluate((node) => new FormData(node).getAll('window')),
+        ['2026-01-15', '2026-01-20'],
+      )
+      report.assertions.push(
+        'Calendar ranges adopt server days and picker trigger, request each endpoint once and restore focus after acceptance',
       )
 
       await reviewGantt(page)
@@ -843,7 +990,7 @@ await withArtifactRun(
           name: /^Hydrated status(?:\s|$)/,
         })
         .and(page.locator(':not([data-ui-text="system"])'))
-      const minimum = page.getByRole('spinbutton', {
+      const minimum = page.getByRole('textbox', {
         name: 'Hydrated amount minimum',
         exact: true,
       })

@@ -310,7 +310,7 @@ test('finalization attempts all resources and report output without replacing in
     }),
     true,
   )
-  assert.deepEqual(calls, ['page', 'browser', 'server', 'output'])
+  assert.deepEqual(calls, ['output', 'page', 'browser', 'server', 'output'])
   assert.equal(report.failure, 'first failure')
   assert.equal(report.diagnosticFailures[0].error.thrown, 'DOM unavailable')
   assert.equal(report.cleanupFailures.length, 2)
@@ -332,6 +332,37 @@ test('finalization attempts all resources and report output without replacing in
     false,
   )
   assert.deepEqual(persisted, clean)
+})
+
+test('a first failure is persisted before cleanup can wait indefinitely', async () => {
+  const report = { failure: 'original assertion' }
+  const writes = []
+  let release
+  const blocked = new Promise((resolve) => {
+    release = resolve
+  })
+  const finished = finalizeReport({
+    report,
+    output: 'unused',
+    cleanup: [
+      {
+        name: 'owned resource',
+        close: async () => {
+          assert.equal(writes[0].failure, 'original assertion')
+          assert.equal(writes[0].cleanupComplete, false)
+          await blocked
+        },
+      },
+    ],
+    write: async (_file, body) => writes.push(JSON.parse(body)),
+    log: () => {},
+  })
+  await Promise.resolve()
+  assert.equal(writes.length, 1)
+  release()
+  assert.equal(await finished, true)
+  assert.equal(writes.at(-1).failure, 'original assertion')
+  assert.equal(writes.at(-1).cleanupComplete, true)
 })
 
 test('qualification strips application and case filters while preserving host browser and transport configuration', () => {

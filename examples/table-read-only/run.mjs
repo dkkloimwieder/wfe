@@ -115,7 +115,7 @@ await withArtifactRun(
         )
         assert.ok(
           modules.some((path) =>
-            /\/components\/(src|dist\/source)\/components\/DatePicker\.(tsx|jsx)$/.test(
+            /\/components\/(src|dist)\/components\/DatePicker\.(tsx|jsx)$/.test(
               path,
             ),
           ),

@@ -1,5 +1,11 @@
 # Adopt the components
 
+The working tree targets Solid `2.0.0-rc.21` with matching runtime and compiler packages.
+Its Vite plugin is `3.0.0-next.56`, and its testing library is `1.0.0-rc.2`.
+All five workspace packages require Solid RC21 or later within version 2.
+The tagged release records below retain their original dependency versions.
+See [the RC21 upgrade record](qualification.md#solid-rc21-upgrade) for test results and limits.
+
 ## v0.0.9
 
 Use Git tag `v0.0.9` for the current library.

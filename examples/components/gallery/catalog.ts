@@ -10,6 +10,91 @@ import type { Decorations } from '../../shared/appearance/appearance'
 export const states = ['normal', 'disabled', 'readonly', 'invalid'] as const
 export type GalleryState = (typeof states)[number]
 export const entries = [
+  { id: 'tree', label: 'Tree', group: 'Navigation', states: ['normal'] },
+  {
+    id: 'workflow',
+    label: 'Workflow diagrams',
+    group: 'Diagrams',
+    states: ['normal'],
+  },
+  {
+    id: 'erd',
+    label: 'Entity relationships',
+    group: 'Diagrams',
+    states: ['normal'],
+  },
+  {
+    id: 'chart-financial',
+    label: 'Financial and comparison charts',
+    group: 'Charts',
+    states: ['normal'],
+  },
+  {
+    id: 'chart-statistics',
+    label: 'Statistical charts',
+    group: 'Charts',
+    states: ['normal'],
+  },
+  {
+    id: 'chart-descriptions',
+    label: 'Chart descriptions',
+    group: 'Charts',
+    states: ['normal'],
+  },
+  {
+    id: 'chart-focus-context',
+    label: 'Time-series navigation',
+    group: 'Charts',
+    states: ['normal'],
+  },
+  {
+    id: 'chart-time-series',
+    label: 'Time-series charts',
+    group: 'Charts',
+    states: ['normal'],
+  },
+  {
+    id: 'chart-layers',
+    label: 'Layered charts',
+    group: 'Charts',
+    states: ['normal'],
+  },
+  {
+    id: 'chart-data',
+    label: 'Chart transforms',
+    group: 'Charts',
+    states: ['normal'],
+  },
+  {
+    id: 'chart-polar',
+    label: 'Polar charts',
+    group: 'Charts',
+    states: ['normal'],
+  },
+  {
+    id: 'calendar-ranges',
+    label: 'Calendar ranges',
+    group: 'Forms',
+    states: ['normal', 'disabled', 'readonly'],
+  },
+  {
+    id: 'toggles',
+    label: 'Toggles and groups',
+    group: 'Forms',
+    states: ['normal', 'disabled', 'readonly'],
+  },
+  {
+    id: 'sliders',
+    label: 'Sliders and ranges',
+    group: 'Forms',
+    states: ['normal', 'disabled', 'readonly', 'invalid'],
+  },
+  {
+    id: 'context-menu',
+    label: 'Context menus',
+    group: 'Components',
+    states: ['normal'],
+  },
   {
     id: 'commands',
     label: 'Commands and search',

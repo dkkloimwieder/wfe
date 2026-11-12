@@ -7,7 +7,7 @@ import * as components from '@wfe/components'
 
 test('JSX packages keep ordered exports and separate module graphs', async () => {
   for (const [name, count] of [
-    ['components', 36],
+    ['components', 42],
     ['generator', 2],
     ['shell', 1],
   ]) {

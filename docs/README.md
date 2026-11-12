@@ -24,6 +24,10 @@ Beads records task status and dependencies.
 ## Component guides
 
 - [Commands and search](command.md)
+- [Sliders and ranges](sliders.md)
+- [Toggles and groups](toggles.md)
+- [Calendar ranges](calendar-ranges.md)
+- [Context menus](context-menu.md)
 
 - [Sketchy theme](theme.md)
 - [Owned icon catalog](icons.md)

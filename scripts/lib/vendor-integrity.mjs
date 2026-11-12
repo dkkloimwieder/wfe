@@ -31,7 +31,11 @@ export async function checkVendorIntegrity(root) {
     'dnd-kit',
   ])
     expected.push(`${directory}/provenance.json`, `${directory}/README.md`)
-  expected.push('icons/upstream.json', 'dnd-kit/repairs.patch')
+  expected.push(
+    'icons/upstream.json',
+    'dnd-kit/repairs.patch',
+    'charts/repairs.patch',
+  )
   await exactFiles(resolve(root, source, 'vendor'), expected)
   const packageJson = JSON.parse(
     await readFile(resolve(root, 'packages/components/package.json'), 'utf8'),
@@ -60,6 +64,16 @@ export async function checkVendorIntegrity(root) {
     hash(await readFile(resolve(root, source, 'vendor/dnd-kit/repairs.patch'))),
     inventory.origins.dnd.repairSha256,
     'DnD repair bytes',
+  )
+  assert.equal(
+    hash(await readFile(resolve(root, source, 'vendor/charts/repairs.patch'))),
+    inventory.origins.charts.repairSha256,
+    'Chart repair bytes',
+  )
+  assert.equal(
+    packageJson.dependencies?.['d3-array'],
+    '3.2.4',
+    'Chart array dependency pin',
   )
   const external = new Set([
     ...Object.keys(packageJson.dependencies),
@@ -109,7 +123,7 @@ export async function checkVendorIntegrity(root) {
           item.family === 'kobalte'
             ? external
             : item.family === 'charts'
-              ? new Set(['d3-scale', 'd3-shape'])
+              ? new Set(['d3-array', 'd3-scale', 'd3-shape'])
               : item.family === 'dnd'
                 ? new Set(['@preact/signals-core'])
                 : new Set()

@@ -177,11 +177,10 @@ export async function galleryCommandCases({ page, url, record }) {
 }
 
 // Keep native-tab coverage separate so its browser startup failure does not mask command interaction results.
-export async function galleryCommandLinkCases({ page, url, record }) {
+export async function galleryCommandLinkCases({ url, record, reviewPage }) {
   for (const preset of ['default', 'vanilla', 'laser']) {
-    await record(
-      `gallery: ${preset} command native modified navigation`,
-      async () => {
+    await record(`gallery: ${preset} command native modified navigation`, () =>
+      reviewPage(async (page) => {
         await page.setViewportSize({ width: 1280, height: 900 })
         await page.goto(`${url}?gallery=commands&preset=${preset}`)
         await page
@@ -219,7 +218,7 @@ export async function galleryCommandLinkCases({ page, url, record }) {
             exact: true,
           }),
         ).toBeFocused()
-      },
+      }),
     )
   }
 }

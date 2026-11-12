@@ -6,6 +6,13 @@ import {
   TileRow,
   NumberInput,
   ColorPicker,
+  ContextMenu,
+  Slider,
+  RangeSlider,
+  Toggle,
+  ToggleGroup,
+  RangeCalendar,
+  DateRangePicker,
 } from '@wfe/components'
 import { GridView } from '@wfe/generator'
 import { FileInput } from '@wfe/components/file-input'
@@ -19,6 +26,95 @@ import {
   nativeAggregations,
   TableWorkspace,
 } from '@wfe/components/table'
+
+const calendarRangeOutput = await renderToString(() =>
+  createComponent(RangeCalendar, {
+    label: 'Server range',
+    value: { start: '2026-01-05', end: '2026-01-10' },
+    numberOfMonths: 2,
+    onValueChange: () => {},
+  }),
+)
+assert.equal((calendarRangeOutput.match(/role="grid"/g) ?? []).length, 2)
+assert.equal(
+  (calendarRangeOutput.match(/aria-selected="true"/g) ?? []).length,
+  6,
+)
+const rangePickerOutput = await renderToString(() =>
+  createComponent(DateRangePicker, {
+    label: 'Server booking',
+    name: 'booking',
+    value: { start: '2026-01-05', end: '2026-01-10' },
+    onValueChange: () => {},
+  }),
+)
+assert.doesNotMatch(rangePickerOutput, /role="dialog"/)
+assert.match(rangePickerOutput, /value="2026-01-05"/)
+assert.match(rangePickerOutput, /value="2026-01-10"/)
+
+const toggleOutput = await renderToString(() =>
+  createComponent(Toggle, {
+    pressed: true,
+    name: 'pin',
+    children: 'Server pin',
+    onPressedChange: () => {},
+  }),
+)
+assert.match(toggleOutput, /aria-pressed="true"/)
+assert.match(toggleOutput, /name="pin"/)
+const toggleGroupOutput = await renderToString(() =>
+  createComponent(ToggleGroup, {
+    multiple: true,
+    value: ['bold', 'italic'],
+    items: [
+      { value: 'bold', label: 'Bold' },
+      { value: 'italic', label: 'Italic' },
+    ],
+    'aria-label': 'Server formats',
+    onValueChange: () => {},
+  }),
+)
+assert.equal((toggleGroupOutput.match(/aria-pressed="true"/g) ?? []).length, 2)
+assert.match(toggleGroupOutput, /Server formats/)
+
+const sliderOutput = await renderToString(() =>
+  createComponent(Slider, {
+    'aria-label': 'Server volume',
+    value: 30,
+    name: 'volume',
+    onValueChange: () => {},
+  }),
+)
+assert.match(sliderOutput, /role="slider"/)
+assert.match(sliderOutput, /aria-valuenow="30"/)
+assert.match(sliderOutput, /name="volume"/)
+const rangeSliderOutput = await renderToString(() =>
+  createComponent(RangeSlider, {
+    'aria-label': 'Server range',
+    value: [20, 80],
+    thumbLabels: ['Minimum', 'Maximum'],
+    onValueChange: () => {},
+  }),
+)
+assert.equal((rangeSliderOutput.match(/role="slider"/g) ?? []).length, 2)
+assert.match(rangeSliderOutput, /aria-valuemin="20"/)
+assert.match(rangeSliderOutput, /aria-valuemax="80"/)
+
+const contextOutput = await renderToString(() =>
+  createComponent(ContextMenu, {
+    get children() {
+      return createComponent(ContextMenu.Trigger, {
+        id: 'server-context-record',
+        'aria-label': 'Server record actions',
+        children: 'Server record',
+      })
+    },
+  }),
+)
+assert.match(contextOutput, /id="server-context-record"/)
+assert.match(contextOutput, /aria-haspopup="menu"/)
+assert.match(contextOutput, /Server record actions/)
+assert.match(contextOutput, /Server record/)
 
 const colorOutput = await renderToString(() =>
   createComponent(ColorPicker, {

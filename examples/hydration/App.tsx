@@ -42,6 +42,13 @@ import {
   Button,
   Command,
   CommandPalette,
+  ContextMenu,
+  Slider,
+  RangeSlider,
+  Toggle,
+  ToggleGroup,
+  RangeCalendar,
+  DateRangePicker,
   Toast,
   StatusTile,
   Checkbox,
@@ -53,7 +60,7 @@ import {
   Label,
   ValueDisplay,
 } from '@wfe/components'
-import type { ValueFormat } from '@wfe/components'
+import type { ValueFormat, CalendarRange } from '@wfe/components'
 import {
   EntryPanel,
   EntryPanelActions,
@@ -129,6 +136,18 @@ export default function App() {
   })
   const [name, setName] = createSignal('Ada')
   const [navigationDraft, setNavigationDraft] = createSignal('Persistent draft')
+  const [contextActions, setContextActions] = createSignal(0)
+  const [calendarRange, setCalendarRange] = createSignal<CalendarRange>({
+    start: '2026-01-05',
+  })
+  const [pickerRange, setPickerRange] = createSignal<CalendarRange>()
+  const [rangeRequests, setRangeRequests] = createSignal(0)
+  const [togglePressed, setTogglePressed] = createSignal(false)
+  const [toggleView, setToggleView] = createSignal<string | undefined>('list')
+  const [toggleRequests, setToggleRequests] = createSignal(0)
+  const [sliderValue, setSliderValue] = createSignal(30)
+  const [sliderRange, setSliderRange] = createSignal<[number, number]>([20, 80])
+  const [sliderRequests, setSliderRequests] = createSignal(0)
   const [checked, setChecked] = createSignal(true)
   const [open, setOpen] = createSignal(false)
   lifecycle.rename = setName
@@ -190,6 +209,105 @@ export default function App() {
         <MatchingCombobox mode="fuzzy" />
       </div>
       <ThemeConsumer />
+      <section aria-label="Hydrated context menu">
+        <ContextMenu>
+          <ContextMenu.Trigger
+            id="adopt-context-menu"
+            aria-label="Hydrated record"
+          >
+            Server-rendered record
+          </ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Content>
+              <ContextMenu.Item
+                onSelect={() => setContextActions((count) => count + 1)}
+              >
+                Inspect hydrated record
+              </ContextMenu.Item>
+            </ContextMenu.Content>
+          </ContextMenu.Portal>
+        </ContextMenu>
+        <output id="adopt-context-actions">{contextActions()}</output>
+      </section>
+      <section id="adopt-sliders" aria-label="Hydrated sliders">
+        <Field>
+          <Label>Hydrated volume</Label>
+          <Slider
+            id="adopt-slider"
+            value={sliderValue()}
+            onValueChange={(next) => {
+              setSliderRequests((count) => count + 1)
+              setSliderValue(next)
+            }}
+          />
+          <HelpText>Accepted server value</HelpText>
+        </Field>
+        <RangeSlider
+          id="adopt-range-slider"
+          aria-label="Hydrated range"
+          thumbLabels={['Minimum', 'Maximum']}
+          value={sliderRange()}
+          onValueChange={(next) => {
+            setSliderRequests((count) => count + 1)
+            setSliderRange(next)
+          }}
+        />
+        <output id="adopt-slider-requests">{sliderRequests()}</output>
+      </section>
+      <section id="adopt-toggles" aria-label="Hydrated toggles">
+        <Toggle
+          id="adopt-toggle"
+          pressed={togglePressed()}
+          onPressedChange={(next) => {
+            setToggleRequests((count) => count + 1)
+            setTogglePressed(next)
+          }}
+        >
+          Hydrated pin
+        </Toggle>
+        <ToggleGroup
+          id="adopt-toggle-group"
+          aria-label="Hydrated view"
+          items={[
+            { value: 'list', label: 'List' },
+            { value: 'board', label: 'Board' },
+          ]}
+          value={toggleView()}
+          onValueChange={(next) => {
+            setToggleRequests((count) => count + 1)
+            setToggleView(next)
+          }}
+        />
+        <output id="adopt-toggle-requests">{toggleRequests()}</output>
+      </section>
+      <section aria-label="Hydrated calendar ranges">
+        <div id="adopt-calendar-range">
+          <RangeCalendar
+            label="Hydrated inline range"
+            value={calendarRange()}
+            initialMonth="2026-01-01"
+            onValueChange={(next) => {
+              setRangeRequests((count) => count + 1)
+              setCalendarRange(next)
+            }}
+          />
+        </div>
+        <form id="adopt-range-form">
+          <DateRangePicker
+            id="adopt-range-picker"
+            label="Hydrated booking"
+            name="window"
+            value={pickerRange()}
+            initialMonth="2026-01-01"
+            numberOfMonths={1}
+            onValueChange={(next) => {
+              setRangeRequests((count) => count + 1)
+              setPickerRange(next)
+            }}
+          />
+        </form>
+        <output id="adopt-range-requests">{rangeRequests()}</output>
+      </section>
       <DragBoardControls />
       <GanttControls />
       <CompoundFieldControls />

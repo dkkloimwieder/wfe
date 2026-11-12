@@ -1,8 +1,21 @@
+import { treeCases } from './tree-cases.mjs'
+import { diagramCases } from './diagram-cases.mjs'
+import { focusContextCases } from '../../shared/charts/focus-context-cases.mjs'
+import { financialCases } from './financial-cases.mjs'
+import { reviewChartDescriptions } from '../../shared/charts/description-review.mjs'
+import { statisticsCases } from './statistics-cases.mjs'
 import {
   galleryCommandCases,
   galleryCommandLinkCases,
 } from './command-cases.mjs'
 import { galleryThemeCases } from './theme-cases.mjs'
+import { rangeCalendarCases } from './range-calendar-cases.mjs'
+import { galleryChartCases } from './chart-cases.mjs'
+import { reviewFocusContext } from '../../shared/charts/focus-context-review.mjs'
+import { timeSeriesCases } from './time-series-cases.mjs'
+import { toggleCases } from './toggle-cases.mjs'
+import { sliderCases } from './slider-cases.mjs'
+import { contextMenuCases } from './context-menu-cases.mjs'
 import { galleryGanttCases } from './gantt-cases.mjs'
 import { galleryDragCases } from './drag-cases.mjs'
 import { artifactPath } from '../../../scripts/artifacts.mjs'
@@ -16,6 +29,21 @@ import { galleryLoadingCases } from './loading-cases.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 const catalog = [
+  ['tree', 'Tree'],
+  ['workflow', 'Workflow diagrams'],
+  ['erd', 'Entity relationships'],
+  ['chart-financial', 'Financial and comparison charts'],
+  ['chart-statistics', 'Statistical charts'],
+  ['chart-descriptions', 'Chart descriptions'],
+  ['chart-focus-context', 'Time-series navigation'],
+  ['chart-time-series', 'Time-series charts'],
+  ['chart-layers', 'Layered charts'],
+  ['chart-data', 'Chart transforms'],
+  ['chart-polar', 'Polar charts'],
+  ['calendar-ranges', 'Calendar ranges'],
+  ['toggles', 'Toggles and groups'],
+  ['sliders', 'Sliders and ranges'],
+  ['context-menu', 'Context menus'],
   ['themes', 'Theme boundaries'],
   ['gantt', 'Gantt'],
   ['drag-and-drop', 'Drag and drop'],
@@ -47,7 +75,46 @@ const catalog = [
   ['table', 'Table'],
   ['pagination', 'Pagination and header actions'],
 ]
-export async function galleryCases({ page, url, record, settle }) {
+export async function galleryCases({ page, url, record, settle, reviewPage }) {
+  await treeCases({ url, record, reviewPage })
+  await diagramCases({ url, record, reviewPage })
+  for (const preset of ['default', 'vanilla', 'laser'])
+    for (const scheme of [1, 2])
+      await record(`gallery: linked time range ${preset} ${scheme}`, () =>
+        reviewPage(async (page) => {
+          await page.setViewportSize({
+            width: scheme === 2 ? 390 : 1280,
+            height: 1000,
+          })
+          await page.goto(
+            `${url}?gallery=chart-focus-context&preset=${preset}&scheme=${scheme}`,
+          )
+          await reviewFocusContext(page)
+        }),
+      )
+  for (const preset of ['default', 'vanilla', 'laser'])
+    for (const scheme of [1, 2])
+      await record(`gallery: chart descriptions ${preset} ${scheme}`, () =>
+        reviewPage(async (page) => {
+          await page.setViewportSize({
+            width: scheme === 2 ? 390 : 1280,
+            height: 1000,
+          })
+          await page.goto(
+            `${url}?gallery=chart-descriptions&preset=${preset}&scheme=${scheme}`,
+          )
+          await reviewChartDescriptions(page)
+        }),
+      )
+  await focusContextCases({ url, record, reviewPage })
+  await financialCases({ url, record, reviewPage })
+  await statisticsCases({ url, record, reviewPage })
+  await timeSeriesCases({ url, record, reviewPage })
+  await galleryChartCases({ url, record, reviewPage })
+  await rangeCalendarCases({ url, record, reviewPage })
+  await toggleCases({ url, record, reviewPage })
+  await sliderCases({ url, record, reviewPage })
+  await contextMenuCases({ page, url, record })
   await galleryNavigationFocusCases({ page, url, record })
   await galleryThemeCases({ page, url, record })
   await decorationGeometryCases({ page, url, record })
@@ -91,7 +158,7 @@ export async function galleryCases({ page, url, record, settle }) {
   await galleryFormCases({ page, url, record })
   await galleryTimeCases({ page, url, record })
   await galleryCommandCases({ page, url, record })
-  await galleryCommandLinkCases({ page, url, record })
+  await galleryCommandLinkCases({ url, record, reviewPage })
   const preview = () => page.locator('.gallery-example-host')
   const ready = async () => {
     await expect(preview().locator('.gallery-preview')).toBeVisible()
@@ -153,21 +220,27 @@ export async function galleryCases({ page, url, record, settle }) {
       await page.setViewportSize({ width: 1280, height: 900 })
       for (const scheme of [1, 2]) {
         for (const [id] of catalog) {
-          await page.goto(`${url}?gallery=${id}&scheme=${scheme}`)
-          await expect(preview().locator('.gallery-preview')).toBeVisible()
-          await expect(page.getByRole('main')).toHaveCount(1)
-          const themeOwners =
-            id === 'themes' ? 6 : id === 'decoration-geometry' ? 2 : 1
-          await expect(page.locator('[data-ui-theme-owner]')).toHaveCount(
-            themeOwners,
-          )
-          await expect(page.locator('iframe')).toHaveCount(0)
-          assert.equal(
-            await page.evaluate(
-              () => document.documentElement.scrollWidth <= innerWidth,
-            ),
-            true,
-          )
+          await reviewPage(async (target) => {
+            await target.setViewportSize({ width: 1280, height: 900 })
+            await target.goto(`${url}?gallery=${id}&scheme=${scheme}`)
+            await expect(
+              target.locator('.gallery-example-host .gallery-preview'),
+            ).toBeVisible()
+            await expect(target.getByRole('main')).toHaveCount(1)
+            // Seven review boundaries sit inside the gallery owner.
+            const themeOwners =
+              id === 'themes' ? 8 : id === 'decoration-geometry' ? 2 : 1
+            await expect(target.locator('[data-ui-theme-owner]')).toHaveCount(
+              themeOwners,
+            )
+            await expect(target.locator('iframe')).toHaveCount(0)
+            assert.equal(
+              await target.evaluate(
+                () => document.documentElement.scrollWidth <= innerWidth,
+              ),
+              true,
+            )
+          })
         }
       }
     },
@@ -187,7 +260,7 @@ export async function galleryCases({ page, url, record, settle }) {
       const components = navigation
         .locator('details')
         .filter({ has: page.locator('summary', { hasText: /^Components$/ }) })
-      await expect(navigation.locator('details')).toHaveCount(5)
+      await expect(navigation.locator('details')).toHaveCount(6)
       await expect(navigation.locator('details[open]')).toHaveCount(1)
       await expect(forms).toHaveAttribute('open', '')
       await expect(
@@ -263,7 +336,7 @@ export async function galleryCases({ page, url, record, settle }) {
       await page
         .getByRole('button', { name: 'Components', exact: true })
         .click()
-      await expect(navigation.locator('details')).toHaveCount(5)
+      await expect(navigation.locator('details')).toHaveCount(6)
       await page.screenshot({
         path: await artifactPath('wfe-gallery-layout-phone.png'),
       })
@@ -745,6 +818,14 @@ async function appearanceCases({ page, url, record }) {
   await record(
     'gallery: decoration controls preserve drafts and history',
     async () => {
+      // Earlier cases can fill Chromium's 50-entry history. Keep this case on
+      // the instrumented page, with room to observe each committed entry.
+      const session = await page.context().newCDPSession(page)
+      try {
+        await session.send('Page.resetNavigationHistory')
+      } finally {
+        await session.detach()
+      }
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
       const preview = page.locator('.gallery-example-host')

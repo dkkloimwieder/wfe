@@ -613,11 +613,11 @@ await withArtifactRun(
         await page
           .getByRole('button', { name: 'Eight records', exact: true })
           .click()
-        const min = page.getByRole('spinbutton', {
+        const min = page.getByRole('textbox', {
           name: 'Amount minimum',
           exact: true,
         })
-        const max = page.getByRole('spinbutton', {
+        const max = page.getByRole('textbox', {
           name: 'Amount maximum',
           exact: true,
         })
@@ -750,7 +750,7 @@ await withArtifactRun(
           })
         })
         await expectValue(
-          page.getByRole('spinbutton', {
+          page.getByRole('textbox', {
             name: 'Amount minimum',
             exact: true,
           }),
@@ -782,7 +782,7 @@ await withArtifactRun(
           window.dashboardFixture.setFilter('amount', undefined),
         )
         await expect(
-          page.getByRole('spinbutton', {
+          page.getByRole('textbox', {
             name: 'Amount minimum',
             exact: true,
           }),

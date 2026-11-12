@@ -17,6 +17,8 @@ export { Select, SelectField } from './components/Select'
 export { Combobox } from './components/Combobox'
 export * from './components/NativeFields'
 export { Checkbox } from './components/Checkbox'
+export * from './slider'
+export * from './toggle'
 export { Switch } from './components/Switch'
 export { RadioGroup } from './components/RadioGroup'
 export { Dialog } from './components/Dialog'
@@ -25,14 +27,25 @@ export { Sheet } from './components/Sheet'
 export type { SheetRootProps, SheetSide } from './components/Sheet'
 export { Popover } from './components/Popover'
 export { DropdownMenu } from './components/DropdownMenu'
+export { ContextMenu } from './components/ContextMenu'
+export type {
+  ContextMenuRootProps,
+  ContextMenuTriggerProps,
+} from './components/ContextMenu'
 export { Tooltip } from './components/Tooltip'
 export * from './components/Display'
 export * from './components/Toast'
 export * from './table'
 export * from './layout'
 
-export { Calendar } from './components/Calendar'
-export type { CalendarProps } from './components/Calendar'
+export { Calendar, RangeCalendar } from './components/Calendar'
+export { DateRangePicker } from './components/DateRangePicker'
+export type { DateRangePickerProps } from './components/DateRangePicker'
+export type {
+  CalendarProps,
+  RangeCalendarProps,
+  CalendarRange,
+} from './components/Calendar'
 export { DatePicker } from './components/DatePicker'
 export type { DatePickerProps } from './components/DatePicker'
 

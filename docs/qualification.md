@@ -345,6 +345,11 @@ The component live runner and preview-isolation runner retain their Vite server 
 They use shared browser launch, diagnostics, and failure-preserving report cleanup.
 Their application groups are `components-live` and `preview-isolation`.
 The live runner retains its compound export checks, module reloads, CSS mutations and restoration, and child interaction run.
+Each live run owns a separate Vite cache, so it preserves existing review servers.
+The runner transforms the entry and waits for its static imports before browser navigation.
+Its report records preparation time separately. The browser navigation deadline remains ten seconds.
+The runner saves the first failure before resource cleanup and records whether cleanup finishes.
+Closing each owned browser also releases its protocol sessions.
 Its child clears the parent application-group filter because the child owns a different group.
 The child retains the existing case filter and disabled workload settings.
 The preview runner still starts four servers serially and reloads every earlier preview after each start.
@@ -517,3 +522,77 @@ Vanilla styling received a source audit and browser review across the gallery, w
 No full qualification run or performance benchmark accompanies this release.
 The shared machine has high and variable load. Earlier performance results do not establish current timing guarantees.
 Incremental Gantt acceptance work remains tracked in `wfe-5y6`.
+
+## Solid RC21 upgrade
+
+Beads `wfe-w2y.52` tracks the coordinated upgrade from RC18 to RC21.
+Solid, Web, Signals, the compiler, the Babel plugin, and the compiler binaries use `2.0.0-rc.21`.
+The Vite plugin uses `3.0.0-next.56`, and the testing library uses `1.0.0-rc.2`.
+The five workspace packages declare `>=2.0.0-rc.21 <3.0.0` for their Solid peers.
+This aligns consumers with the tested runtime and avoids the duplicate runtime problem from the RC18 upgrade.
+
+The official registry manifests identify source commit `2105ffb8ca2fced55f5fac0763177fc93f97c2c2` for the RC21 family.
+Exact release-age exclusions cover this authorized upgrade and its compiler binaries.
+The general 24-hour release-age rule and trust policy remain active.
+TypeScript 6.0.3, Vitest 4.1.11, Vite 8.3.0, Node requirements, and pnpm 12.4.1 remain unchanged.
+
+The interaction, scroll, disposal, popup, and native listener repairs remain in place.
+The dependency tree resolves one RC21 version for each runtime and compiler package.
+The lockfile replaces only the Solid family and the two companion packages.
+Registry manifests, installation logs, the baseline lockfile, and the dependency review reside under `test-results/solid-rc21/setup`.
+
+The browser run found obsolete `dist/source` paths in two fixture guards.
+The guards now recognize the existing `dist` output and retain their ownership assertions.
+The virtual engine guard also requires at least one matching module.
+A gallery assertion also omitted the two existing Laser theme boundaries.
+Its expected count now includes all seven review boundaries and the gallery frame.
+
+A compiler-free comparison reproduced the sync example confirmation delay on both RC18 and RC21.
+The fake server completed its first follow pass before acknowledging the write.
+Both runtimes retained the expected row until a later explicit follow pass.
+The example now queues a pull after acknowledgment observers run, with disposal cleanup.
+The generic sync contract, ten-second polling default, and browser assertion timeouts remain unchanged.
+The comparison and its initial setup failure remain under `test-results/solid-rc21/sync-confirmation-fixture`.
+
+The development sync run also detected `HUGE_FAN_IN` in `recordWrite.rows`.
+Its nested projections subscribed separately to every authoritative row.
+The adapter now composes pending writes over the plain array from its existing subscription.
+One keyed output projection preserves row identity and updates.
+A 2,100-row regression failed with 2,102 tracked sources before the repair and passed afterward.
+The focused sync suites passed 74 tests without changing diagnostic filtering.
+
+The complete canonical inventory contains 143 stages.
+The serial campaign retains its first failures and uses focused continuations for cases that those failures prevented.
+The repaired sync package passes all 18 browser cases in each delivery mode, with no rejected development diagnostics.
+The corrected containment case passes in source, distribution, and development modes.
+Desktop and phone captures show the default and Vanilla fields previews without browser errors.
+
+Matched cleanup comparisons cover 24 disposal cases and 12 event cases across RC18 and RC21, with 72 actual heaps.
+RC21 releases all tagged records in both standalone reproductions, while RC18 retains records in the historical failing cases.
+The existing repairs remain until actual component fixtures qualify their retirement under `wfe-0dj.4` and `wfe-0dj.5`.
+
+The native-tab timeout remains under `wfe-x6o`, and the initial live-preview load timeout remains under `wfe-4k8`.
+The primary live run passes refresh and imported-CSS assertions before its interaction child hits a native-tab failure.
+Its focused follow-up stops at initial navigation, before interaction assertions.
+The isolated platform source rerun passes after its retained initial click timeout.
+Host load varies throughout the serial campaign, so timings do not establish performance changes or timeout causes.
+These results do not establish a clean full qualification pass.
+
+The monolithic final gate stops with `SIGTERM` during the unit stage, after its first eight stages pass.
+Its cause remains unproven, and the continuation runs the remaining stages serially.
+The first complete unit continuation passes 1,419 cases and times out one unchanged datetime-label case at its five-second limit.
+The test now scopes group and button searches to the labeled field, with the same accessibility assertions and timeout.
+All six message tests pass in the focused follow-up.
+
+The final required stages pass after the serial continuation and scoped test revalidation.
+The full unit confirmation passes 1,420 tests across 143 files.
+Server rendering, 35 UI contract examples, generator contracts, and 160 Node tests also pass.
+Local runs use Node 24.19.0, pnpm 12.4.1, and Playwright 1.63.0 with Chromium 153.0.8010.12.
+The other declared Node boundaries did not run in this campaign.
+`test-results/solid-rc21/verification.json` records final input hashes, stage summaries, report hashes, and remaining limits.
+The existing tagged releases and their historical evidence remain unchanged.
+
+To undo this upgrade before a commit, restore only its changed files from the recorded baseline revision.
+Preserve unrelated edits and all test evidence.
+Then run `pnpm install --frozen-lockfile` from the repository root.
+Rebuild the workspace before reviewing the restored previews.

@@ -85,6 +85,16 @@ export function qualificationStages(output, { wamn = false } = {}) {
     }
     stages.push(
       stage(
+        `diagrams-hydration-${mode}`,
+        ['exec', 'node', 'examples/diagrams/run.mjs', '--hydration'],
+        {
+          ...env,
+          BENCH_OUTPUT: resolve(output, `diagrams-hydration-${mode}.json`),
+        },
+      ),
+    )
+    stages.push(
+      stage(
         `charts-hydration-${mode}`,
         ['exec', 'node', 'examples/charts/run.mjs', '--hydration'],
         {

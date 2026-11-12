@@ -51,6 +51,15 @@ See the [drag and drop guide](drag-and-drop.md) and
 Applications own remote search, cancellation, context, and action policy.
 Read the [command guide](command.md) for the public API and examples.
 
+`ContextMenu` opens shared menus through right-click, keyboard commands and touch holds.
+Read the [calendar range guide](calendar-ranges.md) for partial dates, multiple months, and controlled picker acceptance.
+
+Read the [toggle guide](toggles.md) for controlled toolbar buttons and single or multiple groups.
+
+Read the [slider guide](sliders.md) for controlled scalar and range values, touch, and keyboard input.
+
+Read the [context menu guide](context-menu.md) for controlled opening and native input behavior.
+
 SidebarContextSwitcher presents application-controlled contexts, searchable siblings, and parent navigation above the existing sidebar menu.
 Read the [context switcher guide](sidebar-context-switcher.md) for ownership and keyboard behavior.
 
@@ -111,7 +120,9 @@ The [diagnostics guide](table-diagnostics.md) describes inspection and performan
 
 ## Charts
 
-The separate `@wfe/components/chart` entry provides line, area, horizontal/vertical bar, and scatter plots.
+The separate `@wfe/components/chart` entry provides line, area, bar, scatter, interval, heatmap, and polar plots.
+Explicit transforms support grouping, bins, stacking, rolling values, normalization, and record selection.
+The gallery includes layered trends, transformed data, pie/donut, radar, and radial bar recipes.
 It includes numeric, categorical, UTC, and local-time scales, legends, tooltips, keyboard interaction, and responsive SVG rendering.
 Applications supply accepted series visibility, data, display formatters, themes, and callbacks.
 The default uses the selected accent. Explicit series colors and application palettes support multiple colors.
@@ -192,3 +203,84 @@ Status and display components accept [application-supplied messages](display-mes
 Generated forms, repeated rows, details, and tables forward [nested control messages](view-messages.md#nested-standard-controls) without replacing their standard controls. Date-filter boundary labels retain their own explicit precedence.
 
 The [color picker](color-picker.md) provides controlled hex entry and a themed popup with RGB sliders.
+
+## Read-only diagrams
+
+`@wfe/components/diagram` exports `Diagram` and its node, edge, endpoint, selection, and renderer-context types.
+The workflow and ERD gallery routes are `?gallery=workflow` and `?gallery=erd`.
+An ERD shows entities and their relationships.
+The examples provide branching request stages and order-service entities with field-level connections.
+Choose Large workflow to inspect an order-fulfillment process with 45 stages and 77 connections.
+It includes parallel checks, four- and five-arm decisions, joins, cancellation, refunds, and local retry loops.
+Branch labels remain inside their source nodes.
+Use Fit diagram for an overview, then zoom in or use the record list to inspect individual stages.
+
+Applications provide immutable nodes with unique IDs, labels, dimensions, and source data.
+Manual placement is the default and requires `x` and `y` coordinates.
+Set `layout="auto"` to arrange nodes from left to right without supplying coordinates.
+Automatic layout places connected stages in columns and separates nodes by their measured dimensions.
+Cycles share a column, and disconnected nodes remain visible.
+Set `layout={{ nodeGap: 48, rankGap: 120 }}` to adjust space within and between columns.
+The exported `layoutDiagram(nodes, edges, options)` function accepts `DiagramInputNode` records and returns positioned `DiagramNode` copies.
+It preserves input order, IDs, ports, and source data without changing input records.
+Both gallery examples start in automatic mode and offer manual placement for comparison.
+Changing layout mode fits the new arrangement and retains selection and custom content.
+Content height changes update automatic placement while preserving a user-controlled viewport.
+This first layout mode prevents node overlap. It does not route connections around intervening nodes.
+Optional named ports specify a side and an offset along that side in graph units.
+Edges reference node IDs and optional port IDs.
+The component supports straight, curved, and elbow connections with labels and direction arrows.
+The examples expose these styles through the Connection style control.
+Both examples default to elbows whose corners follow `--ui-radius`.
+Node corners use `--ui-panel-radius`, and label corners use `--ui-popup-radius`.
+Each role falls back to `--ui-radius`.
+Live theme changes update elbow geometry without replacing nodes.
+Workflow branch labels appear inside source nodes beside distinct named output ports.
+Set `showLabel: true` on a port to show its label inside the node.
+Applications reserve room for port labels when they define node dimensions and port offsets.
+Set `showEdgeLabels={false}` to hide visible labels while retaining accessible relationship descriptions.
+The ERD Show connection labels control demonstrates this choice.
+Label borders use `--ui-border`, the same theme color as node borders.
+Invalid dimensions, duplicate IDs, and missing endpoints produce descriptive errors.
+
+`selection` is the accepted node or edge ID with its `kind`.
+Selected connections rise above nodes without changing their routes or replacing their focus targets.
+A theme-background halo stays opaque beside the line and fades over roughly half an em on each side.
+The line, label, and fixed-size arrow remain crisp.
+The halo does not intercept pointer input.
+Deselection returns the connection behind nodes.
+`onSelectionChange` requests a selection or clears it with `null`.
+The application accepts or rejects that request and resolves the ID to its source record.
+The component never changes application records, coordinates, membership, or relationship endpoints.
+Pan, zoom, fit, and viewport measurement remain local presentation state.
+
+`renderNode` receives a context with a reactive `node` property.
+This property contains the positioned node and its measured dimensions.
+Read `context.node` inside JSX or a tracked computation.
+A stable renderer retains its content owner while the node ID survives updates.
+Changing the renderer replaces that content.
+Node dimensions include the 32-unit shared title row.
+Set `fitContent: true` on a node to fit its content without internal scrolling.
+The ERD example uses this mode for every entity.
+The browser measures content height for connection routing, focus navigation, and fitting.
+The supplied `height` remains the initial server-rendering fallback.
+The application supplies readable dimensions and positions, including room for relationship labels.
+
+The canvas supports background dragging, Ctrl or Command plus wheel zoom, navigation buttons, and keyboard pan, zoom, and fit.
+Keyboard focus reveals graph elements that lie outside the current view.
+The shared disclosure provides a textual node and relationship list for inspection without canvas navigation.
+Inspection panels in the examples sit outside the canvas.
+The MVP does not include node editing, resizing, connection authoring, obstacle routing, minimaps, or workflow execution.
+
+The implementation uses one owned Solid renderer and the external `@xyflow/system` geometry dependency pinned to `0.0.83`.
+This is the geometry package used by [Solid Flow 1.0.0-next.22](https://github.com/dsnchz/solid-flow/blob/7f4665bc6671e8c748850c470dd9b74203bcab9e/package.json).
+The selected subset adapts its node/handle and edge-path model to a read-only component.
+It does not import or copy the Solid Flow editor runtime, mutable stores, or gesture controllers.
+Upstream package licenses remain in the dependency distribution.
+Solid, Solid Primitives, and the existing compiler and test pins remain unchanged.
+
+Server rendering uses `initialWidth` and explicit node dimensions to render nodes and relationships before JavaScript loads.
+Browser measurement updates the initial fit without replacing the graph elements.
+User navigation retains its viewport until Fit diagram resets it.
+Server and client must receive the same initial graph, dimensions, and renderer.
+The [standalone fixture](../examples/diagrams/App.tsx) exercises both graph recipes through the public package entry.

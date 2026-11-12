@@ -1,4 +1,13 @@
+import { TreeExample } from '../../shared/controls/TreeExample'
+import {
+  WorkflowExample,
+  ErdExample,
+} from '../../shared/diagrams/DiagramExamples'
+import { RangeCalendarExample } from './RangeCalendarExample'
+import { ToggleExample } from './ToggleExample'
+import { SliderExample } from './SliderExample'
 import { ColorExample } from './ColorExample'
+import { ContextMenuExample } from './ContextMenuExample'
 import { CommandRecipe } from './CommandRecipe'
 import { ThemeReview } from './ThemeReview'
 import { GanttExample } from './GanttExample'
@@ -55,8 +64,63 @@ import './gallery.css'
 const IconsExample = lazy(() =>
   import('./IconsExample').then((module) => ({ default: module.IconsExample })),
 )
+const FinancialExample = lazy(() =>
+  import('../../shared/charts/Financial').then((module) => ({
+    default: module.FinancialCharts,
+  })),
+)
+const StatisticsExample = lazy(() =>
+  import('../../shared/charts/Statistics').then((module) => ({
+    default: module.Statistics,
+  })),
+)
+const DescriptionExample = lazy(() =>
+  import('../../shared/charts/DescriptionExample').then((module) => ({
+    default: module.ChartDescriptions,
+  })),
+)
+const FocusContextExample = lazy(() =>
+  import('../../shared/charts/FocusContext').then((module) => ({
+    default: module.FocusContext,
+  })),
+)
+const TimeSeriesExample = lazy(() =>
+  import('../../shared/charts/TimeSeries').then((module) => ({
+    default: module.TimeSeries,
+  })),
+)
+const ChartLayersExample = lazy(() =>
+  import('../../shared/charts/Grammar').then((module) => ({
+    default: () => <module.ChartGrammar family="layers" />,
+  })),
+)
+const ChartDataExample = lazy(() =>
+  import('../../shared/charts/Grammar').then((module) => ({
+    default: () => <module.ChartGrammar family="data" />,
+  })),
+)
+const ChartPolarExample = lazy(() =>
+  import('../../shared/charts/Grammar').then((module) => ({
+    default: () => <module.ChartGrammar family="polar" />,
+  })),
+)
 
 const views = {
+  tree: TreeExample,
+  workflow: WorkflowExample,
+  erd: ErdExample,
+  'chart-financial': FinancialExample,
+  'chart-statistics': StatisticsExample,
+  'chart-descriptions': DescriptionExample,
+  'chart-focus-context': FocusContextExample,
+  'chart-time-series': TimeSeriesExample,
+  'chart-layers': ChartLayersExample,
+  'chart-data': ChartDataExample,
+  'chart-polar': ChartPolarExample,
+  'calendar-ranges': RangeCalendarExample,
+  sliders: SliderExample,
+  toggles: ToggleExample,
+  'context-menu': ContextMenuExample,
   commands: CommandRecipe,
   themes: ThemeReview,
   gantt: () => (

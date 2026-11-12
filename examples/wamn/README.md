@@ -48,7 +48,7 @@ Scope changes invalidate earlier responses before the new load starts.
 The fixture waits for Solid's microtask commit before it reads a changed configuration.
 The earlier rc.13 investigation observed that `latest()` did not expose queued synchronous writes.
 That observation is historical.
-For the current pinned rc.18 model, read the bundled [Solid cheatsheet](../../node_modules/solid-js/CHEATSHEET.md) after installation.
+For the current pinned RC21 model, read the bundled [Solid cheatsheet](../../node_modules/solid-js/CHEATSHEET.md) after installation.
 It describes committed reads and the microtask or explicit `flush()` boundary.
 
 ## Run

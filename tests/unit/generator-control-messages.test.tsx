@@ -88,7 +88,10 @@ test('direct and repeated datetime fields forward clock labels and invalid feedb
   for (const label of ['Nested instant', 'Repeated instant']) {
     h.app.setFrench(false)
     flush()
-    const group = h.getByRole('group', { name: label })
+    const field = labelled(h.container, label).closest<HTMLElement>('.ui-field')
+    expect(field).not.toBeNull()
+    const controls = within(field!)
+    const group = controls.getByRole('group', { name: label })
     const input = within(group).getByRole('textbox', {
       name: label,
     }) as HTMLInputElement
@@ -102,7 +105,7 @@ test('direct and repeated datetime fields forward clock labels and invalid feedb
     expect(input.value).toBe('2024-02-29 99:99')
     expect(input.validationMessage).toBe('Instant invalide')
     expect(document.activeElement).toBe(input)
-    fireEvent.click(h.getByRole('button', { name: `Ouvrir ${label}` }))
+    fireEvent.click(controls.getByRole('button', { name: `Ouvrir ${label}` }))
     flush()
     const popup = h.getByRole('dialog', { name: label })
     const clock = within(popup).getByRole('group', { name: 'Heure' })

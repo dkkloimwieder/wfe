@@ -5,6 +5,7 @@ import type {
   ActionDescription,
   ChartAxisDescription,
   ChartDescription,
+  ChartLayerDescription,
   ChartViewBindings,
   ColumnPresentation,
   CustomCellProps,
@@ -60,6 +61,7 @@ export type ExportedTypes = Assert<
     ActionDescription: ActionDescription
     ChartAxisDescription: ChartAxisDescription<{ id: string; value: string }>
     ChartDescription: ChartDescription
+    ChartLayerDescription: ChartLayerDescription<{ id: string; value: string }>
     ChartViewBindings: ChartViewBindings<{ id: string; value: string }>
     ColumnPresentation: ColumnPresentation
     CustomCellProps: CustomCellProps<unknown, unknown>

@@ -45,6 +45,7 @@ import type {
   calendarMessages,
   CalendarMessages,
   CalendarProps,
+  CalendarRange,
   Card,
   CardProps,
   ChangeHandler,
@@ -87,6 +88,9 @@ import type {
   CommandProps,
   CommandShortcutOptions,
   ConfiguredTableColumnFilterProps,
+  ContextMenu,
+  ContextMenuRootProps,
+  ContextMenuTriggerProps,
   ControlDecoration,
   ControlDecorationProps,
   createCommandShortcut,
@@ -113,6 +117,8 @@ import type {
   datePickerMessages,
   DatePickerMessages,
   DatePickerProps,
+  DateRangePicker,
+  DateRangePickerProps,
   DateTimeDisambiguation,
   DateTimePicker,
   dateTimePickerMessages,
@@ -281,6 +287,10 @@ import type {
   RadioGroupItemProps,
   RadioGroupLabelProps,
   RadioGroupRootProps,
+  RangeCalendar,
+  RangeCalendarProps,
+  RangeSlider,
+  RangeSliderProps,
   ReadOnlyTable,
   Resizable,
   ResizableProps,
@@ -315,6 +325,10 @@ import type {
   SidebarGroupProps,
   Skeleton,
   SkeletonProps,
+  Slider,
+  SliderChangeEvent,
+  SliderCommitEvent,
+  SliderProps,
   SortableContainer,
   SortableContainerOptions,
   SortableData,
@@ -426,6 +440,11 @@ import type {
   ToastRoot,
   ToastRootProps,
   ToastTitle,
+  Toggle,
+  ToggleGroup,
+  ToggleGroupItem,
+  ToggleGroupProps,
+  ToggleProps,
   toLegacyTableFilterValue,
   Tooltip,
   TooltipContentProps,
@@ -493,6 +512,7 @@ export type ExportedTypes = Assert<
     calendarMessages: typeof calendarMessages
     CalendarMessages: CalendarMessages
     CalendarProps: CalendarProps
+    CalendarRange: CalendarRange
     Card: typeof Card
     CardProps: CardProps
     ChangeHandler: ChangeHandler<unknown>
@@ -537,6 +557,9 @@ export type ExportedTypes = Assert<
     ConfiguredTableColumnFilterProps: ConfiguredTableColumnFilterProps<
       import('@wfe/components/table').TableColumnFilterConfig
     >
+    ContextMenu: typeof ContextMenu
+    ContextMenuRootProps: ContextMenuRootProps
+    ContextMenuTriggerProps: ContextMenuTriggerProps
     ControlDecoration: ControlDecoration
     ControlDecorationProps: ControlDecorationProps
     createCommandShortcut: typeof createCommandShortcut
@@ -563,6 +586,8 @@ export type ExportedTypes = Assert<
     datePickerMessages: typeof datePickerMessages
     DatePickerMessages: DatePickerMessages
     DatePickerProps: DatePickerProps
+    DateRangePicker: typeof DateRangePicker
+    DateRangePickerProps: DateRangePickerProps
     DateTimeDisambiguation: DateTimeDisambiguation
     DateTimePicker: typeof DateTimePicker
     dateTimePickerMessages: typeof dateTimePickerMessages
@@ -731,6 +756,10 @@ export type ExportedTypes = Assert<
     RadioGroupItemProps: RadioGroupItemProps
     RadioGroupLabelProps: RadioGroupLabelProps
     RadioGroupRootProps: RadioGroupRootProps
+    RangeCalendar: typeof RangeCalendar
+    RangeCalendarProps: RangeCalendarProps
+    RangeSlider: typeof RangeSlider
+    RangeSliderProps: RangeSliderProps
     ReadOnlyTable: typeof ReadOnlyTable
     Resizable: typeof Resizable
     ResizableProps: ResizableProps
@@ -765,6 +794,10 @@ export type ExportedTypes = Assert<
     SidebarGroupProps: SidebarGroupProps
     Skeleton: typeof Skeleton
     SkeletonProps: SkeletonProps
+    Slider: typeof Slider
+    SliderChangeEvent: SliderChangeEvent
+    SliderCommitEvent: SliderCommitEvent
+    SliderProps: SliderProps
     SortableContainer: SortableContainer
     SortableContainerOptions: SortableContainerOptions
     SortableData: SortableData
@@ -876,6 +909,11 @@ export type ExportedTypes = Assert<
     ToastRoot: typeof ToastRoot
     ToastRootProps: ToastRootProps
     ToastTitle: typeof ToastTitle
+    Toggle: typeof Toggle
+    ToggleGroup: typeof ToggleGroup
+    ToggleGroupItem: ToggleGroupItem
+    ToggleGroupProps: ToggleGroupProps
+    ToggleProps: ToggleProps
     toLegacyTableFilterValue: typeof toLegacyTableFilterValue
     Tooltip: typeof Tooltip
     TooltipContentProps: TooltipContentProps

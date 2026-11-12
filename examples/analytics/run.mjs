@@ -18,7 +18,7 @@ import { readFile } from 'node:fs/promises'
 import { createServer } from 'node:http'
 import { loadavg } from 'node:os'
 import { fileURLToPath } from 'node:url'
-import { chromium } from '@playwright/test'
+import { chromium, expect } from '@playwright/test'
 import { handleAnalyticsRequest } from './demo-server.mjs'
 import { withArtifactRun } from '../../scripts/artifacts.mjs'
 
@@ -961,7 +961,7 @@ await withArtifactRun(
             },
           }),
         )
-        assert.deepEqual(await rows(), ['fresh-east'])
+        await expect.poll(rows).toEqual(['fresh-east'])
         assert.equal(await csv(), 'Region,Amount,Active\r\nEast,99,true\r\n')
       })
       await test('Loading, error and retry suppress stale rows and export', async () => {

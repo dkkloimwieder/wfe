@@ -29,6 +29,7 @@ export { LayoutView } from './LayoutView'
 
 export type {
   ChartAxisDescription,
+  ChartLayerDescription,
   ChartDescription,
   ChartViewBindings,
 } from './chart/types'

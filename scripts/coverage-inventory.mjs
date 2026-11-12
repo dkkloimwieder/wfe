@@ -16,6 +16,13 @@ export const examples = [
   required('grid'),
   required('shell'),
   required('charts'),
+  required('diagrams'),
+  {
+    ...required('tree-prototype', ['source', 'distribution']),
+    status: 'diagnostic',
+    reason:
+      'Isolated experimental Tree export, pending user review before integration.',
+  },
   required('components'),
   required('table-editing'),
   required('table-read-only'),
@@ -105,12 +112,14 @@ export const runners = [
 ]
 
 export const hydrationReviews = [
-  ...['charts', 'shell', 'grid', 'status-tiles', 'platform'].map((id) => ({
-    stage: `${id}-hydration-{mode}`,
-    path: `examples/${id}/run.mjs`,
-    args: ['--hydration'],
-    status: 'required',
-  })),
+  ...['diagrams', 'charts', 'shell', 'grid', 'status-tiles', 'platform'].map(
+    (id) => ({
+      stage: `${id}-hydration-{mode}`,
+      path: `examples/${id}/run.mjs`,
+      args: ['--hydration'],
+      status: 'required',
+    }),
+  ),
   ...[
     ['date', 'date-picker'],
     ['form', 'form-contract'],

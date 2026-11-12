@@ -207,8 +207,8 @@ export async function displayCases({ createPage, url, record }) {
         await configure({ persistent: false, duration: 0 })
         await page.clock.runFor(2000)
         assert.equal((await read()).open, true)
-        await configure({ duration: 100, accept: false })
         const requests = (await read()).requests
+        await configure({ duration: 100, accept: false })
         await page.clock.runFor(2000)
         assert.equal((await read()).requests, requests + 1)
         await page.clock.runFor(2000)

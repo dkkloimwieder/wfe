@@ -201,6 +201,8 @@ export function Gallery() {
                   'Forms',
                   'Tables',
                   'Components',
+                  'Charts',
+                  'Diagrams',
                   'Navigation',
                   'Layout',
                 ] as const
@@ -217,6 +219,8 @@ export function Gallery() {
                             Forms: 'form',
                             Tables: 'grid',
                             Components: 'grid',
+                            Charts: 'grid',
+                            Diagrams: 'grid',
                             Navigation: 'navigation',
                             Layout: 'layout',
                           } as const

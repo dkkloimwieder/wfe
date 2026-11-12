@@ -21,7 +21,10 @@ const rows: Row[] = [
     at: new Date('2026-01-02T00:00:00Z'),
   },
 ]
-const description: ChartDescription<Row> = {
+const description: Extract<
+  ChartDescription<Row>,
+  { kind: 'line' | 'area' | 'scatter' }
+> = {
   id: 'requests',
   ariaLabel: 'Generated requests',
   kind: 'line',
@@ -103,7 +106,7 @@ test('UTC axes use binding formatters and accept null gaps and empty results', (
   const [data, setData] = createSignal(rows)
   const d: ChartDescription<Row> = {
     ...description,
-    x: { field: 'at', scale: 'utc', formatter: 'day' },
+    x: { field: 'at', scale: 'utc', formatter: 'day' } as const,
   }
   const h = render(() => (
     <ChartView
@@ -215,7 +218,7 @@ test('an explicitly supplied formatter named constructor remains a valid own bin
     <ChartView
       description={{
         ...description,
-        y: { field: 'y', formatter: 'constructor' },
+        y: { field: 'y', formatter: 'constructor' } as const,
       }}
       bindings={{
         rows: () => rows,
@@ -228,3 +231,141 @@ test('an explicitly supplied formatter named constructor remains a valid own bin
     'Own formatter',
   )
 })
+
+test('ordered layers share scales and retain original records during controlled updates', () => {
+  const select = vi.fn()
+  const [data, setData] = createSignal(rows)
+  const h = render(() => (
+    <ChartView
+      description={{
+        id: 'layers',
+        kind: 'layers',
+        ariaLabel: 'Generated layers',
+        key: 'id',
+        x: { field: 'x', scale: 'linear' },
+        y: { formatter: 'amount' },
+        layers: [
+          { id: 'area', kind: 'area', y: { field: 'y' } },
+          { id: 'line', kind: 'line', y: { field: 'y' } },
+          {
+            id: 'dots',
+            kind: 'scatter',
+            y: { field: 'y', formatter: 'amount' },
+          },
+        ],
+      }}
+      bindings={{
+        rows: data,
+        onSelect: select,
+        formatters: { amount: (value) => `${value} units` },
+      }}
+    />
+  ))
+  flush()
+  const svg = h.getByRole('img', { name: 'Generated layers' })
+  expect(svg.querySelector('.ts-chart__area')).not.toBeNull()
+  expect(svg.querySelector('.ts-chart__line')).not.toBeNull()
+  fireEvent.focusIn(svg)
+  fireEvent.keyDown(svg, { key: 'ArrowRight' })
+  fireEvent.keyDown(svg, { key: 'Enter' })
+  flush()
+  expect(rows).toContain(select.mock.calls[0]![0].datum)
+  setData(rows.map((row) => ({ ...row, y: 9 })))
+  flush()
+  expect(h.getByRole('img', { name: 'Generated layers' })).toBe(svg)
+  setData([])
+  flush()
+  expect(svg.outerHTML).not.toContain('NaN')
+})
+
+test('polar descriptions round trip JSON and return original records on focus and selection', () => {
+  const data = rows.map((row) => ({ ...row, y: Math.abs(row.y ?? 0) }))
+  const select = vi.fn()
+  const focus = vi.fn()
+  const [radius, setRadius] = createSignal(0.5)
+  const h = render(() => (
+    <ChartView
+      description={JSON.parse(
+        JSON.stringify({
+          id: 'pie',
+          kind: 'pie',
+          ariaLabel: 'Generated composition',
+          key: 'id',
+          value: { field: 'y', formatter: 'count' },
+          innerRadius: radius(),
+        }),
+      )}
+      bindings={{
+        rows: () => data,
+        onSelect: select,
+        onFocusChange: focus,
+        formatters: { count: (value) => `${value} requests` },
+      }}
+    />
+  ))
+  flush()
+  const svg = h.getByRole('img', { name: 'Generated composition' })
+  fireEvent.focusIn(svg)
+  fireEvent.keyDown(svg, { key: 'ArrowRight' })
+  fireEvent.keyDown(svg, { key: 'Enter' })
+  flush()
+  expect(data).toContain(select.mock.calls[0]![0].datum)
+  expect(data).toContain(focus.mock.calls.find(([point]) => point)?.[0].datum)
+  expect(document.body.textContent).toContain('requests')
+  setRadius(0)
+  flush()
+  expect(h.getByRole('img', { name: 'Generated composition' })).toBe(svg)
+  expect(svg.outerHTML).not.toContain('NaN')
+})
+
+for (const [name, value] of [
+  ['empty layers', { ...description, kind: 'layers', y: {}, layers: [] }],
+  [
+    'duplicate layer IDs',
+    {
+      ...description,
+      kind: 'layers',
+      y: {},
+      layers: [
+        { id: 'same', kind: 'line', y: { field: 'y' } },
+        { id: 'same', kind: 'area', y: { field: 'y' } },
+      ],
+    },
+  ],
+  [
+    'unsupported layer',
+    {
+      ...description,
+      kind: 'layers',
+      y: {},
+      layers: [{ id: 'bad', kind: 'pie', y: { field: 'y' } }],
+    },
+  ],
+  [
+    'invalid radius',
+    {
+      id: 'pie',
+      ariaLabel: 'Bad pie',
+      kind: 'pie',
+      value: { field: 'x' },
+      innerRadius: 1,
+    },
+  ],
+  [
+    'negative slices',
+    { id: 'pie', ariaLabel: 'Bad pie', kind: 'pie', value: { field: 'y' } },
+  ],
+] as const)
+  test(`rejects ${name}`, () => {
+    const h = render(() => (
+      <Errored fallback={(error) => <p role="alert">{String(error())}</p>}>
+        <ChartView
+          description={value as unknown as ChartDescription<Row>}
+          bindings={{ rows: () => rows }}
+        />
+      </Errored>
+    ))
+    flush()
+    expect(h.getByRole('alert').textContent).toContain('Generator:')
+    expect(h.container.querySelector('svg')).toBeNull()
+  })
