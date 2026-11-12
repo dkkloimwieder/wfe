@@ -75,6 +75,108 @@ test('disposal before settlement attaches no DOM observers', () => {
   expect(add).not.toHaveBeenCalled()
 })
 
+for (const known of [0, 120, undefined]) {
+  test(`initial native scroll writes preserve adopted viewports and skip only a known fresh offset ${known}`, async () => {
+    const element = document.createElement('div')
+    document.body.append(element)
+    element.scrollTop = known === 0 ? 0 : 120
+    const scroll = vi.fn((options: ScrollToOptions | number = {}) => {
+      if (typeof options !== 'number') element.scrollTop = options.top ?? 0
+    })
+    element.scrollTo = scroll
+    const initial = vi.fn(() => known)
+    const h = createRoot((dispose) => ({
+      virtualizer: createTableVirtualizer({
+        mode: 'fixed',
+        count: 1000,
+        rowHeight: 30,
+        getItemKey: (index) => String(index),
+        getScrollElement: () => element,
+        getInitialScrollOffset: initial,
+        initialRect: { width: 200, height: 100 },
+      }),
+      dispose,
+    }))
+    try {
+      await Promise.resolve()
+      flush()
+      expect(scroll).toHaveBeenCalledTimes(known === 0 ? 0 : 1)
+      expect(element.scrollTop).toBe(0)
+      const before = scroll.mock.calls.length
+      h.virtualizer.scrollToIndex(0)
+      expect(scroll.mock.calls.length).toBeGreaterThan(before)
+      if (known === 0) expect(initial).toHaveBeenCalledOnce()
+    } finally {
+      h.dispose()
+      element.remove()
+    }
+  })
+}
+
+test('viewport observation waits for delivered geometry and releases it on disposal', async () => {
+  const observed: Array<{
+    callback: ResizeObserverCallback
+    disconnect: ReturnType<typeof vi.fn>
+  }> = []
+  class Observer {
+    disconnect = vi.fn()
+    constructor(callback: ResizeObserverCallback) {
+      observed.push({ callback, disconnect: this.disconnect })
+    }
+    observe() {}
+    unobserve() {}
+  }
+  vi.stubGlobal('ResizeObserver', Observer)
+  const element = document.createElement('div')
+  document.body.append(element)
+  const width = vi.fn(() => 200)
+  const height = vi.fn(() => 100)
+  Object.defineProperties(element, {
+    offsetWidth: { get: width },
+    offsetHeight: { get: height },
+  })
+  element.scrollTo = () => {}
+  const h = createRoot((dispose) => ({
+    virtualizer: createTableVirtualizer({
+      mode: 'fixed',
+      count: 1000,
+      rowHeight: 30,
+      getItemKey: (index) => String(index),
+      getScrollElement: () => element,
+      overscan: 0,
+      initialRect: { width: 200, height: 60 },
+    }),
+    dispose,
+  }))
+  try {
+    await Promise.resolve()
+    flush()
+    expect(width).not.toHaveBeenCalled()
+    expect(height).not.toHaveBeenCalled()
+    expect(h.virtualizer.getKeys()).toEqual(['0', '1'])
+    const viewport = observed[0]!
+    viewport.callback(
+      [
+        {
+          target: element,
+          borderBoxSize: [{ inlineSize: 200, blockSize: 120 }],
+        },
+      ] as unknown as ResizeObserverEntry[],
+      {} as ResizeObserver,
+    )
+    flush()
+    expect(h.virtualizer.getKeys()).toEqual(['0', '1', '2', '3'])
+    expect(width).not.toHaveBeenCalled()
+    expect(height).not.toHaveBeenCalled()
+    h.dispose()
+    expect(viewport.disconnect).toHaveBeenCalledOnce()
+  } finally {
+    h.dispose()
+    element.remove()
+    vi.unstubAllGlobals()
+  }
+})
+
 test('both row modes use the same vendored engine and fixed windows ignore page metadata', () => {
   const getItemKey = vi.fn((index: number) => index)
   const h = createRoot((dispose) => {

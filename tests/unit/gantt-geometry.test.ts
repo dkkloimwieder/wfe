@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest'
 import {
   createGanttDependencyIndex,
   createGanttIntervalIndex,
+  createGanttIntervalIndexer,
   flattenGanttRows,
   ganttDateToX,
   ganttDependencyPath,
@@ -25,6 +26,67 @@ const interval = (
   end: number,
   rowId = 'a',
 ): GanttInterval => ({ id, rowId, label: id, ...range(start, end) })
+
+test('retained interval indexes rebuild edited rows and preserve independent row membership', () => {
+  const update = createGanttIntervalIndexer()
+  const a = interval('a', 0, 10, 'first')
+  const b = interval('b', 20, 30, 'second')
+  const first = update([a, b])
+  const untouched = first.byRow.get('second')
+  const changed = first.byRow.get('first')
+  const edited = { ...a, start: at(12), end: at(15) }
+  const next = update([edited, b])
+  expect(next.byRow.get('second')).toBe(untouched)
+  expect(next.byRow.get('first')).not.toBe(changed)
+  expect(next.query('first', at(0), at(5))).toEqual([])
+  expect(next.query('first', at(12), at(15))).toEqual([edited])
+})
+
+test('retained interval indexes detect in-place dates, baselines, membership, and ordering', () => {
+  const update = createGanttIntervalIndexer()
+  const a = interval('a', 0, 10)
+  const b = interval('b', 0, 10)
+  a.baseline = range(20, 30)
+  const first = update([a, b])
+  const previous = first.byRow.get('a')
+  a.start.setTime(5)
+  a.baseline.start.setTime(25)
+  const next = update([a, b])
+  expect(next.byRow.get('a')).not.toBe(previous)
+  expect(next.query('a', at(0), at(4))).toEqual([b])
+  expect(next.queryBaselines('a', at(20), at(24))).toEqual([])
+  expect(next.queryBaselines('a', at(25), at(26))).toEqual([a])
+  expect(update([b, a]).query('a', at(0), at(10))).toEqual([b, a])
+  b.rowId = 'other'
+  expect(update([a, b]).byRow.get('other')).toEqual([b])
+  expect(update([a]).byRow.has('other')).toBe(false)
+  a.baseline = undefined
+  expect(update([a]).queryBaselines('a', at(20), at(30))).toEqual([])
+  const beforeId = update([a]).byRow.get('a')
+  a.id = 'renamed'
+  const renamed = update([a])
+  expect(renamed.byRow.get('a')).not.toBe(beforeId)
+  expect(renamed.byId.has('a')).toBe(false)
+  expect(renamed.byId.get('renamed')).toBe(a)
+})
+
+test('retained interval indexes preserve valid cached rows after rejected data', () => {
+  const update = createGanttIntervalIndexer()
+  const a = interval('a', 0, 10)
+  const b = interval('b', 0, 10, 'other')
+  const first = update([a, b])
+  expect(() => update([a, { ...b, end: at(-1) }])).toThrow('Gantt dates')
+  expect(() => update([a, a])).toThrow('Duplicate Gantt interval')
+  expect(() =>
+    update([
+      a,
+      interval('fresh', 0, 1, 'fresh'),
+      interval('invalid', 2, 1, 'invalid'),
+    ]),
+  ).toThrow('Gantt dates')
+  expect(first.byRow.has('fresh')).toBe(false)
+  expect(update([a, b]).byRow.get('a')).toBe(first.byRow.get('a'))
+})
 
 describe('Gantt row hierarchy', () => {
   const rows = [

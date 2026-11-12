@@ -122,3 +122,23 @@ test('zero-width and detached roots do not retain stale container decisions; dis
   window.dispatchEvent(new Event('resize'))
   expect(h.changed).toHaveBeenCalledTimes(calls)
 })
+
+test('nested workspaces share one font probe and refresh once per viewport resize', () => {
+  const first = fixture()
+  const read = vi.mocked(window.getComputedStyle)
+  const initial = read.mock.calls.length
+  const node = document.createElement('div')
+  document.body.append(node)
+  const nested = createContainerLayout(node, ['controls'], true, vi.fn())
+  expect(read).toHaveBeenCalledTimes(initial)
+  window.dispatchEvent(new Event('resize'))
+  expect(read).toHaveBeenCalledTimes(initial + 1)
+  nested.dispose()
+  nested.dispose()
+  window.dispatchEvent(new Event('resize'))
+  expect(read).toHaveBeenCalledTimes(initial + 2)
+  first.layout.dispose()
+  const replacement = createContainerLayout(node, ['controls'], true, vi.fn())
+  expect(read).toHaveBeenCalledTimes(initial + 3)
+  replacement.dispose()
+})

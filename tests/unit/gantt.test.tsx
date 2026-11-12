@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, createStore, flush } from 'solid-js'
 import { Gantt } from '../../packages/components/src/gantt/Gantt'
+import * as geometry from '../../packages/components/src/gantt/geometry'
 import type {
   GanttInterval,
   GanttRow,
@@ -401,6 +402,83 @@ test('interval-only parent updates retain row hierarchy and rendered row identit
   expect(h.getByRole('button', { name: /^Updated,/ })).toBe(bar)
   expect(h.container.querySelector('[data-row="a"]')).toBe(row)
   expect(parentRead).toHaveBeenCalledTimes(reads)
+})
+
+test('accepting one interval edit repacks only its row in a large schedule', async () => {
+  const pack = vi.spyOn(geometry, 'packGanttIntervals')
+  const dependencies = vi.spyOn(geometry, 'createGanttDependencyIndex')
+  const rows = Array.from({ length: 1000 }, (_, index) => ({
+    id: String(index),
+    label: `Row ${index}`,
+  }))
+  const [data, setData] = createSignal({
+    intervals: rows.map((row) => task(row.id, row.id)),
+    dependencies: [{ id: 'link', from: '0', to: '1' }],
+  })
+  const h = render(() => (
+    <Gantt
+      rows={rows}
+      intervals={data().intervals}
+      dependencies={data().dependencies}
+      range={range}
+    />
+  ))
+  await settled()
+  const path = h.container.querySelector('.ui-gantt-dependencies path')!
+  const original = path.getAttribute('d')
+  pack.mockClear()
+  dependencies.mockClear()
+  setData((current) => ({
+    ...current,
+    intervals: current.intervals.map((item, index) =>
+      index === 0
+        ? {
+            ...item,
+            start: new Date('2026-10-04T00:00:00Z'),
+            end: new Date('2026-10-08T00:00:00Z'),
+          }
+        : item,
+    ),
+  }))
+  await settled()
+  expect(pack).toHaveBeenCalledOnce()
+  expect(dependencies).not.toHaveBeenCalled()
+  expect(h.container.querySelector('.ui-gantt-dependencies path')).toBe(path)
+  expect(path.getAttribute('d')).not.toBe(original)
+})
+
+test('same-array dependency edits reveal connectors crossing the current viewport', async () => {
+  const rows = Array.from({ length: 100 }, (_, index) => ({
+    id: String(index),
+    label: String(index),
+  }))
+  const link = { id: 'link', from: '0', to: '1' }
+  const [data, setData] = createSignal({
+    intervals: [task('0', '0'), task('1', '1'), task('99', '99')],
+    dependencies: [link],
+  })
+  const h = render(() => (
+    <Gantt
+      rows={rows}
+      intervals={data().intervals}
+      dependencies={data().dependencies}
+      range={range}
+    />
+  ))
+  await settled()
+  const viewport = h.container.querySelector<HTMLElement>('.ui-gantt-scroll')!
+  viewport.scrollTop = 2000
+  fireEvent.scroll(viewport)
+  await settled()
+  expect(
+    h.container.querySelectorAll('.ui-gantt-dependencies path'),
+  ).toHaveLength(0)
+  link.to = '99'
+  setData((current) => ({ ...current }))
+  await settled()
+  expect(
+    h.container.querySelectorAll('.ui-gantt-dependencies path'),
+  ).toHaveLength(1)
 })
 
 test('accepted overlapping intervals update row and virtual extent when lane count changes', async () => {

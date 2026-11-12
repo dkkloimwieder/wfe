@@ -22,7 +22,7 @@ import { styledClasses, type ClassValue } from '../internal/classes'
 import { createTableVirtualizer } from '../virtual/createVirtualizer'
 import { VirtualRows } from '../virtual/VirtualRows'
 import {
-  createGanttIntervalIndex,
+  createGanttIntervalIndexer,
   createGanttDependencyIndex,
   flattenGanttRows,
   ganttIntervalGeometry,
@@ -131,6 +131,7 @@ function MilestoneMarker() {
 /** Controlled schedule view. Applications own accepted dates and scheduling policy. */
 export function Gantt(props: GanttProps) {
   const [scrollElement, setScrollElement] = createSignal<HTMLDivElement>()
+  let freshViewport: HTMLDivElement | undefined
   const [width, setWidth] = createSignal(800)
   const headingId = createUniqueId()
   const instructionsId = createUniqueId()
@@ -143,10 +144,32 @@ export function Gantt(props: GanttProps) {
   const expanded = createMemo(() => new Set(props.expandedIds ?? []))
   const selected = createMemo(() => new Set(props.selectedIds ?? []))
   const acceptedRows = createMemo(() => props.rows)
-  const rows = createMemo(() => flattenGanttRows(acceptedRows(), expanded()))
-  const intervalIndex = createMemo(() =>
-    createGanttIntervalIndex(props.intervals),
+  const emptyDependencies: readonly GanttDependency[] = []
+  const acceptedDependencies = createMemo(
+    () =>
+      (props.dependencies ?? emptyDependencies).map((dependency) => ({
+        dependency,
+        id: dependency.id,
+        from: dependency.from,
+        to: dependency.to,
+      })),
+    {
+      equals: (previous, next) =>
+        previous.length === next.length &&
+        previous.every((saved, index) => {
+          const current = next[index]!
+          return (
+            saved.dependency === current.dependency &&
+            saved.id === current.id &&
+            saved.from === current.from &&
+            saved.to === current.to
+          )
+        }),
+    },
   )
+  const rows = createMemo(() => flattenGanttRows(acceptedRows(), expanded()))
+  const indexIntervals = createGanttIntervalIndexer()
+  const intervalIndex = createMemo(() => indexIntervals(props.intervals))
   const rowHeight = createMemo(() => {
     const value = props.rowHeight ?? 40
     if (!Number.isFinite(value) || value <= 0)
@@ -156,7 +179,16 @@ export function Gantt(props: GanttProps) {
   const labelWidth = () =>
     Math.min(props.labelWidth ?? 200, Math.max(80, width() * 0.4))
   const timelineWidth = () => Math.max(1, width() - labelWidth())
+  const emptyIntervals: readonly GanttInterval[] = []
+  type PackedRow = {
+    intervals: readonly GanttInterval[]
+    packed: ReturnType<typeof packGanttIntervals>
+  }
+  let packedRows = new Map<string, PackedRow>()
   const layout = createMemo(() => {
+    const acceptedIntervals = intervalIndex()
+    const unitHeight = rowHeight()
+    const nextPackedRows = new Map<string, PackedRow>()
     const heights = new Map<string, number>()
     const lanes = new Map<string, number>()
     const offsets = new Map<string, number>()
@@ -164,18 +196,25 @@ export function Gantt(props: GanttProps) {
     let offset = 0
     for (const entry of rows()) {
       offsets.set(entry.row.id, offset)
-      const packed = packGanttIntervals(
-        intervalIndex().byRow.get(entry.row.id) ?? [],
-      )
+      const intervals =
+        acceptedIntervals.byRow.get(entry.row.id) ?? emptyIntervals
+      const previous = packedRows.get(entry.row.id)
+      const cached =
+        previous?.intervals === intervals
+          ? previous
+          : { intervals, packed: packGanttIntervals(intervals) }
+      nextPackedRows.set(entry.row.id, cached)
+      const packed = cached.packed
       let count = 1
       for (const item of packed) {
         lanes.set(item.interval.id, item.lane)
-        centers.set(item.interval.id, offset + (item.lane + 0.5) * rowHeight())
+        centers.set(item.interval.id, offset + (item.lane + 0.5) * unitHeight)
         count = Math.max(count, item.lane + 1)
       }
-      heights.set(entry.row.id, count * rowHeight())
-      offset += count * rowHeight()
+      heights.set(entry.row.id, count * unitHeight)
+      offset += count * unitHeight
     }
+    packedRows = nextPackedRows
     return { heights, lanes, centers, offsets }
   })
   // Moving an interval need not invalidate virtual measurements when lane counts
@@ -188,11 +227,14 @@ export function Gantt(props: GanttProps) {
       return true
     },
   })
-  const laneIndex = createMemo(() =>
-    createGanttIntervalIndex(props.intervals, (interval) =>
-      JSON.stringify([interval.rowId, layout().lanes.get(interval.id) ?? 0]),
-    ),
+  let acceptedLanes: ReadonlyMap<string, number> = new Map()
+  const indexLanes = createGanttIntervalIndexer((interval) =>
+    JSON.stringify([interval.rowId, acceptedLanes.get(interval.id) ?? 0]),
   )
+  const laneIndex = createMemo(() => {
+    acceptedLanes = layout().lanes
+    return indexLanes(props.intervals)
+  })
   const keys = createMemo(() => rows().map((entry) => entry.row.id))
   const rowLookup = createMemo(
     () => new Map(rows().map((entry) => [entry.row.id, entry])),
@@ -214,19 +256,24 @@ export function Gantt(props: GanttProps) {
       return (key: string) => heights.get(key) ?? fallback
     },
     getScrollElement: () => untrack(scrollElement) ?? null,
+    getInitialScrollOffset: (element) => {
+      const fresh = element === freshViewport
+      freshViewport = undefined
+      return fresh ? 0 : undefined
+    },
     scrollMargin: 32,
     initialRect: { width: 800, height: 480 },
   })
   createEffect(scrollElement, (element) => {
     if (!element) return
-    const measure = () => {
-      setWidth(element.clientWidth || 800)
-      setViewportHeight(element.clientHeight || 480)
-      scroll()
-    }
     const scroll = () => setScrollTop(Math.max(0, element.scrollTop))
-    measure()
-    const observer = new ResizeObserver(measure)
+    // Read the unpadded viewport from the observer, without forcing layout.
+    const observer = new ResizeObserver((entries) => {
+      const box = entries[0]?.contentRect
+      if (!box) return
+      setWidth(Math.round(box.width) || 800)
+      setViewportHeight(Math.round(box.height) || 480)
+    })
     observer.observe(element)
     element.addEventListener('scroll', scroll, { passive: true })
     return () => {
@@ -234,12 +281,22 @@ export function Gantt(props: GanttProps) {
       element.removeEventListener('scroll', scroll)
     }
   })
+  const dependencyCenters = createMemo(() => layout().centers, {
+    equals: (previous, next) => {
+      if (previous.size !== next.size) return false
+      for (const [key, center] of previous)
+        if (next.get(key) !== center) return false
+      return true
+    },
+  })
   const dependencies = createMemo(() =>
     createGanttDependencyIndex(
-      props.dependencies ?? [],
-      intervalIndex(),
+      acceptedDependencies().map((saved) => saved.dependency),
+      // Visible interval IDs and row placement are represented by the centers.
+      // Date-only edits affect paths, but leave the connector span index intact.
+      untrack(intervalIndex),
       rows(),
-      layout().centers,
+      dependencyCenters(),
     ),
   )
   const paths = createMemo(() => {
@@ -720,7 +777,12 @@ export function Gantt(props: GanttProps) {
       </header>
       <div
         class="ui-gantt-scroll"
-        ref={(element) => untrack(() => setScrollElement(element))}
+        ref={(element) => {
+          // Template-created viewports start at zero. Adopted server nodes can
+          // already contain a restored or user-selected scroll position.
+          if (!element.isConnected) freshViewport = element
+          untrack(() => setScrollElement(element))
+        }}
       >
         <div
           role="table"

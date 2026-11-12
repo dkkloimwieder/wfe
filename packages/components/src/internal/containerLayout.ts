@@ -7,6 +7,12 @@ export const layoutBreakpoints = {
 export type LayoutRegion = keyof typeof layoutBreakpoints
 export type LayoutState = Readonly<Partial<Record<LayoutRegion, boolean>>>
 
+// Nested workspaces share the browser's initial font, independent of themes.
+const initialFonts = new WeakMap<
+  Document,
+  { size: number; owners: number; resize?: Event }
+>()
+
 /** Own media listeners and attributes; the component reuses its root observer. */
 export function createContainerLayout(
   node: HTMLElement,
@@ -26,13 +32,21 @@ export function createContainerLayout(
   let alive = true
   let initialFont = 0
   let previous: LayoutState = {}
-  const readInitialFont = () => {
+  const font = initialFonts.get(doc) ?? { size: 0, owners: 0 }
+  initialFonts.set(doc, font)
+  font.owners++
+  const readInitialFont = (event?: Event) => {
+    if (font.size > 0 && (!event || font.resize === event)) {
+      initialFont = font.size
+      return
+    }
     const probe = doc.createElement('span')
-    probe.style.cssText =
-      'all:initial;position:absolute;visibility:hidden;pointer-events:none;font-size:initial'
+    probe.style.cssText = 'all:initial;display:none;font-size:initial'
     doc.documentElement.append(probe)
     initialFont = Number.parseFloat(win.getComputedStyle(probe).fontSize)
     probe.remove()
+    font.size = initialFont
+    font.resize = event
   }
   const measure = () => {
     if (!alive || !node.isConnected) return
@@ -57,9 +71,9 @@ export function createContainerLayout(
       changed(state)
     }
   }
-  const resize = () => {
+  const resize = (event: Event) => {
     if (!alive) return
-    readInitialFont()
+    readInitialFont(event)
     measure()
   }
   readInitialFont()
@@ -68,7 +82,9 @@ export function createContainerLayout(
   return {
     measure,
     dispose() {
+      if (!alive) return
       alive = false
+      if (--font.owners === 0) initialFonts.delete(doc)
       for (const [, query] of queries)
         query.removeEventListener('change', measure)
       win.removeEventListener('resize', resize)

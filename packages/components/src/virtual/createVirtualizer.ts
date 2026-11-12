@@ -15,8 +15,30 @@ import {
 import type { VirtualWindow } from './virtualWindow'
 import type { VirtualItem } from '../vendor/virtual-core/index'
 
+// Keep the engine's border-box contract without a synchronous mount-time read.
+const observeViewportRect: typeof observeElementRect = (instance, changed) => {
+  const element = instance.scrollElement
+  const view = instance.targetWindow
+  if (!element || !view) return
+  if (!view.ResizeObserver) return observeElementRect(instance, changed)
+  const observer = new view.ResizeObserver((entries) => {
+    const entry = entries[0]
+    if (!entry) return
+    const box = entry.borderBoxSize?.[0]
+    const node = element as unknown as HTMLElement
+    changed({
+      width: Math.round(box ? box.inlineSize : node.offsetWidth),
+      height: Math.round(box ? box.blockSize : node.offsetHeight),
+    })
+  })
+  observer.observe(element, { box: 'border-box' })
+  return () => observer.disconnect()
+}
+
 type CommonOptions = {
   getScrollElement: () => HTMLElement | null
+  /** Known native offset of a fresh viewport before insertion; omit for reuse. */
+  getInitialScrollOffset?: (element: HTMLElement) => number | undefined
   overscan?: number
   scrollMargin?: number
   scrollPaddingEnd?: number
@@ -52,6 +74,7 @@ export function createTableVirtualizer<Key extends string | number>(
   let mounted = false
   let disposed = false
   let cleanupQueued = false
+  let firstScrollWrite = true
   let pendingAnchor:
     { key: Key; within: number; offset: number; domOffset: number } | undefined
   const publish = () => {
@@ -94,9 +117,22 @@ export function createTableVirtualizer<Key extends string | number>(
       scrollPaddingStart: options.scrollMargin ?? 0,
       scrollPaddingEnd: options.scrollPaddingEnd ?? 0,
       initialRect: options.initialRect,
-      observeElementRect,
+      observeElementRect: observeViewportRect,
       observeElementOffset,
       scrollToFn: ((offset, settings, current) => {
+        const first = firstScrollWrite
+        firstScrollWrite = false
+        if (first && current.scrollElement && settings.behavior === undefined) {
+          const initial = options.getInitialScrollOffset?.(
+            current.scrollElement,
+          )
+          // Only the viewport owner can know this without forcing layout.
+          if (
+            initial !== undefined &&
+            offset + (settings.adjustments ?? 0) === initial
+          )
+            return
+        }
         // Detect independent movement before an engine write can overwrite
         // its evidence and make a stale anchor appear current again.
         if (
@@ -111,7 +147,7 @@ export function createTableVirtualizer<Key extends string | number>(
         // anchor is pending. Only independent viewport movement invalidates it.
         if (pendingAnchor && current.scrollElement)
           pendingAnchor.domOffset = current.scrollElement.scrollTop
-      }) satisfies typeof elementScroll,
+      }) satisfies typeof elementScroll<HTMLElement>,
       onChange: publish,
     }
   })

@@ -155,7 +155,10 @@ The connector SVG covers only the visible viewport, even when the schedule conta
 Range changes retain mounted grid markers and connectors when their identities stay the same.
 An active edit updates the edited interval preview.
 It does not recalculate every mounted interval.
-Accepted edits still rebuild the indexes, but unchanged row heights retain virtual measurements.
+Accepted edits scan the supplied array and retain indexes for unchanged rows.
+Only changed rows repeat lane packing. Saved date values detect changes within reused interval objects.
+Edits to dates retain the connector span index when row positions stay the same.
+Unchanged row heights retain virtual measurements. Array replacement still requires a scan of all supplied intervals.
 
 The gallery uses the available screen height and the shared table header styles.
 On narrow screens, the title sits above the range controls.

@@ -179,68 +179,177 @@ export interface GanttIntervalIndex {
   query(rowId: string, start: Date, end: Date): GanttInterval[]
 }
 
-/** Rebuild when accepted interval data changes, including same-ID date updates. */
+type IntervalSnapshot = {
+  interval: GanttInterval
+  id: string
+  start: number
+  end: number
+  baselineStart: number | undefined
+  baselineEnd: number | undefined
+}
+type IndexedIntervalRow = {
+  intervals: readonly GanttInterval[]
+  snapshots: readonly IntervalSnapshot[]
+  tree: Tree<GanttInterval> | undefined
+  baselineTree: Tree<GanttInterval> | undefined
+  generation: number
+  cursor: number
+  pendingIntervals?: GanttInterval[]
+  pendingSnapshots?: IntervalSnapshot[]
+}
+
+/** Scan accepted arrays for edits; returned views share the retained row cache. */
+export function createGanttIntervalIndexer(
+  getRowId: (interval: GanttInterval) => string = (interval) => interval.rowId,
+) {
+  const rows = new Map<string, IndexedIntervalRow>()
+  const byRow = new Map<string, readonly GanttInterval[]>()
+  let generation = 0
+  let order: string[] = []
+  return (intervals: readonly GanttInterval[]): GanttIntervalIndex => {
+    generation++
+    const byId = new Map<string, GanttInterval>()
+    const nextOrder: string[] = []
+    let reordered = false
+    try {
+      for (const interval of intervals) {
+        if (byId.has(interval.id))
+          throw new Error(`Duplicate Gantt interval id: ${interval.id}`)
+        byId.set(interval.id, interval)
+        const rowId = getRowId(interval)
+        let row = rows.get(rowId)
+        if (!row) {
+          row = {
+            intervals: [],
+            snapshots: [],
+            tree: undefined,
+            baselineTree: undefined,
+            generation: 0,
+            cursor: 0,
+          }
+          rows.set(rowId, row)
+        }
+        if (row.generation !== generation) {
+          row.generation = generation
+          row.cursor = 0
+          row.pendingIntervals = row.pendingSnapshots = undefined
+          reordered ||= order[nextOrder.length] !== rowId
+          nextOrder.push(rowId)
+        }
+        const position = row.cursor++
+        const [start, end] = times(interval)
+        const baseline = interval.baseline
+          ? times(interval.baseline)
+          : undefined
+        const baselineStart = baseline?.[0]
+        const baselineEnd = baseline?.[1]
+        const saved = row.snapshots[position]
+        const unchanged =
+          saved?.interval === interval &&
+          saved.id === interval.id &&
+          saved.start === start &&
+          saved.end === end &&
+          saved.baselineStart === baselineStart &&
+          saved.baselineEnd === baselineEnd
+        if (!unchanged || row.pendingIntervals) {
+          row.pendingIntervals ??= row.intervals.slice(0, position)
+          row.pendingSnapshots ??= row.snapshots.slice(0, position)
+          row.pendingIntervals.push(interval)
+          row.pendingSnapshots.push(
+            unchanged
+              ? saved!
+              : {
+                  interval,
+                  id: interval.id,
+                  start,
+                  end,
+                  baselineStart,
+                  baselineEnd,
+                },
+          )
+        }
+      }
+    } catch (error) {
+      // Failed input must not retain newly staged rows or replacement records.
+      for (const rowId of nextOrder) {
+        const row = rows.get(rowId)!
+        row.pendingIntervals = row.pendingSnapshots = undefined
+        if (!byRow.has(rowId)) rows.delete(rowId)
+      }
+      throw error
+    }
+    // Validation above finishes before any published row index changes.
+    for (const [rowId, row] of rows) {
+      if (row.generation !== generation) {
+        rows.delete(rowId)
+        byRow.delete(rowId)
+        continue
+      }
+      if (row.cursor !== row.intervals.length && !row.pendingIntervals) {
+        row.pendingIntervals = row.intervals.slice(0, row.cursor)
+        row.pendingSnapshots = row.snapshots.slice(0, row.cursor)
+      }
+      if (!row.pendingIntervals) continue
+      const snapshots = row.pendingSnapshots!
+      const spans: Span<GanttInterval>[] = []
+      const baselines: Span<GanttInterval>[] = []
+      snapshots.forEach((snapshot, order) => {
+        spans.push({
+          start: snapshot.start,
+          end: snapshot.end,
+          value: snapshot.interval,
+          order,
+        })
+        if (snapshot.baselineStart !== undefined)
+          baselines.push({
+            start: snapshot.baselineStart,
+            end: snapshot.baselineEnd!,
+            value: snapshot.interval,
+            order,
+          })
+      })
+      row.intervals = row.pendingIntervals
+      row.snapshots = snapshots
+      row.tree = buildTree(spans)
+      row.baselineTree = buildTree(baselines)
+      row.pendingIntervals = row.pendingSnapshots = undefined
+      byRow.set(rowId, row.intervals)
+    }
+    if (reordered) {
+      byRow.clear()
+      for (const rowId of nextOrder)
+        byRow.set(rowId, rows.get(rowId)!.intervals)
+    }
+    order = nextOrder
+    function query(rowId: string, start: Date, end: Date, baseline: boolean) {
+      const [low, high] = times({ start, end }, false)
+      const result: GanttInterval[] = []
+      const row = rows.get(rowId)
+      queryTree(baseline ? row?.baselineTree : row?.tree, low, high, (span) => {
+        if (
+          span.start === span.end
+            ? span.start >= low && span.start < high
+            : span.end > low && span.start < high
+        )
+          result.push(span.value)
+      })
+      return result
+    }
+    return {
+      byId,
+      byRow,
+      query: (rowId, start, end) => query(rowId, start, end, false),
+      queryBaselines: (rowId, start, end) => query(rowId, start, end, true),
+    }
+  }
+}
+
+/** Build an independent index for callers that do not retain update state. */
 export function createGanttIntervalIndex(
   intervals: readonly GanttInterval[],
   getRowId: (interval: GanttInterval) => string = (interval) => interval.rowId,
 ): GanttIntervalIndex {
-  const byId = new Map<string, GanttInterval>()
-  const rows = new Map<string, Span<GanttInterval>[]>()
-  const baselines = new Map<string, Span<GanttInterval>[]>()
-  const byRow = new Map<string, GanttInterval[]>()
-  intervals.forEach((interval, order) => {
-    if (byId.has(interval.id))
-      throw new Error(`Duplicate Gantt interval id: ${interval.id}`)
-    const [start, end] = times(interval)
-    const rowId = getRowId(interval)
-    if (interval.baseline) {
-      const [baselineStart, baselineEnd] = times(interval.baseline)
-      const entries = baselines.get(rowId) ?? []
-      entries.push({
-        start: baselineStart,
-        end: baselineEnd,
-        value: interval,
-        order,
-      })
-      baselines.set(rowId, entries)
-    }
-    const group = byRow.get(rowId) ?? []
-    group.push(interval)
-    byRow.set(rowId, group)
-    byId.set(interval.id, interval)
-    const spans = rows.get(rowId) ?? []
-    spans.push({ start, end, value: interval, order })
-    rows.set(rowId, spans)
-  })
-  const trees = new Map([...rows].map(([id, spans]) => [id, buildTree(spans)]))
-  const baselineTrees = new Map(
-    [...baselines].map(([id, spans]) => [id, buildTree(spans)]),
-  )
-  function query(
-    trees: ReadonlyMap<string, Tree<GanttInterval> | undefined>,
-    rowId: string,
-    start: Date,
-    end: Date,
-  ) {
-    const [low, high] = times({ start, end }, false)
-    const result: GanttInterval[] = []
-    queryTree(trees.get(rowId), low, high, (span) => {
-      if (
-        span.start === span.end
-          ? span.start >= low && span.start < high
-          : span.end > low && span.start < high
-      )
-        result.push(span.value)
-    })
-    return result
-  }
-  return {
-    byId,
-    byRow,
-    query: (rowId, start, end) => query(trees, rowId, start, end),
-    queryBaselines: (rowId, start, end) =>
-      query(baselineTrees, rowId, start, end),
-  }
+  return createGanttIntervalIndexer(getRowId)(intervals)
 }
 
 export interface GanttDependencyIndex {
@@ -289,6 +398,14 @@ export function createGanttDependencyIndex(
     })
   })
   const tree = buildTree(spans)
+  return dependencyIndexView(rowIndices, tree)
+}
+
+// Keep the retained query independent of the build's interval records.
+function dependencyIndexView(
+  rowIndices: ReadonlyMap<string, number>,
+  tree: Tree<GanttDependency> | undefined,
+): GanttDependencyIndex {
   return {
     rowIndices,
     query(firstRow, lastRow) {

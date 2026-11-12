@@ -293,9 +293,17 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     const measure = () =>
       untrack(() => {
         if (!alive || !workspace?.isConnected) return
+        // Collect geometry before responsive attributes and signals change it.
+        const headerHeight = header?.getBoundingClientRect().height ?? 0
+        const available = props.controlsResizable === true ? availableSize() : 0
+        const current =
+          panel && available > 0 && size() === undefined
+            ? props.controlsPlacement === 'top'
+              ? panel.getBoundingClientRect().height
+              : panel.getBoundingClientRect().width
+            : 0
         layout.measure()
-        setHeaderHeight(header?.getBoundingClientRect().height ?? 0)
-        const available = availableSize()
+        setHeaderHeight(headerHeight)
         if (
           props.controlsResizable === true &&
           panel &&
@@ -304,10 +312,6 @@ export function TableWorkspace(props: TableWorkspaceProps) {
           !narrow() &&
           size() === undefined
         ) {
-          const current =
-            props.controlsPlacement === 'top'
-              ? panel.getBoundingClientRect().height
-              : panel.getBoundingClientRect().width
           setMeasuredSize(
             Math.max(0, Math.min(100, (current / available) * 100)),
           )
@@ -321,7 +325,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
     measurePanel = measure
     for (const node of [workspace, header, panel])
       if (node) observer?.observe(node)
-    measure()
+    // ResizeObserver delivers the initial size after the browser lays out.
+    if (!observer) measure()
     props.controlsRef?.({ focus: focusControls })
     const doc = panel?.ownerDocument ?? document
     // A popup can finish autofocus after its owning pane collapses.
