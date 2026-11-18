@@ -703,7 +703,8 @@
     },
     "core/src/menu/menu.tsx": {
       "upstreamSha256": "883f8180b27c97fc5682dbefe77f20a6b8f19957fc8ff3985a277e0cb69fda24",
-      "localSha256": "987b68e1051bd2171346ba75d870965a468f53b7f75ad279a8b6b44647aa66f6"
+      "capturedLocalSha256": "987b68e1051bd2171346ba75d870965a468f53b7f75ad279a8b6b44647aa66f6",
+      "localSha256": "8a35d5c00497589bf1aee5a8074ed82d592696d13f78cc142d0cf5df3710d65e"
     },
     "core/src/menu/menu-item.context.tsx": {
       "upstreamSha256": "93dff793f383ec183fb0d8720aa51b51e0982e931c38b15fe0a36c5d9f6752c0",

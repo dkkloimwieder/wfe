@@ -9,7 +9,7 @@ export type SyncParams<T extends object> = Parameters<
 
 export type Writer<T extends object> = Pick<
   SyncParams<T>,
-  'begin' | 'write' | 'commit' | 'markReady' | 'markError'
+  'begin' | 'write' | 'commit'
 >
 
 /** Any collection the adapters can read. */

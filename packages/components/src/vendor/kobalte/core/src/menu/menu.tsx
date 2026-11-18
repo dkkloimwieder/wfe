@@ -182,12 +182,20 @@ export function Menu(props: MenuProps) {
       const timer = setTimeout(
         () =>
           untrack(() => {
-            _focusContent()
             const collection = listState.collection()
             const key =
               strategy === 'last'
                 ? collection.getLastKey()
                 : collection.getFirstKey()
+            const active = node.ownerDocument.activeElement
+            // The focus trap can reach the intended item before this timer.
+            // Refocusing the menu would leave that same key highlighted.
+            if (
+              node.contains(active) &&
+              active?.getAttribute('data-key') === key
+            )
+              return
+            _focusContent()
             listState.selectionManager().setFocusedKey(key)
           }),
         0,

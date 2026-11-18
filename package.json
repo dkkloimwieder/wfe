@@ -31,10 +31,10 @@
     "@solidjs/testing-library": "1.0.0-rc.2",
     "@solidjs/vite-plugin": "3.0.1",
     "@solidjs/web": "2.0.0",
-    "@tanstack/db": "0.15.2",
+    "@tanstack/db": "1.0.0-rc.1.5",
     "@types/d3-scale": "4.0.9",
-    "@types/d3-shape": "3.1.8",
-    "@types/node": "26.5.1",
+    "@types/d3-shape": "3.2.0",
+    "@types/node": "26.6.6",
     "@typescript-eslint/eslint-plugin": "8.70.0",
     "@typescript-eslint/parser": "8.70.0",
     "@vitest/coverage-v8": "4.1.11",
@@ -44,7 +44,7 @@
     "@wfe/shell": "workspace:*",
     "@wfe/sync": "workspace:*",
     "eslint": "10.10.0",
-    "fake-indexeddb": "6.2.5",
+    "fake-indexeddb": "6.2.8",
     "globals": "17.6.0",
     "jsdom": "30.0.1",
     "prettier": "3.9.6",
@@ -54,6 +54,6 @@
     "typescript": "6.0.3",
     "vite": "8.3.0",
     "vitest": "4.1.11",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   }
 }

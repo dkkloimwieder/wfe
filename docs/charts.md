@@ -302,10 +302,9 @@ WFE therefore keeps its own Solid 2 adapter and the selected framework-independe
 A direct core dependency remains possible, but requires moving the runtime-theme and scoped-portal integration repairs out of the capture.
 The capture keeps that behavior stable and makes the repair burden explicit.
 
-D3 Array 3.2.4 becomes a direct dependency for the released binning helper.
-The same version already exists through D3 Scale.
-D3 Shape declarations become a production dependency because the public curve export needs their types.
-Existing D3 Scale, D3 Shape, Solid, TypeScript, compiler, and test-tool pins remain unchanged.
+The released binning helper uses D3 Array 3.2.5 as a direct dependency.
+The current pins for D3 Scale and D3 Shape are 4.0.3 and 3.2.1.
+The public curve export needs the D3 Shape declarations from `@types/d3-shape` 3.2.0.
 The [capture script](../scripts/capture-charts.mjs) reproduces the selected source and documented repairs from the pinned release.
 
 The supported API excludes Canvas, animation, geographic plots, network plots, native zoom gestures, and a dashboard query layer.

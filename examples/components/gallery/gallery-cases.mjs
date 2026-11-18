@@ -260,7 +260,17 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
       const components = navigation
         .locator('details')
         .filter({ has: page.locator('summary', { hasText: /^Components$/ }) })
-      await expect(navigation.locator('details')).toHaveCount(6)
+      const summaries = navigation.locator('details > summary')
+      const sectionNames = [
+        'Forms',
+        'Tables',
+        'Components',
+        'Charts',
+        'Diagrams',
+        'Navigation',
+        'Layout',
+      ]
+      await expect(summaries).toHaveText(sectionNames)
       await expect(navigation.locator('details[open]')).toHaveCount(1)
       await expect(forms).toHaveAttribute('open', '')
       await expect(
@@ -336,7 +346,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
       await page
         .getByRole('button', { name: 'Components', exact: true })
         .click()
-      await expect(navigation.locator('details')).toHaveCount(6)
+      await expect(summaries).toHaveText(sectionNames)
       await page.screenshot({
         path: await artifactPath('wfe-gallery-layout-phone.png'),
       })

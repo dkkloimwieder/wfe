@@ -272,7 +272,7 @@ The shared disclosure provides a textual node and relationship list for inspecti
 Inspection panels in the examples sit outside the canvas.
 The MVP does not include node editing, resizing, connection authoring, obstacle routing, minimaps, or workflow execution.
 
-The implementation uses one owned Solid renderer and the external `@xyflow/system` geometry dependency pinned to `0.0.83`.
+The implementation uses one owned Solid renderer and the external `@xyflow/system` geometry dependency pinned to `1.0.0`.
 This is the geometry package used by [Solid Flow 1.0.0-next.22](https://github.com/dsnchz/solid-flow/blob/7f4665bc6671e8c748850c470dd9b74203bcab9e/package.json).
 The selected subset adapts its node/handle and edge-path model to a read-only component.
 It does not import or copy the Solid Flow editor runtime, mutable stores, or gesture controllers.

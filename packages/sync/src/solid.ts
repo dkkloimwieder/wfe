@@ -28,7 +28,8 @@ import type { Key } from './types'
 export type KeyedCollection<T extends object> = Pick<
   Collection<T, string | number>,
   'entries' | 'subscribeChanges' | 'status' | 'on' | 'onFirstReady' | 'toArray'
->
+> &
+  Partial<Pick<Collection<T, string | number>, 'health'>>
 
 /**
  * A row map keyed by the collection's own key as a string, kept current by
@@ -78,20 +79,36 @@ function subscribe<T extends object>(c: KeyedCollection<T>) {
       delivered = true
       next(c.toArray)
     }
-    const subscription = c.subscribeChanges(() => push(), {
-      includeInitialState: false,
-    })
-    const stops: (() => void)[] = [() => subscription.unsubscribe()]
-    const fail = () => error(peek(c)?.error() ?? new Error('Sync failed'))
+    const fail = () =>
+      error(
+        c.health?.error?.cause ?? peek(c)?.error() ?? new Error('Sync failed'),
+      )
+    if (statusOf(c) === 'error') {
+      fail()
+      return
+    }
+    let subscription: ReturnType<KeyedCollection<T>['subscribeChanges']>
+    try {
+      subscription = c.subscribeChanges(() => push(), {
+        includeInitialState: false,
+      })
+    } catch (cause) {
+      if (c.status !== 'crashed') throw cause
+      fail()
+      return
+    }
+    const stops = [
+      () => subscription.unsubscribe(),
+      c.on('status:change', ({ status }) => {
+        if (status === 'crashed' || (status === 'error' && !delivered)) fail()
+      }),
+    ]
     if (c.status === 'ready') push()
-    else if (c.status === 'error') fail()
+    else if (statusOf(c) === 'error') fail()
     else {
       stops.push(
         c.onFirstReady(() => {
           if (!delivered) push()
-        }),
-        c.on('status:change', (event) => {
-          if (event.status === 'error' && !delivered) fail()
         }),
       )
     }
@@ -123,15 +140,15 @@ export function liveList<T extends object>(c: KeyedCollection<T>): Store<T[]> {
 }
 
 /** The collection status as the adapter reports it. */
-function statusOf(c: { status: string }): Status {
-  return c.status === 'ready' || c.status === 'error' ? c.status : 'loading'
+function statusOf(c: { status: KeyedCollection<object>['status'] }): Status {
+  if (c.status === 'crashed' || c.status === 'error') return 'error'
+  return c.status === 'ready' ? 'ready' : 'loading'
 }
 
 /**
  * The status of the collection, read through a memo. For a collection made by
  * `collection()` it reads the status signal of the sync source. For any other
- * collection it maps `c.status`: 'ready' and 'error' as they are, any other
- * status as 'loading'.
+ * collection it maps `c.status`. A crash is an error for either collection.
  */
 export function syncStatus<T extends object>(
   c: KeyedCollection<T>,
@@ -139,12 +156,19 @@ export function syncStatus<T extends object>(
   const found = peek(c)
   return createMemo<Status>(() =>
     from<Status>((next) => {
-      if (found) {
-        next(found.status.get())
-        return found.status.subscribe(next)
+      const update = () =>
+        next(
+          c.status === 'crashed'
+            ? 'error'
+            : (found?.status.get() ?? statusOf(c)),
+        )
+      update()
+      const stopStatus = c.on('status:change', update)
+      const stopSource = found?.status.subscribe(update)
+      return () => {
+        stopStatus()
+        stopSource?.()
       }
-      next(statusOf(c))
-      return c.on('status:change', () => next(statusOf(c)))
     }),
   )
 }

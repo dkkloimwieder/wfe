@@ -252,6 +252,44 @@ test('liveList shows Loading until the first fill and Errored on a failed fill',
   expect(failed.container.textContent).toBe('failed: Error: offline')
 })
 
+test('external collection crashes reach liveList and syncStatus', async () => {
+  const failure = new Error('sync setup failed')
+  const c = createCollection<Order>({
+    getKey: (row) => row.id,
+    sync: {
+      sync() {
+        throw failure
+      },
+    },
+  })
+  function List() {
+    const list = liveList(c)
+    return <span>{list.length}</span>
+  }
+  const h = render(() => {
+    const status = syncStatus(c)
+    return (
+      <>
+        <p>{status()}</p>
+        <Errored fallback={(error) => <p>{String(error())}</p>}>
+          <Loading fallback={<p>waiting</p>}>
+            <List />
+          </Loading>
+        </Errored>
+      </>
+    )
+  })
+  try {
+    await tick()
+    flush()
+    expect(c.status).toBe('crashed')
+    expect(h.container.textContent).toBe('errorError: sync setup failed')
+  } finally {
+    h.unmount()
+    await c.cleanup()
+  }
+})
+
 test('syncStatus follows loading, ready, and error', async () => {
   const failure = new Error('timeout')
   const c = collection(

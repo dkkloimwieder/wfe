@@ -158,14 +158,47 @@ test('saved rows do not change completeness before a list or on restart', async 
   }
 })
 
-test('a rejecting list sets error and leaves the collection empty', async () => {
+test('a rejecting first list leaves no rows and refill starts a new run', async () => {
   const failure = new Error('offline')
-  const c = collection(feedOf([failure]), 'all', { key: 'orders:all' })
-  await tick()
-  expect(c.status).toBe('error')
-  expect(c.utils.error()).toBe(failure)
-  expect(c.size).toBe(0)
-  expect(c.utils.complete()).toBe(true)
+  const retryFailure = new Error('still offline')
+  const feed = feedOf([failure, retryFailure, [order('a', 1)]])
+  const c = collection(feed, 'all', { key: 'orders:all' })
+  try {
+    await tick()
+    expect(c.status).toBe('error')
+    expect(c.health.error?.cause).toBe(failure)
+    expect(c.utils.error()).toBe(failure)
+    expect(c.size).toBe(0)
+    expect(c.utils.complete()).toBe(true)
+    await c.utils.refill()
+    expect(c.status).toBe('error')
+    expect(c.health.error?.cause).toBe(retryFailure)
+    expect(c.utils.error()).toBe(retryFailure)
+    await c.utils.refill()
+    expect(c.status).toBe('ready')
+    expect(c.health.hasErrors).toBe(false)
+    expect(c.utils.error()).toBeUndefined()
+    expect(ids(c)).toEqual(['a'])
+  } finally {
+    await c.cleanup()
+  }
+})
+
+test('a pull queued behind a failed first list follows after the queued refill', async () => {
+  const first = deferred<Awaited<ReturnType<Feed<Order, string>['list']>>>()
+  const feed = feedOf([[order('a', 1)]])
+  vi.mocked(feed.list).mockReturnValueOnce(first.promise)
+  const c = collection(feed, 'all', { key: 'orders:all' })
+  try {
+    const refill = c.utils.refill()
+    const pull = c.utils.pull()
+    first.reject(new Error('offline'))
+    await Promise.all([refill, pull])
+    expect(ids(c)).toEqual(['a'])
+    expect(feed.changes).toHaveBeenCalledTimes(1)
+  } finally {
+    await c.cleanup()
+  }
 })
 
 test('refill removes absent rows and applies the row_version rule', async () => {
@@ -194,11 +227,13 @@ test('a failed refill keeps rows and reports the error until the next success', 
   )
   await tick()
   await c.utils.refill()
-  expect(c.status).toBe('error')
+  expect(c.status).toBe('ready')
+  expect(c.health.failureReason?.cause).toBe(failure)
   expect(c.utils.error()).toBe(failure)
   expect(ids(c)).toEqual(['a'])
   await c.utils.refill()
   expect(c.status).toBe('ready')
+  expect(c.health.hasErrors).toBe(false)
   expect(c.utils.error()).toBeUndefined()
   expect(ids(c)).toEqual(['a', 'b'])
 })

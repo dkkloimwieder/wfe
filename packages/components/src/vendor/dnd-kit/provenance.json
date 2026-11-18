@@ -993,7 +993,10 @@
     }
   },
   "repairSha256": "015563ad4b05121a3ed651f7f86e53471e6ee0c47c8cefb4906a0fa61d581065",
-  "externalDependencies": {
+  "capturedExternalDependencies": {
     "@preact/signals-core": "1.10.0"
+  },
+  "externalDependencies": {
+    "@preact/signals-core": "1.14.5"
   }
 }

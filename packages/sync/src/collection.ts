@@ -41,7 +41,8 @@ const saveDelay = 250
 
 /** One run of the sync function. A restart after cleanup() makes a new run. */
 interface Run<T extends object> {
-  writer: Writer<T>
+  writer: SyncParams<T>
+  readiness: 'loading' | 'ready' | 'failed'
   abort: AbortController
   stopped: boolean
   following: boolean
@@ -96,14 +97,22 @@ export function collection<T extends object, S>(
   let c: SyncCollection<T>
 
   function ready(r: Run<T>): void {
-    if (c.status !== 'ready') r.writer.markReady()
+    if (r.readiness === 'loading') {
+      r.readiness = 'ready'
+      r.writer.markReady()
+    } else r.writer.reportHealthy()
     error = undefined
     status.set('ready')
   }
-  function failed(r: Run<T>, cause: unknown): void {
+  function failed(r: Run<T>, cause: unknown, local = false): void {
     error = cause
-    if (c.status !== 'error') r.writer.markError(cause)
-    status.set('error')
+    if (r.readiness === 'ready') r.writer.reportError(cause)
+    else {
+      r.readiness = 'failed'
+      r.writer.fail(cause)
+    }
+    // A failed initial refresh keeps saved rows ready for WFE readers.
+    if (!local) status.set('error')
   }
 
   /** List, reconcile, take the list cursor, and follow. */
@@ -120,10 +129,7 @@ export function collection<T extends object, S>(
       follow(r)
     } catch (cause) {
       if (r.stopped) return
-      // Saved rows stay readable: the status stays ready and error() holds
-      // the failure.
-      if (local) error = cause
-      else failed(r, cause)
+      failed(r, cause, local)
     }
   }
 
@@ -177,13 +183,29 @@ export function collection<T extends object, S>(
     return r.pass
   }
 
+  /** A failed first load needs a new run, with any waiting pull carried over. */
+  async function restartAfterFailure(r: Run<T>): Promise<void> {
+    const reload = c.reload()
+    const restarted = run
+    if (!restarted || restarted === r) return reload
+    restarted.again ||= r.again
+    try {
+      await reload
+    } catch (cause) {
+      // Feed errors are reported through error(), as with any refill.
+      if (!restarted.stopped && restarted.readiness !== 'failed') throw cause
+    }
+    await restarted.pass
+  }
+
   /** Run the first job, then the waiting lists and pulls, a list first. */
   async function drain(r: Run<T>, first?: () => Promise<void>): Promise<void> {
     if (first) await first()
     while ((r.list || r.again) && !r.stopped) {
       if (r.list) {
         r.list = false
-        await fill(r)
+        if (r.readiness === 'failed') await restartAfterFailure(r)
+        else await fill(r)
       } else {
         r.again = false
         await pass(r)
@@ -270,6 +292,7 @@ export function collection<T extends object, S>(
       sync: (params: SyncParams<T>) => {
         const r: Run<T> = {
           writer: params,
+          readiness: 'loading',
           abort: new AbortController(),
           stopped: false,
           following: false,
@@ -279,7 +302,7 @@ export function collection<T extends object, S>(
         }
         run = r
         cursor = undefined
-        status.set('loading')
+        if (params.collection.status === 'loading') status.set('loading')
         // The start is the first job, so a pull or refill waits for it.
         r.pass = drain(r, () => start(r))
         return () => stop(r)

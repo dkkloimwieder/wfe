@@ -40,6 +40,7 @@ The `tests/sync-consumer` fixture checks `dist` with a strict NodeNext consumer'
 After the first successful list, or after saved rows when the list failed, the collection follows the change feed.
 A timer runs a pass every `pollMs`, default 10000. If `trigger` is given, the collection subscribes with the key, and each fire runs a pass.
 `utils.pull()` runs a pass now and resolves when it ends. `utils.refill()` lists again.
+If the first list failed before any rows became ready, a refill starts a new sync run.
 Passes and lists run one at a time, after the start. A fire or refill during one runs once after it, and a waiting list runs first.
 
 In one pass, the collection first calls `feed.moved(scope, cursor)` if the feed has it. A false result ends the pass.
@@ -56,11 +57,14 @@ Lists emit no follow events.
 
 The cursor moves to `next_cursor` after every page. The package never parses a cursor.
 The status stays `ready` during a pass. If `changes` throws `CursorExpired`, the collection lists again and goes on following.
-Any other error sets the status to `error`, keeps the rows, and sets `utils.error()`. The next successful pass sets `ready` and clears the error.
+A failed pass keeps the rows and reports the error through `syncStatus(c)` and `utils.error()`.
+TanStack DB keeps `c.status` at `ready` and reports the failure in `c.health`.
+The next successful pass clears the error.
 
 With `persistence`, the collection saves its rows and cursor after a successful list and after every change page.
 A save waits 250 ms, and a later save in that wait replaces it. A failed save changes no status. The package never calls `remove`.
 `c.cleanup()` writes a waiting save at once, stops the timer, unsubscribes the trigger, and aborts the pass in flight.
+If a live query or a TanStack DB Effect still reads the collection, dispose it before calling `c.cleanup()`.
 A later subscriber restarts the collection. The restart loads, lists, and follows again.
 
 The read adapters take any keyed collection: one made by `collection()`, a live query result such as a `groupBy`, or any other `@tanstack/db` collection. The rows need no id and no version.
@@ -68,7 +72,10 @@ The read adapters take any keyed collection: one made by `collection()`, a live 
 `liveRows(c)` returns a store keyed by the collection's own key, as a string. Each change batch lands in one store write.
 `liveRows` is an object keyed by property name, so a collection must not hold both `1` and `'1'`. One model has one key type.
 `liveList(c)` returns a store array reconciled by the collection's own key, in the order of the collection. Use it for small sets.
-`syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`. For a collection made by `collection()`, it reads the status of the sync source. For any other collection, it maps `c.status`: `ready` and `error` stay as they are, and every other status is `loading`.
+`syncStatus(c)` returns an accessor with `loading`, `ready`, or `error`.
+For a collection made by `collection()`, it reads the status of the sync source.
+For other collections, it maps `c.status` to the same three values.
+It maps `crashed` to `error` for all collections.
 `syncComplete(c)` returns a reactive accessor with the same value as `utils.complete()` for a collection made by `collection()`. For any other collection, it returns true.
 `syncCurrentAt(c)` returns a reactive accessor with the same value as `utils.currentAt()` for a collection made by `collection()`. For any other collection, it returns undefined.
 Create the adapters inside a Solid owner. When that owner disposes, the adapters unsubscribe.

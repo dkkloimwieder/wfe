@@ -485,7 +485,7 @@ The editing controller is fixture code, not a new public Table API.
 
 ## Application validation
 
-`validation.ts` uses [Zod Mini](https://zod.dev/packages/mini) through `zod/mini` from Zod 4.6.5.
+`validation.ts` uses [Zod Mini](https://zod.dev/packages/mini) through `zod/mini` from Zod 4.6.7.
 Zod is a development dependency of this fixture. The published Table runtime does not import it.
 The application supplies a synchronous `validate` callback to the editing controller.
 The callback returns parsed values or field and row errors.

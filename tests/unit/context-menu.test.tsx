@@ -2,11 +2,40 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
 import { ContextMenu } from '@wfe/components/context-menu'
+import { DropdownMenu } from '@wfe/components'
 
 afterEach(() => {
   cleanup()
   vi.useRealTimers()
   vi.restoreAllMocks()
+})
+
+test('deferred opening leaves focus on the dropdown item that already received it', () => {
+  vi.useFakeTimers()
+  const h = render(() => (
+    <DropdownMenu modal={false}>
+      <DropdownMenu.Trigger>Actions</DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content>
+          <DropdownMenu.Item>Inspect</DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu>
+  ))
+  flush()
+  const trigger = h.getByRole('button', { name: 'Actions' })
+  trigger.focus()
+  pointer(trigger, 'pointerdown', { pointerType: 'mouse' })
+  flush()
+  const menu = h.getByRole('menu')
+  const item = h.getByRole('menuitem', { name: 'Inspect' })
+  item.focus()
+  flush()
+  const focusMenu = vi.spyOn(menu, 'focus')
+  vi.runOnlyPendingTimers()
+  flush()
+  expect(focusMenu).not.toHaveBeenCalled()
+  expect(document.activeElement).toBe(item)
 })
 
 test('zero-duration menu mounting does not measure the document body', async () => {

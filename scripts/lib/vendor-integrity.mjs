@@ -42,8 +42,13 @@ export async function checkVendorIntegrity(root) {
   )
   assert.deepEqual(
     inventory.origins.dnd.externalDependencies,
-    { '@preact/signals-core': '1.10.0' },
+    { '@preact/signals-core': '1.14.5' },
     'DnD external dependency boundary',
+  )
+  assert.deepEqual(
+    inventory.origins.dnd.capturedExternalDependencies,
+    { '@preact/signals-core': '1.10.0' },
+    'DnD captured dependency pin',
   )
   assert.deepEqual(
     inventory.origins.dnd.externalImports,
@@ -52,7 +57,7 @@ export async function checkVendorIntegrity(root) {
   )
   assert.equal(
     packageJson.dependencies?.['@preact/signals-core'],
-    '1.10.0',
+    '1.14.5',
     'DnD signal dependency pin',
   )
   assert.match(
@@ -72,7 +77,7 @@ export async function checkVendorIntegrity(root) {
   )
   assert.equal(
     packageJson.dependencies?.['d3-array'],
-    '3.2.4',
+    '3.2.5',
     'Chart array dependency pin',
   )
   const external = new Set([

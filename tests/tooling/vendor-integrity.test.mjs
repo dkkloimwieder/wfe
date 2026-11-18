@@ -120,7 +120,7 @@ test('DnD capture permits only its pinned signal dependency and rejects altered 
     packagePath,
     JSON.stringify({
       ...pkg,
-      dependencies: { ...pkg.dependencies, '@preact/signals-core': '^1.10.0' },
+      dependencies: { ...pkg.dependencies, '@preact/signals-core': '^1.14.5' },
     }),
   )
   await assert.rejects(checkVendorIntegrity(root), /signal dependency pin/)

@@ -26,9 +26,9 @@ The capture is therefore larger than the source required by the active adapter.
 Consumer builds can remove unused exports through tree shaking.
 
 The capture preserves the MIT license, original hashes, local hashes, and
-repair descriptions. The engine uses external `@preact/signals-core` at
-1.10.0. This is its internal state dependency, not the Preact UI framework.
-Solid and Solid Primitives remain external. Existing package pins stay unchanged.
+repair descriptions. The engine uses `@preact/signals-core` 1.14.5 for its
+internal state. The original capture used 1.10.0.
+Solid and Solid Primitives remain external.
 
 An isolated minified build measured 102,873 bytes, or 27,617 gzip bytes, for
 the basic engine. Adding upstream Sortable measured 116,162 bytes, or 31,159 gzip bytes.

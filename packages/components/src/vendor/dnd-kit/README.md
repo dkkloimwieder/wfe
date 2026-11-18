@@ -14,9 +14,9 @@ for reproducible comparison. WFE does not instantiate them for sorting.
 This capture includes that reference code, not only the active adapter's
 imports. Consumer builds can remove unused exports through tree shaking.
 
-The only external runtime dependency is `@preact/signals-core`, pinned to
-`1.10.0`. Its signals are private engine state. The WFE adapter owns the Solid
-lifecycle and public reactive interface; consumers do not need Preact APIs.
+The only external runtime dependency is `@preact/signals-core` at `1.14.5`.
+The original capture used `1.10.0`. The engine uses these signals for private
+state. The WFE adapter owns the Solid lifecycle and public reactive interface.
 
 The source uses standard decorators and auto-accessors. The build must lower
 these before execution. TypeScript's standard decorator transform with target

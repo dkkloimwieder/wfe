@@ -84,6 +84,25 @@ test('fits negative coordinates and preserves the zoom anchor', () => {
   expect((120 - next.x) / next.zoom).toBeCloseTo((120 - view.x) / view.zoom)
   expect((80 - next.y) / next.zoom).toBeCloseTo((80 - view.y) / view.zoom)
 })
+
+test('fit keeps the previous margin on the limiting axis', () => {
+  const bounds = { x: -100, y: -50, width: 700, height: 700 }
+  const padding = 31
+  for (const [width, height] of [
+    [640, 480],
+    [480, 640],
+  ] as const) {
+    const view = fitDiagram(bounds, width, height)
+    expect(view.zoom).toBeCloseTo((480 - 2 * padding) / 700)
+    const inset =
+      width < height
+        ? bounds.x * view.zoom + view.x
+        : bounds.y * view.zoom + view.y
+    // xyflow can shift the center by one pixel when it floors the applied inset.
+    expect(inset).toBeGreaterThanOrEqual(padding - 1)
+    expect(inset).toBeLessThanOrEqual(padding + 1 + 1e-9)
+  }
+})
 test('selection waits for application acceptance, nodes survive updates, navigation never edits source records, observers dispose', () => {
   const disconnect = vi.fn()
   vi.stubGlobal(
@@ -248,18 +267,27 @@ test('elbow corner routing preserves named branch endpoints', () => {
         },
       ],
     },
-    nodes[1]!,
+    {
+      ...nodes[1]!,
+      ports: [{ id: 'in', label: 'Input', side: 'left' as const, offset: 45 }],
+    },
   ]
   const branches = ['yes', 'no'].map((port) => ({
     ...edges[0]!,
     id: port,
     type: 'step' as const,
     source: { node: 'a', port },
+    target: { node: 'b', port: 'in' },
   }))
   const square = diagramGraph(records, branches)
   const rounded = diagramGraph(records, branches, 18)
   expect(rounded.paths[0]!.path).not.toBe(square.paths[0]!.path)
   for (let i = 0; i < branches.length; i++) {
+    const sourceY = i === 0 ? 60 : 100
+    expect(square.paths[i]!.path).toMatch(new RegExp(`^M100[ ,]${sourceY}L`))
+    expect(square.paths[i]!.path).toMatch(/L400[ ,]145$/)
+    expect(rounded.paths[i]!.path).toMatch(/Q\s*250,145\s+268,145/)
+    expect(rounded.paths[i]!.path).toMatch(/L400[ ,]145$/)
     expect(rounded.paths[i]!.path.split('L')[0]).toBe(
       square.paths[i]!.path.split('L')[0],
     )

@@ -126,7 +126,12 @@ export function fitDiagram(
   width: number,
   height: number,
 ): DiagramViewport {
-  return getViewportForBounds(bounds, width, height, 0.05, 1.5, 0.15)
+  // xyflow 1.0 takes pixels. Keep the old 0.15 ratio and per-axis rounding.
+  const padding = (size: number) => Math.floor((size - size / 1.15) * 0.5)
+  return getViewportForBounds(bounds, width, height, 0.05, 1.5, {
+    x: padding(width),
+    y: padding(height),
+  })
 }
 export function zoomDiagram(
   view: DiagramViewport,
