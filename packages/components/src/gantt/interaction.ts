@@ -40,7 +40,7 @@ export interface GanttInteractionOptions {
 export interface GanttInteraction {
   readonly scope: DragDropScope<GestureData>
   readonly preview: Accessor<GanttChange | null>
-  timelineRef(element: HTMLElement | undefined): void
+  timelineRef(this: void, element: HTMLElement | undefined): void
   register(
     interval: Accessor<GanttInterval | undefined>,
     kind: Kind,
@@ -229,7 +229,7 @@ export function createGanttInteraction(
       timeline = element
       target.ref(element)
     },
-    cancel: scope.cancel,
+    cancel: () => scope.cancel(),
     register(interval, kind) {
       return createDraggable(scope, {
         get id() {

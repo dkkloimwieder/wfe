@@ -1,8 +1,7 @@
 import { generateHydrationScript, renderToString } from '@solidjs/web'
 import { App } from './App'
-export async function render(url = '/') {
+export function render(url = '/') {
   return (
-    generateHydrationScript() +
-    (await renderToString(() => <App initialUrl={url} />))
+    generateHydrationScript() + renderToString(() => <App initialUrl={url} />)
   )
 }

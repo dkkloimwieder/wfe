@@ -46,13 +46,13 @@ export function DragBoardControls() {
   })
   return (
     <section id="drag-board-review" aria-label="Hydrated dragging">
-      <div ref={source.ref} data-drag-adopt="source">
+      <div ref={source.ref.bind(source)} data-drag-adopt="source">
         <DragHandle drag={source} label="Move hydrated sample" />
         <Button onClick={() => scope.requestDrop('sample', 'destination')}>
           Assign hydrated sample
         </Button>
       </div>
-      <div ref={target.ref} data-drag-adopt="target">
+      <div ref={target.ref.bind(target)} data-drag-adopt="target">
         Hydrated destination
       </div>
       <output data-generic-assigned>

@@ -2,7 +2,7 @@ import type { TableView } from './viewConfiguration'
 
 export type ViewRequest = { scope: string; signal: AbortSignal }
 export type ViewStorage = {
-  load: (request: ViewRequest) => unknown | Promise<unknown>
+  load: (request: ViewRequest) => unknown
   save: (request: ViewRequest & { view: TableView }) => void | Promise<void>
   remove: (request: ViewRequest & { id: string }) => void | Promise<void>
 }
@@ -18,7 +18,7 @@ export function createMemoryViewStorage() {
     save: ({ scope, signal, view }) => {
       signal.throwIfAborted()
       let views = scopes.get(scope)
-      if (!views) scopes.set(scope, (views = new Map()))
+      if (!views) scopes.set(scope, (views = new Map<string, TableView>()))
       views.set(view.id, structuredClone(view))
     },
     remove: ({ scope, signal, id }) => {

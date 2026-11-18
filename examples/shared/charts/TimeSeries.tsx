@@ -420,7 +420,7 @@ export function TimeSeries() {
               y1: index === 0 ? 0 : (gap[index]?.previous ?? null),
               y2: row.requests,
               direction:
-                gap[index]?.change != null && gap[index]!.change! < 0
+                gap[index]?.change != null && gap[index].change < 0
                   ? 'Decrease'
                   : 'Increase',
             })),

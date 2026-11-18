@@ -1,6 +1,7 @@
 import { createMemo, createSignal } from 'solid-js'
 import { Button, Checkbox, Input } from '@wfe/components'
 import { ChartView } from '@wfe/generator/chart'
+import type { ChartValue } from '@wfe/components/chart'
 import type { ChartDescription } from '@wfe/generator/chart'
 
 type Row = { id: string; month: string; actual: number; target: number }
@@ -68,7 +69,9 @@ export function ChartDescriptions() {
   )
   const bindings = {
     rows,
-    formatters: { requests: (value: unknown) => `${value} requests` },
+    formatters: {
+      requests: (value: ChartValue) => `${String(value)} requests`,
+    },
     onSelect: (point: { datum: Row; markId: string } | null) => {
       if (!point) {
         setSelected('No selection')

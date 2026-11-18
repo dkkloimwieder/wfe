@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import {
   AlertDialog,
   Button,
@@ -23,11 +24,9 @@ import type { Choice, SavedRecord, Submission } from './consumer-transport'
 const initialChoice: Choice = { id: 'west', label: 'West' }
 const textColumn = {
   filterFn: (value: unknown, filter: unknown) =>
-    String(value ?? '')
-      .toLowerCase()
-      .includes(String(filter).toLowerCase()),
+    scalarText(value).toLowerCase().includes(scalarText(filter).toLowerCase()),
   sortFn: (a: unknown, b: unknown) =>
-    String(a ?? '').localeCompare(String(b ?? '')),
+    scalarText(a).localeCompare(scalarText(b)),
 }
 
 export function GenericConsumer() {

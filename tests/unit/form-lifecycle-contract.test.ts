@@ -1,5 +1,6 @@
+import { createFixtureDisposal } from '../../examples/shared/fixtureDisposal'
 import { expect, test, vi } from 'vitest'
-import { action, createRoot, createSignal, flush, untrack } from 'solid-js'
+import { createRoot, createSignal, flush, untrack } from 'solid-js'
 import { createForm } from '@wfe/form'
 import type { FormContext, FormReply } from '@wfe/form'
 
@@ -12,8 +13,7 @@ function deferred<T>() {
   return { promise, resolve }
 }
 function owned<T extends { dispose: () => void }>(root: T) {
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous disposal path.
-  const stop = action(function* () {
+  const stop = createFixtureDisposal(() => {
     root.dispose()
   })
   return {

@@ -540,6 +540,7 @@ const repeatedBindings: FormBindings<RepeatedValues> = {
     // @ts-expect-error Callback row fields are immutable.
     snapshot.entries[0]!.name = 'Mutation'
     // @ts-expect-error Callback arrays are immutable.
+    // oxlint-disable-next-line typescript/no-unsafe-call -- The type contract intentionally calls a missing mutator on a readonly array.
     snapshot.entries.push({
       key: 'extra',
       name: '',
@@ -592,6 +593,7 @@ const mutableRepeatedBindings: FormBindings<{ entries: RepeatedRow[] }> = {
   onValuesChange() {},
   validate(snapshot) {
     // @ts-expect-error A mutable accepted-state array still creates an immutable callback snapshot.
+    // oxlint-disable-next-line typescript/no-unsafe-call -- The type contract intentionally calls a missing mutator on a readonly snapshot.
     snapshot.entries.push({
       key: 'extra',
       name: '',

@@ -244,9 +244,8 @@ export function TableWorkspace(props: TableWorkspaceProps) {
         !controlsOwnFocus(event.relatedTarget)
       ) {
         panelFocused = false
-        if (!ownsFocus(header, event.relatedTarget as Node))
-          headerFocused = false
-        if (!ownsFocus(footerElement, event.relatedTarget as Node))
+        if (!ownsFocus(header, event.relatedTarget)) headerFocused = false
+        if (!ownsFocus(footerElement, event.relatedTarget))
           footerFocused = false
       }
     },

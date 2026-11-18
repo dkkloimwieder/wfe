@@ -81,13 +81,14 @@ const probeEvery = 15_000
 function request<T>(r: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     r.onsuccess = () => resolve(r.result)
-    r.onerror = () => reject(r.error)
+    r.onerror = () => reject(r.error ?? new Error('IndexedDB operation failed'))
   })
 }
 function done(tx: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
+    tx.onerror = () =>
+      reject(tx.error ?? new Error('IndexedDB operation failed'))
     tx.onabort = () => reject(tx.error ?? new Error('Transaction aborted'))
   })
 }

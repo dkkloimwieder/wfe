@@ -196,9 +196,9 @@ test('accepted navigation replaces the old page owner and focuses the new headin
 test('metadata labels and href changes retain page drafts, links and focus', async () => {
   const h = mount('queue')
   await settle()
-  const draft = h.getByRole('textbox', {
+  const draft = h.getByRole<HTMLInputElement>('textbox', {
     name: 'Page draft',
-  }) as HTMLInputElement
+  })
   const link = h.menu().getByRole('link', { name: 'Queue' })
   draft.value = 'Retained'
   draft.focus()
@@ -296,7 +296,12 @@ test.each([
   ['view', { views: {} }],
   [
     'inherited view',
-    { views: Object.create({ summary: () => null, records: () => null }) },
+    {
+      views: Object.create({
+        summary: () => null,
+        records: () => null,
+      }) as Record<'summary' | 'records', () => null>,
+    },
   ],
   ['href', { href: () => '' }],
   ['callback', { onNavigate: undefined }],
@@ -490,9 +495,9 @@ test('custom navigation callback replacement owns one lifecycle and retains the 
     />
   ))
   await settle()
-  const page = h.getByRole('textbox', {
+  const page = h.getByRole<HTMLInputElement>('textbox', {
     name: 'Retained page draft',
-  }) as HTMLInputElement
+  })
   const oldNavigation = h.getByRole('textbox', { name: 'Navigation draft 0' })
   fireEvent.input(page, { target: { value: 'Unsaved page text' } })
   page.focus()

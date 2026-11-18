@@ -73,7 +73,11 @@ export function ownedElementEvents(source: object) {
 }
 
 function ownedEvents(source: object, eventProps: ReadonlyArray<string>) {
-  const props = source as Record<string, unknown>
+  // These keys correspond to JSX event attributes on the supplied props object.
+  const props = source as Record<
+    string,
+    JSX.EventHandlerUnion<HTMLElement, Event> | undefined
+  >
   return createNativeListenerRef<HTMLElement>(() => {
     const names = createMemo(() => eventProps.filter((key) => key in props), {
       equals: (left, right) =>
@@ -86,8 +90,11 @@ function ownedEvents(source: object, eventProps: ReadonlyArray<string>) {
         (event) =>
           untrack(() => {
             const handler = props[key]
-            if (typeof handler === 'function') handler(event)
-            else if (Array.isArray(handler)) handler[0](handler[1], event)
+            if (typeof handler === 'function' || Array.isArray(handler))
+              callHandler(
+                event as Parameters<typeof callHandler<HTMLElement, Event>>[0],
+                handler,
+              )
           }),
       ])
   }, true)

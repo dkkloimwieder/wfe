@@ -236,7 +236,14 @@ function start(
             signal: controller.signal,
           })
           if (!response.ok) throw new Error('The export request failed')
-          const download: { url: string } = await response.json()
+          const download: unknown = await response.json()
+          if (
+            !download ||
+            typeof download !== 'object' ||
+            !('url' in download) ||
+            typeof download.url !== 'string'
+          )
+            throw new Error('The export response is missing a download URL')
           if (current !== exportRequest) return
           const link = document.createElement('a')
           link.href = download.url
@@ -418,7 +425,8 @@ async function register(result: QueryResult) {
   if (!response.ok) throw new Error('The demo result registration failed')
 }
 async function startServer(cache: QueryCacheConfiguration = {}) {
-  start({ status: 'loading' }, { server: true, cache })
+  const started = start({ status: 'loading' }, { server: true, cache })
+  if (started) await started
   await refreshServer?.()
 }
 

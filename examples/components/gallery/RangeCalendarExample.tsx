@@ -87,8 +87,10 @@ export function RangeCalendarExample(props: { state?: GalleryState }) {
         onSubmit={(event) => {
           event.preventDefault()
           setSubmitted(
-            new FormData(event.currentTarget).getAll('booking').join(' to ') ||
-              'No range submitted',
+            new FormData(event.currentTarget)
+              .getAll('booking')
+              .filter((value) => typeof value === 'string')
+              .join(' to ') || 'No range submitted',
           )
         }}
       >

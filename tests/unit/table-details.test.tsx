@@ -1,3 +1,4 @@
+import type { TableFilterCriteria } from '@wfe/components/table'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render, within } from '@solidjs/testing-library'
 import { createSignal, flush, onCleanup } from 'solid-js'
@@ -83,9 +84,9 @@ test('generated details honor accepted expansion and retain owners through sort,
   accept = true
   fireEvent.click(toggle)
   flush()
-  const input = view.getByRole('textbox', {
+  const input = view.getByRole<HTMLInputElement>('textbox', {
     name: 'Child draft',
-  }) as HTMLInputElement
+  })
   expect(mounts).toBe(1)
   input.value = 'Local draft'
   table.setSorting([{ id: 'name', desc: true }])
@@ -230,7 +231,7 @@ test('nested tables retain their title and columns without controls, refresh or 
 })
 
 test('nested tables can opt into controls, footer and application-owned refresh', () => {
-  const refresh = vi.fn()
+  const refresh = vi.fn<(criteria: TableFilterCriteria) => void>()
   const view = render(() => {
     const table = model()
     return (

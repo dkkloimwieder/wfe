@@ -101,7 +101,8 @@ export function StatusTile(props: StatusTileProps) {
           fallback={
             props.value == null || props.value === ''
               ? messages.emptyValue
-              : String(props.value)
+              : // oxlint-disable-next-line typescript/no-base-to-string -- Unformatted values use the caller value's JavaScript string conversion.
+                String(props.value)
           }
         >
           {(format) => (

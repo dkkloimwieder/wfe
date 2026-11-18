@@ -5,7 +5,7 @@ import { OBSERVE, flush } from 'solid-js'
 import App, { lifecycle } from './App'
 
 const capture = OBSERVE?.diagnostics.capture()
-const release = await hydrate(() => <App />, document.getElementById('app')!)
+const release = hydrate(() => <App />, document.getElementById('app')!)
 // Match the rc.13 root disposal workaround in the editing fixture.
 const disposeRoot = createFixtureDisposal(() => {
   release()

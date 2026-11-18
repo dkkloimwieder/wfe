@@ -323,7 +323,7 @@ function ForCharts(props: { revision: number }) {
           description={generatedDescription}
           bindings={{
             rows,
-            formatters: { count: (value) => `${value} requests` },
+            formatters: { count: (value) => `${String(value)} requests` },
           }}
         />
       </section>

@@ -194,7 +194,7 @@ test.each(['checkbox', 'switch'] as const)(
         )}
       </form>
     ))
-    const input = h.getByLabelText('Choice') as HTMLInputElement
+    const input = h.getByLabelText<HTMLInputElement>('Choice')
     fireEvent.click(input)
     flush()
     expect(canonical).toHaveBeenCalledExactlyOnceWith(true)

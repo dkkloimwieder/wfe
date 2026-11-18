@@ -1,3 +1,4 @@
+import { columnLabel } from './columnLabel'
 import { resolveTableMessages, type TableMessages } from './messages'
 import { Icon } from '../components/Icon'
 import {
@@ -92,7 +93,7 @@ export function Table<T, M>(props: {
   const headerEnd = createMemo(() => props.headerEnd)
   const grouped = () => props.grouped ?? table.state.grouping.length > 0
   const label = (column: NativeColumn<T, M>) =>
-    props.label?.(column) ?? String(column.columnDef?.header ?? column.id)
+    props.label?.(column) ?? columnLabel(column)
   return (
     <>
       <Show when={selection()} keyed>

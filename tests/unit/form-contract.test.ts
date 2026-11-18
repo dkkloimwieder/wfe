@@ -1,3 +1,4 @@
+import { createFixtureDisposal } from '../../examples/shared/fixtureDisposal'
 import {
   action,
   createRoot,
@@ -72,8 +73,7 @@ function genericHarness<T extends object & { [K in keyof T]: FormScalar }>(
       },
     }
   })
-  // eslint-disable-next-line require-yield -- Use the qualified synchronous disposal path.
-  const stop = action(function* () {
+  const stop = createFixtureDisposal(() => {
     root.dispose()
   })
   flush()
@@ -274,6 +274,7 @@ describe('public form contract', () => {
   })
   it('captures asynchronous validation failures without calling submission', async () => {
     const h = harness({
+      // oxlint-disable-next-line typescript/prefer-promise-reject-errors -- Exercise the form's normalization of an application rejection that carries a string.
       validate: () => Promise.reject('validation unavailable'),
     })
     try {
@@ -477,7 +478,8 @@ describe.each(['signal', 'store'] as const)(
         const run = action(function* () {
           h.form.setValue('title', '  Action  ')
           h.form.setValue('quantity', 5)
-          return yield h.form.submit()
+          const reply: unknown = yield h.form.submit()
+          return reply
         })
         expect(await run()).toEqual({ status: 'success' })
         expect(h.submitted.mock.calls[0]?.[0]).toEqual({

@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { createMemo, createSignal, createStore, onCleanup } from 'solid-js'
 import { createTable, nativeAggregations } from '@wfe/components/table'
 import {
@@ -84,12 +85,12 @@ export function createWamnTable(transport: Transport) {
       filterFn:
         column.type === 'text'
           ? (value, filter) =>
-              String(value ?? '')
+              scalarText(value)
                 .toLowerCase()
                 .includes(String(filter).toLowerCase())
           : undefined,
       sortFn: ['text', 'timestamptz'].includes(column.type)
-        ? (a, b) => String(a ?? '').localeCompare(String(b ?? ''))
+        ? (a, b) => scalarText(a).localeCompare(scalarText(b))
         : undefined,
       size: column.id === 'note' ? 250 : column.id === 'id' ? 310 : 160,
       meta: column,

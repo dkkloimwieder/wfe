@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { Theme } from '@wfe/components/theme'
 import {
   createSignal,
@@ -70,9 +71,19 @@ export function App(props: {
     })
   }
   function readPosition() {
-    const entry = window.history.state?.wamnNavigation
-    return entry?.scope === historyScope && Number.isSafeInteger(entry.position)
-      ? (entry.position as number)
+    const state: unknown = window.history.state
+    const entry =
+      state && typeof state === 'object' && 'wamnNavigation' in state
+        ? state.wamnNavigation
+        : undefined
+    return entry &&
+      typeof entry === 'object' &&
+      'scope' in entry &&
+      entry.scope === historyScope &&
+      'position' in entry &&
+      typeof entry.position === 'number' &&
+      Number.isSafeInteger(entry.position)
+      ? entry.position
       : 0
   }
   function readRoute(): Route | undefined {
@@ -247,7 +258,7 @@ export function App(props: {
                 focusCode(cell.row.id, true)
               }}
             >
-              {String(cell.value ?? '')}
+              {scalarText(cell.value)}
             </Button>
           }
         >

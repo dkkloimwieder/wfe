@@ -242,7 +242,7 @@ export type TextareaProps = JSX.TextareaHTMLAttributes<HTMLTextAreaElement> &
 type TextElement = HTMLInputElement | HTMLTextAreaElement
 type TextProps<T extends TextElement> = JSX.HTMLAttributes<T> &
   NativeControlFrameProps & {
-    value?: InputProps['value'] | TextareaProps['value']
+    value?: InputProps['value']
     disabled?: InputProps['disabled']
     readonly?: InputProps['readonly']
     required?: InputProps['required']
@@ -560,7 +560,8 @@ export function FieldValue(props: FieldValueProps) {
         fallback={
           props.value == null || props.value === ''
             ? messages.emptyValue
-            : String(props.value)
+            : // oxlint-disable-next-line typescript/no-base-to-string -- Unformatted values use the caller value's JavaScript string conversion.
+              String(props.value)
         }
       >
         {(format) => (

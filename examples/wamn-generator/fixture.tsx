@@ -36,9 +36,9 @@ export function createFixture(name: string = 'original') {
       )
       flush()
     },
-    async hydrate() {
+    hydrate() {
       begin()
-      release = await hydrate(
+      release = hydrate(
         () => (
           <App
             name={name}

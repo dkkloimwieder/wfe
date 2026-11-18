@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { Button, Checkbox, Input, uiScope } from '@wfe/components'
 import '@wfe/components/styles.css'
 import {
@@ -560,7 +561,7 @@ export default function NativeApp(props: {
                 data-column={column.id}
                 style={columnStyle(column.id)}
               >
-                {String(column.columnDef?.header ?? column.id)}
+                {scalarText(column.columnDef?.header, column.id)}
               </div>
             )}
           </For>

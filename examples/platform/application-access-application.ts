@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { createSignal, onCleanup, untrack } from 'solid-js'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
@@ -22,7 +23,7 @@ export type ApplicationAccessTarget = ApplicationScope &
   )
 export type AssignmentValues = { role: string; action: 'grant' | 'revoke' }
 const sortText = (a: unknown, b: unknown) =>
-  String(a ?? '').localeCompare(String(b ?? ''))
+  scalarText(a).localeCompare(scalarText(b))
 const sortBoolean = (a: unknown, b: unknown) => Number(a) - Number(b)
 type State = { loading: boolean; error?: string }
 const targetKey = (target: ApplicationAccessTarget) =>

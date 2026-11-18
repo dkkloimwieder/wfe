@@ -58,7 +58,7 @@ test('demo invitation maps collections and nullable administration without UI ke
     expect(request.operation).toContain('user/invite')
     expect(request.items).toEqual([
       {
-        request_id: expect.any(String),
+        request_id: expect.any(String) as unknown,
         value: {
           display_name: 'Sample Person',
           email: 'person@example.test',
@@ -240,7 +240,10 @@ test('lifecycle confirmations capture identities, refresh sample status, and ign
       .reverse()
       .find((request) => request.operation.includes('user/deactivate'))!
     expect(request.items).toEqual([
-      { request_id: expect.any(String), value: { principal_id: ANN } },
+      {
+        request_id: expect.any(String) as unknown,
+        value: { principal_id: ANN },
+      },
     ])
     app.lifecycle.open(user, 'activate')
     const release = app.mock.holdNext(),

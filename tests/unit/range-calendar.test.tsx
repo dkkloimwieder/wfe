@@ -81,7 +81,7 @@ test('two months share one tab stop and accept a partial then complete range', (
 })
 
 test('rejected range proposals preserve accepted cells and retained nodes', () => {
-  const change = vi.fn()
+  const change = vi.fn<(value: CalendarRange) => void>()
   const h = render(() => (
     <RangeCalendar
       initialMonth="2026-01-01"
@@ -190,11 +190,9 @@ test('the last supported year renders bounded months and disables forward naviga
   flush()
   expect(h.getAllByRole('grid')).toHaveLength(1)
   expect(
-    (
-      h.getByRole('button', {
-        name: 'Next month',
-      }) as HTMLButtonElement
-    ).disabled,
+    h.getByRole<HTMLButtonElement>('button', {
+      name: 'Next month',
+    }).disabled,
   ).toBe(true)
   expect(
     [...h.container.querySelectorAll('[data-date]')].every((node) =>

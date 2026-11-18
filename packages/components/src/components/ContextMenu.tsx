@@ -105,7 +105,7 @@ export function ContextMenuTrigger(props: ContextMenuTriggerProps) {
   }
   function open(x: number, y: number) {
     if (props.disabled) return
-    context!.position({ x, y, width: 0, height: 0 })
+    context.position({ x, y, width: 0, height: 0 })
     menu.open('first')
   }
   const caller = ownedElementEvents(props)

@@ -124,9 +124,9 @@ test('omitted labels name native, choice, boolean, date and numeric controls fro
 })
 test('label changes preserve inputs, focus, accepted values and application callbacks', async () => {
   const h = mountForm()
-  const input = h.getByRole('textbox', {
+  const input = h.getByRole<HTMLInputElement>('textbox', {
     name: 'name',
-  }) as HTMLInputElement
+  })
   input.focus()
   h.form.setValue('name', 'Edited')
   await settle()

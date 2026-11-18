@@ -281,7 +281,7 @@ export function createApplicationAccessMock() {
         : []),
     ]
     if (request.operation === permission.PERMISSION_LIST_ROUTE.operation) {
-      const name = String(item.role)
+      const name = typeof item.role === 'string' ? item.role : ''
       if (!records.roles.has(name)) return refuse('role_not_found', 'role')
       return complete({
         role: name,

@@ -368,7 +368,10 @@ test('absent stored permission revocation keeps the declared refusal', async () 
     status: 'completed',
     value: {
       admin: true,
-      permissions: expect.arrayContaining([READ_OPERATION, WRITE_OPERATION]),
+      permissions: expect.arrayContaining([
+        READ_OPERATION,
+        WRITE_OPERATION,
+      ]) as unknown,
     },
   })
   mock.dispose()

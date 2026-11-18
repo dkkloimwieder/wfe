@@ -1,9 +1,9 @@
 import { HydrationApp } from './AssociationCases'
 import { generateHydrationScript, renderToString } from '@solidjs/web'
 import type { createApplication } from './application'
-export async function render() {
+export function render() {
   let application: ReturnType<typeof createApplication> | undefined
-  const markup = await renderToString(() => (
+  const markup = renderToString(() => (
     <HydrationApp
       ready={(value) => {
         application = value

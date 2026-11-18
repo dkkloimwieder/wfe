@@ -391,7 +391,7 @@ test.each([undefined, false])(
         Results
       </TableWorkspace>
     ))
-    const input = h.getByRole('textbox') as HTMLInputElement
+    const input = h.getByRole<HTMLInputElement>('textbox')
     fireEvent.input(input, { target: { value: 'Keep this draft' } })
     const handle = h.getByRole('separator')
     expect(handle.getAttribute('aria-disabled')).toBe('true')

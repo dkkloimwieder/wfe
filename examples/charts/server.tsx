@@ -1,15 +1,15 @@
 import { generateHydrationScript, renderToString } from '@solidjs/web'
 import { App } from './App'
-export async function render(url = '/') {
+export function render(url = '/') {
   return (
     generateHydrationScript() +
-    (await renderToString(() => (
+    renderToString(() => (
       <App
         hidden={new URL(url, 'http://chart.example').searchParams.has('hidden')}
         standalone={new URL(url, 'http://chart.example').searchParams.has(
           'standalone',
         )}
       />
-    )))
+    ))
   )
 }

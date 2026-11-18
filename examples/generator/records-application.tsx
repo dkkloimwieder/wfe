@@ -64,8 +64,8 @@ export function createRecordsApplication(reviewCells = false) {
     values,
     defaults: () => initial,
     onValuesChange: setValues,
-    validate: provider.validate,
-    onSubmit: provider.save,
+    validate: provider.validate.bind(provider),
+    onSubmit: provider.save.bind(provider),
   })
   const table = createTable<{ name: string; quantity: number }, never>({
     source: { ids: provider.ids, get: provider.row },

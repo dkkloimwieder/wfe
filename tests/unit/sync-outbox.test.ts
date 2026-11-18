@@ -27,12 +27,12 @@ async function stored(database: string) {
   const db = await new Promise<IDBDatabase>((resolve, reject) => {
     const r = indexedDB.open(database, 1)
     r.onsuccess = () => resolve(r.result)
-    r.onerror = () => reject(r.error)
+    r.onerror = () => reject(r.error ?? new Error('IndexedDB operation failed'))
   })
   const rows = await new Promise<unknown[]>((resolve, reject) => {
     const r = db.transaction('outbox').objectStore('outbox').getAll()
     r.onsuccess = () => resolve(r.result)
-    r.onerror = () => reject(r.error)
+    r.onerror = () => reject(r.error ?? new Error('IndexedDB operation failed'))
   })
   db.close()
   return rows
@@ -602,7 +602,8 @@ test('entries stored before expected existed load with expected undefined', asyn
     const tx = db.transaction('outbox', 'readwrite')
     tx.objectStore('outbox').put(legacy)
     tx.oncomplete = () => resolve()
-    tx.onerror = () => reject(tx.error)
+    tx.onerror = () =>
+      reject(tx.error ?? new Error('IndexedDB operation failed'))
   })
   db.close()
   const again = outbox({

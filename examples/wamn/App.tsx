@@ -41,6 +41,14 @@ export function App(props: {
   })
   const counts = { mounted: 0, unmounted: 0, cells: 0, maxLive: 0 }
   const [action, setAction] = createSignal('')
+  function run(work: Promise<unknown>) {
+    work.catch((error: unknown) => {
+      if (!disposed)
+        setAction(
+          error instanceof Error ? error.message : 'WAMN request failed',
+        )
+    })
+  }
   const width = createMemo(
     () =>
       table
@@ -128,29 +136,32 @@ export function App(props: {
             <Button
               aria-label={`Save ${id}`}
               disabled={model.drafts[id]?.busy}
-              onClick={() => model.save(id)}
+              onClick={() => run(model.save(id))}
             >
               Save
             </Button>
             <Button
               aria-label={`Discard ${id}`}
               disabled={model.drafts[id]?.busy}
-              onClick={() => model.discard(id)}
+              onClick={() => run(model.discard(id))}
             >
               Discard
             </Button>
           </Show>
           <Button
             aria-label={`Open ${id}`}
-            onClick={async () => {
-              const result = await getWidget(props.transport, [{ id }])
-              if (!disposed)
-                setAction(
-                  result.status === 'completed'
-                    ? `Opened ${result.value.id}`
-                    : result.status,
-                )
-            }}
+            onClick={() =>
+              run(
+                getWidget(props.transport, [{ id }]).then((result) => {
+                  if (!disposed)
+                    setAction(
+                      result.status === 'completed'
+                        ? `Opened ${result.value.id}`
+                        : result.status,
+                    )
+                }),
+              )
+            }
           >
             Open
           </Button>
@@ -184,8 +195,8 @@ export function App(props: {
         <h1>Find widgets</h1>
         <p>WAMN integration fixture</p>
         <div class="toolbar">
-          <Button onClick={() => model.read()}>Read</Button>
-          <Button onClick={() => model.read()}>Refresh</Button>
+          <Button onClick={() => run(model.read())}>Read</Button>
+          <Button onClick={() => run(model.read())}>Refresh</Button>
           <Button
             disabled={
               model.load.mode !== 'browse' ||
@@ -193,7 +204,7 @@ export function App(props: {
               model.page().cursor === null ||
               model.page().rows.length >= model.load.cap
             }
-            onClick={() => model.read(true)}
+            onClick={() => run(model.read(true))}
           >
             Next page
           </Button>
@@ -208,7 +219,8 @@ export function App(props: {
                 { value: 'browse', label: 'Browse' },
               ]}
               onValueChange={(value) => {
-                void model.configure({ mode: value as 'load' | 'browse' })
+                if (value === 'load' || value === 'browse')
+                  run(model.configure({ mode: value }))
               }}
             />
           </label>
@@ -220,7 +232,9 @@ export function App(props: {
               value={model.load.cap}
               ref={nativeEvents<HTMLInputElement>({
                 change: (event) =>
-                  model.configure({ cap: Number(event.currentTarget.value) }),
+                  run(
+                    model.configure({ cap: Number(event.currentTarget.value) }),
+                  ),
               })}
             />
           </label>
@@ -229,7 +243,7 @@ export function App(props: {
             <Input
               ref={nativeEvents<HTMLInputElement>({
                 change: (event) =>
-                  model.configure({ code: event.currentTarget.value }),
+                  run(model.configure({ code: event.currentTarget.value })),
               })}
             />
           </label>

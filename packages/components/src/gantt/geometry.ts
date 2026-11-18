@@ -257,7 +257,7 @@ export function createGanttIntervalIndexer(
           row.pendingIntervals.push(interval)
           row.pendingSnapshots.push(
             unchanged
-              ? saved!
+              ? saved
               : {
                   interval,
                   id: interval.id,

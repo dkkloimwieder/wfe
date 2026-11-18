@@ -8,7 +8,8 @@ type Saved = { rows: unknown[]; cursor: string; saved_at: string }
 function done<T>(request: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
+    request.onerror = () =>
+      reject(request.error ?? new Error('IndexedDB operation failed'))
   })
 }
 
@@ -19,7 +20,8 @@ export function indexedPersistence(name: string): Persistence {
     request.onupgradeneeded = () =>
       request.result.createObjectStore('collections')
     request.onsuccess = () => resolve(request.result)
-    request.onerror = () => reject(request.error)
+    request.onerror = () =>
+      reject(request.error ?? new Error('IndexedDB operation failed'))
   })
   const store = async (mode: IDBTransactionMode) =>
     (await database).transaction('collections', mode).objectStore('collections')

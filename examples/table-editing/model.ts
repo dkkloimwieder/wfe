@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import {
   createEffect,
   createMemo,
@@ -512,7 +513,7 @@ export function createModel(
       version: 1,
       columnFilters: viewState.columnFilters.map(({ id, value }) => ({
         id,
-        value: String(value ?? ''),
+        value: scalarText(value),
       })),
       globalFilter: viewState.globalFilter,
       sorting: snapshot(viewState.sorting),
@@ -574,7 +575,7 @@ export function createModel(
     release: () => {
       for (const release of [...waiting]) release()
     },
-    patch(id: string, changes: Partial<Omit<RecordData, 'id'>>) {
+    patch(this: void, id: string, changes: Partial<Omit<RecordData, 'id'>>) {
       if (disposed) return
       setRecords((all) => {
         const row = all[id]

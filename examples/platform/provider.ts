@@ -418,7 +418,7 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
       })
     }
     if (request.operation === member.MEMBER_LIST_ROUTE.operation) {
-      const name = String(item.project)
+      const name = typeof item.project === 'string' ? item.project : ''
       if (!orgAdmin && !projectAdmins.get(name)?.has(MOCK_ACTOR))
         return denied()
       return complete({
@@ -456,9 +456,10 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
     ]
     if (accessRoutes.some((route) => route.operation === request.operation)) {
       const value = item.value as Record<string, JsonValue> | undefined
-      const name = String(value?.project ?? ''),
-        env = String(value?.env ?? ''),
-        principalId = String(value?.principal_id ?? '')
+      const name = typeof value?.project === 'string' ? value?.project : '',
+        env = typeof value?.env === 'string' ? value?.env : '',
+        principalId =
+          typeof value?.principal_id === 'string' ? value?.principal_id : ''
       const organization = request.operation.includes(':org-admin/'),
         projectAdmin = request.operation.includes(':project-admin/'),
         grant = request.operation.includes('/grant@')
@@ -558,22 +559,36 @@ export function createPlatformMock(scenario: PlatformScenario = 'normal') {
         return complete({ project: canonical })
       }
       case environment.ENVIRONMENT_LIST_ROUTE.operation:
-        if (!accessible().includes(String(item.project))) return denied()
+        if (
+          !accessible().includes(
+            typeof item.project === 'string' ? item.project : '',
+          )
+        )
+          return denied()
         return complete({
           next_cursor: null,
-          total: (projects.get(String(item.project)) ?? []).length,
-          environments: (projects.get(String(item.project)) ?? []).map(
-            (name) => ({
-              name,
-              state: environmentStates.get(
-                JSON.stringify([String(item.project), name]),
-              )!,
-            }),
-          ),
+          total: (
+            projects.get(
+              typeof item.project === 'string' ? item.project : '',
+            ) ?? []
+          ).length,
+          environments: (
+            projects.get(
+              typeof item.project === 'string' ? item.project : '',
+            ) ?? []
+          ).map((name) => ({
+            name,
+            state: environmentStates.get(
+              JSON.stringify([
+                typeof item.project === 'string' ? item.project : '',
+                name,
+              ]),
+            )!,
+          })),
         })
       case environment.ENVIRONMENT_STATUS_ROUTE.operation: {
-        const name = String(item.project),
-          env = String(item.env)
+        const name = typeof item.project === 'string' ? item.project : '',
+          env = typeof item.env === 'string' ? item.env : ''
         if (!orgAdmin && !projectAdmins.get(name)?.has(MOCK_ACTOR))
           return denied()
         if (!projects.get(name)?.includes(env))

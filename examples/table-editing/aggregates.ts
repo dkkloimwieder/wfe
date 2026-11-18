@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import type { nativeAggregations } from '@wfe/components/table'
 
 export type Summary = 'none' | keyof typeof nativeAggregations
@@ -38,7 +39,7 @@ const numberFormat = new Intl.NumberFormat('en-US', {
 })
 export function formatValue(value: unknown, kind: ValueKind) {
   if (value == null || value === '') return '—'
-  if (typeof value !== 'number') return String(value)
+  if (typeof value !== 'number') return scalarText(value)
   if (!Number.isFinite(value)) return '—'
   return kind === 'date'
     ? new Date(value).toISOString().slice(0, 10)

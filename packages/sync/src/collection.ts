@@ -1,6 +1,6 @@
 import { createCollection } from '@tanstack/db'
 import type { Collection } from '@tanstack/db'
-import { applyChanges } from './applyChanges'
+import { writeChanges } from './applyChanges'
 import { CursorExpired } from './errors'
 import { createSourceSignal, createStatus } from './status'
 import { register, remove, upsert } from './writer'
@@ -120,7 +120,9 @@ export function collection<T extends object, S>(
     try {
       const page = await feed.list(scope, r.abort.signal)
       if (r.stopped) return
-      reconcile(c, r.writer, page.rows, version, getKey)
+      const applied = reconcile(c, r.writer, page.rows, version, getKey)
+      if (applied !== true) await applied
+      if (r.stopped) return
       cursor = page.cursor
       currentAt.set(new Date().toISOString())
       complete.set(page.complete ?? true)
@@ -145,7 +147,9 @@ export function collection<T extends object, S>(
           r.writer.begin()
           for (const row of saved.rows as T[])
             upsert(c, r.writer, row, batch, version, getKey)
-          r.writer.commit()
+          const applied = r.writer.commit()
+          if (applied !== true) await applied
+          if (r.stopped) return
           cursor = saved.cursor
           ready(r)
           local = true
@@ -236,7 +240,9 @@ export function collection<T extends object, S>(
       for (;;) {
         const page = await feed.changes(scope, cursor, options.pageSize, signal)
         if (r.stopped) return
-        applyChanges(c, page.rows)
+        const applied = writeChanges(c, page.rows)
+        if (applied !== true) await applied
+        if (r.stopped) return
         cursor = page.next_cursor
         scheduleSave(r)
         if (page.complete) {
@@ -342,7 +348,7 @@ function reconcile<T extends object>(
   rows: T[],
   version: Version<T>,
   getKey: Key<T>,
-): void {
+) {
   const batch: Batch = new Map()
   const incoming = new Set<string | number>()
   writer.begin()
@@ -352,5 +358,5 @@ function reconcile<T extends object>(
   }
   for (const key of [...c.keys()])
     if (!incoming.has(key)) remove(c, writer, key, batch)
-  writer.commit()
+  return writer.commit()
 }

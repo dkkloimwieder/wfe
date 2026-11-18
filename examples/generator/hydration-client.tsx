@@ -5,5 +5,5 @@ window.generatorFixture = createFixture(
   new URLSearchParams(location.search).get('reviewCells') === '1',
   location.href,
 )
-await window.generatorFixture.hydrate()
+window.generatorFixture.hydrate()
 document.documentElement.dataset.hydrated = 'true'

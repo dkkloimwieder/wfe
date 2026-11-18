@@ -192,7 +192,7 @@ export function GalleryExample(props: {
       display: 'displayFixture',
     } as Partial<Record<GalleryId, string>>
   )[entry.id]
-  const previousFixture = fixtureKey
+  const previousFixture: unknown = fixtureKey
     ? Reflect.get(window, fixtureKey)
     : undefined
   function applyState(state: GalleryState) {

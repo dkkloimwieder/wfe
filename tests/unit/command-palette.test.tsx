@@ -84,7 +84,7 @@ test('shortcut is opt-in and does not steal editing or composition keystrokes', 
   expect(off.queryByRole('dialog')).toBeNull()
 })
 
-test('controlled open requests do not bypass application rejection', async () => {
+test('controlled open requests do not bypass application rejection', () => {
   const changed = vi.fn()
   const h = render(() => (
     <CommandPalette
@@ -132,7 +132,7 @@ test('palette can retain itself after an action and a custom trigger restores fo
   await waitFor(() => expect(document.activeElement).toBe(trigger))
 })
 
-test('shortcut chooses one eligible owner and releases it on disposal', async () => {
+test('shortcut chooses one eligible owner and releases it on disposal', () => {
   const first = vi.fn(),
     second = vi.fn()
   const [visible, setVisible] = createSignal(true)

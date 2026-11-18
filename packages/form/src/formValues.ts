@@ -26,13 +26,19 @@ function scalarRecord(
     )
   )
 }
+function isScalarRowList(
+  value: unknown,
+): value is readonly Readonly<Record<PropertyKey, FormScalar>>[] {
+  return Array.isArray(value) && Array.from<unknown>(value).every(scalarRecord)
+}
+
 /** Never freeze application-owned rows or retain their mutable references. */
 export function copyValues<T extends object>(values: Readonly<T>): Readonly<T> {
   const result = { ...values }
   for (const key of Reflect.ownKeys(result)) {
     const value: unknown = Reflect.get(result, key)
     if (isScalar(value)) continue
-    if (!Array.isArray(value) || !Array.from(value).every(scalarRecord))
+    if (!isScalarRowList(value))
       throw new TypeError(
         'Form values require scalars or lists of scalar records',
       )

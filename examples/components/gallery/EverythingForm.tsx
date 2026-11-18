@@ -105,8 +105,9 @@ export function EverythingForm() {
         return
       }
       const data = new FormData(event.currentTarget)
+      const name = data.get('name')
       setSaved(
-        `${data.get('name')} · ${status()} · ${team()?.label ?? 'No team'} · ${selectedTags().length} tags · ${files().length} attachments`,
+        `${typeof name === 'string' ? name : ''} · ${status()} · ${team()?.label ?? 'No team'} · ${selectedTags().length} tags · ${files().length} attachments`,
       )
     },
     input(event) {

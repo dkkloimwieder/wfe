@@ -34,6 +34,12 @@ type Fault =
   | 'uncertain'
 
 /** Scripted HTTP boundary. The real WAMN transport still encodes and decodes. */
+function readBodyItem(body: RequestInit['body']): unknown {
+  if (typeof body !== 'string') throw new Error('Expected a WAMN JSON body')
+  const entries: unknown = JSON.parse(body)
+  return Array.isArray(entries) ? entries[0] : undefined
+}
+
 export function createFixtureServer(size = 8) {
   const overrides = new Map<string, Widget>()
   const sent: Array<{
@@ -50,16 +56,18 @@ export function createFixtureServer(size = 8) {
     baseUrl: 'https://fixture.invalid',
     fetch: async (url, init) => {
       if (disposed) throw new Error('Fixture server disposed')
-      const parsed = new URL(String(url))
-      const item: Record<string, unknown> =
+      const parsed = new URL(url instanceof Request ? url.url : url)
+      const input: unknown =
         init?.method === 'GET'
           ? Object.fromEntries(
-              [...parsed.searchParams].map(([key, value]) => [
-                key,
-                JSON.parse(value),
-              ]),
+              [...parsed.searchParams].map(
+                ([key, value]): [string, unknown] => [key, JSON.parse(value)],
+              ),
             )
-          : JSON.parse(String(init?.body))[0]
+          : readBodyItem(init?.body)
+      if (!input || typeof input !== 'object' || Array.isArray(input))
+        throw new Error('Expected a WAMN request item')
+      const item: Record<string, unknown> = { ...input }
       const path = parsed.pathname
       sent.push({ path, method: init!.method!, item })
       const fault = faults.get(path)

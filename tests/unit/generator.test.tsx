@@ -89,9 +89,9 @@ test('form descriptions preserve controls, accepted values, labels and actions a
       />
     )
   })
-  const title = mounted.getByLabelText('Title') as HTMLInputElement
+  const title = mounted.getByLabelText<HTMLInputElement>('Title')
   const count = mounted.getByLabelText('Count')
-  const check = mounted.getByLabelText('Active') as HTMLInputElement
+  const check = mounted.getByLabelText<HTMLInputElement>('Active')
   expect(check.type).toBe('checkbox')
   fireEvent.input(title, { target: { value: 'Changed' } })
   flush()
@@ -194,7 +194,7 @@ test('table uses the original engine and keeps custom cells on label and alias c
   })
   const cell = mounted.container.querySelector('strong')!
   expect(cell.textContent).toBe('3')
-  const draft = mounted.getByLabelText('Cell draft') as HTMLInputElement
+  const draft = mounted.getByLabelText<HTMLInputElement>('Cell draft')
   fireEvent.input(draft, { target: { value: 'Unsaved cell' } })
   flush()
   const initialMounts = mounts
@@ -227,7 +227,7 @@ test('table uses the original engine and keeps custom cells on label and alias c
   flush()
   expect(mounted.container.querySelector('strong')).not.toBe(cell)
   expect(mounted.container.querySelector('strong')?.textContent).toBe('9')
-  expect((mounted.getByLabelText('Cell draft') as HTMLInputElement).value).toBe(
+  expect(mounted.getByLabelText<HTMLInputElement>('Cell draft').value).toBe(
     'Local draft',
   )
   expect(mounts).toBe(initialMounts + 1)
@@ -329,9 +329,9 @@ test('an absent optional custom value is valid and receives undefined', () => {
       />
     )
   })
-  expect(
-    (mounted.getByLabelText('Optional count') as HTMLInputElement).value,
-  ).toBe('')
+  expect(mounted.getByLabelText<HTMLInputElement>('Optional count').value).toBe(
+    '',
+  )
 })
 
 for (const mode of [
@@ -546,7 +546,7 @@ test('navigation panels preserve local state across navigation and action update
       }}
     />
   ))
-  const input = mounted.getByLabelText('Navigation draft') as HTMLInputElement
+  const input = mounted.getByLabelText<HTMLInputElement>('Navigation draft')
   fireEvent.input(input, { target: { value: 'Unsaved navigation' } })
   flush()
   setRevision(1)
@@ -598,9 +598,9 @@ for (const control of ['checkbox', 'switch'] as const) {
         />
       )
     })
-    const input = mounted.getByRole(control, {
+    const input = mounted.getByRole<HTMLInputElement>(control, {
       name: 'Active',
-    }) as HTMLInputElement
+    })
     fireEvent.click(mounted.getByText('Active'))
     flush()
     expect(values().active).toBe(false)
@@ -894,8 +894,8 @@ test('generated context and footer panels retain drafts across relabel and reord
       bindings={{ views: { editor: Editor, other: Other, footer: Footer } }}
     />
   ))
-  const context = mounted.getByLabelText('Context draft') as HTMLInputElement
-  const footer = mounted.getByLabelText('Footer draft') as HTMLInputElement
+  const context = mounted.getByLabelText<HTMLInputElement>('Context draft')
+  const footer = mounted.getByLabelText<HTMLInputElement>('Footer draft')
   fireEvent.input(context, { target: { value: 'Keep context draft' } })
   fireEvent.input(footer, { target: { value: 'Keep footer draft' } })
   flush()

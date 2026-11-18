@@ -45,7 +45,7 @@ test('unflagged callbacks keep separate reads and their evaluation order', () =>
             return ++reads === 1 ? 'filter' : 'search'
           },
           filterFn: (value) => {
-            events.push(`filter:${value}`)
+            events.push(`filter:${String(value)}`)
             return value === 'filter'
           },
         },
@@ -55,7 +55,7 @@ test('unflagged callbacks keep separate reads and their evaluation order', () =>
         globalFilter: 'search',
       },
       globalFilterFn: (value) => {
-        events.push(`search:${value}`)
+        events.push(`search:${String(value)}`)
         return value === 'search'
       },
     }),

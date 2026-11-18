@@ -124,7 +124,7 @@ export function KanbanColumn(props: KanbanColumnProps) {
       </header>
       <div
         class="ui-kanban-items"
-        ref={drop.ref}
+        ref={drop.ref.bind(drop)}
         data-drop-target={drop.targeted() || undefined}
       >
         {props.children}
@@ -157,7 +157,10 @@ function ColumnHandle(props: {
     },
   })
   return (
-    <div class="ui-kanban-column-heading" ref={registration.ref}>
+    <div
+      class="ui-kanban-column-heading"
+      ref={registration.ref.bind(registration)}
+    >
       <DragHandle
         drag={registration}
         label={`Move column ${props.title}`}
@@ -232,7 +235,7 @@ export function KanbanItem(props: KanbanItemProps) {
       <Card
         {...attributes}
         class={styledClasses('ui-kanban-item', props.class)}
-        ref={[props.ref, registration.ref]}
+        ref={[props.ref, registration.ref.bind(registration)]}
         data-dragging={registration.dragging() || undefined}
         data-drag-surface={props.dragSurface ?? 'handle'}
         role={

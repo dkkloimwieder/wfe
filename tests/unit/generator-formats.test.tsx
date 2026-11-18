@@ -139,7 +139,7 @@ test('editable controls keep raw values and focus when unused display metadata c
   const h = mountForm()
   h.setReadOnly(false)
   await settle()
-  const input = h.getByRole('textbox', { name: 'hash' }) as HTMLInputElement
+  const input = h.getByRole<HTMLInputElement>('textbox', { name: 'hash' })
   input.focus()
   h.setFormat('number-decimal')
   h.setDateFormat('MM/dd/yyyy')

@@ -102,7 +102,7 @@ test('ReadOnlyTable forwards reactive messages while retaining focused filter dr
       />
     )
   }
-  const input = h.getByRole('textbox', { name: 'Category' }) as HTMLInputElement
+  const input = h.getByRole<HTMLInputElement>('textbox', { name: 'Category' })
   const row = h.container.querySelector('[data-row="a"]')
   const sort = h.getByRole('button', { name: 'Sort by Category' })
   const refresh = h.getByRole('button', { name: 'Refresh results' })
@@ -269,9 +269,9 @@ test('explicit public labels win over messages and header editing retains its dr
   ))
   fireEvent.click(h.getByRole('button', { name: 'Rename Amount header' }))
   flush()
-  const input = h.getByRole('textbox', {
+  const input = h.getByRole<HTMLInputElement>('textbox', {
     name: 'Header name for Amount',
-  }) as HTMLInputElement
+  })
   fireEvent.input(input, { target: { value: 'Total' } })
   input.focus()
   setMessages(spanishTableMessages)

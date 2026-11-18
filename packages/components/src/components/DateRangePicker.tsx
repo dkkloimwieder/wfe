@@ -78,7 +78,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
     })
     return range.end
       ? formatter.formatRange(parseDate(range.start)!, parseDate(range.end)!)
-      : `${formatter.format(parseDate(range.start)!)}…`
+      : `${formatter.format(parseDate(range.start))}…`
   })
   function closeAccepted() {
     const active = trigger?.ownerDocument.activeElement
@@ -156,7 +156,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
             data-readonly={state.readonly() ? '' : undefined}
             ref={[
               untrack(() => props.ref),
-              (node) => {
+              (node: HTMLButtonElement) => {
                 trigger = node
               },
             ]}

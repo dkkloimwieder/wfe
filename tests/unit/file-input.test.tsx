@@ -1,3 +1,4 @@
+import type { FileRejection } from '@wfe/components/file-input'
 import assert from 'node:assert/strict'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@solidjs/testing-library'
@@ -16,7 +17,7 @@ test('controlled picker requests append objects without mutating or deduplicatin
   const first = text(),
     second = text()
   const original = Object.freeze([first])
-  const change = vi.fn()
+  const change = vi.fn<(files: File[]) => void>()
   const h = render(() => (
     <FileInput
       label="Attachments"
@@ -29,7 +30,7 @@ test('controlled picker requests append objects without mutating or deduplicatin
   pick(input, [second])
   assert(change.mock.calls[0])
   expect(change.mock.calls[0][0]).toEqual([first, second])
-  expect(change.mock.calls[0][0][1]).toBe(second)
+  expect(change.mock.calls[0]?.[0][1]).toBe(second)
   expect(original.length).toBe(1)
   expect(h.container.querySelectorAll('li').length).toBe(1)
   expect(input.value).toBe('')
@@ -39,7 +40,7 @@ test('controlled picker requests append objects without mutating or deduplicatin
 test('single selection replaces, mixed batches retain accepted objects, and multi-file single selection rejects the whole batch', () => {
   const [files, setFiles] = createSignal<readonly File[]>([text('old.txt')])
   const [multiple, setMultiple] = createSignal(true)
-  const reject = vi.fn()
+  const reject = vi.fn<(rejections: readonly FileRejection[]) => void>()
   const h = render(() => (
     <FileInput
       label="Attachments"
@@ -58,9 +59,10 @@ test('single selection replaces, mixed batches retain accepted objects, and mult
   pick(input, [valid, big, wrong])
   expect(files()).toEqual([expect.any(File), valid])
   assert(reject.mock.calls[0])
-  expect(
-    reject.mock.calls[0][0].map((r: { reason: string }) => r.reason),
-  ).toEqual(['size', 'type'])
+  expect(reject.mock.calls[0]?.[0].map((r) => r.reason)).toEqual([
+    'size',
+    'type',
+  ])
   expect(input.checkValidity()).toBe(true)
   setMultiple(false)
   setFiles([])
@@ -68,9 +70,10 @@ test('single selection replaces, mixed batches retain accepted objects, and mult
   pick(input, [valid, text('other.txt')])
   expect(files()).toEqual([])
   assert(reject.mock.calls[1])
-  expect(
-    reject.mock.calls[1][0].map((r: { reason: string }) => r.reason),
-  ).toEqual(['multiple', 'multiple'])
+  expect(reject.mock.calls[1]?.[0].map((r) => r.reason)).toEqual([
+    'multiple',
+    'multiple',
+  ])
   pick(input, [valid])
   expect(files()).toEqual([valid])
   pick(input, [text('new.txt')])

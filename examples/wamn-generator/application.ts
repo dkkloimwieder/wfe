@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { createSignal, onCleanup } from 'solid-js'
 import { createForm } from '@wfe/form'
 import { createTable } from '@wfe/components/table'
@@ -124,7 +125,7 @@ export function createApplication(name: string) {
           maxSize: column.id === 'note' ? 960 : 640,
           sortFn:
             column.type === 'text' || column.type === 'timestamptz'
-              ? (a, b) => String(a ?? '').localeCompare(String(b ?? ''))
+              ? (a, b) => scalarText(a).localeCompare(scalarText(b))
               : undefined,
         }),
       ),

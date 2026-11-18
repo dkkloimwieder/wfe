@@ -422,7 +422,7 @@ test('syncCurrentAt follows successful reads and keeps its value after failures'
 test('syncCurrentAt unsubscribes from the source on disposal', async () => {
   const c = await filled([])
   const signal = peek(c)!.currentAt
-  const subscribe = signal.subscribe
+  const subscribe = signal.subscribe.bind(signal)
   const unsubscribe = vi.fn()
   const subscription = vi
     .spyOn(signal, 'subscribe')

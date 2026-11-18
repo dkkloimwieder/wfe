@@ -1,3 +1,4 @@
+import { operationMetadata, errorMetadata } from './platformMetadata'
 import { expect, test } from 'vitest'
 import { accessFailure } from '../../examples/platform/access-application'
 import { createRoot, flush } from 'solid-js'
@@ -114,7 +115,7 @@ test('materialized project grants preserve membership after revoke and refuse co
           projectAdmin: false,
           environments: ['dev', 'prod'],
         }),
-      ]),
+      ]) as unknown,
     },
   })
   expect(
@@ -135,7 +136,7 @@ test('org grant materializes all projects and revoke removes administrators but 
     value: {
       members: expect.arrayContaining([
         expect.objectContaining({ principalId: ANN, projectAdmin: true }),
-      ]),
+      ]) as unknown,
     },
   })
   await client.access('organization', 'revoke', target(), 'three')
@@ -149,7 +150,7 @@ test('org grant materializes all projects and revoke removes administrators but 
           projectAdmin: false,
           environments: ['dev', 'prod'],
         }),
-      ]),
+      ]) as unknown,
     },
   })
   expect(await client.members('shop')).toMatchObject({
@@ -161,7 +162,7 @@ test('org grant materializes all projects and revoke removes administrators but 
           projectAdmin: false,
           environments: ['dev'],
         }),
-      ]),
+      ]) as unknown,
     },
   })
   mock.dispose()
@@ -436,18 +437,22 @@ test('captured access route metadata matches every used generated operation', as
     ['project_admin/grant', project.PROJECT_ADMIN_GRANT_ROUTE],
     ['project_admin/revoke', project.PROJECT_ADMIN_REVOKE_ROUTE],
   ] as const) {
-    const metadata = JSON.parse(
-      await readFile(
-        `examples/platform/snapshot/metadata/${path}.operation.json`,
-        'utf8',
+    const metadata = operationMetadata.parse(
+      JSON.parse(
+        await readFile(
+          `examples/platform/snapshot/metadata/${path}.operation.json`,
+          'utf8',
+        ),
       ),
     )
     expect(metadata.operation).toBe(route.operation)
     expect(metadata.type).toBe(route.contract.type)
-    const errors = JSON.parse(
-      await readFile(
-        `examples/platform/snapshot/metadata/${path}.errors.json`,
-        'utf8',
+    const errors = errorMetadata.parse(
+      JSON.parse(
+        await readFile(
+          `examples/platform/snapshot/metadata/${path}.errors.json`,
+          'utf8',
+        ),
       ),
     )
     expect(
@@ -512,7 +517,7 @@ test('selected user access reads only administrable projects and retains unknown
   expect(app.access.grants()).toEqual([
     {
       project: 'billing',
-      error: expect.stringContaining('Membership read unavailable.'),
+      error: expect.stringContaining('Membership read unavailable.') as unknown,
     },
   ])
   expect(app.access.state().error).toBeUndefined()

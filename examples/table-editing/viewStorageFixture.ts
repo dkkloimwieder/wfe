@@ -41,7 +41,11 @@ export function createViewStorageFixture() {
             ),
           )
         } catch (error) {
-          reject(error)
+          reject(
+            error instanceof Error
+              ? error
+              : new Error('Fixture request failed', { cause: error }),
+          )
         }
       }
       const cancel = () => {

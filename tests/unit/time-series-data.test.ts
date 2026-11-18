@@ -95,7 +95,7 @@ describe('operational time-series example data', () => {
       requests: 200,
       errors: 3,
       p50: 15,
-      p95: expect.closeTo(28.5),
+      p95: expect.closeTo(28.5) as unknown,
     })
   })
   it('excludes hidden services from totals and detail sources', () => {

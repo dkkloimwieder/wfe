@@ -63,7 +63,7 @@ export function validatePresentation(
       typeof key === 'string' && allowed.includes(key),
       `unknown format option for ${subject}`,
     )
-    const option = Reflect.get(options, key)
+    const option: unknown = Reflect.get(options, key)
     requireValue(
       option === undefined || typeof option === 'string',
       `invalid format option "${key}" for ${subject}`,

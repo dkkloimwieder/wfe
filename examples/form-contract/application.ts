@@ -49,7 +49,11 @@ export function createApplication() {
           try {
             resolve(value())
           } catch (error) {
-            reject(error)
+            reject(
+              error instanceof Error
+                ? error
+                : new Error('Fixture request failed', { cause: error }),
+            )
           }
         },
       })

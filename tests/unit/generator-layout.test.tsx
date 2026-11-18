@@ -125,7 +125,7 @@ test('native groups expose labels, help and Field metadata', () => {
 
 test('group and field reorder preserve custom owners, numeric drafts and metadata updates', () => {
   const h = mount()
-  const input = h.getByLabelText('Amount') as HTMLInputElement
+  const input = h.getByLabelText<HTMLInputElement>('Amount')
   fireEvent.input(input, { target: { value: '3.50' } })
   flush()
   for (const text of ['3.50', '3.']) {
@@ -168,7 +168,7 @@ test('flat descriptions retain controls when optional column layout changes', ()
     layout: undefined,
   }
   const h = mount(flat)
-  const input = h.getByLabelText('Amount') as HTMLInputElement
+  const input = h.getByLabelText<HTMLInputElement>('Amount')
   fireEvent.input(input, { target: { value: '-' } })
   flush()
   for (const layout of [
@@ -332,9 +332,9 @@ test('direct shared grids and groups retain native attributes and help associati
       </FieldGroup>
     </FormGrid>
   ))
-  const group = h.getByRole('group', {
+  const group = h.getByRole<HTMLFieldSetElement>('group', {
     name: 'Direct group',
-  }) as HTMLFieldSetElement
+  })
   expect(group.disabled).toBe(true)
   expect(group.classList.contains('ui-field-group')).toBe(true)
   expect(group.classList.contains('caller-group')).toBe(true)

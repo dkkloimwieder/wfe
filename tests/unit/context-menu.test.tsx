@@ -180,7 +180,7 @@ test('right-click and keyboard opening use the existing menu and return focus', 
   await waitFor(() => expect(h.getByRole('menu')).toBeTruthy())
 })
 
-test('controlled opening can be rejected without taking focus or losing drafts', async () => {
+test('controlled opening can be rejected without taking focus or losing drafts', () => {
   const requests = vi.fn()
   const h = render(() => (
     <ContextMenu open={false} onOpenChange={requests}>
@@ -196,7 +196,7 @@ test('controlled opening can be rejected without taking focus or losing drafts',
     </ContextMenu>
   ))
   flush()
-  const draft = h.getByRole('textbox') as HTMLInputElement
+  const draft = h.getByRole<HTMLInputElement>('textbox')
   draft.value = 'Unsaved'
   draft.focus()
   fireEvent.contextMenu(h.getByRole('group'), { clientX: 40, clientY: 70 })

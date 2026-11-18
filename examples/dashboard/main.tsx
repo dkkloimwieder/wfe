@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { Theme } from '@wfe/components/theme'
 import { render } from '@solidjs/web'
@@ -139,14 +140,14 @@ function matchFilter(value: unknown, filter: unknown) {
       (term.max === undefined || value <= term.max)
     )
   if ('values' in term) {
-    const values = Array.isArray(value) ? value : [String(value)]
+    const values = Array.isArray(value) ? value : [scalarText(value)]
     if (term.operator === 'all')
       return term.values.every((selected) => values.includes(selected))
     const matches = term.values.some((selected) => values.includes(selected))
     return term.operator === 'not-in' ? !matches : matches
   }
   if (!('value' in term)) return false
-  const text = String(value).toLowerCase()
+  const text = scalarText(value).toLowerCase()
   const query = term.value.toLowerCase()
   if (term.operator === 'equals') return text === query
   if (term.operator === 'starts-with') return text.startsWith(query)
@@ -156,12 +157,15 @@ function matchFilter(value: unknown, filter: unknown) {
 const textColumn = {
   filterFn: matchFilter,
   sortFn: (a: unknown, b: unknown) =>
-    String(a ?? '').localeCompare(String(b ?? ''), undefined, {
+    scalarText(a).localeCompare(scalarText(b), undefined, {
       numeric: true,
     }),
 }
+const scalarTextValue = (value: unknown) => scalarText(value)
 const displayValue = (value: unknown) =>
-  Array.isArray(value) ? value.join(', ') : String(value ?? '')
+  Array.isArray(value)
+    ? value.map(scalarTextValue).join(', ')
+    : scalarText(value)
 let updateColumnAlignment:
   ((id: string, value: TableColumnAlignment) => void) | undefined
 let collapseControls: ((collapsed: boolean) => void) | undefined
@@ -268,7 +272,7 @@ function createFormatting() {
         }
       />
     ),
-    formatValue(value: unknown, column: { id: string }) {
+    formatValue(this: void, value: unknown, column: { id: string }) {
       const format = formats[column.id]
       return format ? (
         <ValueDisplay value={value} format={format} locale="en-US" />

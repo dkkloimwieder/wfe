@@ -104,7 +104,8 @@ export function InputDecorationExample() {
           class="example-stack"
           onSubmit={(event) => {
             event.preventDefault()
-            setResult(`Saved ${new FormData(event.currentTarget).get('name')}.`)
+            const name = new FormData(event.currentTarget).get('name')
+            setResult(`Saved ${typeof name === 'string' ? name : ''}.`)
           }}
         >
           <Field decoration={decoration()}>

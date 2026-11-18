@@ -1,3 +1,8 @@
+import {
+  operationMetadata,
+  errorMetadata,
+  resultMetadata,
+} from './platformMetadata'
 import { expect, test } from 'vitest'
 import {
   createPlatformClient,
@@ -20,7 +25,7 @@ test('platform reads use generated routes and revive nested wire member names', 
       orgAdmin: true,
       projects: expect.arrayContaining([
         { project: 'billing', projectAdmin: true },
-      ]),
+      ]) as unknown,
     },
   })
   expect(await client.projects()).toEqual({
@@ -84,7 +89,7 @@ test('project creation encodes the nested command with the application request i
     status: 'refused',
     code: 'project_exists',
     detail: { detail: { field: 'project' } },
-    text: expect.any(String),
+    text: expect.any(String) as unknown,
   })
 })
 test('UTF-8 validation follows the recorded server rule without inventing a slug rule', async () => {
@@ -199,7 +204,9 @@ test('application cancellation stops waiting but does not claim command rollback
   expect(await client.projects()).toMatchObject({
     status: 'completed',
     value: {
-      projects: expect.arrayContaining([{ name: 'late', state: 'inactive' }]),
+      projects: expect.arrayContaining([
+        { name: 'late', state: 'inactive' },
+      ]) as unknown,
     },
   })
   expect(
@@ -260,11 +267,13 @@ test('the selected generated route contracts agree with the captured source oper
   ]) {
     const path = route.operation.slice('wamn-control:'.length).split('@')[0]
     const root = resolve('examples/platform/snapshot/metadata')
-    const metadata = JSON.parse(
-      await readFile(resolve(root, `${path}.operation.json`), 'utf8'),
+    const metadata = operationMetadata.parse(
+      JSON.parse(
+        await readFile(resolve(root, `${path}.operation.json`), 'utf8'),
+      ),
     )
-    const errors = JSON.parse(
-      await readFile(resolve(root, `${path}.errors.json`), 'utf8'),
+    const errors = errorMetadata.parse(
+      JSON.parse(await readFile(resolve(root, `${path}.errors.json`), 'utf8')),
     )
     expect(route.operation).toBe(metadata.operation)
     expect(route.contract.type).toBe(metadata.type)
@@ -288,15 +297,17 @@ test('application result checks reject wrong types at every leaf declared by the
   })
   if (raw.status !== 'completed')
     throw new Error('The baseline status reply must complete')
-  const metadata = JSON.parse(
-    await readFile(
-      resolve(
-        'examples/platform/snapshot/metadata/environment/status.result.json',
+  const metadata = resultMetadata.parse(
+    JSON.parse(
+      await readFile(
+        resolve(
+          'examples/platform/snapshot/metadata/environment/status.result.json',
+        ),
+        'utf8',
       ),
-      'utf8',
     ),
   )
-  for (const field of metadata.fields as { path: string; type: string }[]) {
+  for (const field of metadata.fields) {
     const value = structuredClone(raw.value) as Record<string, unknown>
     const parts = field.path.replaceAll('[]', '.0').split('.')
     let object = value

@@ -212,9 +212,7 @@ export function Diagram<N, E>(props: DiagramProps<N, E>) {
         onPointerDown={(event) => {
           if (
             event.button !== 0 ||
-            (event.target as Element).closest(
-              '[data-diagram-node], [data-diagram-edge]',
-            )
+            event.target.closest('[data-diagram-node], [data-diagram-edge]')
           )
             return
           drag = {

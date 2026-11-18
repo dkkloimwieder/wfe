@@ -250,7 +250,7 @@ export function Tree(props: TreeProps) {
               }}
               onKeyDown={(event) => key(event, row())}
               onClick={(event) => {
-                if ((event.target as Element).closest('button')) return
+                if (event.target.closest('button')) return
                 event.currentTarget.focus()
                 select(row().node)
               }}

@@ -2,7 +2,7 @@ import { generateHydrationScript, renderToString } from '@solidjs/web'
 import { applications, applicationName } from './applications'
 import { ExampleAppearance } from './ExampleAppearance'
 import { recordRoute } from './record-route'
-export async function render(
+export function render(
   name: string = 'records',
   reviewCells = false,
   initialUrl = '?app=records',
@@ -11,7 +11,7 @@ export async function render(
   return {
     html:
       generateHydrationScript() +
-      (await renderToString(() => (
+      renderToString(() => (
         <ExampleAppearance>
           <App
             reviewCells={reviewCells}
@@ -19,6 +19,6 @@ export async function render(
             initialUrl={initialUrl}
           />
         </ExampleAppearance>
-      ))),
+      )),
   }
 }

@@ -39,8 +39,14 @@ export function SliderExample(props: { state?: GalleryState }) {
         onSubmit={(event) => {
           event.preventDefault()
           const data = new FormData(event.currentTarget)
+          const volume = data.get('volume')
           setSubmitted(
-            `Volume ${data.get('volume') ?? 'omitted'}; range ${data.getAll('range').join(' to ') || 'omitted'}`,
+            `Volume ${typeof volume === 'string' ? volume : 'omitted'}; range ${
+              data
+                .getAll('range')
+                .filter((value) => typeof value === 'string')
+                .join(' to ') || 'omitted'
+            }`,
           )
         }}
       >

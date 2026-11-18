@@ -69,9 +69,9 @@ export function createFixture(
       )
       flush()
     },
-    async hydrate() {
+    hydrate() {
       begin()
-      release = await hydrate(
+      release = hydrate(
         () => (
           <ExampleAppearance>
             <App

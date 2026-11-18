@@ -1,3 +1,4 @@
+import type { CommandProps } from '../../packages/components/src/components/Command'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render, within } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
@@ -165,7 +166,7 @@ test('controlled command queries can be rejected and external results keep their
 })
 
 test('command composition does not navigate, activate or dismiss', () => {
-  const selected = vi.fn(),
+  const selected = vi.fn<NonNullable<CommandProps['onSelect']>>(),
     escape = vi.fn()
   const h = render(() => (
     <Command
@@ -271,7 +272,7 @@ test('item cancellation prevents the command owner callback for pointer and keyb
   const cancel = vi.fn((event: MouseEvent | KeyboardEvent) =>
     event.preventDefault(),
   )
-  const selected = vi.fn()
+  const selected = vi.fn<NonNullable<CommandProps['onSelect']>>()
   const h = render(() => (
     <Command
       label="Commands"
@@ -317,7 +318,7 @@ test('command status messages update without replacing input or losing active re
 })
 
 test('removed and disposed command options release action handlers', () => {
-  const selected = vi.fn()
+  const selected = vi.fn<NonNullable<CommandProps['onSelect']>>()
   const [items, setItems] = createSignal<readonly CommandItem[]>([
     { id: 'a', label: 'First' },
   ])
@@ -336,7 +337,7 @@ test('removed and disposed command options release action handlers', () => {
 })
 
 test('command exposes one result tab stop and moves focus with result arrow keys', () => {
-  const selected = vi.fn()
+  const selected = vi.fn<NonNullable<CommandProps['onSelect']>>()
   const h = render(() => (
     <Command label="Commands" items={items} onSelect={selected} />
   ))
@@ -366,7 +367,7 @@ test('command exposes one result tab stop and moves focus with result arrow keys
 })
 
 test('focused result activation does not follow a different hovered result', () => {
-  const selected = vi.fn()
+  const selected = vi.fn<NonNullable<CommandProps['onSelect']>>()
   const h = render(() => (
     <Command label="Commands" items={items} onSelect={selected} />
   ))

@@ -186,7 +186,7 @@ function DefaultTooltipBody(props: { content: ChartTooltipContent | string }) {
   )
   return (
     <div class="ui-chart-tooltip-body">
-      <Show when={content()} fallback={props.content as string}>
+      <Show when={content()} fallback={props.content}>
         {(value) => (
           <>
             <Show when={value().title}>

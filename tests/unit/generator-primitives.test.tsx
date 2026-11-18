@@ -86,7 +86,7 @@ test('detail actions share one row in description order with native non-submit b
     />
   ))
   flush()
-  const buttons = h.getAllByRole('button') as HTMLButtonElement[]
+  const buttons = h.getAllByRole<HTMLButtonElement>('button')
   expect(buttons.map((button) => button.textContent)).toEqual([
     'First',
     'Second',

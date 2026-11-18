@@ -81,7 +81,7 @@ export function DetailsApp(props: {
         description={app.description}
         bindings={{
           record: () => app.record()!,
-          actions: { toggle: { run: app.toggle } },
+          actions: { toggle: { run: app.toggle.bind(app) } },
         }}
       />
       <DeleteView
@@ -92,7 +92,10 @@ export function DetailsApp(props: {
           triggerLabel: 'Delete record',
           confirmLabel: 'Confirm deletion',
         }}
-        bindings={{ recordKey: () => app.record()!.id, onConfirm: app.confirm }}
+        bindings={{
+          recordKey: () => app.record()!.id,
+          onConfirm: app.confirm.bind(app),
+        }}
       />
     </Show>
   )

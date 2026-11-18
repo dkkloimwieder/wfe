@@ -1,5 +1,4 @@
 import {
-  action,
   createEffect,
   createRoot,
   createSignal,
@@ -9,6 +8,7 @@ import {
   runWithOwner,
   untrack,
 } from 'solid-js'
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { createModel } from './model'
 import type { EditingModel } from './model'
 import type { EditingFields } from '../shared/editingFields'
@@ -70,8 +70,7 @@ export function createSubTables(options: {
         let disposeModel: (() => void) | undefined
         let generation = 0
         // Failed attempts need the same disposal boundary as released entries.
-        // eslint-disable-next-line require-yield -- Synchronous disposal action.
-        const disposeScope = action(function* (dispose: () => void) {
+        const disposeScope = createFixtureDisposal((dispose: () => void) => {
           dispose()
         })
         onCleanup(() => {
@@ -183,8 +182,7 @@ export function createSubTables(options: {
         }
         // rc.13 root disposal can write child counts. Match the fixture's
         // audited action boundary; the caller flushes after the event.
-        // eslint-disable-next-line require-yield -- Synchronous disposal action.
-        const release = action(function* () {
+        const release = createFixtureDisposal(() => {
           if (!active) return
           active = false
           queueMicrotask(() => {

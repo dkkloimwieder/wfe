@@ -84,7 +84,7 @@ function serviceFocusGroup(
   ]
 }
 const serviceFocus: StatisticalFocus = {
-  resolve(points, context) {
+  resolve(points: readonly ChartPoint<Point>[], context) {
     let nearest: ChartPoint<Point> | undefined
     let distance = context.maxDistance
     for (const candidate of points) {
@@ -99,8 +99,11 @@ const serviceFocus: StatisticalFocus = {
     }
     return nearest ? serviceFocusGroup(points, nearest) : []
   },
-  group: (points, context) => serviceFocusGroup(points, context.point),
-  navigation(points) {
+  group: (
+    points: readonly ChartPoint<Point>[],
+    context: { point: ChartPoint<Point> },
+  ) => serviceFocusGroup(points, context.point),
+  navigation(points: readonly ChartPoint<Point>[]) {
     const services = new Map<string, ChartPoint<Point>>()
     for (const candidate of [...points].sort(
       (left, right) => left.x - right.x || left.y - right.y,

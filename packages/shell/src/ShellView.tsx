@@ -245,7 +245,7 @@ export function ShellView<const D extends ShellDescription>(
         <For each={menuIds()}>
           {(id) => (
             <a
-              href={state().hrefs.get(id)!}
+              href={state().hrefs.get(id)}
               aria-current={id === state().route.id ? 'page' : undefined}
               data-ui-text="system"
               ref={nativeEvents<HTMLAnchorElement>({
@@ -303,7 +303,7 @@ export function ShellView<const D extends ShellDescription>(
       <Show when={pageId()} keyed>
         {(id) => (
           <Dynamic
-            component={state().components.get(model().routes.get(id)!.view)!}
+            component={state().components.get(model().routes.get(id)!.view)}
             route={state().route}
             audience={state().audience}
           />

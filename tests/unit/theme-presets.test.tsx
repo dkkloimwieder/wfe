@@ -64,7 +64,7 @@ test('preset changes retain the input and focus while starting and disposing dec
       </button>
     </Theme>
   ))
-  const input = h.getByRole('textbox') as HTMLInputElement
+  const input = h.getByRole<HTMLInputElement>('textbox')
   input.value = 'Unsubmitted draft'
   input.focus()
   flush()

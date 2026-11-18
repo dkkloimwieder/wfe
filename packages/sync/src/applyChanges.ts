@@ -14,6 +14,19 @@ export function applyChanges<T extends object>(
   c: AnyCollection<T>,
   changes: Change<T>[],
 ): void {
+  const receipt = writeChanges(c, changes)
+  if (receipt !== true)
+    receipt.catch((cause: unknown) => {
+      // A collection can be disposed before its queued changes become visible.
+      if (!(cause instanceof Error && cause.name === 'AbortError'))
+        console.error('Applying sync changes failed', cause)
+    })
+}
+
+export function writeChanges<T extends object>(
+  c: AnyCollection<T>,
+  changes: Change<T>[],
+) {
   const { version, getKey } = source(c)
   for (const change of changes) {
     if (!change.deleted && change.id !== getKey(change.data))
@@ -26,5 +39,5 @@ export function applyChanges<T extends object>(
     if (change.deleted) remove(c, writer, change.id, batch)
     else upsert(c, writer, change.data, batch, version, getKey)
   }
-  writer.commit()
+  return writer.commit()
 }

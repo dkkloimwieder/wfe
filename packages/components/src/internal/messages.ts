@@ -13,7 +13,12 @@ export function resolveMessages<T extends object>(
   }
   // Defaults can be frozen. A separate facade avoids proxying their immutable
   // property descriptors while preserving own keys for layered catalogs/spreads.
-  const facade = Object.create(Object.getPrototypeOf(defaults)) as T
+  const prototype: unknown = Object.getPrototypeOf(defaults)
+  const facade = Object.create(
+    typeof prototype === 'object' || typeof prototype === 'function'
+      ? prototype
+      : null,
+  ) as T
   return new Proxy(facade, {
     get: (_target, key) => read(key),
     has: (_target, key) => Reflect.has(defaults, key),

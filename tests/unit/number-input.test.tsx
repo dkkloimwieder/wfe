@@ -46,9 +46,9 @@ function mount() {
       </Field>
     </form>
   ))
-  const input = view.getByRole('textbox', {
+  const input = view.getByRole<HTMLInputElement>('textbox', {
     name: 'Amount',
-  }) as HTMLInputElement
+  })
   const edit = (text: string) => {
     fireEvent.input(input, { target: { value: text } })
     flush()

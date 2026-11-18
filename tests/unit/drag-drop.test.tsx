@@ -112,7 +112,7 @@ function fixture(
         >
           Source
         </button>
-        <div ref={target.ref}>Target</div>
+        <div ref={target.ref.bind(target)}>Target</div>
       </>
     )
   })
@@ -216,8 +216,8 @@ test('duplicate source identifiers fail rather than replacing another registrati
     })
     return (
       <>
-        <button ref={first.ref}>First</button>
-        <button ref={second.ref}>Second</button>
+        <button ref={first.ref.bind(first)}>First</button>
+        <button ref={second.ref.bind(second)}>Second</button>
       </>
     )
   }

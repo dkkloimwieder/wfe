@@ -22,6 +22,17 @@ import {
 } from './shared'
 import type { Actions } from './shared'
 
+function headerLabel(value: unknown, fallback: string): string {
+  return typeof value === 'string'
+    ? value
+    : typeof value === 'number' ||
+        typeof value === 'boolean' ||
+        typeof value === 'bigint' ||
+        typeof value === 'symbol'
+      ? String(value)
+      : fallback
+}
+
 export function TableView<Row, Meta, D extends TableDescription>(
   props: GeneratorMessageProps &
     GeneratorControlMessageProps & {
@@ -103,17 +114,18 @@ export function TableView<Row, Meta, D extends TableDescription>(
         )
       }
     }
-    const headerAliases = props.bindings.headerAliases?.() ?? {}
+    const headerAliases: Readonly<Record<string, string | undefined>> =
+      props.bindings.headerAliases?.() ?? {}
     for (const id of Object.keys(headerAliases)) {
       requireValue(
         Object.hasOwn(value.columns, id),
         `unknown header alias "${id}"`,
       )
-      descriptionLabel(headerAliases[id as keyof typeof headerAliases], id)
+      descriptionLabel(headerAliases[id], id)
     }
     return {
       description: value,
-      aliases: headerAliases as Readonly<Record<string, string | undefined>>,
+      aliases: headerAliases,
     }
   })
   const description = createMemo(() => configuration().description)
@@ -215,7 +227,7 @@ export function TableView<Row, Meta, D extends TableDescription>(
         label={(column) =>
           aliases()[column.id] ??
           description().columns[column.id]?.label ??
-          String(column.columnDef?.header ?? column.id)
+          headerLabel(column.columnDef?.header, column.id)
         }
         renderCell={(cell) => <Cell cell={cell} />}
         actions={

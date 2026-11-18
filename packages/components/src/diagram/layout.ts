@@ -103,7 +103,7 @@ export function layoutDiagram<N, E>(
     for (const i of column) {
       const localCenter = localY + nodes[i]!.height / 2
       const parents = [...previous[i]!].flatMap((parent) =>
-        result[parent] ? [result[parent]!] : [],
+        result[parent] ? [result[parent]] : [],
       )
       const desiredCenter = parents.length
         ? parents.reduce(

@@ -22,7 +22,7 @@ export function createChildLoader(priority = 'normal') {
     release: () => {
       for (const release of [...held]) release()
     },
-    load(request: ChildLoad): Promise<Array<RecordData>> {
+    load(this: void, request: ChildLoad): Promise<Array<RecordData>> {
       const fault = next
       next = 'none'
       if (fault === 'throw')

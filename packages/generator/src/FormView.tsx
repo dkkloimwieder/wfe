@@ -227,11 +227,12 @@ export function FormView<
         RuntimeScalarField | RuntimeRepeatedField
       const order = [JSON.stringify(['field', key])]
       if (field.control !== 'repeat') return order
-      const rows = form.values[key as keyof T]
+      const values = form.values[key as keyof T]
       const binding = ownProperty(bindings().repeated, key as keyof T)
-      if (!Array.isArray(rows) || typeof binding?.rowKey !== 'function')
+      if (!Array.isArray(values) || typeof binding?.rowKey !== 'function')
         return order
-      const group = field as RuntimeRepeatedField
+      const rows = values as readonly RuntimeRow[]
+      const group = field
       return [
         ...order,
         ...rows.flatMap((row) =>

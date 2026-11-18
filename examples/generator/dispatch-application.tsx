@@ -38,8 +38,8 @@ export function createDispatchApplication() {
     onValuesChange: (requested) => {
       if (!rejectEdits()) setValues({ ...requested })
     },
-    validate: provider.validate,
-    onSubmit: provider.save,
+    validate: provider.validate.bind(provider),
+    onSubmit: provider.save.bind(provider),
   })
   const table = createTable<DispatchRow, { unit: string }>({
     source: {

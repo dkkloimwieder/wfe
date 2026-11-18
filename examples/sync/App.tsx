@@ -491,7 +491,14 @@ function Writes(props: { store: Store; outbox: Outbox; server: Server }) {
       <h2 id="sync-writes-title" data-ui-text="system">
         recordWrite
       </h2>
-      <form class="sync-buttons" onSubmit={add}>
+      <form
+        class="sync-buttons"
+        onSubmit={(event) => {
+          add(event).catch((error: unknown) =>
+            console.error('Adding a sync row failed', error),
+          )
+        }}
+      >
         <Field controlId="sync-add-name">
           <Label>Order name</Label>
           <Input
@@ -535,7 +542,7 @@ function Writes(props: { store: Store; outbox: Outbox; server: Server }) {
               data-sync-version={record.rows[id]?.row_version ?? ''}
             >
               {record.rows[id]?.name ?? 'Not in the collection'}
-              {record.rows[id] ? ` · v${record.rows[id]!.row_version}` : ''}
+              {record.rows[id] ? ` · v${record.rows[id].row_version}` : ''}
               {states().get(id) === 'pending'
                 ? ' · recorded, not uploaded'
                 : ''}

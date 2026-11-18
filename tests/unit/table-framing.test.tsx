@@ -217,6 +217,7 @@ test('removing a footer with focus in its select popup closes the popup and rest
 test('a measured header can unmount and remount without interrupting result rows', async () => {
   const [enabled, setEnabled] = createSignal(true)
   const measured = new Set<Element>()
+  // oxlint-disable-next-line typescript/unbound-method -- The saved implementation is invoked with the element as its receiver below.
   const original = HTMLElement.prototype.getBoundingClientRect
   const measurement = vi
     .spyOn(HTMLElement.prototype, 'getBoundingClientRect')

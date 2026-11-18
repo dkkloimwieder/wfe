@@ -1,20 +1,13 @@
 import { vendorTransforms } from '../scripts/vendor-transforms.mjs'
 import { fileURLToPath } from 'node:url'
-import { readFileSync } from 'node:fs'
+import componentPackage from '../packages/components/package.json' with { type: 'json' }
 import { isAbsolute, sep } from 'node:path'
 import { defineConfig } from 'vite'
 import solid from '@solidjs/vite-plugin'
 import { cssAbsent, cssProvenance } from '../scripts/css-provenance.mjs'
 import type { PluginOption } from 'vite'
 
-const dependencies = Object.keys(
-  JSON.parse(
-    readFileSync(
-      new URL('../packages/components/package.json', import.meta.url),
-      'utf8',
-    ),
-  ).dependencies,
-)
+const dependencies = Object.keys(componentPackage.dependencies)
 
 const repository = fileURLToPath(new URL('../', import.meta.url)).replace(
   /[\\/]$/,

@@ -40,10 +40,10 @@ export function createFixture(Example = App) {
   const api = {
     start,
     stop,
-    hydrate: async () => {
+    hydrate: () => {
       events.push(...(capture?.stop() ?? []))
       capture = OBSERVE?.diagnostics.capture()
-      release = await hydrate(
+      release = hydrate(
         () => (
           <Example
             ready={(value) => {

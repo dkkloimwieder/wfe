@@ -1,4 +1,5 @@
-import { action, createRoot, flush } from 'solid-js'
+import { createFixtureDisposal } from '../../examples/shared/fixtureDisposal'
+import { createRoot, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 import { createModel } from '../../examples/table-editing/model'
 import type { RecordData } from '../../examples/table-editing/createEditing'
@@ -14,8 +15,7 @@ test('background updates accept application revision strings and preserve record
     },
   ])
   const h = createRoot((dispose) => ({ dispose, model: createModel(records) }))
-  // eslint-disable-next-line require-yield -- Synchronous disposal action.
-  const dispose = action(function* () {
+  const dispose = createFixtureDisposal(() => {
     h.dispose()
   })
   try {
@@ -49,8 +49,7 @@ test('missing application revisions cannot partially update records with nonnume
       },
     ]),
   }))
-  // eslint-disable-next-line require-yield -- Synchronous disposal action.
-  const dispose = action(function* () {
+  const dispose = createFixtureDisposal(() => {
     h.dispose()
   })
   try {

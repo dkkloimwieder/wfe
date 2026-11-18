@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { createTableSelection } from '@wfe/components/table'
 import type { NativeTable } from '@wfe/components/table'
 
@@ -22,7 +23,7 @@ export function createPlatformTableSelection<T>(table: NativeTable<T>) {
           : 'No'
         : Array.isArray(value)
           ? value.join(', ')
-          : String(value ?? '')
+          : scalarText(value)
     },
   })
 }

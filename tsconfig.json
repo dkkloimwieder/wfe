@@ -22,5 +22,15 @@
     "jsxImportSource": "@solidjs/web",
     "allowImportingTsExtensions": true
   },
-  "include": ["packages/**/*.ts", "packages/**/*.tsx"]
+  "include": [
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "examples/vite-config.ts",
+    "examples/shared/**/*.ts",
+    "examples/shared/**/*.tsx",
+    "tests/contracts/**/*.ts",
+    "tests/contracts/**/*.tsx",
+    "tests/consumers/vite-solid/*.ts",
+    "tests/consumers/vite-solid/*.tsx"
+  ]
 }

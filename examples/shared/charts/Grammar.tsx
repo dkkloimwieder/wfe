@@ -1,3 +1,4 @@
+import { scalarText } from '../scalarText'
 import { createMemo, createSignal, For, Show, onSettled } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import {
@@ -125,7 +126,7 @@ export function ChartGrammar(props: { family?: Family }) {
     const row = datum as { id?: unknown; source?: readonly unknown[] }
     return row.source
       ? row.source.flatMap(sourceIds)
-      : [String(row.id ?? 'record')]
+      : [scalarText(row.id, 'record')]
   }
   function selected(panel: string, datum: unknown) {
     selectionCalls++
@@ -136,9 +137,9 @@ export function ChartGrammar(props: { family?: Family }) {
       return
     }
     const row = datum as { id?: unknown }
-    request(`Selected ${panel}: ${String(row.id ?? 'point')}`, () =>
+    request(`Selected ${panel}: ${scalarText(row.id, 'point')}`, () =>
       setSelection(
-        `${panel}: ${String(row.id ?? 'point')}; source ${sourceIds(row).join(', ')}`,
+        `${panel}: ${scalarText(row.id, 'point')}; source ${sourceIds(row).join(', ')}`,
       ),
     )
   }
@@ -152,7 +153,7 @@ export function ChartGrammar(props: { family?: Family }) {
         markId: point.markId,
         x: point.x,
         y: point.y,
-        id: String((point.datum as { id?: unknown })?.id ?? 'point'),
+        id: scalarText((point.datum as { id?: unknown })?.id, 'point'),
       })),
     })
   }

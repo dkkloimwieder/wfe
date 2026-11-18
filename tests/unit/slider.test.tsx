@@ -171,7 +171,7 @@ test('field labels, descriptions, readonly and disabled state apply to the actua
 
 test('pointer dragging measures once, accepts steps and commits on release', () => {
   const [value, setValue] = createSignal(20)
-  const commit = vi.fn()
+  const commit = vi.fn<(value: number) => void>()
   const h = render(() => (
     <Slider
       aria-label="Drag"
@@ -195,7 +195,7 @@ test('pointer dragging measures once, accepts steps and commits on release', () 
 
 test('grabbing a thumb preserves its pointer offset and Escape requests restoration', () => {
   const [value, setValue] = createSignal(40)
-  const commit = vi.fn()
+  const commit = vi.fn<(value: number) => void>()
   const h = render(() => (
     <Slider
       aria-label="Grab"
@@ -223,7 +223,7 @@ test('unmount releases pointer capture and retained handlers cannot request more
   ))
   flush()
   const { track } = measured(h)
-  const host = h.getByRole('group') as HTMLDivElement
+  const host = h.getByRole<HTMLDivElement>('group')
   host.setPointerCapture = vi.fn()
   host.hasPointerCapture = vi.fn(() => true)
   host.releasePointerCapture = vi.fn()

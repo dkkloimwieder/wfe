@@ -29,6 +29,31 @@
         "typescript/restrict-template-expressions": "error",
         "typescript/unbound-method": "error"
       }
+    },
+    {
+      "files": [
+        "tests/unit/platform-result-schemas.test.ts",
+        "tests/unit/slider.test.tsx",
+        "tests/unit/sync-{adapters,follow,keys,record}.test.tsx",
+        "tests/unit/sync-{collection,persistence}.test.ts",
+        "tests/unit/theme-presets.test.tsx"
+      ],
+      "rules": {
+        // Vitest inspects the original mock object for call history and setup. Binding creates a different function.
+        "typescript/unbound-method": "off"
+      }
+    },
+    {
+      "files": [
+        "tests/unit/platform-{application-access,application-contracts,provider,result-schemas}.test.ts",
+        "tests/unit/sync-{collection,outbox,persistence,shell,worker}.test.ts",
+        "tests/unit/sync-{follow,keys,record}.test.tsx",
+        "tests/unit/sync-fixtures.ts"
+      ],
+      "rules": {
+        // In-memory implementations of asynchronous interfaces turn synchronous mock failures into promise rejections.
+        "typescript/require-await": "off"
+      }
     }
   ],
   "ignorePatterns": [
@@ -41,7 +66,9 @@
     ".beads/**",
     "test-results/**",
     "coverage/**",
+    // Upstream code is checked by the vendor integrity and repair workflow.
     "packages/components/src/vendor/**",
+    // The platform snapshot is a captured upstream artifact with a separate integrity check.
     "examples/platform/snapshot/**"
   ]
 }

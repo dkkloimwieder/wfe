@@ -236,7 +236,7 @@ function CalendarView(props: CalendarViewProps) {
         role="grid"
         aria-label={
           monthCount() > 1
-            ? [props.label, formatter().format(parseDate(monthProps.value)!)]
+            ? [props.label, formatter().format(parseDate(monthProps.value))]
                 .filter(Boolean)
                 .join(' ')
             : props.label
@@ -247,7 +247,7 @@ function CalendarView(props: CalendarViewProps) {
         aria-labelledby={props.label || monthCount() > 1 ? undefined : title}
       >
         <Show when={monthCount() > 1}>
-          <caption>{formatter().format(parseDate(monthProps.value)!)}</caption>
+          <caption>{formatter().format(parseDate(monthProps.value))}</caption>
         </Show>
         <thead>
           <tr>
@@ -420,7 +420,7 @@ function CalendarView(props: CalendarViewProps) {
                   parseDate(month())!,
                   parseDate(monthViews().at(-1)!.value)!,
                 )
-              : formatter().format(parseDate(month())!)}
+              : formatter().format(parseDate(month()))}
           </span>
         </Button>
         <Button

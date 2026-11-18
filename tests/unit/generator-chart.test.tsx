@@ -1,8 +1,16 @@
+import type { ChartProps, ChartValue } from '@wfe/components/chart'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, fireEvent, render } from '@solidjs/testing-library'
 import { createSignal, Errored, flush } from 'solid-js'
 import { ChartView } from '@wfe/generator/chart'
 import type { ChartDescription } from '@wfe/generator/chart'
+
+// ChartView validates plain descriptions on entry; round-trip JSON to test that boundary.
+function roundTripDescription<D extends ChartDescription<Row>>(
+  description: D,
+): D {
+  return JSON.parse(JSON.stringify(description)) as D
+}
 
 type Row = { id: string; x: number; label: string; y: number | null; at: Date }
 const rows: Row[] = [
@@ -38,14 +46,14 @@ afterEach(cleanup)
 test.each(['line', 'area', 'bar', 'scatter'] as const)(
   'renders generated %s charts and passes the original record through selection',
   (kind) => {
-    const select = vi.fn()
+    const select = vi.fn<NonNullable<ChartProps<Row>['onSelect']>>()
     const d: ChartDescription<Row> =
       kind === 'bar'
         ? { ...description, kind, x: { field: 'label', scale: 'band' } }
         : { ...description, kind }
     const h = render(() => (
       <ChartView
-        description={JSON.parse(JSON.stringify(d))}
+        description={roundTripDescription(d)}
         bindings={{ rows: () => rows, onSelect: select }}
       />
     ))
@@ -55,7 +63,7 @@ test.each(['line', 'area', 'bar', 'scatter'] as const)(
     fireEvent.keyDown(svg, { key: 'ArrowRight' })
     fireEvent.keyDown(svg, { key: 'Enter' })
     flush()
-    expect(rows).toContain(select.mock.calls[0]![0].datum)
+    expect(rows).toContain(select.mock.calls[0]?.[0]?.datum)
     expect(svg.outerHTML).not.toContain('NaN')
   },
 )
@@ -68,7 +76,7 @@ test('row, label, formatter and status changes retain the same chart host', () =
     error?: string
   }>({})
   const [formatters, setFormatters] = createSignal({
-    amount: (value: unknown) => `Count ${value}`,
+    amount: (value: ChartValue) => `Count ${String(value)}`,
   })
   const h = render(() => (
     <ChartView
@@ -92,7 +100,7 @@ test('row, label, formatter and status changes retain the same chart host', () =
   expect(svg.querySelector('.ts-chart__line path')).toBe(line)
   expect(line.getAttribute('d')).not.toBe(before)
   expect(svg.textContent).toContain('Count')
-  setFormatters({ amount: (value) => `Accepted ${value}` })
+  setFormatters({ amount: (value) => `Accepted ${String(value)}` })
   setStatus({ error: 'Application supplied failure' })
   flush()
   expect(svg.textContent).toContain('Accepted')
@@ -190,7 +198,8 @@ test('sparse axis values remain gaps and prototype getters retain raw record ide
     }
   }
   const values = [new Sample('a'), new Sample('b', 2)]
-  const select = vi.fn()
+  const select =
+    vi.fn<NonNullable<ChartProps<(typeof values)[number]>['onSelect']>>()
   const h = render(() => (
     <ChartView
       description={{
@@ -210,7 +219,7 @@ test('sparse axis values remain gaps and prototype getters retain raw record ide
   fireEvent.keyDown(svg, { key: 'ArrowRight' })
   fireEvent.keyDown(svg, { key: 'Enter' })
   flush()
-  expect(select.mock.calls[0]![0].datum).toBe(values[1])
+  expect(select.mock.calls[0]?.[0]?.datum).toBe(values[1])
 })
 
 test('an explicitly supplied formatter named constructor remains a valid own binding', () => {
@@ -233,7 +242,7 @@ test('an explicitly supplied formatter named constructor remains a valid own bin
 })
 
 test('ordered layers share scales and retain original records during controlled updates', () => {
-  const select = vi.fn()
+  const select = vi.fn<NonNullable<ChartProps<Row>['onSelect']>>()
   const [data, setData] = createSignal(rows)
   const h = render(() => (
     <ChartView
@@ -257,7 +266,7 @@ test('ordered layers share scales and retain original records during controlled 
       bindings={{
         rows: data,
         onSelect: select,
-        formatters: { amount: (value) => `${value} units` },
+        formatters: { amount: (value) => `${String(value)} units` },
       }}
     />
   ))
@@ -269,7 +278,7 @@ test('ordered layers share scales and retain original records during controlled 
   fireEvent.keyDown(svg, { key: 'ArrowRight' })
   fireEvent.keyDown(svg, { key: 'Enter' })
   flush()
-  expect(rows).toContain(select.mock.calls[0]![0].datum)
+  expect(rows).toContain(select.mock.calls[0]?.[0]?.datum)
   setData(rows.map((row) => ({ ...row, y: 9 })))
   flush()
   expect(h.getByRole('img', { name: 'Generated layers' })).toBe(svg)
@@ -280,26 +289,24 @@ test('ordered layers share scales and retain original records during controlled 
 
 test('polar descriptions round trip JSON and return original records on focus and selection', () => {
   const data = rows.map((row) => ({ ...row, y: Math.abs(row.y ?? 0) }))
-  const select = vi.fn()
-  const focus = vi.fn()
+  const select = vi.fn<NonNullable<ChartProps<Row>['onSelect']>>()
+  const focus = vi.fn<NonNullable<ChartProps<Row>['onFocusChange']>>()
   const [radius, setRadius] = createSignal(0.5)
   const h = render(() => (
     <ChartView
-      description={JSON.parse(
-        JSON.stringify({
-          id: 'pie',
-          kind: 'pie',
-          ariaLabel: 'Generated composition',
-          key: 'id',
-          value: { field: 'y', formatter: 'count' },
-          innerRadius: radius(),
-        }),
-      )}
+      description={roundTripDescription({
+        id: 'pie',
+        kind: 'pie',
+        ariaLabel: 'Generated composition',
+        key: 'id',
+        value: { field: 'y', formatter: 'count' },
+        innerRadius: radius(),
+      })}
       bindings={{
         rows: () => data,
         onSelect: select,
         onFocusChange: focus,
-        formatters: { count: (value) => `${value} requests` },
+        formatters: { count: (value) => `${String(value)} requests` },
       }}
     />
   ))
@@ -309,8 +316,8 @@ test('polar descriptions round trip JSON and return original records on focus an
   fireEvent.keyDown(svg, { key: 'ArrowRight' })
   fireEvent.keyDown(svg, { key: 'Enter' })
   flush()
-  expect(data).toContain(select.mock.calls[0]![0].datum)
-  expect(data).toContain(focus.mock.calls.find(([point]) => point)?.[0].datum)
+  expect(data).toContain(select.mock.calls[0]?.[0]?.datum)
+  expect(data).toContain(focus.mock.calls.find(([point]) => point)?.[0]?.datum)
   expect(document.body.textContent).toContain('requests')
   setRadius(0)
   flush()

@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import {
   For,
   Show,
@@ -450,10 +451,10 @@ export function Table(props: {
           columnLabel={String(column.columnDef?.header)}
           label={
             column.columnDef?.meta?.filterLabel ??
-            `Filter ${String(column.columnDef?.header ?? column.id)}`
+            `Filter ${scalarText(column.columnDef?.header, column.id)}`
           }
           clearLabel={`Clear ${String(column.columnDef?.header)} filter`}
-          value={String(column.getFilterValue() ?? '')}
+          value={scalarText(column.getFilterValue())}
           onValueChange={(value) => column.setFilterValue(value || undefined)}
           disabled={!model.localProcessing() || model.locked()}
           choices={column.columnDef?.meta?.editor?.choices}
@@ -467,10 +468,10 @@ export function Table(props: {
       <TableFilter
         label={
           column.columnDef?.meta?.filterLabel ??
-          `Filter ${String(column.columnDef?.header ?? column.id)}`
+          `Filter ${scalarText(column.columnDef?.header, column.id)}`
         }
         clearLabel={`Clear ${String(column.columnDef?.header)} filter`}
-        value={String(column.getFilterValue() ?? '')}
+        value={scalarText(column.getFilterValue())}
         onValueChange={(value) => column.setFilterValue(value || undefined)}
         disabled={!model.localProcessing() || model.locked()}
         choices={column.columnDef?.meta?.editor?.choices}
@@ -649,7 +650,7 @@ export function Table(props: {
         table={table}
         id={id}
         formatValue={(value, column) =>
-          column.columnDef?.meta?.formatValue?.(value) ?? String(value ?? '')
+          column.columnDef?.meta?.formatValue?.(value) ?? scalarText(value)
         }
         onCell={() => {
           counts.cells++
@@ -1175,7 +1176,7 @@ export function Table(props: {
           }
           formatSummary={(value, column) =>
             column.columnDef?.meta?.formatSummary?.(value) ??
-            String(value ?? '—')
+            scalarText(value, '—')
           }
           canToggleGroup={() => !model.locked()}
           onGroupMount={() => {

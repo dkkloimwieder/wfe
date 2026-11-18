@@ -39,7 +39,7 @@ test('choice content preserves caller-first cancellation and reads replacement c
   handlers.onPointerDownOutside(
     new CustomEvent('pointer-outside', {
       cancelable: true,
-    }) as PointerDownOutsideEvent,
+    }),
   )
   expect(order).toEqual(['pointer'])
   props.onPointerDownOutside = () => {
@@ -48,10 +48,10 @@ test('choice content preserves caller-first cancellation and reads replacement c
   handlers.onPointerDownOutside(
     new CustomEvent('pointer-outside', {
       cancelable: true,
-    }) as PointerDownOutsideEvent,
+    }),
   )
   handlers.onFocusOutside(
-    new CustomEvent('focus-outside', { cancelable: true }) as FocusOutsideEvent,
+    new CustomEvent('focus-outside', { cancelable: true }),
   )
   handlers.onCloseAutoFocus(new Event('close', { cancelable: true }))
   expect(order).toEqual([

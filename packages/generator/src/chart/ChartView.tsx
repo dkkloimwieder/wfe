@@ -24,7 +24,11 @@ import {
 } from '@wfe/components/chart'
 import type { ChartProps, ChartValue } from '@wfe/components/chart'
 import { requireValue, uniqueIds, StatusView } from '../shared'
-import type { ChartDescription, ChartViewBindings } from './types'
+import type {
+  ChartDescription,
+  ChartLayerDescription,
+  ChartViewBindings,
+} from './types'
 
 function text(value: unknown, label: string, optional = false) {
   requireValue(
@@ -140,12 +144,13 @@ export function ChartView<
           Array.isArray(value.layers) && value.layers.length > 0,
           'chart layers must be a nonempty array',
         )
-        for (const layer of value.layers) object(layer, 'chart layer')
+        const layers: readonly ChartLayerDescription<Row>[] = value.layers
+        for (const layer of layers) object(layer, 'chart layer')
         uniqueIds(
-          value.layers.map((layer) => layer.id),
+          layers.map((layer) => layer.id),
           'chart layer',
         )
-        for (const layer of value.layers) {
+        for (const layer of layers) {
           object(layer, 'chart layer')
           keys(layer, ['id', 'kind', 'y'], 'chart layer')
           requireValue(
@@ -176,7 +181,7 @@ export function ChartView<
     }
     for (const name of ['height', 'aspectRatio'] as const)
       requireValue(
-        value[name] === undefined || (finite(value[name]) && value[name]! > 0),
+        value[name] === undefined || (finite(value[name]) && value[name] > 0),
         `invalid chart ${name}`,
       )
     requireValue(
@@ -260,7 +265,9 @@ export function ChartView<
             scales: { angle: null, radius: null },
             marks: [
               radialArc(
-                pie(rows, { value: (row) => row[d.value.field] as number }),
+                pie<Row>(rows, {
+                  value: (row) => row[d.value.field] as number,
+                }),
                 {
                   id: `${d.id}-slices`,
                   key: d.key

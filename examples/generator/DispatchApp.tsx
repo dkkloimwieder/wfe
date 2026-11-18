@@ -111,7 +111,10 @@ export function DispatchApp(props: {
           context: Context,
           footer: Footer,
         },
-        actions: { revise: { run: app.revise }, remove: { run: app.remove } },
+        actions: {
+          revise: { run: app.revise.bind(app) },
+          remove: { run: app.remove.bind(app) },
+        },
       }}
     />
   )

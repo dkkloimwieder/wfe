@@ -1,3 +1,4 @@
+import { scalarText } from '../../shared/scalarText'
 import { For, createSignal } from 'solid-js'
 import {
   Button,
@@ -255,11 +256,9 @@ export function TableExample() {
   ]
   const textColumn = {
     sortFn: (left: unknown, right: unknown) =>
-      String(left ?? '').localeCompare(String(right ?? '')),
+      scalarText(left).localeCompare(scalarText(right)),
     filterFn: (value: unknown, filter: unknown) =>
-      String(value ?? '')
-        .toLowerCase()
-        .includes(String(filter).toLowerCase()),
+      scalarText(value).toLowerCase().includes(String(filter).toLowerCase()),
   }
   const table = createTable({
     source: {

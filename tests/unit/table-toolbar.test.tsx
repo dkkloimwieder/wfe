@@ -59,9 +59,9 @@ test('generated toolbar mounts once and retains its owner through bindings and c
       />
     )
   })
-  const button = mounted.getByRole('button', {
+  const button = mounted.getByRole<HTMLButtonElement>('button', {
     name: 'Create 1',
-  }) as HTMLButtonElement
+  })
   expect(mounts).toBe(1)
   expect(button.closest('.table-workspace-header')).not.toBeNull()
   expect(

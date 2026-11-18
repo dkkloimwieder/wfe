@@ -1,3 +1,4 @@
+import type { DragEndEvent } from '../../packages/components/src/vendor/dnd-kit/dom/src/core/manager/events'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   DragDropManager,
@@ -344,7 +345,7 @@ it.each([true, false])(
       await import('../../packages/components/src/vendor/dnd-kit/dom/src/utilities/scheduling/scheduler')
     vi.spyOn(scheduler, 'schedule').mockImplementation(() => Promise.resolve())
     const { Pointer, manager } = await pointerFixture()
-    const ended = vi.fn()
+    const ended = vi.fn<(event: DragEndEvent) => void>()
     manager.monitor.addEventListener('dragend', ended)
     if (priorMove)
       document.dispatchEvent(
@@ -543,6 +544,7 @@ it('clears the pointer activation signal handler after a completed interaction',
   // Retain the completed signal deliberately to verify that its event closure is released.
   class Inspection extends PointerSensor {
     static activation(sensor: PointerSensor) {
+      // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- TypeScript requires a subclass receiver to read the protected base field.
       return (sensor as Inspection).controller
     }
   }

@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { GanttControls } from '../shared/controls/GanttControls'
 import { DragBoardControls } from '../shared/controls/DragBoardControls'
 import {
@@ -391,7 +392,7 @@ export default function App() {
         />
       </section>
       <output id="applied-table-filters">
-        {String(appliedFilters()[0]?.value ?? '')}
+        {scalarText(appliedFilters()[0]?.value)}
       </output>
       <section id="adopt-filters">
         <TableFilter

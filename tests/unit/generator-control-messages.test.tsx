@@ -92,9 +92,9 @@ test('direct and repeated datetime fields forward clock labels and invalid feedb
     expect(field).not.toBeNull()
     const controls = within(field!)
     const group = controls.getByRole('group', { name: label })
-    const input = within(group).getByRole('textbox', {
+    const input = within(group).getByRole<HTMLInputElement>('textbox', {
       name: label,
-    }) as HTMLInputElement
+    })
     fireEvent.input(input, { target: { value: '2024-02-29 99:99' } })
     input.focus()
     flush()
@@ -129,9 +129,9 @@ test('standard table filter and generated formatted values use child messages wh
   expect(empty.textContent).toBe('Vacío')
   expect(cells[0]?.textContent).toBe('Sí')
   expect(cells[1]?.textContent).toBe('Vacío')
-  const start = h.getByRole('textbox', {
+  const start = h.getByRole<HTMLInputElement>('textbox', {
     name: 'Record date start',
-  }) as HTMLInputElement
+  })
   expect(
     h.getByRole('button', { name: 'Abrir Record date start' }),
   ).toBeTruthy()
@@ -248,9 +248,9 @@ test('language changes do not accept a rejected generated date request', () => {
   const h = mount()
   h.app.setAccept(false)
   flush()
-  const input = h.getByRole('textbox', {
+  const input = h.getByRole<HTMLInputElement>('textbox', {
     name: 'Nested date',
-  }) as HTMLInputElement
+  })
   fireEvent.input(input, { target: { value: '01/03/2024' } })
   flush()
   expect(h.app.requests()).toBe(1)

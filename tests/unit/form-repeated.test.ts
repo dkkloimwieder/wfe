@@ -1,4 +1,5 @@
-import { action, createRoot, createSignal, flush, untrack } from 'solid-js'
+import { createFixtureDisposal } from '../../examples/shared/fixtureDisposal'
+import { createRoot, createSignal, flush, untrack } from 'solid-js'
 import { afterEach, expect, test, vi } from 'vitest'
 import { createForm } from '@wfe/form'
 import type { FormBindings, FormErrors } from '@wfe/form'
@@ -69,8 +70,7 @@ function harness(
       },
     }
   })
-  // eslint-disable-next-line require-yield -- Disposal uses the existing synchronous action boundary.
-  const stop = action(function* () {
+  const stop = createFixtureDisposal(() => {
     h.dispose()
   })
   stops.push(stop)

@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import { Theme } from '@wfe/components/theme'
 import { MessagesExample } from './MessagesExample'
@@ -21,11 +22,9 @@ import '../shared/page-layout.css'
 type RecordData = { category: string; name: string; amount: number }
 const textColumn = {
   filterFn: (value: unknown, filter: unknown) =>
-    String(value ?? '')
-      .toLowerCase()
-      .includes(String(filter).toLowerCase()),
+    scalarText(value).toLowerCase().includes(scalarText(filter).toLowerCase()),
   sortFn: (a: unknown, b: unknown) =>
-    String(a ?? '').localeCompare(String(b ?? '')),
+    scalarText(a).localeCompare(scalarText(b)),
 }
 const initial = [
   { id: 'a', values: { category: 'West', name: 'Desk', amount: 42 } },

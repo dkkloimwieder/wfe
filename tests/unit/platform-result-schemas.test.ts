@@ -1,3 +1,4 @@
+import { resultMetadata, operationMetadata } from './platformMetadata'
 import { expect, test, vi } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -14,12 +15,7 @@ import type {
   Transport,
 } from '../../examples/platform/snapshot/runtime/wire'
 
-type Field = {
-  path: string
-  type: 'text' | 'boolean' | 'uuid' | 'int32'
-  nullable: boolean
-  values: (string | number | boolean)[]
-}
+type Field = ReturnType<typeof resultMetadata.parse>['fields'][number]
 const fixtures: { namespace: string; operation: string; fields: Field[] }[] = []
 for (const [namespace, directory] of [
   ['control', 'metadata'],
@@ -29,15 +25,21 @@ for (const [namespace, directory] of [
   for (const group of readdirSync(root))
     for (const file of readdirSync(resolve(root, group))) {
       if (!file.endsWith('.result.json')) continue
-      const metadata = JSON.parse(
-        readFileSync(resolve(root, group, file), 'utf8'),
+      const metadata = resultMetadata.parse(
+        JSON.parse(readFileSync(resolve(root, group, file), 'utf8')),
       )
-      const operation = JSON.parse(
-        readFileSync(
-          resolve(root, group, file.replace('.result.json', '.operation.json')),
-          'utf8',
+      const { operation } = operationMetadata.parse(
+        JSON.parse(
+          readFileSync(
+            resolve(
+              root,
+              group,
+              file.replace('.result.json', '.operation.json'),
+            ),
+            'utf8',
+          ),
         ),
-      ).operation
+      )
       fixtures.push({
         namespace: namespace!,
         operation,

@@ -12,7 +12,7 @@ test('default-filter Combobox mounts without strict reads and retains reactive F
   const originalWarn = console.warn.bind(console)
   const warnings = vi
     .spyOn(console, 'warn')
-    .mockImplementation((...args) => originalWarn(...args))
+    .mockImplementation((...args: unknown[]) => originalWarn(...args))
   const [id, setId] = createSignal('first')
   const [locked, setLocked] = createSignal(false)
   const request = vi.fn()
@@ -82,7 +82,7 @@ test('Select listbox retains explicit ID changes without strict mount reads', ()
   const originalWarn = console.warn.bind(console)
   const warnings = vi
     .spyOn(console, 'warn')
-    .mockImplementation((...args) => originalWarn(...args))
+    .mockImplementation((...args: unknown[]) => originalWarn(...args))
   const [id, setId] = createSignal('choices-first')
   const request = vi.fn()
   const h = render(() => (

@@ -10,8 +10,8 @@
   "scripts": {
     "build": "pnpm -r --workspace-concurrency=1 --filter \"@wfe/*\" build",
     "types": "pnpm -r --workspace-concurrency=1 --filter \"@wfe/*\" types",
-    "lint": "oxlint .",
-    "lint:types": "oxlint --type-aware --config .oxlintrc.types.json .",
+    "lint": "oxlint . && pnpm lint:types",
+    "lint:types": "node scripts/lint-types.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "node --test --test-concurrency=1 tests/*.test.mjs tests/tooling/*.test.mjs",

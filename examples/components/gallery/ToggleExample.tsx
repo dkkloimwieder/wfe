@@ -47,8 +47,15 @@ export function ToggleExample(props: { state?: GalleryState }) {
         onSubmit={(event) => {
           event.preventDefault()
           const data = new FormData(event.currentTarget)
+          const pin = data.get('pin')
+          const view = data.get('view')
           setSubmitted(
-            `Pin ${data.get('pin') ?? 'off'}; view ${data.get('view') ?? 'none'}; format ${data.getAll('format').join(',') || 'none'}`,
+            `Pin ${typeof pin === 'string' ? pin : 'off'}; view ${typeof view === 'string' ? view : 'none'}; format ${
+              data
+                .getAll('format')
+                .filter((value) => typeof value === 'string')
+                .join(',') || 'none'
+            }`,
           )
         }}
       >

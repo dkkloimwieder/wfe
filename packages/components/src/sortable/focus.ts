@@ -73,7 +73,7 @@ export function createSortableFocus(revision: Accessor<string>) {
         setPending({ id, from, accepted, element: node })
       else setPending(null)
     },
-    register(id: SortableId, node: HTMLElement) {
+    register(this: void, id: SortableId, node: HTMLElement) {
       if (!alive) return () => {}
       nodes.set(id, node)
       setVersion((value) => value + 1)

@@ -478,7 +478,7 @@ export function Gantt(props: GanttProps) {
                 class="ui-gantt-bar"
                 data-readonly={readOnly() ? '' : undefined}
                 data-interval={interval().id}
-                ref={move.ref}
+                ref={move.ref.bind(move)}
                 aria-describedby={
                   props.onChange && !interval().readOnly
                     ? instructionsId
@@ -590,14 +590,14 @@ export function Gantt(props: GanttProps) {
                 class="ui-gantt-resize ui-gantt-resize-start"
                 aria-describedby={instructionsId}
                 aria-label={`Resize start: ${interval().label}`}
-                ref={[start.ref, start.handleRef]}
+                ref={[start.ref.bind(start), start.handleRef.bind(start)]}
               />
               <button
                 type="button"
                 class="ui-gantt-resize ui-gantt-resize-end"
                 aria-describedby={instructionsId}
                 aria-label={`Resize end: ${interval().label}`}
-                ref={[end.ref, end.handleRef]}
+                ref={[end.ref.bind(end), end.handleRef.bind(end)]}
               />
             </Show>
           </div>
@@ -629,13 +629,13 @@ export function Gantt(props: GanttProps) {
       const { first, last } = visibleLanes()
       const result: GanttInterval[] = []
       for (let lane = first; lane <= last; lane++) {
-        const query = baselines ? laneIndex().queryBaselines : laneIndex().query
+        const index = laneIndex()
+        const laneKey = JSON.stringify([key, lane])
+        const { start, end } = props.range
         result.push(
-          ...query(
-            JSON.stringify([key, lane]),
-            props.range.start,
-            props.range.end,
-          ),
+          ...(baselines
+            ? index.queryBaselines(laneKey, start, end)
+            : index.query(laneKey, start, end)),
         )
       }
       return result

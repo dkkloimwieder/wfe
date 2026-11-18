@@ -1,3 +1,4 @@
+import { scalarText } from '../shared/scalarText'
 import { createSignal, untrack } from 'solid-js'
 import { Button } from '@wfe/components'
 import { createForm } from '@wfe/form'
@@ -86,7 +87,7 @@ export function createNestedMessagesApplication() {
         accessorKey: 'date',
         filterFn: (value, filter) => {
           const range = filter as TableDateRange | undefined
-          const date = String(value ?? '')
+          const date = scalarText(value)
           return (
             (!range?.start || date >= range.start) &&
             (!range?.end || date <= range.end)

@@ -1,3 +1,4 @@
+import type { ChartProps } from '@wfe/components/chart'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render, fireEvent } from '@solidjs/testing-library'
 import { createMemo, createSignal, flush, onCleanup } from 'solid-js'
@@ -206,8 +207,10 @@ test('selection callbacks receive raw records and reactive callback replacements
     { x: 0, y: 2 },
     { x: 1, y: 3 },
   ]
-  const first = vi.fn()
-  const second = vi.fn()
+  const first =
+    vi.fn<NonNullable<ChartProps<{ x: number; y: number }>['onSelect']>>()
+  const second =
+    vi.fn<NonNullable<ChartProps<{ x: number; y: number }>['onSelect']>>()
   const [select, setSelect] = createSignal(() => first)
   const spec = defineChart({
     marks: [lineY(rows, { x: 'x', y: 'y' })],
@@ -229,13 +232,13 @@ test('selection callbacks receive raw records and reactive callback replacements
   fireEvent.keyDown(svg, { key: 'ArrowRight' })
   fireEvent.keyDown(svg, { key: 'Enter' })
   flush()
-  expect(rows).toContain(first.mock.calls[0]![0].datum)
+  expect(rows).toContain(first.mock.calls[0]?.[0]?.datum)
   const prior = first.mock.calls.length
   setSelect(() => second)
   flush()
   fireEvent.keyDown(svg, { key: 'ArrowRight' })
   fireEvent.keyDown(svg, { key: 'Enter' })
   flush()
-  expect(rows).toContain(second.mock.calls[0]![0].datum)
+  expect(rows).toContain(second.mock.calls[0]?.[0]?.datum)
   expect(first).toHaveBeenCalledTimes(prior)
 })

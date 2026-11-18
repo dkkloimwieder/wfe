@@ -17,10 +17,7 @@ class Observer {
     this.observed.clear()
   }
   emit(node: Element) {
-    this.callback(
-      [{ target: node } as ResizeObserverEntry],
-      this as unknown as ResizeObserver,
-    )
+    this.callback([{ target: node } as ResizeObserverEntry], this)
   }
 }
 const owners: ReturnType<typeof decorateActions>[] = []

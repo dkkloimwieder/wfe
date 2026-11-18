@@ -1,3 +1,4 @@
+import type { TableFilterCriteria } from '@wfe/components/table'
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render, fireEvent } from '@solidjs/testing-library'
 import { createSignal, flush, onCleanup } from 'solid-js'
@@ -92,7 +93,7 @@ test('refresh stays available without filter controls and forwards unchanged cri
     addEventListener() {},
     removeEventListener() {},
   }))
-  const refresh = vi.fn()
+  const refresh = vi.fn<(criteria: TableFilterCriteria) => void>()
   const [connected, setConnected] = createSignal(false)
   const h = render(() => {
     const table = createTable({
@@ -108,9 +109,9 @@ test('refresh stays available without filter controls and forwards unchanged cri
       />
     )
   })
-  const button = h.getByRole('button', {
+  const button = h.getByRole<HTMLButtonElement>('button', {
     name: 'Refresh results',
-  }) as HTMLButtonElement
+  })
   expect(button.disabled).toBe(false)
   expect(button.hasAttribute('aria-disabled')).toBe(false)
   fireEvent.click(button)

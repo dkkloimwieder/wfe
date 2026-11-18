@@ -216,7 +216,7 @@ export function createSortable(options: SortableOptions): SortableScope {
       const operation = dragDrop.operation()
       return operation ? resolve(operation) : null
     }),
-    cancel: dragDrop.cancel,
+    cancel: () => dragDrop.cancel(),
     requestMove(item, where) {
       if (!proposal(item, where)) return false
       const target =

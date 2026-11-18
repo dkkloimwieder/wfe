@@ -1,12 +1,7 @@
+import { createFixtureDisposal } from '../../examples/shared/fixtureDisposal'
 import { afterEach, beforeEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
-import {
-  action,
-  createRoot,
-  createSignal,
-  createRenderEffect,
-  flush,
-} from 'solid-js'
+import { createRoot, createSignal, createRenderEffect, flush } from 'solid-js'
 import { preserveReorderFocus } from '../../packages/generator/src/reorderFocus'
 import { FocusApp } from '../../examples/generator/FocusApp'
 import type { createFocusApplication } from '../../examples/generator/FocusApp'
@@ -37,7 +32,7 @@ function mount() {
 test('actual moves retain native and custom control identity, focus and selection', () => {
   const h = mount()
   for (const label of ['Title', 'Notes', 'Extra']) {
-    const input = h.getByLabelText(label) as HTMLInputElement
+    const input = h.getByLabelText<HTMLInputElement>(label)
     for (const move of [h.app.moveFields, h.app.movePanels])
       for (const reverse of [true, false]) {
         input.focus()
@@ -56,7 +51,7 @@ test('actual moves retain native and custom control identity, focus and selectio
 })
 test('a later explicit focus target wins and removed controls stay removed', () => {
   const h = mount()
-  const input = h.getByLabelText('Notes') as HTMLTextAreaElement
+  const input = h.getByLabelText<HTMLTextAreaElement>('Notes')
   input.focus()
   h.app.movePanels(true)
   h.getByRole('button', { name: 'Elsewhere' }).focus()
@@ -111,8 +106,7 @@ for (const attribute of ['hidden', 'inert', 'aria-hidden', 'id'])
       })
       return { dispose, setOrder }
     })
-    // eslint-disable-next-line require-yield -- Dispose through the synchronous action boundary.
-    const stop = action(function* () {
+    const stop = createFixtureDisposal(() => {
       owned.dispose()
     })
     try {

@@ -47,7 +47,7 @@ export function register<T extends object>(
 export function peek<T extends object = object>(
   c: object,
 ): Source<T> | undefined {
-  return sources.get(c) as Source<T> | undefined
+  return sources.get(c)
 }
 
 export function source<T extends object>(c: AnyCollection<T>): Source<T> {

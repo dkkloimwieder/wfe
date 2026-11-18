@@ -5,7 +5,7 @@ import { HydrationApp } from './HydrationApp'
 import '@wfe/components/styles.css'
 const capture = OBSERVE?.diagnostics.capture()
 let snapshot!: () => unknown
-const release = await hydrate(
+const release = hydrate(
   () => (
     <HydrationApp
       ready={(next) => {

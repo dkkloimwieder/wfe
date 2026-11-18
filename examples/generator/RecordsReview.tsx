@@ -51,9 +51,9 @@ export function RecordsReview(props: {
       bindings={{
         views: { editor: Editor, records: Records },
         actions: {
-          revise: { run: app.revise },
-          remove: { run: app.remove },
-          'icon-mode': { run: app.toggleActionLabels },
+          revise: { run: app.revise.bind(app) },
+          remove: { run: app.remove.bind(app) },
+          'icon-mode': { run: app.toggleActionLabels.bind(app) },
         },
       }}
     />

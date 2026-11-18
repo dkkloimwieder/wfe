@@ -140,8 +140,7 @@ export function ScalarField(
       value.control === 'date' || value.control === 'datetime',
       'Date controls require a date description',
     )
-    return value as RuntimeScalarField &
-      (DateControlDescription | DateTimeControlDescription)
+    return value
   }
   const datetimeDescription = () => {
     const value = dateDescription()
@@ -149,7 +148,7 @@ export function ScalarField(
       value.control === 'datetime',
       'Datetime controls require a datetime description',
     )
-    return value as RuntimeScalarField & DateTimeControlDescription
+    return value
   }
   const timeDescription = () => {
     const value = checkedField()
@@ -157,7 +156,7 @@ export function ScalarField(
       value.control === 'time',
       'Time controls require a time description',
     )
-    return value as RuntimeScalarField & TimeControlDescription
+    return value
   }
   const numberDescription = () => {
     const value = checkedField()
@@ -165,8 +164,7 @@ export function ScalarField(
       value.control === 'number',
       'Numeric controls require a number description',
     )
-    return value as RuntimeScalarField &
-      NumberControlDescription & { empty?: 'reject' | 'null' | 'undefined' }
+    return value
   }
   const label = () => descriptionLabel(checkedField().label, key)
   const booleanControl = control === 'checkbox' || control === 'switch'

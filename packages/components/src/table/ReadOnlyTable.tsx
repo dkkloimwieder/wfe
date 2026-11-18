@@ -1,3 +1,4 @@
+import { columnLabel } from './columnLabel'
 import type { DatePickerMessages } from '../components/dateMessages'
 import { resolveMessages } from '../internal/messages'
 import { resolveTableMessages, type TableMessages } from './messages'
@@ -52,6 +53,14 @@ import type { NativeCell, NativeColumn, NativeTable } from './engine'
 export type TableFilterConfig = TableColumnFilterConfig
 
 /** Full display features over an application-owned table, without editing state. */
+function textFilterValue(value: unknown): string {
+  return typeof value === 'string' ||
+    typeof value === 'boolean' ||
+    typeof value === 'number'
+    ? String(value)
+    : ''
+}
+
 export function ReadOnlyTable<T, M>(
   props: {
     messages?: Partial<TableMessages>
@@ -220,7 +229,7 @@ export function ReadOnlyTable<T, M>(
   let filterControls: HTMLDivElement | undefined
   let workspaceControls: TableControlsHandle | undefined
   const label = (column: NativeColumn<T, M>) =>
-    props.label?.(column) ?? String(column.columnDef?.header ?? column.id)
+    props.label?.(column) ?? columnLabel(column)
   const processing = () => !table.options.manualProcessing
   const filtering = () =>
     Boolean(props.onApplyFilters) ||
@@ -399,8 +408,8 @@ export function ReadOnlyTable<T, M>(
                                   clearLabel={messages.clearFilter(
                                     label(column),
                                   )}
-                                  value={String(
-                                    filters.getValue(column.id) ?? '',
+                                  value={textFilterValue(
+                                    filters.getValue(column.id),
                                   )}
                                   disabled={disabled()}
                                   onValueChange={(value) =>

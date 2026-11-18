@@ -145,10 +145,10 @@ test('repeated records reuse named scalar controls and row fieldsets without ini
 })
 test('add, row edit and remove use the existing accepted-value request path', async () => {
   const h = mount()
-  const add = h.getByRole('button', { name: 'Add row' }) as HTMLButtonElement
-  const remove = within(h.row('a')).getByRole('button', {
+  const add = h.getByRole<HTMLButtonElement>('button', { name: 'Add row' })
+  const remove = within(h.row('a')).getByRole<HTMLButtonElement>('button', {
     name: /Remove entries row/,
-  }) as HTMLButtonElement
+  })
   expect(add.type).toBe('button')
   expect(remove.type).toBe('button')
   expect(add.parentElement?.classList.contains('ui-form-actions')).toBe(true)
@@ -187,9 +187,9 @@ test('rejected add, edit and removal leave rows and retained controls unchanged'
 })
 test('row and field reorder retain a focused numeric draft and edits resolve the latest key', async () => {
   const h = mount()
-  const quantity = within(h.row('a')).getByRole('textbox', {
+  const quantity = within(h.row('a')).getByRole<HTMLInputElement>('textbox', {
     name: 'quantity',
-  }) as HTMLInputElement
+  })
   quantity.focus()
   fireEvent.input(quantity, { target: { value: '-' } })
   h.setValues({ ...initial, entries: [...initial.entries].reverse() })
@@ -259,7 +259,7 @@ test.each(['disabled', 'readOnly'] as const)(
     if (lock === 'disabled') h.setDisabled(true)
     else h.setReadOnly(true)
     await settle()
-    const add = h.getByRole('button', { name: 'Add row' }) as HTMLButtonElement
+    const add = h.getByRole<HTMLButtonElement>('button', { name: 'Add row' })
     expect(add.disabled).toBe(true)
     fireEvent.click(add)
     fireEvent.click(
@@ -348,9 +348,9 @@ test('special application keys produce unique associated control IDs', async () 
     ],
   })
   await settle()
-  const names = h.getAllByRole('textbox', {
+  const names = h.getAllByRole<HTMLInputElement>('textbox', {
     name: 'name',
-  }) as HTMLInputElement[]
+  })
   expect(names).toHaveLength(2)
   expect(new Set(names.map((input) => input.id)).size).toBe(2)
   for (const input of names) expect(input.labels?.[0]?.htmlFor).toBe(input.id)
@@ -494,16 +494,14 @@ test('queued add focus becomes inert when its view is disposed', async () => {
   expect(document.activeElement).toBe(document.body)
 })
 
+function inheritedBindings<T extends object>(prototype: T): T {
+  return Object.create(prototype) as T
+}
+
 test.each(['custom', 'select'] as const)(
   'scalar %s bindings reject inherited entries for special field keys',
   (control) => {
     const initial = { constructor: 'alpha' }
-    const inherited = Object.create({
-      constructor:
-        control === 'custom'
-          ? () => <span>Inherited component</span>
-          : () => [{ value: 'alpha', label: 'Alpha' }],
-    })
     const h = render(() => {
       const form = createForm({
         values: () => initial,
@@ -514,18 +512,33 @@ test.each(['custom', 'select'] as const)(
       })
       return (
         <Errored fallback={(error) => <p role="alert">{String(error())}</p>}>
-          <FormView
-            description={{
-              id: 'inherited',
-              fields: [{ field: 'constructor', control }],
-            }}
-            bindings={{
-              form,
-              ...(control === 'custom'
-                ? { fields: inherited }
-                : { choices: inherited }),
-            }}
-          />
+          {control === 'custom' ? (
+            <FormView
+              description={{
+                id: 'inherited',
+                fields: [{ field: 'constructor', control: 'custom' }],
+              }}
+              bindings={{
+                form,
+                fields: inheritedBindings({
+                  constructor: () => <span>Inherited component</span>,
+                }),
+              }}
+            />
+          ) : (
+            <FormView
+              description={{
+                id: 'inherited',
+                fields: [{ field: 'constructor', control: 'select' }],
+              }}
+              bindings={{
+                form,
+                choices: inheritedBindings({
+                  constructor: () => [{ value: 'alpha', label: 'Alpha' }],
+                }),
+              }}
+            />
+          )}
         </Errored>
       )
     })
@@ -536,7 +549,7 @@ test.each(['custom', 'select'] as const)(
 )
 test('repeated bindings reject inherited group entries', () => {
   const initial = { constructor: [{ key: 'first', name: 'Name' }] }
-  const inherited = Object.create({
+  const inherited = inheritedBindings({
     constructor: {
       rowKey: (row: { key: string }) => row.key,
       createRow: () => ({ key: 'next', name: '' }),

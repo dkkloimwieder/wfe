@@ -4,12 +4,7 @@ import { Checkbox } from '@wfe/components'
 import { createGridModel } from './gridModel'
 import { preserveReorderFocus } from './reorderFocus'
 import { keyPart, requireValue } from './shared'
-import type {
-  GridColumnId,
-  GridDescription,
-  GridRowId,
-  GridViewProps,
-} from './gridTypes'
+import type { GridDescription, GridViewProps } from './gridTypes'
 
 /** A controlled boolean matrix composed from the shared checkbox and table styles. */
 export function GridView<const D extends GridDescription>(
@@ -52,10 +47,7 @@ export function GridView<const D extends GridDescription>(
     const column = () => model().columns.get(cell.column)
     const checked = createMemo(() => {
       if (!row() || !column()) return false
-      const value = state().bindings.value(
-        cell.row as GridRowId<D>,
-        cell.column as GridColumnId<D>,
-      )
+      const value = state().bindings.value(cell.row, cell.column)
       requireValue(
         typeof value === 'boolean',
         `nonboolean grid value at "${cell.row}", "${cell.column}"`,
@@ -84,8 +76,8 @@ export function GridView<const D extends GridDescription>(
               )
                 return
               state().bindings.onValueChange({
-                row: cell.row as GridRowId<D>,
-                column: cell.column as GridColumnId<D>,
+                row: cell.row,
+                column: cell.column,
                 value,
               })
             })

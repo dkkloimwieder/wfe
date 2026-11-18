@@ -37,12 +37,12 @@ test('page requests use current availability and callbacks without changing acce
       onNext={() => calls.push(`next:${version()}`)}
     />
   ))
-  const prev = h.getByRole('button', {
+  const prev = h.getByRole<HTMLButtonElement>('button', {
     name: 'Previous page',
-  }) as HTMLButtonElement
-  const forward = h.getByRole('button', {
+  })
+  const forward = h.getByRole<HTMLButtonElement>('button', {
     name: 'Next page',
-  }) as HTMLButtonElement
+  })
   expect(prev.disabled).toBe(true)
   fireEvent.click(prev)
   fireEvent.click(forward)

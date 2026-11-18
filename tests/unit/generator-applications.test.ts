@@ -1,4 +1,5 @@
-import { action, createRoot, flush } from 'solid-js'
+import { createFixtureDisposal } from '../../examples/shared/fixtureDisposal'
+import { createRoot, flush } from 'solid-js'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createDispatchApplication } from '../../examples/generator/dispatch-application'
 import { initialDispatch } from '../../examples/generator/dispatch-provider'
@@ -10,8 +11,7 @@ import {
 const stops: (() => void)[] = []
 function owned<T>(create: () => T) {
   const root = createRoot((dispose) => ({ value: create(), dispose }))
-  // eslint-disable-next-line require-yield -- Dispose through the synchronous action boundary.
-  const stop = action(function* () {
+  const stop = createFixtureDisposal(() => {
     root.dispose()
   })
   stops.push(stop)

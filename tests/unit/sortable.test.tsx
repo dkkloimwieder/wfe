@@ -96,7 +96,7 @@ function fixture(
             label: String(container.id),
           })
           return (
-            <section ref={lane.ref}>
+            <section ref={lane.ref.bind(lane)}>
               {container.items.map((id, index) => {
                 const item = createSortableItem(scope, {
                   id,
@@ -347,8 +347,8 @@ test.each([false, true])(
           label: String(props.id),
         })
         return (
-          <div ref={item.ref}>
-            <button ref={item.handleRef}>Move {props.id}</button>
+          <div ref={item.ref.bind(item)}>
+            <button ref={item.handleRef.bind(item)}>Move {props.id}</button>
           </div>
         )
       }
@@ -358,7 +358,7 @@ test.each([false, true])(
           {['one', 'two'].map((id) => {
             const lane = createSortableContainer(scope, { id, label: id })
             return (
-              <section ref={lane.ref}>
+              <section ref={lane.ref.bind(lane)}>
                 <For
                   each={
                     containers().find((container) => container.id === id)!.items
@@ -457,7 +457,7 @@ test('ignores item wrapper refs after their owner is disposed', () => {
       onMove() {},
     })
     item = createSortableItem(scope, { id: 'a', label: 'A' })
-    return <button ref={item.ref}>A</button>
+    return <button ref={item.ref.bind(item)}>A</button>
   })
   flush()
   view.unmount()
@@ -472,7 +472,7 @@ test('ignores item wrapper refs after their owner is disposed', () => {
 
 test('pointer over an empty lane outranks a wide card overlapping a neighboring item', async () => {
   let scope!: SortableScope
-  const onMove = vi.fn()
+  const onMove = vi.fn<(move: SortableMove) => void>()
   render(() => {
     scope = createSortable({
       containers: [
@@ -499,13 +499,22 @@ test('pointer over an empty lane outranks a wide card overlapping a neighboring 
       }
     return (
       <>
-        <div ref={bind(left.ref, new DOMRect(0, 0, 400, 200))}>
-          <div ref={bind(wide.ref, new DOMRect(0, 0, 200, 100))}>Wide</div>
-          <div ref={bind(neighbor.ref, new DOMRect(200, 0, 200, 100))}>
+        <div ref={bind(left.ref.bind(left), new DOMRect(0, 0, 400, 200))}>
+          <div ref={bind(wide.ref.bind(wide), new DOMRect(0, 0, 200, 100))}>
+            Wide
+          </div>
+          <div
+            ref={bind(
+              neighbor.ref.bind(neighbor),
+              new DOMRect(200, 0, 200, 100),
+            )}
+          >
             Neighbor
           </div>
         </div>
-        <div ref={bind(right.ref, new DOMRect(400, 0, 200, 200))}>Empty</div>
+        <div ref={bind(right.ref.bind(right), new DOMRect(400, 0, 200, 200))}>
+          Empty
+        </div>
       </>
     )
   })

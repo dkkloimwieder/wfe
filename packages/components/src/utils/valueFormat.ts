@@ -40,6 +40,11 @@ export function isValueFormat(value: unknown): value is ValueFormat {
   )
 }
 
+function fallbackText(value: unknown): string {
+  // oxlint-disable-next-line typescript/no-base-to-string -- Display formatting has historically honored each caller value's JavaScript string conversion.
+  return String(value)
+}
+
 /** Format display text without changing the original value. */
 export function formatDisplayValue(
   value: unknown,
@@ -64,7 +69,7 @@ export function formatDisplayValue(
       dateFormatter('en-US', { timeZone: zone })
     }
     if (value == null || value === '') return ''
-    if (typeof value !== 'string') return String(value)
+    if (typeof value !== 'string') return fallbackText(value)
     if (format === 'date')
       return parseDate(value) ? formatDateInput(value, pattern, locale) : value
     let parts: ReturnType<typeof dateTimeParts>
@@ -77,7 +82,7 @@ export function formatDisplayValue(
   }
   if (format === 'datetime-iso') {
     if (value == null || value === '') return ''
-    if (typeof value !== 'string') return String(value)
+    if (typeof value !== 'string') return fallbackText(value)
     try {
       return normalizeInstant(value)
     } catch {
@@ -113,5 +118,5 @@ export function formatDisplayValue(
         maximumFractionDigits: 2,
       }).format(value)
   }
-  return String(value)
+  return fallbackText(value)
 }

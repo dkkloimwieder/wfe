@@ -191,9 +191,9 @@ test('generated time fields preserve invalid drafts, forward messages, and submi
     )
   })
   flush()
-  const input = view.getByRole('textbox', {
+  const input = view.getByRole<HTMLInputElement>('textbox', {
     name: 'Appointment time',
-  }) as HTMLInputElement
+  })
   expect(input.value).toBe('02:15:16 PM')
   fireEvent.input(input, { target: { value: '08:30:00 AM' } })
   flush()

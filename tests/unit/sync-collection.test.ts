@@ -1,3 +1,4 @@
+import { createTransaction } from '@tanstack/db'
 import { expect, test, vi } from 'vitest'
 import { CursorExpired, collection } from '@wfe/sync'
 import { applyChanges } from '@wfe/sync/internal'
@@ -236,6 +237,40 @@ test('a failed refill keeps rows and reports the error until the next success', 
   expect(c.health.hasErrors).toBe(false)
   expect(c.utils.error()).toBeUndefined()
   expect(ids(c)).toEqual(['a', 'b'])
+})
+
+test('follow waits for a queued batch before requesting the next cursor', async () => {
+  const feed = feedOf([[order('a', 1)]])
+  const changes = vi.mocked(feed.changes)
+  changes
+    .mockResolvedValueOnce({
+      rows: [change('b', 1, 2)],
+      next_cursor: 'next',
+      complete: false,
+    })
+    .mockResolvedValueOnce({ rows: [], next_cursor: 'done', complete: true })
+  const c = collection(feed, 'all', { key: 'orders:all' })
+  await c.preload()
+  const release = deferred<void>()
+  const mutation = createTransaction({ mutationFn: () => release.promise })
+  mutation.mutate(() => {
+    c.update('a', (row) => {
+      row.quantity = 3
+    })
+  })
+  const pull = c.utils.pull()
+  try {
+    await tick()
+    expect(changes).toHaveBeenCalledTimes(1)
+    expect(c.has('b')).toBe(false)
+  } finally {
+    release.resolve(undefined)
+    await mutation.when('settled')
+    await pull
+    await c.cleanup()
+  }
+  expect(changes).toHaveBeenCalledTimes(2)
+  expect(changes.mock.calls[1]?.[1]).toBe('next')
 })
 
 test('applyChanges deletes, inserts, and updates by the row_version rule', async () => {

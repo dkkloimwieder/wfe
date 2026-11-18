@@ -1,4 +1,5 @@
-import { action, createRoot, flush } from 'solid-js'
+import { createFixtureDisposal } from '../../examples/shared/fixtureDisposal'
+import { createRoot, flush } from 'solid-js'
 import { expect, test } from 'vitest'
 import { createModel } from '../../examples/table-editing/model'
 import { defaultFields } from '../../examples/shared/editingFields'
@@ -29,8 +30,7 @@ test('a disposed model ignores application success even when transport ignores c
   flush()
   expect(row.name).toBe('Record 0001')
   // Same synchronous disposal action as the browser fixture.
-  // eslint-disable-next-line require-yield -- Synchronous disposal action.
-  const dispose = action(function* () {
+  const dispose = createFixtureDisposal(() => {
     h.dispose()
   })
   dispose()

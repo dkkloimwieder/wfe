@@ -7,7 +7,10 @@ import {
   createTable,
   createTableSelection,
 } from '@wfe/components/table'
-import type { TableSelectionRange } from '@wfe/components/table'
+import type {
+  TableSelectionCell,
+  TableSelectionRange,
+} from '@wfe/components/table'
 
 afterEach(cleanup)
 const cell = (row: string, column: string) => ({ row, column })
@@ -125,7 +128,7 @@ test('virtual rows paint when mounted, preserve owners and copy offscreen data o
     selection!: ReturnType<typeof createTableSelection>,
     tableNode!: HTMLTableElement
   const [start, setStart] = createSignal(0),
-    getText = vi.fn((p) => p.row + p.column)
+    getText = vi.fn((p: TableSelectionCell) => p.row + p.column)
   const records = {
     a: { x: 'ax', y: 'ay' },
     b: { x: 'bx', y: 'by' },
@@ -244,7 +247,7 @@ test('native editor copy and projection failures leave the clipboard untouched',
     return event
   }
   const input = h.getByRole('textbox')
-  ;(input as HTMLElement).focus()
+  input.focus()
   expect(copy(input).defaultPrevented).toBe(false)
   tableNode.focus()
   copy(tableNode)
@@ -335,7 +338,7 @@ test('rejected controlled requests never reveal and broad accessors cannot reviv
 test('large logical selections do not read records before copy', () => {
   const h = createRoot((dispose) => {
     const rows = Array.from({ length: 100_000 }, (_, index) => String(index))
-    const getText = vi.fn((p) => p.row)
+    const getText = vi.fn((p: TableSelectionCell) => p.row)
     const selection = createTableSelection({
       rows: () => rows,
       columns: () => ['x'],

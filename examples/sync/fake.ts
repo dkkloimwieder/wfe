@@ -71,6 +71,7 @@ export function fakeServer(count: number) {
         complete: listing.cap === undefined || rows.length <= listing.cap,
       }
     },
+    // oxlint-disable-next-line typescript/require-await -- The in-memory feed implements the asynchronous host contract, including rejected reads.
     async changes(_scope, cursor, limit = 50) {
       if (!net.reachable) throw new Error('The server cannot be reached')
       const start = Number(cursor.slice(1))

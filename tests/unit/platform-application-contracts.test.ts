@@ -1,3 +1,8 @@
+import {
+  operationMetadata,
+  errorMetadata,
+  fieldMetadata,
+} from './platformMetadata'
 import { readFile } from 'node:fs/promises'
 import { expect, test } from 'vitest'
 import * as user from '../../examples/platform/snapshot/application/client/user'
@@ -66,7 +71,7 @@ function paths(fields: FieldMap, prefix = ''): string[] {
     return typeof entry === 'string' ? [path] : paths(entry.fields, `${path}.`)
   })
 }
-const metadata = async (path: string, kind: string) =>
+const metadata = async (path: string, kind: string): Promise<unknown> =>
   JSON.parse(
     await readFile(
       `examples/platform/snapshot/application/metadata/${path}.${kind}.json`,
@@ -77,11 +82,11 @@ const metadata = async (path: string, kind: string) =>
 test.each(operations)(
   '%s captured operation, errors and field paths match the generated client',
   async (path, route, input, result) => {
-    const operation = await metadata(path, 'operation')
+    const operation = operationMetadata.parse(await metadata(path, 'operation'))
     expect(operation.operation).toBe(route.operation)
     expect(operation.type).toBe(route.contract.type)
     expect(operation.result).toBe(route.contract.resultClass)
-    const errors = await metadata(path, 'errors')
+    const errors = errorMetadata.parse(await metadata(path, 'errors'))
     expect(
       errors.cases.map((entry: { literal: string }) => entry.literal).sort(),
     ).toEqual(route.contract.errors.map((entry) => entry.literal).sort())
@@ -89,7 +94,7 @@ test.each(operations)(
       ['input', input],
       ['result', result],
     ] as const) {
-      const shape = await metadata(path, kind)
+      const shape = fieldMetadata.parse(await metadata(path, kind))
       expect(
         shape.fields
           .map((field: { path: string }) => field.path.replaceAll('[]', ''))

@@ -134,6 +134,7 @@ export function createDragKeyboard<D>(
             behavior: 'instant',
           })
           const box = node.getBoundingClientRect()
+          // oxlint-disable-next-line typescript/no-floating-promises -- The owned manager uses the default renderer, whose completion promise only resolves.
           manager.actions.setDropTarget(destination)
           // Do not redispatch dragmove: the sensor event already selected a target.
           manager.actions.move({

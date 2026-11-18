@@ -1,7 +1,8 @@
+import { createFixtureDisposal } from '../shared/fixtureDisposal'
 import '@wfe/components/styles.css'
 import '../fixture-page.css'
 import { render } from '@solidjs/web'
-import { action, createRoot, createStore, flush, onCleanup } from 'solid-js'
+import { createRoot, createStore, flush, onCleanup } from 'solid-js'
 import { createEditing } from '../table-editing/createEditing'
 import { createModel, createRecords } from '../table-editing/model'
 import { Table } from '../table-editing/Table'
@@ -24,8 +25,7 @@ let mode: Mode = 'store'
 let elapsedMs = 0
 
 // Use the existing qualified rc.13 disposal boundary for every mode.
-// eslint-disable-next-line require-yield -- The action only disposes the owner.
-const disposeOwner = action(function* () {
+const disposeOwner = createFixtureDisposal(() => {
   dispose?.()
 })
 function stop() {

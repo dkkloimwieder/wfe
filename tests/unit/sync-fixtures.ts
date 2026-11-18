@@ -92,16 +92,18 @@ export const changed = (
 export function logFeed(rows: Order[], log: Change<Order>[] = []) {
   const feed: Feed<Order, string> = {
     list: vi.fn(async () => ({ rows, cursor: 'c0' })),
-    changes: vi.fn(async (_scope: string, cursor: string, limit = 2) => {
-      const start = Number(cursor.slice(1))
-      const page = log.slice(start, start + limit)
-      const next = start + page.length
-      return {
-        rows: page,
-        next_cursor: `c${next}`,
-        complete: next >= log.length,
-      }
-    }),
+    changes: vi.fn<Feed<Order, string>['changes']>(
+      async (_scope, cursor, limit = 2) => {
+        const start = Number(cursor.slice(1))
+        const page = log.slice(start, start + limit)
+        const next = start + page.length
+        return {
+          rows: page,
+          next_cursor: `c${next}`,
+          complete: next >= log.length,
+        }
+      },
+    ),
   }
   return { feed, log }
 }
@@ -198,7 +200,12 @@ export function locksOf() {
           options.signal?.addEventListener('abort', () => {
             const at = queue.indexOf(run)
             if (at >= 0) queue.splice(at, 1)
-            reject(options.signal?.reason)
+            const reason: unknown = options.signal?.reason
+            reject(
+              reason instanceof Error
+                ? reason
+                : new DOMException('Lock request aborted', 'AbortError'),
+            )
           })
         }
       })

@@ -115,13 +115,16 @@ export function RepeatedField(
       Array.isArray(rows),
       `incompatible repeated field "${identity}"`,
     )
-    const result = Array.from(rows, (row) => {
-      requireValue(
-        row !== null && typeof row === 'object' && !Array.isArray(row),
-        `invalid row for field "${identity}"`,
-      )
-      return { key: binding().rowKey(row), row }
-    })
+    const result = Array.from<RuntimeRow, { key: string; row: RuntimeRow }>(
+      rows,
+      (row) => {
+        requireValue(
+          row !== null && typeof row === 'object' && !Array.isArray(row),
+          `invalid row for field "${identity}"`,
+        )
+        return { key: binding().rowKey(row), row }
+      },
+    )
     uniqueIds(
       result.map((item) => item.key),
       'repeated row',

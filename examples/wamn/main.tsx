@@ -120,7 +120,11 @@ const api = {
     void controller!.model.save(id)
   },
   discard: (id: string) => {
-    controller!.model.discard(id)
+    controller!.model
+      .discard(id)
+      .catch((error: unknown) =>
+        console.error('Discarding the WAMN draft failed', error),
+      )
     flush()
   },
   select: (id: string) => {

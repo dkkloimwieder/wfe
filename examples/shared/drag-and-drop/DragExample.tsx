@@ -111,7 +111,7 @@ export function DragExample() {
       </section>
       <section class="drag-example-section" aria-label="Assign a document">
         <h2>Generic targets</h2>
-        <article ref={source.ref} class="drag-example-source">
+        <article ref={source.ref.bind(source)} class="drag-example-source">
           <DragHandle
             drag={source}
             label="Move draft document"
@@ -154,7 +154,7 @@ export function DragExample() {
               })
               return (
                 <div
-                  ref={target.ref}
+                  ref={target.ref.bind(target)}
                   class="drag-example-target"
                   data-targeted={target.targeted() ? '' : undefined}
                 >
@@ -170,12 +170,12 @@ export function DragExample() {
       </section>
       <section class="drag-example-section" aria-label="Sortable agenda">
         <h2>Controlled list</h2>
-        <ol ref={list.ref} class="drag-example-list">
+        <ol ref={list.ref.bind(list)} class="drag-example-list">
           <For each={containers()[0]!.items}>
             {(id) => {
               const item = createSortableItem(sorter, { id, label: String(id) })
               return (
-                <li ref={item.ref} data-agenda-item={String(id)}>
+                <li ref={item.ref.bind(item)} data-agenda-item={String(id)}>
                   <DropIndicator
                     active={sorter.preview()?.destination.beforeId === id}
                   />
