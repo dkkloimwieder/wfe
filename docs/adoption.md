@@ -1,10 +1,9 @@
 # Adopt the components
 
-The current release targets Solid `2.0.0-rc.21` with matching runtime and compiler packages.
-Its Vite plugin is `3.0.0-next.56`, and its testing library is `1.0.0-rc.2`.
-All five workspace packages require Solid RC21 or later within version 2.
-The tagged release records below retain their original dependency versions.
-See [the RC21 upgrade record](qualification.md#solid-rc21-upgrade) for test results and limits.
+The current checkout targets Solid `2.0.0` with matching runtime and compiler packages.
+It uses Vite plugin `3.0.1` and testing library `1.0.0-rc.2`.
+The components package requires stable Solid 2 and Web 2 for its primitives and server rendering.
+See [the Solid 2.0.0 upgrade record](qualification.md#solid-200-upgrade).
 
 ## v0.0.10
 

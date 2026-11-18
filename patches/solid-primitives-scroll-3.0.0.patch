@@ -1,0 +1,19 @@
+diff --git a/dist/preventScroll.js b/dist/preventScroll.js
+--- a/dist/preventScroll.js
++++ b/dist/preventScroll.js
+@@ -1,5 +1,5 @@
+ /* @ts-self-types="./preventScroll.d.ts" */
+-import { createEffect, createSignal } from "solid-js";
++import { createEffect, createSignal, runWithOwner } from "solid-js";
+ import { isServer } from "@solidjs/web";
+ import { access, contains, globalRegistry } from "@solid-primitives/utils";
+ // src/preventScroll.ts
+@@ -15,7 +15,7 @@
+ * https://github.com/theKashey/react-remove-scroll
+ */
+ const getRegistry = () => globalRegistry("@solid-primitives/scroll:prevent-scroll", () => ({
+-	stack: createSignal([], { ownedWrite: true }),
++	stack: runWithOwner(null, () => createSignal([], { ownedWrite: true })),
+ 	activeDocumentStyles: /* @__PURE__ */ new Map(),
+ 	nextId: 0
+ }));

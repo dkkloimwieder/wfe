@@ -37,6 +37,11 @@ export function TableFilter(props: TableFilterProps) {
         : messages.either
   const stateHelp = createUniqueId()
   let control!: HTMLInputElement | HTMLButtonElement
+  function setInputControl(node: HTMLInputElement) {
+    control = node
+    untrack(() => props.inputRef)?.(node)
+    untrack(() => props.controlRef)?.(node)
+  }
   function commitText(element: HTMLInputElement) {
     if (!props.disabled) props.onValueChange(element.value)
     restoreTextValue(
@@ -83,11 +88,7 @@ export function TableFilter(props: TableFilterProps) {
                       ? 'true'
                       : 'false'
                 }
-                ref={(node) => {
-                  control = node
-                  props.inputRef?.(node)
-                  props.controlRef?.(node)
-                }}
+                ref={setInputControl}
               />
               <Checkbox.Control>
                 <Checkbox.Indicator />
@@ -113,11 +114,7 @@ export function TableFilter(props: TableFilterProps) {
                 value={props.value}
                 disabled={props.disabled}
                 ref={[
-                  (node) => {
-                    control = node
-                    props.inputRef?.(node)
-                    props.controlRef?.(node)
-                  },
+                  setInputControl,
                   nativeEvents<HTMLInputElement>({
                     input: (event) => {
                       if (!event.isComposing) commitText(event.currentTarget)
@@ -150,7 +147,7 @@ export function TableFilter(props: TableFilterProps) {
                 disabled={props.disabled}
                 ref={(node) => {
                   control = node
-                  props.controlRef?.(node)
+                  untrack(() => props.controlRef)?.(node)
                 }}
                 onValueChange={props.onValueChange}
               />

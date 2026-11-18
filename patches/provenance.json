@@ -3,34 +3,34 @@
   "patches": [
     {
       "package": "@solid-primitives/interaction",
-      "version": "1.0.0-next.4",
-      "patch": "solid-primitives-interaction-1.0.0-next.4.patch",
-      "patchSha256": "6f8e4edec2e9cd7b520e60ae1cc3c85cc5be6fa1c20631a20f9a6c024348572b",
+      "version": "1.0.0",
+      "patch": "solid-primitives-interaction-1.0.0.patch",
+      "patchSha256": "8a7025f586d717e71669c2ef151da8704aa21cba7dac1b4cbf661d992cecd88d",
       "archive": {
-        "url": "https://registry.npmjs.org/@solid-primitives/interaction/-/interaction-1.0.0-next.4.tgz",
-        "integrity": "sha512-V+kos+abAkAJLNAvj3A7iitNcSvbosFsjBoXh7K8GdWoABWEfPEf3DZsN+01UQOAf+4G0XLXPN4Y/IRe2EOBZQ==",
-        "sha256": "a1d0c9881008b2a58b37139b08b6aa8aa39e738ad3cc2f9b96ce26eb93c9ce11"
+        "url": "https://registry.npmjs.org/@solid-primitives/interaction/-/interaction-1.0.0.tgz",
+        "integrity": "sha512-PN4K92MERywHNVPq3/H3alk7mbqpTxv0xe+r0Pr3dt01Pv+HY+KxPqWeFFwEQNvoCPcV5WSNb8c0VmfmNC46cQ==",
+        "sha256": "f6cdf8210141e2abd56fa4460671a64e12b1403118d1f83dee632eaba0eb53fd"
       },
       "target": "dist/index.js",
-      "upstreamSha256": "59cab11f91108073b7c7bb3fe86888f371ed0858480d388dbd7599df8192357a",
-      "localSha256": "2e8b7b39e46bd735244b5b4dd569478367ab89e8ff146de4894b3339a47542a9",
+      "upstreamSha256": "c3aa913b3d70ee421aeb49180bfa03bc1353273bbf8f5fd28a27f5e2f3fd8060",
+      "localSha256": "4d78781942f7751d685c8fca5f1f98cc5260c6f710b5995258b848307aaa8603",
       "license": "LICENSE",
       "licenseSha256": "906021a46b3afdc3f682e00a26d681a2494bb9c9fe32cecb9d57ba168b60068f",
       "repair": "Register focus immediately while preserving deferred pointer setup and cleanup."
     },
     {
       "package": "@solid-primitives/scroll",
-      "version": "3.0.0-next.4",
-      "patch": "solid-primitives-scroll-3.0.0-next.4.patch",
-      "patchSha256": "d4b3cb7094f90fee487211aa6c0688917c3c19c6783630f8838e11dddc786343",
+      "version": "3.0.0",
+      "patch": "solid-primitives-scroll-3.0.0.patch",
+      "patchSha256": "31ae76113c0745966e55a1729be60977b67a7aeab0c7ab75488154bafb0355b1",
       "archive": {
-        "url": "https://registry.npmjs.org/@solid-primitives/scroll/-/scroll-3.0.0-next.4.tgz",
-        "integrity": "sha512-6Zod2Q2YPnkZhijVMSOhU2e1ip5hzOSQNhZIaKh7Kx7HcocYrzhn1NqYJlaUr464o1hFZweEQVkhALi9EHvt/Q==",
-        "sha256": "7092469db355e79eea18afdf437406ecf49ca97e58a24214843b245fd6fe525a"
+        "url": "https://registry.npmjs.org/@solid-primitives/scroll/-/scroll-3.0.0.tgz",
+        "integrity": "sha512-z64rOg4Pr2cZwPDeKllOj2birxZ0pxCMXXPlBnrUia+RoJX1QwWgGDQd6/MSnTL2KBR7exT21HDWpsSyGYjWVg==",
+        "sha256": "dc8609325e372b1dcbfcb0bb854a033ec44a2492b93fe5b1d86d574ed853fcfd"
       },
       "target": "dist/preventScroll.js",
-      "upstreamSha256": "32ef8eb622dd57b92da0198c06b3989a57b4c4fd0234b8fc91e759abe5c5cf53",
-      "localSha256": "3d76bdc5fdddb64d97c5649c2bb00d40632a6abb5e8b3d72e1032c3a6450ab4b",
+      "upstreamSha256": "d42de5cb4e96e7f677500a92f61b8261bd4d1a3de49e076eae841180d02151d5",
+      "localSha256": "40a2d9dfa6ab9f26a4ce08e254afba60790d7dbf7d2f076b8b05076446caac81",
       "license": "LICENSE",
       "licenseSha256": "c52982e741ac7ea4c0f8a4426a6d1adc8202b964c5abc2780f0f1242d8337b25",
       "repair": "Create the shared scroll registry outside the first component owner."

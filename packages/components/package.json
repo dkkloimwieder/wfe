@@ -316,19 +316,19 @@
     "@internationalized/date": "3.12.4",
     "@internationalized/number": "3.6.8",
     "@preact/signals-core": "1.10.0",
-    "@solid-primitives/a11y": "1.0.0-next.3",
-    "@solid-primitives/controlled-signal": "1.0.0-next.3",
-    "@solid-primitives/event-listener": "3.0.0-next.5",
-    "@solid-primitives/focus": "1.0.0-next.4",
-    "@solid-primitives/form": "1.0.0-next.3",
-    "@solid-primitives/i18n": "3.0.0-next.4",
-    "@solid-primitives/interaction": "1.0.0-next.4",
-    "@solid-primitives/keyboard": "2.0.0-next.5",
-    "@solid-primitives/platform": "1.0.0-next.2",
-    "@solid-primitives/presence": "1.0.0-next.2",
-    "@solid-primitives/props": "4.0.0-next.3",
-    "@solid-primitives/scroll": "3.0.0-next.4",
-    "@solid-primitives/utils": "7.0.0-next.4",
+    "@solid-primitives/a11y": "1.0.0",
+    "@solid-primitives/controlled-signal": "1.0.0",
+    "@solid-primitives/event-listener": "3.0.0",
+    "@solid-primitives/focus": "1.0.0",
+    "@solid-primitives/form": "1.0.0",
+    "@solid-primitives/i18n": "3.0.0",
+    "@solid-primitives/interaction": "1.0.0",
+    "@solid-primitives/keyboard": "2.0.0",
+    "@solid-primitives/platform": "1.0.0",
+    "@solid-primitives/presence": "1.0.0",
+    "@solid-primitives/props": "4.0.0",
+    "@solid-primitives/scroll": "3.0.0",
+    "@solid-primitives/utils": "7.0.0",
     "@types/d3-scale": "4.0.9",
     "@types/d3-shape": "3.1.8",
     "@xyflow/system": "0.0.83",
@@ -337,8 +337,8 @@
     "d3-shape": "3.2.0"
   },
   "peerDependencies": {
-    "@solidjs/web": ">=2.0.0-rc.21 <3.0.0",
-    "solid-js": ">=2.0.0-rc.21 <3.0.0"
+    "@solidjs/web": ">=2.0.0 <3.0.0",
+    "solid-js": ">=2.0.0 <3.0.0"
   },
   "files": [
     "dist",
@@ -348,10 +348,10 @@
     "node": ">=22.12.0"
   },
   "devDependencies": {
-    "@solidjs/vite-plugin": "3.0.0-next.56",
-    "@solidjs/web": "2.0.0-rc.21",
+    "@solidjs/vite-plugin": "3.0.1",
+    "@solidjs/web": "2.0.0",
     "@types/d3-array": "3.2.2",
-    "solid-js": "2.0.0-rc.21",
+    "solid-js": "2.0.0",
     "tsdown": "0.23.0",
     "typescript": "6.0.3",
     "vite": "8.3.0"

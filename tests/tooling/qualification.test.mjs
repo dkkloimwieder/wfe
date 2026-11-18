@@ -21,7 +21,7 @@ test('qualification selects shared toolchain and package changes', () => {
     'packages/components/src/table/engine/index.ts',
     'packages/components/src/internal/controls/select.ts',
     'packages/components/src/table/Table.tsx',
-    'patches/solid-primitives-scroll-3.0.0-next.4.patch',
+    'patches/solid-primitives-scroll-3.0.0.patch',
     'packages/components/src/index.ts',
     'examples/virtualization/NativeApp.tsx',
     'scripts/check-engine-imports.mjs',

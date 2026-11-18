@@ -523,6 +523,17 @@ No full qualification run or performance benchmark accompanies this release.
 The shared machine has high and variable load. Earlier performance results do not establish current timing guarantees.
 Incremental Gantt acceptance work remains tracked in `wfe-5y6`.
 
+## Solid 2.0.0 upgrade
+
+Beads `wfe-0dj.7` tracks the move to Solid `2.0.0`.
+The workspace pins Web, Signals, the compiler and its six platform binaries, and the Babel plugin to `2.0.0`.
+It uses Vite plugin `3.0.1` and testing library `1.0.0-rc.2`.
+The stable primitives require stable Solid 2, and the generated components server code uses Web's new `ssrOption` helper.
+The components package requires `>=2.0.0 <3.0.0` for both peers.
+
+Both [dependency patches](../patches/README.md) apply to the stable primitives.
+The workspace keeps TypeScript 6.0.3, Vitest 4.1.11, Vite 8.3.0, tsdown 0.23.0, and rolldown 1.2.8.
+
 ## Solid RC21 upgrade
 
 Beads `wfe-w2y.52` tracks the coordinated upgrade from RC18 to RC21.

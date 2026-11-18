@@ -188,7 +188,7 @@ The source families below locate the behavior changes described earlier.
 | Nested menu navigation and timer cleanup                                           | `core/src/menu`, `core/src/selection`, and `core/src/tooltip`                                                                                      |
 | Fixed arithmetic measurements and shared virtual modes                             | [Virtual engine repair record](../virtual-core/README.md#local-changes)                                                                            |
 
-The [scroll patch](../../../../../patches/solid-primitives-scroll-3.0.0-next.4.patch) repairs an external primitive's owner registry.
+The [scroll patch](../../../../../patches/solid-primitives-scroll-3.0.0.patch) repairs an external primitive's owner registry.
 It is not a vendored primitive implementation.
 Keep its lockfile association until matched upstream evidence permits removal.
 Beads `table-gd3.6.7.9`, `table-gd3.6.4`, and `table-gd3.6.5` track existing upstream repair retirement gates.

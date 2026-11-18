@@ -1,0 +1,20 @@
+diff --git a/dist/index.js b/dist/index.js
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -315,10 +315,14 @@
+ 			}
+ 		}));
+ 	};
++	ownerDoc.addEventListener("focusin", onFocusIn, true);
+ 	const pointerDownTimeoutId = window.setTimeout(() => {
+-		ownerDoc = el.ownerDocument;
++		if (ownerDoc !== el.ownerDocument) {
++			ownerDoc.removeEventListener("focusin", onFocusIn, true);
++			ownerDoc = el.ownerDocument;
++			ownerDoc.addEventListener("focusin", onFocusIn, true);
++		}
+ 		ownerDoc.addEventListener("pointerdown", onPointerDown, true);
+-		ownerDoc.addEventListener("focusin", onFocusIn, true);
+ 	}, 0);
+ 	return () => {
+ 		window.clearTimeout(pointerDownTimeoutId);
