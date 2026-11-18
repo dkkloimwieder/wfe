@@ -12,9 +12,9 @@ Application records, routing, permissions, validation rules, requests, and persi
 
 ## Current release
 
-Use Git tag [`v0.0.10`](https://github.com/dkkloimwieder/wfe/tree/v0.0.10).
-The [adoption guide](docs/adoption.md#v0010) describes charts, workflow and ERD diagrams, Tree, expanded controls, and the Solid RC21 upgrade.
-The [release verification record](docs/qualification.md#v0010-release) identifies the tested commit and test scope.
+Use Git tag [`v0.0.11`](https://github.com/dkkloimwieder/wfe/tree/v0.0.11).
+The [adoption guide](docs/adoption.md#v0011) describes stable Solid 2, the components peer requirements, and the runtime and toolchain upgrades.
+The [release verification record](docs/qualification.md#v0011-release) identifies the tested commit and test scope.
 
 ## Documentation
 

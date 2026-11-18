@@ -1,13 +1,33 @@
 # Adopt the components
 
-The current checkout targets Solid `2.0.0` with matching runtime and compiler packages.
-It uses Vite plugin `3.0.1` and testing library `1.0.0-rc.2`.
-The components package requires stable Solid 2 and Web 2 for its primitives and server rendering.
+The current release targets Solid `2.0.0` with matching runtime and compiler packages and stable Solid Primitives.
+It uses `@solidjs/vite-plugin` `3.0.1` and the Solid 2 testing library `1.0.0-rc.2`.
+The tagged release records below retain their original dependency versions.
 See [the Solid 2.0.0 upgrade record](qualification.md#solid-200-upgrade).
+
+## v0.0.11
+
+Use Git tag `v0.0.11` for the current library.
+`@wfe/components` requires `solid-js` and `@solidjs/web` `>=2.0.0 <3.0.0`.
+If your application uses release candidates with `@wfe/components`, upgrade both peers to stable Solid 2.
+The other workspace packages retain their peer ranges.
+The interaction and scroll patches now apply to the stable Solid Primitives.
+
+Diagrams use `@xyflow/system` `1.0.0` with the same fit behavior.
+The library keeps its read-only diagram renderer after evaluating Solid Flow in `wfe-w2y.68`.
+`@wfe/sync` uses the per-run readiness API in TanStack DB `1.0.0-rc.1.5` and exposes the `crashed` status.
+The readiness API provides `fail`, `reportError`, `reportHealthy`, and `reload` for each run.
+The release also updates `@preact/signals-core` and D3.
+
+Repository development uses TypeScript `7.0.2`, Vitest `5.1.0`, and Oxlint.
+See [the toolchain record](qualification.md#typescript-7-and-vitest-5-upgrade) for the full set of tools.
+The release repairs TableFilter ref reads, menu and dropdown focus, and keyboard drag collision handling.
+The [release record](qualification.md#v0011-release) identifies the checks and their limits.
+All workspace packages remain private. This tag does not publish packages.
 
 ## v0.0.10
 
-Use Git tag `v0.0.10` for the current library.
+Git tag `v0.0.10` records the preceding library.
 This release adds read-only workflow and ERD diagrams, Tree navigation, calendar ranges, sliders, toggles, and context menus.
 Charts gain layered, polar, transformed, financial, statistical, and time-series examples, with compact overlay placement.
 Applications continue to own records, accepted values, diagram content, and persistence.
@@ -24,7 +44,7 @@ All workspace packages remain private. This tag does not publish packages.
 
 ## v0.0.9
 
-Git tag `v0.0.9` records the preceding library.
+Git tag `v0.0.9` records the earlier library.
 This release includes reusable drag and drop, sortable controls, Kanban presentation, and the controlled Gantt component.
 Applications retain records, ordering, schedules, requests, and persistence.
 

@@ -525,19 +525,22 @@ Incremental Gantt acceptance work remains tracked in `wfe-5y6`.
 
 Beads `wfe-0dj.8` tracks the development toolchain upgrade.
 The root and all five packages use TypeScript `7.0.2` through its public `tsc` binary.
-Vite `8.3.8` and tsdown `0.23.5` share Rolldown `1.2.19`.
+The workspace resolves one TypeScript version.
+Vite `8.3.8` and tsdown `0.23.5` share a single Rolldown `1.2.19`.
+Repository syntax checks and vendor replay use `oxc-parser` `0.159.0` after the compiler API migration in `wfe-0dj.12`.
+Vendor decorator emit, contract checks, consumer symbol probes, and unit configuration checks use the public `tsc` binary.
 The declaration plugin uses TypeScript 7's native CLI.
 The declaration comparison found reordered imports and union members, fewer generated region comments, and equivalent namespace exports for matching ranks.
 The virtual engine declares its memo return type explicitly to preserve the `updateDeps` method signature.
 The unit suite uses Vitest and coverage-v8 `5.1.0` with jsdom `31.0.1`.
-Browser runners use Playwright `1.65.1` with its matching Chromium.
+Browser runners use Playwright `1.65.1` with Chromium `159.0.8154.6`.
 Formatting and package checks use Prettier `3.10.1` and publint `0.3.25`.
 The workspace uses pnpm `12.4.1` and keeps the Solid 2 testing library at `1.0.0-rc.2`.
 
-`pnpm lint` runs Oxlint `1.94.0` with the previous JavaScript and TypeScript syntax rules.
+Oxlint `1.94.0` replaces ESLint for the `pnpm lint` gate and carries over the previous JavaScript and TypeScript syntax rules.
 Two local Oxlint rules preserve the duplicate-parameter and legacy octal checks for JavaScript that parses as a script.
 `pnpm lint:types` adds the recommended type-aware rules through oxlint-tsgolint `7.0.2007`.
-Beads `wfe-0dj.11` tracks those findings independently of qualification.
+Type-aware lint runs separately from the required gate. Beads `wfe-0dj.11` tracks its findings.
 
 ## Solid 2.0.0 upgrade
 
@@ -545,9 +548,10 @@ Beads `wfe-0dj.7` tracks the move to Solid `2.0.0`.
 The workspace pins Web, Signals, the compiler and its six platform binaries, and the Babel plugin to `2.0.0`.
 It uses Vite plugin `3.0.1` and testing library `1.0.0-rc.2`.
 The stable primitives require stable Solid 2, and the generated components server code uses Web's new `ssrOption` helper.
-The components package requires `>=2.0.0 <3.0.0` for both peers.
+The components package requires `>=2.0.0 <3.0.0` for `solid-js` and `@solidjs/web`.
+The other workspace packages retain their declared Solid peer ranges.
 
-Both [dependency patches](../patches/README.md) apply to the stable primitives.
+The interaction and scroll [dependency patches](../patches/README.md) were re-ported to the stable primitives with updated provenance.
 
 ## Solid RC21 upgrade
 
@@ -625,6 +629,7 @@ Rebuild the workspace before reviewing the restored previews.
 
 ## v0.0.10 release
 
+Git tag `v0.0.10` records the preceding library.
 The implementation is recorded through commit `a643231fb67e1dd3003171a57a61b68fbabf6139`.
 The release commit adds the README and adoption references and this verification record.
 The eight implementation commits preserve the tested working-tree contents.
@@ -646,3 +651,37 @@ Local evidence is recorded in `test-results/theme-cohesion/verification.json`, `
 These ignored local files are not distributed release artifacts.
 No fresh full qualification campaign or performance benchmark accompanies this tag.
 The tag does not publish npm packages or assert that earlier qualification limitations are resolved.
+
+## v0.0.11 release
+
+The tested implementation is recorded through commit `3b553b16408d3c4f93dd222334ea10bd3d2528c8`.
+It includes the stable Solid 2 upgrade, runtime updates, and the TypeScript 7 and Vitest 5 toolchain.
+The vendored dnd-kit move helper and virtual-core memo preserve their types with TypeScript 7.
+Keyboard drags retain their collision target when pointer updates arrive.
+
+TableFilter reads forwarded refs without tracking them at attachment.
+Menus keep focus on the item that the focus trap already reached.
+A deferred dropdown close preserves focus when it has moved to another control.
+The component browser runner removes diagnostic listeners when each page closes.
+
+The required `pnpm check` passed 1,591 unit tests across 155 files, 165 Node tests, server rendering, and 35 UI documentation contracts.
+The final `pnpm test:qualification` passed all 152 stages in order on Chromium `159.0.8154.6`.
+Source and built packages each passed 19 builds, 19 browser stages, and 10 hydration stages.
+Development passed 18 builds, 18 browser stages, and 10 hydration stages.
+All ten standalone stages passed.
+Source, package, development, and live each passed 307 component and gallery cases with zero browser errors or warnings.
+The live stage also passed four hot-update checks, and preview isolation passed all ten cases.
+
+The first campaign passed 151 of 152 stages after serial continuation.
+Packaged hydration exposed the deferred dropdown focus race, which a deterministic test also reproduced on `v0.0.10`.
+The final campaign passed after the focus repair.
+Exact repetitions for `wfe-48z` passed nine of ten, with one matching failure. All 15 separate failure-observer replays passed.
+Exact repetitions for `wfe-47e` passed ten of ten. Both investigations remain open.
+Type-aware lint remains outside the required gate under `wfe-0dj.11`.
+
+Chromium `153.0.8010.12` reproduced `ERR_INSUFFICIENT_RESOURCES` when shared-memory allocations reached the host's per-user quota on the `/tmp` mount.
+The host still had free space when the allocations returned `EDQUOT`.
+Chromium `159.0.8154.6` used `memfd` shared-memory regions and passed all 32 navigations in the controlled comparison, with 20,808 completed requests.
+
+Beads `wfe-0dj.10` records the first failure, final matrix, resource measurements, and repetition reports under `/tmp/wfe-0dj-10`.
+All workspace packages remain private. This tag does not publish packages.
