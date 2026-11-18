@@ -41,15 +41,12 @@ patchedDependencies:
   '@solid-primitives/scroll@3.0.0': patches/solid-primitives-scroll-3.0.0.patch
 allowBuilds:
   esbuild: true
-  unrs-resolver: false
 
 # Preserve the exact source dependency verified against the official archive.
 trustPolicyExclude:
   - semver@6.3.1
 
-# Preserve the bundler version tested in the source checkout.
 overrides:
-  rolldown: 1.2.8
   # Qualify the runtime and compilers together.
   '@solidjs/compiler': 2.0.0
   '@solidjs/babel-plugin': 2.0.0

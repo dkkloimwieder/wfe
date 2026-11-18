@@ -5,10 +5,8 @@ Use Node 22.22.2 or newer in the 22.x line, or 24.15.0 or newer in the 24.x line
 Node 26 and newer are also supported.
 Use pnpm 12.4.1.
 The root engine range describes repository development and checks: `^22.22.2 || ^24.15.0 || >=26.0.0`.
-The pinned jsdom 30.0.1 requires that range.
-Other pinned tools also exclude Node 22.12.
-Within 22.x, tsdown 0.23.0 requires Node 22.18 or newer, and ESLint 10 requires Node 22.13 or newer.
-The package manager pin remains pnpm 12.4.1. Dependency versions and the lockfile remain unchanged.
+The pinned jsdom 31.0.1 requires that range.
+The [current toolchain](#typescript-7-and-vitest-5-upgrade) records the compiler, bundler, lint, and test versions used by these checks.
 
 The library packages retain their existing `>=22.12.0` consumer engine declarations.
 Those declarations do not promise that repository development tools run on Node 22.12.
@@ -523,6 +521,24 @@ No full qualification run or performance benchmark accompanies this release.
 The shared machine has high and variable load. Earlier performance results do not establish current timing guarantees.
 Incremental Gantt acceptance work remains tracked in `wfe-5y6`.
 
+## TypeScript 7 and Vitest 5 upgrade
+
+Beads `wfe-0dj.8` tracks the development toolchain upgrade.
+The root and all five packages use TypeScript `7.0.2` through its public `tsc` binary.
+Vite `8.3.8` and tsdown `0.23.5` share Rolldown `1.2.19`.
+The declaration plugin uses TypeScript 7's native CLI.
+The declaration comparison found reordered imports and union members, fewer generated region comments, and equivalent namespace exports for matching ranks.
+The virtual engine declares its memo return type explicitly to preserve the `updateDeps` method signature.
+The unit suite uses Vitest and coverage-v8 `5.1.0` with jsdom `31.0.1`.
+Browser runners use Playwright `1.65.1` with its matching Chromium.
+Formatting and package checks use Prettier `3.10.1` and publint `0.3.25`.
+The workspace uses pnpm `12.4.1` and keeps the Solid 2 testing library at `1.0.0-rc.2`.
+
+`pnpm lint` runs Oxlint `1.94.0` with the previous JavaScript and TypeScript syntax rules.
+Two local Oxlint rules preserve the duplicate-parameter and legacy octal checks for JavaScript that parses as a script.
+`pnpm lint:types` adds the recommended type-aware rules through oxlint-tsgolint `7.0.2007`.
+Beads `wfe-0dj.11` tracks those findings independently of qualification.
+
 ## Solid 2.0.0 upgrade
 
 Beads `wfe-0dj.7` tracks the move to Solid `2.0.0`.
@@ -532,7 +548,6 @@ The stable primitives require stable Solid 2, and the generated components serve
 The components package requires `>=2.0.0 <3.0.0` for both peers.
 
 Both [dependency patches](../patches/README.md) apply to the stable primitives.
-The workspace keeps TypeScript 6.0.3, Vitest 4.1.11, Vite 8.3.0, tsdown 0.23.0, and rolldown 1.2.8.
 
 ## Solid RC21 upgrade
 

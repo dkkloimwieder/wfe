@@ -15,7 +15,10 @@ export function memo<TDeps extends ReadonlyArray<any>, TResult>(
     initialDeps?: TDeps
     skipInitialOnChange?: boolean
   },
-) {
+): {
+  (): TResult
+  updateDeps(newDeps: [...TDeps]): void
+} {
   let deps = opts.initialDeps ?? []
   let result: TResult | undefined
   let isInitial = true

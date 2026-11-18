@@ -40,6 +40,10 @@ export function createDragKeyboard<D>(
         restoreCollision = false
       }
       const disposers = [
+        manager.monitor.addEventListener('collision', (event) => {
+          // A queued observer update can run after keyboard navigation sets the target.
+          if (keyboard) event.preventDefault()
+        }),
         manager.monitor.addEventListener('dragstart', (event) => {
           keyboard = !!event.nativeEvent?.type.startsWith('key')
           if (keyboard && !manager.collisionObserver.disabled) {

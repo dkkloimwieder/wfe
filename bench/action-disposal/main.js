@@ -1,4 +1,3 @@
-/* global window */
 import { action, createRoot, onCleanup, onSettled, flush } from 'solid-js'
 class RetentionRecord {
   constructor(id) {

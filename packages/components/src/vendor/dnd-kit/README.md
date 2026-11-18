@@ -51,7 +51,9 @@ Local repairs and interaction changes:
   mismatch skips the missing field/cell; an empty observer batch does nothing.
 - Assert the final keyframe only after checking its array length. Grouped move
   keys are asserted only after `Object.entries` or own-property lookup proves
-  their membership. Optimistic sorting guards both returned groups.
+  their membership. The explicit `Object.entries<Items>` type argument keeps
+  grouped item callbacks typed under TypeScript 7. Optimistic sorting guards
+  both returned groups.
 - CSS parsing uses empty-string defaults or `Number` conversion, preserving
   the upstream NaN handling for absent components.
 - Reference-count the non-passive window touch listener across all pointer

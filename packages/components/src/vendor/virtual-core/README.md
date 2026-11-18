@@ -22,6 +22,8 @@ Measured rows retain the upstream measurement caches and row observers.
 
 Local declarations type the upstream environment expression for browser-only TypeScript projects.
 Build tools still replace `process.env.NODE_ENV` in browser bundles.
+The explicit `memo` return type preserves the `updateDeps` method signature
+in TypeScript 7 declaration output.
 
 The fixed-size option participates in measurement invalidation and rejects invalid sizes or multiple lanes.
 The unit tests cover one million rows, bounded key reads, page metadata stability, measurements, and disposal.

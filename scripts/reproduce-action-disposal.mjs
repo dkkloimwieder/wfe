@@ -1,4 +1,3 @@
-/* global window, requestAnimationFrame */
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'

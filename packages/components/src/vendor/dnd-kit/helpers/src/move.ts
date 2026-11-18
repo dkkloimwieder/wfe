@@ -136,7 +136,7 @@ function mutate<
   // Grouped/record case. Indexed reads below use keys established by
   // Object.entries or getRecordKey; both prove membership in this snapshot.
 
-  const entries = Object.entries(items);
+  const entries = Object.entries<Items>(items);
 
   let sourceIndex = -1;
   let sourceParent: UniqueIdentifier | undefined;

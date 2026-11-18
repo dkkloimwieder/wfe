@@ -1222,7 +1222,8 @@
 +  // Grouped/record case. Indexed reads below use keys established by
 +  // Object.entries or getRecordKey; both prove membership in this snapshot.
  
-   const entries = Object.entries(items);
+-  const entries = Object.entries(items);
++  const entries = Object.entries<Items>(items);
  
 @@ -189,23 +190,23 @@
      if (srcParent === tgtParent) {

@@ -11,7 +11,7 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 
 export function selectsQualification(paths) {
   return paths.some((path) =>
-    /^(packages\/|patches\/|examples\/|tests\/|scripts\/|docs\/|\.github\/workflows\/|README\.md$|CONTRIBUTING\.md$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|tsconfig\.json$|vitest\.config\.ts$|eslint\.config\.mjs$)/.test(
+    /^(packages\/|patches\/|examples\/|tests\/|scripts\/|docs\/|\.github\/workflows\/|README\.md$|CONTRIBUTING\.md$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|tsconfig\.json$|vitest\.config\.ts$|\.oxlintrc(?:\.types)?\.json$)/.test(
       path,
     ),
   )

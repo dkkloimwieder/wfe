@@ -352,9 +352,9 @@
     "@solidjs/web": "2.0.0",
     "@types/d3-array": "3.2.2",
     "solid-js": "2.0.0",
-    "tsdown": "0.23.0",
-    "typescript": "6.0.3",
-    "vite": "8.3.0"
+    "tsdown": "0.23.5",
+    "typescript": "7.0.2",
+    "vite": "8.3.8"
   },
   "wfeBuildInputs": [
     "../../scripts/lib/tsc.mjs",
