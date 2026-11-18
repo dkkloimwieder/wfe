@@ -43,8 +43,17 @@ export function DropdownMenuContent<T extends ValidComponent = 'div'>(
     props.onCloseAutoFocus?.(e)
     if (e.defaultPrevented) return
 
-    if (!hasInteractedOutside) {
-      context.triggerRef()?.focus({ preventScroll: true })
+    const trigger = context.triggerRef()
+    if (!hasInteractedOutside && trigger && !context.isOpen()) {
+      const { activeElement, body } = trigger.ownerDocument
+      // A deferred close can run after Escape or an app moved focus elsewhere.
+      if (
+        !activeElement ||
+        activeElement === body ||
+        context.contentRef()?.contains(activeElement) ||
+        context.nestedMenus().some((menu) => menu.contains(activeElement))
+      )
+        trigger.focus({ preventScroll: true })
     }
 
     hasInteractedOutside = false

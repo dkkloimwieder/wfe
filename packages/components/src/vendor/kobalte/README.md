@@ -24,6 +24,9 @@ This prevents an earlier empty focusable snapshot from moving focus off the firs
 Caller initial-focus callbacks still run before the preservation guard.
 The deferred menu-opening task also preserves focus when the intended item already has it.
 The provenance records the prior local hash for this repair.
+When a dropdown closes, it restores focus to its trigger if focus stays in the menu or returns to the document.
+The deferred handler leaves focus on the next control after Escape.
+If the menu reopens before the handler runs, the handler leaves focus alone.
 Menus use direct presence because their transition duration is zero.
 This avoids the animation helper's forced body measurement and preserves `forceMount` for caller-owned transitions.
 Popper keeps anchor layout observation by default and exposes `observeAnchorLayout` for fixed viewport-point anchors.

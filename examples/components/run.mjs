@@ -69,7 +69,7 @@ await withArtifactRun(
       timing: [],
     }
     let browser, server
-    const detachDiagnostics = []
+    const activeDiagnostics = new Set()
     const output = artifacts.reportPath
     try {
       report.groups = selectGroups({ components: true })
@@ -179,18 +179,23 @@ await withArtifactRun(
             return setAttribute.call(this, name, value)
           }
         })
-        detachDiagnostics.push(
-          attachDiagnostics(page, report, {
-            console: ({ type, text }) => {
-              if (!['warning', 'error'].includes(type)) return 'observe'
-              if (text.startsWith('[HOT_SCOPE_TIME]')) {
-                report.timing.push(text)
-                return 'observe'
-              }
-              return 'reject'
-            },
-          }),
-        )
+        const detach = attachDiagnostics(page, report, {
+          console: ({ type, text }) => {
+            if (!['warning', 'error'].includes(type)) return 'observe'
+            if (text.startsWith('[HOT_SCOPE_TIME]')) {
+              report.timing.push(text)
+              return 'observe'
+            }
+            return 'reject'
+          },
+        })
+        const closeDiagnostics = () => {
+          page.off('close', closeDiagnostics)
+          detach()
+          activeDiagnostics.delete(closeDiagnostics)
+        }
+        activeDiagnostics.add(closeDiagnostics)
+        page.once('close', closeDiagnostics)
         return page
       }
       let page = await createPage()
@@ -1038,7 +1043,7 @@ await withArtifactRun(
           // Closing the owned browser also releases its protocol sessions.
           // Detaching a target during an interrupted navigation can stall.
           { name: 'browser', close: () => browser?.close() },
-          ...detachDiagnostics.map((detach, index) => ({
+          ...[...activeDiagnostics].map((detach, index) => ({
             name: `page diagnostics ${index + 1}`,
             close: detach,
           })),

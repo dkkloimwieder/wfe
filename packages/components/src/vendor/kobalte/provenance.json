@@ -808,7 +808,8 @@
     },
     "core/src/dropdown-menu/dropdown-menu-content.tsx": {
       "upstreamSha256": "9f520d042ae605fb8faf800cd2343cf21485aae1c02374399795bd7b9eef94c8",
-      "localSha256": "5851aaded9ed69b77bef6e66872067b7ab86e7c893ba346254932b03f1d0b5c9"
+      "capturedLocalSha256": "5851aaded9ed69b77bef6e66872067b7ab86e7c893ba346254932b03f1d0b5c9",
+      "localSha256": "f429ab2b77acb0624b0abbf36c1a8fce60fed33e89748f913bc8f14cc6205351"
     },
     "core/src/dropdown-menu/dropdown-menu-root.tsx": {
       "upstreamSha256": "eb55642ca844e9a1596f4588aa0dbc07e73e71d0ecb9dbd82daf5bd1624f31ee",

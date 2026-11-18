@@ -38,6 +38,37 @@ test('deferred opening leaves focus on the dropdown item that already received i
   expect(document.activeElement).toBe(item)
 })
 
+test('deferred close preserves focus that moved after Escape', () => {
+  vi.useFakeTimers()
+  const h = render(() => (
+    <>
+      <Fixture />
+      <button>Next control</button>
+    </>
+  ))
+  flush()
+  const trigger = h.getByRole('group', { name: 'Record' })
+  const next = h.getByRole('button', { name: 'Next control' })
+  trigger.focus()
+  fireEvent.keyDown(trigger, { key: 'F10', shiftKey: true })
+  flush()
+  const item = h.getByRole('menuitem', { name: 'Inspect' })
+  item.focus()
+  vi.runOnlyPendingTimers()
+  flush()
+
+  fireEvent.keyDown(item, { key: 'Escape' })
+  flush()
+  expect(h.queryByRole('menu')).toBeNull()
+  expect(document.activeElement).toBe(trigger)
+  next.focus()
+  vi.runOnlyPendingTimers()
+  flush()
+  vi.runOnlyPendingTimers()
+  flush()
+  expect(document.activeElement).toBe(next)
+})
+
 test('zero-duration menu mounting does not measure the document body', async () => {
   const measure = vi.spyOn(document.body, 'offsetHeight', 'get')
   const h = render(() => <Fixture />)
