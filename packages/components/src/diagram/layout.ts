@@ -1,4 +1,4 @@
-import { diagramGraph } from './geometry'
+import { resolveDiagram } from './geometry'
 import type {
   DiagramEdge,
   DiagramLayoutOptions,
@@ -17,7 +17,7 @@ export function layoutDiagram<N, E>(
   if (![nodeGap, rankGap].every((gap) => Number.isFinite(gap) && gap >= 0))
     throw new Error('Diagram layout gaps must be finite nonnegative numbers')
   // Reuse graph validation, including named ports, without requiring input coordinates.
-  diagramGraph(
+  resolveDiagram(
     nodes.map((node) => ({ ...node, x: 0, y: 0 })),
     edges,
   )

@@ -11,7 +11,7 @@ import { Collapsible } from '../components/Collapsible'
 import { Button } from '../components/NativeFields'
 import { styledClasses } from '../internal/classes'
 import { layoutDiagram } from './layout'
-import { diagramGraph, fitDiagram, zoomDiagram } from './geometry'
+import { prepareDiagram, fitDiagram, zoomDiagram } from './geometry'
 import type {
   DiagramNode,
   DiagramProps,
@@ -53,9 +53,7 @@ export function Diagram<N, E>(props: DiagramProps<N, E>) {
         )
       : measuredNodes(),
   )
-  const graph = createMemo(() =>
-    diagramGraph(positionedNodes(), props.edges, cornerRadius()),
-  )
+  const graph = createMemo(() => prepareDiagram(positionedNodes(), props.edges))
   const measureNode = (id: string, height: number) => {
     if (height > 0 && nodeHeights().get(id) !== height)
       setNodeHeights((previous) => new Map(previous).set(id, height))
@@ -282,69 +280,76 @@ export function Diagram<N, E>(props: DiagramProps<N, E>) {
               </defs>
             </svg>
             <For each={graph().paths} keyed={(row) => row.edge.id}>
-              {(row) => (
-                <svg
-                  class="ui-diagram-edges"
-                  data-diagram-edge={row().edge.id}
-                  data-selected={
-                    selected('edge', row().edge.id) ? '' : undefined
-                  }
-                  role="button"
-                  onFocus={() =>
-                    reveal(row().labelX - 60, row().labelY - 20, 120, 40)
-                  }
-                  tabindex={0}
-                  aria-label={row().description}
-                  aria-pressed={
-                    selected('edge', row().edge.id) ? 'true' : 'false'
-                  }
-                  onClick={() => select('edge', row().edge.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.preventDefault()
-                      select('edge', row().edge.id)
+              {(row) => {
+                const path = createMemo(() => row().path(cornerRadius()))
+                return (
+                  <svg
+                    class="ui-diagram-edges"
+                    data-diagram-edge={row().edge.id}
+                    data-selected={
+                      selected('edge', row().edge.id) ? '' : undefined
                     }
-                  }}
-                >
-                  <path class="ui-diagram-edge-hit" d={row().path} />
-                  <Show when={selected('edge', row().edge.id)}>
+                    role="button"
+                    onFocus={() =>
+                      reveal(row().labelX - 60, row().labelY - 20, 120, 40)
+                    }
+                    tabindex={0}
+                    aria-label={row().description}
+                    aria-pressed={
+                      selected('edge', row().edge.id) ? 'true' : 'false'
+                    }
+                    onClick={() => select('edge', row().edge.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        select('edge', row().edge.id)
+                      }
+                    }}
+                  >
+                    <path class="ui-diagram-edge-hit" d={path()} />
+                    <Show when={selected('edge', row().edge.id)}>
+                      <path
+                        class="ui-diagram-edge-halo ui-diagram-edge-halo-blur"
+                        d={path()}
+                        marker-end={`url(#${id}-arrow)`}
+                        aria-hidden="true"
+                      />
+                      <path
+                        class="ui-diagram-edge-halo ui-diagram-edge-halo-core"
+                        d={path()}
+                        marker-end={`url(#${id}-arrow)`}
+                        aria-hidden="true"
+                      />
+                    </Show>
                     <path
-                      class="ui-diagram-edge-halo ui-diagram-edge-halo-blur"
-                      d={row().path}
+                      class="ui-diagram-edge-line"
+                      d={path()}
                       marker-end={`url(#${id}-arrow)`}
-                      aria-hidden="true"
                     />
-                    <path
-                      class="ui-diagram-edge-halo ui-diagram-edge-halo-core"
-                      d={row().path}
-                      marker-end={`url(#${id}-arrow)`}
-                      aria-hidden="true"
-                    />
-                  </Show>
-                  <path
-                    class="ui-diagram-edge-line"
-                    d={row().path}
-                    marker-end={`url(#${id}-arrow)`}
-                  />
-                  <Show when={props.showEdgeLabels !== false}>
-                    <rect
-                      class="ui-diagram-edge-label-background"
-                      x={row().labelX - (row().edge.label.length * 7 + 12) / 2}
-                      y={row().labelY - 22}
-                      width={row().edge.label.length * 7 + 12}
-                      height={20}
-                    />
-                    <text
-                      class="ui-diagram-edge-label"
-                      x={row().labelX}
-                      y={row().labelY - 8}
-                      text-anchor="middle"
+                    <Show
+                      when={
+                        props.showEdgeLabels !== false && row().labelVisible
+                      }
                     >
-                      {row().edge.label}
-                    </text>
-                  </Show>
-                </svg>
-              )}
+                      <rect
+                        class="ui-diagram-edge-label-background"
+                        x={row().labelX - row().labelWidth / 2}
+                        y={row().labelY - 22}
+                        width={row().labelWidth}
+                        height={20}
+                      />
+                      <text
+                        class="ui-diagram-edge-label"
+                        x={row().labelX}
+                        y={row().labelY - 8}
+                        text-anchor="middle"
+                      >
+                        {row().edge.label}
+                      </text>
+                    </Show>
+                  </svg>
+                )
+              }}
             </For>
             <For each={props.nodes} keyed={(node) => node.id}>
               {(node) => (

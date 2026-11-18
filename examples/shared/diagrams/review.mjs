@@ -1,4 +1,5 @@
 import { expect } from '@playwright/test'
+import { diagramIntersections } from './intersections.mjs'
 async function expectNodesSeparated(root) {
   await expect
     .poll(() =>
@@ -68,6 +69,7 @@ export async function reviewDiagram(page, kind) {
       )
     expect(sources[0]).not.toBe(sources[1])
   }
+  if (kind === 'erd') await expectClearConnections(root)
   const connection = root.locator('.ui-diagram-edge-line').first()
   await root.getByRole('button', { name: 'Curved', exact: true }).click()
   await expect(connection).toHaveAttribute('d', /C/)
@@ -110,6 +112,7 @@ export async function reviewDiagram(page, kind) {
       .poll(() => card.evaluate((node) => node.offsetHeight))
       .toBeGreaterThan(originalHeight)
     await expectNodesSeparated(root)
+    await expectClearConnections(root)
     await expect
       .poll(() =>
         body.evaluate((node) => node.scrollHeight <= node.clientHeight),
@@ -319,6 +322,12 @@ export async function reviewDiagram(page, kind) {
   if (kind === 'workflow') await reviewLargeWorkflow(page, root)
 }
 
+async function expectClearConnections(root) {
+  await expect
+    .poll(() => diagramIntersections(root))
+    .toEqual({ paths: [], labels: [] })
+}
+
 async function reviewLargeWorkflow(page, root) {
   await root
     .getByRole('button', { name: 'Large workflow', exact: true })
@@ -330,6 +339,7 @@ async function reviewLargeWorkflow(page, root) {
   )
   await expect(root.locator('.ui-diagram-edge-label')).toHaveCount(0)
   await expectNodesSeparated(root)
+  await expectClearConnections(root)
   const canvas = root.locator('.ui-diagram-surface')
   await canvas.scrollIntoViewIfNeeded()
   await root.getByRole('button', { name: 'Fit diagram', exact: true }).click()
@@ -414,6 +424,7 @@ async function reviewLargeWorkflow(page, root) {
   for (const name of ['Manual layout', 'Automatic layout']) {
     await root.getByRole('button', { name, exact: true }).click()
     await expectNodesSeparated(root)
+    await expectClearConnections(root)
     await expect(inspect).toHaveAttribute('aria-pressed', 'true')
     expect(await retained.evaluate((node) => node.isConnected)).toBe(true)
   }
