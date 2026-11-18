@@ -3,24 +3,6 @@ packages:
   - examples/*
 
 minimumReleaseAge: 1440
-# Exact releases explicitly approved for this upgrade. Automatic upgrades retain the age rule.
-minimumReleaseAgeExclude:
-  - '@solidjs/vite-plugin@3.0.1'
-  - '@solid-primitives/a11y@1.0.0'
-  - '@solid-primitives/controlled-signal@1.0.0'
-  - '@solid-primitives/focus@1.0.0'
-  - '@solid-primitives/form@1.0.0'
-  - '@solid-primitives/interaction@1.0.0'
-  - '@solid-primitives/platform@1.0.0'
-  - '@solid-primitives/presence@1.0.0'
-  - '@solid-primitives/static-store@1.0.0'
-  - '@solid-primitives/keyboard@2.0.0'
-  - '@solid-primitives/rootless@2.0.0'
-  - '@solid-primitives/event-listener@3.0.0'
-  - '@solid-primitives/i18n@3.0.0'
-  - '@solid-primitives/scroll@3.0.0'
-  - '@solid-primitives/props@4.0.0'
-  - '@solid-primitives/utils@7.0.0'
 linkWorkspacePackages: true
 preferWorkspacePackages: true
 blockExoticSubdeps: true
