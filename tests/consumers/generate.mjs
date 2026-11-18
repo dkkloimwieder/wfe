@@ -1,8 +1,17 @@
 // After a package build, run with --write to refresh the plain TypeScript files.
 import assert from 'node:assert/strict'
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import ts from 'typescript'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+import { dirname, resolve } from 'node:path'
+import { parseSync } from 'oxc-parser'
+import { runTsc } from '../../scripts/lib/tsc.mjs'
 import { format, resolveConfig } from 'prettier'
 import { packages, root } from './packages.mjs'
 
@@ -23,17 +32,166 @@ const entries = packages.flatMap(({ name, directory, manifest }) =>
       }
     }),
 )
-const program = ts.createProgram(
-  entries.map(({ declaration }) => declaration),
-  {
-    module: ts.ModuleKind.NodeNext,
-    moduleResolution: ts.ModuleResolutionKind.NodeNext,
-    strict: true,
-    skipLibCheck: true,
-    types: [],
-  },
+// The build emits ESM declaration modules. Oxc supplies their named exports
+// and local re-export edges. tsc still resolves the public imports and decides
+// whether each exported symbol can be used as a value.
+const modules = new Map()
+function declarationModule(path) {
+  if (modules.has(path)) return modules.get(path)
+  assert.ok(existsSync(path), `Build packages first: missing ${path}`)
+  const { program, module, errors } = parseSync(
+    path,
+    readFileSync(path, 'utf8'),
+  )
+  assert.deepEqual(
+    errors.map(({ message }) => message),
+    [],
+    path,
+  )
+  assert.ok(module.hasModuleSyntax, `No declaration module: ${path}`)
+  const declarations = new Map()
+  for (const statement of program.body) {
+    const declaration = statement.declaration ?? statement
+    if (declaration.id && declaration.typeParameters?.params.length)
+      declarations.set(declaration.id.name, declaration.typeParameters.params)
+  }
+  const named = new Map()
+  const stars = []
+  for (const { entries } of module.staticExports)
+    for (const item of entries) {
+      if (item.importName.kind === 'AllButDefault')
+        stars.push(item.moduleRequest.value)
+      else if (item.exportName.kind !== 'None')
+        named.set(item.exportName.name ?? 'default', item)
+    }
+  const result = { named, stars, declarations }
+  modules.set(path, result)
+  return result
+}
+
+function declarationPath(path, specifier) {
+  assert.ok(
+    specifier.startsWith('.'),
+    `${path}: expected a local declaration edge: ${specifier}`,
+  )
+  const target = resolve(dirname(path), specifier)
+  const found = [
+    target.replace(/\.([cm]?)js$/, '.d.$1ts'),
+    target + '.d.ts',
+    resolve(target, 'index.d.ts'),
+  ].find(existsSync)
+  assert.ok(found, `${path}: missing built declaration for ${specifier}`)
+  return found
+}
+
+function namedExports(path, active = new Set()) {
+  if (active.has(path)) return new Map()
+  active.add(path)
+  const { named, stars } = declarationModule(path)
+  const result = new Map(
+    [...named].map(([name, item]) => [name, { path, item }]),
+  )
+  for (const specifier of stars)
+    for (const [name, binding] of namedExports(
+      declarationPath(path, specifier),
+      active,
+    )) {
+      if (name === 'default' || named.has(name)) continue
+      const previous = result.get(name)
+      assert.ok(
+        !previous || previous.item === binding.item,
+        `${path}: ambiguous export ${name}`,
+      )
+      result.set(name, binding)
+    }
+  active.delete(path)
+  return result
+}
+
+function requiredParameters(binding, seen = new Set()) {
+  const { path, item } = binding
+  assert.ok(!seen.has(item), `${path}: cyclic declaration alias`)
+  seen.add(item)
+  if (item.moduleRequest) {
+    const name = item.importName.name ?? 'default'
+    const target = declarationPath(path, item.moduleRequest.value)
+    const imported = namedExports(target).get(name)
+    assert.ok(imported, `${target}: missing declaration for ${name}`)
+    return requiredParameters(imported, seen)
+  }
+  return (
+    declarationModule(path).declarations.get(item.localName.name) ?? []
+  ).filter((parameter) => !parameter.default)
+}
+
+function inspectSymbols(exports) {
+  const scratch = mkdtempSync(resolve(root, 'tests/consumers/.symbols-'))
+  try {
+    const filename = resolve(scratch, 'symbols.ts')
+    const lines = []
+    const probes = new Map()
+    for (const [index, exported] of exports.entries()) {
+      lines.push(
+        `import type { ${exported.name} as Symbol${index} } from ${JSON.stringify(exported.specifier)}`,
+      )
+      lines.push(`export type Value${index} = typeof Symbol${index}`)
+      probes.set(lines.length, { exported, kind: 'value' })
+      lines.push(`export type Type${index} = Symbol${index}`)
+      probes.set(lines.length, { exported, kind: 'type' })
+      exported.value = true
+      exported.generic = false
+    }
+    writeFileSync(filename, lines.join('\n'))
+    const config = resolve(scratch, 'tsconfig.json')
+    writeFileSync(
+      config,
+      JSON.stringify({
+        compilerOptions: {
+          module: 'NodeNext',
+          strict: true,
+          skipLibCheck: true,
+          noEmit: true,
+          types: [],
+        },
+        files: [filename],
+      }),
+    )
+    const result = runTsc(['--project', config, '--pretty', 'false'], {
+      cwd: scratch,
+    })
+    const diagnostics = (result.stdout + result.stderr).trim()
+    if (!diagnostics)
+      assert.equal(result.status, 0, 'TypeScript export probes failed')
+    for (const line of diagnostics ? diagnostics.split(/\r?\n/) : []) {
+      const match = /^symbols\.ts\((\d+),\d+\): error TS(\d+):/.exec(line)
+      const probe = probes.get(Number(match?.[1]))
+      const code = match?.[2]
+      if (probe?.kind === 'value' && code === '2693')
+        probe.exported.value = false
+      else if (probe?.kind === 'type' && ['2314', '2707'].includes(code))
+        probe.exported.generic = true
+      else if (!(
+        probe?.kind === 'type' &&
+        probe.exported.value &&
+        ['2709', '2749'].includes(code)
+      )) {
+        throw new Error(
+          `Unexpected compiler diagnostic while inspecting consumer exports:\n${line}`,
+        )
+      }
+    }
+  } finally {
+    rmSync(scratch, { recursive: true, force: true })
+  }
+}
+
+const exportsByEntry = entries.map(({ declaration, specifier }) =>
+  [...namedExports(declaration)]
+    .filter(([name]) => name !== 'default')
+    .map(([name, binding]) => ({ name, binding, specifier }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'en')),
 )
-const checker = program.getTypeChecker()
+inspectSymbols(exportsByEntry.flat())
 const row = '{ id: string; value: string }'
 const generatorType = (name) => `import('@wfe/generator').${name}`
 // Concrete arguments keep conditional and indexed types meaningful. Unconstrained
@@ -78,40 +236,25 @@ const argumentsByName = {
 }
 const prettier = await resolveConfig(resolve(root, 'package.json'))
 const counts = new Map()
-for (const entry of entries) {
-  const source = program.getSourceFile(entry.declaration)
-  assert.ok(source, `Build packages first: missing ${entry.declaration}`)
-  const module = checker.getSymbolAtLocation(source)
-  assert.ok(module, `No declaration module: ${entry.declaration}`)
-  const exports = checker
-    .getExportsOfModule(module)
-    .filter((symbol) => symbol.name !== 'default')
-    .sort((a, b) => a.name.localeCompare(b.name, 'en'))
+for (const [index, entry] of entries.entries()) {
+  const exports = exportsByEntry[index]
   assert.ok(exports.length, `No named exports: ${entry.specifier}`)
   const fields = exports.map((exported) => {
-    const symbol =
-      exported.flags & ts.SymbolFlags.Alias
-        ? checker.getAliasedSymbol(exported)
-        : exported
     let type = exported.name
-    if (symbol.flags & ts.SymbolFlags.Value) {
+    if (exported.value) {
       type = `typeof ${type}`
-    } else {
-      const declaration = symbol.declarations?.find(
-        (node) => node.typeParameters?.length,
+    } else if (exported.generic) {
+      const required = requiredParameters(exported.binding)
+      assert.ok(
+        required.length,
+        `Cannot locate type parameters for ${entry.specifier}: ${exported.name}`,
       )
-      const required =
-        declaration?.typeParameters?.filter(
-          (parameter) => !parameter.default,
-        ) ?? []
-      if (required.length) {
-        const args = argumentsByName[exported.name]
-        assert.ok(
-          args || required.every((parameter) => !parameter.constraint),
-          `Add concrete type arguments for ${entry.specifier}: ${exported.name}`,
-        )
-        type += `<${args ?? required.map(() => 'unknown').join(', ')}>`
-      }
+      const args = argumentsByName[exported.name]
+      assert.ok(
+        args || required.every((parameter) => !parameter.constraint),
+        `Add concrete type arguments for ${entry.specifier}: ${exported.name}`,
+      )
+      type += `<${args ?? required.map(() => 'unknown').join(', ')}>`
     }
     return `  ${exported.name}: ${type}`
   })

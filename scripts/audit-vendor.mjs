@@ -14,7 +14,12 @@ import { dirname, relative, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import { fileURLToPath } from 'node:url'
 import { gzipSync } from 'node:zlib'
-import ts from 'typescript'
+import {
+  isStringLiteral,
+  parseSource,
+  staticImportSource,
+  walkSource,
+} from './lib/source-syntax.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const { values } = parseArgs({
@@ -110,40 +115,26 @@ function imports(path, text) {
     }))
   }
   const result = []
-  const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true)
-  function visit(node) {
-    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
-      if (node.moduleSpecifier) {
-        assert.ok(ts.isStringLiteral(node.moduleSpecifier), path)
-        const clause = node.importClause
-        const bindings = clause?.namedBindings ?? node.exportClause
-        const namedTypes =
-          bindings &&
-          (ts.isNamedImports(bindings) || ts.isNamedExports(bindings)) &&
-          bindings.elements.length > 0 &&
-          bindings.elements.every((element) => element.isTypeOnly)
-        result.push({
-          name: node.moduleSpecifier.text,
-          typeOnly: Boolean(
-            node.isTypeOnly ||
-            clause?.isTypeOnly ||
-            (!clause?.name && namedTypes),
-          ),
-        })
-      }
-    } else if (
-      ts.isCallExpression(node) &&
-      node.expression.kind === ts.SyntaxKind.ImportKeyword
-    ) {
+  walkSource(parseSource(path, text), (node) => {
+    const specifier = staticImportSource(node)
+    if (specifier) {
+      assert.ok(isStringLiteral(specifier), path)
+      const typeOnly =
+        node.importKind === 'type' ||
+        node.exportKind === 'type' ||
+        (node.specifiers?.length > 0 &&
+          node.specifiers.every(
+            (item) => item.importKind === 'type' || item.exportKind === 'type',
+          ))
+      result.push({ name: specifier.value, typeOnly })
+    } else if (node.type === 'ImportExpression') {
       assert.ok(
-        ts.isStringLiteral(node.arguments[0]),
+        isStringLiteral(node.source),
         `${path}: dynamic import needs a literal`,
       )
-      result.push({ name: node.arguments[0].text, typeOnly: false })
+      result.push({ name: node.source.value, typeOnly: false })
     }
-    ts.forEachChild(node, visit)
-  }
-  visit(source)
+  })
   return result
 }
 for (const path of sourceFiles) {

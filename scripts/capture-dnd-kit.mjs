@@ -4,7 +4,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
-import ts from 'typescript'
+import {
+  isStringLiteral,
+  parseSource,
+  staticImportSource,
+  walkSource,
+} from './lib/source-syntax.mjs'
 
 const vendor = fileURLToPath(
   new URL('../packages/components/src/vendor/dnd-kit/', import.meta.url),
@@ -66,52 +71,23 @@ for (const [local, source] of Object.entries(manifest.sources)) {
     throw new Error(`Upstream hash mismatch: ${source.upstreamPath}`)
   let text = original.toString()
   if (local.endsWith('.ts')) {
-    const parsed = ts.createSourceFile(
-      local,
-      text,
-      ts.ScriptTarget.Latest,
-      true,
-    )
     const edits = []
-    function visit(node) {
-      let literal
-      if (
-        (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
-        node.moduleSpecifier &&
-        ts.isStringLiteral(node.moduleSpecifier)
-      )
-        literal = node.moduleSpecifier
-      else if (
-        ts.isImportTypeNode(node) &&
-        ts.isLiteralTypeNode(node.argument) &&
-        ts.isStringLiteral(node.argument.literal)
-      )
-        literal = node.argument.literal
-      else if (
-        ts.isCallExpression(node) &&
-        node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-        node.arguments[0] &&
-        ts.isStringLiteral(node.arguments[0])
-      )
-        literal = node.arguments[0]
-      if (literal) {
-        const destination = resolveImport(input, literal.text)
-        if (destination) {
-          let relative = path.posix.relative(
-            path.posix.dirname(local),
-            destination,
-          )
-          if (!relative.startsWith('.')) relative = `./${relative}`
-          edits.push({
-            start: literal.getStart(parsed) + 1,
-            end: literal.end - 1,
-            text: relative,
-          })
-        }
-      }
-      ts.forEachChild(node, visit)
-    }
-    visit(parsed)
+    walkSource(parseSource(local, text), (node) => {
+      const literal =
+        node.type === 'ImportExpression' || node.type === 'TSImportType'
+          ? node.source
+          : staticImportSource(node)
+      if (!isStringLiteral(literal)) return
+      const destination = resolveImport(input, literal.value)
+      if (!destination) return
+      let relative = path.posix.relative(path.posix.dirname(local), destination)
+      if (!relative.startsWith('.')) relative = `./${relative}`
+      edits.push({
+        start: literal.start + 1,
+        end: literal.end - 1,
+        text: relative,
+      })
+    })
     for (const edit of edits.sort((a, b) => b.start - a.start))
       text = text.slice(0, edit.start) + edit.text + text.slice(edit.end)
   }

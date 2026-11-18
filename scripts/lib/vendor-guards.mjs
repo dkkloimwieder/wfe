@@ -3,7 +3,12 @@ import { createHash } from 'node:crypto'
 import { readdir, lstat, realpath } from 'node:fs/promises'
 import { resolve, dirname, relative, isAbsolute } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import {
+  isStringLiteral,
+  parseSource,
+  staticImportSource,
+  walkSource,
+} from './source-syntax.mjs'
 
 export const hashBytes = (bytes) =>
   createHash('sha256').update(bytes).digest('hex')
@@ -46,36 +51,27 @@ export async function exactFiles(root, expected) {
 }
 
 export function collectLiteralImports(source, name) {
-  const ast = ts.createSourceFile(name, source, ts.ScriptTarget.Latest, true)
   const imports = []
-  function inspect(node) {
-    const dynamic =
-      ts.isCallExpression(node) &&
-      (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
-        (ts.isIdentifier(node.expression) &&
-          node.expression.text === 'require'))
-    const specifier =
-      ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
-        ? node.moduleSpecifier
-        : ts.isImportEqualsDeclaration(node) &&
-            ts.isExternalModuleReference(node.moduleReference)
+  walkSource(parseSource(name, source), (node) => {
+    const isRequire =
+      node.type === 'CallExpression' &&
+      node.callee.type === 'Identifier' &&
+      node.callee.name === 'require'
+    const dynamic = isRequire || node.type === 'ImportExpression'
+    const specifier = isRequire
+      ? node.arguments[0]
+      : node.type === 'ImportExpression' || node.type === 'TSImportType'
+        ? node.source
+        : node.type === 'TSImportEqualsDeclaration' &&
+            node.moduleReference.type === 'TSExternalModuleReference'
           ? node.moduleReference.expression
-          : ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)
-            ? node.argument.literal
-            : dynamic
-              ? node.arguments[0]
-              : undefined
+          : staticImportSource(node)
     if (dynamic) assert.ok(specifier, `Missing dynamic import target: ${name}`)
     if (specifier) {
-      assert.ok(
-        ts.isStringLiteral(specifier),
-        `Nonliteral vendor import: ${name}`,
-      )
-      imports.push(specifier.text)
+      assert.ok(isStringLiteral(specifier), `Nonliteral vendor import: ${name}`)
+      imports.push(specifier.value)
     }
-    ts.forEachChild(node, inspect)
-  }
-  inspect(ast)
+  })
   return imports
 }
 

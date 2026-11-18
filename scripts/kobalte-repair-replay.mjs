@@ -6,7 +6,13 @@ import { fileURLToPath } from 'node:url'
 import { spawnSync } from 'node:child_process'
 import { parseArgs } from 'node:util'
 import * as prettier from 'prettier'
-import ts from 'typescript'
+import parser from 'oxc-parser/package.json' with { type: 'json' }
+import {
+  isStringLiteral,
+  parseSource,
+  staticImportSource,
+  walkSource,
+} from './lib/source-syntax.mjs'
 
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const sourcePath = (path) => (path === 'LICENSE.md' ? path : `packages/${path}`)
@@ -19,23 +25,15 @@ function inside(root, path) {
 // Only an exact static module specifier is rewritten. New owned-helper imports
 // and changed bindings remain in the residual repair patch.
 export function redirectUtils(source, path) {
-  const ast = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true)
   const replacements = []
-  for (const statement of ast.statements) {
-    const specifier =
-      (ts.isImportDeclaration(statement) ||
-        ts.isExportDeclaration(statement)) &&
-      statement.moduleSpecifier
-    if (
-      specifier &&
-      ts.isStringLiteral(specifier) &&
-      specifier.text === '@kobalte/utils'
-    ) {
+  for (const statement of parseSource(path, source).body) {
+    const specifier = staticImportSource(statement)
+    if (isStringLiteral(specifier) && specifier.value === '@kobalte/utils') {
       let target = posix.relative(posix.dirname(path), 'utils/src/index.ts')
       if (!target.startsWith('.')) target = './' + target
       replacements.push({
-        start: specifier.getStart(ast) + 1,
-        end: specifier.getEnd() - 1,
+        start: specifier.start + 1,
+        end: specifier.end - 1,
         target,
       })
     }
@@ -122,13 +120,25 @@ export async function replayKobalte({ root, upstream, archive, output }) {
         : 'No residual after explicit formatter/import stages.',
     })
     if (isSource) {
-      for (const imported of ts.preProcessFile(local.toString(), true)
-        .importedFiles) {
-        if (!imported.fileName.startsWith('.')) continue
-        const target = resolve(
-          dirname(resolve(vendor, path)),
-          imported.fileName,
+      const imports = []
+      const text = local.toString()
+      walkSource(parseSource(path, text), (node) => {
+        const specifier =
+          node.type === 'ImportExpression' || node.type === 'TSImportType'
+            ? node.source
+            : node.type === 'TSImportEqualsDeclaration'
+              ? node.moduleReference.expression
+              : staticImportSource(node)
+        if (
+          isStringLiteral(specifier) ||
+          (specifier?.type === 'TemplateLiteral' &&
+            !specifier.expressions.length)
         )
+          imports.push(text.slice(specifier.start + 1, specifier.end - 1))
+      })
+      for (const specifier of imports) {
+        if (!specifier.startsWith('.')) continue
+        const target = resolve(dirname(resolve(vendor, path)), specifier)
         if (target.startsWith(vendor + sep)) continue
         const ownedRoot = resolve(root, 'packages/components/src')
         assert.ok(
@@ -197,7 +207,7 @@ export async function replayKobalte({ root, upstream, archive, output }) {
     provenanceSha256: hash(provenanceBytes),
     toolSha256: hash(await readFile(fileURLToPath(import.meta.url))),
     lockfileSha256: hash(await readFile(resolve(root, 'pnpm-lock.yaml'))),
-    parserVersion: ts.version,
+    parserVersion: parser.version,
     formatter: {
       version: prettier.version,
       entrySha256: hash(

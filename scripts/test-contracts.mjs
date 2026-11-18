@@ -3,10 +3,11 @@ import {
   contracts,
   typeScriptFences,
 } from './coverage-inventory.mjs'
-import { readFileSync } from 'node:fs'
+import { randomUUID } from 'node:crypto'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import { runTsc } from './lib/tsc.mjs'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const files = new Map()
@@ -24,46 +25,42 @@ for (const document of documents.filter(({ status }) => status === 'covered')) {
     )
   }
 }
-const configPath = resolve(packageRoot, 'packages/components/tsconfig.json')
-const config = ts.readConfigFile(configPath, ts.sys.readFile)
-if (config.error)
-  throw new Error(
-    ts.flattenDiagnosticMessageText(config.error.messageText, '\n'),
-  )
-const parsed = ts.parseJsonConfigFileContent(
-  config.config,
-  ts.sys,
-  dirname(configPath),
-)
-parsed.options.types = ['vite/client']
 if (!files.size) throw new Error('No UI contract examples found')
-const host = ts.createCompilerHost(parsed.options)
-const readFile = host.readFile.bind(host)
-const fileExists = host.fileExists.bind(host)
-host.readFile = (path) => files.get(path) ?? readFile(path)
-host.fileExists = (path) => files.has(path) || fileExists(path)
-const program = ts.createProgram(
-  [
-    ...files.keys(),
-    ...contracts
-      .filter(({ gate }) => gate === 'contracts')
-      .map(({ path }) => resolve(packageRoot, path)),
-  ],
-  parsed.options,
-  host,
-)
-const diagnostics = [...parsed.errors, ...ts.getPreEmitDiagnostics(program)]
-if (diagnostics.length) {
-  console.error(
-    ts.formatDiagnosticsWithColorAndContext(diagnostics, {
-      getCanonicalFileName: (path) => path,
-      getCurrentDirectory: () => packageRoot,
-      getNewLine: () => '\n',
+const scratch = mkdtempSync(resolve(packageRoot, '.wfe-contracts-'))
+const created = []
+const suffix = '.' + randomUUID()
+try {
+  // Keep each fence beside its document so relative imports resolve as written.
+  for (const [path, code] of files) {
+    const temporary = path.replace(/\.(tsx?)$/, `${suffix}.$1`)
+    writeFileSync(temporary, code, { flag: 'wx' })
+    created.push(temporary)
+  }
+  const config = resolve(scratch, 'tsconfig.json')
+  writeFileSync(
+    config,
+    JSON.stringify({
+      extends: resolve(packageRoot, 'packages/components/tsconfig.json'),
+      compilerOptions: { types: ['vite/client'] },
+      files: [
+        ...created,
+        ...contracts
+          .filter(({ gate }) => gate === 'contracts')
+          .map(({ path }) => resolve(packageRoot, path)),
+      ],
+      include: [],
     }),
   )
-  process.exitCode = 1
-} else {
-  console.log(
-    `Typechecked ${files.size} UI contract examples and generator contracts`,
-  )
+  const result = runTsc(['--project', config, '--pretty'], { cwd: packageRoot })
+  if (result.status !== 0) {
+    console.error((result.stdout + result.stderr).replaceAll(suffix, ''))
+    process.exitCode = 1
+  } else {
+    console.log(
+      `Typechecked ${files.size} UI contract examples and generator contracts`,
+    )
+  }
+} finally {
+  for (const path of created) rmSync(path, { force: true })
+  rmSync(scratch, { recursive: true, force: true })
 }

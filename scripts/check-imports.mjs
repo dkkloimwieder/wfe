@@ -2,7 +2,12 @@ import assert from 'node:assert/strict'
 import { readdir, readFile } from 'node:fs/promises'
 import { dirname, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import {
+  isStringLiteral,
+  parseSource,
+  staticImportSource,
+  walkSource,
+} from './lib/source-syntax.mjs'
 
 async function checkPackage(name) {
   const root = fileURLToPath(
@@ -26,26 +31,18 @@ async function checkPackage(name) {
       if (entry.isDirectory()) await visit(path)
       else if (/\.tsx?$/.test(entry.name)) {
         count++
-        const source = ts.createSourceFile(
-          path,
-          await readFile(path, 'utf8'),
-          ts.ScriptTarget.Latest,
-          true,
-        )
-        function inspect(node) {
+        const source = parseSource(path, await readFile(path, 'utf8'))
+        walkSource(source, (node) => {
           const specifier =
-            ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
-              ? node.moduleSpecifier
-              : ts.isCallExpression(node) &&
-                  node.expression.kind === ts.SyntaxKind.ImportKeyword
-                ? node.arguments[0]
-                : undefined
+            node.type === 'ImportExpression'
+              ? node.source
+              : staticImportSource(node)
           if (specifier) {
             assert.ok(
-              ts.isStringLiteral(specifier),
+              isStringLiteral(specifier),
               `${path}: imports must have explicit module paths`,
             )
-            const name = specifier.text
+            const name = specifier.value
             if (name.startsWith('.')) {
               assert.ok(
                 resolve(dirname(path), name).startsWith(
@@ -64,9 +61,7 @@ async function checkPackage(name) {
               )
             }
           }
-          ts.forEachChild(node, inspect)
-        }
-        inspect(source)
+        })
       }
     }
   }

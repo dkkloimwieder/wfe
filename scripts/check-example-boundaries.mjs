@@ -1,7 +1,12 @@
 import { readdir, readFile } from 'node:fs/promises'
 import { dirname, resolve, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import {
+  isStringLiteral,
+  parseSource,
+  staticImportSource,
+  walkSource,
+} from './lib/source-syntax.mjs'
 
 // Exact suite-owned harness and integration edges, never directory exemptions.
 export const exampleImportExceptions = [
@@ -109,22 +114,18 @@ export function inspectExampleImports(file, text) {
       .matchAll(/@import\s+(?:url\(\s*)?(?:['"]([^'"]+)['"]|([^\s;)]+))/g))
       imports.push(match[1] ?? match[2])
   } else {
-    const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
-    function visit(node) {
+    walkSource(parseSource(file, text), (node) => {
       const specifier =
-        ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
-          ? node.moduleSpecifier
-          : ts.isCallExpression(node) &&
-              node.expression.kind === ts.SyntaxKind.ImportKeyword
-            ? node.arguments[0]
-            : ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)
-              ? node.argument.literal
-              : undefined
-      if (specifier && ts.isStringLiteralLike(specifier))
-        imports.push(specifier.text)
-      ts.forEachChild(node, visit)
-    }
-    visit(source)
+        node.type === 'ImportExpression' || node.type === 'TSImportType'
+          ? node.source
+          : staticImportSource(node)
+      if (isStringLiteral(specifier)) imports.push(specifier.value)
+      else if (
+        specifier?.type === 'TemplateLiteral' &&
+        specifier.expressions.length === 0
+      )
+        imports.push(specifier.quasis[0].value.cooked)
+    })
   }
   const errors = [],
     usedExceptions = []

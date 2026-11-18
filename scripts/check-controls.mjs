@@ -5,7 +5,12 @@ import {
 import { readdir, readFile } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import {
+  isStringLiteral,
+  parseSource,
+  staticImportSource,
+  walkSource,
+} from './lib/source-syntax.mjs'
 
 // These are capability exceptions, not exclusions from the rest of the guard.
 export const controlExceptions = {
@@ -36,17 +41,10 @@ const rawControls = new Set(['button', 'input', 'select', 'textarea', 'option'])
 export function inspectControls(path, text) {
   const exception = controlExceptions[path]
   const errors = []
-  const source = ts.createSourceFile(
-    path,
-    text,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TSX,
-  )
-  const fail = (position, message) =>
-    errors.push(
-      `${path}:${source.getLineAndCharacterOfPosition(position).line + 1}: ${message}`,
-    )
+  const fail = (position, message) => {
+    const line = text.slice(0, position).split(/\r\n|[\n\r\u2028\u2029]/).length
+    errors.push(`${path}:${line}: ${message}`)
+  }
   const tag = (name, position) => {
     if (rawControls.has(name) && !exception?.tags.includes(name))
       fail(position, `Use a shared component instead of <${name}>.`)
@@ -61,72 +59,62 @@ export function inspectControls(path, text) {
       tag(match[1], match.index)
     return errors
   }
-  function visit(node) {
-    if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
-      const name = node.tagName.getText(source)
-      tag(name, node.getStart(source))
+  const sourceText = (node) => text.slice(node.start, node.end)
+  const native = (node) =>
+    fail(
+      node.start,
+      'NativeSelect is limited to explicit interoperability fixtures.',
+    )
+  walkSource(parseSource(path, text), (node, parent) => {
+    if (node.type === 'JSXOpeningElement') {
+      const name = sourceText(node.name)
+      tag(name, node.start)
       if (/^[a-z]/.test(name))
-        for (const attribute of node.attributes.properties) {
+        for (const attribute of node.attributes) {
           if (
-            ts.isJsxAttribute(attribute) &&
-            attribute.name.getText(source) === 'role' &&
-            attribute.initializer &&
-            ts.isStringLiteral(attribute.initializer) &&
-            controlRoles.has(attribute.initializer.text)
+            attribute.type === 'JSXAttribute' &&
+            attribute.name.name === 'role' &&
+            isStringLiteral(attribute.value) &&
+            controlRoles.has(sourceText(attribute.value).slice(1, -1))
           )
             fail(
-              attribute.getStart(source),
+              attribute.start,
               'Use a shared component for interactive control roles.',
             )
         }
     }
     const specifier =
-      ts.isImportDeclaration(node) || ts.isExportDeclaration(node)
-        ? node.moduleSpecifier
-        : ts.isCallExpression(node) &&
-            node.expression.kind === ts.SyntaxKind.ImportKeyword
-          ? node.arguments[0]
-          : undefined
-    if (specifier && ts.isStringLiteral(specifier)) {
-      if (isPrivateUIImport(specifier.text))
-        fail(
-          node.getStart(source),
-          'Import shared controls through public package exports.',
-        )
-    }
-    if (!exception?.native) {
-      if (
-        (ts.isImportSpecifier(node) || ts.isExportSpecifier(node)) &&
-        !node.isTypeOnly &&
-        (node.propertyName ?? node.name).text === 'NativeSelect'
-      )
-        fail(
-          node.getStart(source),
-          'NativeSelect is limited to explicit interoperability fixtures.',
-        )
-      if (
-        ts.isBindingElement(node) &&
-        (node.propertyName ?? node.name).getText(source) === 'NativeSelect'
-      )
-        fail(
-          node.getStart(source),
-          'NativeSelect is limited to explicit interoperability fixtures.',
-        )
-      if (
-        (ts.isPropertyAccessExpression(node) &&
-          node.name.text === 'NativeSelect') ||
-        (ts.isElementAccessExpression(node) &&
-          ts.isStringLiteral(node.argumentExpression) &&
-          node.argumentExpression.text === 'NativeSelect')
-      )
-        fail(
-          node.getStart(source),
-          'NativeSelect is limited to explicit interoperability fixtures.',
-        )
-    }
-    ts.forEachChild(node, visit)
-  }
-  visit(source)
+      node.type === 'ImportExpression' ? node.source : staticImportSource(node)
+    if (isStringLiteral(specifier) && isPrivateUIImport(specifier.value))
+      fail(node.start, 'Import shared controls through public package exports.')
+    if (exception?.native) return
+    if (node.type === 'ImportSpecifier' && node.importKind !== 'type') {
+      if ((node.imported.name ?? node.imported.value) === 'NativeSelect')
+        native(node)
+    } else if (node.type === 'ExportSpecifier' && node.exportKind !== 'type') {
+      if ((node.local.name ?? node.local.value) === 'NativeSelect') native(node)
+    } else if (
+      (node.type === 'Property' &&
+        parent.type === 'ObjectPattern' &&
+        sourceText(node.key) === 'NativeSelect' &&
+        !node.computed) ||
+      (node.type === 'RestElement' &&
+        (parent.type === 'ObjectPattern' || parent.type === 'ArrayPattern') &&
+        sourceText(node.argument) === 'NativeSelect') ||
+      (parent?.type === 'ArrayPattern' &&
+        ((node.type === 'Identifier' && sourceText(node) === 'NativeSelect') ||
+          (node.type === 'AssignmentPattern' &&
+            sourceText(node.left) === 'NativeSelect'))) ||
+      (node.type === 'MemberExpression' &&
+        (node.computed
+          ? isStringLiteral(node.property) &&
+            node.property.value === 'NativeSelect'
+          : node.property.name === 'NativeSelect')) ||
+      (node.type === 'JSXMemberExpression' &&
+        node.property.name === 'NativeSelect')
+    )
+      native(node)
+  })
   return errors
 }
 export async function checkControls(root) {
