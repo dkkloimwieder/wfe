@@ -102,7 +102,19 @@ export async function reviewRepeated({ page, record }) {
   await record(
     'Repeated forms fill their panel and fit narrow screens',
     async () => {
+      const rowColumns = () =>
+        page
+          .locator('[data-generator-row] > .ui-form-layout > .ui-form-grid')
+          .evaluateAll((grids) =>
+            grids.map((grid) =>
+              grid.getClientRects().length
+                ? getComputedStyle(grid).gridTemplateColumns.split(' ').length
+                : 0,
+            ),
+          )
+      assert.deepEqual(await rowColumns(), [3, 3, 3])
       await page.setViewportSize({ width: 390, height: 844 })
+      assert.deepEqual(await rowColumns(), [1, 1, 1])
       assert.equal(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth + 1,
@@ -146,6 +158,7 @@ export async function reviewRepeated({ page, record }) {
         path: await artifactPath('wfe-repeated-phone.png'),
       })
       await page.setViewportSize({ width: 1280, height: 900 })
+      assert.deepEqual(await rowColumns(), [3, 3, 3])
       await page.screenshot({
         path: await artifactPath('wfe-repeated-wide.png'),
       })

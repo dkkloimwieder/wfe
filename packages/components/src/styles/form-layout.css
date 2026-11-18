@@ -12,6 +12,14 @@
 }
 :where(.ui-form-layout[data-ui]) {
   min-inline-size: 0;
+}
+/* Single-column grids need no query container. Chromium can leave children
+   without layout boxes when a size container is inside a native fieldset. */
+:where(
+  .ui-form-layout[data-ui]:has(
+      > .ui-form-grid:is([data-columns='2'], [data-columns='3'])
+    )
+) {
   container: ui-form / inline-size;
 }
 :where([data-ui]) .ui-form-grid {
