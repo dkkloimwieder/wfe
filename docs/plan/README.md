@@ -22,3 +22,7 @@ Keep later work in the design until its turn, without opening parallel epics.
 Owner additions extend the sequence with repeated form groups in W5 and detail/delete views in W6.
 The release tag moves to W7 and follows W1 through W6.
 Each epic report contains no more than 10 lines.
+
+## Agent-composable building blocks
+
+- [Design proposal](agent-composition.md): the manifest, the uniform part contract, JSON screen descriptions, the runtime agent bridge, and the behavior layer decision. Beads issue `wfe-w2y.70` tracks it.
