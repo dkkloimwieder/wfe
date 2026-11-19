@@ -46,9 +46,8 @@ It compares retained drafts with disposed drafts and supports both rendering and
 
 ## Upstream review
 
-The behavior comes from Kobalte revision `e9d426d438b7c9ea0cc81bd1133831a20cd5fcae`, our existing Solid 2 vendor origin.
-We reviewed its newer [Solid 2 branch at `7388d923`](https://github.com/kobaltedev/kobalte/tree/7388d923250f263d6f36cae69fa612bfbf3cf206/packages/core/src/tabs).
-The owned root carries its small untracked selection repair. No runtime dependency changes accompany this extraction.
+The behavior comes from Kobalte `solid2` revision `ba6b1df04eeeb3e6cce050e9fce7004e1237bae8`, our Solid 2 vendor origin.
+That revision adds the untracked selection write that the owned root already carried, so the root source is unchanged. No runtime dependency changes accompany this extraction.
 The original hashes, license, and React Spectrum attribution remain in the vendor record.
 The optional animated indicator stays outside this subset. Shared CSS marks selection without another observer dependency.
 

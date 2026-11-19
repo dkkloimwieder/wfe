@@ -1,9 +1,9 @@
 # Owned Kobalte subset
 
 This directory contains 215 source modules for the owned controls and their shared Kobalte Core and Utils dependencies.
-The origin is revision `e9d426d438b7c9ea0cc81bd1133831a20cd5fcae` from the Kobalte `solid2` branch.
+The origin is revision `ba6b1df04eeeb3e6cce050e9fce7004e1237bae8` from the Kobalte `solid2` branch, dated October 29, 2026 (`@kobalte/core` 2.0.0-alpha.4).
 `provenance.json` records the original and local SHA-256 for each source and license.
-The copied originals match archive SHA-256 `c07f47331a9aee20f69e2e55d81454f0b48976e2e6e98551da2b27a9169c6f70`.
+The copied originals match archive SHA-256 `a8622922ae889a70f8a65d7ec441be805218908bd0cd563fed1250b9794e0947`.
 The root, Core, and Utils licenses remain unchanged.
 Original third-party attribution comments remain in their source files.
 This subset retains module barrels and their type dependencies. It does not claim a minimal browser bundle.
@@ -89,6 +89,49 @@ The external scroll registry uses the existing owner repair through a pnpm patch
 Solid, Solid Primitives, Floating UI, and internationalized number formatting remain external.
 No installed Kobalte module supplies the library implementation.
 Beads `table-gd3.6.7.9` retains the earlier repair evidence and upstream retirement scope.
+
+## Revision ba6b1df update
+
+Beads `wfe-0dj.13` moved the origin from `e9d426d438b7c9ea0cc81bd1133831a20cd5fcae` (September 24, 2026) to `ba6b1df04eeeb3e6cce050e9fce7004e1237bae8`.
+The ten upstream commits include the new Solid compiler fixes (#740), strict untracked reads (#741), and hydration symmetry (#746).
+Upstream changed 18 of the 218 captured files. The other 200 originals, the three licenses, and the entry points are unchanged.
+The new tree was built from the new originals with the same formatting and Utils import stages, and each residual repair was then re-applied.
+The replay tool reproduces it exactly. The residual patch still touches the same 130 files.
+
+Upstream now covers these local repairs. The files keep their local text, and the residual patch shrinks or keeps only the wider local wrappers:
+
+- `combobox/combobox-base.tsx`: untracked option and visibility reads and the initial announcement snapshot. The local reset helper still wraps its whole body in `untrack` and also resolves controlled values.
+- `select/select-trigger.tsx` and `selection/create-selectable-collection.ts`: untracked focus-handler reads. The local handlers keep their wider `untrack` wrappers.
+- `selection/create-selectable-item.ts`: the untracked reference read in the focus handler.
+- `select/hidden-select-base.tsx`: upstream wraps option reads in memos because the `For` child runs untracked. The local option list already reads those values inside JSX bindings, so its native-selection repairs stay unchanged.
+- `tabs/tabs-root.tsx`: the untracked initial selection write.
+- `form-control/form-control-label.tsx`: the untracked forwarded reference.
+
+These upstream changes were added to the local source:
+
+- `checkbox/checkbox-input.tsx` and `radio-group/radio-group-item-input.tsx`: untracked reads in the native change handlers.
+- `radio-group/radio-group-root.tsx`: untracked reads while native inputs synchronize.
+- `popover/popover-root.tsx`: `generateId` reads the root ID without tracking.
+- `popover/popover-trigger.tsx`: the forwarded reference is read once without tracking.
+- `menu/menu-sub-content.tsx`: the outside-focus check reads the trigger without tracking.
+- `selection/create-selectable-item.ts`: the focus effect moves focus inside `untrack`.
+- `dismissable-layer/dismissable-layer.tsx`: the whole Escape handler now runs inside `untrack`. The local enabled check moved inside that wrapper. The outside-interaction handlers already used local wrappers.
+
+These are strict-read diagnostic fixes. They do not change rendered markup or event results.
+
+The form-control hydration change (#746) conflicts with the local server registration, so the local form-control files stay as they were:
+
+- Upstream renders server associations from the default part IDs, such as `${id}-label` and `${id}-description`. Those IDs are used even when the part does not render or the caller supplies a custom ID. The local server context records only the IDs that the rendered parts register.
+- Upstream registers parts on the client during rendering. The local parts register in effects, and `internal/fieldRendering.tsx` renders the field after its siblings register.
+- Upstream adds `role="alert"` to error messages. The local message stays without an implicit live region. This matches `FieldError` and the generator's rule that applications choose announcements. Callers can still pass `role="alert"`.
+
+Open upstream pull requests against `solid2` were reviewed on November 19, 2026. None is merged, and none is applied here:
+
+- #770 would scroll only the collection container. It would replace the local viewport-only scrolling in `selection/create-selectable-collection.ts` and the related Utils change.
+- #780 would register a dismissable layer when its reference is set. The local reference and enabled effect in `dismissable-layer/dismissable-layer.tsx` already does this. The local enabled gating and owned events would remain.
+- #762 would link Tabs panels to their triggers on the first render and in server output. It would replace the local generated-ID association in `tabs/tabs-root.tsx`, `tabs-content.tsx`, and `tabs-trigger.tsx`.
+- #781 would apply Breadcrumbs defaults when `separator` or `translations` is explicitly `undefined`. No local repair covers this case.
+- #782 (Accordion) and #771 (Resizable) change no captured file.
 
 ## Server field associations
 
@@ -255,8 +298,8 @@ These measurements establish a baseline rather than a feature-removal decision.
 Obtain the exact Kobalte revision from the recorded archive URL:
 
 ```sh
-curl --fail --location --output /tmp/table-kobalte-pinned.tgz https://codeload.github.com/kobaltedev/kobalte/tar.gz/e9d426d438b7c9ea0cc81bd1133831a20cd5fcae
-echo 'c07f47331a9aee20f69e2e55d81454f0b48976e2e6e98551da2b27a9169c6f70  /tmp/table-kobalte-pinned.tgz' | sha256sum --check
+curl --fail --location --output /tmp/table-kobalte-pinned.tgz https://codeload.github.com/kobaltedev/kobalte/tar.gz/ba6b1df04eeeb3e6cce050e9fce7004e1237bae8
+echo 'a8622922ae889a70f8a65d7ec441be805218908bd0cd563fed1250b9794e0947  /tmp/table-kobalte-pinned.tgz' | sha256sum --check
 mkdir -p /tmp/table-kobalte-pinned
 tar -xzf /tmp/table-kobalte-pinned.tgz --directory=/tmp/table-kobalte-pinned --strip-components=1
 ```

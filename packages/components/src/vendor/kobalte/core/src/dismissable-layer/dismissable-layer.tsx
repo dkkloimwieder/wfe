@@ -178,23 +178,24 @@ export function DismissableLayer<T extends ValidComponent = 'div'>(
   })
   createShortcut(
     ['Escape'],
-    (e) => {
-      if (
-        untrack(() => props.enabled === false) ||
-        !e ||
-        !ref() ||
-        !layerStack.isTopMostLayer(ref()!)
-      ) {
-        return
-      }
+    (e) =>
+      untrack(() => {
+        if (
+          props.enabled === false ||
+          !e ||
+          !ref() ||
+          !layerStack.isTopMostLayer(ref()!)
+        ) {
+          return
+        }
 
-      props.onEscapeKeyDown?.(e)
+        props.onEscapeKeyDown?.(e)
 
-      if (!e.defaultPrevented && props.onDismiss) {
-        e.preventDefault()
-        props.onDismiss()
-      }
-    },
+        if (!e.defaultPrevented && props.onDismiss) {
+          e.preventDefault()
+          props.onDismiss()
+        }
+      }),
     { preventDefault: false },
   )
 

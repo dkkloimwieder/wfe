@@ -7,7 +7,14 @@
  */
 
 import { createPresence } from '@solid-primitives/presence'
-import { createMemo, createSignal, createUniqueId, merge, omit } from 'solid-js'
+import {
+  createMemo,
+  createSignal,
+  createUniqueId,
+  merge,
+  omit,
+  untrack,
+} from 'solid-js'
 import { Popper } from '../popper/index.tsx'
 import { createDisclosureState, createRegisterId } from '../primitives/index.ts'
 import { POPOVER_INTL_TRANSLATIONS } from './popover.intl.ts'
@@ -159,7 +166,8 @@ export function PopoverRoot(props: PopoverRootProps) {
     setContentRef,
     close: disclosureState.close,
     toggle: disclosureState.toggle,
-    generateId: (suffix: string) => `${mergedProps.id}-${suffix}`,
+    generateId: (suffix: string) =>
+      `${untrack(() => mergedProps.id)}-${suffix}`,
     registerContentId: createRegisterId(setContentId),
     registerTitleId: createRegisterId(setTitleId),
     registerDescriptionId: createRegisterId(setDescriptionId),

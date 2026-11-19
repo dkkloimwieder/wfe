@@ -6,7 +6,7 @@
  * https://github.com/radix-ui/primitives/blob/81b25f4b40c54f72aeb106ca0e64e1e09655153e/packages/react/menu/src/Menu.tsx
  */
 
-import { omit } from 'solid-js'
+import { omit, untrack } from 'solid-js'
 import { callHandler } from '../../../utils/src/index.ts'
 import { useLocale } from '../i18n/index.tsx'
 import { MenuContentBase } from './menu-content-base.tsx'
@@ -86,7 +86,7 @@ export function MenuSubContent<T extends ValidComponent = 'div'>(
 
     // We prevent closing when the trigger is focused to avoid triggering a re-open animation
     // on pointer interaction.
-    if (!context.triggerRef()?.contains(target)) {
+    if (!untrack(() => context.triggerRef())?.contains(target)) {
       context.close()
     }
   }

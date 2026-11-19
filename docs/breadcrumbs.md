@@ -42,8 +42,9 @@ The reusable fixture at `examples/components/?breadcrumbs=1` also exercises hydr
 
 ## Upstream review
 
-The root, separator, context, and translation sources come from the existing Kobalte origin, revision `e9d426d438b7c9ea0cc81bd1133831a20cd5fcae`.
-Those files match the reviewed [Solid 2 revision `7388d923`](https://github.com/kobaltedev/kobalte/tree/7388d923250f263d6f36cae69fa612bfbf3cf206/packages/core/src/breadcrumbs).
+The root, separator, context, and translation sources come from the Kobalte vendor origin, `solid2` revision `ba6b1df04eeeb3e6cce050e9fce7004e1237bae8`.
+These four originals are unchanged since the previous origin, revision `e9d426d438b7c9ea0cc81bd1133831a20cd5fcae`.
+Open upstream pull request [#781](https://github.com/kobaltedev/kobalte/pull/781) would make the root use its defaults when `separator` or `translations` is explicitly `undefined`. It is not merged, and this subset does not apply it.
 Their original hashes, licenses, and React Spectrum attribution remain intact.
 The public native link and current text reuse our owned element renderer.
 The optional upstream polymorphic Link implementation stays outside this subset.

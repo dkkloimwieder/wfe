@@ -6,7 +6,7 @@
  * https://github.com/adobe/react-spectrum/blob/810579b671791f1593108f62cdc1893de3a220e3/packages/@react-aria/overlays/src/useOverlayTrigger.ts
  */
 
-import { omit } from 'solid-js'
+import { omit, untrack } from 'solid-js'
 import { callHandler } from '../../../utils/src/index.ts'
 import * as Button from '../button/index.tsx'
 import { usePopoverContext } from './popover-context.tsx'
@@ -71,7 +71,7 @@ export function PopoverTrigger<T extends ValidComponent = 'button'>(
         Omit<PopoverTriggerRenderProps, keyof Button.ButtonRootRenderProps>
       >
     >
-      ref={[context.setTriggerRef, p.ref]}
+      ref={[context.setTriggerRef, untrack(() => p.ref)]}
       aria-haspopup="dialog"
       aria-expanded={context.isOpen() ? 'true' : 'false'}
       aria-controls={context.isOpen() ? context.contentId() : undefined}
