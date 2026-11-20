@@ -18,9 +18,6 @@
   border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   cursor: pointer;
 }
-:where([data-ui]) .ui-tree-item[aria-disabled='true'] .ui-tree-label {
-  opacity: var(--ui-disabled-opacity, 0.5);
-}
 :where([data-ui]) .ui-tree-item:focus-visible,
 :where([data-ui]).ui-tree:focus-visible {
   outline: var(--ui-focus-width, 1px) solid

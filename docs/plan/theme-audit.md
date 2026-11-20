@@ -389,13 +389,13 @@ Every difference is either listed below as intended or was fixed before the comm
 
 ### 6.3 Intended visual changes
 
-The pairs are in `test-results/theme-cleanup/` (98 entries with before, after and diff images). `index.json` lists them.
+The pairs are in `test-results/theme-cleanup/` (149 entries with before, after and diff images: 68 gallery entries and 81 entry states). `index.json` lists them.
 
 1. Laser uses 12px horizontal input padding for inputs and select triggers. Menus, popovers and cards that read the same token also use 12px (step 7).
 2. Vanilla and Laser compound fields show the invalid border on their adornment buttons, as Sketchy does (step 7).
 3. The nested decoration-geometry preview inherits the outer preset's outline button colors (step 7).
-4. Sketchy dims disabled controls to 0.5 opacity, the Vanilla value. This includes disabled table header sort buttons and the disabled buttons inside read-only date, select and calendar fields (step 8).
-5. Laser dims a disabled field as a whole instead of mixing its text color (step 8).
+4. Every preset dims disabled controls the same way. A disabled control keeps its opaque background. Its text, accent and borders mix toward the surface at the `--ui-disabled-opacity` ratio through `--ui-disabled-text`, `--ui-disabled-accent` and `--ui-disabled-border`. No rule uses element opacity for disabled, so no dotted backing or other layer shows through a disabled control. This includes disabled table header sort buttons, the disabled buttons inside read-only date, select and calendar fields, and the reset buttons in the explorer. Disabled fields keep their full sunken surface instead of a half-transparent one (step 8 and the follow-up fix).
+5. Laser and Vanilla use the same disabled mechanism. Laser no longer has its own disabled text mix (step 8).
 6. Vanilla and Laser keep the focus outline on highlighted choice options and calendar days and the inset ring on menu items (step 8). Static screenshots do not show focus.
 7. Laser sub-table toggles, Gantt group toggles, pagination actions and the calendar heading are frameless, as in Vanilla (step 11).
 8. Raw fixture pages without a Theme lose the legacy black text, `currentColor` borders and legacy dark palette (step 13). These pages are outside the gallery.

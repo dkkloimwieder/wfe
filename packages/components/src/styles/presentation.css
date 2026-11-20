@@ -111,6 +111,21 @@
   background: var(--ui-toggle-checked-surface, var(--ui-control-hover));
 }
 [data-ui-tokens]
+  :is(.ui-check-control, .ui-switch-control)[data-checked][data-disabled] {
+  border-color: color-mix(
+    in srgb,
+    var(--ui-toggle-checked-border, var(--ui-control-border))
+      calc(var(--ui-disabled-opacity) * 100%),
+    var(--ui-surface)
+  );
+  background: color-mix(
+    in srgb,
+    var(--ui-toggle-checked-surface, var(--ui-muted-surface))
+      calc(var(--ui-disabled-opacity) * 100%),
+    var(--ui-surface)
+  );
+}
+[data-ui-tokens]
   :is(.ui-check-control, .ui-switch-control)[data-checked][data-invalid] {
   border-color: var(--ui-toggle-checked-border, var(--ui-error));
 }

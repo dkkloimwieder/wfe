@@ -105,6 +105,21 @@
   --ui-focus-width: 1px;
   --ui-focus-offset: 0px;
   --ui-disabled-opacity: 0.5;
+  --ui-disabled-text: color-mix(
+    in srgb,
+    var(--ui-text) calc(var(--ui-disabled-opacity) * 100%),
+    var(--ui-surface)
+  );
+  --ui-disabled-accent: color-mix(
+    in srgb,
+    var(--ui-accent) calc(var(--ui-disabled-opacity) * 100%),
+    var(--ui-surface)
+  );
+  --ui-disabled-border: color-mix(
+    in srgb,
+    var(--ui-control-border) calc(var(--ui-disabled-opacity) * 100%),
+    var(--ui-surface)
+  );
   --ui-panel-shadow: none;
   --ui-popup-shadow: none;
   --ui-outline-accent-weight: 100%;

@@ -216,6 +216,45 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       },
     )
 
+    await record(
+      'Disabled controls stay opaque so no layer shows through',
+      async () => {
+        // Element opacity would let the dotted backing behind a control show through.
+        const opaque = (locator) =>
+          locator.evaluate((node) => {
+            const style = getComputedStyle(node)
+            // rgba(r, g, b, a), rgb(r g b / a) and color(srgb r g b / a) carry alpha last.
+            const color = style.backgroundColor
+            const parts = color.slice(color.indexOf('(') + 1, -1)
+            const alpha = parts.includes('/')
+              ? parts.split('/')[1]
+              : color.startsWith('rgba(')
+                ? parts.split(',')[3]
+                : '1'
+            return { opacity: style.opacity, alpha: Number(alpha) }
+          })
+        for (const preset of ['Sketchy', 'Vanilla', 'Laser']) {
+          await choose('Preset', preset)
+          const field = token('--ui-radius')
+          await field.locator('input').focus()
+          await field.locator('input').hover()
+          const reset = field.getByRole('button', { name: 'Reset --ui-radius' })
+          await expect(reset).toBeDisabled()
+          const tab = page.getByRole('tab', {
+            name: 'Unavailable',
+            exact: true,
+          })
+          for (const control of [reset, tab]) {
+            const paint = await opaque(control)
+            assert.equal(paint.opacity, '1', preset)
+            // Laser glyph buttons have no box by design; boxed controls stay opaque.
+            if (preset !== 'Laser') assert.equal(paint.alpha, 1, preset)
+          }
+        }
+        await choose('Preset', 'Sketchy')
+      },
+    )
+
     await record('Table and tabs respond inside the explorer', async () => {
       const table = page.getByRole('region', { name: 'Table' })
       await expect(

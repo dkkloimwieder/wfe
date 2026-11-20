@@ -47,17 +47,25 @@
 :where([data-ui]).ui-slider[data-invalid] .ui-slider-thumb {
   border-color: var(--ui-error, #9d251e);
 }
+/* Disabled controls keep their opaque background and dim only the foreground. */
 :where([data-ui]) button:disabled,
 :where([data-ui]) :where(.ui-button):is(:disabled, [aria-disabled='true']),
 :where([data-ui]) input:disabled,
 :where([data-ui]) textarea:disabled,
-:where([data-ui]) select:disabled {
-  cursor: default;
-  opacity: var(--ui-disabled-opacity, 0.5);
-}
+:where([data-ui]) select:disabled,
 :where([data-ui]) .ui-toggle[data-disabled],
-:where([data-ui]) .ui-radio-item[data-disabled] {
-  opacity: var(--ui-disabled-opacity, 0.5);
+:where([data-ui]) .ui-radio-item[data-disabled],
+:where([data-ui]) .ui-menu-item[data-disabled],
+:where([data-ui]) .ui-tree-item[aria-disabled='true'] {
+  cursor: default;
+  --ui-text: var(--ui-disabled-text, #919191);
+  --ui-muted-text: var(--ui-disabled-text, #919191);
+  --ui-accent: var(--ui-disabled-accent, #8cb8e0);
+  --ui-button-color: var(--ui-disabled-accent, #8cb8e0);
+  --ui-control-border: var(--ui-disabled-border, #f0f0f0);
+  --ui-button-border: var(--ui-disabled-border, #f0f0f0);
+  --ui-neutral-button-border: var(--ui-disabled-border, #f0f0f0);
+  color: var(--ui-disabled-text, #919191);
 }
 
 :where([data-ui]) .ui-field-value,
