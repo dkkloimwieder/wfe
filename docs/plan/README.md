@@ -26,3 +26,7 @@ Each epic report contains no more than 10 lines.
 ## Agent-composable building blocks
 
 - [Design proposal](agent-composition.md): the manifest, the uniform part contract, JSON screen descriptions, the runtime agent bridge, and the behavior layer decision. Beads issue `wfe-w2y.70` tracks it.
+
+## Theme presets
+
+- [Theme audit](theme-audit.md): preset differences, hacks, overlapping tokens, a proposed token base, and an ordered cleanup plan. Beads issue `wfe-w2y.71` tracks it.

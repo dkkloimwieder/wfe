@@ -43,6 +43,13 @@ export const examples = [
     reviewStage: 'theme-browser',
     reason: 'Public Theme consumer; its runner builds its own fixture.',
   },
+  {
+    ...required('theme-explorer', ['source']),
+    build: false,
+    reviewStage: 'theme-explorer-browser',
+    reason:
+      'Preset switch and live token editor over gallery components; its runner builds its own fixture.',
+  },
   ...['accessor-profile', 'editing-overhead'].map((id) => ({
     id,
     status: 'diagnostic',
@@ -66,6 +73,12 @@ export const excludedModes = [
     mode,
     reason:
       'The shared hydration fixture runs the same Theme consumer and review in this mode; the standalone Theme runner covers source consumption.',
+  })),
+  ...['distribution', 'development'].map((mode) => ({
+    id: 'theme-explorer',
+    mode,
+    reason:
+      'The explorer renders the same gallery components that the components suite runs in this mode; its runner covers source consumption.',
   })),
   {
     id: 'virtualization',

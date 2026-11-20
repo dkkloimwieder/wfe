@@ -1,4 +1,4 @@
-import { scalarText } from '../../shared/scalarText'
+import { scalarText } from '../scalarText'
 import { For, createSignal } from 'solid-js'
 import {
   Button,
@@ -23,7 +23,7 @@ import {
   createTable,
   createTableSelection,
 } from '@wfe/components/table'
-import type { GalleryState } from './catalog'
+import type { GalleryState } from '../appearance/galleryConfig'
 export type RecipeProps = { state: GalleryState }
 export function Fields(props: RecipeProps) {
   const [name, setName] = createSignal('Sample record')

@@ -6,8 +6,6 @@
   :scope {
     --ui-icon-stroke-width: 1;
     --ui-action-outline-opacity: 100%;
-    min-width: 0;
-    background: var(--ui-canvas-surface);
   }
   :scope .ui-dashboard-main {
     background: var(--ui-canvas-surface);

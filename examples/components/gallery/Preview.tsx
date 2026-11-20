@@ -21,7 +21,7 @@ import { ContextControls } from '../../shared/controls/ContextControls'
 import { PaginationExample } from './PaginationExample'
 import { EntryExample } from './EntryExample'
 import { SubTables } from '../../shared/controls/SubTables'
-import { EverythingForm } from './EverythingForm'
+import { EverythingForm } from '../../shared/controls/EverythingForm'
 import { createEffect, lazy, Loading, onCleanup, untrack } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
@@ -56,7 +56,13 @@ import { MatchingChoices } from './MatchingChoices'
 import { BooleanControls } from '../BooleanControls'
 import { OverlayControls } from '../OverlayControls'
 import { DisplayControls } from '../DisplayControls'
-import { Fields, Buttons, Dates, Dialogs, TableExample } from './Recipes'
+import {
+  Fields,
+  Buttons,
+  Dates,
+  Dialogs,
+  TableExample,
+} from '../../shared/controls/Recipes'
 import { entryFor, readRoute, galleryThemeOptions } from './catalog'
 import type { GalleryId, GalleryState } from './catalog'
 import './gallery.css'

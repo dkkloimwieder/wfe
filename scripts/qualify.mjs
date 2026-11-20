@@ -37,6 +37,11 @@ export function qualificationStages(output, { wamn = false } = {}) {
       'examples/analytics/paging.test.mjs',
     ]),
     stage('theme-browser', ['exec', 'node', 'examples/theme/run.mjs']),
+    stage('theme-explorer-browser', [
+      'exec',
+      'node',
+      'examples/theme-explorer/run.mjs',
+    ]),
     stage('chart-imports', ['exec', 'node', 'scripts/check-chart-imports.mjs']),
     stage('engine-imports', [
       'exec',

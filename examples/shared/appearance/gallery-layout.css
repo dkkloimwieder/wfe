@@ -1,0 +1,174 @@
+/* Gallery shell, stage, and example frames shared by the gallery and the theme explorer. */
+body:has(.gallery-shell),
+body:has(.gallery-preview) {
+  margin: 0;
+}
+.gallery-shell {
+  height: 100dvh;
+  min-width: 0;
+}
+.gallery-dashboard {
+  --ui-navigation-width: 13.5rem;
+}
+.gallery-dashboard > .ui-dashboard-header {
+  justify-content: space-between;
+}
+.gallery-dashboard > .ui-dashboard-header h1 {
+  min-width: 0;
+  margin: 0;
+}
+.gallery-dashboard > .ui-dashboard-main {
+  gap: 0;
+  background: var(--ui-canvas-surface);
+}
+.gallery-dashboard > .ui-dashboard-header > .ui-breadcrumbs {
+  flex: 1;
+  min-width: 0;
+}
+.gallery-sidebar-options {
+  padding: var(--ui-layout-inset);
+  flex-wrap: wrap;
+}
+.gallery-dashboard > .ui-dashboard-header h1:focus-visible,
+.gallery-toolbar > a:focus-visible {
+  outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring);
+  outline-offset: -2px;
+}
+.gallery-appearance {
+  flex: none;
+  min-height: 0;
+  max-height: 40dvh;
+  overflow: auto;
+  padding: var(--ui-layout-inset);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border);
+}
+.gallery-appearance > .appearance-review {
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+.gallery-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap);
+  flex: none;
+  padding: var(--ui-layout-inset);
+  background: var(--ui-pane-surface);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border);
+}
+.gallery-toolbar > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap);
+}
+.gallery-toolbar > a {
+  color: var(--ui-accent);
+  padding: var(--ui-gap);
+}
+.gallery-stage {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  background: var(--ui-canvas-surface);
+}
+.gallery-example-host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  min-width: 0;
+}
+.gallery-example-host[data-viewport='phone'] {
+  width: 320px;
+  max-width: 100%;
+}
+.gallery-example-host[data-viewport='tablet'] {
+  width: 768px;
+  max-width: 100%;
+}
+.gallery-example-host > .gallery-preview {
+  flex-shrink: 0;
+  min-height: 100%;
+}
+.gallery-stage:is(
+  [data-example='table'],
+  [data-example='subtables'],
+  [data-example='pagination'],
+  [data-example='column-controls']
+) {
+  overflow: visible;
+}
+.gallery-example-host:has(.gallery-table, .gallery-example-fill)
+  > .gallery-preview {
+  height: 100%;
+  min-height: 0;
+}
+.gallery-example-host .gallery-table,
+.gallery-example-host .gallery-example-fill {
+  height: 100%;
+}
+.gallery-preview {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding: var(--ui-layout-inset);
+  background: var(--ui-canvas-surface);
+}
+.gallery-preview > main {
+  padding: 0;
+}
+.gallery-preview:has(.gallery-table, .gallery-example-fill) {
+  padding: 0;
+}
+.gallery-table,
+.gallery-example-fill {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+}
+/* A fill example must let its own scroll containers shrink inside the viewport. */
+.gallery-example-fill > * {
+  min-height: 0;
+  min-width: 0;
+}
+@media (width < 48rem) {
+  .gallery-dashboard > .ui-dashboard-header {
+    flex-wrap: wrap;
+  }
+}
+/* Legacy standalone fixture page rules do not size the gallery layout. */
+.gallery-dashboard > .ui-dashboard-main,
+.gallery-preview > main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+/* Keep the shared canvas texture behind solid content surfaces. */
+.gallery-preview {
+  background-image: var(--ui-canvas-pattern);
+  background-size: var(--ui-canvas-pattern-size);
+}
+
+.gallery-example-unframed {
+  display: contents;
+}
+.gallery-example-panel {
+  min-width: 0;
+  width: 100%;
+  padding: var(--ui-layout-inset);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
+  background: var(--ui-surface);
+  margin-inline: auto;
+}
+.gallery-example-panel[data-gallery-group='Forms'] {
+  max-width: 30rem;
+}
+.gallery-example-panel > main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
