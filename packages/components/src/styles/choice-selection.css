@@ -29,14 +29,6 @@
     --_ui-choice-selection-text: var(--ui-text);
     --_ui-choice-selection-surface: var(--ui-highlight);
   }
-  :scope
-    :is(
-      .popup-option:is([data-selected], [data-highlighted]),
-      .ui-tree-item[aria-selected='true']
-    ) {
-    border: 0;
-    outline: none;
-  }
 }
 @scope (.ui-theme:is([data-ui-preset='default'], :not([data-ui-preset]))) to (.ui-theme) {
   :scope :is(.popup-option, .ui-tree-item) {
@@ -106,8 +98,6 @@
         .popup-option:is([data-selected], [data-highlighted]),
         .ui-tree-item[aria-selected='true']
       ) {
-      border: 0;
-      outline: none;
       box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
     }
   }

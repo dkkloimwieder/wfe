@@ -266,7 +266,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-focus-width': '1px',
         '--ui-focus-offset': '0px',
         // States. The muted surface is the sunken surface of disabled and read-only fields.
-        '--ui-disabled-opacity': '1',
+        // Every preset dims disabled controls with this one opacity.
+        '--ui-disabled-opacity': '0.5',
         // Shadows
         '--ui-panel-shadow': 'none',
         '--ui-popup-shadow': 'none',
@@ -395,7 +396,6 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-sidebar-heading-weight': '500',
         '--ui-kanban-heading-weight': '500',
         '--ui-icon-stroke-width': '1.5',
-        '--ui-disabled-opacity': '0.5',
         '--ui-error': '#b91c1c',
         '--ui-radio-radius': '50%',
         '--ui-switch-radius': '999px',

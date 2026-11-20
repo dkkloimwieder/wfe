@@ -364,33 +364,6 @@
     border-color: transparent;
     background: transparent;
   }
-  :scope
-    :is(
-      .ui-input,
-      .ui-textarea,
-      .ui-native-select,
-      .choice-input,
-      .popup-trigger
-    ):is(:disabled, [aria-disabled='true'], [data-disabled]) {
-    opacity: 1;
-    color: color-mix(
-      in srgb,
-      var(--ui-text) calc(var(--ui-disabled-opacity, 1) * 100%),
-      transparent
-    );
-  }
-  /* A disabled adornment dims its content, not the shared input outline. */
-  :scope
-    :is(.ui-input-affix, .filter-input, .choice-control)
-    > button:is(:disabled, [aria-disabled='true']) {
-    opacity: 1;
-  }
-  :scope
-    :is(.ui-input-affix, .filter-input, .choice-control)
-    > button:is(:disabled, [aria-disabled='true'])
-    > * {
-    opacity: var(--ui-disabled-opacity, 1);
-  }
   :scope :is(.ui-input-affix, .filter-input, .choice-control) > button {
     --ui-laser-control-glow: none;
   }
@@ -430,7 +403,6 @@
       td
       button:is(:hover, :focus-visible, [data-selected]):not(:disabled) {
       border-color: transparent;
-      outline: none;
       box-shadow: none;
       background: transparent;
       color: var(--ui-accent);
@@ -475,7 +447,6 @@
       ) {
       border-color: transparent;
       background: transparent;
-      box-shadow: none;
       color: var(--ui-accent);
       text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
     }
@@ -496,14 +467,5 @@
     :scope * {
       box-shadow: none;
     }
-  }
-}
-
-/* Decoration can be disabled; keyboard focus must still be visible. */
-@scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
-  :scope :is(.ui-button, .popup-trigger):focus-visible {
-    outline: var(--ui-focus-width, 1px) solid
-      var(--ui-focus-ring, var(--ui-accent));
-    outline-offset: var(--ui-focus-offset, 0px);
   }
 }
