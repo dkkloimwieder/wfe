@@ -306,6 +306,11 @@ export function ThemeExplorer() {
             probe = node
           }}
         >
+          {/* The table sits flush in the stage, as in the gallery, so no canvas
+              gap appears above its title band. */}
+          <section aria-label="Table" class="gallery-example-unframed">
+            <TableExample />
+          </section>
           <div class="gallery-preview">
             <div class="example-stack">
               <section class="gallery-example-panel" aria-label="Buttons">
@@ -363,9 +368,6 @@ export function ThemeExplorer() {
                     </Sheet.Portal>
                   </Sheet>
                 </div>
-              </section>
-              <section aria-label="Table">
-                <TableExample />
               </section>
               <section
                 class="gallery-example-panel"

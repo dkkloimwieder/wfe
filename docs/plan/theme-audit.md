@@ -398,7 +398,9 @@ The pairs are in `test-results/theme-cleanup/` (149 entries with before, after a
 5. Laser and Vanilla use the same disabled mechanism. Laser no longer has its own disabled text mix (step 8).
 6. Vanilla and Laser keep the focus outline on highlighted choice options and calendar days and the inset ring on menu items (step 8). Static screenshots do not show focus.
 7. Laser sub-table toggles, Gantt group toggles, pagination actions and the calendar heading are frameless, as in Vanilla (step 11).
-8. Raw fixture pages without a Theme lose the legacy black text, `currentColor` borders and legacy dark palette (step 13). These pages are outside the gallery.
+8. One dot pattern definition. `decoration.css` defines `--ui-dot-pattern` once, and `--ui-canvas-pattern` reads it. Only the dot color varies by role. The dot spacing is `calc(var(--ui-font-size) * 0.3)`, so it no longer depends on each surface's font size. The gallery entries keep their pixels except a faint 2px shadow edge in the Laser decoration-geometry preview. Themes without decoration have no canvas dots because the pattern is unset.
+9. The explorer renders its table flush at the top of the stage, as the gallery does, so no canvas strip sits above the table title band.
+10. Raw fixture pages without a Theme lose the legacy black text, `currentColor` borders and legacy dark palette (step 13). These pages are outside the gallery.
 
 ### 6.4 Not finished
 

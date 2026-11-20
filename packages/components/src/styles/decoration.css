@@ -4,15 +4,17 @@
 /* Dotted decoration. Theme turns it on with the decoration choice, which
    Sketchy enables by default. Rules stop at a nested theme root. */
 @scope ([data-ui-tokens][data-ui-decoration]) to ([data-ui-tokens]) {
-  /* The one dot pattern. Each rule sets --_ui-dots; the pattern resolves where it is used. */
+  /* The one dot pattern. --ui-canvas-pattern reads it too. Each rule only sets the
+     dot color through --_ui-dots; the pattern resolves where it is used. */
   :scope,
   :scope *,
   :scope *::before {
-    --_ui-dot-pattern: radial-gradient(
+    --ui-dot-pattern: radial-gradient(
       circle,
       color-mix(
           in srgb,
-          var(--_ui-dots) var(--ui-decoration-dot-opacity, 50%),
+          var(--_ui-dots, var(--ui-decoration-dot-color))
+            var(--ui-decoration-dot-opacity, 50%),
           transparent
         )
         0.75px,
@@ -64,7 +66,7 @@
     border: var(--ui-border-width, 1px) solid var(--ui-decoration-border);
     background-color: var(--ui-canvas-surface);
     --_ui-dots: var(--_ui-action-dots, var(--ui-decoration-dot-color));
-    background-image: var(--_ui-dot-pattern);
+    background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
     opacity: 0;
   }
@@ -252,7 +254,7 @@
   :scope :is(.table-workspace-header, .table-workspace-summary) {
     background-color: var(--ui-pane-surface);
     --_ui-dots: var(--ui-neutral-dot-color, var(--ui-muted-text));
-    background-image: var(--_ui-dot-pattern);
+    background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
   }
   :scope
@@ -431,7 +433,7 @@
       --ui-input-decoration-dot-color,
       var(--ui-neutral-dot-color)
     );
-    background-image: var(--_ui-dot-pattern);
+    background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
     opacity: 0;
   }
@@ -548,14 +550,14 @@
         transparent
       );
     --_ui-dots: var(--ui-accent, #1971c2);
-    background-image: var(--_ui-dot-pattern);
-    background-size: var(--ui-canvas-pattern-size, 0.3em 0.3em);
+    background-image: var(--ui-dot-pattern);
+    background-size: var(--ui-canvas-pattern-size);
     pointer-events: none;
   }
   :scope .ui-gantt-progress {
     --_ui-dots: var(--ui-accent);
-    background-image: var(--_ui-dot-pattern);
-    background-size: var(--ui-canvas-pattern-size, 0.3em 0.3em);
+    background-image: var(--ui-dot-pattern);
+    background-size: var(--ui-canvas-pattern-size);
   }
   @media (forced-colors: none) {
     :scope .ui-calendar[data-range] {
@@ -574,7 +576,7 @@
     :scope .ui-calendar[data-range] [data-selected] {
       background-color: var(--ui-canvas-surface);
       --_ui-dots: var(--ui-neutral-dot-color, var(--ui-muted-text));
-      background-image: var(--_ui-dot-pattern);
+      background-image: var(--ui-dot-pattern);
       background-size: var(--ui-canvas-pattern-size);
     }
     :scope .ui-calendar[data-range] [data-selected] .ui-calendar-day-number {
@@ -603,7 +605,7 @@
       border-color: var(--ui-accent);
       background-color: var(--ui-canvas-surface);
       --_ui-dots: var(--ui-accent);
-      background-image: var(--_ui-dot-pattern);
+      background-image: var(--ui-dot-pattern);
       background-size: var(--ui-canvas-pattern-size);
     }
   }

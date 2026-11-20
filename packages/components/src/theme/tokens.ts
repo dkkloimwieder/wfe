@@ -313,9 +313,12 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-action-dot-visibility': '0%',
         '--ui-decoration-border':
           'color-mix(in srgb, var(--ui-decoration-border-color) var(--ui-decoration-border-opacity), transparent)',
-        '--ui-canvas-pattern':
-          'radial-gradient(circle, color-mix(in srgb, var(--ui-decoration-dot-color) var(--ui-decoration-dot-opacity), transparent) 0.75px, transparent 0.75px)',
-        '--ui-canvas-pattern-size': '0.3em 0.3em',
+        // decoration.css defines the one dot pattern; the canvas reads it. Without
+        // decoration the pattern is unset, so the canvas has no dots.
+        '--ui-canvas-pattern': 'var(--ui-dot-pattern)',
+        // An absolute size keeps the dot spacing equal on every surface.
+        '--ui-canvas-pattern-size':
+          'calc(var(--ui-font-size) * 0.3) calc(var(--ui-font-size) * 0.3)',
         '--ui-input-decoration-display': 'block',
         '--ui-input-disclosure-arrow-visibility': 'hidden',
         '--ui-input-decoration-dot-color': 'var(--ui-neutral-dot-color)',
@@ -432,7 +435,6 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-control-border': 'var(--ui-border)',
         '--ui-button-border': 'var(--ui-control-border)',
         '--ui-focus-offset': '2px',
-        '--ui-canvas-pattern': 'none',
         '--ui-decoration-dot-opacity': '0%',
         '--ui-input-decoration-display': 'none',
         '--ui-input-disclosure-arrow-visibility': 'visible',
