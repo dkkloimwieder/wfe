@@ -49,8 +49,7 @@
   );
 }
 :where(.ui-chart[data-ui]) svg:focus-visible {
-  outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus, Highlight));
+  outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, Highlight);
   outline-offset: -2px;
 }
 @media (forced-colors: active) {
@@ -58,10 +57,8 @@
   :where([data-ui])[data-ui-chart-tooltip] {
     --ui-text: CanvasText;
     --ui-muted-text: CanvasText;
-    --ui-divider: GrayText;
     --ui-surface: Canvas;
     --ui-accent: Highlight;
-    --ui-focus: Highlight;
     --ui-focus-ring: Highlight;
     --ui-border: GrayText;
   }

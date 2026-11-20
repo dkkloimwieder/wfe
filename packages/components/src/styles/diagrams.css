@@ -66,7 +66,7 @@
 :where([data-ui]) [data-diagram-edge]:focus-visible .ui-diagram-edge-line {
   stroke: color-mix(
     in srgb,
-    var(--ui-focus-ring, var(--ui-focus)) 85%,
+    var(--ui-focus-ring, var(--ui-accent)) 85%,
     var(--ui-surface)
   );
   stroke-width: 2.25;
@@ -137,7 +137,7 @@
 }
 :where([data-ui]) .ui-diagram-surface:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus));
+    var(--ui-focus-ring, var(--ui-accent));
   outline-offset: -3px;
 }
 @media (forced-colors: active) {

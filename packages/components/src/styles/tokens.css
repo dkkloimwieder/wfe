@@ -66,12 +66,10 @@
   --ui-popup-surface: var(--ui-surface);
   --ui-control-surface: var(--ui-surface);
   --ui-highlight: var(--ui-surface-3);
-  --ui-hover: var(--ui-surface-3);
   --ui-control-hover: var(--ui-control-surface);
   --ui-overlay: rgb(0 0 0 / 40%);
   --ui-text: #262626;
   --ui-muted-text: #999999;
-  --ui-subtle-text: var(--ui-muted-text);
   --ui-heading-color: color-mix(
     in srgb,
     var(--ui-text) 80%,
@@ -79,7 +77,6 @@
   );
   --ui-sidebar-neutral: var(--ui-text);
   --ui-border: var(--ui-surface-4);
-  --ui-divider: var(--ui-border);
   --ui-control-border: var(--ui-border);
   --ui-button-border: var(--ui-control-border);
   --ui-neutral-button-border: var(--ui-button-color, var(--ui-button-border));
@@ -99,18 +96,14 @@
   --ui-button-on-color: var(--ui-on-accent);
   --ui-accent-hover: var(--ui-accent);
   --ui-accent-inverted-hover: var(--ui-on-accent);
-  --ui-selection: var(--ui-accent);
-  --ui-on-selection: var(--ui-on-accent);
   --ui-success: #37734c;
   --ui-warning-surface: #fff7d9;
   --ui-warning-text: #765200;
   --ui-warning-border: #a78d4d;
   --ui-error: #9d251e;
-  --ui-focus: var(--ui-accent);
   --ui-focus-ring: #a3a3a3;
   --ui-focus-width: 1px;
   --ui-focus-offset: 0px;
-  --ui-field-focus-border: #a3a3a3;
   --ui-disabled-opacity: 1;
   --ui-panel-shadow: none;
   --ui-popup-shadow: none;
@@ -141,6 +134,13 @@
   --ui-input-disclosure-arrow-visibility: hidden;
   --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
   --ui-input-decoration-border-color: var(--ui-neutral-border-color);
+  --ui-subtle-text: var(--ui-muted-text);
+  --ui-hover: var(--ui-highlight);
+  --ui-divider: var(--ui-border);
+  --ui-focus: var(--ui-accent);
+  --ui-field-focus-border: var(--ui-focus-ring);
+  --ui-selection: var(--ui-accent);
+  --ui-on-selection: var(--ui-on-accent);
 }
 
 /* Dark mode */
@@ -167,7 +167,6 @@
   --ui-warning-text: #f1d68c;
   --ui-error: #ffa69b;
   --ui-focus-ring: #737373;
-  --ui-field-focus-border: #737373;
   --ui-neutral-dot-color: #a8a8a8;
   --ui-neutral-border-color: #5c5c5c;
 }
@@ -252,11 +251,8 @@
   --ui-control-surface: var(--ui-surface);
   --ui-muted-surface: var(--ui-highlight);
   --ui-skeleton-surface: var(--ui-highlight);
-  --ui-hover: var(--ui-highlight);
   --ui-control-hover: var(--ui-highlight);
-  --ui-subtle-text: var(--ui-muted-text);
   --ui-heading-color: var(--ui-text);
-  --ui-divider: var(--ui-border);
   --ui-control-border: var(--ui-border);
   --ui-button-border: var(--ui-control-border);
   --ui-focus-offset: 2px;
@@ -317,7 +313,6 @@
   --ui-table-row-divider: var(--ui-border);
   --ui-table-column-divider: var(--ui-border);
   --ui-focus-ring: var(--ui-muted-text);
-  --ui-field-focus-border: var(--ui-focus-ring);
   --ui-focus-width: 2px;
   --ui-popup-shadow: 0 4px 12px rgb(0 0 0 / 10%);
 }
@@ -389,11 +384,10 @@
   --ui-text: #172642;
   --ui-muted-text: #526480;
   --ui-border: #b7c7de;
-  --ui-table-row-divider: var(--ui-divider);
-  --ui-table-column-divider: var(--ui-divider);
+  --ui-table-row-divider: var(--ui-border);
+  --ui-table-column-divider: var(--ui-border);
   --ui-on-accent: #ffffff;
   --ui-focus-ring: var(--ui-accent);
-  --ui-field-focus-border: var(--ui-accent);
   --ui-highlight: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
   --ui-laser-shadow-y: 2px;
   --ui-laser-shadow-blur: 12px;

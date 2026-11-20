@@ -3,7 +3,7 @@ import type { ChartTheme } from '../vendor/charts/charts-core/src/types'
 export const chartTheme: ChartTheme = {
   foreground: 'var(--ui-text, currentColor)',
   muted: 'var(--ui-muted-text, currentColor)',
-  grid: 'var(--ui-divider, currentColor)',
+  grid: 'var(--ui-border, currentColor)',
   background: 'var(--ui-surface, Canvas)',
-  palette: ['var(--ui-accent, var(--ui-focus, currentColor))'],
+  palette: ['var(--ui-accent, currentColor)'],
 }

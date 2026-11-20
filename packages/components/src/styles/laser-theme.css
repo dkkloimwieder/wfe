@@ -535,7 +535,7 @@
 @scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
   :scope :is(.ui-button, .popup-trigger):focus-visible {
     outline: var(--ui-focus-width, 1px) solid
-      var(--ui-focus-ring, var(--ui-focus));
+      var(--ui-focus-ring, var(--ui-accent));
     outline-offset: var(--ui-focus-offset, 0px);
   }
 }

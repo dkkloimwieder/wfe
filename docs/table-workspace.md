@@ -233,7 +233,7 @@ Custom cell renderers can set `data-column-alignment` on each cell.
 
 Shared table styles draw column dividers through headings and record cells.
 Set `--ui-table-row-divider` and `--ui-table-column-divider` on the owning scope for separate colors.
-Both tokens fall back to `--ui-divider`.
+Both tokens fall back to `--ui-border`.
 The dashboard review starts both at Surface 1 and offers four surface levels independently.
 Black/white uses the Light neutral surfaces for these lines.
 Light and Dark use their own neutral surfaces.

@@ -314,7 +314,7 @@ Set the shadow color to `transparent` to remove that layer from both effects.
 Custom Tree, Select, and Combobox choices share `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
 These roles override selected and highlighted paint in every preset. Their defaults remain decorated Sketchy, neutral Vanilla, and translucent primary-accent Laser.
 Sketchy also accepts `--ui-choice-decoration-color`, `--ui-choice-decoration-opacity`, and `--ui-choice-decoration-surface` for the dotted backing and its inner mask.
-The existing `--ui-selection` and `--ui-on-selection` roles continue to control the compatibility native picker. They do not override custom choice paint; use the choice roles above for that purpose.
+The compatibility native picker uses `--ui-accent` and `--ui-on-accent`. They do not override custom choice paint; use the choice roles above for that purpose.
 Preset choice defaults resolve at each choice, so a local accent colors Laser glow and translucent selection without replacing the owning Theme.
 
 `--ui-tree-row-min-height`, `--ui-tree-toggle-size`, `--ui-tree-symbol-size`, and `--ui-tree-indent` control Tree geometry.

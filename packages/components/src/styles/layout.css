@@ -224,7 +224,7 @@
 }
 :where([data-ui]) .ui-dashboard-menu > a:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus));
+    var(--ui-focus-ring, var(--ui-accent));
   outline-offset: -2px;
 }
 @media (width < 64rem) {
@@ -573,7 +573,7 @@
 }
 :where([data-ui]) .ui-dashboard-divider-toggle:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus));
+    var(--ui-focus-ring, var(--ui-accent));
   outline-offset: 0;
 }
 @media (width < 48rem) {

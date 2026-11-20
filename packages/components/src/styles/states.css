@@ -19,8 +19,7 @@
   .ui-radio-control,
 :where([data-ui]) :is(.ui-input-affix, .filter-input):has(:focus-visible),
 :where([data-ui]) .choice-control:has(:focus-visible) {
-  outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus, #1971c2));
+  outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
   outline-offset: var(--ui-focus-offset, 0px);
 }
 :where([data-ui]) .choice-control input:focus-visible,
@@ -140,7 +139,7 @@
     .choice-input,
     .popup-trigger
   ):focus-visible:not([aria-invalid='true'], [data-invalid]) {
-  border-color: var(--ui-field-focus-border, var(--ui-control-border, #e5e5e5));
+  border-color: var(--ui-focus-ring, var(--ui-control-border, #e5e5e5));
 }
 
 :where([data-ui])
@@ -148,7 +147,7 @@
     input:focus-visible
   ):not(:has([aria-invalid='true'], [data-invalid]))
   > :is(input, button.ui-button, button.choice-toggle) {
-  border-color: var(--ui-field-focus-border, var(--ui-control-border, #e5e5e5));
+  border-color: var(--ui-focus-ring, var(--ui-control-border, #e5e5e5));
 }
 :where([data-ui])
   :is(.ui-input-affix, .filter-input, .choice-control):has(

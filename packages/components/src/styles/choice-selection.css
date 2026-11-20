@@ -6,19 +6,16 @@
   ) {
   background: var(
     --ui-choice-selection-surface,
-    var(--_ui-choice-selection-surface, var(--ui-selection, var(--ui-accent)))
+    var(--_ui-choice-selection-surface, var(--ui-accent))
   );
   color: var(
     --ui-choice-selection-text,
-    var(
-      --_ui-choice-selection-text,
-      var(--ui-on-selection, var(--ui-on-accent, var(--ui-text)))
-    )
+    var(--_ui-choice-selection-text, var(--ui-on-accent, var(--ui-text)))
   );
 }
 :where([data-ui]) .popup-option[data-highlighted] {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus));
+    var(--ui-focus-ring, var(--ui-accent));
   outline-offset: -2px;
 }
 :where([data-ui])
@@ -138,7 +135,7 @@
 @scope (.ui-theme) to (.ui-theme) {
   :scope .ui-tree-item:focus-visible {
     outline: var(--ui-focus-width, 1px) solid
-      var(--ui-focus-ring, var(--ui-focus));
+      var(--ui-focus-ring, var(--ui-accent));
     outline-offset: -2px;
   }
 }

@@ -112,17 +112,17 @@ Their dimensions, padding, positioning, and modal layers remain specific to each
 Roles resolve on each component so nested scopes and live application overrides work.
 
 Fields share `--ui-control-hover` with the existing `--ui-highlight` fallback.
-Disabled and read-only fields use `--ui-muted-surface` and suppress editable hover feedback.
+Disabled and read-only fields use `--ui-muted-surface`, the sunken surface role, and suppress editable hover feedback.
 A selected Switch retains its highlight and thumb position in these states.
 `--ui-disabled-opacity` applies once to each visible control or toggle group.
 The default opacity is 1, so disabled actions do not acquire a gray fill.
 Unavailable choice options use full opacity and muted text.
 Unavailable action menu items use full opacity.
-Compatibility native selection uses `--ui-selection` and `--ui-on-selection`.
+Compatibility native selection uses `--ui-accent` and `--ui-on-accent`.
 Custom Tree, Select, and Combobox selection uses `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
 Sketchy choice decoration accepts `--ui-choice-decoration-color`, `--ui-choice-decoration-opacity`, and `--ui-choice-decoration-surface`.
 Action menu focus retains the hover surface and inset focus border.
-All visible field focus uses `--ui-focus-ring` with the `--ui-focus` fallback.
+All visible field focus uses `--ui-focus-ring`.
 Compound filter focus surrounds the complete field and suppresses the inner input outline.
 
 Real component browser cases cover both library themes, both densities, state transitions, surface overrides, and forced colors.
@@ -161,5 +161,6 @@ Fields shrink to the available width on narrow screens.
 `--ui-control-surface` supplies the editable field fill.
 `--ui-control-line-height`, `--ui-label-line-height`, and `--ui-label-weight` control shared typography.
 `--ui-focus-width` and `--ui-focus-offset` control the focus outline.
-`--ui-field-focus-border` supplies an optional border color for focused editable fields.
+Focused editable fields use `--ui-focus-ring` for their border color.
+The token base keeps `--ui-subtle-text`, `--ui-hover`, `--ui-divider`, `--ui-focus`, `--ui-field-focus-border`, `--ui-selection` and `--ui-on-selection` as aliases of `--ui-muted-text`, `--ui-highlight`, `--ui-border`, `--ui-accent`, `--ui-focus-ring`, `--ui-accent` and `--ui-on-accent`. Components read the canonical names.
 `--ui-field-gap` supplies form section spacing. Action rows retain `--ui-gap`.

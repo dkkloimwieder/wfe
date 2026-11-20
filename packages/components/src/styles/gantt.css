@@ -99,7 +99,7 @@
   overflow: hidden;
 }
 :where([data-ui]) .ui-gantt-bar:is(:hover, [aria-pressed='true']) {
-  background: var(--ui-hover, var(--ui-pane-surface));
+  background: var(--ui-highlight, var(--ui-pane-surface));
 }
 :where([data-ui]) .ui-gantt-bar:focus-visible {
   outline: 1px solid var(--ui-focus-ring, var(--ui-accent));

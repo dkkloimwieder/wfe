@@ -84,7 +84,7 @@ Table placement and divider controls stay in the Table example.
 
 Blue, Violet, and Orange use Open Props step 7 in light mode and step 1 in dark mode.
 Focus rings use a separate `--ui-focus-ring` role at 85% opacity.
-Other accent roles remain opaque. Select and Combobox highlights use `--ui-selection` and `--ui-on-selection`.
+Other accent roles remain opaque. Select and Combobox highlights use `--ui-accent` and `--ui-on-accent`.
 These roles default to the accent pair when supplied.
 Native dropdown selects use [customizable select CSS](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select) on supporting browsers.
 Their native markup, form values, and events remain unchanged.

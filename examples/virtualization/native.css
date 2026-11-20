@@ -53,8 +53,8 @@
   background: var(--ui-muted-surface, #ecf2f8);
 }
 .native-row.selected {
-  background: var(--ui-selection, #dbeafe);
-  color: var(--ui-on-selection, inherit);
+  background: var(--ui-accent, #dbeafe);
+  color: var(--ui-on-accent, inherit);
 }
 .native-detail {
   min-height: 72px;
