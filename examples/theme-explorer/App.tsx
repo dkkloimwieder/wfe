@@ -11,6 +11,7 @@ import {
   Checkbox,
   Field,
   FieldGroup,
+  HelpText,
   Icon,
   IconButton,
   Input,
@@ -23,7 +24,11 @@ import {
 } from '@wfe/components'
 import { DashboardShell } from '@wfe/components/layout'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
-import { themeTokens } from '../shared/appearance/appearance'
+import {
+  themeTokenBlocks,
+  themeTokenSources,
+  themeTokens,
+} from '../shared/appearance/appearance'
 import {
   defaults,
   galleryThemeOptions,
@@ -31,6 +36,7 @@ import {
   schemeForPreset,
 } from '../shared/appearance/galleryConfig'
 import type { GalleryConfig } from '../shared/appearance/galleryConfig'
+import type { ThemeMode } from '@wfe/components/theme'
 import {
   Buttons,
   Dialogs,
@@ -59,7 +65,7 @@ const modes = [
   { value: '2', label: 'Dark' },
   { value: '0', label: 'Black and white' },
 ]
-const modeName = (scheme: number) =>
+const modeName = (scheme: number): ThemeMode =>
   scheme === 2 ? 'dark' : scheme === 0 ? 'monochrome' : 'light'
 
 /** The gallery defaults and theme wiring, with live token overrides on top. */
@@ -76,20 +82,31 @@ export function ThemeExplorer() {
 
   const preset = () => config().preset
   const active = () => overrides()[preset()]
+  const options = () => ({
+    ...galleryThemeOptions(config()),
+    preset: config().preset,
+    mode: modeName(config().scheme),
+  })
+  const [overridesOnly, setOverridesOnly] = createSignal(false)
+  // Each token shows the tokens.css block that sets it for the current choices.
+  const sources = createMemo(() => themeTokenSources(options()))
+  const base = themeTokenBlocks[0]!.title
   const names = createMemo(() =>
-    Object.keys({
-      ...themeTokens({
-        ...galleryThemeOptions(config()),
-        preset: config().preset,
-        mode: modeName(config().scheme),
-      }),
-      ...active(),
-    }).filter((name) => name.startsWith('--')),
+    Object.keys({ ...themeTokens(options()), ...active() }).filter(
+      (name) =>
+        name.startsWith('--') &&
+        (!overridesOnly() || (sources()[name] ?? base) !== base),
+    ),
   )
+  const summary = createMemo(() => {
+    const all = Object.values(sources())
+    const fromBase = all.filter((title) => title === base).length
+    return `${fromBase} tokens from the base block, ${all.length - fromBase} from mode, density, preset and choice blocks.`
+  })
   const groups = createMemo(() => groupTokens(names()))
   const css = () => overridesAsCss(preset(), active())
 
-  // Read values after the theme root receives its new inline declarations.
+  // Read values after the theme root receives its new choices and overrides.
   function refresh() {
     if (frame !== undefined) cancelAnimationFrame(frame)
     frame = requestAnimationFrame(() => {
@@ -220,6 +237,22 @@ export function ThemeExplorer() {
             <output aria-live="polite" data-copy-status>
               {copyStatus()}
             </output>
+            <p data-token-summary>{summary()}</p>
+            <Checkbox
+              checked={overridesOnly()}
+              onChange={(value) => {
+                setOverridesOnly(value)
+                refresh()
+              }}
+            >
+              <Checkbox.Input />
+              <Checkbox.Control>
+                <Checkbox.Indicator />
+              </Checkbox.Control>
+              <Checkbox.Label>
+                Show only tokens that a block overrides
+              </Checkbox.Label>
+            </Checkbox>
             <Field>
               <Label>Changed tokens as CSS</Label>
               <Textarea readonly value={css()} rows={4} />
@@ -252,6 +285,11 @@ export function ThemeExplorer() {
                             <Icon name="refresh" />
                           </IconButton>
                         </InputGroup>
+                        <HelpText data-token-source>
+                          {active()[name] === undefined
+                            ? (sources()[name] ?? 'Inherited')
+                            : 'Edited in the explorer'}
+                        </HelpText>
                       </Field>
                     )}
                   </For>

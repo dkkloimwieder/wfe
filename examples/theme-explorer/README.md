@@ -4,10 +4,13 @@ The explorer shows a compact set of gallery components under one Theme.
 It uses the gallery defaults and the shared appearance code. It adds no component styles.
 
 Choose a preset (Sketchy, Vanilla or Laser) and a mode in the header.
-The token panel lists every token that the active preset writes, with its computed value.
+The token panel lists every token of the token base in `styles/tokens.css`, with its computed value.
+Under each token, the panel names the block that sets it for the current choices:
+the base block, or a mode, density, preset or application choice block.
+Select "Show only tokens that a block overrides" to see what the active preset and mode change.
 Edit a value to see the change at once. Use the reset button to restore one token, or Reset all.
-Copy changes as CSS copies the edited tokens. Theme writes preset tokens inline today,
-so apply copied values through the Theme `style` prop.
+Copy changes as CSS copies the edited tokens as a rule for the active preset.
+Theme tokens have zero specificity, so that rule overrides them in an application style sheet.
 Edits stay with their preset when you switch presets.
 
 The [theme audit](../../docs/plan/theme-audit.md) explains the token groups and the cleanup plan.

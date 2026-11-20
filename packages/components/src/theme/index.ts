@@ -7,6 +7,7 @@ export {
   themeGlow,
   themeTokenBlocks,
   themeTokens,
+  themeTokenSources,
   resolveThemeTokens,
 } from './Theme'
 export type {

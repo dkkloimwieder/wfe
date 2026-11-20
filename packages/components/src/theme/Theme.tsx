@@ -13,6 +13,7 @@ import { accents, paletteRoles, schemes, secondaryAccents } from './palette'
 import {
   presetDefaults,
   resolveTokenBlocks,
+  resolveTokenSources,
   tokenAttributes,
   tokenBlocks,
 } from './tokens'
@@ -132,6 +133,21 @@ export function themeTokens(
   return {
     ...resolveTokenBlocks(themeTokenBlocks, themeChoices(options)),
     ...decorationStyle(options),
+  }
+}
+
+/** The token block that sets each token for these options. */
+export function themeTokenSources(
+  options: ThemeOptions = {},
+): Record<string, string> {
+  return {
+    ...resolveTokenSources(themeTokenBlocks, themeChoices(options)),
+    ...Object.fromEntries(
+      Object.keys(decorationStyle(options)).map((name) => [
+        name,
+        'Inline decoration choice',
+      ]),
+    ),
   }
 }
 

@@ -148,6 +148,26 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
         )
         await expect.poll(() => rootValue('--ui-gap')).not.toBe('13px')
         await expect(css).toHaveValue('')
+        // Each token names the tokens.css block that sets it.
+        await expect(
+          token('--ui-radius').locator('[data-token-source]'),
+        ).toHaveText('Laser')
+        await expect(
+          token('--ui-font-size').locator('[data-token-source]'),
+        ).toHaveText(/^Base/)
+        const all = await page.locator('[data-token]').count()
+        await page
+          .getByText('Show only tokens that a block overrides', { exact: true })
+          .click()
+        await expect
+          .poll(() => page.locator('[data-token]').count())
+          .toBeLessThan(all)
+        await expect(token('--ui-font-size')).toHaveCount(0)
+        await expect(token('--ui-radius')).toHaveCount(1)
+        await page
+          .getByText('Show only tokens that a block overrides', { exact: true })
+          .click()
+        await expect.poll(() => page.locator('[data-token]').count()).toBe(all)
         await expect
           .poll(
             async () =>

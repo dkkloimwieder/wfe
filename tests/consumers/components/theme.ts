@@ -40,6 +40,7 @@ import type {
   ThemeSecondaryAccent,
   themeTokenBlocks,
   themeTokens,
+  themeTokenSources,
   TokenBlock,
   TokenChoices,
   TokenCondition,
@@ -89,6 +90,7 @@ export type ExportedTypes = Assert<
     ThemeSecondaryAccent: ThemeSecondaryAccent
     themeTokenBlocks: typeof themeTokenBlocks
     themeTokens: typeof themeTokens
+    themeTokenSources: typeof themeTokenSources
     TokenBlock: TokenBlock
     TokenChoices: TokenChoices
     TokenCondition: TokenCondition

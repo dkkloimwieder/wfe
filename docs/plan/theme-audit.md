@@ -3,11 +3,12 @@
 This audit compares the three theme presets: Sketchy (`default`), Vanilla (`vanilla`) and Laser (`laser`).
 It covers style sheets, theme code, and the gallery defaults.
 It proposes one token base and an ordered cleanup plan.
-The owner reviews the plan before any large cleanup starts.
+The owner asked for the plan to be carried out. Part 6 records what the cleanup did.
+Parts 1 to 5 describe the state before the cleanup, at commit 24aecd2.
 Beads issue: wfe-w2y.71.
 
 Paths start at `packages/components/src/` unless they start with `examples/` or `docs/`.
-Line numbers refer to the branch `feat/theme-audit`.
+Line numbers in parts 1 to 5 refer to commit 24aecd2 on the branch `feat/theme-audit`.
 The theme explorer example (`examples/theme-explorer`) confirmed the measured values in this audit.
 The measurements come from Chromium at 1440 by 900 pixels.
 
@@ -349,6 +350,59 @@ Each step keeps the gallery and the browser suites green. Each step is one Beads
 It uses the gallery defaults and the shared appearance code. It adds no component styles.
 To share code without sibling imports, this branch moved `Recipes.tsx` and `EverythingForm.tsx` to `examples/shared/controls`.
 It moved the preset defaults to `examples/shared/appearance/galleryConfig.ts` and the gallery layout rules to `examples/shared/appearance/gallery-layout.css`.
-The token panel lists every token that `themeStyle` writes for the active preset, grouped as in section 4.2.
-You can edit a value, reset it, and copy the changes as CSS.
-Because Theme writes tokens inline (finding 1), apply copied values through the Theme `style` prop until step 4 lands.
+The token panel lists the token base from `styles/tokens.css`, grouped as in section 4.2.
+Each token names the block that sets it, and a filter shows only the tokens that a block overrides.
+You can edit a value, reset it, and copy the changes as a CSS rule.
+
+## Part 6. Cleanup results
+
+The cleanup ran in plan order, one commit per step. `pnpm check` passed before each commit.
+Gallery screenshots of all 47 entries in four configurations (Sketchy light, Sketchy dark, Vanilla light, Laser light) and 26 entry states per configuration were compared after each step.
+Every difference is either listed below as intended or was fixed before the commit.
+
+### 6.1 Steps
+
+| Step | Commit  | Result                                                                                                                                                                                                      |
+| ---- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | aff9361 | Removed the dead shadow scale, `--ui-shadow-overflow`, `--ui-handle-border` and the `depth` option.                                                                                                         |
+| 2    | 67675a3 | Added `scripts/check-theme.mjs` to the integrity gate. It started in report mode with 37 findings.                                                                                                          |
+| 3    | 2573c08 | Rewrote 381 literal fallbacks so that each token has one fallback value.                                                                                                                                    |
+| 4    | 6032b9e | Moved every token default into `styles/tokens.css`, generated from `theme/tokens.ts`. Theme now writes choice attributes, not inline tokens. A 201-case option matrix resolved to the same computed tokens. |
+| 5    | 8cabeb0 | Collapsed seven synonym tokens into canonical names, with one alias block.                                                                                                                                  |
+| 6    | 72ccc66 | Moved shared preset rules into `styles/presentation.css` with optional tokens.                                                                                                                              |
+| 7    | b8a6547 | Replaced preset selector overrides with tokens, including a weight token for default-tone outline buttons.                                                                                                  |
+| 8    | fb482f1 | One disabled cue and one focus structure for every preset.                                                                                                                                                  |
+| 9    | 9e3af00 | Components mark embedded actions with `data-ui-action`. Theme lists select the role.                                                                                                                        |
+| 10   | 9314ea7 | `default-theme.css` became `decoration.css`, gated by the new decoration choice. One dot pattern replaced ten gradient copies.                                                                              |
+| 11   | 426e52c | `laser-theme.css` became `glow.css` and `plain-theme.css` became `plain.css`, gated by the glow and decoration choices. Components read the decoration choice.                                              |
+| 12   | 2c46b13 | The gallery reads preset defaults from `presetDefaults`.                                                                                                                                                    |
+| 13   | b52647d | Removed the legacy palette. `uiScope(density, mode)` makes a raw token root. The theme check is strict and reports 0 findings.                                                                              |
+
+### 6.2 Resulting structure
+
+- `theme/tokens.ts` holds 63 ordered token blocks with 150 distinct tokens. The base block holds 133 Sketchy light defaults.
+- Presets write values only. The 13 preset blocks write 162 token values. The plain block for Vanilla and Laser writes 42, Vanilla 18, Laser 41.
+- Theme writes choices as attributes: preset, mode, density, accent, secondary accent, layers, dividers, decoration colors, input decoration, decoration and glow. It writes only the decoration percentages inline.
+- `presetDefaults` gives each preset its default mode, decoration, glow and layers.
+- No style sheet or component tests the preset. `scripts/check-theme.mjs --strict` fails on any preset selector outside `tokens.css`, any component that reads the preset, any disagreeing fallback, and any `!important` outside forced colors.
+- Three additive layers remain, each gated by a choice rather than the preset: `decoration.css` (70 rules), `plain.css` (24 rules) and `glow.css` (31 rules). `presentation.css` holds 24 shared rules that read tokens.
+
+### 6.3 Intended visual changes
+
+The pairs are in `test-results/theme-cleanup/` (98 entries with before, after and diff images). `index.json` lists them.
+
+1. Laser uses 12px horizontal input padding for inputs and select triggers. Menus, popovers and cards that read the same token also use 12px (step 7).
+2. Vanilla and Laser compound fields show the invalid border on their adornment buttons, as Sketchy does (step 7).
+3. The nested decoration-geometry preview inherits the outer preset's outline button colors (step 7).
+4. Sketchy dims disabled controls to 0.5 opacity, the Vanilla value. This includes disabled table header sort buttons and the disabled buttons inside read-only date, select and calendar fields (step 8).
+5. Laser dims a disabled field as a whole instead of mixing its text color (step 8).
+6. Vanilla and Laser keep the focus outline on highlighted choice options and calendar days and the inset ring on menu items (step 8). Static screenshots do not show focus.
+7. Laser sub-table toggles, Gantt group toggles, pagination actions and the calendar heading are frameless, as in Vanilla (step 11).
+8. Raw fixture pages without a Theme lose the legacy black text, `currentColor` borders and legacy dark palette (step 13). These pages are outside the gallery.
+
+### 6.4 Not finished
+
+1. Hover and selected paint for actions still lives in the three layers. Moving it into `presentation.css` needs private resting variables in `buttons.css` and `fields.css`, so that an unset token can fall back to each variant's own paint. The layers already read only tokens for their values.
+2. `decoration.css` still remaps `--ui-accent` and `--ui-text` inside sidebar and table header controls (finding 2.1, three token remaps).
+3. The sub-table toggle, page action, calendar and sidebar rules in `plain.css` still name component classes. Only table header controls and field adornments carry `data-ui-action` roles.
+4. The selectors in the three layers keep the specificity of the former preset rules, so the brittle selectors in section 2.2 remain inside the layers.

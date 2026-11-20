@@ -63,7 +63,7 @@ export function overridesAsCss(
   )
   if (!entries.length) return ''
   return [
-    '/* Theme writes preset tokens inline. Pass these values through the Theme style prop. */',
+    '/* Theme tokens have zero specificity, so this rule overrides them. */',
     `.ui-theme[data-ui-preset='${preset}'] {`,
     ...entries.map(([name, value]) => `  ${name}: ${value.trim()};`),
     '}',

@@ -745,6 +745,18 @@ function matches(when: TokenCondition, choices: TokenChoices) {
   )
 }
 
+/** The title of the block that sets each token for one set of choices. */
+export function resolveTokenSources(
+  blocks: readonly TokenBlock[],
+  choices: TokenChoices,
+) {
+  const sources: Record<string, string> = {}
+  for (const block of blocks)
+    if (matches(block.when, choices))
+      for (const name of Object.keys(block.tokens)) sources[name] = block.title
+  return sources
+}
+
 /** The declared token values for one set of choices, in cascade order. */
 export function resolveTokenBlocks(
   blocks: readonly TokenBlock[],
