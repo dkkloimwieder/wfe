@@ -759,7 +759,7 @@
   background-color: var(--ui-muted-surface, #fcfcfd);
 }
 :where([data-ui]).ui-slider[data-disabled] {
-  opacity: var(--ui-disabled-opacity, 1);
+  opacity: var(--ui-disabled-opacity, 0.5);
 }
 :where([data-ui]).ui-slider:not([data-disabled], [data-readonly])
   .ui-slider-thumb:hover {

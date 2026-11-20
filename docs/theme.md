@@ -88,12 +88,12 @@ to fixed-row virtual tables. `themeTokens` accepts the same density option.
 An omitted DashboardShell density inherits its parent without declaring a new profile.
 Nested Theme instances start with their own default profile.
 
-Bare `uiScope()` still defaults to compact. Its optional `"dark"` argument and
-raw `data-ui-theme="dark"` attribute retain the legacy palette for compatibility.
-They do not enable the approved Theme appearance or decoration behavior.
-Use Theme for new interfaces. Migrate legacy wrappers explicitly so applications
-can review that appearance change. Both palettes have one data owner in
-`theme/palette.ts`; legacy CSS is generated and checked for drift.
+Bare `uiScope()` still defaults to compact. The legacy palette is gone.
+`uiScope(density, mode)` with a mode makes the scope a token root: it writes
+`data-ui-tokens` and `data-ui-mode`, so the scope receives the Sketchy token base
+in that mode without decoration behavior. A scope without a mode inherits tokens
+from its nearest root; outside any root the CSS fallbacks, which equal the
+Sketchy light values, apply. Use Theme for new interfaces.
 Application CSS owns page height and available table space.
 Use solid content panels over the dotted main canvas to keep text readable.
 

@@ -62,7 +62,10 @@ export function DisplayControls(props: { embedded?: boolean } = {}) {
       style={
         props.embedded ? undefined : { ...uiScope().style, ...exampleSizing }
       }
-      data-ui-theme={
+      data-ui-tokens={
+        new URLSearchParams(location.search).has('dark') ? '' : undefined
+      }
+      data-ui-mode={
         new URLSearchParams(location.search).has('dark') ? 'dark' : undefined
       }
     >

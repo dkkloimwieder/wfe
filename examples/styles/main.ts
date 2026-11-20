@@ -9,8 +9,13 @@ function configure(
   const scope = uiScope(density, theme)
   node.setAttribute('data-ui', '')
   node.setAttribute('data-ui-density', scope['data-ui-density'])
-  if (theme) node.setAttribute('data-ui-theme', theme)
-  else node.removeAttribute('data-ui-theme')
+  if (theme) {
+    node.setAttribute('data-ui-tokens', '')
+    node.setAttribute('data-ui-mode', theme)
+  } else {
+    node.removeAttribute('data-ui-tokens')
+    node.removeAttribute('data-ui-mode')
+  }
   for (const [key, value] of Object.entries(scope.style))
     node.style.setProperty(key, value)
 }

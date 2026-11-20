@@ -28,7 +28,7 @@ separate step; this change does not modify the upstream application.
 
 Raw primitive and interoperability routes in the component fixture test use
 without Theme as well as composition within it. The shared-styles fixture tests
-raw scopes and the legacy palette. The chart standalone branch tests the chart
+raw scopes and raw dark token roots. The chart standalone branch tests the chart
 without a parent component. ThemeConsumer deliberately tests nested themes.
 These fixtures must keep their distinct ownership and isolation checks.
 

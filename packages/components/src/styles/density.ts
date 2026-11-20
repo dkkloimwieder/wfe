@@ -29,13 +29,21 @@ export function uiDensity(density: UIDensity = 'compact') {
   return UI_DENSITIES[density]
 }
 
-/** Supply this same density to fixed row geometry and the owning UI scope. */
-export function uiScope(density: UIDensity = 'compact', theme?: 'dark') {
+/**
+ * Supply this same density to fixed row geometry and the owning UI scope.
+ * A mode makes the scope a token root: it receives the Sketchy token base in
+ * that mode, as a Theme root does. Without a mode, a scope inherits tokens.
+ */
+export function uiScope(
+  density: UIDensity = 'compact',
+  mode?: 'light' | 'dark',
+) {
   const value = uiDensity(density)
   return {
     'data-ui': '',
     'data-ui-density': density,
-    'data-ui-theme': theme,
+    'data-ui-tokens': mode ? '' : undefined,
+    'data-ui-mode': mode,
     style: {
       '--ui-row-height': `${value.rowHeight}px`,
       '--ui-control-height': `${value.controlHeight}px`,

@@ -73,7 +73,8 @@ export function DialogControls() {
       {...uiScope()}
       ref={setHost}
       data-ui-portal-root=""
-      data-ui-theme={parameters.has('dark') ? 'dark' : undefined}
+      data-ui-tokens={parameters.has('dark') ? '' : undefined}
+      data-ui-mode={parameters.has('dark') ? 'dark' : undefined}
       style={{ 'min-height': '180vh' }}
     >
       <h1>Dialog controls</h1>

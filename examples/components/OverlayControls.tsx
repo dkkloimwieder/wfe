@@ -65,7 +65,10 @@ export function OverlayControls(props: { embedded?: boolean } = {}) {
         props.embedded ? undefined : { ...uiScope().style, ...exampleSizing }
       }
       data-ui-portal-root=""
-      data-ui-theme={
+      data-ui-tokens={
+        new URLSearchParams(location.search).has('dark') ? '' : undefined
+      }
+      data-ui-mode={
         new URLSearchParams(location.search).has('dark') ? 'dark' : undefined
       }
     >
