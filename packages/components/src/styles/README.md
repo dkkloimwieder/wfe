@@ -82,6 +82,7 @@ The older `filter-input` and `clear-input` CSS hooks remain supported aliases.
 `surfaces.css` owns floating borders, backgrounds, text, and shadows.
 `states.css` owns common focus, invalid, disabled, read-only, and field hover rules.
 `tokens.css` owns every token default and the preset, mode, density and choice blocks. It is generated from `theme/tokens.ts`.
+Components mark embedded actions with `data-ui-action`: `adornment` for date triggers and clear buttons inside a field, `header` for table header sort, move and rename buttons. Theme rules select these roles instead of component class names.
 `presentation.css` owns shared presentation that presets configure only through tokens, such as layout surfaces, panel shapes and checked toggles.
 The remaining files own layout, table workspace, calendar, and text presentation.
 

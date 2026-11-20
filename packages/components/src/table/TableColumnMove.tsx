@@ -219,6 +219,7 @@ export function TableColumnMove(props: {
         tone="neutral"
         type="button"
         class="column-move"
+        data-ui-action="header"
         aria-label={messages.moveColumn(props.label)}
         aria-describedby={helpId}
         aria-controls={menuId}

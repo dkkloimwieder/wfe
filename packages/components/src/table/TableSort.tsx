@@ -19,6 +19,7 @@ export function TableSort(props: {
       tone="neutral"
       type="button"
       class={props.class ?? 'column-sort'}
+      data-ui-action="header"
       aria-label={props.accessibleLabel ?? messages.sortBy(props.label)}
       disabled={props.disabled}
       ref={nativeEvents<HTMLElement>({

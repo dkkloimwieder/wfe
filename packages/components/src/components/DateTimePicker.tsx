@@ -365,6 +365,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
           <Popover.Trigger
             type="button"
             class="ui-date-trigger"
+            data-ui-action="adornment"
             disabled={locked()}
             aria-label={messages.openDateTimePicker(props.label)}
             ref={(node) => {
@@ -376,6 +377,7 @@ export function DateTimePicker(props: DateTimePickerProps) {
           <Button
             type="button"
             class="ui-input-clear"
+            data-ui-action="adornment"
             aria-label={messages.clearDate(props.label)}
             disabled={locked() || (!draft() && !accepted())}
             onClick={() => {

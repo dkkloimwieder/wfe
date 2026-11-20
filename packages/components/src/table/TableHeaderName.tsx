@@ -45,6 +45,7 @@ export function TableHeaderName(props: {
       <Button
         type="button"
         class="header-rename"
+        data-ui-action="header"
         hidden={editing()}
         aria-label={messages.renameColumnHeader(props.label)}
         title={messages.renameHeader}

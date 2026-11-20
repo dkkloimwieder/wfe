@@ -188,6 +188,7 @@ export function DatePicker(props: DatePickerProps) {
             type="button"
             disabled={disabled() || readonly()}
             class="ui-date-trigger"
+            data-ui-action="adornment"
             aria-label={messages.openCalendar(props.label)}
           >
             <Icon name="calendar" />
@@ -195,6 +196,7 @@ export function DatePicker(props: DatePickerProps) {
           <Button
             type="button"
             class="ui-input-clear"
+            data-ui-action="adornment"
             aria-label={props.clearLabel ?? messages.clearDate(props.label)}
             disabled={disabled() || readonly() || (!draft() && !props.value)}
             onClick={() => {

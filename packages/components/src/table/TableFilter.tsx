@@ -158,6 +158,7 @@ export function TableFilter(props: TableFilterProps) {
           <Button
             type="button"
             class="ui-input-clear"
+            data-ui-action="adornment"
             aria-label={props.clearLabel ?? messages.clearFilter(props.label)}
             title={props.clearLabel ?? messages.clearFilter(props.label)}
             disabled={props.disabled || !props.value}

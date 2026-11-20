@@ -131,9 +131,7 @@
       :is(
         .sub-table-toggle,
         .table-page-action,
-        .column-sort,
-        .header-sort,
-        .column-move,
+        [data-ui-action='header'],
         .group-heading button[data-group-toggle],
         .ui-sidebar-context-parent,
         .ui-calendar-navigation > button,
@@ -149,9 +147,7 @@
       :is(
         .sub-table-toggle,
         .table-page-action,
-        .column-sort,
-        .header-sort,
-        .column-move,
+        [data-ui-action='header'],
         .group-heading button[data-group-toggle],
         .ui-calendar-navigation > button,
         .ui-datetime-back
@@ -160,9 +156,7 @@
       :is(
         .sub-table-toggle,
         .table-page-action,
-        .column-sort,
-        .header-sort,
-        .column-move,
+        [data-ui-action='header'],
         .group-heading button[data-group-toggle],
         .ui-calendar-navigation > button,
         .ui-datetime-back

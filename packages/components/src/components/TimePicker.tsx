@@ -249,6 +249,7 @@ export function TimePicker(props: TimePickerProps) {
           <Popover.Trigger
             type="button"
             class="ui-date-trigger"
+            data-ui-action="adornment"
             disabled={disabled() || readonly()}
             aria-label={messages.openTimePicker(props.label)}
             ref={(node) => {
@@ -260,6 +261,7 @@ export function TimePicker(props: TimePickerProps) {
           <Button
             type="button"
             class="ui-input-clear"
+            data-ui-action="adornment"
             aria-label={props.clearLabel ?? messages.clearTime(props.label)}
             disabled={disabled() || readonly() || (!draft() && !props.value)}
             onClick={() => {
