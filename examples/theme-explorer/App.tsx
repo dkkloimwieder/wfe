@@ -28,6 +28,7 @@ import {
   defaults,
   galleryThemeOptions,
   layersForPreset,
+  schemeForPreset,
 } from '../shared/appearance/galleryConfig'
 import type { GalleryConfig } from '../shared/appearance/galleryConfig'
 import {
@@ -119,7 +120,8 @@ export function ThemeExplorer() {
     setConfig((current) => ({
       ...current,
       preset: next,
-      scheme: next === 'laser' ? 2 : current.scheme,
+      scheme:
+        schemeForPreset(next) !== 1 ? schemeForPreset(next) : current.scheme,
       layers: layersForPreset(next),
     }))
     setCopyStatus('')

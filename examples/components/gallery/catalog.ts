@@ -4,7 +4,11 @@ import {
   secondaryAccents,
 } from '../../shared/appearance/appearance'
 import type { Decorations } from '../../shared/appearance/appearance'
-import { layersForPreset, states } from '../../shared/appearance/galleryConfig'
+import {
+  layersForPreset,
+  schemeForPreset,
+  states,
+} from '../../shared/appearance/galleryConfig'
 import type {
   GalleryConfig,
   GalleryState,
@@ -12,6 +16,7 @@ import type {
 export {
   states,
   layersForPreset,
+  schemeForPreset,
   galleryThemeOptions,
   defaults,
 } from '../../shared/appearance/galleryConfig'
@@ -300,7 +305,7 @@ export function readRoute(url: URL): GalleryRoute {
           (value) => value === url.searchParams.get('borderColor'),
         ) ?? 'neutral',
     },
-    scheme: number('scheme', preset === 'laser' ? 2 : 1, 2),
+    scheme: number('scheme', schemeForPreset(preset), 2),
     accent: number('accent', 1, 8),
     layers: {
       canvas: number('canvas', layers.canvas, 2) as 0 | 1 | 2,
@@ -324,7 +329,7 @@ export function galleryUrl(base: URL, route: GalleryRoute, preview = false) {
         [key, route.decorations[key as keyof Decorations], fallback] as const,
     ),
     ['preset', route.preset, 'default'],
-    ['scheme', route.scheme, route.preset === 'laser' ? 2 : 1],
+    ['scheme', route.scheme, schemeForPreset(route.preset)],
     ['accent', route.accent, 1],
     ['canvas', route.layers.canvas, layersForPreset(route.preset).canvas],
     ['pane', route.layers.pane, layersForPreset(route.preset).pane],

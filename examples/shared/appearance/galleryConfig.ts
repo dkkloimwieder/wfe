@@ -3,6 +3,7 @@ import {
   accents,
   defaultDecorations,
   defaultLayers,
+  presetDefaults,
   secondaryAccents,
 } from './appearance'
 import type { Decorations } from './appearance'
@@ -18,14 +19,13 @@ export type GalleryConfig = {
   layers: { canvas: 0 | 1 | 2; pane: 0 | 1 | 2; content: 0 | 1 | 2 }
   state: GalleryState
 }
+/** The theme owns preset defaults; the gallery only copies them into its route. */
 export const layersForPreset = (
   preset: GalleryConfig['preset'],
-): GalleryConfig['layers'] =>
-  preset === 'laser'
-    ? { canvas: 0, pane: 1, content: 1 }
-    : preset === 'vanilla'
-      ? { canvas: 1, pane: 0, content: 0 }
-      : { ...defaultLayers }
+): GalleryConfig['layers'] => ({ ...presetDefaults[preset].layers })
+/** Surface scheme index of the preset's default mode: 0 black and white, 1 light, 2 dark. */
+export const schemeForPreset = (preset: GalleryConfig['preset']) =>
+  ({ monochrome: 0, light: 1, dark: 2 })[presetDefaults[preset].mode]
 export const galleryThemeOptions = (route: GalleryConfig) => ({
   // Decoration choices configure Sketchy only, as in the appearance review.
   decorations:

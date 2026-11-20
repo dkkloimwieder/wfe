@@ -28,6 +28,7 @@ import {
   readRoute,
   galleryThemeOptions,
   layersForPreset,
+  schemeForPreset,
 } from './catalog'
 import type { GalleryRoute } from './catalog'
 import '../../shared/appearance/style.css'
@@ -278,20 +279,17 @@ export function Gallery() {
                   { value: 'vanilla', label: 'Vanilla' },
                   { value: 'laser', label: 'Laser' },
                 ]}
-                onValueChange={(preset) =>
+                onValueChange={(value) => {
+                  const preset =
+                    value === 'vanilla' || value === 'laser' ? value : 'default'
+                  // A preset with a non-light default mode also selects that mode.
+                  const scheme = schemeForPreset(preset)
                   change({
-                    preset:
-                      preset === 'vanilla' || preset === 'laser'
-                        ? preset
-                        : 'default',
-                    scheme: preset === 'laser' ? 2 : route().scheme,
-                    layers: layersForPreset(
-                      preset === 'vanilla' || preset === 'laser'
-                        ? preset
-                        : 'default',
-                    ),
+                    preset,
+                    scheme: scheme !== 1 ? scheme : route().scheme,
+                    layers: layersForPreset(preset),
                   })
-                }
+                }}
               />
             </Field>
             <div
