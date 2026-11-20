@@ -137,9 +137,21 @@ export const presetSchemes = {
 
 /** Default choices per preset. Explicit choices override them. */
 export const presetDefaults = {
-  default: { mode: 'light', layers: { canvas: 0, pane: 2, content: 1 } },
-  vanilla: { mode: 'light', layers: { canvas: 1, pane: 0, content: 0 } },
-  laser: { mode: 'dark', layers: { canvas: 0, pane: 1, content: 1 } },
+  default: {
+    mode: 'light',
+    decoration: true,
+    layers: { canvas: 0, pane: 2, content: 1 },
+  },
+  vanilla: {
+    mode: 'light',
+    decoration: false,
+    layers: { canvas: 1, pane: 0, content: 0 },
+  },
+  laser: {
+    mode: 'dark',
+    decoration: false,
+    layers: { canvas: 0, pane: 1, content: 1 },
+  },
 } as const
 
 const surfaces = (values: readonly string[]) =>
@@ -273,6 +285,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-popup-shadow': 'none',
         // Default-tone outline buttons: 100% uses the button color, 0% the neutral text and border.
         '--ui-outline-accent-weight': '100%',
+        '--ui-action-outline-opacity': '100%',
         // Glyphs and choice lists
         '--ui-disclosure-overflow': 'visible',
         '--ui-disclosure-width': '10.5px',
@@ -409,6 +422,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-button-border': 'var(--ui-control-border)',
         '--ui-focus-offset': '2px',
         '--ui-canvas-pattern': 'none',
+        '--ui-decoration-dot-opacity': '0%',
         '--ui-input-decoration-display': 'none',
         '--ui-input-disclosure-arrow-visibility': 'visible',
         '--ui-toggle-checked-surface': 'var(--ui-accent)',

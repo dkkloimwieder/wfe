@@ -7,10 +7,25 @@ import type {
   DecorationSamples,
 } from './decorationGeometry'
 
+/** Elements with a randomized backing. styles/decoration.css transforms the same list. */
+export const decoratedSelectors = [
+  '.ui-button',
+  '.ui-dashboard-navigation a[href]',
+  '.ui-dashboard-menu a[href]',
+  '.ui-entry-panel-surface',
+  '[data-ui-control-surface]',
+  '[data-ui-section-decoration]',
+  '[data-popper-positioner]:has(> .ui-menu[data-ui-section-decoration])',
+] as const
+
 /** One geometry owner per Theme. Resize keeps samples and never changes layout. */
 export function decorateActions(root: HTMLDivElement) {
-  const selector =
-    '.ui-button, .ui-dashboard-navigation a[href], .ui-dashboard-menu a[href], .ui-entry-panel-surface, [data-ui-control-surface], [data-ui-section-decoration]:not(.ui-menu), [data-popper-positioner]:has(> .ui-menu[data-ui-section-decoration])'
+  // A menu's positioner owns its backing, so the menu itself is not sampled.
+  const selector = decoratedSelectors
+    .map((item) =>
+      item === '[data-ui-section-decoration]' ? `${item}:not(.ui-menu)` : item,
+    )
+    .join(', ')
   type State = {
     samples: DecorationSamples
     width: number

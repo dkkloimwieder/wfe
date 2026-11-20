@@ -108,6 +108,7 @@
   --ui-panel-shadow: none;
   --ui-popup-shadow: none;
   --ui-outline-accent-weight: 100%;
+  --ui-action-outline-opacity: 100%;
   --ui-disclosure-overflow: visible;
   --ui-disclosure-width: 10.5px;
   --ui-disclosure-height: 15.75px;
@@ -269,6 +270,7 @@
   --ui-button-border: var(--ui-control-border);
   --ui-focus-offset: 2px;
   --ui-canvas-pattern: none;
+  --ui-decoration-dot-opacity: 0%;
   --ui-input-decoration-display: none;
   --ui-input-disclosure-arrow-visibility: visible;
   --ui-toggle-checked-surface: var(--ui-accent);

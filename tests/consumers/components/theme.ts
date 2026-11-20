@@ -5,6 +5,7 @@ import type {
   accentName,
   accents,
   ControlDecoration,
+  decoratedSelectors,
   DecorationColor,
   decorationColors,
   DecorationGeometry,
@@ -29,6 +30,7 @@ import type {
   ThemeAccent,
   themeAttributes,
   themeChoices,
+  themeDecoration,
   ThemeDensity,
   ThemeMode,
   ThemeOptions,
@@ -51,6 +53,7 @@ export type ExportedTypes = Assert<
     accentName: typeof accentName
     accents: typeof accents
     ControlDecoration: ControlDecoration
+    decoratedSelectors: typeof decoratedSelectors
     DecorationColor: DecorationColor
     decorationColors: typeof decorationColors
     DecorationGeometry: DecorationGeometry
@@ -75,6 +78,7 @@ export type ExportedTypes = Assert<
     ThemeAccent: ThemeAccent
     themeAttributes: typeof themeAttributes
     themeChoices: typeof themeChoices
+    themeDecoration: typeof themeDecoration
     ThemeDensity: ThemeDensity
     ThemeMode: ThemeMode
     ThemeOptions: ThemeOptions

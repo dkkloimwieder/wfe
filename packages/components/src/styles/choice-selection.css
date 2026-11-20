@@ -30,7 +30,7 @@
     --_ui-choice-selection-surface: var(--ui-highlight);
   }
 }
-@scope (.ui-theme:is([data-ui-preset='default'], :not([data-ui-preset]))) to (.ui-theme) {
+@scope ([data-ui-tokens][data-ui-decoration]) to ([data-ui-tokens]) {
   :scope :is(.popup-option, .ui-tree-item) {
     --_ui-choice-selection-text: var(--ui-text);
     --_ui-choice-selection-surface: transparent;

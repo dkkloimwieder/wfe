@@ -55,7 +55,7 @@
   scale: 1;
   fill: none;
 }
-@scope (.ui-theme[data-ui-preset='default']) to (.ui-theme) {
+@scope ([data-ui-tokens][data-ui-decoration]) to ([data-ui-tokens]) {
   :scope .ui-tree .ui-button.ui-tree-toggle[data-variant] {
     border-color: transparent;
     background: transparent;

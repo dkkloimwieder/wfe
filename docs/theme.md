@@ -66,6 +66,10 @@ A consumer class or inline style on the root therefore overrides any token.
 `themeAttributes(options)` returns the root attributes for a scope without Theme.
 Use `Theme` to include decoration behavior and popup ownership.
 
+`decoration` turns the dotted decoration layer on or off. Sketchy turns it on by default and the other presets turn it off.
+Theme then writes `data-ui-decoration` on its root, `styles/decoration.css` applies, and the randomized geometry controller starts.
+Components that draw decorative SVG read the same choice. One dot pattern serves every decorated surface; each rule only chooses the dot color.
+
 Nested themes can use different presets, modes, and accents.
 Each scope owns its CSS and automatic popup portals. Ancestor preset rules stop at nested Theme boundaries.
 DashboardShell inherits theme sizing unless you pass an explicit density.

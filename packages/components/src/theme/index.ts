@@ -3,6 +3,7 @@ export {
   Theme,
   themeAttributes,
   themeChoices,
+  themeDecoration,
   themeTokenBlocks,
   themeTokens,
   resolveThemeTokens,
@@ -27,4 +28,5 @@ export type {
 export type { ControlDecoration } from '../internal/controlDecoration'
 
 export { defaultDecorationGeometry } from './decorationGeometry'
+export { decoratedSelectors } from './decorations'
 export type { DecorationGeometry } from './decorationGeometry'

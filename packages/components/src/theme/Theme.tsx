@@ -39,6 +39,8 @@ export type ThemeOptions = {
   decorationGeometry?: Partial<DecorationGeometry>
   inputDecoration?: ControlDecoration
   mode?: ThemeMode
+  /** Dotted decoration and its randomized geometry. Sketchy turns it on by default. */
+  decoration?: boolean
   accent?: ThemeAccent
   secondaryAccent?: ThemeSecondaryAccent
   layers?: Partial<SurfaceLayers>
@@ -82,6 +84,13 @@ export function themeChoices(options: ThemeOptions = {}): TokenChoices {
   }
 }
 
+/** Whether the dotted decoration layer applies, with the preset default. */
+export function themeDecoration(options: ThemeOptions = {}) {
+  return (
+    options.decoration ?? presetDefaults[options.preset ?? 'default'].decoration
+  )
+}
+
 /** Continuous decoration values have no block. They stay inline on the root. */
 function decorationStyle(options: ThemeOptions): Record<string, string> {
   const style: Record<string, string> = {}
@@ -104,6 +113,7 @@ export function themeAttributes(options: ThemeOptions = {}) {
     TokenChoices[keyof TokenChoices],
   ][])
     if (value !== undefined) attributes[tokenAttributes[key]] = String(value)
+  if (themeDecoration(options)) attributes['data-ui-decoration'] = ''
   return { attributes, style: decorationStyle(options) as JSX.CSSProperties }
 }
 
@@ -146,11 +156,11 @@ export function Theme(props: ThemeProps) {
   createEffect(
     () => ({
       node: element(),
-      preset: props.preset ?? 'default',
+      decorated: themeDecoration(props),
       geometry: resolveDecorationGeometry(props.decorationGeometry),
     }),
-    ({ node, geometry, preset }) => {
-      if (!node || preset !== 'default') {
+    ({ node, geometry, decorated }) => {
+      if (!node || !decorated) {
         controller?.dispose()
         controller = undefined
         owner = undefined
@@ -187,6 +197,7 @@ export function Theme(props: ThemeProps) {
           data-ui-dot-color={choices().dotColor}
           data-ui-border-color={choices().borderColor}
           data-ui-input-decoration={choices().inputDecoration}
+          data-ui-decoration={themeDecoration(props) ? '' : undefined}
           id={props.id}
           class={styledClasses('ui-theme', props.class)}
           data-ui-portal-root=""
