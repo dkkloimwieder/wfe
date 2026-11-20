@@ -259,6 +259,12 @@
   --ui-canvas-pattern: none;
   --ui-input-decoration-display: none;
   --ui-input-disclosure-arrow-visibility: visible;
+  --ui-toggle-checked-surface: var(--ui-accent);
+  --ui-toggle-checked-border: var(--ui-accent);
+  --ui-toggle-checked-text: var(--ui-on-accent);
+  --ui-switch-track: var(--ui-border);
+  --ui-switch-thumb: var(--ui-text);
+  --ui-switch-checked-thumb: var(--ui-on-accent);
 }
 
 /* Plain presentation, dark mode */

@@ -6,21 +6,6 @@
     --ui-icon-stroke-width: 1;
     --ui-action-outline-opacity: 100%;
   }
-  :scope .ui-dashboard-main {
-    background: var(--ui-canvas-surface);
-    background-image: var(--ui-canvas-pattern);
-    background-size: var(--ui-canvas-pattern-size);
-  }
-  :scope
-    :is(
-      .ui-dashboard-header,
-      .ui-dashboard-navigation,
-      .ui-dashboard-context,
-      .ui-dashboard-footer,
-      .ui-dashboard-panel
-    ) {
-    background: var(--ui-pane-surface);
-  }
   :scope .ui-dashboard-panel {
     box-shadow: var(--ui-panel-shadow);
   }

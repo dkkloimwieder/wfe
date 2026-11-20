@@ -81,6 +81,8 @@ Boolean filter layout stays in the later workspace file so it follows generic to
 The older `filter-input` and `clear-input` CSS hooks remain supported aliases.
 `surfaces.css` owns floating borders, backgrounds, text, and shadows.
 `states.css` owns common focus, invalid, disabled, read-only, and field hover rules.
+`tokens.css` owns every token default and the preset, mode, density and choice blocks. It is generated from `theme/tokens.ts`.
+`presentation.css` owns shared presentation that presets configure only through tokens, such as layout surfaces, panel shapes and checked toggles.
 The remaining files own layout, table workspace, calendar, and text presentation.
 
 ## Library defaults and application overrides

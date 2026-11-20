@@ -9,6 +9,12 @@
 // scripts/theme-tokens.mjs writes these blocks to styles/tokens.css, and
 // resolveThemeTokens applies the same blocks in TypeScript.
 // This module imports values only from import-free modules, so Node can run it.
+//
+// Optional tokens. Sketchy leaves these unset, so each component keeps its
+// resting paint; Vanilla and Laser set them in the plain presentation block.
+//   --ui-toggle-checked-surface, --ui-toggle-checked-border,
+//   --ui-toggle-checked-text: checked checkbox, switch and radio paint.
+//   --ui-switch-track, --ui-switch-thumb, --ui-switch-checked-thumb: switch parts.
 import type { Accent, SurfaceScheme, PaletteRoles } from './palette'
 
 export type TokenPreset = 'default' | 'vanilla' | 'laser'
@@ -388,6 +394,12 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-canvas-pattern': 'none',
         '--ui-input-decoration-display': 'none',
         '--ui-input-disclosure-arrow-visibility': 'visible',
+        '--ui-toggle-checked-surface': 'var(--ui-accent)',
+        '--ui-toggle-checked-border': 'var(--ui-accent)',
+        '--ui-toggle-checked-text': 'var(--ui-on-accent)',
+        '--ui-switch-track': 'var(--ui-border)',
+        '--ui-switch-thumb': 'var(--ui-text)',
+        '--ui-switch-checked-thumb': 'var(--ui-on-accent)',
       },
     },
     {
