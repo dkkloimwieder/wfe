@@ -23,12 +23,7 @@ import {
 } from '@wfe/components'
 import { DashboardShell } from '@wfe/components/layout'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
-import {
-  accents,
-  appearanceStyle,
-  schemes,
-  themeStyle,
-} from '../shared/appearance/appearance'
+import { themeTokens } from '../shared/appearance/appearance'
 import {
   defaults,
   galleryThemeOptions,
@@ -80,24 +75,13 @@ export function ThemeExplorer() {
 
   const preset = () => config().preset
   const active = () => overrides()[preset()]
-  const baseStyle = () =>
-    config().preset === 'default'
-      ? appearanceStyle(
-          schemes[config().scheme]!,
-          accents[config().accent]!,
-          config().layers,
-          undefined,
-          config().decorations,
-        )
-      : undefined
   const names = createMemo(() =>
     Object.keys({
-      ...themeStyle({
+      ...themeTokens({
         ...galleryThemeOptions(config()),
         preset: config().preset,
         mode: modeName(config().scheme),
       }),
-      ...baseStyle(),
       ...active(),
     }).filter((name) => name.startsWith('--')),
   )
@@ -178,7 +162,7 @@ export function ThemeExplorer() {
       options={galleryThemeOptions(config())}
       preset={config().preset}
       mode={modeName(config().scheme)}
-      style={{ ...baseStyle(), ...appliedOverrides(active()) }}
+      style={appliedOverrides(active())}
     >
       <DashboardShell
         class="gallery-dashboard"

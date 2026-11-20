@@ -2,12 +2,6 @@ import { createSignal, onCleanup } from 'solid-js'
 import { DashboardShell, StatusTile, TileRow } from '@wfe/components'
 import type { StatusTileState, ValueFormat } from '@wfe/components'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
-import {
-  accents,
-  appearanceStyle,
-  defaultLayers,
-  schemes,
-} from '../shared/appearance/appearance'
 import './style.css'
 
 export const longLabel =
@@ -50,18 +44,7 @@ export function App(props: { ready?: (api: TileFixture) => void }) {
     alive = false
   })
   return (
-    <DefaultAppearance
-      class="tiles-example"
-      style={
-        dark()
-          ? appearanceStyle(
-              schemes.find((entry) => entry.mode === 'dark')!,
-              accents[1]!,
-              defaultLayers,
-            )
-          : undefined
-      }
-    >
+    <DefaultAppearance class="tiles-example" mode={dark() ? 'dark' : undefined}>
       <DashboardShell
         header={
           <h1 class="tiles-example-title" tabindex={-1} data-ui-text="system">

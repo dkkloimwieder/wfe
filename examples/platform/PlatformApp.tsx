@@ -22,7 +22,8 @@ import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
   accents,
   schemes,
-  appearanceStyle,
+  schemeMode,
+  accentOption,
   defaultLayers,
 } from '../shared/appearance/appearance'
 import type { SurfaceLayers } from '../shared/appearance/appearance'
@@ -194,7 +195,8 @@ export function PlatformApp(props: {
   return (
     <DefaultAppearance
       class="platform-example"
-      style={appearanceStyle(scheme(), accent(), layers())}
+      mode={schemeMode(scheme())}
+      options={{ accent: accentOption(accent()), layers: layers() }}
     >
       <div
         class="platform-root"

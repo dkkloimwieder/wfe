@@ -42,7 +42,8 @@ import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
   schemes,
   accents,
-  appearanceStyle,
+  schemeMode,
+  accentOption,
   defaultLayers,
   defaultDividers,
 } from '../shared/appearance/appearance'
@@ -305,10 +306,11 @@ function TablePage() {
   updateColumnAlignment = changeAlignment
   return (
     <Theme
-      style={{
-        ...appearanceStyle(scheme(), accent(), layers(), dividers()),
-        height: '100%',
-      }}
+      mode={schemeMode(scheme())}
+      accent={accentOption(accent())}
+      layers={layers()}
+      dividers={dividers()}
+      style={{ height: '100%' }}
     >
       <main class="table-page" aria-label="Records workspace">
         <AppearanceReview

@@ -11,13 +11,13 @@ import {
   Theme,
   SelectField,
   defaultDecorationGeometry,
-  themeStyle,
+  themeTokens,
 } from '@wfe/components'
 import type { DecorationGeometry } from '@wfe/components'
 
 // The nested owner changes geometry while keeping the gallery appearance.
 const inheritedAppearance = Object.fromEntries(
-  Object.keys(themeStyle()).map((key) => [key, 'inherit']),
+  Object.keys(themeTokens()).map((key) => [key, 'inherit']),
 ) as JSX.CSSProperties
 const ranges = [
   {

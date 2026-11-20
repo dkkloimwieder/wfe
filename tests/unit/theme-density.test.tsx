@@ -3,8 +3,7 @@ import { render, cleanup } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
 import {
   Theme,
-  themeStyle,
-  themeSizing,
+  themeTokens,
   uiScope,
   UI_DENSITIES,
   DashboardShell,
@@ -31,16 +30,20 @@ test('default and explicit density geometry follow their owning sizing records',
     '--ui-header-height',
     '--ui-table-control-height',
   ] as const
-  const defaultStyle = themeStyle()
-  const defaultGeometry = { ...uiScope().style, ...themeSizing }
+  // The default profile keeps compact rows with the taller Sketchy controls.
+  const defaultStyle = themeTokens()
+  const defaultGeometry: Record<string, string> = {
+    ...uiScope().style,
+    '--ui-control-height': '32px',
+  }
   for (const token of geometryTokens) {
     expect(defaultStyle[token]).toBe(defaultGeometry[token])
   }
   for (const density of Object.keys(UI_DENSITIES) as Array<
     keyof typeof UI_DENSITIES
   >) {
-    const style = themeStyle({ density })
-    const geometry = uiScope(density).style
+    const style = themeTokens({ density })
+    const geometry: Record<string, string> = uiScope(density).style
     for (const token of geometryTokens) {
       expect(style[token]).toBe(geometry[token])
     }

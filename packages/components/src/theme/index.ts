@@ -1,15 +1,28 @@
 export type { ThemePreset } from '../internal/themePreset'
-export { Theme, themeStyle } from './Theme'
+export {
+  Theme,
+  themeAttributes,
+  themeChoices,
+  themeTokenBlocks,
+  themeTokens,
+  resolveThemeTokens,
+} from './Theme'
 export type {
   ThemeProps,
   ThemeOptions,
   ThemeMode,
   ThemeAccent,
+  ThemeDensity,
   ThemeSecondaryAccent,
 } from './Theme'
-export { themeSizing } from './sizing'
-export type { ThemeDensity } from './sizing'
 export * from './appearance'
+export { tokenSelector } from './tokens'
+export type {
+  TokenBlock,
+  TokenChoices,
+  TokenCondition,
+  TokenPreset,
+} from './tokens'
 
 export type { ControlDecoration } from '../internal/controlDecoration'
 

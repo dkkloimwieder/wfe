@@ -18,7 +18,8 @@ import {
   schemes,
   accents,
   defaultLayers,
-  appearanceStyle,
+  schemeMode,
+  accentOption,
 } from '../shared/appearance/appearance'
 import { createApplication } from './application'
 import type { ResponseMode } from './application'
@@ -44,10 +45,10 @@ export function App(props: {
   }
   return (
     <Theme
-      style={{
-        ...appearanceStyle(scheme(), accent(), layers()),
-        display: 'flow-root',
-      }}
+      mode={schemeMode(scheme())}
+      accent={accentOption(accent())}
+      layers={layers()}
+      style={{ display: 'flow-root' }}
     >
       <main class="form-page">
         <AppearanceReview

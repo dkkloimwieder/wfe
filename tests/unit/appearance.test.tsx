@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
-import { Button, Theme, themeStyle } from '@wfe/components'
+import { Button, Theme, themeTokens } from '@wfe/components'
 
 afterEach(() => {
   cleanup()
@@ -52,12 +52,12 @@ test('nested themes own decoration events exactly once', async () => {
 
 test('undefined partial theme values retain the defaults', () => {
   expect(
-    themeStyle({
+    themeTokens({
       layers: { canvas: undefined },
       dividers: { rows: undefined },
       decorations: { dots: undefined },
     }),
-  ).toEqual(themeStyle())
+  ).toEqual(themeTokens())
 })
 
 test('CSS-only scopes retain the enclosing theme decoration owner', async () => {

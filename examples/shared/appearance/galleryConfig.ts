@@ -27,6 +27,17 @@ export const layersForPreset = (
       ? { canvas: 1, pane: 0, content: 0 }
       : { ...defaultLayers }
 export const galleryThemeOptions = (route: GalleryConfig) => ({
+  // Decoration choices configure Sketchy only, as in the appearance review.
+  decorations:
+    route.preset === 'default'
+      ? {
+          dots: route.decorations.dots,
+          border: route.decorations.border,
+          inside: route.decorations.inside,
+          dotColor: route.decorations.dotColor,
+          borderColor: route.decorations.borderColor,
+        }
+      : undefined,
   accent: accents[route.accent]!.name.toLowerCase() as ThemeOptions['accent'],
   secondaryAccent: secondaryAccents[
     route.decorations.secondary

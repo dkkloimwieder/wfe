@@ -23,7 +23,8 @@ import { ChartView } from '@wfe/generator/chart'
 import type { ChartDescription } from '@wfe/generator/chart'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
-  appearanceStyle,
+  schemeMode,
+  accentOption,
   defaultLayers,
   schemes,
   accents,
@@ -145,7 +146,9 @@ export function App(props: {
   return (
     <Theme
       class="chart-preview"
-      style={appearanceStyle(scheme(), accent(), layers())}
+      mode={schemeMode(scheme())}
+      accent={accentOption(accent())}
+      layers={layers()}
     >
       <header>
         <h1>CHARTS</h1>

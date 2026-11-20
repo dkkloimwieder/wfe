@@ -51,8 +51,20 @@ Set `decorations={{ inside: 100 }}` to show all decoration dots through the face
 Layer numbers are zero-based: `0` selects surface 1.
 The default layers are `{ canvas: 0, pane: 2, content: 1 }`.
 The `style` prop overrides individual CSS variables last.
-Import the public types and `themeStyle` from `@wfe/components/theme`.
-`themeStyle` returns CSS variables only. Use `Theme` to include decoration behavior and popup ownership.
+
+## Token base
+
+`styles/tokens.css` holds every `--ui-*` token with its default.
+`scripts/theme-tokens.mjs` generates it from `theme/tokens.ts`, and the integrity gate checks it.
+The first block holds the Sketchy light defaults. Later blocks change token values for one mode, density, preset, or application choice.
+Later blocks win, and every block has zero specificity.
+Theme writes the choices as data attributes on its root: `data-ui-preset`, `data-ui-mode`, `data-ui-density`, `data-ui-accent`, and the layer, divider, and decoration choices.
+It writes only the decoration percentages inline.
+A consumer class or inline style on the root therefore overrides any token.
+`themeTokens(options)` returns the declared token values that the style sheet applies for those options.
+`resolveThemeTokens(options)` also replaces `var()` references, which helps samples and tests.
+`themeAttributes(options)` returns the root attributes for a scope without Theme.
+Use `Theme` to include decoration behavior and popup ownership.
 
 Nested themes can use different presets, modes, and accents.
 Each scope owns its CSS and automatic popup portals. Ancestor preset rules stop at nested Theme boundaries.
@@ -65,7 +77,7 @@ Previously it reported compact despite applying different control sizes.
 Update selectors that used that old metadata to identify the Sketchy theme.
 Explicit densities use the same sizing records as `uiScope` and `uiDensity`,
 including controls inside table cells. Supply the matching `uiDensity` row height
-to fixed-row virtual tables. `themeStyle` accepts the same density option.
+to fixed-row virtual tables. `themeTokens` accepts the same density option.
 An omitted DashboardShell density inherits its parent without declaring a new profile.
 Nested Theme instances start with their own default profile.
 
@@ -158,7 +170,7 @@ Linear mode ignores the exponent. Zero reduction always keeps the full selected 
 Each Theme uses one resize observer. Size and configuration changes reuse the current samples.
 Removed nodes stop observation. Theme disposal releases both observers and the pointer listener.
 Without ResizeObserver, the theme measures nodes on attachment and pointer entry.
-`themeStyle` alone does not install measurement or randomization.
+`themeAttributes` alone does not install measurement or randomization.
 
 The gallery page `?gallery=decoration-geometry` provides sliders, size presets, and a new-samples action.
 Its nested Theme inherits the gallery appearance. Its geometry controls affect only the preview.

@@ -20,11 +20,7 @@ import { DashboardShell, SidebarGroup } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import { AppearanceReview } from '../../shared/appearance/AppearanceReview'
-import {
-  appearanceStyle,
-  schemes,
-  accents,
-} from '../../shared/appearance/appearance'
+import { schemes, accents } from '../../shared/appearance/appearance'
 import {
   entries,
   entryFor,
@@ -134,17 +130,6 @@ export function Gallery() {
           : route().scheme === 0
             ? 'monochrome'
             : 'light'
-      }
-      style={
-        route().preset === 'default'
-          ? appearanceStyle(
-              schemes[route().scheme]!,
-              accents[route().accent]!,
-              route().layers,
-              undefined,
-              route().decorations,
-            )
-          : undefined
       }
     >
       <DashboardShell

@@ -413,14 +413,14 @@ import type {
   TextareaProps,
   Theme,
   ThemeAccent,
+  themeAttributes,
   ThemeDensity,
   ThemeMode,
   ThemeOptions,
   ThemePreset,
   ThemeProps,
   ThemeSecondaryAccent,
-  themeSizing,
-  themeStyle,
+  themeTokens,
   TileRow,
   TileRowProps,
   TimeInputFormat,
@@ -882,14 +882,14 @@ export type ExportedTypes = Assert<
     TextareaProps: TextareaProps
     Theme: typeof Theme
     ThemeAccent: ThemeAccent
+    themeAttributes: typeof themeAttributes
     ThemeDensity: ThemeDensity
     ThemeMode: ThemeMode
     ThemeOptions: ThemeOptions
     ThemePreset: ThemePreset
     ThemeProps: ThemeProps
     ThemeSecondaryAccent: ThemeSecondaryAccent
-    themeSizing: typeof themeSizing
-    themeStyle: typeof themeStyle
+    themeTokens: typeof themeTokens
     TileRow: typeof TileRow
     TileRowProps: TileRowProps
     TimeInputFormat: TimeInputFormat

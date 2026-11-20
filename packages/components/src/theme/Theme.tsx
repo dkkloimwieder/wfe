@@ -1,29 +1,26 @@
-import { vanillaStyle } from './vanilla'
-import { laserStyle } from './laser'
 import { ThemePresetContext } from '../internal/themePreset'
 import type { ThemePreset } from '../internal/themePreset'
 import { PortalOwner } from '../internal/portalOwner'
 import { resolveDecorationGeometry } from './decorationGeometry'
 import type { DecorationGeometry } from './decorationGeometry'
 import type { ControlDecoration } from '../internal/controlDecoration'
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { styledClasses, type ClassValue } from '../internal/classes'
-import { uiScope } from '../styles/density'
+import { UI_DENSITIES } from '../styles/density'
 import { decorateActions } from './decorations'
-import { resolveThemeSizing, type ThemeDensity } from './sizing'
+import { accents, paletteRoles, schemes, secondaryAccents } from './palette'
 import {
-  accents,
-  secondaryAccents,
-  schemes,
-  appearanceStyle,
-  defaultDecorations,
-  defaultDividers,
-  defaultLayers,
-} from './appearance'
+  presetDefaults,
+  resolveTokenBlocks,
+  tokenAttributes,
+  tokenBlocks,
+} from './tokens'
+import type { TokenChoices } from './tokens'
 import type { SurfaceLayers, TableDividers, Decorations } from './appearance'
 
 export type ThemeMode = 'light' | 'dark' | 'monochrome'
+export type ThemeDensity = 'default' | 'compact' | 'comfortable'
 export type ThemeAccent =
   | 'neutral'
   | 'blue'
@@ -54,147 +51,96 @@ export type ThemeProps = ThemeOptions & {
   class?: ClassValue
   style?: JSX.CSSProperties
 }
-const accentNames: readonly ThemeSecondaryAccent[] = [
-  'neutral',
-  'blue',
-  'teal',
-  'green',
-  'violet',
-  'pink',
-  'orange',
-  'brown',
-  'choco',
-  'yellow',
-  'light-blue',
-  'dark-blue',
-]
 
-function withDefaults<T extends object>(
-  defaults: T,
-  overrides?: Partial<T>,
-): T {
-  return Object.fromEntries(
-    Object.entries(defaults).map(([key, value]) => [
-      key,
-      overrides?.[key as keyof T] ?? value,
-    ]),
-  ) as T
+/** Every token block of the theme, in cascade order. styles/tokens.css holds the same blocks. */
+export const themeTokenBlocks = tokenBlocks({
+  schemes,
+  accents,
+  secondaryAccents,
+  roles: paletteRoles,
+  densities: UI_DENSITIES,
+})
+
+/** The choices that select token blocks, with preset defaults applied. */
+export function themeChoices(options: ThemeOptions = {}): TokenChoices {
+  const preset = options.preset ?? 'default'
+  return {
+    preset,
+    mode: options.mode ?? presetDefaults[preset].mode,
+    density: options.density ?? 'default',
+    accent: options.accent,
+    secondaryAccent: options.secondaryAccent,
+    canvas: options.layers?.canvas,
+    pane: options.layers?.pane,
+    content: options.layers?.content,
+    rowDivider: options.dividers?.rows,
+    columnDivider: options.dividers?.columns,
+    dotColor: options.decorations?.dotColor,
+    borderColor: options.decorations?.borderColor,
+    inputDecoration:
+      options.inputDecoration === false ? 'none' : options.inputDecoration,
+  }
 }
 
-/** The approved default theme, resolved without browser state. */
-export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
-  const mode = options.mode ?? (options.preset === 'laser' ? 'dark' : 'light')
-  const scheme = schemes[mode === 'dark' ? 2 : mode === 'monochrome' ? 0 : 1]!
-  const accent =
-    accents[accentNames.indexOf(options.accent ?? 'blue')] ?? accents[1]!
-  const secondary = accentNames.indexOf(options.secondaryAccent ?? 'blue')
-  const vanillaPrimary =
-    options.mode === 'monochrome'
-      ? '#000000'
-      : scheme.mode === 'dark'
-        ? '#fafafa'
-        : '#18181b'
-  const vanillaOnPrimary =
-    options.mode === 'monochrome'
-      ? '#ffffff'
-      : scheme.mode === 'dark'
-        ? '#18181b'
-        : '#fafafa'
-  return {
-    ...resolveThemeSizing(options.density),
-    ...appearanceStyle(
-      scheme,
-      accent,
-      withDefaults<SurfaceLayers>(defaultLayers, options.layers),
-      withDefaults(defaultDividers, options.dividers),
-      {
-        ...withDefaults(defaultDecorations, options.decorations),
-        secondary:
-          secondary >= 0 && secondary < secondaryAccents.length ? secondary : 1,
-      },
-    ),
-    '--ui-input-decoration-display':
-      options.inputDecoration === false ? 'none' : 'block',
-    '--ui-input-disclosure-arrow-visibility':
-      options.inputDecoration === false ? 'visible' : 'hidden',
-    '--ui-input-decoration-dot-color':
-      options.inputDecoration === 'primary'
-        ? 'var(--ui-accent)'
-        : options.inputDecoration === 'secondary'
-          ? 'var(--ui-secondary-accent)'
-          : 'var(--ui-neutral-dot-color)',
-    '--ui-input-decoration-border-color':
-      options.inputDecoration === 'primary'
-        ? 'var(--ui-accent)'
-        : options.inputDecoration === 'secondary'
-          ? 'var(--ui-secondary-accent)'
-          : 'var(--ui-neutral-border-color)',
-    '--ui-button-color': 'var(--ui-accent)',
-    '--ui-button-on-color': 'var(--ui-on-accent)',
-    '--ui-system-text-transform': 'uppercase',
-    '--ui-border-width': '1px',
-    '--ui-radius': '0px',
-    '--ui-control-radius': 'var(--ui-radius)',
-    '--ui-popup-radius': 'var(--ui-radius)',
-    '--ui-panel-radius': 'var(--ui-radius)',
-    '--ui-radio-radius': 'var(--ui-control-radius)',
-    '--ui-checkbox-radius': 'var(--ui-control-radius)',
-    '--ui-sidebar-heading-weight': 'var(--ui-heading-weight)',
-    '--ui-kanban-heading-weight': 'var(--ui-heading-weight)',
-    '--ui-switch-radius': 'var(--ui-control-radius)',
-    '--ui-control-border-width': 'var(--ui-border-width)',
-    '--ui-divider-width': 'var(--ui-border-width)',
-    '--ui-icon-stroke-width': '1',
-    '--ui-disabled-opacity': '1',
-    '--ui-connector-stroke-width': '1.5',
+/** Continuous decoration values have no block. They stay inline on the root. */
+function decorationStyle(options: ThemeOptions): Record<string, string> {
+  const style: Record<string, string> = {}
+  const value = options.decorations
+  if (value?.dots !== undefined)
+    style['--ui-decoration-dot-opacity'] = `${value.dots}%`
+  if (value?.border !== undefined)
+    style['--ui-decoration-border-opacity'] = `${value.border}%`
+  if (value?.inside !== undefined)
+    style['--ui-action-dot-visibility'] = `${value.inside}%`
+  return style
+}
 
-    ...(options.preset === 'vanilla'
-      ? {
-          ...vanillaStyle(
-            scheme,
-            options.density,
-            options.mode === 'monochrome',
-            options.layers,
-            options.dividers,
-          ),
-          // Vanilla surfaces 2–4 use 98.5% of their original sRGB channels.
-          ...(mode === 'monochrome'
-            ? {}
-            : {
-                '--ui-surface-2': mode === 'dark' ? '#1b1b1b' : '#f8f8f9',
-                '--ui-surface-3': mode === 'dark' ? '#252525' : '#f1f1f1',
-                '--ui-surface-4': mode === 'dark' ? '#3f3f3f' : '#e2e2e2',
-              }),
-          ...(options.accent === undefined
-            ? {
-                '--ui-accent': vanillaPrimary,
-                '--ui-on-accent': vanillaOnPrimary,
-                '--ui-selection': 'var(--ui-accent)',
-                '--ui-on-selection': 'var(--ui-on-accent)',
-                '--ui-focus': 'var(--ui-accent)',
-              }
-            : {}),
-          '--ui-accent-hover': 'var(--ui-accent)',
-          '--ui-accent-inverted-hover': 'var(--ui-on-accent)',
-        }
-      : {}),
-    ...(options.preset === 'laser'
-      ? laserStyle(
-          mode,
-          accent,
-          secondaryAccents[secondary] ?? secondaryAccents[1]!,
-          options.density,
-          options.layers,
-          options.dividers,
-        )
-      : {}),
+/** Root attributes and style that select the theme tokens without Theme. */
+export function themeAttributes(options: ThemeOptions = {}) {
+  const choices = themeChoices(options)
+  const attributes: Record<string, string> = { 'data-ui-tokens': '' }
+  for (const [key, value] of Object.entries(choices) as [
+    keyof TokenChoices,
+    TokenChoices[keyof TokenChoices],
+  ][])
+    if (value !== undefined) attributes[tokenAttributes[key]] = String(value)
+  return { attributes, style: decorationStyle(options) as JSX.CSSProperties }
+}
+
+/** The declared token values for these options, as the style sheet resolves them. */
+export function themeTokens(
+  options: ThemeOptions = {},
+): Record<string, string> {
+  return {
+    ...resolveTokenBlocks(themeTokenBlocks, themeChoices(options)),
+    ...decorationStyle(options),
   }
+}
+
+/** Token values with var() references replaced where the theme defines them. */
+export function resolveThemeTokens(
+  options: ThemeOptions = {},
+): Record<string, string> {
+  const declared = themeTokens(options)
+  const resolve = (value: string, depth = 0): string =>
+    depth > 20
+      ? value
+      : value.replace(
+          /var\(\s*(--[\w-]+)\s*(?:,([^()]*(?:\([^()]*\)[^()]*)*))?\)/g,
+          (match, name: string, fallback?: string) => {
+            const next = declared[name] ?? fallback?.trim()
+            return next === undefined ? match : resolve(next, depth + 1)
+          },
+        )
+  return Object.fromEntries(
+    Object.entries(declared).map(([name, value]) => [name, resolve(value)]),
+  )
 }
 
 /** Theme and portal owner. The application owns mode and accent state. */
 export function Theme(props: ThemeProps) {
-  const scope = uiScope()
   const [element, setElement] = createSignal<HTMLDivElement>()
+  const choices = createMemo(() => themeChoices(props))
   let controller: ReturnType<typeof decorateActions> | undefined
   let owner: HTMLDivElement | undefined
   createEffect(
@@ -226,15 +172,27 @@ export function Theme(props: ThemeProps) {
     <ThemePresetContext value={() => props.preset ?? 'default'}>
       <PortalOwner value={element}>
         <div
-          {...scope}
-          data-ui-preset={props.preset ?? 'default'}
-          data-ui-density={props.density ?? 'default'}
+          data-ui=""
+          data-ui-tokens=""
+          data-ui-preset={choices().preset}
+          data-ui-mode={choices().mode}
+          data-ui-density={choices().density}
+          data-ui-accent={choices().accent}
+          data-ui-secondary-accent={choices().secondaryAccent}
+          data-ui-canvas={choices().canvas}
+          data-ui-pane={choices().pane}
+          data-ui-content={choices().content}
+          data-ui-row-divider={choices().rowDivider}
+          data-ui-column-divider={choices().columnDivider}
+          data-ui-dot-color={choices().dotColor}
+          data-ui-border-color={choices().borderColor}
+          data-ui-input-decoration={choices().inputDecoration}
           id={props.id}
           class={styledClasses('ui-theme', props.class)}
           data-ui-portal-root=""
           data-ui-theme-owner=""
           ref={setElement}
-          style={{ ...scope.style, ...themeStyle(props), ...props.style }}
+          style={{ ...decorationStyle(props), ...props.style }}
         >
           {props.children}
         </div>

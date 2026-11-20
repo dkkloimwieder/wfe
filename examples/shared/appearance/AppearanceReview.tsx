@@ -1,6 +1,5 @@
 import { For, Show, createMemo, createSignal } from 'solid-js'
-import type { JSX } from '@solidjs/web'
-import { themeStyle } from '@wfe/components/theme'
+import { accentName, resolveThemeTokens } from '@wfe/components/theme'
 import type {
   ThemeAccent,
   ThemeOptions,
@@ -12,9 +11,9 @@ import {
   schemes,
   accents,
   secondaryAccents,
-  accentColor,
-  dividerSurfaces,
   decorationColors,
+  schemeMode,
+  accentOption,
 } from './appearance'
 import type {
   Decorations,
@@ -51,43 +50,42 @@ export function AppearanceReview(props: {
   onSchemeChange: (scheme: SurfaceScheme) => void
   onAccentChange: (accent: Accent) => void
 }) {
-  const activeStyle = createMemo<JSX.CSSProperties>(() =>
-    props.themeOptions ? themeStyle(props.themeOptions) : {},
-  )
+  // The review samples the same token blocks that the theme style sheet applies.
+  const options = (): ThemeOptions =>
+    props.themeOptions ?? {
+      mode: schemeMode(props.scheme),
+      accent: accentOption(props.accent),
+      layers: props.layers,
+      dividers: props.dividers,
+    }
+  const active = createMemo(() => resolveThemeTokens(options()))
   const accentSample = (accent: Accent, secondary = false) => {
-    if (!props.themeOptions)
-      return { background: accentColor(accent, props.scheme) }
-    const name = accent.name.toLowerCase().replaceAll(' ', '-')
-    const style = themeStyle({
-      ...props.themeOptions,
+    const name = accentName(accent)
+    const tokens = resolveThemeTokens({
+      ...options(),
       ...(secondary
         ? { secondaryAccent: name as ThemeSecondaryAccent }
         : { accent: name as ThemeAccent }),
     })
     return {
-      ...style,
-      background: secondary ? 'var(--ui-secondary-accent)' : 'var(--ui-accent)',
+      background: tokens[secondary ? '--ui-secondary-accent' : '--ui-accent'],
     }
   }
   const dividerSample = (key: keyof TableDividers, level: 0 | 1 | 2 | 3) => {
-    if (!props.themeOptions)
-      return { background: dividerSurfaces(props.scheme)[level] }
+    const tokens = resolveThemeTokens({
+      ...options(),
+      dividers: { ...options().dividers, [key]: level },
+    })
     return {
-      ...themeStyle({
-        ...props.themeOptions,
-        dividers: { ...props.themeOptions.dividers, [key]: level },
-      }),
-      background: `var(--ui-table-${key === 'rows' ? 'row' : 'column'}-divider)`,
+      background:
+        tokens[`--ui-table-${key === 'rows' ? 'row' : 'column'}-divider`],
     }
   }
   const swatches = createMemo(() => {
-    if (!props.themeOptions) return props.scheme
-    const style = activeStyle()
+    const tokens = active()
     return {
-      surfaces: [1, 2, 3, 4].map((level) =>
-        String(style[`--ui-surface-${level}`]),
-      ),
-      text: [String(style['--ui-text']), String(style['--ui-muted-text'])],
+      surfaces: [1, 2, 3, 4].map((level) => tokens[`--ui-surface-${level}`]!),
+      text: [tokens['--ui-text']!, tokens['--ui-muted-text']!],
     }
   })
   const [buttonTone, setButtonTone] = createSignal<ButtonTone>('accent')
@@ -385,10 +383,7 @@ export function AppearanceReview(props: {
               <span
                 class="surface-sample"
                 aria-hidden="true"
-                style={{
-                  ...activeStyle(),
-                  background: swatches()[role.source][role.index],
-                }}
+                style={{ background: swatches()[role.source][role.index] }}
               />
               <span>
                 <span data-ui-text="system">{role.name}</span>

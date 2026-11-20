@@ -1,5 +1,5 @@
 export type { ThemePreset } from './internal/themePreset'
-export { Theme, themeStyle, themeSizing } from './theme'
+export { Theme, themeTokens, themeAttributes } from './theme'
 export type {
   ThemeDensity,
   ThemeProps,

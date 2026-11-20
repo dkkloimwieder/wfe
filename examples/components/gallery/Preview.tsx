@@ -25,11 +25,6 @@ import { EverythingForm } from '../../shared/controls/EverythingForm'
 import { createEffect, lazy, Loading, onCleanup, untrack } from 'solid-js'
 import { Dynamic } from '@solidjs/web'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
-import {
-  appearanceStyle,
-  schemes,
-  accents,
-} from '../../shared/appearance/appearance'
 import { FileControls, fileLifecycle } from '../../shared/controls/FileControls'
 import {
   NumberControls,
@@ -309,17 +304,6 @@ export function GalleryPreview() {
           : route.scheme === 0
             ? 'monochrome'
             : 'light'
-      }
-      style={
-        route.preset === 'default'
-          ? appearanceStyle(
-              schemes[route.scheme]!,
-              accents[route.accent]!,
-              route.layers,
-              undefined,
-              route.decorations,
-            )
-          : undefined
       }
     >
       <GalleryExample id={route.id} state={route.state} />

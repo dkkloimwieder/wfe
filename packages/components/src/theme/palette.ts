@@ -64,6 +64,7 @@ export const paletteRoles = {
   darkDividers: ['#212529', '#343a40', '#495057', '#868e96'],
   lightDividers: ['#fcfcfd', '#e9ecef', '#dee2e6', '#ced4da'],
 } as const
+export type PaletteRoles = typeof paletteRoles
 
 /** Frozen legacy entry-point profiles; new consumers use Theme. */
 export const legacyPaletteProfiles = [
