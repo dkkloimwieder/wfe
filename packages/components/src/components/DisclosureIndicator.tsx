@@ -1,4 +1,4 @@
-import { useThemePreset } from '../internal/themePreset'
+import { useThemeDecoration } from '../internal/themePreset'
 import { Show } from 'solid-js'
 import { trianglePath } from '../internal/triangle'
 import { createUniqueId } from 'solid-js'
@@ -10,7 +10,7 @@ export function DisclosureIndicator(props: {
   shape?: 'plus' | 'minus'
 }) {
   const decorationPattern = createUniqueId()
-  const preset = useThemePreset()
+  const decorated = useThemeDecoration()
   return (
     <svg
       class={styledClasses('ui-disclosure-indicator', props.class)}
@@ -21,7 +21,7 @@ export function DisclosureIndicator(props: {
       {...{ focusable: 'false' }}
     >
       <Show
-        when={preset() === 'default'}
+        when={decorated()}
         fallback={
           <path
             class="ui-disclosure-chevron"

@@ -1,4 +1,4 @@
-import { useThemePreset } from '../internal/themePreset'
+import { useThemeDecoration } from '../internal/themePreset'
 import {
   createEffect,
   createMemo,
@@ -85,7 +85,7 @@ function describeInterval(
 /** Milestone presentation follows its owning theme. */
 function MilestoneMarker() {
   const pattern = createUniqueId()
-  const preset = useThemePreset()
+  const decorated = useThemeDecoration()
   return (
     <svg
       class="ui-gantt-milestone"
@@ -94,7 +94,7 @@ function MilestoneMarker() {
       aria-hidden="true"
       {...{ focusable: 'false' }}
     >
-      <Show when={preset() === 'default'}>
+      <Show when={decorated()}>
         <defs>
           <pattern
             id={pattern}
@@ -119,7 +119,7 @@ function MilestoneMarker() {
       </Show>
       <path
         d="M9 1 17 16 9 31 1 16Z"
-        fill={preset() !== 'default' ? 'var(--ui-accent)' : `url(#${pattern})`}
+        fill={!decorated() ? 'var(--ui-accent)' : `url(#${pattern})`}
         stroke="var(--ui-accent)"
         stroke-opacity="var(--ui-decoration-border-opacity, 100%)"
         vector-effect="non-scaling-stroke"

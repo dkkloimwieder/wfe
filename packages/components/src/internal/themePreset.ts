@@ -3,10 +3,10 @@ import type { Accessor } from 'solid-js'
 
 export type ThemePreset = 'default' | 'vanilla' | 'laser'
 
-/** An accessor keeps theme changes reactive without replacing component owners. */
-export const ThemePresetContext = createContext<Accessor<ThemePreset>>(
-  () => 'default',
+/** Whether the owning Theme draws the dotted decoration. An accessor keeps it reactive. */
+export const ThemeDecorationContext = createContext<Accessor<boolean>>(
+  () => true,
 )
-export function useThemePreset() {
-  return useContext(ThemePresetContext)
+export function useThemeDecoration() {
+  return useContext(ThemeDecorationContext)
 }

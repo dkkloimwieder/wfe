@@ -13,6 +13,9 @@ export const presetSheets = ['tokens.css']
 const systemColors =
   /^(Canvas|CanvasText|LinkText|VisitedText|ActiveText|ButtonFace|ButtonText|ButtonBorder|Field|FieldText|Highlight|HighlightText|SelectedItem|SelectedItemText|Mark|MarkText|GrayText|AccentColor|AccentColorText)$/
 
+const systemColorWord =
+  /\b(Canvas|CanvasText|ButtonFace|ButtonText|Highlight|HighlightText|GrayText|LinkText)\b/
+
 /** Every `var(--token, literal)` fallback, keyed by token, then by fallback text. */
 export function collectFallbacks(files) {
   const tokens = new Map()
@@ -53,7 +56,8 @@ export function inspectTheme(files, scripts = []) {
   }
   for (const [file, text] of files) {
     text.split('\n').forEach((line, index) => {
-      if (/!important/.test(line))
+      // Forced-color rules may need !important to win over author paint.
+      if (/!important/.test(line) && !systemColorWord.test(line))
         problems.push({
           kind: 'important',
           message: '!important declaration',

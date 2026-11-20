@@ -140,16 +140,19 @@ export const presetDefaults = {
   default: {
     mode: 'light',
     decoration: true,
+    glow: false,
     layers: { canvas: 0, pane: 2, content: 1 },
   },
   vanilla: {
     mode: 'light',
     decoration: false,
+    glow: false,
     layers: { canvas: 1, pane: 0, content: 0 },
   },
   laser: {
     mode: 'dark',
     decoration: false,
+    glow: true,
     layers: { canvas: 0, pane: 1, content: 1 },
   },
 } as const

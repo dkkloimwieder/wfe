@@ -1,4 +1,4 @@
-import { ThemePresetContext } from '../internal/themePreset'
+import { ThemeDecorationContext } from '../internal/themePreset'
 import type { ThemePreset } from '../internal/themePreset'
 import { PortalOwner } from '../internal/portalOwner'
 import { resolveDecorationGeometry } from './decorationGeometry'
@@ -41,6 +41,8 @@ export type ThemeOptions = {
   mode?: ThemeMode
   /** Dotted decoration and its randomized geometry. Sketchy turns it on by default. */
   decoration?: boolean
+  /** Neon glow on hover, selection and checked controls. Laser turns it on by default. */
+  glow?: boolean
   accent?: ThemeAccent
   secondaryAccent?: ThemeSecondaryAccent
   layers?: Partial<SurfaceLayers>
@@ -91,6 +93,11 @@ export function themeDecoration(options: ThemeOptions = {}) {
   )
 }
 
+/** Whether the glow layer applies, with the preset default. */
+export function themeGlow(options: ThemeOptions = {}) {
+  return options.glow ?? presetDefaults[options.preset ?? 'default'].glow
+}
+
 /** Continuous decoration values have no block. They stay inline on the root. */
 function decorationStyle(options: ThemeOptions): Record<string, string> {
   const style: Record<string, string> = {}
@@ -114,6 +121,7 @@ export function themeAttributes(options: ThemeOptions = {}) {
   ][])
     if (value !== undefined) attributes[tokenAttributes[key]] = String(value)
   if (themeDecoration(options)) attributes['data-ui-decoration'] = ''
+  if (themeGlow(options)) attributes['data-ui-glow'] = ''
   return { attributes, style: decorationStyle(options) as JSX.CSSProperties }
 }
 
@@ -179,7 +187,7 @@ export function Theme(props: ThemeProps) {
     controller = undefined
   })
   return (
-    <ThemePresetContext value={() => props.preset ?? 'default'}>
+    <ThemeDecorationContext value={() => themeDecoration(props)}>
       <PortalOwner value={element}>
         <div
           data-ui=""
@@ -198,6 +206,7 @@ export function Theme(props: ThemeProps) {
           data-ui-border-color={choices().borderColor}
           data-ui-input-decoration={choices().inputDecoration}
           data-ui-decoration={themeDecoration(props) ? '' : undefined}
+          data-ui-glow={themeGlow(props) ? '' : undefined}
           id={props.id}
           class={styledClasses('ui-theme', props.class)}
           data-ui-portal-root=""
@@ -208,6 +217,6 @@ export function Theme(props: ThemeProps) {
           {props.children}
         </div>
       </PortalOwner>
-    </ThemePresetContext>
+    </ThemeDecorationContext>
   )
 }

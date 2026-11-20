@@ -1,5 +1,5 @@
 import { iconForm, iconLayoutGrid, iconMenu, iconPanelsTopLeft } from '../icons'
-import { useThemePreset } from '../internal/themePreset'
+import { useThemeDecoration } from '../internal/themePreset'
 import { For, Show } from 'solid-js'
 import type { IconDefinition } from '../icons/types'
 import { trianglePath, triangleTransform } from '../internal/triangle'
@@ -50,14 +50,11 @@ export type IconProps = { class?: ClassValue } & (
 
 /** Decorative glyph. The surrounding control supplies its accessible name. */
 export function Icon(props: IconProps) {
-  const preset = useThemePreset()
+  const decorated = useThemeDecoration()
   const glyph = () =>
     props.glyph ??
-    (preset() !== 'default' && props.name
-      ? vanillaIcons[props.name]
-      : undefined)
-  const plainDirection = () =>
-    preset() !== 'default' && direction() !== undefined
+    (!decorated() && props.name ? vanillaIcons[props.name] : undefined)
+  const plainDirection = () => !decorated() && direction() !== undefined
   const direction = () =>
     props.name === 'chevron-down'
       ? 'down'
@@ -103,7 +100,7 @@ export function Icon(props: IconProps) {
             }
             vector-effect={direction() ? 'non-scaling-stroke' : undefined}
             shape-rendering={
-              preset() === 'default' && pixelAligned.has(props.name!)
+              decorated() && pixelAligned.has(props.name!)
                 ? 'crispEdges'
                 : 'auto'
             }

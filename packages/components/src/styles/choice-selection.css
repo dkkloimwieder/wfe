@@ -24,7 +24,7 @@
   color: inherit;
   background: transparent;
 }
-@scope (.ui-theme[data-ui-preset='vanilla']) to (.ui-theme) {
+@scope ([data-ui-tokens]:not([data-ui-decoration])) to ([data-ui-tokens]) {
   :scope :is(.popup-option, .ui-tree-item) {
     --_ui-choice-selection-text: var(--ui-text);
     --_ui-choice-selection-surface: var(--ui-highlight);
@@ -83,7 +83,7 @@
     pointer-events: none;
   }
 }
-@scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
+@scope ([data-ui-tokens][data-ui-glow]) to ([data-ui-tokens]) {
   :scope :is(.popup-option, .ui-tree-item) {
     --_ui-choice-selection-text: var(--ui-text);
     --_ui-choice-selection-surface: color-mix(

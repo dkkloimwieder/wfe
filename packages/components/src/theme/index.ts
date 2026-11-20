@@ -4,6 +4,7 @@ export {
   themeAttributes,
   themeChoices,
   themeDecoration,
+  themeGlow,
   themeTokenBlocks,
   themeTokens,
   resolveThemeTokens,

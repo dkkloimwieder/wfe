@@ -1,5 +1,6 @@
-/* Plain presentation stops at nested theme owners. */
-@scope (.ui-theme:is([data-ui-preset='vanilla'], [data-ui-preset='laser'])) to (.ui-theme) {
+/* Undecorated presentation for themes without the dotted decoration.
+   Rules stop at a nested theme root. */
+@scope ([data-ui-tokens]:not([data-ui-decoration])) to ([data-ui-tokens]) {
   :scope
     :is(
       .ui-button:where(:not(.ui-sidebar-group-panel)),
@@ -17,11 +18,6 @@
   :scope .ui-icon {
     stroke-linecap: round;
     stroke-linejoin: round;
-  }
-  :scope :is(.sub-table-toggle, .table-page-action) {
-    border: var(--ui-control-border-width) solid var(--ui-control-border);
-    border-radius: var(--ui-control-radius);
-    background: var(--ui-control-surface);
   }
   :scope .sub-table-toggle {
     inline-size: var(
@@ -124,8 +120,8 @@
   }
 }
 
-/* Embedded actions do not inherit standalone button outlines in Vanilla. */
-@scope (.ui-theme[data-ui-preset='vanilla']) to (.ui-theme) {
+/* Embedded actions are frameless without decoration. */
+@scope ([data-ui-tokens]:not([data-ui-decoration])) to ([data-ui-tokens]) {
   @media (forced-colors: none) {
     :scope
       :is(

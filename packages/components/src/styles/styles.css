@@ -34,8 +34,8 @@
 @import './presentation.css';
 @import './decoration.css';
 
-@import './plain-theme.css';
-@import './laser-theme.css';
+@import './plain.css';
+@import './glow.css';
 
 @import './command-palette.css';
 

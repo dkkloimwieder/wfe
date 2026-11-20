@@ -32,6 +32,7 @@ import type {
   themeChoices,
   themeDecoration,
   ThemeDensity,
+  themeGlow,
   ThemeMode,
   ThemeOptions,
   ThemePreset,
@@ -80,6 +81,7 @@ export type ExportedTypes = Assert<
     themeChoices: typeof themeChoices
     themeDecoration: typeof themeDecoration
     ThemeDensity: ThemeDensity
+    themeGlow: typeof themeGlow
     ThemeMode: ThemeMode
     ThemeOptions: ThemeOptions
     ThemePreset: ThemePreset

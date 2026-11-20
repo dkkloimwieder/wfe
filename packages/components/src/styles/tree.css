@@ -64,7 +64,7 @@
     display: none;
   }
 }
-@scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
+@scope ([data-ui-tokens][data-ui-glow]) to ([data-ui-tokens]) {
   :scope .ui-tree .ui-button.ui-tree-toggle[data-variant] {
     border-color: transparent;
     background: transparent;

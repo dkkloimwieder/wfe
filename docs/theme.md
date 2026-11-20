@@ -68,6 +68,9 @@ Use `Theme` to include decoration behavior and popup ownership.
 
 `decoration` turns the dotted decoration layer on or off. Sketchy turns it on by default and the other presets turn it off.
 Theme then writes `data-ui-decoration` on its root, `styles/decoration.css` applies, and the randomized geometry controller starts.
+`glow` turns the neon glow layer in `styles/glow.css` on or off. Laser turns it on by default.
+Themes without decoration use `styles/plain.css`, where embedded table, calendar and navigation actions are frameless.
+No style sheet or component tests the preset. A preset only sets token values and the default choices in `presetDefaults`.
 Components that draw decorative SVG read the same choice. One dot pattern serves every decorated surface; each rule only chooses the dot color.
 
 Nested themes can use different presets, modes, and accents.

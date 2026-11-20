@@ -1,5 +1,6 @@
-/* Laser shares plain control geometry and owns its neon presentation. */
-@scope (.ui-theme[data-ui-preset='laser']) to (.ui-theme) {
+/* Neon glow. Theme turns it on with the glow choice, which Laser enables by
+   default. Every glow value comes from the --ui-laser-* tokens. */
+@scope ([data-ui-tokens][data-ui-glow]) to ([data-ui-tokens]) {
   /* Resolve color-dependent defaults at consumers, not at the theme ancestor. */
   :scope
     :is(

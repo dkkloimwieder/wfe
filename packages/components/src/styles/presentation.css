@@ -53,7 +53,7 @@
   .ui-button[data-variant='outline'][data-tone='default'] {
   color: color-mix(
     in srgb,
-    var(--ui-button-color, currentColor) var(--ui-outline-accent-weight),
+    var(--ui-button-color, #1971c2) var(--ui-outline-accent-weight),
     var(--ui-text)
   );
   border-color: color-mix(
