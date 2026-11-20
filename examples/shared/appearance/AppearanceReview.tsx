@@ -20,7 +20,6 @@ import type {
   Decorations,
   Accent,
   SurfaceScheme,
-  Depth,
   SurfaceLayers,
   SurfaceLevel,
   TableDividers,
@@ -45,14 +44,12 @@ export function AppearanceReview(props: {
   onPlacementChange?: (placement: 'left' | 'top' | 'right') => void
   scheme: SurfaceScheme
   accent: Accent
-  depth: Depth
   dividers?: TableDividers
   onDividersChange?: (dividers: TableDividers) => void
   layers: SurfaceLayers
   onLayersChange: (layers: SurfaceLayers) => void
   onSchemeChange: (scheme: SurfaceScheme) => void
   onAccentChange: (accent: Accent) => void
-  onDepthChange: (depth: Depth) => void
 }) {
   const activeStyle = createMemo<JSX.CSSProperties>(() =>
     props.themeOptions ? themeStyle(props.themeOptions) : {},

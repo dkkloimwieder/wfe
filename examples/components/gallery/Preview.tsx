@@ -315,7 +315,6 @@ export function GalleryPreview() {
           ? appearanceStyle(
               schemes[route.scheme]!,
               accents[route.accent]!,
-              route.depth,
               route.layers,
               undefined,
               route.decorations,

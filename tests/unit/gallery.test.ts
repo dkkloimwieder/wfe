@@ -14,7 +14,6 @@ test('direct gallery links preserve example, state, width and presentation in a 
     viewport: 'phone' as const,
     scheme: 2,
     accent: 4,
-    depth: 3 as const,
     layers: { canvas: 2 as const, pane: 1 as const, content: 2 as const },
   }
   const url = galleryUrl(

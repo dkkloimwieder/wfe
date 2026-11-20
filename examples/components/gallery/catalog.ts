@@ -302,7 +302,6 @@ export function readRoute(url: URL): GalleryRoute {
     },
     scheme: number('scheme', preset === 'laser' ? 2 : 1, 2),
     accent: number('accent', 1, 8),
-    depth: number('depth', 2, 3) as GalleryConfig['depth'],
     layers: {
       canvas: number('canvas', layers.canvas, 2) as 0 | 1 | 2,
       pane: number('pane', layers.pane, 2) as 0 | 1 | 2,
@@ -327,7 +326,6 @@ export function galleryUrl(base: URL, route: GalleryRoute, preview = false) {
     ['preset', route.preset, 'default'],
     ['scheme', route.scheme, route.preset === 'laser' ? 2 : 1],
     ['accent', route.accent, 1],
-    ['depth', route.depth, 2],
     ['canvas', route.layers.canvas, layersForPreset(route.preset).canvas],
     ['pane', route.layers.pane, layersForPreset(route.preset).pane],
     ['content', route.layers.content, layersForPreset(route.preset).content],

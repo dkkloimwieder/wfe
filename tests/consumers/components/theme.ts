@@ -14,7 +14,6 @@ import type {
   defaultDecorations,
   defaultDividers,
   defaultLayers,
-  Depth,
   DividerLevel,
   dividerSurfaces,
   monochrome,
@@ -53,7 +52,6 @@ export type ExportedTypes = Assert<
     defaultDecorations: typeof defaultDecorations
     defaultDividers: typeof defaultDividers
     defaultLayers: typeof defaultLayers
-    Depth: Depth
     DividerLevel: DividerLevel
     dividerSurfaces: typeof dividerSurfaces
     monochrome: typeof monochrome

@@ -126,7 +126,7 @@ Git tag `v0.0.4` records the preceding Sketchy theme and component gallery.
 This release refines borders, dots, icons, spacing, and disclosure controls, and removes surface shadows.
 The gallery renders examples directly in one document with the same theme that consumers import.
 Tables keep refresh available. Nested tables load through application-owned expansion and show Apply only for pending filters.
-Nested tables use a left-only inset. Existing `depth` values remain accepted but produce no shadows.
+Nested tables use a left-only inset.
 
 ## v0.0.1 additions
 

@@ -11,7 +11,6 @@ It uses flat surfaces without shadows.
 BASE uses Surface 1, PANES uses Surface 3, and CONTENT uses Surface 2.
 The shared `defaultLayers` value is `{ canvas: 0, pane: 2, content: 1 }`.
 Layer numbers start at zero.
-The `depth` prop remains accepted for compatibility. It does not add shadows to the Sketchy theme.
 
 The appearance controls offer neutral schemes, accents, button variants, and layer choices.
 Hosts can also provide controls placement and divider choices.
@@ -31,7 +30,7 @@ LIGHT and DARK use the neutral roles from Open Props.
 LIGHT Surface 1 uses `#fcfcfd`, between its original `#f8f9fa` and white, for lighter content. Color applies only to
 accents. Each mode keeps APPLY at full contrast.
 
-The top row separates surface modes, accent colors, and shadow depth.
+The top row separates surface modes and accent colors.
 Use Tab to focus a control. Press Enter or Space to activate it.
 BASE, PANES, and CONTENT each offer SURFACE 1, 2, or 3.
 BASE sets the backdrop. PANES sets both pane backgrounds.
@@ -65,7 +64,7 @@ Corners stay square.
 The accent controls change focus and selection marks. They preserve every
 neutral surface and text value. The preview changes CSS properties without
 changing records, pending filters, sorting, grouping, formatting, or column order.
-Reloading restores BLACK / WHITE, a neutral accent, depth 1, and the initial surface choices.
+Reloading restores BLACK / WHITE, a neutral accent, and the initial surface choices.
 No preview saves or approves a final theme.
 
 The application owns the review controls. The components expose shared surface,
@@ -74,7 +73,7 @@ dependency is required.
 
 The samples come from [Open Props](https://open-props.style/#color), commit
 `f39ab7c377a0e047f930982e3611bbc95254a260`. The source URLs and SHA-256 hashes
-live in `packages/components/src/theme/appearance.ts` and `packages/components/src/styles/theme-shadows.css`.
+live in `packages/components/src/theme/appearance.ts`.
 The exact MIT license remains in `examples/shared/appearance/OPEN-PROPS-LICENSE`.
 The shadow subset changes its variable prefix and scope selector.
 

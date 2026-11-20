@@ -20,7 +20,6 @@ import {
   defaultLayers,
   appearanceStyle,
 } from '../shared/appearance/appearance'
-import type { Depth } from '../shared/appearance/appearance'
 import { createApplication } from './application'
 import type { ResponseMode } from './application'
 
@@ -30,7 +29,6 @@ export function App(props: {
 }) {
   const [scheme, setScheme] = createSignal(schemes[1]!)
   const [accent, setAccent] = createSignal(accents[1]!)
-  const [depth, setDepth] = createSignal<Depth>(1)
   const [layers, setLayers] = createSignal(defaultLayers)
   const application = createApplication()
   const form = application.form
@@ -47,7 +45,7 @@ export function App(props: {
   return (
     <Theme
       style={{
-        ...appearanceStyle(scheme(), accent(), depth(), layers()),
+        ...appearanceStyle(scheme(), accent(), layers()),
         display: 'flow-root',
       }}
     >
@@ -55,11 +53,9 @@ export function App(props: {
         <AppearanceReview
           scheme={scheme()}
           accent={accent()}
-          depth={depth()}
           layers={layers()}
           onSchemeChange={setScheme}
           onAccentChange={setAccent}
-          onDepthChange={setDepth}
           onLayersChange={setLayers}
         />
         <div class="form-example">

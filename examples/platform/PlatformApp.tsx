@@ -25,7 +25,7 @@ import {
   appearanceStyle,
   defaultLayers,
 } from '../shared/appearance/appearance'
-import type { SurfaceLayers, Depth } from '../shared/appearance/appearance'
+import type { SurfaceLayers } from '../shared/appearance/appearance'
 import { createPlatformApplication } from './application'
 import { platformRoute, platformScenario, platformUrl } from './route'
 import type { PlatformRoute } from './route'
@@ -53,7 +53,6 @@ export function PlatformApp(props: {
   const [appearance, setAppearance] = createSignal(false)
   const [scheme, setScheme] = createSignal(schemes[1]!)
   const [accent, setAccent] = createSignal(accents[1]!)
-  const [depth, setDepth] = createSignal<Depth>(2)
   const [layers, setLayers] = createSignal<SurfaceLayers>({
     ...defaultLayers,
   })
@@ -195,7 +194,7 @@ export function PlatformApp(props: {
   return (
     <DefaultAppearance
       class="platform-example"
-      style={appearanceStyle(scheme(), accent(), depth(), layers())}
+      style={appearanceStyle(scheme(), accent(), layers())}
     >
       <div
         class="platform-root"
@@ -492,11 +491,9 @@ export function PlatformApp(props: {
               <AppearanceReview
                 scheme={scheme()}
                 accent={accent()}
-                depth={depth()}
                 layers={layers()}
                 onSchemeChange={setScheme}
                 onAccentChange={setAccent}
-                onDepthChange={setDepth}
                 onLayersChange={setLayers}
               />
             </section>

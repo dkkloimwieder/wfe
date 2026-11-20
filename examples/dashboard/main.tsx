@@ -35,7 +35,6 @@ import { nativeEvents } from '@wfe/components/events'
 import '@wfe/components/styles.css'
 import './style.css'
 import type {
-  Depth,
   SurfaceLayers,
   TableDividers,
 } from '../shared/appearance/appearance'
@@ -290,7 +289,6 @@ function TablePage() {
   )
   const [collapsed, setCollapsed] = createSignal(false)
   collapseControls = setCollapsed
-  const [depth, setDepth] = createSignal<Depth>(1)
   const [layers, setLayers] = createSignal<SurfaceLayers>(defaultLayers)
   const [dividers, setDividers] = createSignal<TableDividers>(defaultDividers)
   const rows = createRecordsData()
@@ -308,7 +306,7 @@ function TablePage() {
   return (
     <Theme
       style={{
-        ...appearanceStyle(scheme(), accent(), depth(), layers(), dividers()),
+        ...appearanceStyle(scheme(), accent(), layers(), dividers()),
         height: '100%',
       }}
     >
@@ -318,14 +316,12 @@ function TablePage() {
           accent={accent()}
           placement={placement()}
           onPlacementChange={setPlacement}
-          depth={depth()}
           dividers={dividers()}
           onDividersChange={setDividers}
           layers={layers()}
           onLayersChange={setLayers}
           onSchemeChange={setScheme}
           onAccentChange={setAccent}
-          onDepthChange={setDepth}
         />
         <ReadOnlyTable
           controlsPlacement={placement()}

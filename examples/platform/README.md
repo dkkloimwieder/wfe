@@ -229,7 +229,7 @@ Search changes stay pending until the refresh action applies them.
 Refresh also reads the current screen through its generated operation.
 Column dividers support pointer dragging and keyboard resizing.
 On a phone, the navigation uses the shared drawer, and wide tables scroll within their panel.
-Appearance uses the shared controls. Defaults are Light, Blue, Surface 1 components, Surface 2 background, outline buttons, and depth 2.
+Appearance uses the shared controls. Defaults are Light, Blue, Surface 1 components, Surface 2 background, and outline buttons.
 
 Use `?screen=project&project=billing` for a direct project link.
 Use `?screen=environment&project=billing&env=dev` for a direct environment link.

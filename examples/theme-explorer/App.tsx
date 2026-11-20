@@ -85,7 +85,6 @@ export function ThemeExplorer() {
       ? appearanceStyle(
           schemes[config().scheme]!,
           accents[config().accent]!,
-          config().depth,
           config().layers,
           undefined,
           config().decorations,

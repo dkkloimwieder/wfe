@@ -21,12 +21,7 @@ import {
   defaultDividers,
   defaultLayers,
 } from './appearance'
-import type {
-  Depth,
-  SurfaceLayers,
-  TableDividers,
-  Decorations,
-} from './appearance'
+import type { SurfaceLayers, TableDividers, Decorations } from './appearance'
 
 export type ThemeMode = 'light' | 'dark' | 'monochrome'
 export type ThemeAccent =
@@ -49,7 +44,6 @@ export type ThemeOptions = {
   mode?: ThemeMode
   accent?: ThemeAccent
   secondaryAccent?: ThemeSecondaryAccent
-  depth?: Depth
   layers?: Partial<SurfaceLayers>
   dividers?: Partial<TableDividers>
   decorations?: Partial<Omit<Decorations, 'secondary'>>
@@ -111,7 +105,6 @@ export function themeStyle(options: ThemeOptions = {}): JSX.CSSProperties {
     ...appearanceStyle(
       scheme,
       accent,
-      options.depth ?? 0,
       withDefaults<SurfaceLayers>(defaultLayers, options.layers),
       withDefaults(defaultDividers, options.dividers),
       {

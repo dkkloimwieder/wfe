@@ -28,7 +28,7 @@ import {
   schemes,
   accents,
 } from '../shared/appearance/appearance'
-import type { Depth, SurfaceLayers } from '../shared/appearance/appearance'
+import type { SurfaceLayers } from '../shared/appearance/appearance'
 import '@wfe/components/styles.css'
 import '../shared/appearance/style.css'
 import './style.css'
@@ -64,7 +64,6 @@ export function App(props: {
     )
   const [scheme, setScheme] = createSignal(schemes[1]!)
   const [accent, setAccent] = createSignal(accents[1]!)
-  const [depth, setDepth] = createSignal<Depth>(2)
   const [layers, setLayers] = createSignal<SurfaceLayers>(defaultLayers)
   const [series, setSeries] = createSignal({ requests: true, capacity: true })
   const [rejectSeries, setRejectSeries] = createSignal(false)
@@ -146,7 +145,7 @@ export function App(props: {
   return (
     <Theme
       class="chart-preview"
-      style={appearanceStyle(scheme(), accent(), depth(), layers())}
+      style={appearanceStyle(scheme(), accent(), layers())}
     >
       <header>
         <h1>CHARTS</h1>
@@ -174,11 +173,9 @@ export function App(props: {
       <AppearanceReview
         scheme={scheme()}
         accent={accent()}
-        depth={depth()}
         layers={layers()}
         onSchemeChange={setScheme}
         onAccentChange={setAccent}
-        onDepthChange={setDepth}
         onLayersChange={setLayers}
       />
       <main class="chart-review-grid">

@@ -17,7 +17,6 @@ export {
 } from './palette'
 export type { Accent, SurfaceScheme } from './palette'
 
-export type Depth = 0 | 1 | 2 | 3
 export type SurfaceLevel = 0 | 1 | 2
 export type DividerLevel = 0 | 1 | 2 | 3
 export type TableDividers = { rows: DividerLevel; columns: DividerLevel }
@@ -71,7 +70,6 @@ export function dividerSurfaces(scheme: SurfaceScheme) {
 export function appearanceStyle(
   scheme: SurfaceScheme,
   accent: Accent,
-  _depth: Depth,
   layers: SurfaceLayers,
   dividers: TableDividers = defaultDividers,
   decorations: Decorations = defaultDecorations,
@@ -165,7 +163,6 @@ export function appearanceStyle(
       : 'var(--ui-button-color, var(--ui-button-border))',
     '--ui-canvas-pattern': `radial-gradient(circle, color-mix(in srgb, ${decorations.dotColor === 'neutral' ? neutralDot : decorationColor(decorations.dotColor)} ${decorations.dots}%, transparent) 0.75px, transparent 0.75px)`,
     '--ui-canvas-pattern-size': '0.3em 0.3em',
-    '--ui-handle-border': 'var(--ui-border)',
     '--ui-focus': 'var(--ui-accent)',
     '--ui-focus-ring': ring,
     '--ui-selection': 'var(--ui-accent)',
@@ -174,11 +171,7 @@ export function appearanceStyle(
     '--ui-on-accent': onAccent,
     '--ui-accent-hover': 'var(--ui-accent)',
     '--ui-accent-inverted-hover': 'var(--ui-on-accent)',
-    '--ui-shadow-overflow': '24px',
     '--ui-panel-shadow': 'none',
     '--ui-popup-shadow': 'none',
-    '--ui-theme-shadow-color':
-      scheme.mode === 'dark' ? '220 40% 2%' : '220 3% 15%',
-    '--ui-theme-shadow-strength': '100%',
   }
 }

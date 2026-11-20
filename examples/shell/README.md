@@ -30,7 +30,7 @@ Use the audience selector to change menus.
 The browser Back and Forward buttons restore accepted pages.
 On narrow screens, the Navigation button opens the sidebar as a drawer.
 
-The example uses shared blue accents, outline buttons, surface 1 components, surface 2 background, and shadow depth 2.
+The example uses shared blue accents, outline buttons, surface 1 components, and surface 2 background.
 The table fills the main region. The standalone form fills a shared panel with consistent padding.
 
 ## Browser qualification

@@ -140,7 +140,6 @@ export function Gallery() {
           ? appearanceStyle(
               schemes[route().scheme]!,
               accents[route().accent]!,
-              route().depth,
               route().layers,
               undefined,
               route().decorations,
@@ -356,7 +355,6 @@ export function Gallery() {
               }
               scheme={schemes[route().scheme]!}
               accent={accents[route().accent]!}
-              depth={route().depth}
               layers={route().layers}
               onSchemeChange={(value) =>
                 change({ scheme: schemes.indexOf(value) })
@@ -364,7 +362,6 @@ export function Gallery() {
               onAccentChange={(value) =>
                 change({ accent: accents.indexOf(value) })
               }
-              onDepthChange={(depth) => change({ depth })}
               onLayersChange={(layers) => change({ layers })}
             />
           </section>

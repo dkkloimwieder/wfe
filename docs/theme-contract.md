@@ -19,7 +19,7 @@ Existing mode, accent, secondaryAccent, density, style, class, and decoration op
 All presets support primary and secondary accents and semantic surface roles.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
 All presets capitalize system labels and preserve record values and prose.
-Dividers, depth, and decoration controls configure the Sketchy preset.
+Dividers and decoration controls configure the Sketchy preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
 Vanilla suppresses decorative effects, including explicit decoration requests inside its scope.
 An inner Theme owns its full presentation and can select either preset independently.

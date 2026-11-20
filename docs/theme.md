@@ -42,7 +42,6 @@ Pass `secondaryAccent="yellow"` to set the secondary accent.
 The application owns these values, persistence, and any system preference detection.
 Use the same initial values on the server and client for hydration.
 
-`depth` remains accepted for compatibility. The Sketchy theme renders all depths without shadows.
 `layers`, `dividers`, and `decorations` accept partial overrides.
 Pass values from the exported TypeScript types. Opacity percentages use the range 0 to 100.
 Omitted or undefined values retain their defaults.
@@ -181,7 +180,7 @@ Switching presets preserves input values, focus, selection, and open overlays.
 Mode, accent, density, class, and style remain independent of preset selection.
 All presets support primary and secondary accents and surface layers.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
-Dividers, depth, and decoration controls belong to the Sketchy preset.
+Dividers and decoration controls belong to the Sketchy preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
 All presets capitalize system labels while preserving record values and prose.
 Vanilla navigation uses flat groups, indented child links, and a neutral selected-row fill.

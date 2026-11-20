@@ -57,7 +57,6 @@ export function App(props: { ready?: (api: TileFixture) => void }) {
           ? appearanceStyle(
               schemes.find((entry) => entry.mode === 'dark')!,
               accents[1]!,
-              2,
               defaultLayers,
             )
           : undefined

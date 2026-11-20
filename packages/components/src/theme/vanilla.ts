@@ -50,7 +50,6 @@ export function vanillaStyle(
     '--ui-control-surface': 'var(--ui-surface)',
     '--ui-muted-surface': 'var(--ui-highlight)',
     '--ui-skeleton-surface': 'var(--ui-highlight)',
-    '--ui-handle-border': 'var(--ui-border)',
     '--ui-highlight': hover,
     '--ui-hover': 'var(--ui-highlight)',
     '--ui-control-hover': 'var(--ui-highlight)',

@@ -15,7 +15,6 @@ export type GalleryConfig = {
   decorations: Decorations
   scheme: number
   accent: number
-  depth: 0 | 1 | 2 | 3
   layers: { canvas: 0 | 1 | 2; pane: 0 | 1 | 2; content: 0 | 1 | 2 }
   state: GalleryState
 }
@@ -33,14 +32,12 @@ export const galleryThemeOptions = (route: GalleryConfig) => ({
     route.decorations.secondary
   ]!.name.toLowerCase().replaceAll(' ', '-') as ThemeOptions['secondaryAccent'],
   layers: route.layers,
-  depth: route.depth,
 })
 export const defaults: GalleryConfig = {
   preset: 'default',
   decorations: defaultDecorations,
   scheme: 1,
   accent: 1,
-  depth: 2,
   layers: { ...defaultLayers },
   state: 'normal',
 }
