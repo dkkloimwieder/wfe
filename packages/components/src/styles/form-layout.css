@@ -1,7 +1,7 @@
 :where(.ui-form[data-ui]) {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-field-gap, var(--ui-gap, 6px));
+  gap: var(--ui-field-gap, var(--ui-gap, 8px));
   min-inline-size: 0;
 }
 :where(.ui-form[data-ui]) > :is(h2, p) {
@@ -26,7 +26,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  gap: var(--ui-field-gap, var(--ui-gap, 6px));
+  gap: var(--ui-field-gap, var(--ui-gap, 8px));
   min-inline-size: 0;
 }
 :where([data-ui]) .ui-form-grid > * {
@@ -36,19 +36,19 @@
   grid-column: 1 / -1;
 }
 :where([data-ui]) .ui-field-group {
-  background: var(--ui-surface, white);
+  background: var(--ui-surface, #fcfcfd);
 }
 :where([data-ui]) .ui-field-group-title {
   font-size: var(--ui-heading-font-size, var(--ui-font-size, 12px));
-  line-height: var(--ui-heading-line-height, var(--ui-line-height, 1.45));
+  line-height: var(--ui-heading-line-height, var(--ui-line-height, 1.625));
   font-weight: var(--ui-heading-weight, 500);
-  margin-block-end: var(--ui-field-gap, var(--ui-gap, 6px));
+  margin-block-end: var(--ui-field-gap, var(--ui-gap, 8px));
 }
 :where([data-ui]) .ui-field-group:has(> .ui-help) > .ui-field-group-title {
-  margin-block-end: var(--ui-gap, 6px);
+  margin-block-end: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-field-group > .ui-help {
-  margin-block-end: var(--ui-field-gap, var(--ui-gap, 6px));
+  margin-block-end: var(--ui-field-gap, var(--ui-gap, 8px));
 }
 @container ui-form (min-width: 30rem) {
   :where([data-ui]) .ui-form-grid[data-columns='2'] {
@@ -74,5 +74,5 @@
 :where([data-ui]) .ui-form-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }

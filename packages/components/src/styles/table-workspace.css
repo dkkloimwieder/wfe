@@ -12,9 +12,9 @@
   grid-template-areas: 'header header' 'controls results';
   gap: 0;
   border: var(--ui-table-frame-width, var(--ui-border-width, 1px)) solid
-    var(--ui-border, #ccc);
+    var(--ui-border, #e5e5e5);
   box-shadow: var(--ui-panel-shadow, none);
-  background: var(--ui-canvas-surface, var(--ui-surface, white));
+  background: var(--ui-canvas-surface, var(--ui-surface, #fcfcfd));
   height: 100%;
   min-height: 0;
   min-width: 0;
@@ -22,8 +22,8 @@
 }
 :where([data-ui]) .table-controls-toggle,
 :where([data-ui]) .table-refresh {
-  width: var(--ui-control-height, 26px);
-  height: var(--ui-control-height, 26px);
+  width: var(--ui-control-height, 32px);
+  height: var(--ui-control-height, 32px);
   flex: none;
   padding: 0;
 }
@@ -33,7 +33,7 @@
   height: 16px;
   fill: none;
   stroke: currentColor;
-  stroke-width: var(--ui-icon-stroke-width, 1.5);
+  stroke-width: var(--ui-icon-stroke-width, 1);
   pointer-events: none;
 }
 :where([data-ui]) .table-controls-close {
@@ -43,15 +43,15 @@
 :where([data-ui]) .table-workspace-results {
   grid-area: results;
   border: 0;
-  background: var(--ui-pane-surface, var(--ui-surface, white));
+  background: var(--ui-pane-surface, var(--ui-surface, #fcfcfd));
   box-shadow: none;
 }
 :where([data-ui]) .table-workspace-results {
-  background: var(--ui-surface, white);
+  background: var(--ui-surface, #fcfcfd);
 }
 :where([data-ui]) .table-workspace-controls {
   grid-area: controls;
-  border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -69,14 +69,14 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) fit-content(50%) minmax(0, 1fr);
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-height: calc(
-    var(--ui-control-height, 26px) + var(--ui-control-padding-y, 4px) * 2 + 1px
+    var(--ui-control-height, 32px) + var(--ui-control-padding-y, 4px) * 2 + 1px
   );
   min-width: 0;
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
-  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
-  background: var(--ui-pane-surface, var(--ui-surface, white));
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
+  background: var(--ui-pane-surface, var(--ui-surface, #fcfcfd));
 }
 :where([data-ui]) .table-workspace-title {
   grid-area: 1 / 2;
@@ -84,7 +84,7 @@
   text-align: center;
 }
 :where([data-ui]) .table-workspace-title-face {
-  height: var(--ui-control-height, 26px);
+  height: var(--ui-control-height, 32px);
   max-width: 100%;
   cursor: default;
 }
@@ -104,11 +104,11 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
 }
 :where([data-ui]) .table-workspace-header-actions button {
-  height: var(--ui-control-height, 26px);
+  height: var(--ui-control-height, 32px);
   padding-block: 0;
 }
 :where([data-ui]) .table-workspace-controls-body {
@@ -151,22 +151,22 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
   border: 0;
-  border-top: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-top: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
 }
 :where([data-ui]) .table-control-summary {
-  margin-inline-start: var(--ui-gap, 6px);
+  margin-inline-start: var(--ui-gap, 8px);
   font-weight: var(--ui-font-weight, 400);
-  font-size: var(--ui-small-font-size, 11px);
-  color: var(--ui-muted-text, #666);
+  font-size: var(--ui-small-font-size, 12px);
+  color: var(--ui-muted-text, #999999);
 }
 
 :where([data-ui]) .table-workspace .column-filters {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   border: 0;
   margin: 0;
   padding: 0;
@@ -212,7 +212,7 @@
   .table-workspace[data-controls-placement='top']
   > .table-workspace-controls {
   border-inline-end: 0;
-  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
 }
 :where([data-ui]) .table-workspace[data-controls-placement='right'] {
   grid-template-columns: minmax(0, 1fr) var(
@@ -225,7 +225,8 @@
   .table-workspace[data-controls-placement='right']
   > .table-workspace-controls {
   border-inline-end: 0;
-  border-inline-start: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-inline-start: var(--ui-border-width, 1px) solid
+    var(--ui-border, #e5e5e5);
 }
 @media (width >= 48rem) {
   :where([data-ui])
@@ -401,13 +402,13 @@
     display: inline-flex;
     flex: none;
     align-self: start;
-    margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
+    margin: var(--ui-gap, 8px) var(--ui-cell-padding-x, 8px);
   }
   :where([data-ui])
     .table-workspace:not([data-ui-responsive-ready])[data-controls-placement]
     > .table-workspace-controls {
     grid-area: results;
-    border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+    border: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
     box-shadow: var(--ui-panel-shadow, none);
     display: none;
     position: absolute;
@@ -456,13 +457,13 @@
   display: inline-flex;
   flex: none;
   align-self: start;
-  margin: var(--ui-gap, 6px) var(--ui-cell-padding-x, 8px);
+  margin: var(--ui-gap, 8px) var(--ui-cell-padding-x, 8px);
 }
 :where([data-ui])
   .table-workspace[data-ui-responsive-ready][data-controls-drawer][data-controls-placement]
   > .table-workspace-controls {
   grid-area: results;
-  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
   box-shadow: var(--ui-panel-shadow, none);
   display: none;
   position: absolute;
@@ -492,20 +493,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .table-filter-heading > button {
-  padding: 0 var(--ui-control-padding-x, 8px);
+  padding: 0 var(--ui-control-padding-x, 10px);
 }
 :where([data-ui]) .table-number-bounds {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .table-number-bounds > label {
   min-width: 0;
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .table-number-bounds > .ui-field-error {
   grid-column: 1 / -1;
@@ -546,7 +547,7 @@
     .table-filter-actions
     > span {
     max-width: min-content;
-    font-size: var(--ui-small-font-size, 11px);
+    font-size: var(--ui-small-font-size, 12px);
     line-height: 1.1;
   }
 }
@@ -559,7 +560,7 @@
   .table-filter-actions
   > span {
   max-width: min-content;
-  font-size: var(--ui-small-font-size, 11px);
+  font-size: var(--ui-small-font-size, 12px);
   line-height: 1.1;
 }
 
@@ -812,7 +813,7 @@
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
   width: 100%;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 
 @media (width >= 48rem) {
@@ -853,7 +854,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
   max-width: 100%;
 }

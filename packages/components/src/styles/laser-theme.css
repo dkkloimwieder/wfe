@@ -401,7 +401,7 @@
     opacity: 1;
     color: color-mix(
       in srgb,
-      var(--ui-text) calc(var(--ui-disabled-opacity, 0.5) * 100%),
+      var(--ui-text) calc(var(--ui-disabled-opacity, 1) * 100%),
       transparent
     );
   }
@@ -415,7 +415,7 @@
     :is(.ui-input-affix, .filter-input, .choice-control)
     > button:is(:disabled, [aria-disabled='true'])
     > * {
-    opacity: var(--ui-disabled-opacity, 0.5);
+    opacity: var(--ui-disabled-opacity, 1);
   }
   :scope :is(.ui-input-affix, .filter-input, .choice-control) > button {
     --ui-laser-control-glow: none;
@@ -536,6 +536,6 @@
   :scope :is(.ui-button, .popup-trigger):focus-visible {
     outline: var(--ui-focus-width, 1px) solid
       var(--ui-focus-ring, var(--ui-focus));
-    outline-offset: var(--ui-focus-offset, 2px);
+    outline-offset: var(--ui-focus-offset, 0px);
   }
 }

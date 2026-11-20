@@ -3,7 +3,7 @@
 :where([data-ui]) .toolbar {
   display: flex;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   flex-wrap: wrap;
 }
 :where([data-ui]) .toolbar {
@@ -18,8 +18,8 @@
   position: relative;
   container-type: inline-size;
   overflow: auto;
-  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
-  background: var(--ui-surface, white);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
+  background: var(--ui-surface, #fcfcfd);
 }
 :where([data-ui]) table:where(.ui-table) {
   --ui-table-header-size: calc(
@@ -33,7 +33,7 @@
   background: transparent;
   text-align: left;
   padding: 8px 10px;
-  font-weight: var(--ui-heading-weight, 650);
+  font-weight: var(--ui-heading-weight, 500);
 }
 :where([data-ui]) :where(.ui-table > :is(thead, tbody, tfoot) > tr) > th {
   font-weight: var(--ui-heading-weight, 500);
@@ -42,7 +42,7 @@
 :where([data-ui]) :where(.ui-table > :is(thead, tbody, tfoot) > tr) > td {
   padding: var(--ui-table-cell-padding-y, 1px) var(--ui-cell-padding-x, 8px);
   border-top: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
-    var(--ui-table-row-divider, var(--ui-divider, #ddd));
+    var(--ui-table-row-divider, var(--ui-divider, #e5e5e5));
   text-align: left;
   vertical-align: middle;
 }
@@ -53,14 +53,14 @@
   > td,
 :where([data-ui]) :where(.ui-table) > tbody > :where(tr) > th {
   border-bottom: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
-    var(--ui-table-row-divider, var(--ui-divider, #ddd));
+    var(--ui-table-row-divider, var(--ui-divider, #e5e5e5));
 }
 :where([data-ui])
   :where(.ui-table > :is(thead, tbody, tfoot))
   > tr
   > :is(th, td):not(:last-child) {
   border-inline-end: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
-    var(--ui-table-column-divider, var(--ui-divider, #ddd));
+    var(--ui-table-column-divider, var(--ui-divider, #e5e5e5));
 }
 :where([data-ui]) [data-column-alignment='left'] {
   --ui-column-alignment: left;
@@ -99,27 +99,27 @@
 }
 :where([data-ui]) :where(.ui-table) > thead {
   background: transparent;
-  color: var(--ui-text, #000);
-  font-size: var(--ui-small-font-size, 11px);
+  color: var(--ui-text, #262626);
+  font-size: var(--ui-small-font-size, 12px);
 }
 :where([data-ui]) .table-scroll > table:where(.ui-table) > thead {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--ui-surface, white);
-  box-shadow: 0 1px var(--ui-table-row-divider, var(--ui-divider, #ddd));
+  background: var(--ui-surface, #fcfcfd);
+  box-shadow: 0 1px var(--ui-table-row-divider, var(--ui-divider, #e5e5e5));
 }
 :where([data-ui]) :where(.ui-table) > tbody > tr[data-row] {
   height: var(--ui-row-height, 32px);
 }
 :where([data-ui]) :where(.ui-table) > tbody > tr[data-row]:hover {
-  background: var(--ui-hover, #f6f6f6);
+  background: var(--ui-hover, #f5f5f5);
 }
 :where([data-ui]) .column-sort {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   width: auto;
   margin: 0 0 6px;
   padding: 0;
@@ -147,7 +147,7 @@
 :where([data-ui]) .column-heading {
   display: flex;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-height: var(--ui-header-height, 22px);
 }
 :where([data-ui]) .column-heading .column-move {
@@ -184,7 +184,7 @@
   padding: 0;
   border-color: transparent;
   background: transparent;
-  color: var(--ui-subtle-text, #888);
+  color: var(--ui-subtle-text, #999999);
 }
 :where([data-ui]) .header-name {
   flex: 1;
@@ -199,7 +199,7 @@
 }
 :where([data-ui]) .table-filter {
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
 }
 :where([data-ui]) .column-title {
@@ -212,9 +212,9 @@
   gap: 8px;
   padding: 10px;
   margin-top: 10px;
-  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
   border-radius: var(--ui-radius, 0px);
-  background: var(--ui-surface, white);
+  background: var(--ui-surface, #fcfcfd);
 }
 :where([data-ui]) .display-fields {
   display: flex;
@@ -227,7 +227,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   width: 100%;
 }
 :where([data-ui]) .column-display-option > .ui-select-field {
@@ -254,28 +254,28 @@
   container-type: inline-size;
   margin: 10px 0 0;
   padding: 8px 10px 10px;
-  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
   border-radius: var(--ui-radius, 0px);
-  background: var(--ui-surface, white);
+  background: var(--ui-surface, #fcfcfd);
   min-width: 0;
 }
 :where([data-ui]) .grouping-controls legend {
   padding: 0 6px;
-  font-weight: var(--ui-heading-weight, 600);
+  font-weight: var(--ui-heading-weight, 500);
 }
 :where([data-ui]) .grouping-toolbar,
 :where([data-ui]) .group-heading {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .grouping-toolbar {
   align-items: end;
 }
 :where([data-ui]) .grouping-controls label {
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .grouping-levels {
   list-style: none;
@@ -286,23 +286,23 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  gap: var(--ui-gap, 6px);
-  padding: var(--ui-gap, 6px) 0;
-  border-top: var(--ui-border-width, 1px) solid var(--ui-divider, #ddd);
+  gap: var(--ui-gap, 8px);
+  padding: var(--ui-gap, 8px) 0;
+  border-top: var(--ui-border-width, 1px) solid var(--ui-divider, #e5e5e5);
 }
 :where([data-ui]) .grouping-level-label {
   min-width: 0;
   align-self: center;
   overflow-wrap: anywhere;
-  font-weight: var(--ui-heading-weight, 600);
+  font-weight: var(--ui-heading-weight, 500);
 }
 :where([data-ui]) :is(.grouping-level-move, .grouping-level-actions) {
   display: flex;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .grouping-level-move button {
-  min-width: var(--ui-control-height, 26px);
+  min-width: var(--ui-control-height, 32px);
 }
 :where([data-ui]) .grouping-levels li > label,
 :where([data-ui]) .grouping-level-actions {
@@ -325,19 +325,19 @@
   }
 }
 :where([data-ui]) .grouping-levels label {
-  font-size: var(--ui-small-font-size, 11px);
+  font-size: var(--ui-small-font-size, 12px);
 }
 :where([data-ui]) .group-row > td {
-  background: var(--ui-highlight, #edf3fb);
+  background: var(--ui-highlight, #f5f5f5);
   padding: var(--ui-table-cell-padding-y, 1px) var(--ui-cell-padding-x, 8px);
 }
 :where([data-ui]) .group-heading button {
   text-align: left;
-  font-weight: var(--ui-heading-weight, 600);
+  font-weight: var(--ui-heading-weight, 500);
 }
 :where([data-ui]) .group-count,
 :where([data-ui]) .group-summary {
-  font-size: var(--ui-small-font-size, 11px);
+  font-size: var(--ui-small-font-size, 12px);
   font-weight: var(--ui-font-weight, 400);
 }
 :where([data-ui]) .group-summary {
@@ -346,14 +346,14 @@
 :where([data-ui]) .group-summary-headers > th {
   padding-top: 6px;
   padding-bottom: 6px;
-  color: var(--ui-muted-text, #666);
-  font-size: var(--ui-small-font-size, 11px);
+  color: var(--ui-muted-text, #999999);
+  font-size: var(--ui-small-font-size, 12px);
   font-weight: var(--ui-font-weight, 400);
 }
 :where([data-ui]) .sub-table-row > td {
   padding: 0;
   padding-inline-start: 10px;
-  background: var(--ui-muted-surface, #f0f0f0);
+  background: var(--ui-muted-surface, #fcfcfd);
 }
 :where([data-ui]) .sub-table {
   min-width: 0;
@@ -362,7 +362,7 @@
 :where([data-ui]) .sub-table h2 {
   font-size: var(
     --ui-subtable-heading-font-size,
-    var(--ui-heading-font-size, 16px)
+    var(--ui-heading-font-size, 14px)
   );
 }
 :where([data-ui]) .sub-table-control {
@@ -382,18 +382,18 @@
   background: transparent;
 }
 :where([data-ui]) .sub-table-toggle:hover {
-  border-color: var(--ui-border, #ccc);
+  border-color: var(--ui-border, #e5e5e5);
 }
 :where([data-ui]) .summary-controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 8px;
-  border-top: var(--ui-border-width, 1px) solid var(--ui-divider, #ddd);
+  border-top: var(--ui-border-width, 1px) solid var(--ui-divider, #e5e5e5);
   padding-top: 8px;
 }
 :where([data-ui]) .summary-help {
-  color: var(--ui-muted-text, #666);
-  font-size: var(--ui-small-font-size, 11px);
+  color: var(--ui-muted-text, #999999);
+  font-size: var(--ui-small-font-size, 12px);
   margin-bottom: 0;
 }
 :where([data-ui]) .column-resize {
@@ -416,12 +416,12 @@
 }
 :where([data-ui]) .column-resize:hover .resize-grip,
 :where([data-ui]) .column-resize:active .resize-grip {
-  background: var(--ui-focus, #1657a8);
+  background: var(--ui-focus, #1971c2);
   width: 3px;
 }
 :where([data-ui]) .column-resize:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus, #1657a8));
+    var(--ui-focus-ring, var(--ui-focus, #1971c2));
   outline-offset: -2px;
 }
 :where([data-ui]) fieldset.display-fields {
@@ -448,18 +448,18 @@
   padding: 0;
   border-color: transparent;
   background: transparent;
-  color: var(--ui-subtle-text, #888);
+  color: var(--ui-subtle-text, #999999);
 }
 :where([data-ui]) .header-filter-trigger svg {
   width: 12px;
   height: 12px;
   fill: none;
   stroke: currentColor;
-  stroke-width: var(--ui-icon-stroke-width, 1.2);
+  stroke-width: var(--ui-icon-stroke-width, 1);
   stroke-linejoin: round;
 }
 :where([data-ui]) .header-filter-trigger[data-filtered='true'] {
-  color: var(--ui-focus, #1657a8);
+  color: var(--ui-focus, #1971c2);
 }
 :where([data-ui]) .header-filter-trigger[data-filtered='true']::after {
   content: '';
@@ -469,7 +469,7 @@
   right: 1px;
   top: 2px;
   border-radius: 50%;
-  background: var(--ui-focus, #1657a8);
+  background: var(--ui-focus, #1971c2);
 }
 :where([data-ui]) .header-filter-popup {
   position: fixed;
@@ -503,7 +503,7 @@
   padding: 0;
   border-color: transparent;
   background: transparent;
-  color: var(--ui-muted-text, #666);
+  color: var(--ui-muted-text, #999999);
 }
 :where([data-ui]) .column-move {
   display: block;
@@ -553,13 +553,13 @@
   border: 0;
 }
 :where([data-ui]) [data-column-moving] {
-  background: var(--ui-highlight, #edf3fb);
+  background: var(--ui-highlight, #f5f5f5);
 }
 :where([data-ui]) [data-column-drop='before'] {
-  box-shadow: inset 3px 0 var(--ui-focus, #1657a8);
+  box-shadow: inset 3px 0 var(--ui-focus, #1971c2);
 }
 :where([data-ui]) [data-column-drop='after'] {
-  box-shadow: inset -3px 0 var(--ui-focus, #1657a8);
+  box-shadow: inset -3px 0 var(--ui-focus, #1971c2);
 }
 
 @media (max-width: 700px) {
@@ -569,13 +569,13 @@
 }
 :where([data-ui]) .table-formatting {
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 
 :where([data-ui]) .table-filter-actions {
   display: flex;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 
 :where([data-ui]) .table-filter-actions button[aria-disabled='true'] {
@@ -618,7 +618,7 @@
   .column-heading:has(.column-sort)
   .column-move {
   padding-inline: calc(
-    1ch + var(--ui-cell-padding-x, 8px) * 2 + var(--ui-gap, 6px)
+    1ch + var(--ui-cell-padding-x, 8px) * 2 + var(--ui-gap, 8px)
   );
 }
 :where([data-ui])
@@ -626,7 +626,7 @@
   .column-heading:has(.column-sort)
   .column-move {
   padding-inline-start: calc(
-    1ch + var(--ui-cell-padding-x, 8px) * 2 + var(--ui-gap, 6px)
+    1ch + var(--ui-cell-padding-x, 8px) * 2 + var(--ui-gap, 8px)
   );
 }
 :where([data-ui])
@@ -636,7 +636,7 @@
   )
   .column-heading:not(:has(.column-move))
   .column-sort-label {
-  padding-inline: calc(1ch + var(--ui-gap, 6px));
+  padding-inline: calc(1ch + var(--ui-gap, 8px));
 }
 :where([data-ui])
   .column-header[data-column-alignment='right']
@@ -666,17 +666,17 @@
 :where([data-ui]) td[data-cell-selection] {
   background: var(
     --ui-cell-selection-surface,
-    color-mix(in srgb, var(--ui-text, #262626) 4%, var(--ui-surface, white))
+    color-mix(in srgb, var(--ui-text, #262626) 4%, var(--ui-surface, #fcfcfd))
   );
   --_selection-top: 0;
   --_selection-bottom: 0;
   --_selection-left: 0;
   --_selection-right: 0;
   box-shadow:
-    inset 0 var(--_selection-top) var(--ui-accent, #1c7ed6),
-    inset 0 var(--_selection-bottom) var(--ui-accent, #1c7ed6),
-    inset var(--_selection-left) 0 var(--ui-accent, #1c7ed6),
-    inset var(--_selection-right) 0 var(--ui-accent, #1c7ed6);
+    inset 0 var(--_selection-top) var(--ui-accent, #1971c2),
+    inset 0 var(--_selection-bottom) var(--ui-accent, #1971c2),
+    inset var(--_selection-left) 0 var(--ui-accent, #1971c2),
+    inset var(--_selection-right) 0 var(--ui-accent, #1971c2);
 }
 :where([data-ui]) td[data-selection-edges~='top'] {
   --_selection-top: 1px;
@@ -697,7 +697,7 @@
 :where([data-ui]) .table-selection-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 
 :where([data-ui]) table[data-table-selection]:focus-visible {

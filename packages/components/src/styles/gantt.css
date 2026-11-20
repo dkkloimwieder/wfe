@@ -44,12 +44,12 @@
   top: 0;
   z-index: 3;
   background: var(--ui-surface);
-  font-size: var(--ui-small-font-size, 11px);
+  font-size: var(--ui-small-font-size, 12px);
 }
 :where([data-ui]) .ui-gantt-row-label {
   display: flex;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
   padding-inline: var(--ui-cell-padding-x, 8px);
   border-inline-end: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
@@ -151,7 +151,7 @@
   stroke-width: var(--ui-connector-stroke-width, 1.5);
 }
 :where([data-ui]) .ui-gantt-empty {
-  padding: var(--ui-layout-inset, 8px);
+  padding: var(--ui-layout-inset, 16px);
 }
 
 :where([data-ui]) .ui-gantt-resize {
@@ -195,17 +195,17 @@
   flex: none;
   width: 1em;
   height: 1em;
-  margin-inline-end: var(--ui-gap, 6px);
+  margin-inline-end: var(--ui-gap, 8px);
   z-index: 1;
 }
 :where([data-ui]).ui-gantt-details {
-  max-width: min(26rem, calc(100vw - 2 * var(--ui-layout-inset, 8px)));
+  max-width: min(26rem, calc(100vw - 2 * var(--ui-layout-inset, 16px)));
 }
 :where([data-ui]).ui-gantt-details dl {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--ui-gap, 6px);
-  margin: var(--ui-gap, 6px) 0 0;
+  gap: var(--ui-gap, 8px);
+  margin: var(--ui-gap, 8px) 0 0;
 }
 :where([data-ui]).ui-gantt-details dd {
   margin: 0;

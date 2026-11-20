@@ -1,14 +1,14 @@
 :where([data-ui]) .ui-status-tile {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
   box-shadow: var(--ui-panel-shadow, none);
 }
 :where([data-ui]) .ui-status-tile-header {
   display: flex;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
 }
 :where([data-ui]) .ui-status-tile-label {
@@ -19,7 +19,7 @@
   white-space: nowrap;
   font-weight: var(
     --ui-status-tile-label-weight,
-    var(--ui-heading-weight, 600)
+    var(--ui-heading-weight, 500)
   );
 }
 :where([data-ui]) .ui-status-tile-header .ui-badge {

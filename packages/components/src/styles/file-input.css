@@ -1,12 +1,12 @@
 :where([data-ui]).ui-file-input {
   position: relative;
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
-  padding: var(--ui-control-padding-x, 8px);
-  border: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  padding: var(--ui-control-padding-x, 10px);
+  border: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
   border-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
-  background: var(--ui-control-surface, var(--ui-surface, white));
+  background: var(--ui-control-surface, var(--ui-surface, #fcfcfd));
 }
 :where([data-ui]) .ui-file-picker {
   position: absolute;
@@ -23,11 +23,11 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-file-list {
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
 }
 :where([data-ui]) .ui-file-name {
@@ -45,18 +45,18 @@
   overflow-wrap: anywhere;
 }
 :where([data-ui]) .ui-file-size {
-  font-size: var(--ui-small-font-size, 11px);
+  font-size: var(--ui-small-font-size, 12px);
 }
 :where([data-ui]) .ui-file-input p {
   margin: 0;
 }
 :where([data-ui]).ui-file-input[data-dragging] {
-  border-color: var(--ui-accent, currentColor);
+  border-color: var(--ui-accent, #1971c2);
 }
 :where([data-ui]).ui-file-input:has(.ui-file-picker:focus-visible)
   .ui-file-actions
   > button {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus, #1657a8));
+    var(--ui-focus-ring, var(--ui-focus, #1971c2));
   outline-offset: 2px;
 }

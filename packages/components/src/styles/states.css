@@ -20,8 +20,8 @@
 :where([data-ui]) :is(.ui-input-affix, .filter-input):has(:focus-visible),
 :where([data-ui]) .choice-control:has(:focus-visible) {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-focus, #1657a8));
-  outline-offset: var(--ui-focus-offset, 2px);
+    var(--ui-focus-ring, var(--ui-focus, #1971c2));
+  outline-offset: var(--ui-focus-offset, 0px);
 }
 :where([data-ui]) .choice-control input:focus-visible,
 :where([data-ui]) :is(.ui-input-affix, .filter-input) input:focus-visible,
@@ -71,7 +71,7 @@
     [data-readonly],
     [data-disabled]
   ) {
-  background-color: var(--ui-muted-surface, #f0f0f0);
+  background-color: var(--ui-muted-surface, #fcfcfd);
 }
 :where([data-ui]) .popup-trigger:is([data-readonly], [data-disabled]),
 :where([data-ui])
@@ -83,7 +83,7 @@
 }
 /* Preserve the selected switch state, including its disabled and readonly forms. */
 :where([data-ui]) .ui-switch-control[data-checked] {
-  background-color: var(--ui-highlight, #edf3fb);
+  background-color: var(--ui-highlight, #f5f5f5);
 }
 
 /* All editable field surfaces share one hover state, including compound fields. */
@@ -124,11 +124,11 @@
     [data-disabled],
     [data-readonly]
   ) {
-  background-color: var(--ui-control-hover, var(--ui-highlight, #edf3fb));
+  background-color: var(--ui-control-hover, var(--ui-highlight, #f5f5f5));
 }
 
 :where([data-ui]) .choice-control:is([data-disabled], [data-readonly]) button {
-  background-color: var(--ui-muted-surface, #f0f0f0);
+  background-color: var(--ui-muted-surface, #fcfcfd);
   cursor: default;
 }
 
@@ -140,7 +140,7 @@
     .choice-input,
     .popup-trigger
   ):focus-visible:not([aria-invalid='true'], [data-invalid]) {
-  border-color: var(--ui-field-focus-border, var(--ui-control-border, #999));
+  border-color: var(--ui-field-focus-border, var(--ui-control-border, #e5e5e5));
 }
 
 :where([data-ui])
@@ -148,7 +148,7 @@
     input:focus-visible
   ):not(:has([aria-invalid='true'], [data-invalid]))
   > :is(input, button.ui-button, button.choice-toggle) {
-  border-color: var(--ui-field-focus-border, var(--ui-control-border, #999));
+  border-color: var(--ui-field-focus-border, var(--ui-control-border, #e5e5e5));
 }
 :where([data-ui])
   :is(.ui-input-affix, .filter-input, .choice-control):has(
@@ -163,7 +163,7 @@
     input:is([readonly], :disabled)
   )
   > button:is(.ui-button, .choice-toggle) {
-  background: var(--ui-muted-surface, #f0f0f0);
+  background: var(--ui-muted-surface, #fcfcfd);
 }
 :where([data-ui])
   :is(.ui-input-affix, .filter-input, .choice-control)

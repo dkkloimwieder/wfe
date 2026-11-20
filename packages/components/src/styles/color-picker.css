@@ -9,7 +9,7 @@
 }
 .ui-color-picker > .ui-color-trigger {
   flex: none;
-  min-inline-size: var(--ui-control-height, 26px);
+  min-inline-size: var(--ui-control-height, 32px);
   padding: var(--ui-control-padding-y, 4px);
   border-inline-start: 0;
   border-color: var(--ui-control-border);

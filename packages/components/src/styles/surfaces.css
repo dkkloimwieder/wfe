@@ -2,16 +2,16 @@
 :where([data-ui]) .popup-content,
 :where([data-ui]) .header-filter-popup,
 :where([data-ui]) .column-move-menu {
-  --_ui-surface-border: var(--ui-control-border, #999);
+  --_ui-surface-border: var(--ui-control-border, #e5e5e5);
 }
 :where([data-ui]) .ui-dialog-content {
-  --_ui-surface-border: var(--ui-border, #ccc);
+  --_ui-surface-border: var(--ui-border, #e5e5e5);
 }
 :where([data-ui]) .ui-popover,
 :where([data-ui]) .ui-menu,
 :where([data-ui]) .ui-tooltip,
 :where([data-ui]) .ui-toast {
-  --_ui-surface-border: var(--ui-border, #bbb);
+  --_ui-surface-border: var(--ui-border, #e5e5e5);
 }
 :where([data-ui]) .popup-content,
 :where([data-ui]) .header-filter-popup,
@@ -24,7 +24,7 @@
   border: var(--ui-border-width, 1px) solid
     var(--ui-popup-border, var(--_ui-surface-border));
   border-radius: var(--ui-popup-radius, var(--ui-radius, 0px));
-  background: var(--ui-popup-surface, var(--ui-surface, white));
-  color: var(--ui-popup-text, var(--ui-text, #191919));
+  background: var(--ui-popup-surface, var(--ui-surface, #fcfcfd));
+  color: var(--ui-popup-text, var(--ui-text, #262626));
   box-shadow: var(--ui-popup-shadow, var(--_ui-popup-shadow, none));
 }

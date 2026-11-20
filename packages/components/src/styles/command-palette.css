@@ -33,6 +33,6 @@
   gap: var(--ui-gap, 8px);
   min-block-size: 0;
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
-  background: var(--ui-popup-surface, var(--ui-surface, white));
+  background: var(--ui-popup-surface, var(--ui-surface, #fcfcfd));
   border-radius: inherit;
 }

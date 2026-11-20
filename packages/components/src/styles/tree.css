@@ -19,7 +19,7 @@
   cursor: pointer;
 }
 :where([data-ui]) .ui-tree-item[aria-disabled='true'] .ui-tree-label {
-  opacity: var(--ui-disabled-opacity, 0.5);
+  opacity: var(--ui-disabled-opacity, 1);
 }
 :where([data-ui]) .ui-tree-item:focus-visible,
 :where([data-ui]).ui-tree:focus-visible {

@@ -52,7 +52,8 @@
   stroke: var(--ui-surface);
   stroke-width: 4px;
   paint-order: stroke;
-  font: 11px var(--ui-font-family, sans-serif);
+  font: 11px
+    var(--ui-font-family, 'Fira Code Variable', ui-monospace, monospace);
   cursor: pointer;
 }
 :where([data-ui]) [data-diagram-edge][data-selected] .ui-diagram-edge-line {
@@ -135,7 +136,7 @@
   padding: 12px;
 }
 :where([data-ui]) .ui-diagram-surface:focus-visible {
-  outline: var(--ui-focus-width, 2px) solid
+  outline: var(--ui-focus-width, 1px) solid
     var(--ui-focus-ring, var(--ui-focus));
   outline-offset: -3px;
 }

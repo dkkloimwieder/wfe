@@ -5,7 +5,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   margin: 0;
   padding: 4px;
   list-style: none;
@@ -13,19 +13,19 @@
 :where(.ui-breadcrumbs-item) {
   display: inline-flex;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
   overflow-wrap: anywhere;
 }
 :where(.ui-breadcrumbs-link) {
-  color: var(--ui-accent, currentColor);
+  color: var(--ui-accent, #1971c2);
   text-decoration: none;
 }
 :where(.ui-breadcrumbs-current) {
-  color: var(--ui-text, currentColor);
+  color: var(--ui-text, #262626);
 }
 :where(.ui-breadcrumbs-separator) {
-  color: var(--ui-muted-text, currentColor);
+  color: var(--ui-muted-text, #999999);
   user-select: none;
 }
 

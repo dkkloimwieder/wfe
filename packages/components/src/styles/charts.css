@@ -8,14 +8,14 @@
 :where([data-ui]) .ui-chart-tooltip-title {
   font-weight: var(
     --ui-chart-tooltip-title-weight,
-    var(--ui-heading-weight, 600)
+    var(--ui-heading-weight, 500)
   );
 }
 :where([data-ui]) .ui-chart-tooltip-row {
   display: grid;
   grid-template-columns: 8px minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: var(--ui-gap, 6px);
+  column-gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-chart-tooltip-row > :last-child {
   text-align: end;
@@ -69,10 +69,10 @@
 :where(.ui-chart-legend[data-ui]) {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-chart-legend-button {
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-chart-legend-swatch {
   inline-size: 8px;

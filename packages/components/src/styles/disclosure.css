@@ -2,12 +2,12 @@
   display: inline-block;
   vertical-align: middle;
   flex: none;
-  fill: var(--ui-pane-surface, var(--ui-surface, white));
+  fill: var(--ui-pane-surface, var(--ui-surface, #fcfcfd));
   stroke: var(
     --ui-triangle-color,
-    color-mix(in srgb, var(--ui-border, #bbb) 85%, black)
+    color-mix(in srgb, var(--ui-border, #e5e5e5) 85%, black)
   );
-  stroke-width: var(--ui-icon-stroke-width, 1px);
+  stroke-width: var(--ui-icon-stroke-width, 1);
   pointer-events: none;
 }
 :where([data-ui]) .ui-disclosure-indicator:dir(rtl) {

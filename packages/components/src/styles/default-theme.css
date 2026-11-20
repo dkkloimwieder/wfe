@@ -488,7 +488,7 @@
       color-mix(
         in srgb,
         var(--ui-input-decoration-border-color, var(--ui-neutral-border-color))
-          var(--ui-decoration-border-opacity, 50%),
+          var(--ui-decoration-border-opacity, 100%),
         transparent
       );
     background-color: var(--ui-canvas-surface);
@@ -611,18 +611,18 @@
     position: absolute;
     z-index: -1;
     inset: -8px;
-    background-color: var(--ui-canvas-surface, var(--ui-surface, white));
+    background-color: var(--ui-canvas-surface, var(--ui-surface, #fcfcfd));
     border: var(--ui-border-width, 1px) solid
       color-mix(
         in srgb,
-        var(--ui-accent, currentColor) var(--ui-decoration-border-opacity, 100%),
+        var(--ui-accent, #1971c2) var(--ui-decoration-border-opacity, 100%),
         transparent
       );
     background-image: radial-gradient(
       circle,
       color-mix(
           in srgb,
-          var(--ui-accent, currentColor) var(--ui-decoration-dot-opacity, 50%),
+          var(--ui-accent, #1971c2) var(--ui-decoration-dot-opacity, 50%),
           transparent
         )
         0.75px,
@@ -642,7 +642,7 @@
         0.75px,
       transparent 0.75px
     );
-    background-size: var(--ui-canvas-pattern-size, 0.35em 0.35em);
+    background-size: var(--ui-canvas-pattern-size, 0.3em 0.3em);
   }
   @media (forced-colors: none) {
     :scope .ui-calendar[data-range] {

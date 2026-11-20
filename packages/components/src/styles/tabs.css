@@ -4,16 +4,16 @@
 :where(.ui-tabs-list) {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   padding: 4px;
-  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #ccc);
+  border-bottom: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
 }
 :where(.ui-tabs-list[data-orientation='vertical']) {
   flex-direction: column;
   align-items: stretch;
 }
 :where([data-ui]) .ui-tabs-trigger[aria-selected='true'] {
-  border-color: var(--ui-accent, currentColor);
+  border-color: var(--ui-accent, #1971c2);
 }
 :where(.ui-tabs-content) {
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));

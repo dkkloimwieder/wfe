@@ -28,9 +28,9 @@
   cursor: pointer;
 }
 :where([data-ui]) .ui-time-clock-face:focus-visible {
-  outline: var(--ui-focus-width, 2px) solid
+  outline: var(--ui-focus-width, 1px) solid
     var(--ui-focus-ring, var(--ui-accent));
-  outline-offset: var(--ui-focus-offset, 2px);
+  outline-offset: var(--ui-focus-offset, 0px);
 }
 :where([data-ui])
   .ui-time-clock-face:is([aria-disabled='true'], [aria-readonly='true']) {
@@ -43,7 +43,7 @@
   pointer-events: none;
 }
 :where([data-ui]) .ui-time-clock-number[data-inner] {
-  font-size: var(--ui-small-font-size, 11px);
+  font-size: var(--ui-small-font-size, 12px);
 }
 :where([data-ui]) .ui-time-clock-hand {
   position: absolute;
@@ -139,5 +139,5 @@
   color: var(--ui-text);
 }
 :where([data-ui]) .ui-time-option:focus-visible {
-  outline-offset: calc(-1 * var(--ui-focus-width, 2px));
+  outline-offset: calc(-1 * var(--ui-focus-width, 1px));
 }

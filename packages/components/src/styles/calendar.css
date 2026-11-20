@@ -1,6 +1,6 @@
 .ui-date-picker {
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-width: 0;
 }
 :where([data-ui]) .ui-calendar {
@@ -11,12 +11,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-calendar table {
   width: 100%;
   border-collapse: collapse;
-  margin: var(--ui-gap, 6px) 0 0;
+  margin: var(--ui-gap, 8px) 0 0;
   table-layout: fixed;
 }
 :where([data-ui]) .ui-calendar .ui-table :is(th, td) {
@@ -30,20 +30,20 @@
   border-color: transparent;
 }
 :where([data-ui]) .ui-calendar [data-outside] {
-  color: var(--ui-muted-text, #666);
+  color: var(--ui-muted-text, #999999);
 }
 :where([data-ui]) .ui-calendar [data-selected] {
-  border-color: var(--ui-control-border, #999);
-  background: var(--ui-highlight, #edf3fb);
+  border-color: var(--ui-control-border, #e5e5e5);
+  background: var(--ui-highlight, #f5f5f5);
 }
 :where([data-ui]) .ui-date-popup {
-  padding: var(--ui-gap, 6px);
+  padding: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-date-trigger {
   display: flex;
   align-items: center;
   border-inline-start: 0;
-  padding-inline: var(--ui-control-padding-x, 8px);
+  padding-inline: var(--ui-control-padding-x, 10px);
 }
 :where([data-ui]) .ui-date-trigger svg {
   pointer-events: none;
@@ -51,7 +51,7 @@
   height: 14px;
   fill: none;
   stroke: currentColor;
-  stroke-width: var(--ui-icon-stroke-width, 1.5);
+  stroke-width: var(--ui-icon-stroke-width, 1);
 }
 :where([data-ui]) .ui-date-picker [hidden] {
   display: none;
@@ -65,34 +65,34 @@
   border-color: transparent;
 }
 :where([data-ui]) .ui-calendar-months {
-  margin-top: var(--ui-gap, 6px);
+  margin-top: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-calendar-months label {
   display: grid;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-calendar-month-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--ui-gap, 6px);
-  margin-top: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
+  margin-top: var(--ui-gap, 8px);
 }
 
 :where([data-ui]) .ui-time-popup {
   display: grid;
-  gap: var(--ui-gap, 6px);
-  max-inline-size: calc(100vw - 2 * var(--ui-gap, 6px));
+  gap: var(--ui-gap, 8px);
+  max-inline-size: calc(100vw - 2 * var(--ui-gap, 8px));
 }
 :where([data-ui]) .ui-datetime-popup {
   display: grid;
-  gap: var(--ui-gap, 6px);
-  max-inline-size: calc(100vw - 2 * var(--ui-gap, 6px));
+  gap: var(--ui-gap, 8px);
+  max-inline-size: calc(100vw - 2 * var(--ui-gap, 8px));
 }
 
 :where([data-ui]) .ui-datetime-stages {
   display: flex;
   align-items: start;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   min-inline-size: 0;
 }
 :where([data-ui]) .ui-datetime-stages > * {
@@ -111,7 +111,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: start;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-calendar-pages > table {
   flex: 1 1 16rem;
@@ -128,7 +128,7 @@
   display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--ui-gap, 6px);
+  gap: var(--ui-gap, 8px);
   max-inline-size: 100%;
 }
 :where([data-ui]) .ui-date-range-picker > .ui-button {

@@ -11,7 +11,7 @@
 }
 .ui-dnd-preview,
 .ui-dnd-indicator {
-  --ui-dnd-color: var(--ui-border, #888);
+  --ui-dnd-color: var(--ui-border, #e5e5e5);
   pointer-events: none;
 }
 .ui-dnd-preview[data-tone='primary'],
@@ -29,7 +29,7 @@
   max-height: calc(100dvh - 24px);
   overflow: hidden;
   overflow-wrap: anywhere;
-  padding: var(--ui-gap, 6px);
+  padding: var(--ui-gap, 8px);
   color: var(--ui-text);
   background: var(--ui-surface);
   border: var(--ui-border-width, 1px) solid var(--ui-dnd-color);

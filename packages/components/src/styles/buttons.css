@@ -5,11 +5,11 @@
   justify-content: center;
   text-align: center;
   border: var(--ui-control-border-width, var(--ui-border-width, 1px)) solid
-    var(--ui-button-border, #aaa);
-  background: var(--ui-surface, white);
+    var(--ui-button-border, #e5e5e5);
+  background: var(--ui-surface, #fcfcfd);
   color: inherit;
   border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
-  padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 8px);
+  padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 10px);
   cursor: pointer;
 }
 :where([data-ui]) button[hidden],
@@ -30,14 +30,14 @@
     [data-disabled],
     [data-readonly]
   ) {
-  background-color: var(--ui-highlight, #edf3fb);
+  background-color: var(--ui-highlight, #f5f5f5);
 }
 
 :where([data-ui]) .ui-button {
   text-decoration: none;
-  font-weight: var(--ui-button-font-weight, inherit);
-  --_button-color: var(--ui-text, #000);
-  --_button-contrast: var(--ui-surface, #fff);
+  font-weight: var(--ui-button-font-weight, 500);
+  --_button-color: var(--ui-text, #262626);
+  --_button-contrast: var(--ui-surface, #fcfcfd);
   --_button-hover: var(--ui-button-filled-hover, var(--_button-color));
   --_button-inverted-hover: var(
     --ui-button-inverted-hover,
@@ -45,19 +45,19 @@
   );
 }
 :where([data-ui]) .ui-button[data-tone='default'] {
-  --_button-color: var(--ui-button-color, var(--ui-text, #000));
-  --_button-contrast: var(--ui-button-on-color, var(--ui-surface, #fff));
+  --_button-color: var(--ui-button-color, var(--ui-text, #262626));
+  --_button-contrast: var(--ui-button-on-color, var(--ui-surface, #fcfcfd));
 }
 :where([data-ui]) .ui-button[data-tone='default'][data-variant='outline'] {
-  border-color: var(--ui-button-color, var(--ui-button-border, #aaa));
-  color: var(--ui-button-color, inherit);
+  border-color: var(--ui-button-color, var(--ui-button-border, #e5e5e5));
+  color: var(--ui-button-color, #1971c2);
 }
 :where([data-ui]) .ui-button[data-tone='default'][data-variant='ghost'] {
-  color: var(--ui-button-color, inherit);
+  color: var(--ui-button-color, #1971c2);
 }
 :where([data-ui]) .ui-button[data-tone='accent'] {
-  --_button-color: var(--ui-accent, var(--ui-text, #000));
-  --_button-contrast: var(--ui-on-accent, var(--ui-surface, #fff));
+  --_button-color: var(--ui-accent, var(--ui-text, #262626));
+  --_button-contrast: var(--ui-on-accent, var(--ui-surface, #fcfcfd));
   --_button-hover: var(--ui-accent-hover, var(--_button-color));
   --_button-inverted-hover: var(
     --ui-accent-inverted-hover,
@@ -107,7 +107,7 @@
     :disabled,
     [aria-disabled='true']
   ) {
-  background: var(--ui-highlight, var(--ui-surface, #fff));
+  background: var(--ui-highlight, var(--ui-surface, #fcfcfd));
 }
 @media (forced-colors: active) {
   :where([data-ui])
@@ -120,5 +120,5 @@
 }
 
 :where([data-ui]) .ui-button:not(.column-sort, .column-move, .header-rename) {
-  min-block-size: var(--ui-control-height, 26px);
+  min-block-size: var(--ui-control-height, 32px);
 }

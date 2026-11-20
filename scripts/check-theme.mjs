@@ -9,6 +9,10 @@ const source = join(root, 'packages/components/src')
 /** Style sheets that may name a preset. Everything else reads tokens only. */
 export const presetSheets = ['tokens.css']
 
+/** Forced-color keywords are deliberate fallbacks, not drift. */
+const systemColors =
+  /^(Canvas|CanvasText|LinkText|VisitedText|ActiveText|ButtonFace|ButtonText|ButtonBorder|Field|FieldText|Highlight|HighlightText|SelectedItem|SelectedItemText|Mark|MarkText|GrayText|AccentColor|AccentColorText)$/
+
 /** Every `var(--token, literal)` fallback, keyed by token, then by fallback text. */
 export function collectFallbacks(files) {
   const tokens = new Map()
@@ -26,7 +30,7 @@ export function collectFallbacks(files) {
         .slice(start, index - 1)
         .replace(/\s+/g, ' ')
         .trim()
-      if (fallback.includes('var(')) continue
+      if (fallback.includes('var(') || systemColors.test(fallback)) continue
       const line = text.slice(0, match.index).split('\n').length
       if (!tokens.has(match[1])) tokens.set(match[1], new Map())
       const values = tokens.get(match[1])

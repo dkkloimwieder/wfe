@@ -2,15 +2,14 @@
 :where([data-ui]) {
   font-family: var(
     --ui-font-family,
-    'DejaVu Sans Mono',
-    'Liberation Mono',
-    'Courier New',
+    'Fira Code Variable',
+    ui-monospace,
     monospace
   );
   font-size: var(--ui-font-size, 12px);
-  line-height: var(--ui-line-height, 1.45);
+  line-height: var(--ui-line-height, 1.625);
   color-scheme: var(--ui-color-scheme, light);
-  color: var(--ui-text, #191919);
+  color: var(--ui-text, #262626);
 }
 
 :where([data-ui]),
@@ -25,11 +24,11 @@
 :where([data-ui]) select,
 :where([data-ui]) .ui-field-value {
   font: inherit;
-  line-height: var(--ui-control-line-height, var(--ui-line-height, 1.45));
+  line-height: var(--ui-control-line-height, var(--ui-line-height, 1.625));
 }
 
 :where([data-ui]) a[href]:not(.ui-button) {
-  color: var(--ui-accent, var(--ui-focus, #1657a8));
+  color: var(--ui-accent, var(--ui-focus, #1971c2));
   text-decoration: none;
 }
 
