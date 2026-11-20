@@ -32,7 +32,8 @@
   --ui-icon-stroke-width: 1;
   --ui-connector-stroke-width: 1.5;
   --ui-gap: 8px;
-  --ui-field-gap: 20px;
+  --ui-field-gap: var(--ui-layout-inset);
+  --ui-region-gap: var(--ui-gap);
   --ui-layout-inset: 16px;
   --ui-control-padding-x: 10px;
   --ui-control-padding-y: 4px;
@@ -324,7 +325,6 @@
   --ui-input-padding-x: 8px;
   --ui-gap: 6px;
   --ui-layout-inset: 12px;
-  --ui-field-gap: 16px;
 }
 
 /* Vanilla */

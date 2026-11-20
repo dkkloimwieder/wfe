@@ -210,7 +210,10 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-connector-stroke-width': '1.5',
         // Spacing
         '--ui-gap': '8px',
-        '--ui-field-gap': '20px',
+        // Space between panels equals the space around them.
+        '--ui-field-gap': 'var(--ui-layout-inset)',
+        // Side regions: one token for the region edge and between its panels.
+        '--ui-region-gap': 'var(--ui-gap)',
         '--ui-layout-inset': '16px',
         '--ui-control-padding-x': '10px',
         '--ui-control-padding-y': '4px',
@@ -470,7 +473,6 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-input-padding-x': '8px',
         '--ui-gap': '6px',
         '--ui-layout-inset': '12px',
-        '--ui-field-gap': '16px',
       },
     },
     {

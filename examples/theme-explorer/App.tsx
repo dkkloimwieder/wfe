@@ -216,13 +216,10 @@ export function ThemeExplorer() {
             </div>
           </>
         }
+        // The rail lays out its panels; the explorer adds no spacing of its own.
         context={() => (
-          <section
-            class="example-stack gallery-sidebar-options"
-            aria-label="Token editor"
-            data-token-panel={config().preset}
-          >
-            <FieldGroup title="Changes">
+          <>
+            <FieldGroup title="Changes" data-token-panel={config().preset}>
               <div class="example-actions">
                 <Button
                   tone="accent"
@@ -298,7 +295,7 @@ export function ThemeExplorer() {
                 </FieldGroup>
               )}
             </For>
-          </section>
+          </>
         )}
       >
         <section

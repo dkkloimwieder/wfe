@@ -435,6 +435,8 @@
   display: none;
 }
 :where([data-ui]) .ui-dialog-content.ui-sheet {
+  gap: var(--ui-region-gap, var(--ui-gap, 8px));
+  padding: var(--ui-region-gap, var(--ui-gap, 8px));
   transform: none;
   max-height: 100dvh;
   box-shadow: none;

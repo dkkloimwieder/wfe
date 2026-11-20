@@ -26,7 +26,6 @@ body:has(.gallery-preview) {
   min-width: 0;
 }
 .gallery-sidebar-options {
-  padding: var(--ui-layout-inset);
   flex-wrap: wrap;
 }
 .gallery-dashboard > .ui-dashboard-header h1:focus-visible,

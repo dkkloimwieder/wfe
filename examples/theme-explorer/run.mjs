@@ -255,6 +255,38 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       },
     )
 
+    await record(
+      'The token rail uses one spacing at its edges and between panels',
+      async () => {
+        for (const preset of ['Sketchy', 'Vanilla', 'Laser']) {
+          await choose('Preset', preset)
+          const spacing = await page.evaluate(() => {
+            const rail = document.querySelector('.ui-dashboard-context')
+            const panels = [...rail.querySelectorAll(':scope > .ui-field-set')]
+            const box = rail.getBoundingClientRect()
+            const inner = box.left + rail.clientLeft
+            const [first, second] = panels.map((panel) =>
+              panel.getBoundingClientRect(),
+            )
+            return {
+              panels: panels.length,
+              left: first.left - inner,
+              right: inner + rail.clientWidth - first.right,
+              top: first.top - (box.top + rail.clientTop) + rail.scrollTop,
+              between: second.top - first.bottom,
+            }
+          })
+          assert.ok(spacing.panels > 2, preset)
+          for (const side of ['left', 'right', 'top'])
+            assert.ok(
+              Math.abs(spacing[side] - spacing.between) < 0.5,
+              `${preset} ${side} ${JSON.stringify(spacing)}`,
+            )
+        }
+        await choose('Preset', 'Sketchy')
+      },
+    )
+
     await record('Table and tabs respond inside the explorer', async () => {
       const table = page.getByRole('region', { name: 'Table' })
       await expect(

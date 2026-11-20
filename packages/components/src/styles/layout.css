@@ -32,7 +32,9 @@
   min-width: 0;
   min-height: 0;
   overflow: auto;
-  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
+  /* Side regions follow the table filter pane. One token sets the space at the
+     region edge and between its panels. */
+  padding: var(--ui-region-gap, var(--ui-gap, 8px));
   border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
   background: var(--ui-surface, #fcfcfd);
 }
@@ -44,7 +46,8 @@
   grid-row: 2;
   display: flex;
   flex-direction: column;
-  gap: var(--ui-gap, 8px);
+  /* The space between main panels equals the space around them. */
+  gap: var(--ui-layout-inset, 16px);
   min-width: 0;
   min-height: 0;
   overflow: auto;
@@ -176,7 +179,7 @@
   min-width: 0;
   min-height: 0;
   overflow: auto;
-  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
+  padding: var(--ui-region-gap, var(--ui-gap, 8px));
   border-inline-end: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
   background: var(--ui-surface, #fcfcfd);
 }
@@ -420,6 +423,30 @@
       ) /
       2
   );
+}
+/* Panels in a rail sit one region gap apart. The rail stays a block box, so
+   the drawer display rules keep working. The first child is the hidden close
+   button. A navigation rail with sidebar groups keeps its own row model. */
+:where([data-ui])
+  :is(
+    .ui-dashboard-navigation:not(:has(> .ui-sidebar-group)),
+    .ui-dashboard-context
+  )
+  > :is(.ui-dashboard-close, .ui-dashboard-context-close)
+  ~ *
+  ~ * {
+  margin-block-start: var(--ui-region-gap, var(--ui-gap, 8px));
+}
+/* Panels in side regions are compact, as the filter sections are. */
+:where([data-ui])
+  :is(
+    .ui-dashboard-navigation,
+    .ui-dashboard-context,
+    .ui-dialog-content.ui-sheet
+  )
+  :is(.ui-field-set, .ui-card) {
+  --ui-field-gap: var(--ui-gap, 8px);
+  padding: var(--ui-cell-padding-x, 8px);
 }
 :where([data-ui]) .ui-dashboard-navigation:has(> .ui-sidebar-group) {
   padding-inline: 0;

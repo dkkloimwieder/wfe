@@ -389,7 +389,7 @@ Every difference is either listed below as intended or was fixed before the comm
 
 ### 6.3 Intended visual changes
 
-The pairs are in `test-results/theme-cleanup/` (149 entries with before, after and diff images: 68 gallery entries and 81 entry states). `index.json` lists them.
+The pairs are in `test-results/theme-cleanup/` (241 entries with before, after and diff images: 137 gallery entries and 104 entry states, plus the explorer token rail in `explorer/`). `index.json` lists them.
 
 1. Laser uses 12px horizontal input padding for inputs and select triggers. Menus, popovers and cards that read the same token also use 12px (step 7).
 2. Vanilla and Laser compound fields show the invalid border on their adornment buttons, as Sketchy does (step 7).
@@ -401,6 +401,9 @@ The pairs are in `test-results/theme-cleanup/` (149 entries with before, after a
 8. One dot pattern definition. `decoration.css` defines `--ui-dot-pattern` once, and `--ui-canvas-pattern` reads it. Only the dot color varies by role. The dot spacing is `calc(var(--ui-font-size) * 0.3)`, so it no longer depends on each surface's font size. The gallery entries keep their pixels except a faint 2px shadow edge in the Laser decoration-geometry preview. Themes without decoration have no canvas dots because the pattern is unset.
 9. The explorer renders its table flush at the top of the stage, as the gallery does, so no canvas strip sits above the table title band.
 10. Raw fixture pages without a Theme lose the legacy black text, `currentColor` borders and legacy dark palette (step 13). These pages are outside the gallery.
+11. Spacing is uniform (Part 7). In the main area, the space between fields and between stacked panels equals the panel inset: 16px in Sketchy instead of 20px, and 12px in Vanilla and Laser instead of 16px. Every form entry and entry state is shorter for this reason.
+12. Side regions are compact. The explorer token rail and the dashboard context rail use 8px (Sketchy) at the rail edge and between panels, instead of 16px at the edge. Panels in a rail use the 8px cell inset instead of 16px. The explorer pair is in `explorer/`.
+13. The gallery appearance band no longer adds a second inset around the icon sidebar options, so they align with the other appearance controls.
 
 ### 6.4 Not finished
 
@@ -408,3 +411,22 @@ The pairs are in `test-results/theme-cleanup/` (149 entries with before, after a
 2. `decoration.css` still remaps `--ui-accent` and `--ui-text` inside sidebar and table header controls (finding 2.1, three token remaps).
 3. The sub-table toggle, page action, calendar and sidebar rules in `plain.css` still name component classes. Only table header controls and field adornments carry `data-ui-action` roles.
 4. The selectors in the three layers keep the specificity of the former preset rules, so the brittle selectors in section 2.2 remain inside the layers.
+
+## Part 7. Spacing model
+
+### 7.1 The table filter pane
+
+The table filter pane is the reference for compact side regions.
+
+- The pane has no padding and no gap (`styles/table-workspace.css:52`). Its scrolling body has no padding and no gap either (`styles/table-workspace.css:113`).
+- Each filter section is a Collapsible that runs from edge to edge of the pane. A single bottom border separates two sections (`styles/collapsible.css:1`).
+- Inside a section, the summary uses the compact cell inset: `--ui-cell-padding-y` and `--ui-cell-padding-x` (`styles/collapsible.css:8`). The content uses `--ui-gap` between controls and `--ui-cell-padding-x` at its sides (`styles/collapsible.css:20`).
+- The result is one small spacing everywhere: 8px between controls and at the section edges, and no space between sections or at the pane edge.
+
+### 7.2 What the library does now
+
+- Side regions use one token, `--ui-region-gap` (default `var(--ui-gap)`), for the space at the region edge and between its panels. This covers the dashboard context rail, a navigation rail without sidebar groups, and sheets (`styles/layout.css` and `styles/components.css`). The region uses the token as its padding. Panels after the first take it as a top margin, so the rail stays a block box and the drawer display rules still apply. A sheet uses the token as its grid gap. A navigation rail with sidebar groups keeps its own row model.
+- Panels inside side regions (field sets, field groups and cards) use the compact cell inset as padding and `--ui-gap` between their fields, as the filter sections do.
+- In the main area, the space between panels equals the space around them. `--ui-field-gap` now equals `--ui-layout-inset`, and the dashboard main area uses `--ui-layout-inset` as its gap as well as its padding.
+- Example code adds no spacing on top of a region. `.gallery-sidebar-options` no longer repeats the region padding, and the explorer token rail has no wrapper stack.
+- The explorer suite checks that the left, right and top space in the token rail equals the space between panels, in every preset.
