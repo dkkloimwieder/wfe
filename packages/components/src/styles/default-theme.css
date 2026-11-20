@@ -6,10 +6,6 @@
     --ui-icon-stroke-width: 1;
     --ui-action-outline-opacity: 100%;
   }
-  :scope .ui-dashboard-panel {
-    box-shadow: var(--ui-panel-shadow);
-  }
-
   :scope p {
     line-height: var(--ui-line-height);
   }
@@ -337,11 +333,6 @@
     font-weight: var(--ui-heading-weight, 500);
   }
 
-  :scope .ui-disclosure-indicator {
-    overflow: visible;
-    inline-size: 10.5px;
-    block-size: 15.75px;
-  }
   :scope .ui-disclosure-arrow {
     transform-box: fill-box;
     transform-origin: 50% 50%;

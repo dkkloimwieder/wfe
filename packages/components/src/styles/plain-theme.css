@@ -1,9 +1,5 @@
 /* Plain presentation stops at nested theme owners. */
 @scope (.ui-theme:is([data-ui-preset='vanilla'], [data-ui-preset='laser'])) to (.ui-theme) {
-  :scope .ui-button[data-variant='outline'][data-tone='default'] {
-    color: var(--ui-text);
-    border-color: var(--ui-control-border);
-  }
   :scope
     :is(
       .ui-button:where(:not(.ui-sidebar-group-panel)),
@@ -37,18 +33,6 @@
       calc(var(--ui-table-control-height, 26px) - 2px)
     );
     min-block-size: 0;
-  }
-  :scope .ui-disclosure-indicator {
-    inline-size: 12px;
-    block-size: 16px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: var(--ui-icon-stroke-width);
-  }
-  :scope .ui-disclosure-chevron {
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
   }
   /* Navigation uses flat rows; an open group is not a selected control. */
   :scope .ui-sidebar-group {
@@ -134,9 +118,6 @@
   :scope .ui-gantt-progress {
     background-image: none;
     background-color: var(--ui-highlight);
-  }
-  :scope .ui-gantt-bar {
-    border-radius: var(--ui-control-radius, var(--ui-radius));
   }
   :scope .ui-gantt-milestone {
     stroke-width: var(--ui-border-width);

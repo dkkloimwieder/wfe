@@ -43,7 +43,6 @@
     --_ui-choice-selection-text: var(--ui-text);
     --_ui-choice-selection-surface: transparent;
     isolation: isolate;
-    margin-block: 2px;
   }
   :scope
     :is(
@@ -67,10 +66,6 @@
   :scope .popup-option[data-highlighted],
   :scope .ui-tree-item:focus-within {
     z-index: 3;
-  }
-  :scope .popup-listbox {
-    padding: 6px;
-    scroll-padding: 6px;
   }
   :scope
     :is(

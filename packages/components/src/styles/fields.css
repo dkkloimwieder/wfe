@@ -137,7 +137,8 @@
 }
 
 /* Only the outer corners belong to an affixed control. */
-:where([data-ui]) :is(.ui-input-affix, .filter-input, .choice-control) {
+:where([data-ui])
+  :is(.ui-control-frame, .ui-input-affix, .filter-input, .choice-control) {
   border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
 }
 :where([data-ui])

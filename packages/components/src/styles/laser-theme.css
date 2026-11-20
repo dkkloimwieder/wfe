@@ -118,34 +118,8 @@
     ) {
     --_ui-popup-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
   }
-  :scope
-    :is(
-      .ui-card,
-      .ui-field-group,
-      .ui-field-set,
-      .ui-entry-panel-surface,
-      .ui-kanban-column-header
-    ) {
-    box-shadow: var(--ui-panel-shadow);
-  }
-  :scope :is(.ui-field-group, .ui-field-set) {
-    border: var(--ui-border-width) solid var(--ui-border);
-  }
   :scope .ui-kanban-item:is(:hover, :focus-within):not([aria-disabled='true']) {
     box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
-  }
-  :scope :is(.ui-input, .choice-input) {
-    padding-inline: max(
-      var(--ui-input-min-padding-x, 0px),
-      var(--ui-input-padding-x)
-    );
-  }
-  :scope
-    :is(.ui-control-frame, .ui-input-affix, .filter-input, .choice-control) {
-    border-radius: var(--ui-control-radius);
-  }
-  :scope :is(textarea, .ui-control-frame:has(textarea)) {
-    border-radius: var(--ui-panel-radius);
   }
   :scope
     :is(
@@ -514,12 +488,6 @@
       color: var(--ui-accent);
       filter: var(--ui-laser-icon-shadow, var(--_ui-laser-icon-shadow));
     }
-  }
-  :scope .ui-check-control {
-    border-radius: var(--ui-checkbox-radius, var(--ui-control-radius));
-  }
-  :scope .ui-gantt-bar {
-    border-radius: var(--ui-control-radius);
   }
   @media (forced-colors: active) {
     :scope :is(.ui-field-group, .ui-field-set, form > header.ui-card) {

@@ -33,6 +33,58 @@
   border-radius: inherit;
 }
 
+/* Elevation: every panel reads one shadow token. */
+[data-ui-tokens]
+  :is(
+    .ui-card,
+    .ui-field-group,
+    .ui-field-set,
+    .ui-entry-panel-surface,
+    .ui-kanban-column-header,
+    .ui-dashboard-panel
+  ) {
+  box-shadow: var(--ui-panel-shadow);
+}
+
+/* Default-tone outline buttons mix the button color with the neutral roles.
+   Both colors resolve at the button, so local role overrides still apply.
+   A zero-specificity prefix keeps Sketchy outline rules ahead on ties. */
+:where([data-ui-tokens])
+  .ui-button[data-variant='outline'][data-tone='default'] {
+  color: color-mix(
+    in srgb,
+    var(--ui-button-color, currentColor) var(--ui-outline-accent-weight),
+    var(--ui-text)
+  );
+  border-color: color-mix(
+    in srgb,
+    var(--ui-button-color, var(--ui-button-border))
+      var(--ui-outline-accent-weight),
+    var(--ui-control-border)
+  );
+}
+
+/* Field shapes */
+[data-ui-tokens] :is(textarea, .ui-control-frame:has(textarea)) {
+  border-radius: var(--ui-textarea-radius, var(--ui-control-radius));
+}
+
+/* Disclosure glyphs */
+[data-ui-tokens] .ui-disclosure-indicator {
+  overflow: var(--ui-disclosure-overflow);
+  inline-size: var(--ui-disclosure-width);
+  block-size: var(--ui-disclosure-height);
+}
+
+/* Choice lists */
+[data-ui-tokens] .popup-listbox {
+  padding: var(--ui-listbox-padding, calc(var(--ui-font-size, 12px) * 0.25));
+  scroll-padding: var(--ui-listbox-padding, auto);
+}
+[data-ui-tokens] :is(.popup-option, .ui-tree-item) {
+  margin-block: var(--ui-option-margin-y, 0);
+}
+
 /* Checked toggles. Optional tokens fill the control; unset keeps the field paint. */
 [data-ui-tokens] :is(.ui-check-control, .ui-switch-control)[data-checked] {
   border-color: var(--ui-toggle-checked-border, var(--ui-control-border));

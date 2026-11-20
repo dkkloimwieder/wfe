@@ -92,7 +92,7 @@
   border: var(--ui-border-width, 1px) solid var(--ui-accent);
   color: var(--ui-text);
   background: var(--ui-surface);
-  border-radius: var(--ui-radius, 0px);
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   padding: 0 5px;
   font: inherit;
   cursor: pointer;

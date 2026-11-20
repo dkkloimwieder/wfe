@@ -15,6 +15,7 @@
 //   --ui-toggle-checked-surface, --ui-toggle-checked-border,
 //   --ui-toggle-checked-text: checked checkbox, switch and radio paint.
 //   --ui-switch-track, --ui-switch-thumb, --ui-switch-checked-thumb: switch parts.
+//   --ui-textarea-radius: multi-line field corners.
 import type { Accent, SurfaceScheme, PaletteRoles } from './palette'
 
 export type TokenPreset = 'default' | 'vanilla' | 'laser'
@@ -269,6 +270,14 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         // Shadows
         '--ui-panel-shadow': 'none',
         '--ui-popup-shadow': 'none',
+        // Default-tone outline buttons: 100% uses the button color, 0% the neutral text and border.
+        '--ui-outline-accent-weight': '100%',
+        // Glyphs and choice lists
+        '--ui-disclosure-overflow': 'visible',
+        '--ui-disclosure-width': '10.5px',
+        '--ui-disclosure-height': '15.75px',
+        '--ui-listbox-padding': '6px',
+        '--ui-option-margin-y': '2px',
         // Sketchy decoration
         '--ui-neutral-dot-color': light.text[1],
         '--ui-neutral-border-color': light.text[1],
@@ -286,6 +295,14 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-input-disclosure-arrow-visibility': 'hidden',
         '--ui-input-decoration-dot-color': 'var(--ui-neutral-dot-color)',
         '--ui-input-decoration-border-color': 'var(--ui-neutral-border-color)',
+        // Optional tokens: unset in Sketchy, reset at every root.
+        '--ui-toggle-checked-surface': 'initial',
+        '--ui-toggle-checked-border': 'initial',
+        '--ui-toggle-checked-text': 'initial',
+        '--ui-switch-track': 'initial',
+        '--ui-switch-thumb': 'initial',
+        '--ui-switch-checked-thumb': 'initial',
+        '--ui-textarea-radius': 'initial',
         // Compatibility aliases. Components read the canonical token on the right.
         '--ui-subtle-text': 'var(--ui-muted-text)',
         '--ui-hover': 'var(--ui-highlight)',
@@ -400,6 +417,12 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-switch-track': 'var(--ui-border)',
         '--ui-switch-thumb': 'var(--ui-text)',
         '--ui-switch-checked-thumb': 'var(--ui-on-accent)',
+        '--ui-outline-accent-weight': '0%',
+        '--ui-disclosure-overflow': 'hidden',
+        '--ui-disclosure-width': '12px',
+        '--ui-disclosure-height': '16px',
+        '--ui-listbox-padding': 'initial',
+        '--ui-option-margin-y': '0',
       },
     },
     {
@@ -493,7 +516,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-panel-radius': '20px',
         '--ui-popup-radius': '16px',
         '--ui-checkbox-radius': '6px',
-        '--ui-input-min-padding-x': '12px',
+        '--ui-input-padding-x': '12px',
+        '--ui-textarea-radius': 'var(--ui-panel-radius)',
         '--ui-text': '#172642',
         '--ui-muted-text': '#526480',
         '--ui-border': '#b7c7de',
