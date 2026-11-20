@@ -222,41 +222,43 @@ export function ThemeExplorer() {
             aria-label="Token editor"
             data-token-panel={config().preset}
           >
-            <div class="example-actions">
-              <Button
-                tone="accent"
-                disabled={!css()}
-                onClick={() => void copy()}
+            <FieldGroup title="Changes">
+              <div class="example-actions">
+                <Button
+                  tone="accent"
+                  disabled={!css()}
+                  onClick={() => void copy()}
+                >
+                  Copy changes as CSS
+                </Button>
+                <Button disabled={!css()} onClick={resetAll}>
+                  Reset all
+                </Button>
+              </div>
+              <output aria-live="polite" data-copy-status>
+                {copyStatus()}
+              </output>
+              <p data-token-summary>{summary()}</p>
+              <Checkbox
+                checked={overridesOnly()}
+                onChange={(value) => {
+                  setOverridesOnly(value)
+                  refresh()
+                }}
               >
-                Copy changes as CSS
-              </Button>
-              <Button disabled={!css()} onClick={resetAll}>
-                Reset all
-              </Button>
-            </div>
-            <output aria-live="polite" data-copy-status>
-              {copyStatus()}
-            </output>
-            <p data-token-summary>{summary()}</p>
-            <Checkbox
-              checked={overridesOnly()}
-              onChange={(value) => {
-                setOverridesOnly(value)
-                refresh()
-              }}
-            >
-              <Checkbox.Input />
-              <Checkbox.Control>
-                <Checkbox.Indicator />
-              </Checkbox.Control>
-              <Checkbox.Label>
-                Show only tokens that a block overrides
-              </Checkbox.Label>
-            </Checkbox>
-            <Field>
-              <Label>Changed tokens as CSS</Label>
-              <Textarea readonly value={css()} rows={4} />
-            </Field>
+                <Checkbox.Input />
+                <Checkbox.Control>
+                  <Checkbox.Indicator />
+                </Checkbox.Control>
+                <Checkbox.Label>
+                  Show only tokens that a block overrides
+                </Checkbox.Label>
+              </Checkbox>
+              <Field>
+                <Label>Changed tokens as CSS</Label>
+                <Textarea readonly value={css()} rows={4} />
+              </Field>
+            </FieldGroup>
             <For each={groups()}>
               {(entry) => (
                 <FieldGroup title={entry.group} data-token-group={entry.group}>
