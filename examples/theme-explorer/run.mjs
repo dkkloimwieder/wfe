@@ -75,11 +75,11 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
     await record('Explorer lists grouped tokens with live values', async () => {
       await page.goto(server.resolvedUrls.local[0])
       await expect(token('--ui-radius').locator('input')).not.toHaveValue('')
+      // Each token group is a collapsible section titled by its summary.
       const listed = await page
-        .locator('[data-token-group]')
-        .evaluateAll((nodes) =>
-          nodes.map((node) => node.getAttribute('data-token-group')),
-        )
+        .getByRole('navigation', { name: 'Theme tokens' })
+        .locator(':scope > .ui-collapsible > summary > span:first-of-type')
+        .allTextContents()
       for (const group of groups) assert.ok(listed.includes(group), group)
       const mismatches = await page.evaluate(() => {
         const style = getComputedStyle(document.querySelector('.ui-theme'))
@@ -255,37 +255,46 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       },
     )
 
-    await record(
-      'The token rail uses one spacing at its edges and between panels',
-      async () => {
-        for (const preset of ['Sketchy', 'Vanilla', 'Laser']) {
-          await choose('Preset', preset)
-          const spacing = await page.evaluate(() => {
-            const rail = document.querySelector('.ui-dashboard-context')
-            const panels = [...rail.querySelectorAll(':scope > .ui-field-set')]
-            const box = rail.getBoundingClientRect()
-            const inner = box.left + rail.clientLeft
-            const [first, second] = panels.map((panel) =>
-              panel.getBoundingClientRect(),
-            )
-            return {
-              panels: panels.length,
-              left: first.left - inner,
-              right: inner + rail.clientWidth - first.right,
-              top: first.top - (box.top + rail.clientTop) + rail.scrollTop,
-              between: second.top - first.bottom,
-            }
-          })
-          assert.ok(spacing.panels > 2, preset)
-          for (const side of ['left', 'right', 'top'])
-            assert.ok(
-              Math.abs(spacing[side] - spacing.between) < 0.5,
-              `${preset} ${side} ${JSON.stringify(spacing)}`,
-            )
-        }
-        await choose('Preset', 'Sketchy')
-      },
-    )
+    await record('The token rail matches the table filter pane', async () => {
+      for (const preset of ['Sketchy', 'Vanilla', 'Laser']) {
+        await choose('Preset', preset)
+        const rail = await page.evaluate(() => {
+          const rail = document.querySelector('.ui-dashboard-navigation')
+          const sections = [
+            ...rail.querySelectorAll(':scope > .ui-collapsible'),
+          ]
+          const box = rail.getBoundingClientRect()
+          const left = box.left + rail.clientLeft
+          const top = box.top + rail.clientTop - rail.scrollTop
+          const [first, second] = sections.map((section) =>
+            section.getBoundingClientRect(),
+          )
+          const padding = (node) => getComputedStyle(node).padding
+          return {
+            sections: sections.length,
+            left: first.left - left,
+            right: left + rail.clientWidth - first.right,
+            top: first.top - top,
+            between: second.top - first.bottom,
+            content: padding(
+              sections[0].querySelector(':scope > .ui-collapsible-content'),
+            ),
+            filters: padding(
+              document.querySelector(
+                '.table-workspace-controls .ui-collapsible-content',
+              ),
+            ),
+          }
+        })
+        const detail = `${preset} ${JSON.stringify(rail)}`
+        assert.ok(rail.sections > 2, detail)
+        // Sections touch the rail edges and each other, as filter sections do.
+        for (const side of ['left', 'right', 'top', 'between'])
+          assert.ok(Math.abs(rail[side]) < 0.5, `${side} ${detail}`)
+        assert.equal(rail.content, rail.filters, detail)
+      }
+      await choose('Preset', 'Sketchy')
+    })
 
     await record('Table and tabs respond inside the explorer', async () => {
       const table = page.getByRole('region', { name: 'Table' })

@@ -426,7 +426,10 @@ The table filter pane is the reference for compact side regions.
 ### 7.2 What the library does now
 
 - Side regions use one token, `--ui-region-gap` (default `var(--ui-gap)`), for the space at the region edge and between its panels. This covers the dashboard context rail, a navigation rail without sidebar groups, and sheets (`styles/layout.css` and `styles/components.css`). The region uses the token as its padding. Panels after the first take it as a top margin, so the rail stays a block box and the drawer display rules still apply. A sheet uses the token as its grid gap. A navigation rail with sidebar groups keeps its own row model.
+- A navigation or context rail whose direct children are Collapsible sections has no padding, and its sections get no top margin (`styles/layout.css`). The sections run from edge to edge and their bottom borders separate them, as in `.table-workspace-controls`.
 - Panels inside side regions (field sets, field groups and cards) use the compact cell inset as padding and `--ui-gap` between their fields, as the filter sections do.
 - In the main area, the space between panels equals the space around them. `--ui-field-gap` now equals `--ui-layout-inset`, and the dashboard main area uses `--ui-layout-inset` as its gap as well as its padding.
-- Example code adds no spacing on top of a region. `.gallery-sidebar-options` no longer repeats the region padding, and the explorer token rail has no wrapper stack.
-- The explorer suite checks that the left, right and top space in the token rail equals the space between panels, in every preset.
+- Example code adds no spacing on top of a region. `.gallery-sidebar-options` no longer repeats the region padding.
+- The explorer token rail is the navigation region. It holds `TableControlSection` sections from `@wfe/components/table`, the same Collapsible that the filter pane uses. The first section is Changes with an "N edited" count. Each token group follows with an "N tokens" count. The explorer adds no CSS of its own.
+- The explorer suite checks, in every preset, that the rail sections touch the rail edges and each other, and that their content padding equals the filter pane section content padding.
+- The first rail section starts at the same height as the table command bar in all three presets. The summary row is 30px. The command bar is 31px: the same 30px row plus a 1px bottom border. An open Collapsible has no border under its summary, and no existing rule adds one, so the 1px difference remains.

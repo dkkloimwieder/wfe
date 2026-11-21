@@ -434,8 +434,14 @@
   )
   > :is(.ui-dashboard-close, .ui-dashboard-context-close)
   ~ *
-  ~ * {
+  ~ :not(.ui-collapsible) {
   margin-block-start: var(--ui-region-gap, var(--ui-gap, 8px));
+}
+/* A rail of collapsible sections works like the table filter pane. The
+   sections run from edge to edge, and their borders separate them. */
+:where([data-ui])
+  :is(.ui-dashboard-navigation, .ui-dashboard-context):has(> .ui-collapsible) {
+  padding: 0;
 }
 /* Panels in side regions are compact, as the filter sections are. */
 :where([data-ui])

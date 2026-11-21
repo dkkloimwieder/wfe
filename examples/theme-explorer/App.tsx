@@ -10,7 +10,6 @@ import {
   Button,
   Checkbox,
   Field,
-  FieldGroup,
   HelpText,
   Icon,
   IconButton,
@@ -23,6 +22,7 @@ import {
   Textarea,
 } from '@wfe/components'
 import { DashboardShell } from '@wfe/components/layout'
+import { TableControlSection } from '@wfe/components/table'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import {
   themeTokenBlocks,
@@ -187,10 +187,10 @@ export function ThemeExplorer() {
         class="gallery-dashboard"
         scroll="content"
         mainLabel="Theme preview"
-        contextLabel="Theme tokens"
-        contextToggleLabel="Tokens"
-        contextCloseLabel="Close tokens"
-        style={{ '--ui-context-width': '24rem' }}
+        navigationLabel="Theme tokens"
+        toggleLabel="Tokens"
+        closeLabel="Close tokens"
+        style={{ '--ui-navigation-width': '24rem' }}
         header={
           <>
             <h1 data-ui-text="system">Theme explorer</h1>
@@ -216,11 +216,16 @@ export function ThemeExplorer() {
             </div>
           </>
         }
-        // The rail lays out its panels; the explorer adds no spacing of its own.
-        context={() => (
+        // The sidebar holds the same collapsible sections as the table filter
+        // pane. The explorer adds no spacing of its own.
+        navigation={() => (
           <>
-            <FieldGroup title="Changes" data-token-panel={config().preset}>
-              <div class="example-actions">
+            <TableControlSection
+              title="Changes"
+              summary={`${Object.keys(active()).length} edited`}
+              defaultOpen
+            >
+              <div class="example-actions" data-token-panel={config().preset}>
                 <Button
                   tone="accent"
                   disabled={!css()}
@@ -231,11 +236,11 @@ export function ThemeExplorer() {
                 <Button disabled={!css()} onClick={resetAll}>
                   Reset all
                 </Button>
+                <output aria-live="polite" data-copy-status>
+                  {copyStatus()}
+                </output>
               </div>
-              <output aria-live="polite" data-copy-status>
-                {copyStatus()}
-              </output>
-              <p data-token-summary>{summary()}</p>
+              <HelpText data-token-summary>{summary()}</HelpText>
               <Checkbox
                 checked={overridesOnly()}
                 onChange={(value) => {
@@ -255,10 +260,14 @@ export function ThemeExplorer() {
                 <Label>Changed tokens as CSS</Label>
                 <Textarea readonly value={css()} rows={4} />
               </Field>
-            </FieldGroup>
+            </TableControlSection>
             <For each={groups()}>
               {(entry) => (
-                <FieldGroup title={entry.group} data-token-group={entry.group}>
+                <TableControlSection
+                  title={entry.group}
+                  summary={`${entry.names.length} tokens`}
+                  defaultOpen
+                >
                   <For each={entry.names}>
                     {(name) => (
                       <Field data-token={name}>
@@ -292,7 +301,7 @@ export function ThemeExplorer() {
                       </Field>
                     )}
                   </For>
-                </FieldGroup>
+                </TableControlSection>
               )}
             </For>
           </>
