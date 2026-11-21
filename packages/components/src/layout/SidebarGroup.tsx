@@ -3,10 +3,9 @@ import { nativeEvents } from '../utils/nativeEvents'
 import { ownsFocus } from '../internal/ownedFocus'
 import { Show, createMemo, createSignal, onCleanup } from 'solid-js'
 import type { JSX } from '@solidjs/web'
-import { Collapsible } from '../components/Collapsible'
+import { CollapsibleSection } from '../components/CollapsibleSection'
 import { Button } from '../components/NativeFields'
 import { Popover } from '../components/Popover'
-import { buttonAttributes } from '../internal/buttonPresentation'
 
 export type SidebarGroupProps = {
   label: string
@@ -20,7 +19,8 @@ export type SidebarGroupProps = {
   children: (close: () => void) => JSX.Element
 }
 
-/** Navigation presentation only. The application supplies links and selection. */
+/** Navigation presentation only. The application supplies links and selection.
+ * The inline group is a CollapsibleSection with a link menu. */
 export function SidebarGroup(props: SidebarGroupProps) {
   const icon = createMemo(() => props.icon)
   const initial = () => Array.from(props.label.trim())[0] ?? '?'
@@ -94,27 +94,15 @@ export function SidebarGroup(props: SidebarGroupProps) {
   function Inline() {
     retainFocus()
     return (
-      <Collapsible
-        {...buttonAttributes({ class: 'ui-sidebar-group-panel' })}
-        data-ui-active={props.active ? 'true' : undefined}
-        indicatorPlacement="end"
-        summary={
-          <span class="ui-sidebar-group-control">
-            <Show when={icon()} keyed>
-              {(value) => (
-                <span class="ui-sidebar-group-icon" aria-hidden="true">
-                  {value}
-                </span>
-              )}
-            </Show>
-            <span class="ui-sidebar-group-label">{props.label}</span>
-          </span>
-        }
+      <CollapsibleSection
+        title={props.label}
+        icon={icon()}
+        active={props.active}
         open={props.open}
         onOpenChange={props.onOpenChange}
       >
         <div class="ui-dashboard-menu">{props.children(() => {})}</div>
-      </Collapsible>
+      </CollapsibleSection>
     )
   }
   function Expand() {

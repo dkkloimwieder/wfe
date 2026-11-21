@@ -156,12 +156,6 @@
   border: 0;
   border-top: var(--ui-border-width, 1px) solid var(--ui-border, #e5e5e5);
 }
-:where([data-ui]) .table-control-summary {
-  margin-inline-start: var(--ui-gap, 8px);
-  font-weight: var(--ui-font-weight, 400);
-  font-size: var(--ui-small-font-size, 12px);
-  color: var(--ui-muted-text, #999999);
-}
 
 :where([data-ui]) .table-workspace .column-filters {
   display: grid;
@@ -801,10 +795,7 @@
   grid-template-areas: 'header' 'resize' 'results';
 }
 
-/* Table controls use the same fixed section rhythm in every placement. */
-:where([data-ui]) .table-control-section > summary {
-  padding-block: var(--ui-control-padding-y, 4px);
-}
+/* Table control content keeps its own grid inside a section. */
 :where([data-ui]) .table-control-content {
   min-width: 0;
 }

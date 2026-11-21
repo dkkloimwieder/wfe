@@ -3,7 +3,7 @@
 @scope ([data-ui-tokens]:not([data-ui-decoration])) to ([data-ui-tokens]) {
   :scope
     :is(
-      .ui-button:where(:not(.ui-sidebar-group-panel)),
+      .ui-button:where(:not(.ui-section)),
       .ui-dashboard-menu > a,
       .ui-tabs-trigger
     ):is(
@@ -38,11 +38,11 @@
     );
     padding-block: var(--ui-sidebar-group-padding-y, 2px);
   }
-  :scope .ui-sidebar-group > .ui-sidebar-group-panel {
+  :scope .ui-collapsible.ui-section {
     border: 0;
     background: transparent;
   }
-  :scope .ui-sidebar-group > .ui-sidebar-group-panel > summary {
+  :scope .ui-collapsible.ui-section > summary {
     min-block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
     border-radius: var(--ui-control-radius);
     font-weight: var(
@@ -50,17 +50,18 @@
       var(--ui-heading-weight, 500)
     );
   }
-  :scope .ui-sidebar-group > .ui-sidebar-group-panel > summary:hover {
+  :scope .ui-collapsible.ui-section > summary:hover {
     background: var(--ui-highlight);
   }
-  :scope .ui-sidebar-group-control {
+  :scope .ui-section-control {
     block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
   }
-  :scope .ui-sidebar-group-icon {
+  :scope .ui-section-icon {
     inline-size: var(--ui-sidebar-control-height, var(--ui-control-height));
     block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
     border-color: transparent;
   }
+  /* Navigation links hang from a guide line under the group title. */
   :scope .ui-sidebar-group .ui-collapsible-content {
     margin-inline-start: calc(
       var(--ui-sidebar-control-height, var(--ui-control-height)) / 2

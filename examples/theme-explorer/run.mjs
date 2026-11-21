@@ -75,11 +75,13 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
     await record('Explorer lists grouped tokens with live values', async () => {
       await page.goto(server.resolvedUrls.local[0])
       await expect(token('--ui-radius').locator('input')).not.toHaveValue('')
-      // Each token group is a collapsible section titled by its summary.
+      // Each token group is a section titled by its summary label.
       const listed = await page
         .getByRole('navigation', { name: 'Theme tokens' })
-        .locator(':scope > .ui-collapsible > summary > span:first-of-type')
-        .allTextContents()
+        .locator(':scope > .ui-section .ui-section-label')
+        .evaluateAll((nodes) =>
+          nodes.map((node) => node.firstChild?.textContent),
+        )
       for (const group of groups) assert.ok(listed.includes(group), group)
       const mismatches = await page.evaluate(() => {
         const style = getComputedStyle(document.querySelector('.ui-theme'))

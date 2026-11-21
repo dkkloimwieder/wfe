@@ -23,21 +23,19 @@ test('text-only headings omit the icon slot and retain controlled disclosure sta
   ))
   const summary = mounted.container.querySelector('summary')!
   const details = mounted.container.querySelector('details')!
-  expect(mounted.container.querySelector('.ui-sidebar-group-icon')).toBeNull()
+  expect(mounted.container.querySelector('.ui-section-icon')).toBeNull()
   summary.focus()
   fireEvent.click(summary)
   flush()
   expect(details.open).toBe(true)
   setIcon(true)
   flush()
-  expect(
-    mounted.container.querySelector('.ui-sidebar-group-icon'),
-  ).not.toBeNull()
+  expect(mounted.container.querySelector('.ui-section-icon')).not.toBeNull()
   expect(mounted.container.querySelector('summary')).toBe(summary)
   expect(document.activeElement).toBe(summary)
   setIcon(false)
   flush()
-  expect(mounted.container.querySelector('.ui-sidebar-group-icon')).toBeNull()
+  expect(mounted.container.querySelector('.ui-section-icon')).toBeNull()
   expect(details.open).toBe(true)
 })
 

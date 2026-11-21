@@ -159,7 +159,7 @@ export function SidebarContextSwitcher(props: SidebarContextSwitcherProps) {
             }
           >
             {(value) => (
-              <span class="ui-sidebar-group-icon" aria-hidden="true">
+              <span class="ui-section-icon" aria-hidden="true">
                 {value}
               </span>
             )}

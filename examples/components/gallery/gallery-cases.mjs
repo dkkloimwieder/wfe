@@ -900,11 +900,11 @@ async function sidebarCases({ page, url, record }) {
         .first()
         .evaluate((group) => {
           group.style.inlineSize = '150px'
-          const label = group.querySelector('.ui-sidebar-group-label')
+          const label = group.querySelector('.ui-section-label')
           label.textContent =
             'A long navigation group label that must stay on one line'
           const face = group
-            .querySelector('.ui-sidebar-group-control')
+            .querySelector('.ui-section-control')
             .getBoundingClientRect()
           const text = label.getBoundingClientRect()
           return {
@@ -955,7 +955,7 @@ async function sidebarCases({ page, url, record }) {
       const fixture = page.locator('#sidebar-review')
       const groups = fixture.locator('.ui-sidebar-group[data-text-only]')
       await expect(groups).toHaveCount(2)
-      await expect(groups.locator('.ui-sidebar-group-icon')).toHaveCount(0)
+      await expect(groups.locator('.ui-section-icon')).toHaveCount(0)
       const reports = fixture.locator('summary').filter({ hasText: 'Reports' })
       await reports.click()
       await expect(

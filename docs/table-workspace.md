@@ -86,6 +86,7 @@ The Actions section starts expanded, and Configuration starts collapsed.
 These slots do not add backend rules or persistence.
 
 `TableWorkspace` and `TableControlSection` are public presentation components.
+`TableControlSection` is a `CollapsibleSection` with the table control content grid, so the control pane uses the sidebar section look.
 Use them to compose custom controls beside the shared `Table` renderer or virtual rows.
 Give the result scroller the shared `table-scroll` class.
 Pass `footer` content to `TableWorkspace` for application summaries below that scroller.

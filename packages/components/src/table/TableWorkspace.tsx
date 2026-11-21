@@ -2,7 +2,7 @@ import { createContainerLayout } from '../internal/containerLayout'
 import { resolveTableMessages, type TableMessages } from './messages'
 import { ownsFocus } from '../internal/ownedFocus'
 import { ResizeHandle } from '../components/Resizable'
-import { Collapsible } from '../components/Collapsible'
+import { CollapsibleSection } from '../components/CollapsibleSection'
 import { Icon } from '../components/Icon'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import {
@@ -565,18 +565,14 @@ export function TableControlSection(props: {
   children: JSX.Element
 }) {
   return (
-    <Collapsible
+    <CollapsibleSection
       class="table-control-section"
       contentClass="table-control-content"
       defaultOpen={props.defaultOpen}
-      summary={
-        <>
-          <span>{props.title}</span>
-          <span class="table-control-summary">{props.summary}</span>
-        </>
-      }
+      title={props.title}
+      count={props.summary}
     >
       {props.children}
-    </Collapsible>
+    </CollapsibleSection>
   )
 }

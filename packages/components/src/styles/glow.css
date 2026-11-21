@@ -124,7 +124,7 @@
   }
   :scope
     :is(
-      .ui-button:where(:not(.ui-sidebar-group-panel)),
+      .ui-button:where(:not(.ui-section)),
       .popup-trigger,
       .ui-control-frame,
       .ui-input-affix,
@@ -163,7 +163,7 @@
   }
   :scope
     :is(
-      .ui-button:not(.ui-sidebar-group-panel),
+      .ui-button:not(.ui-section),
       .ui-dashboard-menu > a,
       .ui-tabs-trigger
     ):is(
@@ -183,10 +183,7 @@
     color: var(--ui-accent);
     text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
   }
-  :scope
-    .ui-sidebar-group
-    > .ui-sidebar-group-panel
-    > summary:is(:hover, :focus-visible) {
+  :scope .ui-collapsible.ui-section > summary:is(:hover, :focus-visible) {
     background: transparent;
   }
   :scope .ui-dashboard-menu > a:hover:not([aria-current='page']) {
@@ -217,7 +214,7 @@
       :is(
         .ui-button:where(
           :not(
-            .ui-sidebar-group-panel,
+            .ui-section,
             .ui-tree-toggle,
             .ui-icon-button,
             [data-variant='filled'],

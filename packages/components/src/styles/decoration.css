@@ -176,6 +176,24 @@
   :scope .ui-sidebar-flyout .ui-popup-title {
     color: var(--ui-sidebar-neutral);
   }
+  /* A section frame uses the sidebar decoration colors. Its content keeps
+     the theme decoration colors, so form controls inside look as elsewhere. */
+  :scope .ui-section {
+    --ui-decoration-border: color-mix(
+      in srgb,
+      var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
+      transparent
+    );
+    --_ui-action-dots: var(--ui-sidebar-accent);
+  }
+  :scope .ui-section > .ui-collapsible-content {
+    --ui-decoration-border: color-mix(
+      in srgb,
+      var(--ui-decoration-border-color) var(--ui-decoration-border-opacity),
+      transparent
+    );
+    --_ui-action-dots: initial;
+  }
 
   :scope
     :is(
@@ -185,6 +203,7 @@
       .ui-sidebar-flyout
     )
     .ui-button[data-variant='outline'],
+  :scope .ui-section.ui-button[data-variant='outline'],
   :scope
     :is(.ui-sidebar-group, .ui-sidebar-flyout)
     .ui-dashboard-menu
@@ -238,6 +257,7 @@
     :scope
       :is(.ui-sidebar-group, .ui-sidebar-flyout)
       .ui-button[data-variant='outline'],
+    :scope .ui-section.ui-button[data-variant='outline'],
     :scope
       :is(.ui-sidebar-group, .ui-sidebar-flyout)
       .ui-dashboard-menu
@@ -285,8 +305,7 @@
   :scope
     :is(
       th,
-      .table-control-section > summary,
-      .ui-sidebar-group > .ui-collapsible > summary,
+      .ui-section > summary,
       .ui-sidebar-group[data-compact] > .ui-button,
       .ui-sidebar-flyout .ui-popup-title
     ) {

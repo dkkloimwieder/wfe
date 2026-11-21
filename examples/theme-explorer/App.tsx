@@ -9,6 +9,7 @@ import {
 import {
   Button,
   Checkbox,
+  CollapsibleSection,
   Field,
   HelpText,
   Icon,
@@ -22,7 +23,6 @@ import {
   Textarea,
 } from '@wfe/components'
 import { DashboardShell } from '@wfe/components/layout'
-import { TableControlSection } from '@wfe/components/table'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import {
   themeTokenBlocks,
@@ -216,13 +216,13 @@ export function ThemeExplorer() {
             </div>
           </>
         }
-        // The sidebar holds the same collapsible sections as the table filter
-        // pane. The explorer adds no spacing of its own.
+        // The sidebar holds the library sections that the gallery sidebar and
+        // the table filter pane use. The explorer adds no styling of its own.
         navigation={() => (
           <>
-            <TableControlSection
+            <CollapsibleSection
               title="Changes"
-              summary={`${Object.keys(active()).length} edited`}
+              count={`${Object.keys(active()).length} edited`}
               defaultOpen
             >
               <div class="example-actions" data-token-panel={config().preset}>
@@ -260,12 +260,12 @@ export function ThemeExplorer() {
                 <Label>Changed tokens as CSS</Label>
                 <Textarea readonly value={css()} rows={4} />
               </Field>
-            </TableControlSection>
+            </CollapsibleSection>
             <For each={groups()}>
               {(entry) => (
-                <TableControlSection
+                <CollapsibleSection
                   title={entry.group}
-                  summary={`${entry.names.length} tokens`}
+                  count={`${entry.names.length} tokens`}
                   defaultOpen
                 >
                   <For each={entry.names}>
@@ -301,7 +301,7 @@ export function ThemeExplorer() {
                       </Field>
                     )}
                   </For>
-                </TableControlSection>
+                </CollapsibleSection>
               )}
             </For>
           </>

@@ -196,7 +196,13 @@ The navigation callback receives `compact()` and `mobile()` alongside `close()`.
 `compact()` is false in the mobile drawer, which keeps labels available.
 `--ui-navigation-rail-width` sets the desktop icon width and defaults to 3.5rem.
 
-`SidebarGroup` composes a labeled disclosure and a compact control.
+`CollapsibleSection` is the one titled disclosure section of the library.
+It takes `title`, an optional `count`, an optional `icon`, `active`, and `open`, `defaultOpen` or `onOpenChange`.
+Its content can be form controls, filters, or links.
+The section frame uses the outline action presentation, so it follows the theme preset.
+Stacked sections share one border.
+
+`SidebarGroup` composes a `CollapsibleSection` with a link menu, and a compact control.
 The application supplies `label`, optional `icon`, `active`, `open`, `onOpenChange`, `onExpand`, and links through its `children(close)` callback.
 Pass the shell's `compact()` value to the group.
 With `behavior="flyout"`, the compact control opens an adjacent popup.

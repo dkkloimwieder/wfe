@@ -60,6 +60,8 @@ import type {
   ClassValue,
   Collapsible,
   CollapsibleProps,
+  CollapsibleSection,
+  CollapsibleSectionProps,
   ColorPicker,
   ColorPickerProps,
   ColumnDestination,
@@ -527,6 +529,8 @@ export type ExportedTypes = Assert<
     ClassValue: ClassValue
     Collapsible: typeof Collapsible
     CollapsibleProps: CollapsibleProps
+    CollapsibleSection: typeof CollapsibleSection
+    CollapsibleSectionProps: CollapsibleSectionProps
     ColorPicker: typeof ColorPicker
     ColorPickerProps: ColorPickerProps
     ColumnDestination: ColumnDestination
