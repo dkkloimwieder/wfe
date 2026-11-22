@@ -25,7 +25,9 @@
     line-height: var(--ui-line-height);
   }
 
-  /* Decorative backing stays below each action's face and cannot intercept input. */
+  /* Each action is its own stacking context, so its decoration paints above
+     the action background and below the action content. Neighbors that paint
+     later cannot cover it. The decoration never intercepts input. */
   :scope
     :is(
       .ui-button,
@@ -33,6 +35,7 @@
       .ui-dashboard-menu a[href]
     ):not([data-ui-action], .clear-input, .sub-table-toggle) {
     position: relative;
+    z-index: 0;
   }
   :scope
     :has(
@@ -63,6 +66,17 @@
     inset: var(--ui-action-decoration-inset, -6px);
     z-index: -1;
     pointer-events: none;
+    box-sizing: border-box;
+    /* The ring is a fixed band at the decoration edge. The face inside it shows
+       the dots only at the inside dot visibility. */
+    padding: calc(
+      var(--ui-action-decoration-ring, 6px) - var(--ui-border-width, 1px)
+    );
+    mask:
+      linear-gradient(rgb(0 0 0 / var(--ui-action-dot-visibility, 0%)) 0 0)
+        content-box add,
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0) border-box;
     border: var(--ui-border-width, 1px) solid var(--ui-decoration-border);
     background-color: var(--ui-canvas-surface);
     --_ui-dots: var(--_ui-action-dots, var(--ui-decoration-dot-color));
@@ -185,8 +199,15 @@
       transparent
     );
     --_ui-action-dots: var(--ui-sidebar-accent);
+    /* Sections run from edge to edge, so the ring sits inside the frame. */
+    --ui-action-decoration-inset: 0px;
+  }
+  /* Sidebar groups keep the inset margin, so the ring sits outside them. */
+  :scope .ui-sidebar-group > .ui-section {
+    --ui-action-decoration-inset: initial;
   }
   :scope .ui-section > .ui-collapsible-content {
+    --ui-action-decoration-inset: initial;
     --ui-decoration-border: color-mix(
       in srgb,
       var(--ui-decoration-border-color) var(--ui-decoration-border-opacity),
@@ -293,8 +314,11 @@
     color: var(--ui-muted-text);
   }
 
+  /* Actions in the table bands keep the ring inside the band padding. */
+  :scope :is(.table-workspace-header, .table-workspace-summary) {
+    --ui-action-decoration-inset: calc(-1 * var(--ui-control-padding-y, 4px));
+  }
   :scope .table-workspace-title-face {
-    --ui-action-decoration-inset: -6px;
     --ui-decoration-border: color-mix(
       in srgb,
       var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),

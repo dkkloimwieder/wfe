@@ -298,6 +298,106 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       await choose('Preset', 'Sketchy')
     })
 
+    await record(
+      'Section and table band decoration paints in view and on top',
+      async () => {
+        for (const preset of ['Sketchy', 'Vanilla', 'Laser']) {
+          await choose('Preset', preset)
+          await page.mouse.move(0, 0)
+          const report = await page.evaluate(() => {
+            const targets = [
+              ...document.querySelectorAll(
+                [
+                  '.ui-dashboard-navigation > .ui-section',
+                  '.table-workspace-controls .ui-section',
+                  '.table-workspace-header .ui-button',
+                ].join(', '),
+              ),
+            ]
+            const problems = []
+            let decorated = 0
+            for (const node of targets) {
+              const layer = getComputedStyle(node, '::before')
+              if (layer.content === 'none' || layer.position !== 'absolute')
+                continue
+              decorated++
+              const name = `${node.className} ${node.textContent.trim().slice(0, 24)}`
+              const box = node.getBoundingClientRect()
+              const inset = (side) => parseFloat(layer[side]) || 0
+              const ring = {
+                left: box.left + inset('left'),
+                top: box.top + inset('top'),
+                right: box.right - inset('right'),
+                bottom: box.bottom - inset('bottom'),
+              }
+              // The layer paints above the action background and takes no input.
+              if (getComputedStyle(node).zIndex === 'auto')
+                problems.push(`${name}: no stacking context`)
+              if (layer.pointerEvents !== 'none')
+                problems.push(`${name}: decoration takes input`)
+              // No clipping ancestor may cut the ring sideways. The nearest
+              // scrolling ancestor must also hold it within its scroll height.
+              let scroller = false
+              for (
+                let parent = node.parentElement;
+                parent && parent !== document.body;
+                parent = parent.parentElement
+              ) {
+                const style = getComputedStyle(parent)
+                if (
+                  style.overflowX === 'visible' &&
+                  style.overflowY === 'visible'
+                )
+                  continue
+                const frame = parent.getBoundingClientRect()
+                const left = frame.left + parent.clientLeft
+                const right = left + parent.clientWidth
+                const top = frame.top + parent.clientTop - parent.scrollTop
+                const bottom =
+                  top + Math.max(parent.scrollHeight, parent.clientHeight)
+                const vertical =
+                  !scroller &&
+                  (ring.top < top - 0.5 || ring.bottom > bottom + 0.5)
+                if (
+                  ring.left < left - 0.5 ||
+                  ring.right > right + 0.5 ||
+                  vertical
+                )
+                  problems.push(
+                    `${name}: clipped by ${parent.className} ${JSON.stringify({ ring, left, right, top, bottom })}`,
+                  )
+                if (/auto|scroll/.test(style.overflowY)) scroller = true
+              }
+              // Points on the ring band belong to the action, not a neighbor.
+              node.scrollIntoView({ block: 'nearest' })
+              const now = node.getBoundingClientRect()
+              const shift = { x: now.left - box.left, y: now.top - box.top }
+              const middleX = (ring.left + ring.right) / 2 + shift.x
+              const middleY = Math.min(
+                (ring.top + ring.bottom) / 2 + shift.y,
+                ring.top + shift.y + 12,
+              )
+              for (const [x, y] of [
+                [ring.left + 3 + shift.x, middleY],
+                [ring.right - 3 + shift.x, middleY],
+                [middleX, ring.top + 3 + shift.y],
+              ]) {
+                const hit = document.elementFromPoint(x, y)
+                if (!hit || !(hit === node || node.contains(hit)))
+                  problems.push(
+                    `${name}: covered at ${Math.round(x)},${Math.round(y)} by ${hit?.className}`,
+                  )
+              }
+            }
+            return { decorated, problems }
+          })
+          if (preset === 'Sketchy') assert.ok(report.decorated > 4, preset)
+          assert.deepEqual(report.problems, [], preset)
+        }
+        await choose('Preset', 'Sketchy')
+      },
+    )
+
     await record('Table and tabs respond inside the explorer', async () => {
       const table = page.getByRole('region', { name: 'Table' })
       await expect(

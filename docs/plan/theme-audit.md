@@ -436,3 +436,12 @@ The table filter pane is the reference for compact side regions.
 - The explorer token rail is the navigation region. It holds `CollapsibleSection` sections: Changes with an "N edited" count, then each token group with an "N tokens" count. The explorer adds no CSS of its own.
 - The explorer suite checks, in every preset, that the rail sections touch the rail edges and each other, and that their content padding equals the filter pane section content padding.
 - The first rail section starts at the same height as the table command bar in all three presets. In Sketchy, the section top border plus the 30px summary is 31px, the same as the command bar. In Vanilla and Laser, the summary is 32px, the sidebar control height, and the command bar is 31px. No existing rule ties the two heights, so the 1px difference remains.
+
+### 7.3 Decoration in the foreground
+
+The Sketchy action decoration is a `::before` layer with a dotted ring. Before this change, it painted at `z-index: -1` in the parent stacking context. The action background and every later neighbor painted over it. Its fixed 6px outset also reached past edge-to-edge sections and the table bands, where scroll containers clipped it. Stacked sections showed no ring, and the table header rings lost their top edge.
+
+- Each decorated action is now its own stacking context (`z-index: 0`). The ring paints above the action background and below the action content. It takes no pointer input.
+- A mask limits the layer to a 6px ring band (`--ui-action-decoration-ring`). Inside the ring, the dots show only at the inside dot visibility, as before.
+- Sections draw the ring inside their frame (`--ui-action-decoration-inset: 0px`), because they run from edge to edge. Sidebar groups keep the outside ring in their inset margin. Actions in the table header and summary bands keep the ring inside the band padding.
+- The explorer suite checks in every preset that each rail section, filter section and table header action has a ring inside every clipping ancestor, and that no neighbor covers it.
