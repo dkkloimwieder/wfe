@@ -342,9 +342,9 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                 right: box.right - inset('right'),
                 bottom: box.bottom - inset('bottom'),
               }
-              // The layer paints above the action background and takes no input.
-              if (getComputedStyle(node).zIndex === 'auto')
-                problems.push(`${name}: no stacking context`)
+              // The parent surface sits below the ring and the action face sits above it.
+              if (getComputedStyle(node.parentElement).isolation !== 'isolate')
+                problems.push(`${name}: no shared stacking context`)
               if (layer.pointerEvents !== 'none')
                 problems.push(`${name}: decoration takes input`)
               // Use the transformed corners when the decoration tilts.
@@ -422,11 +422,22 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           if (preset === 'Sketchy') {
             const toggle = page.getByRole('button', { name: 'Table controls' })
             await toggle.hover()
-            assert.equal(
-              await toggle.evaluate(
-                (node) => getComputedStyle(node, '::before').opacity,
-              ),
-              '1',
+            await toggle.focus()
+            await page.keyboard.press('Shift')
+            await expect(toggle).toBeFocused()
+            await expect(
+              toggle.and(page.locator(':focus-visible')),
+            ).toBeVisible()
+            const header = page.locator('.table-workspace-header')
+            const shown = await header.screenshot({ animations: 'disabled' })
+            const hidden = await header.screenshot({
+              animations: 'disabled',
+              style:
+                '.table-controls-toggle::before { visibility: hidden !important; }',
+            })
+            assert.ok(
+              !shown.equals(hidden),
+              'The hovered table control still has a ring with keyboard focus',
             )
           }
         }

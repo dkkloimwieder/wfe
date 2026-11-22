@@ -118,6 +118,58 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
   await galleryNavigationFocusCases({ page, url, record })
   await galleryThemeCases({ page, url, record })
   await decorationGeometryCases({ page, url, record })
+  await record(
+    'gallery: Sketchy ring leaves the selected tab intact',
+    async () => {
+      for (const scheme of [1, 2]) {
+        await page.goto(`${url}?gallery=tabs&preset=default&scheme=${scheme}`)
+        const list = page.getByRole('tablist', { name: 'Record sections' })
+        const tab = list.getByRole('tab', { name: 'Details', selected: true })
+        const neighbor = list.getByRole('tab', { name: 'Unavailable' })
+        await expect(tab).toBeVisible()
+        await page.mouse.move(0, 0)
+        await page.evaluate(() => document.fonts.ready)
+        await expect
+          .poll(() =>
+            tab.evaluate((node) => getComputedStyle(node, '::before').opacity),
+          )
+          .toBe('1')
+        async function ringChanges(clip) {
+          const shown = await page.screenshot({ clip, animations: 'disabled' })
+          const hidden = await page.screenshot({
+            clip,
+            animations: 'disabled',
+            style:
+              '#retained-tabs .ui-tabs-trigger[aria-selected="true"]::before { visibility: hidden !important; }',
+          })
+          return !shown.equals(hidden)
+        }
+        for (const action of [tab, neighbor]) {
+          const box = await action.boundingBox()
+          assert.ok(box)
+          // Round inward to sample only pixels inside the action's border box.
+          const x = Math.ceil(box.x)
+          const y = Math.ceil(box.y)
+          assert.equal(
+            await ringChanges({
+              x,
+              y,
+              width: Math.floor(box.x + box.width) - x,
+              height: Math.floor(box.y + box.height) - y,
+            }),
+            false,
+            `The ring changes the ${await action.textContent()} tab's border or face (scheme ${scheme})`,
+          )
+        }
+        const strip = await list.boundingBox()
+        assert.ok(strip)
+        assert.ok(
+          await ringChanges(strip),
+          `Ring is visible (scheme ${scheme})`,
+        )
+      }
+    },
+  )
   await iconCases({ page, url, record })
   await inputDecorationCases({ page, url, record })
   await galleryActionCases({ page, url, record })

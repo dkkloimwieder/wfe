@@ -25,9 +25,9 @@
     line-height: var(--ui-line-height);
   }
 
-  /* Each action is its own stacking context, so its decoration paints above
-     the action background and below the action content. Neighbors that paint
-     later cannot cover it. The decoration never intercepts input. */
+  /* Position the ring on the action and stack it in the shared parent.
+     The parent surface paints first, then the rings, then the action faces
+     and their borders. */
   :scope
     :is(
       .ui-button,
@@ -35,7 +35,6 @@
       .ui-dashboard-menu a[href]
     ):not([data-ui-action], .clear-input, .sub-table-toggle, .ui-section) {
     position: relative;
-    z-index: 0;
   }
   :scope
     :has(
@@ -301,8 +300,13 @@
   :scope :is(.table-workspace-header, .table-workspace-summary) {
     --ui-action-decoration-inset: calc(-1 * var(--ui-control-padding-y, 4px));
   }
-  /* A tilted header ring can cross the top edge of a scrolling table host. */
+  /* Use the full header padding outside the control border, so the focus
+     outline leaves the outer edge visible. Keep the ring within the band. */
   :scope .table-workspace-header .ui-button::before {
+    --ui-action-decoration-inset: calc(
+      -1 * var(--ui-control-padding-y, 4px) -
+        var(--ui-control-border-width, var(--ui-border-width, 1px))
+    );
     --ui-action-decoration-transform: none;
   }
   :scope .table-workspace-title-face {
