@@ -414,8 +414,7 @@
   padding-inline: 0;
 }
 
-:where([data-ui]) .ui-dashboard-navigation,
-:where([data-ui]) .ui-sidebar-group {
+:where([data-ui]) .ui-dashboard-navigation {
   --_ui-sidebar-inset: calc(
     (
         var(--ui-navigation-rail-width, 3.5rem) -
@@ -437,10 +436,11 @@
   ~ :not(.ui-collapsible) {
   margin-block-start: var(--ui-region-gap, var(--ui-gap, 8px));
 }
-/* A rail of collapsible sections works like the table filter pane. The
-   sections run from edge to edge, and their borders separate them. */
+/* Sections touch the rail edges and each other, as in the table filter pane. */
 :where([data-ui])
-  :is(.ui-dashboard-navigation, .ui-dashboard-context):has(> .ui-collapsible) {
+  :is(.ui-dashboard-navigation, .ui-dashboard-context):has(> .ui-collapsible),
+:where([data-ui])
+  .ui-dashboard-navigation:has(> .ui-sidebar-group > .ui-section) {
   padding: 0;
 }
 /* Panels in side regions are compact, as the filter sections are. */
@@ -463,12 +463,8 @@
     var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) + 2 *
       var(--ui-gap, 8px)
   );
-  padding-block: var(--ui-gap, 8px);
 }
-:where([data-ui]) .ui-sidebar-group > .ui-section {
-  margin-inline: var(--_ui-sidebar-inset);
-}
-/* Navigation links set their own color, so the menu keeps the frame color. */
+/* The navigation menu inherits the section's color. */
 :where([data-ui]) .ui-sidebar-group > .ui-section > .ui-collapsible-content {
   color: inherit;
 }

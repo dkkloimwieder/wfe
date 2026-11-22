@@ -260,40 +260,47 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
     await record('The token rail matches the table filter pane', async () => {
       for (const preset of ['Sketchy', 'Vanilla', 'Laser']) {
         await choose('Preset', preset)
-        const rail = await page.evaluate(() => {
-          const rail = document.querySelector('.ui-dashboard-navigation')
-          const sections = [
-            ...rail.querySelectorAll(':scope > .ui-collapsible'),
-          ]
-          const box = rail.getBoundingClientRect()
-          const left = box.left + rail.clientLeft
-          const top = box.top + rail.clientTop - rail.scrollTop
-          const [first, second] = sections.map((section) =>
-            section.getBoundingClientRect(),
+        const padding = []
+        for (const selector of [
+          '.ui-dashboard-navigation',
+          '.table-workspace-controls-body',
+        ]) {
+          const { gaps, content } = await page
+            .locator(selector)
+            .evaluate((rail) => {
+              const sections = [
+                ...rail.querySelectorAll(':scope > .ui-section'),
+              ]
+              const frame = rail.getBoundingClientRect()
+              const left = frame.left + rail.clientLeft
+              const right = left + rail.clientWidth
+              let previousBottom = frame.top + rail.clientTop - rail.scrollTop
+              const gaps = sections.map((section) => {
+                const box = section.getBoundingClientRect()
+                const gap = [
+                  box.left - left,
+                  right - box.right,
+                  box.top - previousBottom,
+                ]
+                previousBottom = box.bottom
+                return gap
+              })
+              return {
+                gaps,
+                content: getComputedStyle(
+                  sections[0].querySelector(':scope > .ui-collapsible-content'),
+                ).padding,
+              }
+            })
+          const detail = `${preset} ${selector} ${JSON.stringify(gaps)}`
+          assert.ok(gaps.length > 2, detail)
+          assert.ok(
+            gaps.flat().every((gap) => Math.abs(gap) < 0.5),
+            detail,
           )
-          const padding = (node) => getComputedStyle(node).padding
-          return {
-            sections: sections.length,
-            left: first.left - left,
-            right: left + rail.clientWidth - first.right,
-            top: first.top - top,
-            between: second.top - first.bottom,
-            content: padding(
-              sections[0].querySelector(':scope > .ui-collapsible-content'),
-            ),
-            filters: padding(
-              document.querySelector(
-                '.table-workspace-controls .ui-collapsible-content',
-              ),
-            ),
-          }
-        })
-        const detail = `${preset} ${JSON.stringify(rail)}`
-        assert.ok(rail.sections > 2, detail)
-        // Sections touch the rail edges and each other, as filter sections do.
-        for (const side of ['left', 'right', 'top', 'between'])
-          assert.ok(Math.abs(rail[side]) < 0.5, `${side} ${detail}`)
-        assert.equal(rail.content, rail.filters, detail)
+          padding.push(content)
+        }
+        assert.equal(padding[0], padding[1], preset)
       }
       await choose('Preset', 'Sketchy')
     })
@@ -305,25 +312,30 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           await choose('Preset', preset)
           await page.mouse.move(0, 0)
           const report = await page.evaluate(() => {
-            const targets = [
-              ...document.querySelectorAll(
-                [
-                  '.ui-dashboard-navigation > .ui-section',
-                  '.table-workspace-controls .ui-section',
-                  '.table-workspace-header .ui-button',
-                ].join(', '),
-              ),
-            ]
             const problems = []
+            for (const section of document.querySelectorAll('.ui-section')) {
+              const name = section.querySelector('summary').textContent.trim()
+              const face = getComputedStyle(section)
+              if (getComputedStyle(section, '::before').content !== 'none')
+                problems.push(`${name}: section has a decoration layer`)
+              if (face.outlineStyle !== 'none' || face.borderStyle !== 'none')
+                problems.push(`${name}: section has a frame`)
+            }
+            const header = document.querySelector('.table-workspace-header')
+            header.scrollIntoView({ block: 'nearest' })
+            const headers = [...header.querySelectorAll('.ui-button')]
             let decorated = 0
-            for (const node of targets) {
+            for (const node of headers) {
               const layer = getComputedStyle(node, '::before')
               if (layer.content === 'none' || layer.position !== 'absolute')
                 continue
               decorated++
               const name = `${node.className} ${node.textContent.trim().slice(0, 24)}`
               const box = node.getBoundingClientRect()
-              const inset = (side) => parseFloat(layer[side]) || 0
+              const face = getComputedStyle(node)
+              const inset = (side) =>
+                parseFloat(layer[side]) +
+                parseFloat(face.getPropertyValue(`border-${side}-width`))
               const ring = {
                 left: box.left + inset('left'),
                 top: box.top + inset('top'),
@@ -335,52 +347,61 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                 problems.push(`${name}: no stacking context`)
               if (layer.pointerEvents !== 'none')
                 problems.push(`${name}: decoration takes input`)
-              // No clipping ancestor may cut the ring sideways. The nearest
-              // scrolling ancestor must also hold it within its scroll height.
-              let scroller = false
+              // Use the transformed corners when the decoration tilts.
+              if (layer.transform !== 'none') {
+                const [originX, originY] = layer.transformOrigin
+                  .split(' ')
+                  .map(parseFloat)
+                const matrix = new DOMMatrix(layer.transform)
+                const width = ring.right - ring.left
+                const height = ring.bottom - ring.top
+                const corners = [
+                  [0, 0],
+                  [width, 0],
+                  [0, height],
+                  [width, height],
+                ].map(([x, y]) =>
+                  matrix.transformPoint({ x: x - originX, y: y - originY }),
+                )
+                const xs = corners.map(
+                  ({ x, w }) => ring.left + originX + x / w,
+                )
+                const ys = corners.map(({ y, w }) => ring.top + originY + y / w)
+                Object.assign(ring, {
+                  left: Math.min(...xs),
+                  right: Math.max(...xs),
+                  top: Math.min(...ys),
+                  bottom: Math.max(...ys),
+                })
+              }
               for (
                 let parent = node.parentElement;
                 parent && parent !== document.body;
                 parent = parent.parentElement
               ) {
                 const style = getComputedStyle(parent)
-                if (
-                  style.overflowX === 'visible' &&
-                  style.overflowY === 'visible'
-                )
-                  continue
                 const frame = parent.getBoundingClientRect()
                 const left = frame.left + parent.clientLeft
                 const right = left + parent.clientWidth
-                const top = frame.top + parent.clientTop - parent.scrollTop
-                const bottom =
-                  top + Math.max(parent.scrollHeight, parent.clientHeight)
+                const top = frame.top + parent.clientTop
+                const bottom = top + parent.clientHeight
+                const horizontal =
+                  style.overflowX !== 'visible' &&
+                  (ring.left < left - 0.5 || ring.right > right + 0.5)
                 const vertical =
-                  !scroller &&
+                  style.overflowY !== 'visible' &&
                   (ring.top < top - 0.5 || ring.bottom > bottom + 0.5)
-                if (
-                  ring.left < left - 0.5 ||
-                  ring.right > right + 0.5 ||
-                  vertical
-                )
+                if (horizontal || vertical)
                   problems.push(
                     `${name}: clipped by ${parent.className} ${JSON.stringify({ ring, left, right, top, bottom })}`,
                   )
-                if (/auto|scroll/.test(style.overflowY)) scroller = true
               }
-              // Points on the ring band belong to the action, not a neighbor.
-              node.scrollIntoView({ block: 'nearest' })
-              const now = node.getBoundingClientRect()
-              const shift = { x: now.left - box.left, y: now.top - box.top }
-              const middleX = (ring.left + ring.right) / 2 + shift.x
-              const middleY = Math.min(
-                (ring.top + ring.bottom) / 2 + shift.y,
-                ring.top + shift.y + 12,
-              )
+              const middleX = (box.left + box.right) / 2
+              const middleY = (box.top + box.bottom) / 2
               for (const [x, y] of [
-                [ring.left + 3 + shift.x, middleY],
-                [ring.right - 3 + shift.x, middleY],
-                [middleX, ring.top + 3 + shift.y],
+                [box.left + 1, middleY],
+                [box.right - 1, middleY],
+                [middleX, box.top + 1],
               ]) {
                 const hit = document.elementFromPoint(x, y)
                 if (!hit || !(hit === node || node.contains(hit)))
@@ -389,12 +410,81 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                   )
               }
             }
-            return { decorated, problems }
+            return { decorated, headers: headers.length, problems }
           })
-          if (preset === 'Sketchy') assert.ok(report.decorated > 4, preset)
+          assert.ok(report.headers > 0, preset)
+          assert.equal(
+            report.decorated,
+            preset === 'Sketchy' ? report.headers : 0,
+            preset,
+          )
           assert.deepEqual(report.problems, [], preset)
+          if (preset === 'Sketchy') {
+            const toggle = page.getByRole('button', { name: 'Table controls' })
+            await toggle.hover()
+            assert.equal(
+              await toggle.evaluate(
+                (node) => getComputedStyle(node, '::before').opacity,
+              ),
+              '1',
+            )
+          }
         }
         await choose('Preset', 'Sketchy')
+      },
+    )
+
+    await record(
+      'Sketchy sections keep the smaller hover triangle open',
+      async () => {
+        const section = page
+          .getByRole('navigation', { name: 'Theme tokens' })
+          .locator(':scope > .ui-section')
+          .first()
+        const summary = section.locator('summary')
+        const glyph = summary.locator('.ui-disclosure-decoration')
+        const appearance = () =>
+          glyph.evaluate((path) => {
+            const style = getComputedStyle(path)
+            const arrow = path.ownerSVGElement.querySelector(
+              '.ui-disclosure-arrow',
+            )
+            return {
+              opacity: style.opacity,
+              arrow: getComputedStyle(arrow).visibility,
+            }
+          })
+        if (await section.evaluate((node) => node.open)) await summary.click()
+        await page.mouse.move(0, 0)
+        const normal = await appearance()
+        assert.deepEqual(normal, { opacity: '0', arrow: 'visible' })
+
+        await summary.hover()
+        const expanded = await appearance()
+        assert.deepEqual(expanded, { opacity: '1', arrow: 'hidden' })
+        const size = () =>
+          glyph.evaluate((path) => {
+            const { width, height } = path.getBBox()
+            const { a, b, c, d } = path.getScreenCTM()
+            return [width * Math.hypot(a, b), height * Math.hypot(c, d)]
+          })
+        const hoverSize = await size()
+
+        await summary.click()
+        await expect(section).toHaveAttribute('open', '')
+        await page.mouse.move(0, 0)
+        assert.deepEqual(await appearance(), expanded)
+        const openSize = await size()
+        // The a8b1b39 hover path measured 14.26359 × 20.37656 CSS pixels.
+        for (const [index, earlier] of [14.26359, 20.37656].entries()) {
+          assert.ok(Math.abs(openSize[index] / earlier - 0.9) < 0.001)
+          assert.ok(Math.abs(openSize[index] - hoverSize[index]) < 0.01)
+        }
+
+        await summary.click()
+        await expect(section).not.toHaveAttribute('open')
+        await page.mouse.move(0, 0)
+        assert.deepEqual(await appearance(), normal)
       },
     )
 

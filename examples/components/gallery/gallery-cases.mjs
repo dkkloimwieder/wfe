@@ -890,6 +890,46 @@ async function appearanceCases({ page, url, record }) {
 
 async function sidebarCases({ page, url, record }) {
   await record(
+    'gallery: sidebar sections touch the rail and each other',
+    async () => {
+      await page.setViewportSize({ width: 1280, height: 900 })
+      for (const preset of ['default', 'vanilla', 'laser']) {
+        await page.goto(`${url}?gallery=fields&preset=${preset}`)
+        await page.locator('.gallery-example-host').waitFor()
+        const gaps = await page
+          .locator('.ui-dashboard-navigation')
+          .first()
+          .evaluate((rail) => {
+            const frame = rail.getBoundingClientRect()
+            const left = frame.left + rail.clientLeft
+            const right = left + rail.clientWidth
+            let previousBottom = frame.top + rail.clientTop - rail.scrollTop
+            return [
+              ...rail.querySelectorAll(
+                ':scope > .ui-sidebar-group > .ui-section',
+              ),
+            ].map((section) => {
+              const box = section.getBoundingClientRect()
+              const gap = [
+                box.left - left,
+                right - box.right,
+                box.top - previousBottom,
+              ]
+              previousBottom = box.bottom
+              return gap
+            })
+          })
+        const detail = `${preset} ${JSON.stringify(gaps)}`
+        assert.ok(gaps.length > 1, detail)
+        assert.ok(
+          gaps.flat().every((gap) => Math.abs(gap) < 0.5),
+          detail,
+        )
+      }
+    },
+  )
+
+  await record(
     'gallery: long sidebar labels remain readable without overflowing controls',
     async () => {
       await page.setViewportSize({ width: 1280, height: 900 })

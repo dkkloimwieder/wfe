@@ -36,14 +36,11 @@
       var(--ui-sidebar-control-height, var(--ui-control-height)) + 2 *
         var(--ui-sidebar-group-padding-y, 2px)
     );
-    padding-block: var(--ui-sidebar-group-padding-y, 2px);
   }
   :scope .ui-collapsible.ui-section {
-    border: 0;
     background: transparent;
   }
   :scope .ui-collapsible.ui-section > summary {
-    min-block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
     border-radius: var(--ui-control-radius);
     font-weight: var(
       --ui-sidebar-heading-weight,
@@ -52,14 +49,6 @@
   }
   :scope .ui-collapsible.ui-section > summary:hover {
     background: var(--ui-highlight);
-  }
-  :scope .ui-section-control {
-    block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
-  }
-  :scope .ui-section-icon {
-    inline-size: var(--ui-sidebar-control-height, var(--ui-control-height));
-    block-size: var(--ui-sidebar-control-height, var(--ui-control-height));
-    border-color: transparent;
   }
   /* Navigation links hang from a guide line under the group title. */
   :scope .ui-sidebar-group .ui-collapsible-content {

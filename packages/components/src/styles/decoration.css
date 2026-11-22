@@ -33,7 +33,7 @@
       .ui-button,
       .ui-dashboard-navigation a[href],
       .ui-dashboard-menu a[href]
-    ):not([data-ui-action], .clear-input, .sub-table-toggle) {
+    ):not([data-ui-action], .clear-input, .sub-table-toggle, .ui-section) {
     position: relative;
     z-index: 0;
   }
@@ -59,7 +59,8 @@
       [data-readonly],
       [data-ui-action],
       .clear-input,
-      .sub-table-toggle
+      .sub-table-toggle,
+      .ui-section
     )::before {
     content: '';
     position: absolute;
@@ -190,24 +191,8 @@
   :scope .ui-sidebar-flyout .ui-popup-title {
     color: var(--ui-sidebar-neutral);
   }
-  /* A section frame uses the sidebar decoration colors. Its content keeps
-     the theme decoration colors, so form controls inside look as elsewhere. */
-  :scope .ui-section {
-    --ui-decoration-border: color-mix(
-      in srgb,
-      var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
-      transparent
-    );
-    --_ui-action-dots: var(--ui-sidebar-accent);
-    /* Sections run from edge to edge, so the ring sits inside the frame. */
-    --ui-action-decoration-inset: 0px;
-  }
-  /* Sidebar groups keep the inset margin, so the ring sits outside them. */
-  :scope .ui-sidebar-group > .ui-section {
-    --ui-action-decoration-inset: initial;
-  }
+  /* Controls inside sections use the theme's decoration colors. */
   :scope .ui-section > .ui-collapsible-content {
-    --ui-action-decoration-inset: initial;
     --ui-decoration-border: color-mix(
       in srgb,
       var(--ui-decoration-border-color) var(--ui-decoration-border-opacity),
@@ -224,7 +209,6 @@
       .ui-sidebar-flyout
     )
     .ui-button[data-variant='outline'],
-  :scope .ui-section.ui-button[data-variant='outline'],
   :scope
     :is(.ui-sidebar-group, .ui-sidebar-flyout)
     .ui-dashboard-menu
@@ -278,7 +262,6 @@
     :scope
       :is(.ui-sidebar-group, .ui-sidebar-flyout)
       .ui-button[data-variant='outline'],
-    :scope .ui-section.ui-button[data-variant='outline'],
     :scope
       :is(.ui-sidebar-group, .ui-sidebar-flyout)
       .ui-dashboard-menu
@@ -318,6 +301,10 @@
   :scope :is(.table-workspace-header, .table-workspace-summary) {
     --ui-action-decoration-inset: calc(-1 * var(--ui-control-padding-y, 4px));
   }
+  /* A tilted header ring can cross the top edge of a scrolling table host. */
+  :scope .table-workspace-header .ui-button::before {
+    --ui-action-decoration-transform: none;
+  }
   :scope .table-workspace-title-face {
     --ui-decoration-border: color-mix(
       in srgb,
@@ -341,11 +328,21 @@
     transform-box: fill-box;
     transform-origin: 50% 50%;
     scale: calc(4 / 7);
+    visibility: var(--_ui-expanded-disclosure-arrow, visible);
   }
   :scope .ui-disclosure-decoration {
     display: initial;
-    opacity: 0;
+    opacity: var(--_ui-expanded-disclosure-opacity, 0);
     pointer-events: none;
+  }
+  :scope
+    .ui-section
+    > summary
+    > .ui-disclosure-indicator
+    > .ui-disclosure-decoration {
+    transform-box: fill-box;
+    transform-origin: center;
+    scale: 0.9;
   }
   :scope .ui-disclosure-trigger:focus-visible .ui-disclosure-decoration {
     opacity: 1;
@@ -356,13 +353,16 @@
   @media (hover: hover) {
     :scope
       .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
-      .ui-disclosure-decoration {
-      opacity: 1;
+      .ui-disclosure-indicator {
+      --_ui-expanded-disclosure-opacity: 1;
+      --_ui-expanded-disclosure-arrow: hidden;
     }
-    :scope
-      .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
-      .ui-disclosure-arrow {
-      visibility: hidden;
+  }
+  @media (forced-colors: none) {
+    /* Open sections use the same paint on devices without hover. */
+    :scope .ui-section[open] > summary > .ui-disclosure-indicator {
+      --_ui-expanded-disclosure-opacity: 1;
+      --_ui-expanded-disclosure-arrow: hidden;
     }
   }
   @media (forced-colors: active) {

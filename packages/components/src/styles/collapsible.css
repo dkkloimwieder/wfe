@@ -42,28 +42,27 @@
   transform: rotate(90deg);
 }
 
-/* A section is a titled collapsible with an icon, a label, an optional count
-   and an end indicator. It holds form controls, filters or navigation links.
-   The frame shares the outline action presentation of the theme. */
+/* A section holds form controls, filters or navigation links. */
 :where([data-ui]) .ui-collapsible.ui-section {
-  display: block;
-  border-width: var(--ui-border-width, 1px);
-  border-style: solid;
+  /* Keep content margins inside the section when there is no border. */
+  display: flow-root;
+  border: 0;
   padding: 0;
   text-align: start;
 }
 :where([data-ui]) .ui-collapsible.ui-section > summary {
   display: flex;
   align-items: center;
-  min-block-size: calc(
-    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) - 2px
+  min-block-size: var(
+    --ui-sidebar-control-height,
+    var(--ui-control-height, 32px)
   );
   padding: 0;
   list-style: none;
   color: inherit;
   font-weight: var(--ui-sidebar-heading-weight, var(--ui-heading-weight, 500));
 }
-/* Content inherits the frame's action text, so it restores body text. */
+/* Restore body text inside the section. */
 :where([data-ui]) .ui-section > .ui-collapsible-content {
   padding: var(--ui-gap, 8px);
   font-weight: var(--ui-font-weight, 400);
@@ -78,9 +77,7 @@
   gap: var(--ui-gap, 8px);
   inline-size: 100%;
   min-inline-size: 0;
-  block-size: calc(
-    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) - 2px
-  );
+  block-size: var(--ui-sidebar-control-height, var(--ui-control-height, 32px));
   padding: 0;
   text-align: start;
 }
@@ -93,12 +90,8 @@
   justify-content: center;
   flex: none;
   padding: 0;
-  inline-size: calc(
-    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) - 2px
-  );
-  block-size: calc(
-    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) - 2px
-  );
+  inline-size: var(--ui-sidebar-control-height, var(--ui-control-height, 32px));
+  block-size: var(--ui-sidebar-control-height, var(--ui-control-height, 32px));
 }
 :where([data-ui]) .ui-section-label {
   flex: 1;
@@ -112,8 +105,4 @@
   font-weight: var(--ui-font-weight, 400);
   font-size: var(--ui-small-font-size, 12px);
   color: var(--ui-muted-text, #999999);
-}
-/* Stacked sections share one border, as rows do. */
-:where([data-ui]) .ui-collapsible.ui-section + .ui-collapsible.ui-section {
-  border-block-start-width: 0;
 }

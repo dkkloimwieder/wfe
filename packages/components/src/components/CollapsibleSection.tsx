@@ -30,7 +30,7 @@ export function CollapsibleSection(props: CollapsibleSectionProps) {
     'class',
     'children',
   )
-  // The section frame shares the outline action presentation of the theme.
+  // The section face shares the action colors and typography of the theme.
   const presentation = buttonAttributes({
     get class() {
       return styledClasses('ui-section', props.class)
