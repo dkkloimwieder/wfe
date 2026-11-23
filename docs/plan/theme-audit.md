@@ -473,6 +473,8 @@ Hover adds paint over the resting specimen. A pressed control adds an inset edge
 
 Laser icon buttons share the action box glow. The hover rule keeps each icon button's resting background. Sketchy default outline buttons use the neutral foreground. Selection on tabs and toggles uses an accent edge. An explicit Toggle `pressedVariant` still selects an application-provided variant.
 
+Standalone controls use the same state rules with fallback colors and outlines when no theme provider supplies tokens.
+
 ### 8.3 Comparison exceptions
 
 - Passive display samples record their paint. Breadcrumb links carry the interactive states.

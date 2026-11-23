@@ -115,7 +115,10 @@
 
   @media (forced-colors: none) {
     &:is([aria-expanded='true'], :where(details[open]) > summary) {
-      --_ui-action-open: var(--ui-state-open-shadow);
+      --_ui-action-open: var(
+        --ui-state-open-shadow,
+        0 0 0 1px var(--ui-accent, #1971c2)
+      );
     }
 
     &:not(:disabled, [aria-disabled='true'], [data-disabled], [data-readonly]) {
@@ -124,11 +127,20 @@
           --ui-action-hover-shadow,
           var(--ui-laser-glow, var(--_ui-laser-glow, 0 0 transparent))
         );
-        background-image: var(--ui-action-hover-fill);
+        background-image: var(
+          --ui-action-hover-fill,
+          linear-gradient(
+            var(--ui-highlight, #f5f5f5),
+            var(--ui-highlight, #f5f5f5)
+          )
+        );
         --_ui-action-decoration-opacity: 1;
       }
       &:active {
-        --_ui-action-pressed: var(--ui-state-pressed-shadow);
+        --_ui-action-pressed: var(
+          --ui-state-pressed-shadow,
+          inset 0 0 0 1px var(--ui-muted-text, #999999)
+        );
       }
     }
 
@@ -139,7 +151,10 @@
       [data-ui-active='true'],
       :where(details[data-ui-active='true']) > summary
     ) {
-      --_ui-action-selected: var(--ui-state-selected-shadow);
+      --_ui-action-selected: var(
+        --ui-state-selected-shadow,
+        inset 0 0 0 1px var(--ui-accent, #1971c2)
+      );
     }
 
     &:is(
@@ -159,8 +174,8 @@
     }
 
     &:focus-visible {
-      outline: var(--ui-focus-width) solid var(--ui-focus-ring);
-      outline-offset: var(--ui-focus-offset);
+      outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
+      outline-offset: var(--ui-focus-offset, 0px);
     }
 
     &:is(
@@ -168,15 +183,18 @@
       [data-invalid],
       .ui-toggle-group[data-invalid] *
     ) {
-      border-color: var(--ui-error);
+      border-color: var(--ui-error, #9d251e);
     }
     &:is(:disabled, [aria-disabled='true'], [data-disabled]):not(
         [data-readonly]
       ) {
-      color: var(--ui-disabled-text);
+      color: var(--ui-disabled-text, #919191);
     }
     &[data-readonly] {
-      box-shadow: var(--ui-state-readonly-shadow);
+      box-shadow: var(
+        --ui-state-readonly-shadow,
+        inset 0 0 0 1px var(--ui-muted-text, #999999)
+      );
     }
   }
 }
@@ -220,18 +238,21 @@
       :has(:is(input, select, textarea):is(:disabled, [readonly]))
     ) {
       &:hover {
-        background-image: var(--ui-field-hover-fill);
+        background-image: var(--ui-field-hover-fill, none);
         --_ui-field-hover: var(--_ui-field-halo);
         --_ui-field-decoration-opacity: 1;
       }
       &:active {
-        --_ui-field-inset: var(--ui-state-pressed-shadow);
+        --_ui-field-inset: var(
+          --ui-state-pressed-shadow,
+          inset 0 0 0 1px var(--ui-muted-text, #999999)
+        );
       }
     }
 
     &:is(:focus-visible, :has(:focus-visible)) {
-      outline: var(--ui-focus-width) solid var(--ui-focus-ring);
-      outline-offset: var(--ui-focus-offset);
+      outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
+      outline-offset: var(--ui-focus-offset, 0px);
     }
 
     &:is(
@@ -239,11 +260,17 @@
       [data-invalid],
       :has(:is(input, select, textarea)[aria-invalid='true'])
     ) {
-      --_ui-field-inset: var(--ui-state-invalid-shadow);
+      --_ui-field-inset: var(
+        --ui-state-invalid-shadow,
+        inset 0 0 0 1px var(--ui-error, #9d251e)
+      );
     }
 
     &:is([aria-expanded='true'], :has([aria-expanded='true'])) {
-      --_ui-field-open: var(--ui-state-open-shadow);
+      --_ui-field-open: var(
+        --ui-state-open-shadow,
+        0 0 0 1px var(--ui-accent, #1971c2)
+      );
     }
 
     &:not([data-readonly]):is(
@@ -251,13 +278,16 @@
         :disabled,
         :has(:is(input, select, textarea):disabled)
       ) {
-      color: var(--ui-disabled-text);
-      background-color: var(--ui-muted-surface);
+      color: var(--ui-disabled-text, #919191);
+      background-color: var(--ui-muted-surface, #fcfcfd);
     }
 
     &:is([data-readonly], :has(:is(input, textarea)[readonly])) {
-      background-color: var(--ui-muted-surface);
-      --_ui-field-inset: var(--ui-state-readonly-shadow);
+      background-color: var(--ui-muted-surface, #fcfcfd);
+      --_ui-field-inset: var(
+        --ui-state-readonly-shadow,
+        inset 0 0 0 1px var(--ui-muted-text, #999999)
+      );
     }
 
     &:is(
@@ -333,13 +363,19 @@
 
   @media (forced-colors: none) {
     &:is([data-checked], [data-indeterminate]) {
-      --_ui-check-selected: var(--ui-state-selected-shadow);
+      --_ui-check-selected: var(
+        --ui-state-selected-shadow,
+        inset 0 0 0 1px var(--ui-accent, #1971c2)
+      );
       background-color: var(
         --ui-toggle-checked-surface,
-        var(--ui-control-surface)
+        var(--ui-control-surface, #fcfcfd)
       );
-      border-color: var(--ui-toggle-checked-border, var(--ui-control-border));
-      color: var(--ui-toggle-checked-text, var(--ui-accent));
+      border-color: var(
+        --ui-toggle-checked-border,
+        var(--ui-control-border, #e5e5e5)
+      );
+      color: var(--ui-toggle-checked-text, var(--ui-accent, #1971c2));
     }
 
     &:not(
@@ -360,7 +396,10 @@
         --_ui-field-decoration-opacity: 1;
       }
       &:is(:active, :where(.ui-toggle, .ui-radio-item):active *) {
-        --_ui-check-pressed: var(--ui-state-pressed-shadow);
+        --_ui-check-pressed: var(
+          --ui-state-pressed-shadow,
+          inset 0 0 0 1px var(--ui-muted-text, #999999)
+        );
       }
     }
 
@@ -380,21 +419,24 @@
       :focus-visible,
       :where(.ui-toggle, .ui-radio-item):has(input:focus-visible) *
     ) {
-      outline: var(--ui-focus-width) solid var(--ui-focus-ring);
-      outline-offset: var(--ui-focus-offset);
+      outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
+      outline-offset: var(--ui-focus-offset, 0px);
     }
 
     &:is([data-disabled], [aria-disabled='true']) {
-      color: var(--ui-disabled-text);
-      border-color: var(--ui-disabled-border);
+      color: var(--ui-disabled-text, #919191);
+      border-color: var(--ui-disabled-border, #f0f0f0);
     }
 
     &:is([data-readonly], [aria-readonly='true']) {
-      box-shadow: var(--ui-state-readonly-shadow);
+      box-shadow: var(
+        --ui-state-readonly-shadow,
+        inset 0 0 0 1px var(--ui-muted-text, #999999)
+      );
     }
 
     &:is([data-invalid], [aria-invalid='true']) {
-      border-color: var(--ui-error);
+      border-color: var(--ui-error, #9d251e);
     }
   }
 }

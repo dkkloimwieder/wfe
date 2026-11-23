@@ -25,27 +25,28 @@
     line-height: var(--ui-line-height);
   }
 
-  /* Position the ring on the action and stack it in the shared parent.
-     The parent surface paints first, then the rings, then the action faces
-     and their borders. */
-  :scope
-    :is(
-      .ui-button,
-      .ui-dashboard-navigation a[href],
-      .ui-dashboard-menu a[href],
-      summary,
-      .ui-breadcrumbs-link,
-      .ui-context-trigger,
-      .choice-toggle,
-      [data-ui-action]
-    ):not(
-      .ui-section,
-      .popup-trigger,
-      .ui-calendar td button,
-      .ui-date-range-picker > .ui-button:first-child
+  /* Anchor the ring when a control has no position of its own. */
+  :where(:scope)
+    :where(
+      :is(
+        .ui-button,
+        .ui-dashboard-navigation a[href],
+        .ui-dashboard-menu a[href],
+        summary,
+        .ui-breadcrumbs-link,
+        .ui-context-trigger,
+        .choice-toggle,
+        [data-ui-action]
+      ):not(
+        .ui-section,
+        .popup-trigger,
+        .ui-calendar td button,
+        .ui-date-range-picker > .ui-button:first-child
+      )
     ) {
     position: relative;
   }
+  /* The shared parent paints before the rings and action faces. */
   :scope
     :has(
       > :is(
