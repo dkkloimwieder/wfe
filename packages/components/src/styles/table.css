@@ -492,6 +492,8 @@
 }
 :where([data-ui]) .header-filter-close {
   position: absolute;
+  /* Keep the close action above the decorated controls in the popup body. */
+  z-index: 1;
   top: 6px;
   right: 6px;
   width: 20px;
