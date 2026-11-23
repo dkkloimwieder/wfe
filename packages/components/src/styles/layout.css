@@ -222,9 +222,6 @@
   text-decoration: none;
   overflow-wrap: anywhere;
 }
-:where([data-ui]) .ui-dashboard-menu > a:is(:hover, [aria-current='page']) {
-  border-color: var(--ui-accent, #1971c2);
-}
 :where([data-ui]) .ui-dashboard-menu > a:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
     var(--ui-focus-ring, var(--ui-accent));

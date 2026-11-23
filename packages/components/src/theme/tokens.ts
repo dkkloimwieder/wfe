@@ -300,6 +300,14 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-laser-inset-glow-strength': '0.6',
         // Default-tone outline buttons: 100% uses the button color, 0% the neutral text and border.
         '--ui-outline-accent-weight': '100%',
+        '--ui-action-hover-fill': 'none',
+        '--ui-action-hover-shadow': '0 0 transparent',
+        '--ui-action-open-fill':
+          'linear-gradient(var(--ui-highlight), var(--ui-highlight))',
+        '--ui-state-selected-shadow':
+          'inset 0 0 0 var(--ui-border-width) var(--ui-accent)',
+        '--ui-state-pressed-shadow':
+          'inset 0 0 0 var(--ui-focus-width) var(--ui-muted-text)',
         '--ui-action-outline-opacity': '100%',
         // Glyphs and choice lists
         '--ui-disclosure-overflow': 'visible',
@@ -449,6 +457,10 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-switch-thumb': 'var(--ui-text)',
         '--ui-switch-checked-thumb': 'var(--ui-on-accent)',
         '--ui-outline-accent-weight': '0%',
+        '--ui-action-hover-fill':
+          'linear-gradient(var(--ui-action-hover-overlay), var(--ui-action-hover-overlay))',
+        '--ui-action-hover-overlay':
+          'color-mix(in srgb, var(--ui-highlight) 50%, transparent)',
         '--ui-disclosure-overflow': 'hidden',
         '--ui-disclosure-width': '12px',
         '--ui-disclosure-height': '16px',
@@ -557,6 +569,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-focus-ring': 'var(--ui-accent)',
         '--ui-highlight':
           'color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface))',
+        '--ui-action-hover-fill': 'none',
+        '--ui-action-hover-shadow': 'initial',
         '--ui-laser-shadow-y': '2px',
         '--ui-laser-shadow-blur': '12px',
         '--ui-laser-shadow-spread': '4px',

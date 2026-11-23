@@ -119,7 +119,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
   await galleryThemeCases({ page, url, record })
   await decorationGeometryCases({ page, url, record })
   await record(
-    'gallery: Sketchy ring leaves the selected tab intact',
+    'gallery: Sketchy hover ring leaves a selected tab intact',
     async () => {
       for (const scheme of [1, 2]) {
         await page.goto(`${url}?gallery=tabs&preset=default&scheme=${scheme}`)
@@ -127,7 +127,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
         const tab = list.getByRole('tab', { name: 'Details', selected: true })
         const neighbor = list.getByRole('tab', { name: 'Unavailable' })
         await expect(tab).toBeVisible()
-        await page.mouse.move(0, 0)
+        await tab.hover()
         await page.evaluate(() => document.fonts.ready)
         await expect
           .poll(() =>

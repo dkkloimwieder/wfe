@@ -1,20 +1,6 @@
 /* Undecorated presentation for themes without the dotted decoration.
    Rules stop at a nested theme root. */
 @scope ([data-ui-tokens]:not([data-ui-decoration])) to ([data-ui-tokens]) {
-  :scope
-    :is(
-      .ui-button:where(:not(.ui-section)),
-      .ui-dashboard-menu > a,
-      .ui-tabs-trigger
-    ):is(
-      [aria-pressed='true'],
-      [aria-selected='true'],
-      [aria-current='page'],
-      [data-ui-active='true']
-    ) {
-    background: var(--ui-highlight);
-    color: var(--ui-text);
-  }
   :scope .ui-icon {
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -47,9 +33,6 @@
       var(--ui-heading-weight, 500)
     );
   }
-  :scope .ui-collapsible.ui-section > summary:hover {
-    background: var(--ui-highlight);
-  }
   /* Navigation links hang from a guide line under the group title. */
   :scope .ui-sidebar-group .ui-collapsible-content {
     margin-inline-start: calc(
@@ -66,18 +49,9 @@
     color: var(--ui-text);
     border-color: transparent;
   }
-  :scope .ui-dashboard-menu > a:is(:hover, [aria-current='page']) {
-    border-color: transparent;
-    background: var(--ui-highlight);
-  }
   :scope .ui-sidebar-group[data-compact] > .ui-button {
     border-color: transparent;
     background: transparent;
-  }
-  :scope
-    .ui-sidebar-group[data-compact]
-    > .ui-button:is(:hover, [aria-pressed='true']) {
-    background: var(--ui-highlight);
   }
   :scope
     .ui-collapsible
@@ -137,16 +111,7 @@
         .group-heading button[data-group-toggle],
         .ui-calendar-navigation > button,
         .ui-datetime-back
-      ),
-    :scope
-      :is(
-        .sub-table-toggle,
-        .table-page-action,
-        [data-ui-action='header'],
-        .group-heading button[data-group-toggle],
-        .ui-calendar-navigation > button,
-        .ui-datetime-back
-      ):hover {
+      ) {
       background: transparent;
     }
   }

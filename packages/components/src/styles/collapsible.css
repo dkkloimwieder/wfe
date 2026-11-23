@@ -24,10 +24,6 @@
   padding: var(--ui-gap, 8px) var(--ui-cell-padding-x, 8px);
 }
 
-:where(.ui-collapsible[data-ui])[open] > summary {
-  color: var(--ui-text, #262626);
-}
-
 :where(.ui-collapsible[data-ui]) > summary::-webkit-details-marker {
   display: none;
 }

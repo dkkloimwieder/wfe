@@ -381,9 +381,6 @@
   border-color: transparent;
   background: transparent;
 }
-:where([data-ui]) .sub-table-toggle:hover {
-  border-color: var(--ui-border, #e5e5e5);
-}
 :where([data-ui]) .summary-controls {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

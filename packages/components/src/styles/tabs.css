@@ -12,9 +12,6 @@
   flex-direction: column;
   align-items: stretch;
 }
-:where([data-ui]) .ui-tabs-trigger[aria-selected='true'] {
-  border-color: var(--ui-accent, #1971c2);
-}
 :where(.ui-tabs-content) {
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
   min-width: 0;

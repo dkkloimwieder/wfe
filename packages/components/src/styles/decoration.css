@@ -32,8 +32,13 @@
     :is(
       .ui-button,
       .ui-dashboard-navigation a[href],
-      .ui-dashboard-menu a[href]
-    ):not([data-ui-action], .clear-input, .sub-table-toggle, .ui-section) {
+      .ui-dashboard-menu a[href],
+      summary,
+      .ui-breadcrumbs-link,
+      .ui-context-trigger,
+      .choice-toggle,
+      [data-ui-action]
+    ):not(.popup-trigger, .ui-calendar td button) {
     position: relative;
   }
   :scope
@@ -41,7 +46,12 @@
       > :is(
         .ui-button,
         .ui-dashboard-navigation a[href],
-        .ui-dashboard-menu a[href]
+        .ui-dashboard-menu a[href],
+        summary,
+        .ui-breadcrumbs-link,
+        .ui-context-trigger,
+        .choice-toggle,
+        [data-ui-action]
       )
     ) {
     isolation: isolate;
@@ -50,16 +60,19 @@
     :is(
       .ui-button,
       .ui-dashboard-navigation a[href],
-      .ui-dashboard-menu a[href]
+      .ui-dashboard-menu a[href],
+      summary,
+      .ui-breadcrumbs-link,
+      .ui-context-trigger,
+      .choice-toggle,
+      [data-ui-action]
     ):not(
       :disabled,
       [aria-disabled='true'],
       [data-disabled],
       [data-readonly],
-      [data-ui-action],
-      .clear-input,
-      .sub-table-toggle,
-      .ui-section
+      .popup-trigger,
+      .ui-calendar td button
     )::before {
     content: '';
     position: absolute;
@@ -82,74 +95,8 @@
     --_ui-dots: var(--_ui-action-dots, var(--ui-decoration-dot-color));
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
-    opacity: 0;
+    opacity: var(--_ui-action-decoration-opacity, 0);
   }
-  :scope
-    :is(
-      .ui-button,
-      .ui-dashboard-navigation a[href],
-      .ui-dashboard-menu a[href]
-    ):is(
-      [aria-pressed='true'],
-      [data-ui-active='true'],
-      [aria-selected='true'],
-      [aria-current='page']
-    )::before {
-    opacity: 1;
-  }
-  @media (hover: hover) {
-    :scope
-      :is(
-        .ui-button,
-        .ui-dashboard-navigation a[href],
-        .ui-dashboard-menu a[href]
-      ):hover::before {
-      opacity: 1;
-    }
-  }
-  @media (forced-colors: active) {
-    :scope
-      :is(
-        .ui-button,
-        .ui-dashboard-navigation a[href],
-        .ui-dashboard-menu a[href]
-      )::before {
-      display: none;
-    }
-  }
-
-  /* Neutral action faces let the backing show through without a second tint. */
-  @media (forced-colors: none) {
-    :scope
-      :is(
-        .ui-button:not([data-variant='filled'], [data-variant='inverted']),
-        .ui-dashboard-navigation a[href],
-        .ui-dashboard-menu a[href]
-      ):is(
-        :hover,
-        [aria-pressed='true'],
-        [data-ui-active='true'],
-        [aria-selected='true'],
-        [aria-current='page']
-      ):not(
-        :disabled,
-        [aria-disabled='true'],
-        [data-disabled],
-        [data-readonly],
-        [data-ui-action],
-        .clear-input,
-        .sub-table-toggle
-      ) {
-      background-color: color-mix(
-        in srgb,
-        var(--ui-canvas-surface) calc(100% - var(--ui-action-dot-visibility)),
-        transparent
-      );
-    }
-  }
-
-  /* Hover and selection keep the dotted backing without a gray tint. */
-
   /* Leave room for the decorative link outlines inside scrolling flyouts. */
   :scope .ui-sidebar-flyout {
     padding: 12px;
@@ -164,7 +111,6 @@
       .table-workspace-title-face,
       .table-controls-toggle,
       .table-workspace-header-actions .ui-icon-button,
-      .table-page-action,
       .table-page-size,
       .table-refresh
     ) {
@@ -173,9 +119,6 @@
       var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
       transparent
     );
-    --ui-button-color: var(--ui-sidebar-neutral);
-    --ui-accent: var(--ui-sidebar-neutral);
-    --ui-text: var(--ui-sidebar-accent);
     --_ui-action-dots: var(--ui-sidebar-accent);
   }
   :scope :is(.ui-sidebar-group, .ui-sidebar-flyout) .ui-dashboard-menu > a {
@@ -224,21 +167,6 @@
       );
       --_ui-outline-opacity: 100%;
     }
-    :scope
-      .ui-button[data-variant='outline'][data-tone='default']:is(
-        :focus-within,
-        [aria-pressed='true'],
-        [data-ui-active='true'],
-        [aria-selected='true'],
-        [aria-current='page']
-      ) {
-      --_ui-outline-opacity: 100%;
-    }
-    @media (hover: hover) {
-      :scope .ui-button[data-variant='outline'][data-tone='default']:hover {
-        --_ui-outline-opacity: 100%;
-      }
-    }
     :scope .ui-button[data-variant='outline'][data-tone='accent'] {
       --_ui-outline-color: var(--_button-color);
     }
@@ -251,20 +179,9 @@
         transparent
       );
     }
-    :scope .ui-dashboard-menu > a:is(:hover, [aria-current='page']) {
-      border-color: color-mix(
-        in srgb,
-        var(--ui-accent) var(--ui-action-outline-opacity),
-        transparent
-      );
-    }
     :scope
       :is(.ui-sidebar-group, .ui-sidebar-flyout)
-      .ui-button[data-variant='outline'],
-    :scope
-      :is(.ui-sidebar-group, .ui-sidebar-flyout)
-      .ui-dashboard-menu
-      > a:is(:hover, [aria-current='page']) {
+      .ui-button[data-variant='outline'] {
       border-color: color-mix(
         in srgb,
         var(--ui-control-border) var(--ui-action-outline-opacity),
@@ -294,6 +211,11 @@
     ) {
     --ui-button-color: var(--ui-muted-text);
     color: var(--ui-muted-text);
+  }
+
+  :scope
+    :is(summary, .choice-toggle, .ui-input-affix > button, [data-ui-action]) {
+    --ui-action-decoration-inset: 0px;
   }
 
   /* Actions in the table bands keep the ring inside the band padding. */
@@ -348,22 +270,8 @@
     transform-origin: center;
     scale: 0.9;
   }
-  :scope .ui-disclosure-trigger:focus-visible .ui-disclosure-decoration {
-    opacity: 1;
-  }
-  :scope .ui-disclosure-trigger:focus-visible .ui-disclosure-arrow {
-    fill: var(--ui-muted-text);
-  }
-  @media (hover: hover) {
-    :scope
-      .ui-disclosure-trigger:hover:not(:disabled, [aria-disabled='true'])
-      .ui-disclosure-indicator {
-      --_ui-expanded-disclosure-opacity: 1;
-      --_ui-expanded-disclosure-arrow: hidden;
-    }
-  }
   @media (forced-colors: none) {
-    /* Open sections use the same paint on devices without hover. */
+    /* The glyph records an open section independently of action paint. */
     :scope .ui-section[open] > summary > .ui-disclosure-indicator {
       --_ui-expanded-disclosure-opacity: 1;
       --_ui-expanded-disclosure-arrow: hidden;
@@ -516,7 +424,7 @@
 
   /* A compound face owns the backing; nested controls keep their focus outline. */
   :scope [data-ui-control-surface] [data-ui-control-surface]::before,
-  :scope [data-ui-control-surface] .ui-button::before,
+  :scope [data-ui-control-surface] .popup-trigger::before,
   :scope
     :is(.ui-toggle, .ui-radio-item):has(input:disabled)
     [data-ui-control-surface]::before {

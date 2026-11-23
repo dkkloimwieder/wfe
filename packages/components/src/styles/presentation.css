@@ -46,16 +46,10 @@
   box-shadow: var(--ui-panel-shadow);
 }
 
-/* Default-tone outline buttons mix the button color with the neutral roles.
-   Both colors resolve at the button, so local role overrides still apply.
-   A zero-specificity prefix keeps Sketchy outline rules ahead on ties. */
+/* Default-tone outline buttons use the neutral foreground in every preset. */
 :where([data-ui-tokens])
   .ui-button[data-variant='outline'][data-tone='default'] {
-  color: color-mix(
-    in srgb,
-    var(--ui-button-color, #1971c2) var(--ui-outline-accent-weight),
-    var(--ui-text)
-  );
+  color: var(--ui-text);
   border-color: color-mix(
     in srgb,
     var(--ui-button-color, var(--ui-button-border))
@@ -155,4 +149,85 @@
 }
 [data-ui-tokens] .ui-radio-control[data-checked][data-invalid] {
   border-color: var(--ui-toggle-checked-border, var(--ui-error));
+}
+
+/* State paint is layered over each action's resting variant. */
+:where([data-ui], [data-ui-tokens])
+  :is(
+    .ui-button:where(
+      :not(
+        .popup-trigger,
+        .ui-calendar td button,
+        .ui-date-range-picker > .ui-button:first-child
+      )
+    ),
+    .ui-disclosure-trigger:where(:not(.popup-trigger)),
+    .choice-toggle,
+    .ui-context-trigger,
+    .ui-breadcrumbs-link,
+    .ui-dashboard-menu > a,
+    .ui-dashboard-navigation a[href],
+    [data-ui-action]
+  ) {
+  --_ui-action-selected: 0 0 transparent;
+  --_ui-action-pressed: 0 0 transparent;
+  --_ui-action-hover: 0 0 transparent;
+
+  @media (forced-colors: none) {
+    &:is([aria-expanded='true'], :where(details[open]) > summary) {
+      background-image: var(--ui-action-open-fill);
+    }
+
+    &:not(:disabled, [aria-disabled='true'], [data-disabled], [data-readonly]) {
+      &:hover {
+        --_ui-action-hover: var(
+          --ui-action-hover-shadow,
+          var(--ui-laser-glow, var(--_ui-laser-glow, 0 0 transparent))
+        );
+        background-image: var(--ui-action-hover-fill);
+        --_ui-action-decoration-opacity: 1;
+      }
+      &:active {
+        --_ui-action-pressed: var(--ui-state-pressed-shadow);
+      }
+    }
+
+    &:is(
+      [aria-pressed='true'],
+      [aria-selected='true'],
+      [aria-current='page'],
+      [data-ui-active='true']
+    ) {
+      --_ui-action-selected: var(--ui-state-selected-shadow);
+    }
+
+    &:is(
+      :hover,
+      :active,
+      [aria-pressed='true'],
+      [aria-selected='true'],
+      [aria-current='page'],
+      [data-ui-active='true']
+    ) {
+      box-shadow:
+        var(--_ui-action-pressed), var(--_ui-action-selected),
+        var(--_ui-action-hover);
+    }
+
+    &:focus-visible {
+      outline: var(--ui-focus-width) solid var(--ui-focus-ring);
+      outline-offset: var(--ui-focus-offset);
+    }
+
+    &:is(
+      [aria-invalid='true'],
+      [data-invalid],
+      .ui-toggle-group[data-invalid] *
+    ) {
+      border-color: var(--ui-error);
+    }
+    &[data-readonly] {
+      background-image: var(--ui-action-open-fill);
+    }
+  }
 }

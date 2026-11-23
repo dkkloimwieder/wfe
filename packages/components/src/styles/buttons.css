@@ -16,33 +16,11 @@
 :where([data-ui]) :where(.ui-button)[hidden] {
   display: none;
 }
-:where([data-ui])
-  button:hover:not(
-    :disabled,
-    [aria-disabled='true'],
-    [data-disabled],
-    [data-readonly]
-  ),
-:where([data-ui])
-  :where(.ui-button):hover:not(
-    :disabled,
-    [aria-disabled='true'],
-    [data-disabled],
-    [data-readonly]
-  ) {
-  background-color: var(--ui-highlight, #f5f5f5);
-}
-
 :where([data-ui]) .ui-button {
   text-decoration: none;
   font-weight: var(--ui-button-font-weight, 500);
   --_button-color: var(--ui-text, #262626);
   --_button-contrast: var(--ui-surface, #fcfcfd);
-  --_button-hover: var(--ui-button-filled-hover, var(--_button-color));
-  --_button-inverted-hover: var(
-    --ui-button-inverted-hover,
-    var(--_button-contrast)
-  );
 }
 :where([data-ui]) .ui-button[data-tone='default'] {
   --_button-color: var(--ui-button-color, var(--ui-text, #262626));
@@ -58,11 +36,6 @@
 :where([data-ui]) .ui-button[data-tone='accent'] {
   --_button-color: var(--ui-accent, var(--ui-text, #262626));
   --_button-contrast: var(--ui-on-accent, var(--ui-surface, #fcfcfd));
-  --_button-hover: var(--ui-accent-hover, var(--_button-color));
-  --_button-inverted-hover: var(
-    --ui-accent-inverted-hover,
-    var(--_button-contrast)
-  );
 }
 :where([data-ui]) .ui-button[data-variant='filled'] {
   border-color: var(--_button-color);
@@ -74,23 +47,6 @@
   background: var(--_button-contrast);
   color: var(--_button-color);
 }
-:where([data-ui])
-  .ui-button[data-variant='filled']:hover:not(
-    :disabled,
-    [aria-disabled='true']
-  ) {
-  border-color: var(--_button-hover);
-  background: var(--_button-hover);
-}
-:where([data-ui])
-  .ui-button[data-variant='inverted']:hover:not(
-    :disabled,
-    [aria-disabled='true']
-  ) {
-  border-color: var(--_button-inverted-hover);
-  background: var(--_button-inverted-hover);
-  color: var(--_button-hover);
-}
 :where([data-ui]) .ui-button[data-tone='accent'][data-variant='outline'],
 :where([data-ui]) .ui-button[data-tone='accent'][data-variant='ghost'] {
   color: var(--_button-color);
@@ -101,13 +57,6 @@
 :where([data-ui]) .ui-button[data-variant='ghost'] {
   border-color: transparent;
   background: transparent;
-}
-:where([data-ui])
-  .ui-button[data-variant='ghost']:hover:not(
-    :disabled,
-    [aria-disabled='true']
-  ) {
-  background: var(--ui-highlight, var(--ui-surface, #fcfcfd));
 }
 @media (forced-colors: active) {
   :where([data-ui])

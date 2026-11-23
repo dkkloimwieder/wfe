@@ -449,7 +449,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
     )
 
     await record(
-      'Sketchy sections keep the smaller hover triangle open',
+      'Sketchy sections keep the open indicator distinct from hover',
       async () => {
         const section = page
           .getByRole('navigation', { name: 'Theme tokens' })
@@ -474,26 +474,15 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
         assert.deepEqual(normal, { opacity: '0', arrow: 'visible' })
 
         await summary.hover()
-        const expanded = await appearance()
-        assert.deepEqual(expanded, { opacity: '1', arrow: 'hidden' })
-        const size = () =>
-          glyph.evaluate((path) => {
-            const { width, height } = path.getBBox()
-            const { a, b, c, d } = path.getScreenCTM()
-            return [width * Math.hypot(a, b), height * Math.hypot(c, d)]
-          })
-        const hoverSize = await size()
+        assert.deepEqual(await appearance(), normal)
 
         await summary.click()
         await expect(section).toHaveAttribute('open', '')
         await page.mouse.move(0, 0)
-        assert.deepEqual(await appearance(), expanded)
-        const openSize = await size()
-        // The a8b1b39 hover path measured 14.26359 × 20.37656 CSS pixels.
-        for (const [index, earlier] of [14.26359, 20.37656].entries()) {
-          assert.ok(Math.abs(openSize[index] / earlier - 0.9) < 0.001)
-          assert.ok(Math.abs(openSize[index] - hoverSize[index]) < 0.01)
-        }
+        assert.deepEqual(await appearance(), {
+          opacity: '1',
+          arrow: 'hidden',
+        })
 
         await summary.click()
         await expect(section).not.toHaveAttribute('open')
