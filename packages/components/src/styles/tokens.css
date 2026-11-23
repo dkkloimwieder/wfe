@@ -119,7 +119,7 @@
   --ui-focus-width: 1px;
   --ui-focus-offset: 0px;
   --ui-disabled-opacity: 0.5;
-  --ui-disabled-fill-darkening: 3%;
+  --ui-disabled-fill-darkening: 45%;
   --ui-disabled-text: color-mix(
     in srgb,
     var(--ui-text) calc(var(--ui-disabled-opacity) * 100%),

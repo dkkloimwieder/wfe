@@ -59,7 +59,7 @@
     ) {
     --_ui-disabled-fill: color-mix(
       in srgb,
-      black var(--ui-disabled-fill-darkening, 3%),
+      black var(--ui-disabled-fill-darkening, 45%),
       var(--_button-color)
     );
     border-color: var(--_ui-disabled-fill);
