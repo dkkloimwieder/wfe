@@ -181,6 +181,7 @@
   --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
   --ui-input-decoration-border-color: var(--ui-neutral-border-color);
   --ui-toggle-checked-surface: initial;
+  --ui-toggle-invalid-checked-surface: initial;
   --ui-toggle-checked-border: initial;
   --ui-toggle-checked-text: initial;
   --ui-switch-track: initial;
@@ -323,6 +324,7 @@
   --ui-input-decoration-display: none;
   --ui-input-disclosure-arrow-visibility: visible;
   --ui-toggle-checked-surface: var(--ui-primary);
+  --ui-toggle-invalid-checked-surface: var(--ui-error);
   --ui-toggle-checked-border: var(--ui-primary);
   --ui-toggle-checked-text: var(--ui-on-primary);
   --ui-switch-track: var(--ui-border);

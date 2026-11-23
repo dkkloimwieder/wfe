@@ -42,6 +42,23 @@
   border-color: var(--ui-error, #9d251e);
 }
 
+:where([data-ui]).ui-slider:is([data-invalid], [aria-invalid='true']):not(
+    [data-disabled],
+    [aria-disabled='true']
+  )
+  .ui-slider-fill {
+  background-color: var(--ui-error, #9d251e);
+}
+
+:where([data-ui])
+  .ui-progress:is(
+    [data-invalid],
+    [aria-invalid='true'],
+    .ui-field:is([data-invalid], [aria-invalid='true']) *
+  ):not([data-disabled], [aria-disabled='true'], fieldset:disabled *) {
+  accent-color: var(--ui-error, #9d251e);
+}
+
 :where([data-ui], [data-ui] *)
   :is(.ui-control-frame, .ui-input-affix, .filter-input):has(
     > :is(input, textarea, select):is(:disabled, [aria-disabled='true'])
