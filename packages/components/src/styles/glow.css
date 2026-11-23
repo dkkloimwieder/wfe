@@ -57,7 +57,7 @@
           var(--ui-accent)
             calc(
               var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1) *
-                0.6
+                var(--ui-laser-inset-glow-strength)
             ),
           transparent
         ),

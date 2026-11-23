@@ -865,6 +865,25 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
               `${preset} ${mode} forced hover`,
             )
           }
+
+          const insetStrength = await page
+            .locator(
+              '[data-preset="laser"][data-variant="button/text/accent/outline/hover"] .ui-button',
+            )
+            .evaluate((button) => {
+              const style = getComputedStyle(button)
+              const inset = style.boxShadow
+                .split(/,(?![^()]*\))/)
+                .find((layer) => layer.includes('inset'))
+              const alpha = inset?.match(/\/\s*([\d.]+)\)/)?.[1]
+              const opacity = style.getPropertyValue('--ui-laser-glow-opacity')
+              return Number(alpha) / (parseFloat(opacity) / 100)
+            })
+          // The inset originally used 60% of the shared glow opacity.
+          assert.ok(
+            Math.abs(insetStrength - 0.6 / 2) < 0.000001,
+            `Laser ${mode} inset opacity should be half its original strength, got ${insetStrength}`,
+          )
           assert.deepEqual(report.errors, [])
           assert.deepEqual(report.warnings, [])
           report.variants ??= {}
