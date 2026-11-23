@@ -301,6 +301,14 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         // Default-tone outline buttons: 100% uses the button color, 0% the neutral text and border.
         '--ui-outline-accent-weight': '100%',
         '--ui-action-hover-fill': 'none',
+        '--ui-field-hover-fill': 'var(--ui-action-hover-fill)',
+        '--ui-field-hover-overlay': 'transparent',
+        '--ui-state-invalid-shadow':
+          'inset 0 0 0 var(--ui-border-width) var(--ui-error)',
+        '--ui-state-readonly-shadow':
+          'inset 0 0 0 var(--ui-border-width) var(--ui-muted-text)',
+        '--ui-state-open-shadow':
+          '0 0 0 var(--ui-border-width) var(--ui-accent)',
         '--ui-action-hover-shadow': '0 0 transparent',
         '--ui-action-open-fill':
           'linear-gradient(var(--ui-highlight), var(--ui-highlight))',
@@ -571,6 +579,10 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
           'color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface))',
         '--ui-action-hover-fill': 'none',
         '--ui-action-hover-shadow': 'initial',
+        '--ui-field-hover-fill':
+          'linear-gradient(var(--ui-field-hover-overlay), var(--ui-field-hover-overlay))',
+        '--ui-field-hover-overlay':
+          'var(--ui-laser-action-surface, color-mix(in srgb, var(--ui-accent) 12%, transparent))',
         '--ui-laser-shadow-y': '2px',
         '--ui-laser-shadow-blur': '12px',
         '--ui-laser-shadow-spread': '4px',

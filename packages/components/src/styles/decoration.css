@@ -38,7 +38,11 @@
       .ui-context-trigger,
       .choice-toggle,
       [data-ui-action]
-    ):not(.popup-trigger, .ui-calendar td button) {
+    ):not(
+      .popup-trigger,
+      .ui-calendar td button,
+      .ui-date-range-picker > .ui-button:first-child
+    ) {
     position: relative;
   }
   :scope
@@ -72,7 +76,8 @@
       [data-disabled],
       [data-readonly],
       .popup-trigger,
-      .ui-calendar td button
+      .ui-calendar td button,
+      .ui-date-range-picker > .ui-button:first-child
     )::before {
     content: '';
     position: absolute;
@@ -390,13 +395,7 @@
     );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
-    opacity: 0;
-  }
-  :scope [data-ui-control-surface]:is(:hover, :focus-within)::before,
-  :scope
-    :is(.ui-toggle, .ui-radio-item):focus-within
-    [data-ui-control-surface]::before {
-    opacity: 1;
+    opacity: var(--_ui-field-decoration-opacity, 0);
   }
   :scope
     [data-ui-control-surface]:is(

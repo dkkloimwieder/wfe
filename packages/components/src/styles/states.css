@@ -93,39 +93,6 @@
   background-color: var(--ui-highlight, #f5f5f5);
 }
 
-/* All editable field surfaces share one hover state, including compound fields. */
-:where([data-ui])
-  :is(
-    .ui-input,
-    .ui-textarea,
-    .ui-native-select,
-    .popup-trigger,
-    .choice-input
-  ):hover:not(
-    :disabled,
-    [readonly],
-    [aria-disabled='true'],
-    [data-disabled],
-    [data-readonly]
-  ),
-:where([data-ui])
-  :is(.ui-input-affix, .filter-input):hover
-  :is(input, select, button):not(
-    :disabled,
-    [readonly],
-    [aria-disabled='true'],
-    [data-disabled],
-    [data-readonly]
-  ),
-:where([data-ui])
-  .choice-control:not([data-disabled], [data-readonly]):hover
-  :is(input, button):not(
-    :disabled,
-    [readonly],
-    [aria-disabled='true'],
-    [data-disabled],
-    [data-readonly]
-  ),
 :where([data-ui])
   :is(.ui-check-control, .ui-radio-control, .ui-switch-control):hover:not(
     [data-disabled],
@@ -139,24 +106,6 @@
   cursor: default;
 }
 
-:where([data-ui])
-  :is(
-    .ui-input,
-    .ui-textarea,
-    .ui-native-select,
-    .choice-input,
-    .popup-trigger
-  ):focus-visible:not([aria-invalid='true'], [data-invalid]) {
-  border-color: var(--ui-focus-ring, var(--ui-control-border, #e5e5e5));
-}
-
-:where([data-ui])
-  :is(.ui-input-affix, .filter-input, .choice-control):has(
-    input:focus-visible
-  ):not(:has([aria-invalid='true'], [data-invalid]))
-  > :is(input, button.ui-button, button.choice-toggle) {
-  border-color: var(--ui-focus-ring, var(--ui-control-border, #e5e5e5));
-}
 :where([data-ui])
   :is(.ui-input-affix, .filter-input, .choice-control):has(
     [aria-invalid='true'],

@@ -145,6 +145,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
         >
           <Popover.Trigger
             as={Button}
+            data-ui-control-surface=""
             {...target}
             id={id()}
             aria-label={[props.label, display()].filter(Boolean).join(': ')}

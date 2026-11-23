@@ -16,6 +16,7 @@
       .table-workspace-title-face,
       .popup-trigger,
       .ui-control-frame,
+      .ui-file-input,
       .ui-input-affix,
       .filter-input,
       .choice-control,
@@ -124,43 +125,6 @@
   }
   :scope
     :is(
-      .popup-trigger,
-      .ui-control-frame,
-      .ui-input-affix,
-      .filter-input,
-      .choice-control
-    ):is(:hover, :focus-within):not(
-      :disabled,
-      [aria-disabled='true'],
-      [data-disabled],
-      [data-readonly]
-    ):not(
-      :has(
-        input:disabled,
-        input[readonly],
-        textarea:disabled,
-        textarea[readonly],
-        select:disabled,
-        .popup-trigger:is(
-          [aria-disabled='true'],
-          [data-disabled],
-          [data-readonly]
-        ),
-        [role='slider']:is([aria-disabled='true'], [aria-readonly='true'])
-      )
-    ) {
-    box-shadow: var(
-      --ui-laser-control-glow,
-      var(--ui-laser-glow, var(--_ui-laser-glow))
-    );
-  }
-  :scope
-    :is(.ui-input-affix, .filter-input, .choice-control)
-    > :is(button, input, .ui-control-frame) {
-    box-shadow: none;
-  }
-  :scope
-    :is(
       .ui-check-control,
       .ui-radio-control,
       .ui-switch-control
@@ -175,127 +139,6 @@
   :scope .column-header:is(:hover, :focus-within) {
     background: var(--ui-highlight);
   }
-  /* Ordinary actions retain border geometry; glyph-only roles refine paint below. */
-  @media (forced-colors: none) {
-    :scope
-      .popup-trigger:is(
-        :hover,
-        :focus-within,
-        [aria-pressed='true'],
-        [aria-selected='true']
-      ):not(
-        :disabled,
-        [aria-disabled='true'],
-        [data-disabled],
-        [data-readonly]
-      ) {
-      background: var(
-        --_ui-laser-control-surface,
-        var(
-          --ui-laser-action-surface,
-          color-mix(in srgb, var(--ui-accent) 12%, transparent)
-        )
-      );
-      background-clip: border-box;
-      &:not(
-        [aria-invalid='true'],
-        [data-invalid],
-        :where(
-            .ui-control-frame,
-            .ui-input-affix,
-            .filter-input,
-            .choice-control
-          ):is(
-            [aria-invalid='true'],
-            [data-invalid],
-            :has([aria-invalid='true'], [data-invalid])
-          )
-          *
-      ) {
-        border-color: transparent;
-      }
-      color: var(--ui-text);
-      box-shadow: var(
-        --ui-laser-control-glow,
-        var(--ui-laser-glow, var(--_ui-laser-glow))
-      );
-    }
-
-    /* The outer field surface owns paint; native borders keep their geometry. */
-    :scope
-      :is(
-        .ui-control-frame:has(
-          > :is(.ui-input, .ui-textarea, .ui-native-select, .choice-input)
-        ),
-        .ui-input-affix,
-        .filter-input,
-        .choice-control
-      ):is(:hover, :focus-within):not(
-        [aria-disabled='true'],
-        [data-disabled],
-        [data-readonly]
-      ):not(
-        :has(
-          :is(input, textarea, select):is(:disabled, [readonly]),
-          .popup-trigger:is(
-            [aria-disabled='true'],
-            [data-disabled],
-            [data-readonly]
-          )
-        )
-      ) {
-      background: var(
-        --ui-laser-action-surface,
-        color-mix(in srgb, var(--ui-accent) 12%, transparent)
-      );
-      &
-        :is(
-          input.ui-input,
-          textarea.ui-textarea,
-          select.ui-native-select,
-          input.choice-input,
-          .popup-trigger
-        ):not(
-          :disabled,
-          [readonly],
-          [aria-disabled='true'],
-          [data-disabled],
-          [data-readonly]
-        ) {
-        background-color: transparent;
-        &:not(
-          [aria-invalid='true'],
-          [data-invalid],
-          :where(
-              .ui-control-frame,
-              .ui-input-affix,
-              .filter-input,
-              .choice-control
-            ):is(
-              [aria-invalid='true'],
-              [data-invalid],
-              :has([aria-invalid='true'], [data-invalid])
-            )
-            *
-        ) {
-          border-color: transparent;
-        }
-      }
-      & > :is(.ui-control-frame, button) {
-        background-color: transparent;
-        box-shadow: none;
-      }
-      &:not(
-          [aria-invalid='true'],
-          [data-invalid],
-          :has([aria-invalid='true'], [data-invalid])
-        )
-        > button:not([aria-invalid='true'], [data-invalid]) {
-        border-color: transparent;
-      }
-    }
-  }
-
   /* Preserve frameless rest paint on icon actions. */
   :scope
     :is(

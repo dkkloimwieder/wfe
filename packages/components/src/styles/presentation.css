@@ -231,3 +231,113 @@
     }
   }
 }
+
+/* One painted frame for each field, including fields with several parts. */
+:where([data-ui], [data-ui-tokens])
+  :is(
+    .ui-control-frame:where(
+      :not(:is(.ui-input-affix, .filter-input, .choice-control) *)
+    ),
+    .ui-input-affix,
+    .filter-input,
+    .choice-control,
+    .popup-trigger:where(
+      :not(:is(.ui-input-affix, .filter-input, .choice-control) *)
+    ),
+    .ui-date-range-picker > .ui-button:first-child,
+    .ui-file-input
+  ) {
+  --_ui-field-halo: var(
+    --ui-action-hover-shadow,
+    var(
+      --ui-laser-control-glow,
+      var(--ui-laser-glow, var(--_ui-laser-glow, 0 0 transparent))
+    )
+  );
+  --_ui-field-inset: 0 0 transparent;
+  --_ui-field-decoration-opacity: 0;
+
+  @media (forced-colors: none) {
+    &:not(
+      :disabled,
+      [aria-disabled='true'],
+      [data-disabled],
+      [data-readonly],
+      :has(:is(input, select, textarea):is(:disabled, [readonly]))
+    ) {
+      &:hover {
+        background-image: var(--ui-field-hover-fill);
+        box-shadow: var(--_ui-field-inset), var(--_ui-field-halo);
+        --_ui-field-decoration-opacity: 1;
+      }
+      &:active {
+        --_ui-field-inset: var(--ui-state-pressed-shadow);
+        box-shadow: var(--_ui-field-inset), var(--_ui-field-halo);
+      }
+    }
+
+    &:is(:focus-visible, :has(:focus-visible)) {
+      outline: var(--ui-focus-width) solid var(--ui-focus-ring);
+      outline-offset: var(--ui-focus-offset);
+    }
+
+    &:is(
+      [aria-invalid='true'],
+      [data-invalid],
+      :has(:is(input, select, textarea)[aria-invalid='true'])
+    ) {
+      box-shadow: var(--ui-state-invalid-shadow);
+    }
+
+    &:is([aria-expanded='true'], :has([aria-expanded='true'])) {
+      background-image: var(--ui-action-open-fill);
+      box-shadow: var(--ui-state-open-shadow);
+    }
+
+    &:is(
+      [data-disabled],
+      :disabled,
+      :has(:is(input, select, textarea):disabled)
+    ) {
+      color: var(--ui-disabled-text);
+      background-color: var(--ui-muted-surface);
+    }
+
+    &:is([data-readonly], :has(:is(input, textarea)[readonly])) {
+      background-color: var(--ui-muted-surface);
+      box-shadow: var(--ui-state-readonly-shadow);
+    }
+  }
+}
+
+/* A frame paints behind its input. Keep the editing surface transparent so
+   one field cue spans all its parts, including the adornments. */
+:where([data-ui-tokens])
+  :is(.ui-control-frame, .ui-input-affix, .filter-input, .choice-control):is(
+    :hover,
+    :active,
+    :has([aria-expanded='true'])
+  )
+  :is(input, select, textarea):not(:disabled, [readonly], [type='hidden']) {
+  background-color: transparent;
+}
+
+:where([data-ui-tokens])
+  :is(
+    .ui-control-frame:where(
+      :not(:is(.ui-input-affix, .filter-input, .choice-control) *)
+    ),
+    .ui-input-affix,
+    .filter-input,
+    .choice-control
+  ) {
+  background-color: var(--ui-control-surface);
+}
+
+@media (forced-colors: none) {
+  :where([data-ui-tokens])
+    .ui-control-frame
+    > :is(input, select, textarea):focus-visible {
+    outline: none;
+  }
+}
