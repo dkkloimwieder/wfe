@@ -149,7 +149,12 @@
       );
       --_ui-outline-opacity: 100%;
     }
-    :scope .ui-button[data-variant='outline'][data-tone='primary'] {
+    :scope
+      .ui-button[data-variant='outline']:is(
+        [data-tone='primary'],
+        [data-tone='secondary'],
+        [data-tone='accent']
+      ) {
       --_ui-outline-color: var(--_button-color);
     }
     :scope .ui-button[data-variant='outline'] {
@@ -339,6 +344,12 @@
     --ui-input-decoration-dot-color: var(--ui-secondary);
     --ui-input-decoration-border-color: var(--ui-secondary);
   }
+  :scope [data-ui-control-decoration='accent'] {
+    --ui-input-decoration-display: block;
+    --ui-input-disclosure-arrow-visibility: hidden;
+    --ui-input-decoration-dot-color: var(--ui-accent);
+    --ui-input-decoration-border-color: var(--ui-accent);
+  }
   :scope :has(> :is([data-ui-control-surface], [data-ui-section-decoration])) {
     isolation: isolate;
   }
@@ -462,6 +473,14 @@
     )::before {
     --ui-input-decoration-dot-color: var(--ui-secondary);
     --ui-input-decoration-border-color: var(--ui-secondary);
+  }
+  :scope [data-ui-section-decoration='accent']::before,
+  :scope
+    [data-popper-positioner]:has(
+      > .ui-menu[data-ui-section-decoration='accent']
+    )::before {
+    --ui-input-decoration-dot-color: var(--ui-accent);
+    --ui-input-decoration-border-color: var(--ui-accent);
   }
   :scope [data-ui-section-decoration][data-ui-section-always]::before,
   :scope [data-ui-section-decoration][data-ui-section-active]::before,

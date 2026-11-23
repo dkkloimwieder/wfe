@@ -16,6 +16,6 @@ The hex input retains incomplete text and blocks native form submission until th
 
 The swatch opens a themed popup with keyboard-accessible red, green, and blue sliders. `disabled` and `readonly` prevent changes. A surrounding `Field` supplies those states and label associations. `name` and `form` submit the application value through a hidden input.
 
-`decoration` accepts `false`, `neutral`, `primary`, or `secondary`, like other inputs. The component uses the shared surface, border, radius, spacing, and accent variables. `messages` replaces the popup title, opener label, channel labels, and invalid-value message.
+`decoration` accepts `false`, `neutral`, `primary`, `secondary`, or `accent`, like other inputs. The component uses the shared surface, border, radius, spacing, and color variables. `messages` replaces the popup title, opener label, channel labels, and invalid-value message.
 
 The gallery includes a Color picker page under Forms.

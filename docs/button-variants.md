@@ -1,7 +1,7 @@
 # Button variants
 
 `Button` and `IconButton` accept `variant="outline"`, `"filled"`, `"inverted"`, or `"ghost"`.
-`tone="neutral"` or `tone="primary"` selects color independently of the variant.
+Set `tone` to `"neutral"`, `"primary"`, `"secondary"`, or `"accent"` to choose a color independently of the variant.
 Outline is the default variant. Omitting `tone` uses the theme's button color roles, including `--ui-button-color` and `--ui-button-on-color`.
 This differs from explicit `tone="neutral"`, which uses the neutral text and surface roles.
 The internal `data-tone="default"` marker represents the omitted-tone behavior. `"default"` is not a supported `ButtonTone` prop value.
@@ -9,11 +9,11 @@ Variants preserve dimensions, square corners, focus, disabled behavior, events, 
 The application chooses the variant for each action. Variants do not imply permissions, submission, or confirmation.
 
 Neutral outline uses the existing surface, text, and button border.
-Primary outline uses `--ui-primary` for its text and border at rest.
+Colored outlines use their selected role for text and borders at rest.
 Filled uses the selected tone as its background, with a contrasting foreground.
-Neutral filled uses the text and surface colors. Primary filled uses `--ui-primary` and `--ui-on-primary`.
-Set both primary properties together and choose readable text contrast.
-If those properties are absent, primary falls back to the existing text and surface colors.
+Neutral filled uses the text and surface colors. A filled color role uses its matching foreground.
+Set the color and foreground properties together when you choose custom colors.
+If those properties are absent, colored tones fall back to the existing text and surface colors.
 Inverted swaps the selected filled button's foreground and background.
 A primary filled button with a blue background and white text becomes white with blue text when inverted.
 Ghost uses a transparent border and background, with text in the selected tone. Its border still reserves space.
@@ -25,7 +25,7 @@ The defaults mix existing colors. Custom themes must preserve readable contrast 
 All variants retain the shared focus outline. Forced colors use system button colors and a visible border.
 
 The Table and form previews show four button samples beside the appearance controls.
-The TONE controls switch all four samples between neutral and primary.
+The Tone controls apply Neutral, Primary, Secondary, or Accent to all four samples.
 The samples start with primary tone so outline and filled show the selected primary color. The preview chooses black or white text from its existing samples for readable contrast.
 Inverted reverses the selected tone, rather than switching to an unrelated neutral fill.
 The previews do not change existing application actions or save appearance choices.

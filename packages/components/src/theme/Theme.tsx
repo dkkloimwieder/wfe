@@ -14,6 +14,7 @@ import {
   paletteRoles,
   schemes,
   secondaryColors,
+  accentColors,
 } from './palette'
 import {
   presetDefaults,
@@ -39,6 +40,7 @@ export type ThemePrimary =
   | 'choco'
 export type ThemeSecondary =
   ThemePrimary | 'yellow' | 'light-blue' | 'dark-blue'
+export type ThemeAccent = ThemeSecondary
 export type ThemeOptions = {
   preset?: ThemePreset
   density?: ThemeDensity
@@ -51,6 +53,7 @@ export type ThemeOptions = {
   glow?: boolean
   primary?: ThemePrimary
   secondary?: ThemeSecondary
+  accent?: ThemeAccent
   layers?: Partial<SurfaceLayers>
   dividers?: Partial<TableDividers>
   decorations?: Partial<Omit<Decorations, 'secondary'>>
@@ -67,6 +70,7 @@ export const themeTokenBlocks = tokenBlocks({
   schemes,
   primaryColors,
   secondaryColors,
+  accentColors,
   roles: paletteRoles,
   densities: UI_DENSITIES,
 })
@@ -80,6 +84,7 @@ export function themeChoices(options: ThemeOptions = {}): TokenChoices {
     density: options.density ?? 'default',
     primary: options.primary,
     secondary: options.secondary,
+    accent: options.accent,
     canvas: options.layers?.canvas,
     pane: options.layers?.pane,
     content: options.layers?.content,
@@ -218,6 +223,7 @@ export function Theme(props: ThemeProps) {
           data-ui-density={choices().density}
           data-ui-primary={choices().primary}
           data-ui-secondary={choices().secondary}
+          data-ui-accent={choices().accent}
           data-ui-canvas={choices().canvas}
           data-ui-pane={choices().pane}
           data-ui-content={choices().content}

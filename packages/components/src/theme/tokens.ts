@@ -22,7 +22,11 @@ export type TokenPreset = 'default' | 'vanilla' | 'laser'
 export type TokenMode = 'light' | 'dark' | 'monochrome'
 export type TokenDensity = 'default' | 'compact' | 'comfortable'
 export type TokenLevel = 0 | 1 | 2 | 3
-export type TokenDecorationColor = 'neutral' | 'primary' | 'secondary'
+const paletteRoles = ['primary', 'secondary', 'accent'] as const
+type PaletteRole = (typeof paletteRoles)[number]
+export const colorRoles = ['neutral', ...paletteRoles] as const
+export type ColorRole = (typeof colorRoles)[number]
+export type TokenDecorationColor = ColorRole
 export type TokenInputDecoration = 'none' | TokenDecorationColor
 
 /** The application choices that select token blocks. */
@@ -32,6 +36,7 @@ export type TokenChoices = {
   density: TokenDensity
   primary?: string
   secondary?: string
+  accent?: string
   canvas?: TokenLevel
   pane?: TokenLevel
   content?: TokenLevel
@@ -49,6 +54,7 @@ export type TokenCondition = {
   density?: TokenDensity
   primary?: string | null
   secondary?: string
+  accent?: string
   canvas?: TokenLevel
   pane?: TokenLevel
   content?: TokenLevel
@@ -71,6 +77,7 @@ export const tokenAttributes: Record<keyof TokenChoices, string> = {
   density: 'data-ui-density',
   primary: 'data-ui-primary',
   secondary: 'data-ui-secondary',
+  accent: 'data-ui-accent',
   canvas: 'data-ui-canvas',
   pane: 'data-ui-pane',
   content: 'data-ui-content',
@@ -85,6 +92,7 @@ export type TokenSources = {
   schemes: readonly SurfaceScheme[]
   primaryColors: readonly PaletteColor[]
   secondaryColors: readonly PaletteColor[]
+  accentColors: readonly PaletteColor[]
   roles: PaletteRoles
   densities: Readonly<
     Record<
@@ -165,6 +173,24 @@ const surfaceDividers = dividers(
   [1, 2, 3, 4].map((n) => `var(--ui-surface-${n})`),
 )
 const plain: readonly TokenPreset[] = ['vanilla', 'laser']
+
+function paletteTokens(role: PaletteRole, color: PaletteColor) {
+  return {
+    [`--ui-${role}-light`]: color.light,
+    [`--ui-${role}-dark`]: color.dark,
+    [`--ui-on-${role}-light`]: contrastText(color.light),
+    [`--ui-on-${role}-dark`]: contrastText(color.dark),
+  }
+}
+
+function modeColorTokens(mode: 'light' | 'dark') {
+  return Object.fromEntries(
+    paletteRoles.flatMap((role) => [
+      [`--ui-${role}`, `var(--ui-${role}-${mode})`],
+      [`--ui-on-${role}`, `var(--ui-on-${role}-${mode})`],
+    ]),
+  )
+}
 
 /** Every token block in cascade order. Later blocks win. */
 export function tokenBlocks(source: TokenSources): TokenBlock[] {
@@ -260,20 +286,21 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-table-row-divider': 'var(--ui-divider-2)',
         '--ui-table-column-divider': 'var(--ui-divider-2)',
         // Color and status
-        '--ui-primary-light': blue.light,
-        '--ui-primary-dark': blue.dark,
-        '--ui-on-primary-light': contrastText(blue.light),
-        '--ui-on-primary-dark': contrastText(blue.dark),
-        '--ui-secondary-light': blue.light,
-        '--ui-secondary-dark': blue.dark,
-        '--ui-primary': 'var(--ui-primary-light)',
-        '--ui-on-primary': 'var(--ui-on-primary-light)',
-        '--ui-secondary': 'var(--ui-secondary-light)',
+        ...Object.fromEntries(
+          paletteRoles.flatMap((role) =>
+            Object.entries(paletteTokens(role, blue)),
+          ),
+        ),
+        ...modeColorTokens('light'),
         '--ui-sidebar-primary': 'var(--ui-primary)',
         '--ui-button-color': 'var(--ui-primary)',
         '--ui-button-on-color': 'var(--ui-on-primary)',
-        '--ui-primary-hover': 'var(--ui-primary)',
-        '--ui-primary-inverted-hover': 'var(--ui-on-primary)',
+        ...Object.fromEntries(
+          paletteRoles.flatMap((role) => [
+            [`--ui-${role}-hover`, `var(--ui-${role})`],
+            [`--ui-${role}-inverted-hover`, `var(--ui-on-${role})`],
+          ]),
+        ),
         '--ui-success': '#37734c',
         '--ui-warning-surface': '#fff7d9',
         '--ui-warning-text': '#765200',
@@ -375,9 +402,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-muted-text': dark.text[1],
         '--ui-border': roles.darkBorder,
         '--ui-neutral-button-border': roles.darkBorder,
-        '--ui-primary': 'var(--ui-primary-dark)',
-        '--ui-on-primary': 'var(--ui-on-primary-dark)',
-        '--ui-secondary': 'var(--ui-secondary-dark)',
+        ...modeColorTokens('dark'),
         '--ui-success': '#8ce99a',
         '--ui-warning-surface': '#39301c',
         '--ui-warning-text': '#f1d68c',
@@ -623,10 +648,15 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-text': '#e0eaff',
         '--ui-muted-text': '#a4b4d0',
         '--ui-border': '#252c39',
-        '--ui-primary': 'color-mix(in srgb, var(--ui-primary-dark) 80%, white)',
-        '--ui-secondary':
-          'color-mix(in srgb, var(--ui-secondary-dark) 80%, white)',
-        '--ui-on-primary': '#050505',
+        ...Object.fromEntries(
+          paletteRoles.flatMap((role) => [
+            [
+              `--ui-${role}`,
+              `color-mix(in srgb, var(--ui-${role}-dark) 80%, white)`,
+            ],
+            [`--ui-on-${role}`, '#050505'],
+          ]),
+        ),
         '--ui-highlight':
           'color-mix(in srgb, var(--ui-primary) 12%, var(--ui-surface))',
         '--ui-laser-shadow-color': 'transparent',
@@ -647,8 +677,12 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-text': '#000000',
         '--ui-muted-text': '#000000',
         '--ui-border': '#000000',
-        '--ui-primary': '#000000',
-        '--ui-secondary': '#000000',
+        ...Object.fromEntries(
+          paletteRoles.flatMap((role) => [
+            [`--ui-${role}`, '#000000'],
+            [`--ui-on-${role}`, '#ffffff'],
+          ]),
+        ),
         '--ui-laser-elevation': 'none',
         '--ui-laser-glow': 'none',
         '--ui-laser-icon-shadow': 'none',
@@ -657,26 +691,13 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
       },
     },
   )
-  for (const accent of source.primaryColors)
-    blocks.push({
-      title: `${accent.name} primary`,
-      when: { primary: paletteColorName(accent) },
-      tokens: {
-        '--ui-primary-light': accent.light,
-        '--ui-primary-dark': accent.dark,
-        '--ui-on-primary-light': contrastText(accent.light),
-        '--ui-on-primary-dark': contrastText(accent.dark),
-      },
-    })
-  for (const accent of source.secondaryColors)
-    blocks.push({
-      title: `${accent.name} secondary`,
-      when: { secondary: paletteColorName(accent) },
-      tokens: {
-        '--ui-secondary-light': accent.light,
-        '--ui-secondary-dark': accent.dark,
-      },
-    })
+  for (const role of paletteRoles)
+    for (const color of source[`${role}Colors`])
+      blocks.push({
+        title: `${color.name} ${role}`,
+        when: { [role]: paletteColorName(color) },
+        tokens: paletteTokens(role, color),
+      })
   for (const level of [0, 1, 2] as const) {
     const surface = `var(--ui-surface-${level + 1})`
     blocks.push(
@@ -712,29 +733,25 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
       },
     )
   }
-  const decorationColor = {
-    neutral: undefined,
-    primary: 'var(--ui-primary)',
-    secondary: 'var(--ui-secondary)',
-  } as const
-  for (const color of ['primary', 'secondary'] as const) {
+  for (const role of paletteRoles) {
+    const color = `var(--ui-${role})`
     blocks.push(
       {
-        title: `${color} decoration dots`,
-        when: { dotColor: color },
-        tokens: { '--ui-decoration-dot-color': decorationColor[color] },
+        title: `${role} decoration dots`,
+        when: { dotColor: role },
+        tokens: { '--ui-decoration-dot-color': color },
       },
       {
-        title: `${color} decoration borders`,
-        when: { borderColor: color },
-        tokens: { '--ui-decoration-border-color': decorationColor[color] },
+        title: `${role} decoration borders`,
+        when: { borderColor: role },
+        tokens: { '--ui-decoration-border-color': color },
       },
       {
-        title: `${color} input decoration`,
-        when: { inputDecoration: color },
+        title: `${role} input decoration`,
+        when: { inputDecoration: role },
         tokens: {
-          '--ui-input-decoration-dot-color': decorationColor[color],
-          '--ui-input-decoration-border-color': decorationColor[color],
+          '--ui-input-decoration-dot-color': color,
+          '--ui-input-decoration-border-color': color,
         },
       },
     )

@@ -37,6 +37,14 @@
   --_button-color: var(--ui-primary, var(--ui-text, #262626));
   --_button-contrast: var(--ui-on-primary, var(--ui-surface, #fcfcfd));
 }
+:where([data-ui]) .ui-button[data-tone='secondary'] {
+  --_button-color: var(--ui-secondary, var(--ui-text, #262626));
+  --_button-contrast: var(--ui-on-secondary, var(--ui-surface, #fcfcfd));
+}
+:where([data-ui]) .ui-button[data-tone='accent'] {
+  --_button-color: var(--ui-accent, var(--ui-text, #262626));
+  --_button-contrast: var(--ui-on-accent, var(--ui-surface, #fcfcfd));
+}
 :where([data-ui]) .ui-button[data-variant='filled'] {
   border-color: var(--_button-color);
   background: var(--_button-color);
@@ -47,11 +55,20 @@
   background: var(--_button-contrast);
   color: var(--_button-color);
 }
-:where([data-ui]) .ui-button[data-tone='primary'][data-variant='outline'],
-:where([data-ui]) .ui-button[data-tone='primary'][data-variant='ghost'] {
+:where([data-ui])
+  .ui-button:is(
+    [data-tone='primary'],
+    [data-tone='secondary'],
+    [data-tone='accent']
+  ):is([data-variant='outline'], [data-variant='ghost']) {
   color: var(--_button-color);
 }
-:where([data-ui]) .ui-button[data-tone='primary'][data-variant='outline'] {
+:where([data-ui])
+  .ui-button:is(
+    [data-tone='primary'],
+    [data-tone='secondary'],
+    [data-tone='accent']
+  )[data-variant='outline'] {
   border-color: var(--_button-color);
 }
 :where([data-ui]) .ui-button[data-variant='ghost'] {

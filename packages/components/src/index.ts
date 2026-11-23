@@ -6,6 +6,7 @@ export type {
   ThemeOptions,
   ThemeMode,
   ThemePrimary,
+  ThemeAccent,
   ThemeSecondary,
 } from './theme'
 export { UI_DENSITIES, uiDensity, uiScope } from './styles/density'

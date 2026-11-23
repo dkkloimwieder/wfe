@@ -15,6 +15,7 @@ export type {
   ThemeOptions,
   ThemeMode,
   ThemePrimary,
+  ThemeAccent,
   ThemeDensity,
   ThemeSecondary,
 } from './Theme'

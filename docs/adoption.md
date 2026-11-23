@@ -67,7 +67,7 @@ Undefined overrides preserve the defaults. Custom headers leave heading focus wi
 Navigation callbacks receive the owning dashboard controls, and accepted route changes close its drawer.
 See the [shell guide](../packages/shell/README.md) for the contract and example.
 
-Inputs and form sections support optional decoration with neutral, primary, or secondary colors.
+Inputs and form sections support optional decoration with neutral, primary, secondary, or accent colors.
 The Sketchy theme reduces decoration rotation and taper in proportion to element size.
 The gallery includes a geometry playground, wide input previews, and alternating section decoration in the Everything form.
 The owned icon catalog supports selective imports from `@wfe/components/icons`.

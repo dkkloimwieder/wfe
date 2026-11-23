@@ -72,7 +72,7 @@ establish a containing block, so choose an appropriate mount for such layouts.
 
 The preview does not render for keyboard gestures.
 `DropIndicator` supplies a caller-positioned insertion marker. Preview and
-indicator accept neutral, primary and secondary theme roles. `DragHandle`
+indicator accept neutral, primary, secondary, and accent theme roles. `DragHandle`
 uses the shared Button and its existing appearance and decoration options.
 The presentation helpers do not animate, including under reduced motion.
 

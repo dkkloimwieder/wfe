@@ -56,6 +56,8 @@ export const secondaryColors: readonly PaletteColor[] = [
   { name: 'Dark blue', light: '#1864ab', dark: '#1971c2' },
 ]
 
+export const accentColors = secondaryColors
+
 export const paletteRoles = {
   darkBorder: '#5c5c5c',
   darkRing: '#737373',

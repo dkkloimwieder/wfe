@@ -14,8 +14,9 @@ import type {
   DragOperation,
   DraggableRegistration,
 } from './types'
+import type { ColorRole } from '../theme/appearance'
 
-export type DragPresentationTone = 'neutral' | 'primary' | 'secondary'
+export type DragPresentationTone = ColorRole
 export interface DragDropFeedbackProps<D = unknown> {
   scope: DragDropScope<D>
   /** Connect a handle's aria-describedby to this ID. */

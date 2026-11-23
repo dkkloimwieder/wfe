@@ -38,7 +38,14 @@ Reduced-motion preference keeps the decorative backing without tilt or taper.
 
 Pass `mode="dark"` or `mode="monochrome"` to change the surface scheme.
 Pass `primary="violet"` or another `ThemePrimary` value to change the primary color.
-Pass `secondary="yellow"` to set the secondary color.
+Pass `secondary="yellow"` to set the secondary color and `accent="violet"` to set the accent color.
+Each choice uses the existing palette and changes with the mode and preset.
+Neutral uses the preset's text, border, and surface colors.
+
+Primary supplies the default color for links, selection, checked controls, and filled buttons.
+Secondary remains available for decoration dots and borders, field decoration, and drag feedback.
+Accent applies where a component or decoration choice explicitly selects it.
+Keyboard focus rings use neutral colors in every preset.
 The application owns these values, persistence, and any system preference detection.
 Use the same initial values on the server and client for hydration.
 
@@ -71,13 +78,20 @@ The `style` prop overrides individual CSS variables last.
 | `data-ui-section-decoration="accent"`                                                            | `data-ui-section-decoration="primary"`                                         |
 | Gallery `accent` URL parameter                                                                   | `primary`                                                                      |
 
+The names `accent`, `ThemeAccent`, `data-ui-accent`, and `--ui-accent` now refer to the new third color.
+The gallery URL also uses `accent` for this third color.
+
+Each palette role has `--ui-<role>`, `--ui-<role>-light`, and `--ui-<role>-dark`.
+The matching foreground uses `--ui-on-<role>` and its light and dark forms.
+The hover tokens use `--ui-<role>-hover` and `--ui-<role>-inverted-hover`.
+
 ## Token base
 
 `styles/tokens.css` holds every `--ui-*` token with its default.
 `scripts/theme-tokens.mjs` generates it from `theme/tokens.ts`, and the integrity gate checks it.
 The first block holds the Sketchy light defaults. Later blocks change token values for one mode, density, preset, or application choice.
 Later blocks win, and every block has zero specificity.
-Theme writes the choices as data attributes on its root: `data-ui-preset`, `data-ui-mode`, `data-ui-density`, `data-ui-primary`, `data-ui-secondary`, and the layer, divider, and decoration choices.
+Theme writes the choices as data attributes on its root: `data-ui-preset`, `data-ui-mode`, `data-ui-density`, `data-ui-primary`, `data-ui-secondary`, and `data-ui-accent`. Theme also writes the layer, divider, and decoration choices.
 It writes only the decoration percentages inline.
 A consumer class or inline style on the root therefore overrides any token.
 `themeTokens(options)` returns the declared token values that the style sheet applies for those options.
@@ -126,7 +140,7 @@ The backing uses the same random geometry and opacity controls as buttons.
 It adds no focus stops and leaves native validation and form submission unchanged.
 Disabled and read-only controls omit the backing. Forced-color mode retains the standard focus outline.
 
-Set `Theme.inputDecoration` to `false`, `"neutral"`, `"primary"`, or `"secondary"`.
+Set `Theme.inputDecoration` to `false`, `"neutral"`, `"primary"`, `"secondary"`, or `"accent"`.
 The default is `"neutral"`. A nested Theme starts with its own default.
 Set `decoration` on a `Field` to change its controls, or on an individual control to override that field.
 Use this prop on `Input`, `Textarea`, `NumberInput`, `InputGroup`, `NativeSelect`, `SelectField`, `DatePicker`, `TimePicker`, `DateTimePicker`, and `FileInput`.
@@ -154,7 +168,7 @@ The hydration suite also includes this consumer and makes sure that its server n
 ## Form section decoration
 
 `FieldGroup` is a native fieldset. Its decoration is off by default.
-Set `decoration={true}` for primary decoration, or choose `"neutral"`, `"primary"`, or `"secondary"`.
+Set `decoration={true}` for primary decoration, or choose `"neutral"`, `"primary"`, `"secondary"`, or `"accent"`.
 Set `decoration={false}` to remove it.
 
 `decorationHover` and `decorationFocusWithin` default to `true`.
@@ -216,7 +230,7 @@ Decoration props have no effect inside vanilla, including explicit per-field req
 Switching presets preserves input values, focus, selection, and open overlays.
 
 Mode, palette, density, class, and style remain independent of preset selection.
-All presets support primary and secondary colors and surface layers.
+All presets support the four color roles and surface layers.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
 Dividers and decoration controls belong to the Sketchy preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
@@ -303,7 +317,7 @@ Success uses `--ui-success`. Error uses `--ui-error`. Modal backdrops use `--ui-
 Gantt dependencies and baselines use `--ui-muted-text`.
 Charts use the same popup surface, border, text, radius, and shadow roles as other popups.
 
-Selection and button colors follow `--ui-primary` on the theme owner.
+Selection and default button colors follow `--ui-primary` on the theme owner.
 When you supply a custom primary color, also supply a suitable `--ui-on-primary` foreground.
 Use a nested `Theme` for a complete local theme. A local accent alone does not replace every inherited semantic role.
 Laser computes its default control, text, and icon glows at the consumer, so they follow a local primary color.

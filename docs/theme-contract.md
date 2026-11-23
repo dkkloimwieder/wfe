@@ -15,8 +15,8 @@ Themes do not own requests, permissions, routing, validation rules, or applicati
 ## Public selection
 
 Theme accepts an additive preset property with default, vanilla, and laser values. Omission preserves default.
-Mode, primary, secondary, density, style, class, and decoration are independent choices.
-All presets support primary and secondary colors and semantic surface roles.
+Mode, primary, secondary, accent, density, style, class, and decoration are independent choices.
+All presets support neutral, primary, secondary, and accent colors and semantic surface roles.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
 All presets capitalize system labels and preserve record values and prose.
 Dividers and decoration controls configure the Sketchy preset.
@@ -31,7 +31,7 @@ The theme guide lists the renamed public color properties and exports.
 
 Use shared roles to give related declarations the same value.
 Background roles include canvas, pane, content, control, popup, muted, hover, and selection.
-Foreground roles include text, muted text, heading, on-primary, and on-selection.
+Foreground roles include text, muted text, heading, on-primary, on-secondary, on-accent, and on-selection.
 A colored surface always has a matching foreground role. Error and disabled states remain distinguishable without color alone.
 Border roles include shared width, control width, divider width, border color, and control border color.
 Shape roles include control, panel, popup, radio, and switch radii, with --ui-radius as the shared fallback.

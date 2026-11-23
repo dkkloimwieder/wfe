@@ -22,6 +22,10 @@
 .ui-dnd-indicator[data-tone='secondary'] {
   --ui-dnd-color: var(--ui-secondary);
 }
+.ui-dnd-preview[data-tone='accent'],
+.ui-dnd-indicator[data-tone='accent'] {
+  --ui-dnd-color: var(--ui-accent);
+}
 .ui-dnd-preview {
   position: fixed;
   z-index: var(--ui-dnd-z-index, 1000);

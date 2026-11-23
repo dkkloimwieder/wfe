@@ -1,6 +1,9 @@
 // Generated from built declarations by tests/consumers/generate.mjs.
 // Resolve only public package exports through the workspace node_modules links.
 import type {
+  accentColors,
+  ColorRole,
+  colorRoles,
   ControlDecoration,
   decoratedSelectors,
   DecorationColor,
@@ -27,6 +30,7 @@ import type {
   SurfaceScheme,
   TableDividers,
   Theme,
+  ThemeAccent,
   themeAttributes,
   themeChoices,
   themeDecoration,
@@ -51,6 +55,9 @@ import type { AllTyped, Assert } from '../assertions.js'
 
 export type ExportedTypes = Assert<
   AllTyped<{
+    accentColors: typeof accentColors
+    ColorRole: ColorRole
+    colorRoles: typeof colorRoles
     ControlDecoration: ControlDecoration
     decoratedSelectors: typeof decoratedSelectors
     DecorationColor: DecorationColor
@@ -77,6 +84,7 @@ export type ExportedTypes = Assert<
     SurfaceScheme: SurfaceScheme
     TableDividers: TableDividers
     Theme: typeof Theme
+    ThemeAccent: ThemeAccent
     themeAttributes: typeof themeAttributes
     themeChoices: typeof themeChoices
     themeDecoration: typeof themeDecoration

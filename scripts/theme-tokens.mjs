@@ -2,6 +2,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import * as prettier from 'prettier'
 import {
+  accentColors,
   primaryColors,
   paletteRoles,
   schemes,
@@ -18,6 +19,7 @@ const destination = fileURLToPath(
 )
 const blocks = tokenBlocks({
   schemes,
+  accentColors,
   primaryColors,
   secondaryColors,
   roles: paletteRoles,

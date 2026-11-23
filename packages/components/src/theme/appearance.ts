@@ -5,8 +5,11 @@
 // Accent and table-divider samples retain the Open Props provenance above.
 // Local adaptation: neutral roles match the measured reference presentation.
 // Theme token values live in tokens.ts. This module holds application choice types.
+import type { ColorRole } from './tokens'
+
 export {
   primaryColors,
+  accentColors,
   secondaryColors,
   schemes,
   monochrome,
@@ -24,8 +27,9 @@ export type SurfaceLayers = {
   content: SurfaceLevel
 }
 export const defaultLayers: SurfaceLayers = { canvas: 0, pane: 2, content: 1 }
-export const decorationColors = ['neutral', 'primary', 'secondary'] as const
-export type DecorationColor = (typeof decorationColors)[number]
+export { colorRoles, colorRoles as decorationColors } from './tokens'
+export type { ColorRole } from './tokens'
+export type DecorationColor = ColorRole
 export type Decorations = {
   secondary: number
   dots: number
