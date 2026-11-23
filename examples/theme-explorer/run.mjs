@@ -687,7 +687,23 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
               groups.get(`${mode}/${preset}/${role}/${state}`)
             for (const state of states) {
               const changes = group(state)
-              if (!changes || changes.size !== 1 || changes.has('{}'))
+              if (
+                !changes ||
+                changes.size !== 1 ||
+                changes.has('{}') ||
+                (preset === 'default' &&
+                  state === 'invalid' &&
+                  [...changes.keys()].some((delta) => {
+                    const paint = JSON.parse(delta)
+                    return (
+                      !paint['::before background-image']?.startsWith(
+                        'radial-gradient(',
+                      ) ||
+                      !paint['::before border-top-color'] ||
+                      paint['::before opacity'] !== '1'
+                    )
+                  }))
+              )
                 problems.push({
                   mode,
                   preset,
@@ -739,6 +755,65 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
         0,
         'See variantStateProblems in the browser report',
       )
+    })
+
+    await record('Sketchy keeps the error backing when hovered', async () => {
+      for (const mode of ['light', 'dark']) {
+        await page.goto(
+          new URL(`?variants&mode=${mode}`, server.resolvedUrls.local[0]).href,
+        )
+        await page.locator('[data-variants-ready]').waitFor({
+          state: 'attached',
+          timeout: 45_000,
+        })
+        await page.mouse.move(0, 0)
+        const problems = await page.evaluate(() => {
+          const failures = []
+          for (const cell of document.querySelectorAll(
+            '[data-preset="default"][data-variant-state="invalid"]',
+          )) {
+            const targets = cell.querySelectorAll(
+              '[data-ui-control-surface]:not(:has(> .ui-slider-thumb)), .ui-slider-thumb, .ui-toggle-group .ui-button, .ui-file-actions > .ui-button',
+            )
+            if (!targets.length)
+              failures.push(`${cell.dataset.variant}: no backing targets`)
+            for (const target of targets) {
+              const action = target.matches(
+                '.ui-button:not([data-ui-control-surface])',
+              )
+              const probe = document.createElement('span')
+              probe.style.color = action
+                ? 'var(--ui-error)'
+                : 'color-mix(in srgb, var(--ui-error) var(--ui-decoration-border-opacity, 100%), transparent)'
+              probe.style.setProperty('--_ui-dots', 'var(--ui-error)')
+              probe.style.backgroundImage = 'var(--ui-dot-pattern)'
+              target.parentElement.append(probe)
+              const expected = getComputedStyle(probe)
+              for (const state of ['invalid', 'invalid and hovered']) {
+                const backing = getComputedStyle(target, '::before')
+                if (
+                  backing.opacity !== '1' ||
+                  backing.display === 'none' ||
+                  backing.backgroundImage !== expected.backgroundImage ||
+                  backing.borderTopColor !== expected.color
+                )
+                  failures.push(
+                    `${cell.dataset.variant}: ${target.className} is ${state} (dots ${backing.backgroundImage}, border ${backing.borderTopColor}, opacity ${backing.opacity})`,
+                  )
+                for (
+                  let node = target;
+                  node !== cell;
+                  node = node.parentElement
+                )
+                  node.toggleAttribute('data-force-hover', state === 'invalid')
+              }
+              probe.remove()
+            }
+          }
+          return failures
+        })
+        assert.deepEqual(problems, [], mode)
+      }
     })
 
     await record(

@@ -473,6 +473,8 @@ Hover adds paint over the resting specimen. Holding a control keeps its hover pa
 
 Laser icon buttons share the action box glow. The hover rule keeps each icon button's resting background. Sketchy default outline buttons use the neutral foreground. Selection on tabs and toggles uses an accent edge. An explicit Toggle `pressedVariant` still selects an application-provided variant.
 
+Invalid Sketchy actions, fields, and checks use their hover backing with error-colored dots and an error-colored edge. The backing stays red while hovered. Vanilla and Laser retain their error edges.
+
 Standalone controls use the same state rules with fallback colors and outlines when no theme provider supplies tokens.
 
 ### 8.3 Comparison exceptions

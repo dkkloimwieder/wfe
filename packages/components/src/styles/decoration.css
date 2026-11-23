@@ -98,12 +98,19 @@
         content-box add,
       linear-gradient(#000 0 0) content-box exclude,
       linear-gradient(#000 0 0) border-box;
-    border: var(--ui-border-width, 1px) solid var(--ui-decoration-border);
+    border: var(--ui-border-width, 1px) solid
+      var(--_ui-action-decoration-error, var(--ui-decoration-border));
     background-color: var(--ui-canvas-surface);
-    --_ui-dots: var(--ui-decoration-dot-color);
+    --_ui-dots: var(
+      --_ui-action-decoration-error,
+      var(--ui-decoration-dot-color)
+    );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
-    opacity: var(--_ui-action-decoration-opacity, 0);
+    opacity: var(
+      --_ui-invalid-backing-opacity,
+      var(--_ui-action-decoration-opacity, 0)
+    );
   }
   /* Leave room for the decorative link outlines inside scrolling flyouts. */
   :scope .ui-sidebar-flyout {
@@ -114,8 +121,27 @@
     color: var(--ui-sidebar-neutral);
   }
 
-  /* Keep the action face quieter than its text and separate from the backing. */
   @media (forced-colors: none) {
+    :scope
+      :is(
+        .ui-button,
+        .ui-dashboard-navigation a[href],
+        .ui-dashboard-menu a[href],
+        summary,
+        .ui-breadcrumbs-link,
+        .ui-context-trigger,
+        .choice-toggle,
+        [data-ui-action]
+      ):is(
+        [aria-invalid='true'],
+        [data-invalid],
+        .ui-toggle-group[data-invalid] *
+      )::before {
+      --_ui-action-decoration-error: var(--ui-invalid-decoration-color);
+      --_ui-invalid-backing-opacity: var(--ui-invalid-decoration-opacity);
+    }
+
+    /* Keep the action face quieter than its text and separate from the backing. */
     :scope .ui-button[data-variant='outline'][data-tone='default'] {
       --_ui-outline-color: var(
         --ui-neutral-button-border,
@@ -336,18 +362,27 @@
     border: var(--ui-border-width, 1px) solid
       color-mix(
         in srgb,
-        var(--ui-input-decoration-border-color, var(--ui-neutral-border-color))
+        var(
+            --_ui-field-decoration-error,
+            var(
+              --ui-input-decoration-border-color,
+              var(--ui-neutral-border-color)
+            )
+          )
           var(--ui-decoration-border-opacity, 100%),
         transparent
       );
     background-color: var(--ui-canvas-surface);
     --_ui-dots: var(
-      --ui-input-decoration-dot-color,
-      var(--ui-neutral-dot-color)
+      --_ui-field-decoration-error,
+      var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color))
     );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
-    opacity: var(--_ui-field-decoration-opacity, 0);
+    opacity: var(
+      --_ui-invalid-backing-opacity,
+      var(--_ui-field-decoration-opacity, 0)
+    );
   }
   :scope
     [data-ui-control-surface]:is(
@@ -361,6 +396,17 @@
       :is(input, textarea, select):is(:disabled, [readonly])
     )::before {
     display: none;
+  }
+  @media (forced-colors: none) {
+    :scope
+      :is([data-ui-control-surface], .ui-slider-thumb):is(
+        [aria-invalid='true'],
+        [data-invalid],
+        :has(:is(input, select, textarea)[aria-invalid='true'])
+      )::before {
+      --_ui-field-decoration-error: var(--ui-invalid-decoration-color);
+      --_ui-invalid-backing-opacity: var(--ui-invalid-decoration-opacity);
+    }
   }
   @media (forced-colors: active) {
     :scope [data-ui-control-surface]::before,

@@ -308,6 +308,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-field-hover-overlay': 'transparent',
         '--ui-state-invalid-shadow':
           'inset 0 0 0 var(--ui-border-width) var(--ui-error)',
+        '--ui-invalid-decoration-color': 'var(--ui-error)',
+        '--ui-invalid-decoration-opacity': '1',
         '--ui-state-readonly-shadow':
           'inset 0 0 0 var(--ui-border-width) var(--ui-muted-text)',
         '--ui-state-open-shadow':
@@ -443,6 +445,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-kanban-heading-weight': '500',
         '--ui-icon-stroke-width': '1.5',
         '--ui-error': '#b91c1c',
+        '--ui-invalid-decoration-color': 'initial',
+        '--ui-invalid-decoration-opacity': 'initial',
         '--ui-radio-radius': '50%',
         '--ui-switch-radius': '999px',
         '--ui-popup-surface': 'var(--ui-surface)',
