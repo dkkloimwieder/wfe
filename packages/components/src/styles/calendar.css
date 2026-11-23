@@ -120,16 +120,16 @@
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
-:where([data-ui]) .ui-date-range-picker {
+:where([data-ui]) .ui-date-range-picker.ui-input-affix {
   display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ui-gap, 8px);
   max-inline-size: 100%;
+  background-color: var(--ui-control-surface, var(--ui-surface, #fcfcfd));
 }
-:where([data-ui]) .ui-date-range-picker > .ui-button {
-  max-inline-size: 100%;
-  white-space: normal;
+:where([data-ui]) .ui-date-range-picker > .ui-affix-trigger > span {
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 :where([data-ui]) .ui-date-range-popup {

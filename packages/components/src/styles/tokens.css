@@ -30,6 +30,7 @@
   --ui-tree-symbol-size: 18px;
   --ui-tree-indent: 20px;
   --ui-icon-stroke-width: 1;
+  --ui-clear-icon-size: 14px;
   --ui-connector-stroke-width: 1.5;
   --ui-gap: 8px;
   --ui-field-gap: var(--ui-layout-inset);
@@ -181,7 +182,6 @@
   --ui-input-decoration-dot-color: var(--ui-neutral-dot-color);
   --ui-input-decoration-border-color: var(--ui-neutral-border-color);
   --ui-toggle-checked-surface: initial;
-  --ui-toggle-invalid-checked-surface: initial;
   --ui-toggle-checked-border: initial;
   --ui-toggle-checked-text: initial;
   --ui-switch-track: initial;
@@ -324,7 +324,6 @@
   --ui-input-decoration-display: none;
   --ui-input-disclosure-arrow-visibility: visible;
   --ui-toggle-checked-surface: var(--ui-primary);
-  --ui-toggle-invalid-checked-surface: var(--ui-error);
   --ui-toggle-checked-border: var(--ui-primary);
   --ui-toggle-checked-text: var(--ui-on-primary);
   --ui-switch-track: var(--ui-border);

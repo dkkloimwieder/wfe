@@ -60,11 +60,13 @@
 
 :where([data-ui])
   :is(.ui-input-affix, .filter-input)
-  > button.ui-button:is(.ui-input-clear, .clear-input, .ui-date-trigger),
+  > :is(
+    button.ui-button:is(.ui-input-clear, .ui-date-trigger),
+    button.clear-input
+  ),
 :where([data-ui]) .choice-control > button.choice-toggle {
   flex: none;
   min-inline-size: var(--ui-control-height, 32px);
-  padding-inline: var(--ui-input-padding-x, 10px);
   border: var(--ui-control-border-width, var(--ui-border-width, 1px)) solid
     var(--ui-control-border, #e5e5e5);
   border-inline-start: 0;
@@ -86,9 +88,24 @@
 
 :where([data-ui])
   :is(.ui-input-affix, .filter-input)
-  > button.ui-button:is(.ui-input-clear, .clear-input, .ui-date-trigger) {
+  > button.ui-button.ui-date-trigger {
   inline-size: var(--ui-control-height, 32px);
   padding: 0;
+}
+:where([data-ui])
+  :is(.ui-input-affix, .filter-input)
+  > :is(button.ui-input-clear, button.clear-input) {
+  box-sizing: border-box;
+  inline-size: var(--ui-control-height, 32px);
+  block-size: var(--ui-control-height, 32px);
+  padding: 0;
+}
+:where([data-ui])
+  :is(.ui-input-affix, .filter-input)
+  > :is(button.ui-input-clear, button.clear-input)
+  > .ui-icon {
+  inline-size: var(--ui-clear-icon-size, 14px);
+  block-size: var(--ui-clear-icon-size, 14px);
 }
 :where([data-ui]) .choice-control > button.choice-toggle {
   padding-inline: max(0px, calc((var(--ui-control-height, 32px) - 17px) / 2));
@@ -161,6 +178,7 @@
 :where([data-ui]) :is(.ui-input-affix, .filter-input) {
   display: flex;
   align-items: stretch;
+  gap: 0;
   min-width: 0;
 }
 :where([data-ui])
@@ -173,15 +191,17 @@
 :where([data-ui]) :is(.ui-input-affix, .filter-input) select {
   border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
 }
-:where([data-ui]) :is(.ui-input-clear, .clear-input) {
-  border-inline-start: 0;
-  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
-  padding: var(--ui-control-padding-y, 4px) var(--ui-control-padding-x, 10px);
-}
-
 :where([data-ui]) :is(.ui-input-affix, .filter-input) > [data-ui]:not(button) {
   flex: 1;
   min-width: 0;
+}
+
+:where([data-ui]) .ui-input-affix > button.ui-button.ui-affix-trigger {
+  flex: 1;
+  min-inline-size: 0;
+  border-color: var(--ui-control-border, #e5e5e5);
+  background-color: transparent;
+  color: inherit;
 }
 
 /* Only the outer corners belong to an affixed control. */
@@ -191,7 +211,11 @@
 }
 :where([data-ui])
   :is(.ui-input-affix, .filter-input, .choice-control):has(> button)
-  > :is(input, select, .popup-trigger) {
+  > :is(input, select, .popup-trigger, .ui-affix-trigger),
+:where([data-ui])
+  :is(.ui-input-affix, .filter-input):has(> :is(.ui-input-clear, .clear-input))
+  > .ui-select-field
+  > .popup-trigger {
   border-start-end-radius: 0;
   border-end-end-radius: 0;
 }

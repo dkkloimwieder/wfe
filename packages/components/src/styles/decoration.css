@@ -41,7 +41,7 @@
         .ui-section:not(.ui-sidebar-group-panel),
         .popup-trigger,
         .ui-calendar td button,
-        .ui-date-range-picker > .ui-button:first-child
+        .ui-affix-trigger
       )
     ) {
     position: relative;
@@ -81,7 +81,7 @@
       .ui-sidebar-group-panel > summary,
       .popup-trigger,
       .ui-calendar td button,
-      .ui-date-range-picker > .ui-button:first-child
+      .ui-affix-trigger
     )::before {
     content: '';
     position: absolute;
@@ -525,11 +525,6 @@
       --_ui-field-decoration-error: var(--ui-invalid-decoration-color);
       --_ui-invalid-backing-opacity: var(--ui-invalid-decoration-opacity);
     }
-    :scope
-      .ui-date-range-picker
-      > [data-ui-control-surface][aria-invalid='true'] {
-      border-color: var(--ui-error);
-    }
   }
   @media (forced-colors: active) {
     :scope [data-ui-control-surface]::before,
@@ -544,11 +539,7 @@
   }
 
   /* A compound face owns the backing for its nested fields. */
-  :scope
-    [data-ui-control-surface]
-    [data-ui-control-surface]:not(
-      .ui-date-range-picker > [aria-invalid='true']
-    )::before,
+  :scope [data-ui-control-surface] [data-ui-control-surface]::before,
   :scope [data-ui-control-surface] .popup-trigger::before,
   :scope
     :is(.ui-toggle, .ui-radio-item):has(input:disabled)

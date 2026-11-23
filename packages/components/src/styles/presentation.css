@@ -100,7 +100,7 @@
       :is(button, a[href], [role='button'], [tabindex]):not(
         .popup-trigger,
         .ui-calendar td button,
-        .ui-date-range-picker > .ui-button:first-child
+        .ui-affix-trigger
       )
     ),
     .ui-disclosure-trigger:where(
@@ -239,7 +239,6 @@
     .popup-trigger:where(
       :not(:is(.ui-input-affix, .filter-input, .choice-control) *)
     ),
-    .ui-date-range-picker > .ui-button:first-child,
     .ui-file-input
   ) {
   --_ui-field-halo: var(
@@ -344,8 +343,7 @@
     .ui-input-affix,
     .ui-input-group,
     .filter-input,
-    .choice-control,
-    .ui-date-range-picker > .ui-button:first-child
+    .choice-control
   ) {
   background-color: var(--ui-control-surface);
 }
@@ -415,10 +413,7 @@
   }
 
   :where([data-ui], [data-ui-tokens])
-    :is(
-      .popup-trigger,
-      .ui-date-range-picker > .ui-button:first-child
-    ):focus-visible:where(
+    .popup-trigger:focus-visible:where(
       :not(
         :is(.ui-input-affix, .ui-input-group, .filter-input, .choice-control) *
       )

@@ -483,15 +483,6 @@
   padding-inline-start: 0;
 }
 
-:where([data-ui]) .table-filter-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--ui-gap, 8px);
-}
-:where([data-ui]) .table-filter-heading > button {
-  padding: 0 var(--ui-control-padding-x, 10px);
-}
 :where([data-ui]) .table-number-bounds {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -506,7 +497,7 @@
   grid-column: 1 / -1;
 }
 
-:where([data-ui]) .table-filter-heading > .ui-label {
+:where([data-ui]) .table-column-filter > .ui-label {
   font-weight: inherit;
 }
 

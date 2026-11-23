@@ -233,6 +233,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-tree-symbol-size': '18px',
         '--ui-tree-indent': '20px',
         '--ui-icon-stroke-width': '1',
+        '--ui-clear-icon-size': '14px',
         '--ui-connector-stroke-width': '1.5',
         // Spacing
         '--ui-gap': '8px',

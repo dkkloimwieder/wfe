@@ -9,6 +9,7 @@ import {
   untrack,
 } from 'solid-js'
 import { Button } from './NativeFields'
+import { Icon } from './Icon'
 import { Popover } from './Popover'
 import { RangeCalendar } from './Calendar'
 import type { RangeCalendarProps, CalendarRange } from './Calendar'
@@ -131,7 +132,14 @@ export function DateRangePicker(props: DateRangePickerProps) {
   )
   return renderCompoundFieldRoot(() =>
     renderAfterRegistration(() => (
-      <span class="ui-date-range-picker" data-ui="">
+      <span
+        class="ui-date-range-picker ui-input-affix"
+        data-ui=""
+        data-ui-control-surface=""
+        data-invalid={state.validationState() === 'invalid' ? '' : undefined}
+        data-readonly={state.readonly() ? '' : undefined}
+        data-disabled={state.disabled() ? '' : undefined}
+      >
         <Popover
           open={open()}
           onOpenChange={(next) =>
@@ -145,7 +153,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
         >
           <Popover.Trigger
             as={Button}
-            data-ui-control-surface=""
+            class="ui-affix-trigger"
             {...target}
             id={id()}
             aria-label={[props.label, display()].filter(Boolean).join(': ')}
@@ -162,8 +170,10 @@ export function DateRangePicker(props: DateRangePickerProps) {
               },
             ]}
           >
-            {props.label}
-            {display() ? `: ${display()}` : ''}
+            <span>
+              {props.label}
+              {display() ? `: ${display()}` : ''}
+            </span>
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
@@ -232,6 +242,8 @@ export function DateRangePicker(props: DateRangePickerProps) {
           </Popover.Portal>
         </Popover>
         <Button
+          class="ui-input-clear"
+          data-ui-action="adornment"
           aria-label={props.clearLabel ?? messages.clearDate(props.label)}
           disabled={state.disabled() || state.readonly() || !value()}
           onClick={() => {
@@ -240,7 +252,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
             props.onValueChange(undefined)
           }}
         >
-          ×
+          <Icon name="cross" />
         </Button>
         <Show when={props.name && value()}>
           <input

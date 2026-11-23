@@ -8,7 +8,9 @@ import {
   Show,
   untrack,
 } from 'solid-js'
-import { Input } from './NativeFields'
+import { Button, Input } from './NativeFields'
+import { Icon } from './Icon'
+import { ControlSurface } from '../internal/controlDecoration'
 import { FieldContext } from '../internal/fieldContext'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { resolveMessages } from '../internal/messages'
@@ -43,6 +45,7 @@ export const commandMessages: Readonly<CommandMessages> = {
 export type CommandProps = {
   items: readonly CommandItem[]
   label: string
+  clearLabel?: string
   query?: string
   defaultQuery?: string
   onQueryChange?: (query: string) => void
@@ -69,6 +72,10 @@ export function Command(props: CommandProps) {
     untrack(() => props.defaultQuery ?? ''),
   )
   const query = () => props.query ?? localQuery()
+  function changeQuery(value: string) {
+    if (props.query === undefined) setLocalQuery(value)
+    props.onQueryChange?.(value)
+  }
   const items = createMemo(() => {
     const keys = new Set<string>()
     for (const item of props.items) {
@@ -248,35 +255,46 @@ export function Command(props: CommandProps) {
         <label class="ui-label" for={inputId}>
           {props.label}
         </label>
-        <Input
-          id={inputId}
-          type="search"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded="true"
-          aria-controls={listId}
-          aria-activedescendant={
-            active() === undefined ? undefined : optionId(active()!)
-          }
-          autocomplete="off"
-          placeholder={props.placeholder}
-          value={query()}
-          ref={(node) => {
-            input = node
-            props.inputRef?.(node)
-          }}
-          onCompositionStart={() => {
-            composing = true
-          }}
-          onCompositionEnd={() => {
-            composing = false
-          }}
-          onKeyDown={keydown}
-          onValueChange={(value) => {
-            if (props.query === undefined) setLocalQuery(value)
-            props.onQueryChange?.(value)
-          }}
-        />
+        <ControlSurface class="ui-input-affix">
+          <Input
+            id={inputId}
+            type="search"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="true"
+            aria-controls={listId}
+            aria-activedescendant={
+              active() === undefined ? undefined : optionId(active()!)
+            }
+            autocomplete="off"
+            placeholder={props.placeholder}
+            value={query()}
+            ref={(node) => {
+              input = node
+              props.inputRef?.(node)
+            }}
+            onCompositionStart={() => {
+              composing = true
+            }}
+            onCompositionEnd={() => {
+              composing = false
+            }}
+            onKeyDown={keydown}
+            onValueChange={changeQuery}
+          />
+          <Button
+            class="ui-input-clear"
+            data-ui-action="adornment"
+            aria-label={props.clearLabel ?? 'Clear search'}
+            disabled={!query()}
+            onClick={() => {
+              input?.focus({ preventScroll: true })
+              if (query()) changeQuery('')
+            }}
+          >
+            <Icon name="cross" />
+          </Button>
+        </ControlSurface>
       </FieldContext>
       <div
         class="ui-command-list"

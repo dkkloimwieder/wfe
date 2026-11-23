@@ -1,6 +1,7 @@
 import type { DatePickerMessages } from '../components/dateMessages'
 import { resolveTableMessages, type TableMessages } from './messages'
 import { restoreTextValue } from '../internal/controlledText'
+import { ControlSurface } from '../internal/controlDecoration'
 import { TableFilter } from './TableFilter'
 import { TableDateFilter } from './TableDateFilter'
 import type { TableDateRange } from './TableDateFilter'
@@ -278,33 +279,34 @@ function OperatorFilter(
       role="group"
       aria-label={props.label}
     >
-      <div class="table-filter-heading">
-        <span class="ui-label">{props.label}</span>
+      <span class="ui-label">{props.label}</span>
+      <ControlSurface class="ui-input-affix">
+        <SelectField
+          label={messages.filterMatch(props.label)}
+          data-ui-text="system"
+          value={operator()}
+          disabled={props.disabled}
+          ref={(node) => {
+            control = node
+          }}
+          choices={operations().map(([value, label]) => ({
+            value: value!,
+            label: label!,
+          }))}
+          onValueChange={(value) =>
+            changeOperator(value as TableColumnFilterValue['operator'])
+          }
+        />
         <Button
-          type="button"
+          class="ui-input-clear"
+          data-ui-action="adornment"
           aria-label={props.clearLabel ?? messages.clearFilter(props.label)}
           disabled={props.disabled || !props.value}
           onClick={clear}
         >
-          ×
+          <Icon name="cross" />
         </Button>
-      </div>
-      <SelectField
-        label={messages.filterMatch(props.label)}
-        data-ui-text="system"
-        value={operator()}
-        disabled={props.disabled}
-        ref={(node) => {
-          control = node
-        }}
-        choices={operations().map(([value, label]) => ({
-          value: value!,
-          label: label!,
-        }))}
-        onValueChange={(value) =>
-          changeOperator(value as TableColumnFilterValue['operator'])
-        }
-      />
+      </ControlSurface>
       <Show when={operator() !== 'empty' && operator() !== 'not-empty'}>
         <Show when={props.config.kind === 'text'}>
           <Input
