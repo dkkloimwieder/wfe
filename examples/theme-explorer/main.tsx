@@ -1,3 +1,8 @@
 import { render } from '@solidjs/web'
 import { ThemeExplorer } from './App'
-render(() => <ThemeExplorer />, document.getElementById('root')!)
+
+const showVariants = new URLSearchParams(location.search).has('variants')
+const Page = showVariants
+  ? (await import('./Variants')).Variants
+  : ThemeExplorer
+render(() => <Page />, document.getElementById('root')!)

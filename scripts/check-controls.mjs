@@ -24,6 +24,12 @@ export const controlExceptions = {
     tags: ['option'],
     reason: 'Native field association and hydration interoperability.',
   },
+  'examples/theme-explorer/NativeSelectVariant.tsx': {
+    native: true,
+    tags: ['option'],
+    reason:
+      'Compare the public native select compatibility control across presets.',
+  },
   'examples/styles/index.html': {
     tags: ['button', 'input', 'select', 'textarea', 'option'],
     reason: 'Raw HTML scope isolation and native picker interoperability.',

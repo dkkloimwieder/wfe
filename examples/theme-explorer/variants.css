@@ -1,0 +1,95 @@
+body:has([data-variants-page]) {
+  margin: 0;
+}
+
+.variants-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-gap);
+  padding: var(--ui-gap);
+}
+
+.variants-header h1,
+.variants-column h2 {
+  margin: 0;
+}
+
+.variants-grid {
+  --variants-gap: var(--ui-gap, 8px);
+  display: grid;
+  grid-template-columns: 13rem repeat(3, minmax(44rem, 1fr));
+  gap: var(--variants-gap);
+  padding: var(--variants-gap);
+  overflow-x: auto;
+}
+
+.variants-labels,
+.variants-column {
+  display: grid;
+  grid-row: span var(--variant-rows);
+  grid-template-rows: subgrid;
+  row-gap: inherit;
+}
+
+.variants-labels {
+  grid-column: 1;
+}
+
+.variants-column:nth-child(2) {
+  grid-column: 2;
+}
+
+.variants-column:nth-child(3) {
+  grid-column: 3;
+}
+
+.variants-column:nth-child(4) {
+  grid-column: 4;
+}
+
+.variant-states {
+  display: grid;
+  grid-template-columns: repeat(var(--variant-states), minmax(0, 1fr));
+  align-content: start;
+  align-items: start;
+  gap: var(--ui-gap);
+  padding: var(--ui-gap);
+}
+
+@media (max-width: 181rem) {
+  .variant-states {
+    grid-template-columns: repeat(
+      min(4, var(--variant-states)),
+      minmax(0, 1fr)
+    );
+  }
+}
+
+.variant-sample {
+  min-inline-size: 0;
+  display: grid;
+  align-content: start;
+  gap: var(--ui-gap);
+}
+
+.variant-state {
+  color: var(--ui-muted-text);
+  font-size: var(--ui-small-font-size);
+}
+
+.variants-column h2 {
+  padding-inline: var(--ui-gap);
+}
+
+/* Keep open surfaces in their grid slots. Their theme owns the styling. */
+.variant-sample [data-popper-positioner] {
+  position: relative !important;
+  inset: auto !important;
+  transform: none !important;
+}
+
+.variant-content > .ui-dialog-content {
+  position: relative;
+  inset: auto;
+  transform: none;
+}

@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
+import { mkdir } from 'node:fs/promises'
+import { fileURLToPath } from 'node:url'
 import { preview } from 'vite'
 import { chromium, expect } from '@playwright/test'
 import { choiceControl } from '../shared/controls/select-review.mjs'
@@ -523,6 +525,235 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       assert.deepEqual(report.errors, [])
       assert.deepEqual(report.warnings, [])
     })
+
+    await record(
+      'Variants compare every specimen in light and dark',
+      async () => {
+        const screenshots = new URL(
+          '../../test-results/theme-cleanup/variants/',
+          import.meta.url,
+        )
+        const presets = ['default', 'vanilla', 'laser']
+        const requiredGroups = [
+          'button',
+          'toggle',
+          'toggle-group',
+          'icon',
+          'input',
+          'number-input',
+          'textarea',
+          'native-select',
+          'select-field',
+          'select',
+          'combobox',
+          'checkbox',
+          'radio-group',
+          'switch',
+          'slider',
+          'range-slider',
+          'date-picker',
+          'date-range-picker',
+          'date-time-picker',
+          'time-picker',
+          'calendar',
+          'range-calendar',
+          'color-picker',
+          'file-input',
+          'popover',
+          'tooltip',
+          'dropdown-menu',
+          'context-menu',
+          'dialog',
+          'sheet',
+          'card',
+          'field-group',
+          'collapsible-section',
+          'dashboard-panel',
+          'badge',
+          'tabs',
+          'breadcrumbs',
+          'drag-handle',
+        ]
+        const popupSelectors = {
+          'select-field/popup': '[role="listbox"]',
+          'select/single-popup': '[role="listbox"]',
+          'select/multiple-popup': '[role="listbox"]',
+          'combobox/single-popup': '[role="listbox"]',
+          'combobox/multiple-popup': '[role="listbox"]',
+          'date-picker/popup': '.ui-date-popup',
+          'date-range-picker/popup': '.ui-date-popup',
+          'date-time-picker/columns-popup': '.ui-date-popup',
+          'date-time-picker/clock-popup': '.ui-date-popup',
+          'time-picker/columns-popup': '.ui-time-popup',
+          'time-picker/clock-popup': '.ui-time-popup',
+          'color-picker/popup': '.ui-color-popup',
+          'popover/surface': '.ui-popover',
+          'tooltip/content': '.ui-tooltip',
+          'dropdown-menu/content': '[role="menu"]',
+          'context-menu/content': '[role="menu"]',
+          'dialog/surface': '.ui-dialog-content',
+          'sheet/surface': '.ui-sheet',
+        }
+
+        await page.setViewportSize({ width: 3600, height: 900 })
+        await page.goto(server.resolvedUrls.local[0])
+        await page.getByRole('link', { name: 'Variants', exact: true }).click()
+        await expect(page.locator('[data-variants-ready]')).toHaveCount(1)
+        await expect(
+          page.getByRole('link', { name: 'Theme explorer', exact: true }),
+        ).toHaveAttribute('href', './')
+        await page.mouse.move(0, 0)
+        await mkdir(screenshots, { recursive: true })
+
+        for (const mode of ['light', 'dark']) {
+          if (mode === 'dark') {
+            const toggle = page.getByRole('button', {
+              name: 'Dark mode',
+              exact: true,
+            })
+            await toggle.click()
+            await expect(toggle).toHaveAttribute('aria-pressed', 'true')
+            await expect(page).toHaveURL(/mode=dark/)
+            await expect(
+              page.locator('.variants-column[data-ui-mode=dark]'),
+            ).toHaveCount(3)
+            await page.reload()
+            await expect(page.locator('[data-variants-ready]')).toHaveCount(1)
+            await page.mouse.move(0, 0)
+          }
+          const columns = page.locator('.variants-column')
+          await expect(columns).toHaveCount(3)
+          assert.deepEqual(
+            await columns.evaluateAll((nodes) =>
+              nodes.map((node) => node.dataset.uiPreset),
+            ),
+            presets,
+          )
+          await expect(
+            page.locator(`.variants-column[data-ui-mode="${mode}"]`),
+          ).toHaveCount(3)
+          await page.evaluate(() => document.fonts.ready)
+
+          const result = await page.evaluate(
+            ({ presets, popupSelectors }) => {
+              const rows = [...document.querySelectorAll('[data-variant-row]')]
+              const columns = [...document.querySelectorAll('.variants-column')]
+              const cells = [...document.querySelectorAll('.variant-sample')]
+              const colCells = columns.map(
+                (column) =>
+                  new Map(
+                    [...column.querySelectorAll('.variant-sample')].map(
+                      (cell) => [cell.dataset.variant, cell],
+                    ),
+                  ),
+              )
+              const problems = []
+              const visible = (node) => {
+                if (!node?.checkVisibility({ visibilityProperty: true }))
+                  return false
+                const rect = node.getBoundingClientRect()
+                return rect.width > 0 && rect.height > 0
+              }
+              const groups = new Set()
+              let expectedCells = 0
+              for (const row of rows) {
+                const id = row.dataset.variantRow
+                const states = row.dataset.variantStates.split(' ')
+                groups.add(id.split('/')[0])
+                expectedCells += states.length * presets.length
+                for (const state of states) {
+                  const name = `${id}/${state}`
+                  const top = row.getBoundingClientRect().top
+                  for (const [index, preset] of presets.entries()) {
+                    const cell = colCells[index].get(name)
+                    const content = cell?.querySelector('.variant-content')
+                    if (!visible(content) || cell.dataset.preset !== preset) {
+                      problems.push(`${preset}/${name}: missing or hidden`)
+                      continue
+                    }
+                    if (
+                      Math.abs(
+                        cell.parentElement.getBoundingClientRect().top - top,
+                      ) > 0.5
+                    )
+                      problems.push(`${preset}/${name}: row misaligned`)
+                    const forced = {
+                      hover: '[data-force-hover]',
+                      focus: '[data-force-focus-visible]',
+                      pressed: '[data-force-active]',
+                    }[state]
+                    if (forced && !cell.querySelector(forced))
+                      problems.push(`${preset}/${name}: state target missing`)
+                    const selector = state === 'open' && popupSelectors[id]
+                    if (selector && !visible(cell.querySelector(selector)))
+                      problems.push(
+                        `${preset}/${name}: open content missing from cell`,
+                      )
+                  }
+                }
+              }
+              if (expectedCells !== cells.length)
+                problems.push(
+                  `Expected ${expectedCells} samples, found ${cells.length}`,
+                )
+              return {
+                problems,
+                groups: [...groups],
+                rows: rows.length,
+                cells: cells.length,
+              }
+            },
+            { presets, popupSelectors },
+          )
+          assert.deepEqual(
+            result.problems.slice(0, 15),
+            [],
+            `${mode}: ${result.problems.length} problems`,
+          )
+          for (const group of requiredGroups)
+            assert.ok(result.groups.includes(group), group)
+
+          const appearance = (preset, state) =>
+            page
+              .locator(
+                `.variant-sample[data-preset="${preset}"][data-variant="button/text/accent/outline/${state}"] .ui-button`,
+              )
+              .evaluate((button) => {
+                const style = getComputedStyle(button)
+                const backing = getComputedStyle(button, '::before')
+                return [
+                  style.backgroundColor,
+                  style.color,
+                  style.borderColor,
+                  style.boxShadow,
+                  backing.opacity,
+                ]
+              })
+          for (const preset of presets) {
+            assert.notDeepEqual(
+              await appearance(preset, 'hover'),
+              await appearance(preset, 'rest'),
+              `${preset} ${mode} forced hover`,
+            )
+          }
+          assert.deepEqual(report.errors, [])
+          assert.deepEqual(report.warnings, [])
+          const path = fileURLToPath(new URL(`${mode}.png`, screenshots))
+          await page.screenshot({
+            path,
+            fullPage: true,
+            animations: 'disabled',
+            timeout: 90_000,
+          })
+          report.variants ??= {}
+          report.variants[mode] = {
+            path,
+            rows: result.rows,
+            cells: result.cells,
+          }
+        }
+      },
+    )
   } catch (error) {
     report.failure = errorText(error)
     report.failureDetails = errorDetails(error)

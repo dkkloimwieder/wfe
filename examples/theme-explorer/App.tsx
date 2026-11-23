@@ -194,6 +194,7 @@ export function ThemeExplorer() {
         header={
           <>
             <h1 data-ui-text="system">Theme explorer</h1>
+            <a href="?variants">Variants</a>
             <div class="example-actions">
               <Field>
                 <Label>Preset</Label>
