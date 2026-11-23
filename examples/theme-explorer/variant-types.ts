@@ -1,3 +1,5 @@
+import { colorRoles } from '@wfe/components/theme'
+import type { ColorRole } from '@wfe/components/theme'
 import type { JSX } from '@solidjs/web'
 
 export const actionStates = [
@@ -34,6 +36,17 @@ export const stateProps = (state: State) => ({
   readonly: state === 'read-only',
   invalid: state === 'invalid',
 })
+
+export function roleSpecimens(
+  id: string,
+  label: string,
+  render: (role: ColorRole) => JSX.Element,
+  states: readonly State[] = ['rest'],
+) {
+  return colorRoles.map((role) =>
+    specimen(`${id}/${role}`, `${label} / ${role}`, states, () => render(role)),
+  )
+}
 
 export function specimen(
   id: string,

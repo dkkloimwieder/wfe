@@ -896,6 +896,57 @@ async function appearanceCases({ page, url, record }) {
       await page
         .getByRole('button', { name: 'Appearance', exact: true })
         .click()
+      const appearance = page.getByRole('region', { name: 'Appearance review' })
+      const colorGroups = appearance.getByRole('group', {
+        name: /^(Primary colors|Secondary colors|Accent colors|Neutral surfaces)$/,
+      })
+      await expect(colorGroups).toHaveCount(4)
+      assert.deepEqual(
+        await colorGroups.evaluateAll((nodes) =>
+          nodes.map((node) => node.getAttribute('aria-label')),
+        ),
+        [
+          'Primary colors',
+          'Secondary colors',
+          'Accent colors',
+          'Neutral surfaces',
+        ],
+      )
+      for (const name of ['Blue primary', 'Yellow secondary', 'Violet accent'])
+        await expect(
+          appearance.getByRole('button', { name, exact: true }),
+        ).toHaveAttribute('aria-pressed', 'true')
+
+      const tones = appearance.getByRole('group', {
+        name: 'Button tone',
+        exact: true,
+      })
+      for (const tone of ['neutral', 'secondary', 'accent', 'primary']) {
+        await tones.getByRole('button', { name: tone, exact: true }).click()
+        await expect(
+          appearance
+            .getByRole('group', { name: 'Button variants', exact: true })
+            .getByRole('button', { name: 'filled', exact: true }),
+        ).toHaveAttribute('data-tone', tone)
+      }
+
+      await appearance
+        .getByRole('group', { name: 'Decorative border color', exact: true })
+        .getByRole('button', { name: 'accent', exact: true })
+        .click()
+      await expect(page.locator('.gallery-shell')).toHaveAttribute(
+        'data-ui-border-color',
+        'accent',
+      )
+      const dots = appearance.getByRole('group', {
+        name: 'Dot color',
+        exact: true,
+      })
+      await dots.getByRole('button', { name: 'accent', exact: true }).click()
+      await expect(page.locator('.gallery-shell')).toHaveAttribute(
+        'data-ui-dot-color',
+        'accent',
+      )
       await page
         .getByRole('button', { name: 'Orange secondary', exact: true })
         .click()

@@ -17,6 +17,15 @@ import {
   Textarea,
 } from '@wfe/components'
 import type { ControlDecoration } from '@wfe/components'
+import { colorRoles } from '@wfe/components/theme'
+
+const decorationChoices = [
+  { value: 'none', label: 'None' },
+  ...colorRoles.map((value) => ({
+    value,
+    label: value[0]!.toUpperCase() + value.slice(1),
+  })),
+]
 
 export function InputDecorationExample() {
   const [decoration, setDecoration] = createSignal<ControlDecoration>('neutral')
@@ -46,12 +55,7 @@ export function InputDecorationExample() {
         <SelectField
           label="Input decoration"
           value={decoration() || 'none'}
-          choices={[
-            { value: 'none', label: 'None' },
-            { value: 'neutral', label: 'Neutral' },
-            { value: 'primary', label: 'Primary' },
-            { value: 'secondary', label: 'Secondary' },
-          ]}
+          choices={decorationChoices}
           onValueChange={(value) =>
             setDecoration(
               value === 'none' ? false : (value as ControlDecoration),
@@ -61,12 +65,7 @@ export function InputDecorationExample() {
         <SelectField
           label="Section decoration"
           value={section() || 'none'}
-          choices={[
-            { value: 'none', label: 'None' },
-            { value: 'neutral', label: 'Neutral' },
-            { value: 'primary', label: 'Primary' },
-            { value: 'secondary', label: 'Secondary' },
-          ]}
+          choices={decorationChoices}
           onValueChange={(value) =>
             setSection(value === 'none' ? false : (value as ControlDecoration))
           }

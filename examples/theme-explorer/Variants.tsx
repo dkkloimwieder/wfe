@@ -11,6 +11,7 @@ import { buttonSpecimens } from './variant-buttons'
 import { fieldSpecimens } from './variant-fields'
 import { surfaceSpecimens } from './variant-surfaces'
 import { additionalSpecimens } from './variant-extra'
+import { colorRoleSpecimens } from './variant-roles'
 import type { Specimen, State } from './variant-types'
 import './variants.css'
 
@@ -35,6 +36,7 @@ const specimens = [
   ...fieldSpecimens,
   ...surfaceSpecimens,
   ...additionalSpecimens,
+  ...colorRoleSpecimens,
 ]
 
 function VariantSample(props: {

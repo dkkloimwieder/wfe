@@ -1,10 +1,13 @@
 import {
+  accentColors,
   defaultDecorations,
+  primaryColors,
   decorationColors,
   secondaryColors,
 } from '../../shared/appearance/appearance'
 import type { Decorations } from '../../shared/appearance/appearance'
 import {
+  defaults,
   layersForPreset,
   schemeForPreset,
   states,
@@ -292,7 +295,11 @@ export function readRoute(url: URL): GalleryRoute {
     id,
     preset,
     decorations: {
-      secondary: number('secondary', 1, secondaryColors.length - 1),
+      secondary: number(
+        'secondary',
+        defaults.decorations.secondary,
+        secondaryColors.length - 1,
+      ),
       dots: number('dots', defaultDecorations.dots, 100),
       border: number('border', defaultDecorations.border, 100),
       inside: number('inside', defaultDecorations.inside, 100),
@@ -306,7 +313,8 @@ export function readRoute(url: URL): GalleryRoute {
         ) ?? 'neutral',
     },
     scheme: number('scheme', schemeForPreset(preset), 2),
-    primary: number('primary', 1, 8),
+    primary: number('primary', defaults.primary, primaryColors.length - 1),
+    accent: number('accent', defaults.accent, accentColors.length - 1),
     layers: {
       canvas: number('canvas', layers.canvas, 2) as 0 | 1 | 2,
       pane: number('pane', layers.pane, 2) as 0 | 1 | 2,
@@ -324,13 +332,14 @@ export function galleryUrl(base: URL, route: GalleryRoute, preview = false) {
   url.hash = ''
   url.searchParams.set(preview ? 'galleryPreview' : 'gallery', route.id)
   for (const [key, value, fallback] of [
-    ...Object.entries(defaultDecorations).map(
+    ...Object.entries(defaults.decorations).map(
       ([key, fallback]) =>
         [key, route.decorations[key as keyof Decorations], fallback] as const,
     ),
     ['preset', route.preset, 'default'],
     ['scheme', route.scheme, schemeForPreset(route.preset)],
-    ['primary', route.primary, 1],
+    ['primary', route.primary, defaults.primary],
+    ['accent', route.accent, defaults.accent],
     ['canvas', route.layers.canvas, layersForPreset(route.preset).canvas],
     ['pane', route.layers.pane, layersForPreset(route.preset).pane],
     ['content', route.layers.content, layersForPreset(route.preset).content],

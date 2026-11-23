@@ -44,15 +44,16 @@ Changing examples starts a fresh example. Changing presentation retains the curr
 ## Review controls
 
 Appearance uses palette, surface, and layer controls.
-The default is light mode with a blue primary color and no shadows.
+The gallery starts in Sketchy light mode with blue Primary, yellow Secondary, violet Accent, and no shadows.
+The Variants page uses the same palette in each preset.
 BASE uses Surface 1, PANES uses Surface 3, and CONTENT uses Surface 2.
 These choices come from the shared `defaultLayers` value: `{ canvas: 0, pane: 2, content: 1 }`.
 Layer numbers start at zero, so `0` selects Surface 1.
 See the [Sketchy theme](theme.md) for the public configuration contract.
 Appearance controls stay collapsed initially so the example receives the available height.
 They scroll within their region on small screens.
-Choose the secondary color independently of the primary color.
-Dots and decorative borders can use neutral, primary, or secondary colors.
+The palettes appear in order as Primary, Secondary, and Accent, followed by Neutral surfaces.
+Tone, dots, and decorative borders offer neutral, primary, secondary, and accent.
 Separate sliders control dot opacity, decorative border opacity, and dots inside buttons.
 Slider changes update the preview immediately and create one history entry when the adjustment ends.
 

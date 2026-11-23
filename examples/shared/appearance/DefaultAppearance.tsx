@@ -10,6 +10,7 @@ export function DefaultAppearance(props: {
     ThemeOptions,
     | 'primary'
     | 'secondary'
+    | 'accent'
     | 'layers'
     | 'dividers'
     | 'decorations'

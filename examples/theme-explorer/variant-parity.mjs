@@ -145,9 +145,12 @@ export async function checkVariantParity(page, url) {
       // row at a time keeps focus and hover from relaying out the whole page.
       const body = document.querySelector('.variants-grid > tbody')
       const entries = [...body.children]
-        .filter((node) =>
-          node.dataset.variantStates.split(' ').includes('hover'),
-        )
+        .filter((node) => {
+          // Decoration color rows only show hover. A native comparison needs
+          // the matching resting specimen to receive the pointer input.
+          const states = node.dataset.variantStates.split(' ')
+          return states.includes('rest') && states.includes('hover')
+        })
         .map((node) => [node.dataset.variantRow, node])
       globalThis.variantParityRows = new Map(entries)
       body.replaceChildren()

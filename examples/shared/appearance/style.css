@@ -9,6 +9,11 @@
   background: var(--ui-surface);
   box-shadow: var(--ui-panel-shadow);
 }
+.appearance-palettes {
+  display: grid;
+  gap: var(--ui-gap, 6px);
+  min-width: 0;
+}
 .appearance-pickers,
 .appearance-layers,
 .appearance-options {

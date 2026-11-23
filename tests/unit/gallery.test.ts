@@ -13,7 +13,8 @@ test('direct gallery links preserve example, state, width and presentation in a 
     state: 'readonly' as const,
     viewport: 'phone' as const,
     scheme: 2,
-    primary: 4,
+    primary: 7,
+    accent: 6,
     layers: { canvas: 2 as const, pane: 1 as const, content: 2 as const },
   }
   const url = galleryUrl(
@@ -32,7 +33,7 @@ test('direct gallery links preserve example, state, width and presentation in a 
 test('invalid URL input falls back to finite presentation defaults and capability-aware states', () => {
   const route = readRoute(
     new URL(
-      'https://example.test/?gallery=buttons&state=readonly&scheme=Infinity&primary=-1&depth=9&canvas=1.5&pane=&content=invalid&viewport=giant',
+      'https://example.test/?gallery=buttons&state=readonly&scheme=Infinity&primary=-1&accent=12&depth=9&canvas=1.5&pane=&content=invalid&viewport=giant',
     ),
   )
   expect(route).toEqual({ ...defaults, id: 'buttons', viewport: 'full' })
@@ -64,7 +65,7 @@ test('decoration URLs round trip and reject unbounded presentation values', () =
       border: 100,
       inside: 42,
       dotColor: 'secondary' as const,
-      borderColor: 'primary' as const,
+      borderColor: 'accent' as const,
     },
   }
   expect(readRoute(galleryUrl(new URL('https://example.test'), route))).toEqual(

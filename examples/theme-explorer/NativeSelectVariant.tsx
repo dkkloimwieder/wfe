@@ -1,4 +1,5 @@
 import { NativeSelect } from '@wfe/components'
+import type { ColorRole } from '@wfe/components/theme'
 import { For, Show } from 'solid-js'
 
 /** Review the compatibility control with its native option elements. */
@@ -6,9 +7,11 @@ export function NativeSelectVariant(props: {
   choices: readonly { value: string; label: string; disabled?: boolean }[]
   selected: boolean
   multiple?: boolean
+  decoration?: ColorRole
 }) {
   return (
     <NativeSelect
+      decoration={props.decoration}
       multiple={props.multiple}
       size={props.multiple ? 3 : undefined}
       value={

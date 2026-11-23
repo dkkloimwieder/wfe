@@ -73,7 +73,7 @@ export function Fields(props: RecipeProps) {
 export function Buttons(props: RecipeProps) {
   return (
     <section class="example-stack">
-      <For each={['primary', 'neutral'] as const}>
+      <For each={['neutral', 'primary', 'secondary', 'accent'] as const}>
         {(tone) => (
           <div
             class="example-actions"

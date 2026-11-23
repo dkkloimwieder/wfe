@@ -1,14 +1,11 @@
 import { For, Show, createMemo, createSignal } from 'solid-js'
 import { paletteColorName, resolveThemeTokens } from '@wfe/components/theme'
-import type {
-  ThemePrimary,
-  ThemeOptions,
-  ThemeSecondary,
-} from '@wfe/components/theme'
+import type { ThemeOptions } from '@wfe/components/theme'
 import type { ButtonTone } from '@wfe/components'
 import { Button, Input, Field, Label } from '@wfe/components'
 import {
   schemes,
+  accentColors,
   primaryColors,
   secondaryColors,
   decorationColors,
@@ -33,6 +30,40 @@ const roles = [
   { name: 'Text 2', source: 'text', index: 1 },
 ] as const
 
+function PaletteRow(props: {
+  label: 'Primary' | 'Secondary' | 'Accent'
+  colors: readonly PaletteColor[]
+  selected: PaletteColor
+  sample: (color: PaletteColor) => string | undefined
+  onChange: (color: PaletteColor) => void
+}) {
+  return (
+    <div
+      class="appearance-options"
+      role="group"
+      aria-label={`${props.label} colors`}
+    >
+      <span data-ui-text="system">{props.label}</span>
+      <For each={props.colors}>
+        {(color) => (
+          <Button
+            class="palette-swatch"
+            aria-label={`${color.name} ${props.label.toLowerCase()}`}
+            title={color.name}
+            aria-pressed={props.selected === color ? 'true' : 'false'}
+            onClick={() => props.onChange(color)}
+          >
+            <span
+              aria-hidden="true"
+              style={{ background: props.sample(color) }}
+            />
+          </Button>
+        )}
+      </For>
+    </div>
+  )
+}
+
 /** Temporary application-owned review. Nothing is persisted. */
 export function AppearanceReview(props: {
   themeOptions?: ThemeOptions
@@ -43,12 +74,14 @@ export function AppearanceReview(props: {
   onPlacementChange?: (placement: 'left' | 'top' | 'right') => void
   scheme: SurfaceScheme
   primary: PaletteColor
+  accent?: PaletteColor
   dividers?: TableDividers
   onDividersChange?: (dividers: TableDividers) => void
   layers: SurfaceLayers
   onLayersChange: (layers: SurfaceLayers) => void
   onSchemeChange: (scheme: SurfaceScheme) => void
   onPrimaryChange: (color: PaletteColor) => void
+  onAccentChange?: (color: PaletteColor) => void
 }) {
   // The review samples the same token blocks that the theme style sheet applies.
   const options = (): ThemeOptions =>
@@ -59,18 +92,13 @@ export function AppearanceReview(props: {
       dividers: props.dividers,
     }
   const active = createMemo(() => resolveThemeTokens(options()))
-  const colorSample = (color: PaletteColor, secondary = false) => {
-    const name = paletteColorName(color)
-    const tokens = resolveThemeTokens({
-      ...options(),
-      ...(secondary
-        ? { secondary: name as ThemeSecondary }
-        : { primary: name as ThemePrimary }),
-    })
-    return {
-      background: tokens[secondary ? '--ui-secondary' : '--ui-primary'],
-    }
-  }
+  const sampleColor = (
+    role: 'primary' | 'secondary' | 'accent',
+    color: PaletteColor,
+  ) =>
+    resolveThemeTokens({ ...options(), [role]: paletteColorName(color) })[
+      `--ui-${role}`
+    ]
   const dividerSample = (key: keyof TableDividers, level: 0 | 1 | 2 | 3) => {
     const tokens = resolveThemeTokens({
       ...options(),
@@ -89,15 +117,63 @@ export function AppearanceReview(props: {
     }
   })
   const [buttonTone, setButtonTone] = createSignal<ButtonTone>('primary')
+  const primaryRow = () => (
+    <PaletteRow
+      label="Primary"
+      colors={primaryColors}
+      selected={props.primary}
+      sample={(color) => sampleColor('primary', color)}
+      onChange={props.onPrimaryChange}
+    />
+  )
   return (
     <section class="appearance-review" aria-label="Appearance review">
+      <Show when={props.accent}>
+        {(accent) => (
+          <div class="appearance-palettes">
+            <div class="appearance-pickers">{primaryRow()}</div>
+            <Show when={props.decorations}>
+              {(decoration) => (
+                <div class="appearance-pickers">
+                  <PaletteRow
+                    label="Secondary"
+                    colors={secondaryColors}
+                    selected={secondaryColors[decoration().secondary]!}
+                    sample={(color) => sampleColor('secondary', color)}
+                    onChange={(color) =>
+                      props.onDecorationsChange?.(
+                        {
+                          ...decoration(),
+                          secondary: secondaryColors.indexOf(color),
+                        },
+                        true,
+                      )
+                    }
+                  />
+                </div>
+              )}
+            </Show>
+            <div class="appearance-pickers">
+              <PaletteRow
+                label="Accent"
+                colors={accentColors}
+                selected={accent()}
+                sample={(color) => sampleColor('accent', color)}
+                onChange={(color) => props.onAccentChange?.(color)}
+              />
+            </div>
+          </div>
+        )}
+      </Show>
       <div class="appearance-pickers">
         <div
           class="appearance-options"
           role="group"
           aria-label="Neutral surfaces"
         >
-          <span data-ui-text="system">Surfaces</span>
+          <span data-ui-text="system">
+            {props.accent ? 'Neutral surfaces' : 'Surfaces'}
+          </span>
           <For each={schemes}>
             {(scheme) => (
               <Button
@@ -110,29 +186,10 @@ export function AppearanceReview(props: {
             )}
           </For>
         </div>
-        <div
-          class="appearance-options"
-          role="group"
-          aria-label="Primary colors"
-        >
-          <span data-ui-text="system">Primary</span>
-          <For each={primaryColors}>
-            {(accent) => (
-              <Button
-                class="palette-swatch"
-                aria-label={`${accent.name} primary`}
-                title={accent.name}
-                aria-pressed={props.primary === accent ? 'true' : 'false'}
-                onClick={() => props.onPrimaryChange(accent)}
-              >
-                <span aria-hidden="true" style={colorSample(accent)} />
-              </Button>
-            )}
-          </For>
-        </div>
+        <Show when={!props.accent}>{primaryRow()}</Show>
         <div class="appearance-options" role="group" aria-label="Button tone">
           <span data-ui-text="system">Tone</span>
-          <For each={['neutral', 'primary'] as const}>
+          <For each={decorationColors}>
             {(tone) => (
               <Button
                 aria-pressed={buttonTone() === tone ? 'true' : 'false'}
@@ -275,32 +332,6 @@ export function AppearanceReview(props: {
       </div>
       <Show when={props.decorations}>
         <div class="appearance-decorations">
-          <div
-            class="appearance-options"
-            role="group"
-            aria-label="Secondary colors"
-          >
-            <span data-ui-text="system">Secondary</span>
-            <For each={secondaryColors}>
-              {(accent, index) => (
-                <Button
-                  class="palette-swatch"
-                  aria-label={`${accent.name} secondary`}
-                  aria-pressed={
-                    props.decorations!.secondary === index() ? 'true' : 'false'
-                  }
-                  onClick={() =>
-                    props.onDecorationsChange?.(
-                      { ...props.decorations!, secondary: index() },
-                      true,
-                    )
-                  }
-                >
-                  <span aria-hidden="true" style={colorSample(accent, true)} />
-                </Button>
-              )}
-            </For>
-          </div>
           <Show when={props.showDecorationControls !== false}>
             <For each={['dotColor', 'borderColor'] as const}>
               {(key) => (

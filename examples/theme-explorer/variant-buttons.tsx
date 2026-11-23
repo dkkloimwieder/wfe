@@ -1,4 +1,5 @@
 import {
+  BUTTON_TONES,
   Button,
   ButtonLink,
   Icon,
@@ -6,18 +7,17 @@ import {
   Toggle,
   ToggleGroup,
 } from '@wfe/components'
-import type { ButtonTone, ButtonVariant, IconName } from '@wfe/components'
+import type { ButtonVariant, IconName } from '@wfe/components'
 import {
   actionStates,
   editingStates,
   interactiveStates,
+  roleSpecimens,
   specimen,
   stateProps,
 } from './variant-types'
 
-const tones = ['default', 'neutral', 'primary'] as const satisfies readonly (
-  ButtonTone | 'default'
-)[]
+const tones = ['default', ...BUTTON_TONES] as const
 const treatments = [
   'outline',
   'filled',
@@ -115,6 +115,22 @@ export const buttonSpecimens = [
       </Toggle>
     ),
   ),
+  ...roleSpecimens('toggle/tone', 'Toggle', (tone) => (
+    <Toggle tone={tone} pressed={false} onPressedChange={() => {}}>
+      Pin
+    </Toggle>
+  )),
+  ...roleSpecimens('toggle-group/tone', 'ToggleGroup', (tone) => (
+    <ToggleGroup
+      tone={tone}
+      items={[
+        { value: 'left', label: 'Left' },
+        { value: 'right', label: 'Right' },
+      ]}
+      aria-label="Alignment"
+      onValueChange={() => {}}
+    />
+  )),
   ...(['single', 'multiple'] as const).flatMap((selection) =>
     (['horizontal', 'vertical'] as const).map((orientation) =>
       specimen(

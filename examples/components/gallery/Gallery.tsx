@@ -20,7 +20,11 @@ import { DashboardShell, SidebarGroup } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import { AppearanceReview } from '../../shared/appearance/AppearanceReview'
-import { schemes, primaryColors } from '../../shared/appearance/appearance'
+import {
+  schemes,
+  primaryColors,
+  accentColors,
+} from '../../shared/appearance/appearance'
 import {
   entries,
   entryFor,
@@ -317,20 +321,16 @@ export function Gallery() {
               </For>
             </div>
             <AppearanceReview
-              themeOptions={
-                route().preset === 'default'
-                  ? undefined
-                  : {
-                      ...galleryThemeOptions(route()),
-                      preset: route().preset,
-                      mode:
-                        route().scheme === 2
-                          ? 'dark'
-                          : route().scheme === 0
-                            ? 'monochrome'
-                            : 'light',
-                    }
-              }
+              themeOptions={{
+                ...galleryThemeOptions(route()),
+                preset: route().preset,
+                mode:
+                  route().scheme === 2
+                    ? 'dark'
+                    : route().scheme === 0
+                      ? 'monochrome'
+                      : 'light',
+              }}
               showDecorationControls={route().preset === 'default'}
               decorations={route().decorations}
               onDecorationsChange={(decorations, commit) =>
@@ -338,12 +338,16 @@ export function Gallery() {
               }
               scheme={schemes[route().scheme]!}
               primary={primaryColors[route().primary]!}
+              accent={accentColors[route().accent]}
               layers={route().layers}
               onSchemeChange={(value) =>
                 change({ scheme: schemes.indexOf(value) })
               }
               onPrimaryChange={(value) =>
                 change({ primary: primaryColors.indexOf(value) })
+              }
+              onAccentChange={(value) =>
+                change({ accent: accentColors.indexOf(value) })
               }
               onLayersChange={(layers) => change({ layers })}
             />

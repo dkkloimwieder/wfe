@@ -585,6 +585,83 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       assert.deepEqual(report.warnings, [])
     })
 
+    await record(
+      'Variants show neutral keyboard focus and distinct role hues',
+      async () => {
+        await page.setViewportSize({ width: 1600, height: 1000 })
+        for (const mode of ['light', 'dark']) {
+          await page.goto(
+            new URL(`?variants&mode=${mode}`, server.resolvedUrls.local[0])
+              .href,
+          )
+          await page
+            .locator('[data-variants-ready]')
+            .waitFor({ timeout: 45_000 })
+
+          const samples = await page.evaluate(() => {
+            // Canvas normalizes both rgb() and modern CSS color forms to sRGB.
+            const canvas = document.createElement('canvas')
+            canvas.width = canvas.height = 1
+            const pixel = canvas.getContext('2d', { willReadFrequently: true })
+            function channels(color) {
+              pixel.clearRect(0, 0, 1, 1)
+              pixel.fillStyle = color
+              pixel.fillRect(0, 0, 1, 1)
+              return [...pixel.getImageData(0, 0, 1, 1).data]
+            }
+            function paint(preset, role, state) {
+              return getComputedStyle(
+                document.querySelector(
+                  `[data-preset="${preset}"][data-variant="button/text/${role}/filled/${state}"] button`,
+                ),
+              )
+            }
+            return ['default', 'vanilla', 'laser'].map((preset) => ({
+              preset,
+              roles: ['primary', 'secondary', 'accent'].map((role) => {
+                const focus = paint(preset, role, 'focus')
+                return {
+                  role,
+                  ring: channels(focus.outlineColor),
+                  ringVisible:
+                    focus.outlineStyle !== 'none' &&
+                    parseFloat(focus.outlineWidth) > 0,
+                  fill: channels(paint(preset, role, 'rest').backgroundColor),
+                }
+              }),
+            }))
+          })
+
+          for (const { preset, roles } of samples) {
+            const hues = []
+            for (const { role, ring, ringVisible, fill } of roles) {
+              const [red, green, blue, alpha] = ring
+              const detail = `${preset} ${mode} ${role}`
+              assert.ok(ringVisible && alpha > 0, `${detail} ring is visible`)
+              assert.ok(
+                red === green && green === blue,
+                `${detail} ring is neutral: ${ring}`,
+              )
+              const [r, g, b, opacity] = fill
+              assert.ok(
+                opacity > 0 && Math.max(r, g, b) > Math.min(r, g, b),
+                `${detail} fill has a hue: ${fill}`,
+              )
+              const hue = Math.atan2(Math.sqrt(3) * (g - b), 2 * r - g - b)
+              for (const other of hues) {
+                const distance = Math.acos(Math.cos(hue - other))
+                assert.ok(
+                  distance > Math.PI / 6,
+                  `${detail} hue is distinct: ${JSON.stringify(roles)}`,
+                )
+              }
+              hues.push(hue)
+            }
+          }
+        }
+      },
+    )
+
     await record('Variants use the gallery backing geometry', async () => {
       await page.setViewportSize({ width: 1600, height: 1000 })
       // The gallery allows up to 4.75 degrees before size reduction.

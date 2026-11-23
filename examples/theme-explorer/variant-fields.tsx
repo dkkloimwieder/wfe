@@ -1,5 +1,6 @@
 import { For } from 'solid-js'
 import { NativeSelectVariant } from './NativeSelectVariant'
+import type { ColorRole } from '@wfe/components/theme'
 import type { JSX } from '@solidjs/web'
 import {
   Calendar,
@@ -12,6 +13,8 @@ import {
   Field,
   FieldError,
   FileInput,
+  InputGroup,
+  Button,
   HelpText,
   Input,
   Label,
@@ -29,6 +32,7 @@ import {
 import {
   actionStates,
   editingStates,
+  roleSpecimens,
   specimen,
   stateProps,
   type State,
@@ -65,6 +69,7 @@ function SelectSample(props: {
   state: State
   multiple?: boolean
   items?: boolean
+  decoration?: ColorRole
 }) {
   const open = () => props.items || props.state === 'open'
   const selected = () => props.state === 'selected' || (!props.items && open())
@@ -90,7 +95,7 @@ function SelectSample(props: {
       )}
     >
       <Select.Label>Team</Select.Label>
-      <Select.Trigger>
+      <Select.Trigger decoration={props.decoration}>
         <Select.Value<(typeof choices)[number]>>
           {(value) =>
             value
@@ -121,6 +126,7 @@ function ComboboxSample(props: {
   state: State
   multiple?: boolean
   items?: boolean
+  decoration?: ColorRole
 }) {
   const open = () => props.items || props.state === 'open'
   const selected = () => props.state === 'selected' || (!props.items && open())
@@ -146,7 +152,7 @@ function ComboboxSample(props: {
       )}
     >
       <Combobox.Label>Team</Combobox.Label>
-      <Combobox.Control<(typeof choices)[number]>>
+      <Combobox.Control<(typeof choices)[number]> decoration={props.decoration}>
         {(value) => (
           <>
             {props.multiple
@@ -173,9 +179,10 @@ function ComboboxSample(props: {
   )
 }
 
-const selectField = (state: State) => (
+const selectField = (state: State, decoration?: ColorRole) => (
   <LabeledField label="Team" state={state}>
     <SelectField
+      decoration={decoration}
       {...stateProps(state)}
       label="Team"
       choices={choices}
@@ -186,9 +193,14 @@ const selectField = (state: State) => (
   </LabeledField>
 )
 
-const datePicker = (state: State, withValue = false) => (
+const datePicker = (
+  state: State,
+  withValue = false,
+  decoration?: ColorRole,
+) => (
   <LabeledField label="Start date" state={state}>
     <DatePicker
+      decoration={decoration}
       {...stateProps(state)}
       label="Start date"
       value={
@@ -213,9 +225,14 @@ const dateRangePicker = (state: State) => (
   </LabeledField>
 )
 
-const dateTimePicker = (state: State, timeView: 'columns' | 'clock') => (
+const dateTimePicker = (
+  state: State,
+  timeView: 'columns' | 'clock',
+  decoration?: ColorRole,
+) => (
   <LabeledField label="Appointment" state={state}>
     <DateTimePicker
+      decoration={decoration}
       {...stateProps(state)}
       label="Appointment"
       value={
@@ -231,9 +248,14 @@ const dateTimePicker = (state: State, timeView: 'columns' | 'clock') => (
   </LabeledField>
 )
 
-const timePicker = (state: State, timeView: 'columns' | 'clock') => (
+const timePicker = (
+  state: State,
+  timeView: 'columns' | 'clock',
+  decoration?: ColorRole,
+) => (
   <LabeledField label="Start time" state={state}>
     <TimePicker
+      decoration={decoration}
       {...stateProps(state)}
       label="Start time"
       value={state === 'selected' || state === 'open' ? '14:30' : undefined}
@@ -243,9 +265,10 @@ const timePicker = (state: State, timeView: 'columns' | 'clock') => (
   </LabeledField>
 )
 
-const colorPicker = (state: State) => (
+const colorPicker = (state: State, decoration?: ColorRole) => (
   <LabeledField label="Marker color" state={state}>
     <ColorPicker
+      decoration={decoration}
       {...stateProps(state)}
       label="Marker color"
       value="#4176ad"
@@ -257,6 +280,133 @@ const colorPicker = (state: State) => (
 const choicesStates = [...editingStates, 'selected'] as const
 const popupTrigger = 'button[aria-haspopup]'
 const popupLayout = { openTrigger: popupTrigger }
+
+function decorationSpecimens(
+  id: string,
+  label: string,
+  render: (role: ColorRole) => JSX.Element,
+) {
+  return roleSpecimens(`${id}/decoration`, `${label} decoration`, render, [
+    'hover',
+  ])
+}
+
+const fieldRoleSpecimens = [
+  ...decorationSpecimens('field', 'Field', (decoration) => (
+    <Field decoration={decoration}>
+      <Label>Name</Label>
+      <Input value="Sample record" />
+    </Field>
+  )),
+  ...decorationSpecimens('input', 'Input', (decoration) => (
+    <Input aria-label="Name" value="Sample record" decoration={decoration} />
+  )),
+  ...decorationSpecimens('number-input', 'NumberInput', (decoration) => (
+    <NumberInput
+      aria-label="Quantity"
+      value={12}
+      onValueChange={noop}
+      decoration={decoration}
+    />
+  )),
+  ...decorationSpecimens('textarea', 'Textarea', (decoration) => (
+    <Textarea
+      aria-label="Notes"
+      value="Sample record"
+      rows={2}
+      decoration={decoration}
+    />
+  )),
+  ...decorationSpecimens('native-select', 'NativeSelect', (decoration) => (
+    <NativeSelectVariant
+      choices={choices}
+      selected={false}
+      decoration={decoration}
+    />
+  )),
+  ...decorationSpecimens('select', 'Select.Trigger', (decoration) => (
+    <SelectSample state="rest" decoration={decoration} />
+  )),
+  ...decorationSpecimens('select-field', 'SelectField', (decoration) =>
+    selectField('rest', decoration),
+  ),
+  ...decorationSpecimens('combobox', 'Combobox.Control', (decoration) => (
+    <ComboboxSample state="rest" decoration={decoration} />
+  )),
+  ...decorationSpecimens('checkbox', 'Checkbox', (decoration) => (
+    <Checkbox decoration={decoration}>
+      <Checkbox.Input />
+      <Checkbox.Control>
+        <Checkbox.Indicator />
+      </Checkbox.Control>
+      <Checkbox.Label>Notify me</Checkbox.Label>
+    </Checkbox>
+  )),
+  ...decorationSpecimens('radio-group', 'RadioGroup', (decoration) => (
+    <RadioGroup decoration={decoration}>
+      <RadioGroup.Label>Delivery</RadioGroup.Label>
+      <RadioGroup.Item value="email">
+        <RadioGroup.ItemInput />
+        <RadioGroup.ItemControl>
+          <RadioGroup.ItemIndicator />
+        </RadioGroup.ItemControl>
+        <RadioGroup.ItemLabel>Email</RadioGroup.ItemLabel>
+      </RadioGroup.Item>
+    </RadioGroup>
+  )),
+  ...decorationSpecimens('switch', 'Switch', (decoration) => (
+    <Switch decoration={decoration}>
+      <Switch.Input />
+      <Switch.Control>
+        <Switch.Thumb />
+      </Switch.Control>
+      <Switch.Label>Auto-save</Switch.Label>
+    </Switch>
+  )),
+  ...decorationSpecimens('slider', 'Slider', (decoration) => (
+    <Slider
+      aria-label="Amount"
+      value={40}
+      onValueChange={noop}
+      decoration={decoration}
+    />
+  )),
+  ...decorationSpecimens('range-slider', 'RangeSlider', (decoration) => (
+    <RangeSlider
+      aria-label="Amounts"
+      value={[30, 70]}
+      thumbLabels={['Minimum', 'Maximum']}
+      onValueChange={noop}
+      decoration={decoration}
+    />
+  )),
+  ...decorationSpecimens('date-picker', 'DatePicker', (decoration) =>
+    datePicker('rest', true, decoration),
+  ),
+  ...decorationSpecimens('date-time-picker', 'DateTimePicker', (decoration) =>
+    dateTimePicker('rest', 'columns', decoration),
+  ),
+  ...decorationSpecimens('time-picker', 'TimePicker', (decoration) =>
+    timePicker('rest', 'columns', decoration),
+  ),
+  ...decorationSpecimens('color-picker', 'ColorPicker', (decoration) =>
+    colorPicker('rest', decoration),
+  ),
+  ...decorationSpecimens('file-input', 'FileInput', (decoration) => (
+    <FileInput
+      label="Attachments"
+      files={[]}
+      onFilesChange={noop}
+      decoration={decoration}
+    />
+  )),
+  ...decorationSpecimens('input-group', 'InputGroup', (decoration) => (
+    <InputGroup decoration={decoration}>
+      <Input aria-label="Search" value="Sample record" />
+      <Button>Go</Button>
+    </InputGroup>
+  )),
+]
 
 export const fieldSpecimens = [
   specimen('input/text', 'Input / text', editingStates, (state) => (
@@ -556,4 +706,5 @@ export const fieldSpecimens = [
       ),
     ),
   ),
+  ...fieldRoleSpecimens,
 ]

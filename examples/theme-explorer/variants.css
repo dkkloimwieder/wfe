@@ -81,6 +81,10 @@ body:has([data-variants-page]) {
   transform: none !important;
 }
 
+.variant-drag-preview .ui-dnd-preview {
+  position: static;
+}
+
 .variant-content > .ui-dialog-content {
   position: relative;
   inset: auto;

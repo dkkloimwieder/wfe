@@ -326,7 +326,8 @@ export async function galleryThemeCases({ page, url, record }) {
       ).toHaveCount(1)
       for (const [name, key, value] of [
         ['Orange primary', 'primary', '6'],
-        ['Yellow secondary', 'secondary', '9'],
+        ['Teal secondary', 'secondary', '2'],
+        ['Pink accent', 'accent', '5'],
         ['Base Surface 3', 'canvas', '2'],
         ['Content Surface 2', 'content', '1'],
       ]) {

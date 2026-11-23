@@ -6,7 +6,7 @@ Use the [component gallery](component-gallery.md) to review the current Sketchy 
 The gallery and standalone examples use the shared appearance controls where their hosts provide them.
 The [theme guide](theme.md) defines the public configuration contract.
 
-The Sketchy theme starts in Light mode with a blue primary color and outline buttons.
+The gallery starts in Sketchy light mode with blue Primary, yellow Secondary, violet Accent, and outline buttons.
 It uses flat surfaces without shadows.
 BASE uses Surface 1, PANES uses Surface 3, and CONTENT uses Surface 2.
 The shared `defaultLayers` value is `{ canvas: 0, pane: 2, content: 1 }`.
