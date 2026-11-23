@@ -313,10 +313,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         // States. The muted surface is the sunken surface of disabled and read-only fields.
         // Every preset dims disabled controls with this one opacity.
         '--ui-disabled-opacity': '0.5',
-        '--ui-disabled-fill-darkening': '45%',
-        '--ui-disabled-fill': 'var(--ui-muted-surface)',
-        // Sketchy's disabled field text reaches 3:1 on the muted surface.
-        '--ui-disabled-fill-text': 'var(--ui-disabled-text)',
+        '--ui-disabled-fill': 'var(--ui-surface-4)',
+        '--ui-disabled-fill-text': 'var(--ui-muted-text)',
         // Disabled foreground: text and borders mixed toward the surface at the ratio
         // above. Backgrounds stay opaque, so no layer shows through a disabled control.
         '--ui-disabled-text':
@@ -404,8 +402,6 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
           'color-mix(in srgb, var(--ui-surface) 95.5%, white)',
         '--ui-text': dark.text[0],
         '--ui-muted-text': dark.text[1],
-        '--ui-disabled-fill': 'initial',
-        '--ui-disabled-fill-text': 'initial',
         '--ui-border': roles.darkBorder,
         '--ui-neutral-button-border': roles.darkBorder,
         ...modeColorTokens('dark'),
@@ -425,8 +421,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         ...surfaces(mono.surfaces),
         '--ui-text': mono.text[0],
         '--ui-muted-text': mono.text[1],
-        '--ui-disabled-fill': 'initial',
-        '--ui-disabled-fill-text': 'initial',
+        // The monochrome surfaces are all white. Reuse the neutral light fill.
+        '--ui-disabled-fill': light.surfaces[3],
         '--ui-border': mono.text[0],
         '--ui-success': mono.text[0],
         '--ui-warning-surface': 'var(--ui-surface)',
@@ -436,6 +432,12 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-neutral-dot-color': mono.text[1],
         '--ui-neutral-border-color': mono.text[1],
       },
+    },
+    {
+      title: 'Sketchy, light mode',
+      when: { preset: 'default', mode: 'light' },
+      // This neutral meets 3:1 on surface 4.
+      tokens: { '--ui-disabled-fill-text': roles.darkRing },
     },
   ]
   for (const density of ['compact', 'comfortable'] as const) {
@@ -513,11 +515,6 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-listbox-padding': 'initial',
         '--ui-option-margin-y': '0',
       },
-    },
-    {
-      title: 'Plain presentation, light mode',
-      when: { preset: plain, mode: 'light' },
-      tokens: { '--ui-disabled-fill-text': 'var(--ui-muted-text)' },
     },
     {
       title: 'Plain presentation, dark mode',

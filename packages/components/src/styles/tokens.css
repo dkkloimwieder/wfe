@@ -119,9 +119,8 @@
   --ui-focus-width: 1px;
   --ui-focus-offset: 0px;
   --ui-disabled-opacity: 0.5;
-  --ui-disabled-fill-darkening: 45%;
-  --ui-disabled-fill: var(--ui-muted-surface);
-  --ui-disabled-fill-text: var(--ui-disabled-text);
+  --ui-disabled-fill: var(--ui-surface-4);
+  --ui-disabled-fill-text: var(--ui-muted-text);
   --ui-disabled-text: color-mix(
     in srgb,
     var(--ui-text) calc(var(--ui-disabled-opacity) * 100%),
@@ -211,8 +210,6 @@
   --ui-control-surface: color-mix(in srgb, var(--ui-surface) 95.5%, white);
   --ui-text: #e0e0e0;
   --ui-muted-text: #bbbbbb;
-  --ui-disabled-fill: initial;
-  --ui-disabled-fill-text: initial;
   --ui-border: #5c5c5c;
   --ui-neutral-button-border: #5c5c5c;
   --ui-primary: var(--ui-primary-dark);
@@ -238,8 +235,7 @@
   --ui-surface-4: #ffffff;
   --ui-text: #000000;
   --ui-muted-text: #000000;
-  --ui-disabled-fill: initial;
-  --ui-disabled-fill-text: initial;
+  --ui-disabled-fill: #e5e5e5;
   --ui-border: #000000;
   --ui-success: #000000;
   --ui-warning-surface: var(--ui-surface);
@@ -248,6 +244,11 @@
   --ui-error: #000000;
   --ui-neutral-dot-color: #000000;
   --ui-neutral-border-color: #000000;
+}
+
+/* Sketchy, light mode */
+:where([data-ui-tokens][data-ui-preset='default'][data-ui-mode='light']) {
+  --ui-disabled-fill-text: #737373;
 }
 
 /* compact density */
@@ -344,16 +345,6 @@
   --ui-disclosure-height: 16px;
   --ui-listbox-padding: initial;
   --ui-option-margin-y: 0;
-}
-
-/* Plain presentation, light mode */
-:where(
-  [data-ui-tokens]:is(
-      [data-ui-preset='vanilla'],
-      [data-ui-preset='laser']
-    )[data-ui-mode='light']
-) {
-  --ui-disabled-fill-text: var(--ui-muted-text);
 }
 
 /* Plain presentation, dark mode */

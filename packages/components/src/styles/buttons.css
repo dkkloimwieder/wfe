@@ -57,17 +57,10 @@
       [aria-disabled='true'],
       [data-disabled]
     ) {
-    --_ui-disabled-fill: var(
-      --ui-disabled-fill,
-      color-mix(
-        in srgb,
-        black var(--ui-disabled-fill-darkening, 45%),
-        var(--_button-color)
-      )
-    );
+    --_ui-disabled-fill: var(--ui-disabled-fill, var(--ui-surface-4, #e5e5e5));
     border-color: var(--_ui-disabled-fill);
     background: var(--_ui-disabled-fill);
-    color: var(--ui-disabled-fill-text, var(--_button-contrast));
+    color: var(--ui-disabled-fill-text, #737373);
     outline: none;
   }
 }
