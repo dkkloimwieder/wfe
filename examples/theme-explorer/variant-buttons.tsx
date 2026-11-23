@@ -15,7 +15,7 @@ import {
   stateProps,
 } from './variant-types'
 
-const tones = ['default', 'neutral', 'accent'] as const satisfies readonly (
+const tones = ['default', 'neutral', 'primary'] as const satisfies readonly (
   ButtonTone | 'default'
 )[]
 const treatments = [

@@ -13,7 +13,7 @@ Children retain their natural content height and share each grid row's height.
 ## Composition
 
 Use the public component stylesheet and a UI scope around these components.
-Applications can use the same density, surfaces, accent, and shadow roles as other controls.
+Applications can use the same density, surfaces, primary color, and shadow roles as other controls.
 
 ```tsx
 import { StatusTile, TileRow, uiScope } from '@wfe/components'

@@ -1,10 +1,10 @@
 import type { ThemeOptions } from '@wfe/components/theme'
 import {
-  accents,
+  primaryColors,
   defaultDecorations,
   defaultLayers,
   presetDefaults,
-  secondaryAccents,
+  secondaryColors,
 } from './appearance'
 import type { Decorations } from './appearance'
 
@@ -15,7 +15,7 @@ export type GalleryConfig = {
   preset: NonNullable<ThemeOptions['preset']>
   decorations: Decorations
   scheme: number
-  accent: number
+  primary: number
   layers: { canvas: 0 | 1 | 2; pane: 0 | 1 | 2; content: 0 | 1 | 2 }
   state: GalleryState
 }
@@ -38,17 +38,19 @@ export const galleryThemeOptions = (route: GalleryConfig) => ({
           borderColor: route.decorations.borderColor,
         }
       : undefined,
-  accent: accents[route.accent]!.name.toLowerCase() as ThemeOptions['accent'],
-  secondaryAccent: secondaryAccents[
+  primary: primaryColors[
+    route.primary
+  ]!.name.toLowerCase() as ThemeOptions['primary'],
+  secondary: secondaryColors[
     route.decorations.secondary
-  ]!.name.toLowerCase().replaceAll(' ', '-') as ThemeOptions['secondaryAccent'],
+  ]!.name.toLowerCase().replaceAll(' ', '-') as ThemeOptions['secondary'],
   layers: route.layers,
 })
 export const defaults: GalleryConfig = {
   preset: 'default',
   decorations: defaultDecorations,
   scheme: 1,
-  accent: 1,
+  primary: 1,
   layers: { ...defaultLayers },
   state: 'normal',
 }

@@ -35,7 +35,7 @@ See the [drag and drop guide](drag-and-drop.md) and
 | Area                    | Implemented functionality                                                                                                          | Guide or source                                                                                                                     |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Text and fields         | `Input`, `Textarea`, `Field`, `Label`, `HelpText`, `FieldError`, `FieldSet`, and `InputGroup`                                      | [Native field exports](../packages/components/src/components/NativeFields.tsx)                                                      |
-| Actions                 | `Button` and `IconButton`, outline/filled/inverted/ghost variants, neutral/accent tones                                            | [Buttons](button-variants.md)                                                                                                       |
+| Actions                 | `Button` and `IconButton`, outline/filled/inverted/ghost variants, neutral/primary tones                                           | [Buttons](button-variants.md)                                                                                                       |
 | Choices                 | `Select`, `SelectField`, `Combobox`, `Checkbox`, `Switch`, and `RadioGroup`                                                        | [Adoption](adoption.md) and [gallery](component-gallery.md)                                                                         |
 | Numbers                 | Numeric drafts, bounds, empty-value policy, controlled acceptance, and keyboard interaction                                        | [NumberInput](number-inputs.md)                                                                                                     |
 | Dates                   | `Calendar` and `DatePicker`, month/year selection, bounds, clearing, and date-only values                                          | [Calendar and picker](date-picker.md)                                                                                               |
@@ -125,7 +125,7 @@ Explicit transforms support grouping, bins, stacking, rolling values, normalizat
 The gallery includes layered trends, transformed data, pie/donut, radar, and radial bar recipes.
 It includes numeric, categorical, UTC, and local-time scales, legends, tooltips, keyboard interaction, and responsive SVG rendering.
 Applications supply accepted series visibility, data, display formatters, themes, and callbacks.
-The default uses the selected accent. Explicit series colors and application palettes support multiple colors.
+The default uses the selected primary color. Explicit series colors and application palettes support multiple colors.
 Time series use date axes on the existing plot types.
 
 The initial generated chart description supports one mark, a numeric y axis, and linear/band/point/UTC x axes.

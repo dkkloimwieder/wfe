@@ -24,20 +24,20 @@ import type {
   SortableMove,
 } from '@wfe/components/sortable'
 import { nativeEvents } from '@wfe/components/events'
-import { accents } from '@wfe/components/theme'
+import { primaryColors } from '@wfe/components/theme'
 import { iconEllipsis, iconPlus, iconPencil } from '@wfe/components/icons'
 import './style.css'
 
 type Issue = { id: string; title: string; description: string; tags: string[] }
 const categories = ['Design', 'Engineering', 'Accessibility', 'Testing']
 const stageAccents = {
-  planned: accents.find((accent) => accent.name === 'Blue')!,
-  active: accents.find((accent) => accent.name === 'Green')!,
+  planned: primaryColors.find((accent) => accent.name === 'Blue')!,
+  active: primaryColors.find((accent) => accent.name === 'Green')!,
 }
 function stageStyle(id: SortableId) {
   const accent = stageAccents[id as keyof typeof stageAccents]
   return accent
-    ? { '--ui-accent': `light-dark(${accent.light}, ${accent.dark})` }
+    ? { '--ui-primary': `light-dark(${accent.light}, ${accent.dark})` }
     : undefined
 }
 const initial: ReadonlyArray<SortableContainer> = [

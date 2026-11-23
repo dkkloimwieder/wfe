@@ -51,7 +51,7 @@
     :focus-visible,
     [data-resizing]
   )::after {
-  background: var(--ui-accent, #1971c2);
+  background: var(--ui-primary, #1971c2);
 }
 :where([data-ui]).ui-resize-handle:focus-visible {
   outline-offset: -2px;

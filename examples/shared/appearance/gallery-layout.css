@@ -62,7 +62,7 @@ body:has(.gallery-preview) {
   gap: var(--ui-gap);
 }
 .gallery-toolbar > a {
-  color: var(--ui-accent);
+  color: var(--ui-primary);
   padding: var(--ui-gap);
 }
 .gallery-stage {

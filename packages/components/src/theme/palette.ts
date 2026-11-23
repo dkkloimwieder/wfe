@@ -11,7 +11,7 @@ export type SurfaceScheme = {
   surfaces: readonly [string, string, string, string]
   text: readonly [string, string]
 }
-export type Accent = { name: string; light: string; dark: string }
+export type PaletteColor = { name: string; light: string; dark: string }
 export const monochrome: SurfaceScheme = {
   name: 'Black / white',
   mode: 'light',
@@ -33,13 +33,13 @@ export const schemes: readonly SurfaceScheme[] = [
     text: ['#e0e0e0', '#bbbbbb'],
   },
 ]
-export const neutralAccent: Accent = {
+export const neutralColor: PaletteColor = {
   name: 'Neutral',
   light: '#000000',
   dark: '#ffffff',
 }
-export const accents: readonly Accent[] = [
-  neutralAccent,
+export const primaryColors: readonly PaletteColor[] = [
+  neutralColor,
   { name: 'Blue', light: '#1971c2', dark: '#4dabf7' },
   { name: 'Teal', light: '#087f5b', dark: '#63e6be' },
   { name: 'Green', light: '#2b8a3e', dark: '#8ce99a' },
@@ -49,8 +49,8 @@ export const accents: readonly Accent[] = [
   { name: 'Brown', light: '#6f4b2d', dark: '#d3b79e' },
   { name: 'Choco', light: '#8a4513', dark: '#f1b280' },
 ]
-export const secondaryAccents: readonly Accent[] = [
-  ...accents,
+export const secondaryColors: readonly PaletteColor[] = [
+  ...primaryColors,
   { name: 'Yellow', light: '#fcc419', dark: '#ffe066' },
   { name: 'Light blue', light: '#74c0fc', dark: '#74c0fc' },
   { name: 'Dark blue', light: '#1864ab', dark: '#1971c2' },

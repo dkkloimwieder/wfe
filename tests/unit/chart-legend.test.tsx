@@ -7,13 +7,13 @@ const initial = [
   {
     id: 'actual',
     label: 'Actual requests',
-    color: 'var(--ui-accent)',
+    color: 'var(--ui-primary)',
     visible: true,
   },
   {
     id: 'planned',
     label: 'Planned requests',
-    color: 'var(--ui-accent)',
+    color: 'var(--ui-primary)',
     visible: false,
   },
 ]

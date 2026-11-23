@@ -200,17 +200,17 @@ Compare the exact release APIs before adopting a recipe from the moving document
 Charts use the shared `--ui-focus-width` property, with a 1px default.
 Custom widths also apply in forced-color mode, which retains the system highlight color.
 
-The default chart theme reads shared text, divider, surface, and accent CSS properties.
-Its palette contains one color, `var(--ui-accent)`.
-In the gallery, use the appearance controls to change the accent, color scheme, or theme.
+The default chart theme reads shared text, divider, surface, and primary CSS properties.
+Its palette contains one color, `var(--ui-primary)`.
+In the gallery, use the appearance controls to change the primary color, color scheme, or theme.
 These controls change charts that use the shared properties.
-The default gallery appearance uses Surface 1 components, a Surface 2 background, Blue accent, outline buttons, and no shadows.
+The default gallery appearance uses Surface 1 components, a Surface 2 background, a blue primary color, outline buttons, and no shadows.
 
 For separate series colors, set `color.domain` and `color.range` in the chart definition.
 The domain lists series keys. The range lists their colors in the same order.
-For example, pair `domain: ['API', 'Workers']` with `range: ['var(--ui-accent)', 'var(--ui-text)']`.
+For example, pair `domain: ['API', 'Workers']` with `range: ['var(--ui-primary)', 'var(--ui-text)']`.
 Set the mark's `z` or `color` channel to the record field that contains those keys.
-The statistical example assigns API the accent, Workers the text color, and Storage a mixture of the accent and surface colors.
+The statistical example assigns API the primary color and Workers the text color. Storage uses a mix of the primary and surface colors.
 
 To replace the default series palette for one chart, set `theme.palette` in its definition.
 For example, `theme: { palette: ['#2563eb', '#b45309'] }` supplies two colors.

@@ -8,8 +8,8 @@ export function DefaultAppearance(props: {
   children: JSX.Element
   options?: Pick<
     ThemeOptions,
-    | 'accent'
-    | 'secondaryAccent'
+    | 'primary'
+    | 'secondary'
     | 'layers'
     | 'dividers'
     | 'decorations'

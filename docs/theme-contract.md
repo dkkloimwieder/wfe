@@ -15,8 +15,8 @@ Themes do not own requests, permissions, routing, validation rules, or applicati
 ## Public selection
 
 Theme accepts an additive preset property with default, vanilla, and laser values. Omission preserves default.
-Existing mode, accent, secondaryAccent, density, style, class, and decoration options remain supported.
-All presets support primary and secondary accents and semantic surface roles.
+Mode, primary, secondary, density, style, class, and decoration are independent choices.
+All presets support primary and secondary colors and semantic surface roles.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
 All presets capitalize system labels and preserve record values and prose.
 Dividers and decoration controls configure the Sketchy preset.
@@ -25,19 +25,19 @@ Vanilla suppresses decorative effects, including explicit decoration requests in
 An inner Theme owns its full presentation and can select either preset independently.
 Switching a preset must preserve mounted content, values, focus, selection, and open overlays.
 A consumer can extend a preset through class and style without copying component behavior.
-No public export is removed or renamed.
+The theme guide lists the renamed public color properties and exports.
 
 ## Shared variables
 
-Existing --ui-* variables retain their names. Add roles instead of a variable for every declaration.
+Use shared roles to give related declarations the same value.
 Background roles include canvas, pane, content, control, popup, muted, hover, and selection.
-Foreground roles include text, muted text, heading, accent, on-accent, and on-selection.
+Foreground roles include text, muted text, heading, on-primary, and on-selection.
 A colored surface always has a matching foreground role. Error and disabled states remain distinguishable without color alone.
 Border roles include shared width, control width, divider width, border color, and control border color.
 Shape roles include control, panel, popup, radio, and switch radii, with --ui-radius as the shared fallback.
 Typography roles include family, size, line height, weight, heading size, and system-text transformation.
 Sizing roles retain current density records, control height, padding, field width, gap, and layout inset.
-Focus roles retain width, offset, color, and visible keyboard focus behavior.
+All presets use a neutral keyboard focus ring. Each preset sets its width and offset.
 Icon stroke, panel shadow, popup shadow, and motion are separate visual roles.
 Data geometry must use the same measurements as its virtual renderer. Explicit rowHeight remains authoritative.
 

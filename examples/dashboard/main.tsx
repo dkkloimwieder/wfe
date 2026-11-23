@@ -41,9 +41,9 @@ import type {
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
   schemes,
-  accents,
+  primaryColors,
   schemeMode,
-  accentOption,
+  primaryOption,
   defaultLayers,
   defaultDividers,
 } from '../shared/appearance/appearance'
@@ -284,7 +284,7 @@ function createFormatting() {
 }
 function TablePage() {
   const [scheme, setScheme] = createSignal(schemes[1]!)
-  const [accent, setAccent] = createSignal(accents[1]!)
+  const [primary, setPrimary] = createSignal(primaryColors[1]!)
   const [placement, setPlacement] = createSignal<'left' | 'top' | 'right'>(
     'left',
   )
@@ -307,7 +307,7 @@ function TablePage() {
   return (
     <Theme
       mode={schemeMode(scheme())}
-      accent={accentOption(accent())}
+      primary={primaryOption(primary())}
       layers={layers()}
       dividers={dividers()}
       style={{ height: '100%' }}
@@ -315,7 +315,7 @@ function TablePage() {
       <main class="table-page" aria-label="Records workspace">
         <AppearanceReview
           scheme={scheme()}
-          accent={accent()}
+          primary={primary()}
           placement={placement()}
           onPlacementChange={setPlacement}
           dividers={dividers()}
@@ -323,7 +323,7 @@ function TablePage() {
           layers={layers()}
           onLayersChange={setLayers}
           onSchemeChange={setScheme}
-          onAccentChange={setAccent}
+          onPrimaryChange={setPrimary}
         />
         <ReadOnlyTable
           controlsPlacement={placement()}

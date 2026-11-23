@@ -482,7 +482,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
         await expect(
           tab
             .locator('.gallery-example-host')
-            .getByRole('group', { name: 'accent buttons', exact: true }),
+            .getByRole('group', { name: 'primary buttons', exact: true }),
         ).toBeVisible()
         assert.deepEqual(diagnostics, [])
       } finally {
@@ -673,7 +673,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
         .click()
 
       await page
-        .getByRole('button', { name: 'Violet accent', exact: true })
+        .getByRole('button', { name: 'Violet primary', exact: true })
         .click()
       await page
         .getByRole('button', { name: 'Content Surface 3', exact: true })
@@ -721,7 +721,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
       const direct = await page
         .getByRole('link', { name: 'Direct link', exact: true })
         .getAttribute('href')
-      assert.equal(new URL(direct, page.url()).searchParams.get('accent'), '4')
+      assert.equal(new URL(direct, page.url()).searchParams.get('primary'), '4')
       await page
         .getByRole('button', { name: 'Appearance', exact: true })
         .click()
@@ -897,7 +897,7 @@ async function appearanceCases({ page, url, record }) {
         .getByRole('button', { name: 'Appearance', exact: true })
         .click()
       await page
-        .getByRole('button', { name: 'Orange secondary accent', exact: true })
+        .getByRole('button', { name: 'Orange secondary', exact: true })
         .click()
       await page
         .getByRole('group', { name: 'Dot color', exact: true })

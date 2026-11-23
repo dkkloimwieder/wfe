@@ -133,7 +133,7 @@ export function ComboboxItem<T extends ValidComponent = 'li'>(
   return (
     <Primitive
       {...props}
-      data-ui-section-decoration="accent"
+      data-ui-section-decoration="primary"
       class={styledClasses('popup-option', props.class)}
     />
   )

@@ -36,12 +36,12 @@
   flex: none;
 }
 .appearance-pickers > a {
-  color: var(--ui-accent);
+  color: var(--ui-primary);
 }
-.appearance-review .accent-swatch {
+.appearance-review .palette-swatch {
   padding: 4px;
 }
-.accent-swatch > span {
+.palette-swatch > span {
   display: block;
   width: 16px;
   height: 16px;
@@ -93,5 +93,5 @@
 .appearance-opacity input[type='range'] {
   width: 100%;
   padding: 0;
-  accent-color: var(--ui-accent);
+  accent-color: var(--ui-primary);
 }

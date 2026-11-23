@@ -98,7 +98,7 @@ await withArtifactRun(
             .click()
           for (const accent of ['Blue', 'Pink']) {
             const swatch = page.getByRole('button', {
-              name: `${accent} accent`,
+              name: `${accent} primary`,
               exact: true,
             })
             await swatch.click()
@@ -318,7 +318,7 @@ await withArtifactRun(
         const before = await snapshot()
         await button('Light surfaces').click()
         await button('Dark surfaces').click()
-        await button('Blue accent').click()
+        await button('Blue primary').click()
         await name.focus()
         await expect(name).toBeFocused()
         assert.equal(

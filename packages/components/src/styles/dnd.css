@@ -16,11 +16,11 @@
 }
 .ui-dnd-preview[data-tone='primary'],
 .ui-dnd-indicator[data-tone='primary'] {
-  --ui-dnd-color: var(--ui-accent);
+  --ui-dnd-color: var(--ui-primary);
 }
 .ui-dnd-preview[data-tone='secondary'],
 .ui-dnd-indicator[data-tone='secondary'] {
-  --ui-dnd-color: var(--ui-secondary-accent);
+  --ui-dnd-color: var(--ui-secondary);
 }
 .ui-dnd-preview {
   position: fixed;

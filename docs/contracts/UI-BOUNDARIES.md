@@ -253,15 +253,15 @@ export const overlayAppearances: [
   DropdownMenuTriggerProps,
   TooltipTriggerProps,
 ] = [
-  { variant: 'filled', tone: 'accent' },
-  { variant: 'filled', tone: 'accent' },
-  { variant: 'filled', tone: 'accent' },
-  { variant: 'filled', tone: 'accent' },
-  { variant: 'filled', tone: 'accent' },
-  { variant: 'filled', tone: 'accent' },
-  { variant: 'filled', tone: 'accent' },
-  { variant: 'filled', tone: 'accent' },
-  { variant: 'filled', tone: 'accent' },
+  { variant: 'filled', tone: 'primary' },
+  { variant: 'filled', tone: 'primary' },
+  { variant: 'filled', tone: 'primary' },
+  { variant: 'filled', tone: 'primary' },
+  { variant: 'filled', tone: 'primary' },
+  { variant: 'filled', tone: 'primary' },
+  { variant: 'filled', tone: 'primary' },
+  { variant: 'filled', tone: 'primary' },
+  { variant: 'filled', tone: 'primary' },
 ]
 
 // @ts-expect-error Variants use the same finite values as Button.
@@ -271,13 +271,13 @@ export function OverlayExample() {
   return (
     <>
       <Dialog>
-        <Dialog.Trigger as={Button} variant="filled" tone="accent">
+        <Dialog.Trigger as={Button} variant="filled" tone="primary">
           Details
         </Dialog.Trigger>
         <Dialog.Portal>
           <Dialog.Content>
             <Dialog.Title>Details</Dialog.Title>
-            <Dialog.CloseButton variant="ghost" tone="accent">
+            <Dialog.CloseButton variant="ghost" tone="primary">
               Close
             </Dialog.CloseButton>
           </Dialog.Content>
@@ -287,7 +287,7 @@ export function OverlayExample() {
         <Popover.Trigger variant="inverted">Display</Popover.Trigger>
       </Popover>
       <Tooltip>
-        <Tooltip.Trigger as="a" href="#help" variant="outline" tone="accent">
+        <Tooltip.Trigger as="a" href="#help" variant="outline" tone="primary">
           Help
         </Tooltip.Trigger>
       </Tooltip>

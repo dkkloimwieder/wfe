@@ -29,7 +29,7 @@ export function EntryExample() {
           <Input name="email" type="email" autocomplete="email" />
         </Field>
         <EntryPanelActions>
-          <Button type="submit" tone="accent">
+          <Button type="submit" tone="primary">
             Continue
           </Button>
           <Button type="reset" onClick={() => setSubmitted(false)}>

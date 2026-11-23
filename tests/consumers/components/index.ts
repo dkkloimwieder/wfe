@@ -414,14 +414,14 @@ import type {
   Textarea,
   TextareaProps,
   Theme,
-  ThemeAccent,
   themeAttributes,
   ThemeDensity,
   ThemeMode,
   ThemeOptions,
   ThemePreset,
+  ThemePrimary,
   ThemeProps,
-  ThemeSecondaryAccent,
+  ThemeSecondary,
   themeTokens,
   TileRow,
   TileRowProps,
@@ -885,14 +885,14 @@ export type ExportedTypes = Assert<
     Textarea: typeof Textarea
     TextareaProps: TextareaProps
     Theme: typeof Theme
-    ThemeAccent: ThemeAccent
     themeAttributes: typeof themeAttributes
     ThemeDensity: ThemeDensity
     ThemeMode: ThemeMode
     ThemeOptions: ThemeOptions
     ThemePreset: ThemePreset
+    ThemePrimary: ThemePrimary
     ThemeProps: ThemeProps
-    ThemeSecondaryAccent: ThemeSecondaryAccent
+    ThemeSecondary: ThemeSecondary
     themeTokens: typeof themeTokens
     TileRow: typeof TileRow
     TileRowProps: TileRowProps

@@ -1188,7 +1188,7 @@ await withArtifactRun(
           await retained()
         }
         for (const button of await page
-          .getByRole('group', { name: 'Accent colors', exact: true })
+          .getByRole('group', { name: 'Primary colors', exact: true })
           .getByRole('button')
           .all()) {
           await button.click()
@@ -1196,12 +1196,12 @@ await withArtifactRun(
           await retained()
         }
         const detached = await page
-          .getByRole('button', { name: 'Neutral accent', exact: true })
+          .getByRole('button', { name: 'Neutral primary', exact: true })
           .elementHandle()
         await page.evaluate(() => window.dashboardFixture.start())
         await detached.evaluate((node) => node.click())
         await expect(
-          page.getByRole('button', { name: 'Blue accent', exact: true }),
+          page.getByRole('button', { name: 'Blue primary', exact: true }),
         ).toHaveAttribute('aria-pressed', 'true')
         await detached.dispose()
         await table.dispose()

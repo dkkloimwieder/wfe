@@ -14,9 +14,9 @@ export type {
   ThemeProps,
   ThemeOptions,
   ThemeMode,
-  ThemeAccent,
+  ThemePrimary,
   ThemeDensity,
-  ThemeSecondaryAccent,
+  ThemeSecondary,
 } from './Theme'
 export * from './appearance'
 export { tokenSelector } from './tokens'

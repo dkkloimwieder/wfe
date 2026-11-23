@@ -5,7 +5,7 @@ It shows all three states, number/date/boolean formats, missing detail, and long
 The application supplies raw values and states. No threshold or request logic belongs to the components.
 TileRow uses the existing responsive grid.
 
-The page uses shared blue accents, outline defaults, surface 1 components, surface 2 background, and shadow depth 2.
+The page uses the shared blue primary color, outline defaults, surface 1 components, surface 2 background, and shadow depth 2.
 On narrow screens, the tiles form one column inside the scrolling main region.
 Labels and detail retain their full text when the visual line ends in an ellipsis.
 

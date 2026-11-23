@@ -5,8 +5,8 @@ export type {
   ThemeProps,
   ThemeOptions,
   ThemeMode,
-  ThemeAccent,
-  ThemeSecondaryAccent,
+  ThemePrimary,
+  ThemeSecondary,
 } from './theme'
 export { UI_DENSITIES, uiDensity, uiScope } from './styles/density'
 export type { UIDensity } from './styles/density'

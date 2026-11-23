@@ -86,13 +86,13 @@ await withArtifactRun(
       assert.match(markup, /<a[^>]*id="button-link-outline"[^>]*>/)
       assert.match(markup, /href="#button-link-destination"/)
       assert.match(markup, /data-variant="filled"/)
-      assert.match(markup, /data-tone="accent"/)
+      assert.match(markup, /data-tone="primary"/)
       const triggerMarkup = markup.match(
         /<button\b[^>]*\bid="adopt-trigger"[^>]*>/,
       )?.[0]
       assert.ok(triggerMarkup)
       assert.match(triggerMarkup, /data-variant="filled"/)
-      assert.match(triggerMarkup, /data-tone="accent"/)
+      assert.match(triggerMarkup, /data-tone="primary"/)
       assert.doesNotMatch(triggerMarkup, /\s(?:variant|tone)=/)
       const classMarkup = markup.match(
         /<div\b[^>]*\bid="class-root"[^>]*>/,
@@ -774,7 +774,7 @@ await withArtifactRun(
       )
       await expect(page.locator('#adopt-trigger')).toHaveAttribute(
         'data-tone',
-        'accent',
+        'primary',
       )
       await reviewTheme(page, { hydrated: true })
       report.assertions.push(
@@ -1024,7 +1024,7 @@ await withArtifactRun(
       )
       await expect(page.locator('#rename')).toHaveAttribute(
         'data-tone',
-        'accent',
+        'primary',
       )
       await page.locator('#rename').click()
       await expect(page.locator('#rename')).toHaveAttribute(
@@ -1105,7 +1105,7 @@ await withArtifactRun(
       ).toHaveAttribute('data-variant', 'ghost')
       await expect(
         dialog.getByRole('button', { name: 'Dismiss', exact: true }),
-      ).toHaveAttribute('data-tone', 'accent')
+      ).toHaveAttribute('data-tone', 'primary')
       await page.keyboard.press('Escape')
       await expect(dialog).not.toBeVisible()
       await expect(

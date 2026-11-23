@@ -21,7 +21,7 @@
 :where([data-ui]) .ui-tree-item:focus-visible,
 :where([data-ui]).ui-tree:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-accent));
+    var(--ui-focus-ring, var(--ui-primary));
   outline-offset: -2px;
 }
 :where([data-ui]) .ui-tree .ui-button.ui-tree-toggle {

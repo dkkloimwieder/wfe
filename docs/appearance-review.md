@@ -6,13 +6,13 @@ Use the [component gallery](component-gallery.md) to review the current Sketchy 
 The gallery and standalone examples use the shared appearance controls where their hosts provide them.
 The [theme guide](theme.md) defines the public configuration contract.
 
-The Sketchy theme starts in Light mode with a Blue accent and outline buttons.
+The Sketchy theme starts in Light mode with a blue primary color and outline buttons.
 It uses flat surfaces without shadows.
 BASE uses Surface 1, PANES uses Surface 3, and CONTENT uses Surface 2.
 The shared `defaultLayers` value is `{ canvas: 0, pane: 2, content: 1 }`.
 Layer numbers start at zero.
 
-The appearance controls offer neutral schemes, accents, button variants, and layer choices.
+The appearance controls offer palettes, neutral schemes, button variants, and layer choices.
 Hosts can also provide controls placement and divider choices.
 The application owns these controls and any persistence.
 Use the gallery guide for its direct links, history behavior, and review controls.
@@ -22,7 +22,7 @@ Use the gallery guide for its direct links, history behavior, and review control
 The text below preserves the earlier table and form appearance experiment.
 It is retained as a historical record on October 23, 2026.
 Its URLs, initial values, APPLY label, shadow controls, and native picker description do not define the current Sketchy theme.
-The original text and attribution remain unchanged.
+The historical description uses the current variable names.
 
 The default Table example at `http://127.0.0.1:7786/` has three neutral modes:
 BLACK / WHITE, LIGHT, and DARK. The initial mode remains BLACK / WHITE.
@@ -84,7 +84,7 @@ Table placement and divider controls stay in the Table example.
 
 Blue, Violet, and Orange use Open Props step 7 in light mode and step 1 in dark mode.
 Focus rings use a separate `--ui-focus-ring` role at 85% opacity.
-Other accent roles remain opaque. Select and Combobox highlights use `--ui-accent` and `--ui-on-accent`.
+Other color roles remain opaque. Select and Combobox highlights use `--ui-primary` and `--ui-on-primary`.
 These roles default to the accent pair when supplied.
 Native dropdown selects use [customizable select CSS](https://developer.mozilla.org/en-US/docs/Learn_web_development/Extensions/Forms/Customizable_select) on supporting browsers.
 Their native markup, form values, and events remain unchanged.

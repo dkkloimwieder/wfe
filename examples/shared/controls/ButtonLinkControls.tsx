@@ -7,14 +7,14 @@ export function ButtonLinkControls() {
       <For each={['outline', 'filled', 'inverted', 'ghost'] as const}>
         {(variant) => (
           <div>
-            <Button variant={variant} tone="accent">
+            <Button variant={variant} tone="primary">
               {variant} reference
             </Button>
             <ButtonLink
               id={`button-link-${variant}`}
               href="#button-link-destination"
               variant={variant}
-              tone="accent"
+              tone="primary"
             >
               {variant} destination
             </ButtonLink>

@@ -1,9 +1,9 @@
 export * from '@wfe/components/theme'
-import { accentName, monochrome } from '@wfe/components/theme'
+import { paletteColorName, monochrome } from '@wfe/components/theme'
 import type {
-  Accent,
+  PaletteColor,
   SurfaceScheme,
-  ThemeAccent,
+  ThemePrimary,
   ThemeMode,
 } from '@wfe/components/theme'
 
@@ -11,6 +11,6 @@ import type {
 export const schemeMode = (scheme: SurfaceScheme): ThemeMode =>
   scheme === monochrome ? 'monochrome' : scheme.mode
 
-/** Theme accent option for an appearance review accent. */
-export const accentOption = (accent: Accent) =>
-  accentName(accent) as ThemeAccent
+/** Theme primary option for an appearance review color. */
+export const primaryOption = (color: PaletteColor) =>
+  paletteColorName(color) as ThemePrimary

@@ -24,10 +24,10 @@ import type { ChartDescription } from '@wfe/generator/chart'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
   schemeMode,
-  accentOption,
+  primaryOption,
   defaultLayers,
   schemes,
-  accents,
+  primaryColors,
 } from '../shared/appearance/appearance'
 import type { SurfaceLayers } from '../shared/appearance/appearance'
 import '@wfe/components/styles.css'
@@ -64,7 +64,7 @@ export function App(props: {
       </div>
     )
   const [scheme, setScheme] = createSignal(schemes[1]!)
-  const [accent, setAccent] = createSignal(accents[1]!)
+  const [primary, setPrimary] = createSignal(primaryColors[1]!)
   const [layers, setLayers] = createSignal<SurfaceLayers>(defaultLayers)
   const [series, setSeries] = createSignal({ requests: true, capacity: true })
   const [rejectSeries, setRejectSeries] = createSignal(false)
@@ -75,14 +75,14 @@ export function App(props: {
         id: 'requests',
         label: 'Requests',
         lineStyle: 'solid' as const,
-        color: 'var(--ui-accent)',
+        color: 'var(--ui-primary)',
         visible: series().requests,
       },
       {
         id: 'capacity',
         label: 'Capacity',
         lineStyle: 'dashed' as const,
-        color: 'var(--ui-accent)',
+        color: 'var(--ui-primary)',
         visible: series().capacity,
       },
     ]
@@ -147,7 +147,7 @@ export function App(props: {
     <Theme
       class="chart-preview"
       mode={schemeMode(scheme())}
-      accent={accentOption(accent())}
+      primary={primaryOption(primary())}
       layers={layers()}
     >
       <header>
@@ -175,10 +175,10 @@ export function App(props: {
       </header>
       <AppearanceReview
         scheme={scheme()}
-        accent={accent()}
+        primary={primary()}
         layers={layers()}
         onSchemeChange={setScheme}
-        onAccentChange={setAccent}
+        onPrimaryChange={setPrimary}
         onLayersChange={setLayers}
       />
       <main class="chart-review-grid">

@@ -20,7 +20,7 @@ import { DashboardShell, SidebarGroup } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import { AppearanceReview } from '../../shared/appearance/AppearanceReview'
-import { schemes, accents } from '../../shared/appearance/appearance'
+import { schemes, primaryColors } from '../../shared/appearance/appearance'
 import {
   entries,
   entryFor,
@@ -337,13 +337,13 @@ export function Gallery() {
                 change({ decorations }, commit)
               }
               scheme={schemes[route().scheme]!}
-              accent={accents[route().accent]!}
+              primary={primaryColors[route().primary]!}
               layers={route().layers}
               onSchemeChange={(value) =>
                 change({ scheme: schemes.indexOf(value) })
               }
-              onAccentChange={(value) =>
-                change({ accent: accents.indexOf(value) })
+              onPrimaryChange={(value) =>
+                change({ primary: primaryColors.indexOf(value) })
               }
               onLayersChange={(layers) => change({ layers })}
             />

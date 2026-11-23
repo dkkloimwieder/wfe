@@ -122,7 +122,7 @@ Selection and activation do not open a built-in detail view.
 Hover or focus a bar to see its dates, time zone, progress, baseline, and editing status.
 The details close during an edit and on Escape.
 Read-only bars have a lock marker and neutral outline. Read-only milestones use a neutral fill.
-Progress uses primary-accent dots across the completed portion of the bar.
+Progress uses dots in the primary color across the completed portion of the bar.
 
 `onRangeChange` receives a requested visible range. The caller accepts it by
 updating `range`. This callback can also inform application-owned data loading;

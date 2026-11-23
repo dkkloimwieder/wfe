@@ -97,7 +97,7 @@ Buttons without an explicit tone inherit `--ui-button-color` and `--ui-button-on
 These roles apply to internal icon actions and delegated overlay buttons too.
 Unset roles retain the existing neutral appearance.
 Explicit `tone="neutral"` uses the text and surface roles.
-Explicit `tone="accent"` uses the accent roles.
+Explicit `tone="primary"` uses the primary role.
 
 Floating components share `--ui-popup-surface`, `--ui-popup-text`, `--ui-popup-border`, and `--ui-popup-shadow`.
 Unset surface and text roles inherit `--ui-surface` and `--ui-text`.
@@ -120,7 +120,7 @@ A selected Switch retains its highlight and thumb position in these states.
 The default opacity is 1, so disabled actions do not acquire a gray fill.
 Unavailable choice options use full opacity and muted text.
 Unavailable action menu items use full opacity.
-Compatibility native selection uses `--ui-accent` and `--ui-on-accent`.
+Compatibility native selection uses `--ui-primary` and `--ui-on-primary`.
 Custom Tree, Select, and Combobox selection uses `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
 Sketchy choice decoration accepts `--ui-choice-decoration-color`, `--ui-choice-decoration-opacity`, and `--ui-choice-decoration-surface`.
 Action menu focus retains the hover surface and inset focus border.
@@ -164,5 +164,5 @@ Fields shrink to the available width on narrow screens.
 `--ui-control-line-height`, `--ui-label-line-height`, and `--ui-label-weight` control shared typography.
 `--ui-focus-width` and `--ui-focus-offset` control the focus outline.
 Focused editable fields use `--ui-focus-ring` for their border color.
-The token base keeps `--ui-subtle-text`, `--ui-hover`, `--ui-divider`, `--ui-focus`, `--ui-field-focus-border`, `--ui-selection` and `--ui-on-selection` as aliases of `--ui-muted-text`, `--ui-highlight`, `--ui-border`, `--ui-focus-ring`, `--ui-focus-ring`, `--ui-accent` and `--ui-on-accent`. Components read the canonical names.
+The token base keeps `--ui-subtle-text`, `--ui-hover`, `--ui-divider`, `--ui-focus`, `--ui-field-focus-border`, `--ui-selection` and `--ui-on-selection` as aliases of `--ui-muted-text`, `--ui-highlight`, `--ui-border`, `--ui-focus-ring`, `--ui-focus-ring`, `--ui-primary` and `--ui-on-primary`. Components read the canonical names.
 `--ui-field-gap` supplies form section spacing. Action rows retain `--ui-gap`.

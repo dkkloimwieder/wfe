@@ -88,6 +88,6 @@
 }
 :where([data-ui]) .ui-kanban-item[data-drag-surface='card']:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-accent));
+    var(--ui-focus-ring, var(--ui-primary));
   outline-offset: 2px;
 }

@@ -20,10 +20,10 @@ import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
-  accents,
+  primaryColors,
   schemes,
   schemeMode,
-  accentOption,
+  primaryOption,
   defaultLayers,
 } from '../shared/appearance/appearance'
 import type { SurfaceLayers } from '../shared/appearance/appearance'
@@ -53,7 +53,7 @@ export function PlatformApp(props: {
   )
   const [appearance, setAppearance] = createSignal(false)
   const [scheme, setScheme] = createSignal(schemes[1]!)
-  const [accent, setAccent] = createSignal(accents[1]!)
+  const [primary, setPrimary] = createSignal(primaryColors[1]!)
   const [layers, setLayers] = createSignal<SurfaceLayers>({
     ...defaultLayers,
   })
@@ -196,7 +196,7 @@ export function PlatformApp(props: {
     <DefaultAppearance
       class="platform-example"
       mode={schemeMode(scheme())}
-      options={{ accent: accentOption(accent()), layers: layers() }}
+      options={{ primary: primaryOption(primary()), layers: layers() }}
     >
       <div
         class="platform-root"
@@ -492,10 +492,10 @@ export function PlatformApp(props: {
             <section id="platform-appearance" class="platform-appearance">
               <AppearanceReview
                 scheme={scheme()}
-                accent={accent()}
+                primary={primary()}
                 layers={layers()}
                 onSchemeChange={setScheme}
-                onAccentChange={setAccent}
+                onPrimaryChange={setPrimary}
                 onLayersChange={setLayers}
               />
             </section>

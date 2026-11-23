@@ -228,7 +228,7 @@ export function ThemeExplorer() {
             >
               <div class="example-actions" data-token-panel={config().preset}>
                 <Button
-                  tone="accent"
+                  tone="primary"
                   disabled={!css()}
                   onClick={() => void copy()}
                 >

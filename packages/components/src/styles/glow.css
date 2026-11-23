@@ -42,7 +42,7 @@
     --_ui-laser-ring-glow: 0 0 3px var(--ui-laser-glow-width)
       color-mix(
         in srgb,
-        var(--ui-accent)
+        var(--ui-primary)
           calc(
             var(--ui-laser-glow-ring-opacity) * var(--ui-laser-glow-strength, 1)
           ),
@@ -51,7 +51,7 @@
     --_ui-laser-halo: 0 0 var(--ui-laser-glow-blur)
       color-mix(
         in srgb,
-        var(--ui-accent)
+        var(--ui-primary)
           calc(var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1)),
         transparent
       );
@@ -59,7 +59,7 @@
       inset 0 0 var(--ui-laser-glow-blur)
         color-mix(
           in srgb,
-          var(--ui-accent)
+          var(--ui-primary)
             calc(
               var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1) *
                 var(--ui-laser-inset-glow-strength)
@@ -72,7 +72,7 @@
       0 0 calc(var(--ui-laser-glow-blur) * 2) 3px
         color-mix(
           in srgb,
-          var(--ui-accent)
+          var(--ui-primary)
             calc(
               var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1) *
                 0.4
@@ -82,7 +82,7 @@
     --_ui-laser-text-glow: 0 0 var(--ui-laser-text-glow-blur)
       color-mix(
         in srgb,
-        var(--ui-accent)
+        var(--ui-primary)
           calc(
             var(--ui-laser-text-glow-opacity) *
               var(
@@ -97,7 +97,7 @@
         0 0 var(--ui-laser-icon-glow-blur)
           color-mix(
             in srgb,
-            var(--ui-accent)
+            var(--ui-primary)
               calc(
                 var(--ui-laser-icon-glow-opacity) *
                   var(

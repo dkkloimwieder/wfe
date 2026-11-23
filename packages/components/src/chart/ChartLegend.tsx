@@ -43,7 +43,7 @@ export function ChartLegend(props: ChartLegendProps) {
           return (
             <Button
               class="ui-chart-legend-button"
-              tone="accent"
+              tone="primary"
               disabled={props.disabled || item().disabled}
               aria-pressed={item().visible ? 'true' : 'false'}
               onClick={() => {

@@ -6,7 +6,7 @@ The application owns accepted values and receives one `{ row, column, value }` r
 Verified is a read-only column. Record 30 is a disabled row.
 The example keeps changes in memory and sends no server request.
 
-The layout uses shared blue accents, outline controls, surface 1 components, and surface 2 background.
+The layout uses the shared blue primary color, outline controls, surface 1 components, and surface 2 background.
 The grid fills its main region and scrolls inside its border on narrow screens.
 The footer reports the latest requested value and the number of accepted changes.
 

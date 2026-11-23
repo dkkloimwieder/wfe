@@ -16,10 +16,10 @@ import { nativeEvents } from '@wfe/components/events'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
 import {
   schemes,
-  accents,
+  primaryColors,
   defaultLayers,
   schemeMode,
-  accentOption,
+  primaryOption,
 } from '../shared/appearance/appearance'
 import { createApplication } from './application'
 import type { ResponseMode } from './application'
@@ -29,7 +29,7 @@ export function App(props: {
   ready?: (application: ReturnType<typeof createApplication>) => void
 }) {
   const [scheme, setScheme] = createSignal(schemes[1]!)
-  const [accent, setAccent] = createSignal(accents[1]!)
+  const [primary, setPrimary] = createSignal(primaryColors[1]!)
   const [layers, setLayers] = createSignal(defaultLayers)
   const application = createApplication()
   const form = application.form
@@ -46,17 +46,17 @@ export function App(props: {
   return (
     <Theme
       mode={schemeMode(scheme())}
-      accent={accentOption(accent())}
+      primary={primaryOption(primary())}
       layers={layers()}
       style={{ display: 'flow-root' }}
     >
       <main class="form-page">
         <AppearanceReview
           scheme={scheme()}
-          accent={accent()}
+          primary={primary()}
           layers={layers()}
           onSchemeChange={setScheme}
-          onAccentChange={setAccent}
+          onPrimaryChange={setPrimary}
           onLayersChange={setLayers}
         />
         <div class="form-example">

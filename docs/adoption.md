@@ -104,7 +104,7 @@ The release also corrects the gallery history test and records browser and actio
 
 Git tag `v0.0.5` records the preceding components and Sketchy theme.
 The base canvas uses surface 1, panes use surface 3, and content uses surface 2.
-The theme retains the blue accent, outline buttons, dotted decoration, and flat surfaces without shadows.
+The theme retains the blue primary color, outline buttons, dotted decoration, and flat surfaces without shadows.
 
 Tables support application-owned pagination and header actions.
 Applications can omit the title/action bar, footer, configuration controls, and refresh control.

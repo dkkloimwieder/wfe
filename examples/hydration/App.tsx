@@ -472,7 +472,7 @@ export default function App() {
       <Button
         id="rename"
         variant={name() === 'Ada' ? 'filled' : 'inverted'}
-        tone={name() === 'Ada' ? 'accent' : 'neutral'}
+        tone={name() === 'Ada' ? 'primary' : 'neutral'}
         type="button"
         onClick={() => setName('Grace')}
       >
@@ -483,7 +483,7 @@ export default function App() {
           as={Button}
           id="adopt-trigger"
           variant={name() === 'Ada' ? 'filled' : 'inverted'}
-          tone="accent"
+          tone="primary"
         >
           View record
         </Dialog.Trigger>
@@ -494,7 +494,7 @@ export default function App() {
             <Dialog.Description>
               The current application value is {name()}.
             </Dialog.Description>
-            <Dialog.CloseButton as={Button} variant="ghost" tone="accent">
+            <Dialog.CloseButton as={Button} variant="ghost" tone="primary">
               Close preview
             </Dialog.CloseButton>
           </Dialog.Content>

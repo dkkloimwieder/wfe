@@ -33,7 +33,7 @@
 }
 .ui-color-channel > input {
   padding: 0;
-  accent-color: var(--ui-accent);
+  accent-color: var(--ui-primary);
 }
 .ui-color-channel > output {
   text-align: end;

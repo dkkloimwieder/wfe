@@ -329,9 +329,9 @@ export function Statistics() {
       color: {
         domain: ['API', 'Workers', 'Storage'],
         range: [
-          'var(--ui-accent)',
+          'var(--ui-primary)',
           'var(--ui-text)',
-          'color-mix(in srgb, var(--ui-accent) 55%, var(--ui-surface))',
+          'color-mix(in srgb, var(--ui-primary) 55%, var(--ui-surface))',
         ],
       },
       tooltip: { use: tooltip, portal: tooltipPortal },

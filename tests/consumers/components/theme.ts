@@ -1,9 +1,6 @@
 // Generated from built declarations by tests/consumers/generate.mjs.
 // Resolve only public package exports through the workspace node_modules links.
 import type {
-  Accent,
-  accentName,
-  accents,
   ControlDecoration,
   decoratedSelectors,
   DecorationColor,
@@ -16,18 +13,20 @@ import type {
   defaultLayers,
   DividerLevel,
   monochrome,
-  neutralAccent,
+  neutralColor,
+  PaletteColor,
+  paletteColorName,
   presetDefaults,
   presetSchemes,
+  primaryColors,
   resolveThemeTokens,
   schemes,
-  secondaryAccents,
+  secondaryColors,
   SurfaceLayers,
   SurfaceLevel,
   SurfaceScheme,
   TableDividers,
   Theme,
-  ThemeAccent,
   themeAttributes,
   themeChoices,
   themeDecoration,
@@ -36,8 +35,9 @@ import type {
   ThemeMode,
   ThemeOptions,
   ThemePreset,
+  ThemePrimary,
   ThemeProps,
-  ThemeSecondaryAccent,
+  ThemeSecondary,
   themeTokenBlocks,
   themeTokens,
   themeTokenSources,
@@ -51,9 +51,6 @@ import type { AllTyped, Assert } from '../assertions.js'
 
 export type ExportedTypes = Assert<
   AllTyped<{
-    Accent: Accent
-    accentName: typeof accentName
-    accents: typeof accents
     ControlDecoration: ControlDecoration
     decoratedSelectors: typeof decoratedSelectors
     DecorationColor: DecorationColor
@@ -66,18 +63,20 @@ export type ExportedTypes = Assert<
     defaultLayers: typeof defaultLayers
     DividerLevel: DividerLevel
     monochrome: typeof monochrome
-    neutralAccent: typeof neutralAccent
+    neutralColor: typeof neutralColor
+    PaletteColor: PaletteColor
+    paletteColorName: typeof paletteColorName
     presetDefaults: typeof presetDefaults
     presetSchemes: typeof presetSchemes
+    primaryColors: typeof primaryColors
     resolveThemeTokens: typeof resolveThemeTokens
     schemes: typeof schemes
-    secondaryAccents: typeof secondaryAccents
+    secondaryColors: typeof secondaryColors
     SurfaceLayers: SurfaceLayers
     SurfaceLevel: SurfaceLevel
     SurfaceScheme: SurfaceScheme
     TableDividers: TableDividers
     Theme: typeof Theme
-    ThemeAccent: ThemeAccent
     themeAttributes: typeof themeAttributes
     themeChoices: typeof themeChoices
     themeDecoration: typeof themeDecoration
@@ -86,8 +85,9 @@ export type ExportedTypes = Assert<
     ThemeMode: ThemeMode
     ThemeOptions: ThemeOptions
     ThemePreset: ThemePreset
+    ThemePrimary: ThemePrimary
     ThemeProps: ThemeProps
-    ThemeSecondaryAccent: ThemeSecondaryAccent
+    ThemeSecondary: ThemeSecondary
     themeTokenBlocks: typeof themeTokenBlocks
     themeTokens: typeof themeTokens
     themeTokenSources: typeof themeTokenSources

@@ -6,13 +6,13 @@
 // Local adaptation: neutral roles match the measured reference presentation.
 // Theme token values live in tokens.ts. This module holds application choice types.
 export {
-  accents,
-  secondaryAccents,
+  primaryColors,
+  secondaryColors,
   schemes,
   monochrome,
-  neutralAccent,
+  neutralColor,
 } from './palette'
-export type { Accent, SurfaceScheme } from './palette'
+export type { PaletteColor, SurfaceScheme } from './palette'
 
 export type SurfaceLevel = 0 | 1 | 2
 export type DividerLevel = 0 | 1 | 2 | 3
@@ -42,4 +42,4 @@ export const defaultDecorations: Decorations = {
   dotColor: 'neutral',
   borderColor: 'neutral',
 }
-export { accentName, presetDefaults, presetSchemes } from './tokens'
+export { paletteColorName, presetDefaults, presetSchemes } from './tokens'

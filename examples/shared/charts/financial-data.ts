@@ -78,7 +78,7 @@ const common = {
   tooltip: { use: tooltip, portal: tooltipPortal },
   maxFocusDistance: Infinity,
 }
-const accent = 'var(--ui-accent)'
+const accent = 'var(--ui-primary)'
 export const financialPanels = [
   {
     id: 'candlestick',

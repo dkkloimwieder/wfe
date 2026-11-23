@@ -64,7 +64,7 @@ body,
 }
 
 .platform-details a {
-  color: var(--ui-accent);
+  color: var(--ui-primary);
   align-self: flex-start;
 }
 .platform-table-screen :is(th, td) {

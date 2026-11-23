@@ -111,7 +111,7 @@ function MilestoneMarker() {
               cx="0.75"
               cy="0.75"
               r="0.75"
-              fill="var(--ui-accent)"
+              fill="var(--ui-primary)"
               fill-opacity="var(--ui-decoration-dot-opacity, 50%)"
             />
           </pattern>
@@ -119,8 +119,8 @@ function MilestoneMarker() {
       </Show>
       <path
         d="M9 1 17 16 9 31 1 16Z"
-        fill={!decorated() ? 'var(--ui-accent)' : `url(#${pattern})`}
-        stroke="var(--ui-accent)"
+        fill={!decorated() ? 'var(--ui-primary)' : `url(#${pattern})`}
+        stroke="var(--ui-primary)"
         stroke-opacity="var(--ui-decoration-border-opacity, 100%)"
         vector-effect="non-scaling-stroke"
       />

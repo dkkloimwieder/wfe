@@ -159,7 +159,7 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
           true,
         )
       }
-      for (const tone of ['accent', 'neutral']) {
+      for (const tone of ['primary', 'neutral']) {
         await configure({ tone })
         assert.equal(await icon.getAttribute('data-tone'), tone)
         assert.equal(await icon.getAttribute('tone'), null)
@@ -180,7 +180,7 @@ export async function nativeFieldCases({ page, url, record, press, settle }) {
     'fields: button tone and variant props remain semantic attributes',
     async () => {
       await open()
-      for (const tone of ['neutral', 'accent']) {
+      for (const tone of ['neutral', 'primary']) {
         await configure({ tone })
         for (const variant of ['outline', 'filled', 'inverted', 'ghost']) {
           const button = page.getByRole('button', {

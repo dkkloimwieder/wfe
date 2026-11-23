@@ -9,7 +9,7 @@ export function App() {
   )
   const [mode, setMode] = createSignal<'light' | 'dark'>('light')
   return (
-    <Theme preset={preset()} mode={mode()} accent="blue">
+    <Theme preset={preset()} mode={mode()} primary="blue">
       <div
         style={{
           display: 'flex',

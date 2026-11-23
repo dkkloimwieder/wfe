@@ -218,13 +218,13 @@
   min-block-size: var(--ui-control-height, 32px);
   padding: var(--ui-control-padding-y, 4px) var(--ui-cell-padding-x, 8px);
   border: var(--ui-border-width, 1px) solid transparent;
-  color: var(--ui-accent, #1971c2);
+  color: var(--ui-primary, #1971c2);
   text-decoration: none;
   overflow-wrap: anywhere;
 }
 :where([data-ui]) .ui-dashboard-menu > a:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-accent));
+    var(--ui-focus-ring, var(--ui-primary));
   outline-offset: -2px;
 }
 @media (width < 64rem) {
@@ -533,12 +533,12 @@
 }
 @media (hover: hover) {
   :where([data-ui]) .ui-dashboard-divider-toggle:hover svg {
-    fill: var(--ui-accent);
+    fill: var(--ui-primary);
   }
 }
 :where([data-ui]) .ui-dashboard-divider-toggle:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-accent));
+    var(--ui-focus-ring, var(--ui-primary));
   outline-offset: 0;
 }
 @media (width < 48rem) {

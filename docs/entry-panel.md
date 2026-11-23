@@ -39,9 +39,9 @@ Set `--ui-entry-panel-width` on the component to change this limit.
 The limit does not set field widths.
 Native attributes, classes, styles, events, and refs apply to the outer container.
 
-The panel uses the shared surface, spacing, border, and accent colors.
+The panel uses the shared surface, spacing, border, and primary colors.
 The surrounding canvas uses the shared neutral dotted background.
-Its dotted frame uses the primary accent, which is blue in the Sketchy theme.
+Its dotted frame uses the primary color, which is blue in the Sketchy theme.
 Decoration remains behind an opaque surface and cannot receive pointer events.
 Forced-color mode removes the decorative frame.
 The component adds no shadow.

@@ -31,7 +31,7 @@ Escape closes navigation and returns focus to its toggle.
 Modified link clicks retain normal browser behavior.
 
 Click the divider triangle to collapse or expand the desktop sidebar.
-Hover fills the triangle with the accent color without changing the sidebar.
+Hover fills the triangle with the primary color without changing the sidebar.
 Appearance offers two icon behaviors: Open beside icons and Expand sidebar.
 The first opens an adjacent submenu. The second expands the sidebar and the selected group.
 Small screens keep labeled sections in the navigation drawer.
@@ -43,15 +43,15 @@ Changing examples starts a fresh example. Changing presentation retains the curr
 
 ## Review controls
 
-Appearance uses the existing surface, accent, and layer controls.
-The default is Light with a Blue accent and no shadows.
+Appearance uses palette, surface, and layer controls.
+The default is light mode with a blue primary color and no shadows.
 BASE uses Surface 1, PANES uses Surface 3, and CONTENT uses Surface 2.
 These choices come from the shared `defaultLayers` value: `{ canvas: 0, pane: 2, content: 1 }`.
 Layer numbers start at zero, so `0` selects Surface 1.
 See the [Sketchy theme](theme.md) for the public configuration contract.
 Appearance controls stay collapsed initially so the example receives the available height.
 They scroll within their region on small screens.
-The secondary accent has its own color choice.
+Choose the secondary color independently of the primary color.
 Dots and decorative borders can use neutral, primary, or secondary colors.
 Separate sliders control dot opacity, decorative border opacity, and dots inside buttons.
 Slider changes update the preview immediately and create one history entry when the adjustment ends.
@@ -92,7 +92,7 @@ Controls and labels use 12-pixel text. Controls use a 32-pixel height and 10-pix
 The root size is 16 pixels. Form fields have a configurable maximum width of 30rem.
 Light surfaces use white with dark text. Dark panels use #171717 over a #1b1b1b canvas.
 Dark inputs use a faint white fill and muted gray borders. Focus uses a one-pixel neutral ring.
-Blue accents and outline buttons retain the selected presentation.
+The blue primary color and outline buttons retain the selected presentation.
 Table dividers retain their separate contrast scale, so matching canvas and panel surfaces do not hide gridlines.
 Fields use an 8-pixel label gap. Example sections use a 20-pixel gap, and action rows use an 8-pixel gap.
 The same measurements apply in Light and Dark.
@@ -100,7 +100,7 @@ The same measurements apply in Light and Dark.
 The gallery canvas uses tiny neutral dots at 0.3em spacing and 50% opacity.
 Solid panels protect labels, descriptions, values, and status messages from the texture.
 Form examples use a centered 30rem panel. Tables and resizable layouts retain their full width.
-Hover and selection reveal a dotted backing six pixels beyond each action, with a neutral or accent outline and no tint.
+Hover and selection reveal a dotted backing six pixels beyond each action, with a neutral or primary outline and no tint.
 Each pointer entry chooses a new rotation of 0.25–2.25 degrees in either direction.
 Horizontal and vertical tapers vary independently between −1.75 and +1.75 degrees.
 Selected controls retain the latest shape after the pointer leaves.

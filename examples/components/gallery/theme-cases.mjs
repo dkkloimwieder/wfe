@@ -28,7 +28,7 @@ export async function galleryThemeCases({ page, url, record }) {
       const roles = {
         '--ui-choice-selection-surface': 'var(--ui-surface)',
         '--ui-choice-selection-text': 'var(--ui-text)',
-        '--ui-choice-decoration-color': 'var(--ui-accent)',
+        '--ui-choice-decoration-color': 'var(--ui-primary)',
         '--ui-choice-decoration-opacity': '0.5',
         '--ui-choice-decoration-surface': 'var(--ui-surface)',
         '--ui-laser-action-surface': 'var(--ui-surface)',
@@ -121,7 +121,7 @@ export async function galleryThemeCases({ page, url, record }) {
           )
           node.style.setProperty(
             '--ui-choice-decoration-color',
-            'var(--ui-secondary-accent)',
+            'var(--ui-secondary)',
           )
           node.style.setProperty('--ui-tree-row-min-height', '64px')
           node.style.setProperty('--ui-tree-indent', '40px')
@@ -320,13 +320,13 @@ export async function galleryThemeCases({ page, url, record }) {
       assert.equal(new URL(page.url()).searchParams.get('preset'), 'vanilla')
       await expect(
         page.getByRole('group', {
-          name: 'Secondary accent colors',
+          name: 'Secondary colors',
           exact: true,
         }),
       ).toHaveCount(1)
       for (const [name, key, value] of [
-        ['Orange accent', 'accent', '6'],
-        ['Yellow secondary accent', 'secondary', '9'],
+        ['Orange primary', 'primary', '6'],
+        ['Yellow secondary', 'secondary', '9'],
         ['Base Surface 3', 'canvas', '2'],
         ['Content Surface 2', 'content', '1'],
       ]) {

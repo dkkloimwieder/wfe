@@ -79,11 +79,16 @@ export function project(metadata: Metadata) {
       id: 'save',
       label: 'Save widget',
       variant: 'outline',
-      tone: 'accent',
+      tone: 'primary',
     },
     actions: [
-      { id: 'reset', label: 'Reset draft', variant: 'outline', tone: 'accent' },
-      { id: 'cancel', label: 'Cancel', variant: 'outline', tone: 'accent' },
+      {
+        id: 'reset',
+        label: 'Reset draft',
+        variant: 'outline',
+        tone: 'primary',
+      },
+      { id: 'cancel', label: 'Cancel', variant: 'outline', tone: 'primary' },
     ],
   } as const satisfies FormDescription<Values>
   const table = {
@@ -112,7 +117,7 @@ export function project(metadata: Metadata) {
         id: 'refresh',
         label: metadata.refreshLabel,
         variant: 'outline',
-        tone: 'accent',
+        tone: 'primary',
       },
     ],
   } as const satisfies LayoutDescription<'records'>
@@ -127,7 +132,7 @@ export function project(metadata: Metadata) {
         id: 'back',
         label: 'Back to records',
         variant: 'outline',
-        tone: 'accent',
+        tone: 'primary',
       },
       ...layout.actions,
     ],
@@ -143,19 +148,19 @@ export function project(metadata: Metadata) {
         id: 'back',
         label: 'Back to records',
         variant: 'outline',
-        tone: 'accent',
+        tone: 'primary',
       },
       {
         id: 'refreshView',
         label: 'Refresh record',
         variant: 'outline',
-        tone: 'accent',
+        tone: 'primary',
       },
       {
         id: 'editSelected',
         label: 'Edit record',
         variant: 'outline',
-        tone: 'accent',
+        tone: 'primary',
       },
     ],
   } as const satisfies LayoutDescription<'details'>

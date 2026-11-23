@@ -5,5 +5,5 @@ export const chartTheme: ChartTheme = {
   muted: 'var(--ui-muted-text, currentColor)',
   grid: 'var(--ui-border, currentColor)',
   background: 'var(--ui-surface, Canvas)',
-  palette: ['var(--ui-accent, currentColor)'],
+  palette: ['var(--ui-primary, currentColor)'],
 }

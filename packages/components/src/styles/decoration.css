@@ -149,7 +149,7 @@
       );
       --_ui-outline-opacity: 100%;
     }
-    :scope .ui-button[data-variant='outline'][data-tone='accent'] {
+    :scope .ui-button[data-variant='outline'][data-tone='primary'] {
       --_ui-outline-color: var(--_button-color);
     }
     :scope .ui-button[data-variant='outline'] {
@@ -216,7 +216,7 @@
   :scope .table-workspace-title-face {
     --ui-decoration-border: color-mix(
       in srgb,
-      var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
+      var(--ui-sidebar-primary) var(--ui-decoration-border-opacity, 100%),
       transparent
     );
   }
@@ -330,14 +330,14 @@
   :scope [data-ui-control-decoration='primary'] {
     --ui-input-decoration-display: block;
     --ui-input-disclosure-arrow-visibility: hidden;
-    --ui-input-decoration-dot-color: var(--ui-accent);
-    --ui-input-decoration-border-color: var(--ui-accent);
+    --ui-input-decoration-dot-color: var(--ui-primary);
+    --ui-input-decoration-border-color: var(--ui-primary);
   }
   :scope [data-ui-control-decoration='secondary'] {
     --ui-input-decoration-display: block;
     --ui-input-disclosure-arrow-visibility: hidden;
-    --ui-input-decoration-dot-color: var(--ui-secondary-accent);
-    --ui-input-decoration-border-color: var(--ui-secondary-accent);
+    --ui-input-decoration-dot-color: var(--ui-secondary);
+    --ui-input-decoration-border-color: var(--ui-secondary);
   }
   :scope :has(> :is([data-ui-control-surface], [data-ui-section-decoration])) {
     isolation: isolate;
@@ -444,8 +444,8 @@
     )::before {
     --ui-input-decoration-display: block;
     --ui-input-disclosure-arrow-visibility: hidden;
-    --ui-input-decoration-dot-color: var(--ui-accent);
-    --ui-input-decoration-border-color: var(--ui-accent);
+    --ui-input-decoration-dot-color: var(--ui-primary);
+    --ui-input-decoration-border-color: var(--ui-primary);
   }
   :scope [data-ui-section-decoration='neutral']::before,
   :scope
@@ -460,8 +460,8 @@
     [data-popper-positioner]:has(
       > .ui-menu[data-ui-section-decoration='secondary']
     )::before {
-    --ui-input-decoration-dot-color: var(--ui-secondary-accent);
-    --ui-input-decoration-border-color: var(--ui-secondary-accent);
+    --ui-input-decoration-dot-color: var(--ui-secondary);
+    --ui-input-decoration-border-color: var(--ui-secondary);
   }
   :scope [data-ui-section-decoration][data-ui-section-always]::before,
   :scope [data-ui-section-decoration][data-ui-section-active]::before,
@@ -499,16 +499,16 @@
     border: var(--ui-border-width, 1px) solid
       color-mix(
         in srgb,
-        var(--ui-accent, #1971c2) var(--ui-decoration-border-opacity, 100%),
+        var(--ui-primary, #1971c2) var(--ui-decoration-border-opacity, 100%),
         transparent
       );
-    --_ui-dots: var(--ui-accent, #1971c2);
+    --_ui-dots: var(--ui-primary, #1971c2);
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
     pointer-events: none;
   }
   :scope .ui-gantt-progress {
-    --_ui-dots: var(--ui-accent);
+    --_ui-dots: var(--ui-primary);
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
   }

@@ -75,9 +75,9 @@ export type GrammarHost = HTMLDivElement & {
 }
 const chartTooltip = { use: tooltip, portal: tooltipPortal }
 const palette = [
-  'var(--ui-accent)',
-  'color-mix(in srgb, var(--ui-accent) 55%, var(--ui-surface))',
-  'color-mix(in srgb, var(--ui-accent) 30%, var(--ui-surface))',
+  'var(--ui-primary)',
+  'color-mix(in srgb, var(--ui-primary) 55%, var(--ui-surface))',
+  'color-mix(in srgb, var(--ui-primary) 30%, var(--ui-surface))',
 ]
 const workloadColors = { domain: ['API', 'Jobs'], range: palette }
 const sliceColors = { domain: ['API', 'Jobs', 'Storage'], range: palette }

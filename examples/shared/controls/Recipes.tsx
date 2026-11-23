@@ -73,7 +73,7 @@ export function Fields(props: RecipeProps) {
 export function Buttons(props: RecipeProps) {
   return (
     <section class="example-stack">
-      <For each={['accent', 'neutral'] as const}>
+      <For each={['primary', 'neutral'] as const}>
         {(tone) => (
           <div
             class="example-actions"
@@ -107,7 +107,7 @@ export function Buttons(props: RecipeProps) {
             <ButtonLink
               href="#button-link-example"
               variant={variant}
-              tone="accent"
+              tone="primary"
             >
               {variant} link
             </ButtonLink>

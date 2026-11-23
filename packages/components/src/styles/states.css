@@ -56,8 +56,8 @@
   cursor: default;
   --ui-text: var(--ui-disabled-text, #919191);
   --ui-muted-text: var(--ui-disabled-text, #919191);
-  --ui-accent: var(--ui-disabled-accent, #8cb8e0);
-  --ui-button-color: var(--ui-disabled-accent, #8cb8e0);
+  --ui-primary: var(--ui-disabled-primary, #8cb8e0);
+  --ui-button-color: var(--ui-disabled-primary, #8cb8e0);
   --ui-control-border: var(--ui-disabled-border, #f0f0f0);
   --ui-button-border: var(--ui-disabled-border, #f0f0f0);
   --ui-neutral-button-border: var(--ui-disabled-border, #f0f0f0);

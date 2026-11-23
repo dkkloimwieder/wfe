@@ -54,7 +54,7 @@ export function DisclosureIndicator(props: {
               cx="0.75"
               cy="0.75"
               r="0.75"
-              fill="var(--ui-sidebar-accent, var(--ui-accent))"
+              fill="var(--ui-sidebar-primary, var(--ui-primary))"
               fill-opacity="var(--ui-decoration-dot-opacity, 50%)"
               stroke="none"
             />
@@ -70,7 +70,7 @@ export function DisclosureIndicator(props: {
               : 'M-2.150625 -2.64375 14.150625 9 -2.150625 20.64375Z'
           }
           fill={`url(#${decorationPattern})`}
-          stroke="var(--ui-sidebar-accent, var(--ui-accent))"
+          stroke="var(--ui-sidebar-primary, var(--ui-primary))"
           stroke-opacity="var(--ui-decoration-border-opacity, 100%)"
           vector-effect="non-scaling-stroke"
         />

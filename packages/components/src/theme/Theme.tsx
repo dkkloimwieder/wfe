@@ -9,7 +9,12 @@ import type { JSX } from '@solidjs/web'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import { UI_DENSITIES } from '../styles/density'
 import { decorateActions } from './decorations'
-import { accents, paletteRoles, schemes, secondaryAccents } from './palette'
+import {
+  primaryColors,
+  paletteRoles,
+  schemes,
+  secondaryColors,
+} from './palette'
 import {
   presetDefaults,
   resolveTokenBlocks,
@@ -22,7 +27,7 @@ import type { SurfaceLayers, TableDividers, Decorations } from './appearance'
 
 export type ThemeMode = 'light' | 'dark' | 'monochrome'
 export type ThemeDensity = 'default' | 'compact' | 'comfortable'
-export type ThemeAccent =
+export type ThemePrimary =
   | 'neutral'
   | 'blue'
   | 'teal'
@@ -32,8 +37,8 @@ export type ThemeAccent =
   | 'orange'
   | 'brown'
   | 'choco'
-export type ThemeSecondaryAccent =
-  ThemeAccent | 'yellow' | 'light-blue' | 'dark-blue'
+export type ThemeSecondary =
+  ThemePrimary | 'yellow' | 'light-blue' | 'dark-blue'
 export type ThemeOptions = {
   preset?: ThemePreset
   density?: ThemeDensity
@@ -44,8 +49,8 @@ export type ThemeOptions = {
   decoration?: boolean
   /** Neon glow on hover, selection and checked controls. Laser turns it on by default. */
   glow?: boolean
-  accent?: ThemeAccent
-  secondaryAccent?: ThemeSecondaryAccent
+  primary?: ThemePrimary
+  secondary?: ThemeSecondary
   layers?: Partial<SurfaceLayers>
   dividers?: Partial<TableDividers>
   decorations?: Partial<Omit<Decorations, 'secondary'>>
@@ -60,8 +65,8 @@ export type ThemeProps = ThemeOptions & {
 /** Every token block of the theme, in cascade order. styles/tokens.css holds the same blocks. */
 export const themeTokenBlocks = tokenBlocks({
   schemes,
-  accents,
-  secondaryAccents,
+  primaryColors,
+  secondaryColors,
   roles: paletteRoles,
   densities: UI_DENSITIES,
 })
@@ -73,8 +78,8 @@ export function themeChoices(options: ThemeOptions = {}): TokenChoices {
     preset,
     mode: options.mode ?? presetDefaults[preset].mode,
     density: options.density ?? 'default',
-    accent: options.accent,
-    secondaryAccent: options.secondaryAccent,
+    primary: options.primary,
+    secondary: options.secondary,
     canvas: options.layers?.canvas,
     pane: options.layers?.pane,
     content: options.layers?.content,
@@ -171,7 +176,7 @@ export function resolveThemeTokens(
   )
 }
 
-/** Theme and portal owner. The application owns mode and accent state. */
+/** Theme and portal owner. The application owns mode and palette state. */
 export function Theme(props: ThemeProps) {
   const [element, setElement] = createSignal<HTMLDivElement>()
   const choices = createMemo(() => themeChoices(props))
@@ -211,8 +216,8 @@ export function Theme(props: ThemeProps) {
           data-ui-preset={choices().preset}
           data-ui-mode={choices().mode}
           data-ui-density={choices().density}
-          data-ui-accent={choices().accent}
-          data-ui-secondary-accent={choices().secondaryAccent}
+          data-ui-primary={choices().primary}
+          data-ui-secondary={choices().secondary}
           data-ui-canvas={choices().canvas}
           data-ui-pane={choices().pane}
           data-ui-content={choices().content}

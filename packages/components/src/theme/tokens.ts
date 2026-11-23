@@ -16,7 +16,7 @@
 //   --ui-toggle-checked-text: checked checkbox, switch and radio paint.
 //   --ui-switch-track, --ui-switch-thumb, --ui-switch-checked-thumb: switch parts.
 //   --ui-textarea-radius: multi-line field corners.
-import type { Accent, SurfaceScheme, PaletteRoles } from './palette'
+import type { PaletteColor, SurfaceScheme, PaletteRoles } from './palette'
 
 export type TokenPreset = 'default' | 'vanilla' | 'laser'
 export type TokenMode = 'light' | 'dark' | 'monochrome'
@@ -30,8 +30,8 @@ export type TokenChoices = {
   preset: TokenPreset
   mode: TokenMode
   density: TokenDensity
-  accent?: string
-  secondaryAccent?: string
+  primary?: string
+  secondary?: string
   canvas?: TokenLevel
   pane?: TokenLevel
   content?: TokenLevel
@@ -47,8 +47,8 @@ export type TokenCondition = {
   preset?: TokenPreset | readonly TokenPreset[]
   mode?: TokenMode
   density?: TokenDensity
-  accent?: string | null
-  secondaryAccent?: string
+  primary?: string | null
+  secondary?: string
   canvas?: TokenLevel
   pane?: TokenLevel
   content?: TokenLevel
@@ -69,8 +69,8 @@ export const tokenAttributes: Record<keyof TokenChoices, string> = {
   preset: 'data-ui-preset',
   mode: 'data-ui-mode',
   density: 'data-ui-density',
-  accent: 'data-ui-accent',
-  secondaryAccent: 'data-ui-secondary-accent',
+  primary: 'data-ui-primary',
+  secondary: 'data-ui-secondary',
   canvas: 'data-ui-canvas',
   pane: 'data-ui-pane',
   content: 'data-ui-content',
@@ -83,8 +83,8 @@ export const tokenAttributes: Record<keyof TokenChoices, string> = {
 
 export type TokenSources = {
   schemes: readonly SurfaceScheme[]
-  accents: readonly Accent[]
-  secondaryAccents: readonly Accent[]
+  primaryColors: readonly PaletteColor[]
+  secondaryColors: readonly PaletteColor[]
   roles: PaletteRoles
   densities: Readonly<
     Record<
@@ -104,10 +104,10 @@ export type TokenSources = {
   >
 }
 
-export const accentName = (accent: Accent) =>
-  accent.name.toLowerCase().replaceAll(' ', '-')
+export const paletteColorName = (color: PaletteColor) =>
+  color.name.toLowerCase().replaceAll(' ', '-')
 
-/** Black or white text for a filled accent, by relative luminance. */
+/** Black or white text for a filled color, by relative luminance. */
 export function contrastText(color: string) {
   const channels = color
     .slice(1)
@@ -173,7 +173,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
     SurfaceScheme,
     SurfaceScheme,
   ]
-  const blue = source.accents[1]!
+  const blue = source.primaryColors[1]!
   const roles = source.roles
   const blocks: TokenBlock[] = [
     {
@@ -259,21 +259,21 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
           'var(--ui-button-color, var(--ui-button-border))',
         '--ui-table-row-divider': 'var(--ui-divider-2)',
         '--ui-table-column-divider': 'var(--ui-divider-2)',
-        // Accent and status
-        '--ui-accent-light': blue.light,
-        '--ui-accent-dark': blue.dark,
-        '--ui-on-accent-light': contrastText(blue.light),
-        '--ui-on-accent-dark': contrastText(blue.dark),
-        '--ui-secondary-accent-light': blue.light,
-        '--ui-secondary-accent-dark': blue.dark,
-        '--ui-accent': 'var(--ui-accent-light)',
-        '--ui-on-accent': 'var(--ui-on-accent-light)',
-        '--ui-secondary-accent': 'var(--ui-secondary-accent-light)',
-        '--ui-sidebar-accent': 'var(--ui-accent)',
-        '--ui-button-color': 'var(--ui-accent)',
-        '--ui-button-on-color': 'var(--ui-on-accent)',
-        '--ui-accent-hover': 'var(--ui-accent)',
-        '--ui-accent-inverted-hover': 'var(--ui-on-accent)',
+        // Color and status
+        '--ui-primary-light': blue.light,
+        '--ui-primary-dark': blue.dark,
+        '--ui-on-primary-light': contrastText(blue.light),
+        '--ui-on-primary-dark': contrastText(blue.dark),
+        '--ui-secondary-light': blue.light,
+        '--ui-secondary-dark': blue.dark,
+        '--ui-primary': 'var(--ui-primary-light)',
+        '--ui-on-primary': 'var(--ui-on-primary-light)',
+        '--ui-secondary': 'var(--ui-secondary-light)',
+        '--ui-sidebar-primary': 'var(--ui-primary)',
+        '--ui-button-color': 'var(--ui-primary)',
+        '--ui-button-on-color': 'var(--ui-on-primary)',
+        '--ui-primary-hover': 'var(--ui-primary)',
+        '--ui-primary-inverted-hover': 'var(--ui-on-primary)',
         '--ui-success': '#37734c',
         '--ui-warning-surface': '#fff7d9',
         '--ui-warning-text': '#765200',
@@ -290,8 +290,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         // above. Backgrounds stay opaque, so no layer shows through a disabled control.
         '--ui-disabled-text':
           'color-mix(in srgb, var(--ui-text) calc(var(--ui-disabled-opacity) * 100%), var(--ui-surface))',
-        '--ui-disabled-accent':
-          'color-mix(in srgb, var(--ui-accent) calc(var(--ui-disabled-opacity) * 100%), var(--ui-surface))',
+        '--ui-disabled-primary':
+          'color-mix(in srgb, var(--ui-primary) calc(var(--ui-disabled-opacity) * 100%), var(--ui-surface))',
         '--ui-disabled-border':
           'color-mix(in srgb, var(--ui-control-border) calc(var(--ui-disabled-opacity) * 100%), var(--ui-surface))',
         // Shadows
@@ -299,7 +299,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-popup-shadow': 'none',
         '--ui-laser-inset-glow-strength': '0.6',
         // Default-tone outline buttons: 100% uses the button color, 0% the neutral text and border.
-        '--ui-outline-accent-weight': '100%',
+        '--ui-outline-primary-weight': '100%',
         '--ui-action-hover-fill': 'none',
         '--ui-choice-hover-fill': 'initial',
         '--ui-choice-hover-text-shadow': 'none',
@@ -313,10 +313,10 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-state-readonly-shadow':
           'inset 0 0 0 var(--ui-border-width) var(--ui-muted-text)',
         '--ui-state-open-shadow':
-          '0 0 0 var(--ui-border-width) var(--ui-accent)',
+          '0 0 0 var(--ui-border-width) var(--ui-primary)',
         '--ui-action-hover-shadow': '0 0 transparent',
         '--ui-state-selected-shadow':
-          'inset 0 0 0 var(--ui-border-width) var(--ui-accent)',
+          'inset 0 0 0 var(--ui-border-width) var(--ui-primary)',
         '--ui-action-outline-opacity': '100%',
         // Glyphs and choice lists
         '--ui-disclosure-overflow': 'visible',
@@ -358,8 +358,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-divider': 'var(--ui-border)',
         '--ui-focus': 'var(--ui-focus-ring)',
         '--ui-field-focus-border': 'var(--ui-focus-ring)',
-        '--ui-selection': 'var(--ui-accent)',
-        '--ui-on-selection': 'var(--ui-on-accent)',
+        '--ui-selection': 'var(--ui-primary)',
+        '--ui-on-selection': 'var(--ui-on-primary)',
       },
     },
     {
@@ -375,9 +375,9 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-muted-text': dark.text[1],
         '--ui-border': roles.darkBorder,
         '--ui-neutral-button-border': roles.darkBorder,
-        '--ui-accent': 'var(--ui-accent-dark)',
-        '--ui-on-accent': 'var(--ui-on-accent-dark)',
-        '--ui-secondary-accent': 'var(--ui-secondary-accent-dark)',
+        '--ui-primary': 'var(--ui-primary-dark)',
+        '--ui-on-primary': 'var(--ui-on-primary-dark)',
+        '--ui-secondary': 'var(--ui-secondary-dark)',
         '--ui-success': '#8ce99a',
         '--ui-warning-surface': '#39301c',
         '--ui-warning-text': '#f1d68c',
@@ -461,13 +461,13 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-decoration-dot-opacity': '0%',
         '--ui-input-decoration-display': 'none',
         '--ui-input-disclosure-arrow-visibility': 'visible',
-        '--ui-toggle-checked-surface': 'var(--ui-accent)',
-        '--ui-toggle-checked-border': 'var(--ui-accent)',
-        '--ui-toggle-checked-text': 'var(--ui-on-accent)',
+        '--ui-toggle-checked-surface': 'var(--ui-primary)',
+        '--ui-toggle-checked-border': 'var(--ui-primary)',
+        '--ui-toggle-checked-text': 'var(--ui-on-primary)',
         '--ui-switch-track': 'var(--ui-border)',
         '--ui-switch-thumb': 'var(--ui-text)',
-        '--ui-switch-checked-thumb': 'var(--ui-on-accent)',
-        '--ui-outline-accent-weight': '0%',
+        '--ui-switch-checked-thumb': 'var(--ui-on-primary)',
+        '--ui-outline-primary-weight': '0%',
         '--ui-action-hover-fill':
           'linear-gradient(var(--ui-action-hover-overlay), var(--ui-action-hover-overlay))',
         '--ui-check-hover-fill': 'var(--ui-action-hover-fill)',
@@ -545,19 +545,20 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
       },
     },
     {
-      title: 'Vanilla without an application accent',
-      when: { preset: 'vanilla', accent: null },
-      tokens: { '--ui-accent': '#18181b', '--ui-on-accent': '#fafafa' },
+      title: 'Vanilla without an application primary color',
+      when: { preset: 'vanilla', primary: null },
+      tokens: { '--ui-primary': '#18181b', '--ui-on-primary': '#fafafa' },
     },
     {
-      title: 'Vanilla without an application accent, dark mode',
-      when: { preset: 'vanilla', accent: null, mode: 'dark' },
-      tokens: { '--ui-accent': '#fafafa', '--ui-on-accent': '#18181b' },
+      title: 'Vanilla without an application primary color, dark mode',
+      when: { preset: 'vanilla', primary: null, mode: 'dark' },
+      tokens: { '--ui-primary': '#fafafa', '--ui-on-primary': '#18181b' },
     },
     {
-      title: 'Vanilla without an application accent, black and white mode',
-      when: { preset: 'vanilla', accent: null, mode: 'monochrome' },
-      tokens: { '--ui-accent': '#000000', '--ui-on-accent': '#ffffff' },
+      title:
+        'Vanilla without an application primary color, black and white mode',
+      when: { preset: 'vanilla', primary: null, mode: 'monochrome' },
+      tokens: { '--ui-primary': '#000000', '--ui-on-primary': '#ffffff' },
     },
     {
       title: 'Laser',
@@ -579,9 +580,9 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-border': '#b7c7de',
         '--ui-table-row-divider': 'var(--ui-border)',
         '--ui-table-column-divider': 'var(--ui-border)',
-        '--ui-on-accent': '#ffffff',
+        '--ui-on-primary': '#ffffff',
         '--ui-highlight':
-          'color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface))',
+          'color-mix(in srgb, var(--ui-primary) 7%, var(--ui-surface))',
         '--ui-action-hover-fill': 'none',
         '--ui-action-hover-shadow': 'initial',
         '--ui-check-hover-fill': 'none',
@@ -590,7 +591,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-field-hover-fill':
           'linear-gradient(var(--ui-field-hover-overlay), var(--ui-field-hover-overlay))',
         '--ui-field-hover-overlay':
-          'var(--ui-laser-action-surface, color-mix(in srgb, var(--ui-accent) 12%, transparent))',
+          'var(--ui-laser-action-surface, color-mix(in srgb, var(--ui-primary) 12%, transparent))',
         '--ui-laser-shadow-y': '2px',
         '--ui-laser-shadow-blur': '12px',
         '--ui-laser-shadow-spread': '4px',
@@ -622,12 +623,12 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-text': '#e0eaff',
         '--ui-muted-text': '#a4b4d0',
         '--ui-border': '#252c39',
-        '--ui-accent': 'color-mix(in srgb, var(--ui-accent-dark) 80%, white)',
-        '--ui-secondary-accent':
-          'color-mix(in srgb, var(--ui-secondary-accent-dark) 80%, white)',
-        '--ui-on-accent': '#050505',
+        '--ui-primary': 'color-mix(in srgb, var(--ui-primary-dark) 80%, white)',
+        '--ui-secondary':
+          'color-mix(in srgb, var(--ui-secondary-dark) 80%, white)',
+        '--ui-on-primary': '#050505',
         '--ui-highlight':
-          'color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface))',
+          'color-mix(in srgb, var(--ui-primary) 12%, var(--ui-surface))',
         '--ui-laser-shadow-color': 'transparent',
         '--ui-laser-glow-blur': '14px',
         '--ui-laser-glow-ring-opacity': '65%',
@@ -646,8 +647,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-text': '#000000',
         '--ui-muted-text': '#000000',
         '--ui-border': '#000000',
-        '--ui-accent': '#000000',
-        '--ui-secondary-accent': '#000000',
+        '--ui-primary': '#000000',
+        '--ui-secondary': '#000000',
         '--ui-laser-elevation': 'none',
         '--ui-laser-glow': 'none',
         '--ui-laser-icon-shadow': 'none',
@@ -656,24 +657,24 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
       },
     },
   )
-  for (const accent of source.accents)
+  for (const accent of source.primaryColors)
     blocks.push({
-      title: `${accent.name} accent`,
-      when: { accent: accentName(accent) },
+      title: `${accent.name} primary`,
+      when: { primary: paletteColorName(accent) },
       tokens: {
-        '--ui-accent-light': accent.light,
-        '--ui-accent-dark': accent.dark,
-        '--ui-on-accent-light': contrastText(accent.light),
-        '--ui-on-accent-dark': contrastText(accent.dark),
+        '--ui-primary-light': accent.light,
+        '--ui-primary-dark': accent.dark,
+        '--ui-on-primary-light': contrastText(accent.light),
+        '--ui-on-primary-dark': contrastText(accent.dark),
       },
     })
-  for (const accent of source.secondaryAccents)
+  for (const accent of source.secondaryColors)
     blocks.push({
-      title: `${accent.name} secondary accent`,
-      when: { secondaryAccent: accentName(accent) },
+      title: `${accent.name} secondary`,
+      when: { secondary: paletteColorName(accent) },
       tokens: {
-        '--ui-secondary-accent-light': accent.light,
-        '--ui-secondary-accent-dark': accent.dark,
+        '--ui-secondary-light': accent.light,
+        '--ui-secondary-dark': accent.dark,
       },
     })
   for (const level of [0, 1, 2] as const) {
@@ -713,8 +714,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
   }
   const decorationColor = {
     neutral: undefined,
-    primary: 'var(--ui-accent)',
-    secondary: 'var(--ui-secondary-accent)',
+    primary: 'var(--ui-primary)',
+    secondary: 'var(--ui-secondary)',
   } as const
   for (const color of ['primary', 'secondary'] as const) {
     blocks.push(

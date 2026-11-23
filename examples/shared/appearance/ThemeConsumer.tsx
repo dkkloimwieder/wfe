@@ -94,7 +94,7 @@ export function ThemeConsumer() {
                 <Button id="theme-row-action">View theme record</Button>
               )}
             />
-            <Theme id="nested-theme" mode="dark" accent="orange">
+            <Theme id="nested-theme" mode="dark" primary="orange">
               <Button id="nested-theme-action">Nested theme</Button>
             </Theme>
           </DashboardPanel>

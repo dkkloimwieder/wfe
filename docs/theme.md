@@ -24,8 +24,8 @@ export function App() {
 }
 ```
 
-The Sketchy theme uses light mode, a blue accent, outline buttons, and flat surfaces without shadows.
-Default outline buttons use shared border colors and text in the accent color.
+The Sketchy theme uses light mode, a blue primary color, outline buttons, and flat surfaces without shadows.
+Default outline buttons use shared border colors and text in the primary color.
 The base canvas uses surface 1 with subtle dots. Panes use surface 3, and content uses surface 2.
 Controls use Fira Code at 12px, with a 32px height.
 Forms use a 30rem field limit. Table controls retain compact sizing.
@@ -37,8 +37,8 @@ Reduced-motion preference keeps the decorative backing without tilt or taper.
 ## Application configuration
 
 Pass `mode="dark"` or `mode="monochrome"` to change the surface scheme.
-Pass `accent="violet"` or another `ThemeAccent` value to change the primary accent.
-Pass `secondaryAccent="yellow"` to set the secondary accent.
+Pass `primary="violet"` or another `ThemePrimary` value to change the primary color.
+Pass `secondary="yellow"` to set the secondary color.
 The application owns these values, persistence, and any system preference detection.
 Use the same initial values on the server and client for hydration.
 
@@ -52,13 +52,32 @@ Layer numbers are zero-based: `0` selects surface 1.
 The default layers are `{ canvas: 0, pane: 2, content: 1 }`.
 The `style` prop overrides individual CSS variables last.
 
+## Color role names
+
+| Previous name                                                                                    | Current name                                                                   |
+| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `ThemeOptions.accent`, `TokenChoices.accent`, `TokenCondition.accent`                            | `primary`                                                                      |
+| `ThemeOptions.secondaryAccent`, `TokenChoices.secondaryAccent`, `TokenCondition.secondaryAccent` | `secondary`                                                                    |
+| `ThemeAccent`, `ThemeSecondaryAccent`                                                            | `ThemePrimary`, `ThemeSecondary`                                               |
+| `Accent`, `accentName`, `neutralAccent`                                                          | `PaletteColor`, `paletteColorName`, `neutralColor`                             |
+| `accents`, `secondaryAccents`                                                                    | `primaryColors`, `secondaryColors`                                             |
+| Button `tone="accent"` and `data-tone="accent"`                                                  | `tone="primary"` and `data-tone="primary"`                                     |
+| `data-ui-accent`, `data-ui-secondary-accent`                                                     | `data-ui-primary`, `data-ui-secondary`                                         |
+| `--ui-accent`, `--ui-accent-light`, `--ui-accent-dark`                                           | `--ui-primary`, `--ui-primary-light`, `--ui-primary-dark`                      |
+| `--ui-secondary-accent`, `--ui-secondary-accent-light`, `--ui-secondary-accent-dark`             | `--ui-secondary`, `--ui-secondary-light`, `--ui-secondary-dark`                |
+| `--ui-on-accent`, `--ui-on-accent-light`, `--ui-on-accent-dark`                                  | `--ui-on-primary`, `--ui-on-primary-light`, `--ui-on-primary-dark`             |
+| `--ui-accent-hover`, `--ui-accent-inverted-hover`                                                | `--ui-primary-hover`, `--ui-primary-inverted-hover`                            |
+| `--ui-disabled-accent`, `--ui-outline-accent-weight`, `--ui-sidebar-accent`                      | `--ui-disabled-primary`, `--ui-outline-primary-weight`, `--ui-sidebar-primary` |
+| `data-ui-section-decoration="accent"`                                                            | `data-ui-section-decoration="primary"`                                         |
+| Gallery `accent` URL parameter                                                                   | `primary`                                                                      |
+
 ## Token base
 
 `styles/tokens.css` holds every `--ui-*` token with its default.
 `scripts/theme-tokens.mjs` generates it from `theme/tokens.ts`, and the integrity gate checks it.
 The first block holds the Sketchy light defaults. Later blocks change token values for one mode, density, preset, or application choice.
 Later blocks win, and every block has zero specificity.
-Theme writes the choices as data attributes on its root: `data-ui-preset`, `data-ui-mode`, `data-ui-density`, `data-ui-accent`, and the layer, divider, and decoration choices.
+Theme writes the choices as data attributes on its root: `data-ui-preset`, `data-ui-mode`, `data-ui-density`, `data-ui-primary`, `data-ui-secondary`, and the layer, divider, and decoration choices.
 It writes only the decoration percentages inline.
 A consumer class or inline style on the root therefore overrides any token.
 `themeTokens(options)` returns the declared token values that the style sheet applies for those options.
@@ -73,7 +92,7 @@ Themes without decoration use `styles/plain.css`, where embedded table, calendar
 No style sheet or component tests the preset. A preset only sets token values and the default choices in `presetDefaults`.
 Components that draw decorative SVG read the same choice. One dot pattern serves every decorated surface; each rule only chooses the dot color.
 
-Nested themes can use different presets, modes, and accents.
+Nested themes can use different presets, modes, and palettes.
 Each scope owns its CSS and automatic popup portals. Ancestor preset rules stop at nested Theme boundaries.
 DashboardShell inherits theme sizing unless you pass an explicit density.
 
@@ -188,7 +207,7 @@ Their decorations stay visible while tuning. Their entered values survive size c
 ## Vanilla preset
 
 Vanilla uses system sans-serif text, ordinary borders, rounded controls, round radios, and pill switches.
-Its default accent is neutral. An explicit accent selects a colored primary action.
+Its default primary color is neutral. Set `primary` to choose a different color.
 Light, dark, and black/white modes use the same component structure and behavior.
 Black/white uses black neutral text and borders over white content surfaces.
 Subtle state fills retain visible hover and selection feedback.
@@ -196,15 +215,15 @@ Vanilla does not start decoration observers or mount decorative SVG patterns.
 Decoration props have no effect inside vanilla, including explicit per-field requests.
 Switching presets preserves input values, focus, selection, and open overlays.
 
-Mode, accent, density, class, and style remain independent of preset selection.
-All presets support primary and secondary accents and surface layers.
+Mode, palette, density, class, and style remain independent of preset selection.
+All presets support primary and secondary colors and surface layers.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
 Dividers and decoration controls belong to the Sketchy preset.
 Use semantic CSS variables to customize vanilla borders and shadows.
 All presets capitalize system labels while preserving record values and prose.
 Vanilla navigation uses flat groups, indented child links, and a neutral selected-row fill.
 Opening a group does not paint the whole group as selected. Keyboard focus keeps a separate visible outline.
-Presets own these presentation choices. Shared accent and surface controls do not require identical navigation borders or group backgrounds.
+Presets own these presentation choices. Shared palette and surface controls do not require identical navigation borders or group backgrounds.
 All presets use 12px body text, 14px headings, and 32px controls by default.
 Vanilla uses 6px gaps, 12px panel insets, and 16px gaps between fields.
 Attached input buttons share one outer shape, with square internal corners.
@@ -246,25 +265,25 @@ Review nested presets and a custom extension at `?gallery=themes`.
 ## Laser
 
 Laser uses the shared controls with pill-shaped inputs and buttons, rounded panels, and smooth disclosure icons.
-Light mode adds a soft white elevation layer. Dark mode adds no dark shadow. A tighter accent glow marks hovered, focused, and selected controls.
+Light mode adds a soft white elevation layer. Dark mode adds no dark shadow. A tighter primary glow marks hovered, focused, and selected controls.
 Compound inputs keep one outer shape and one glow. Hover and focus soften resting native borders without changing their width or layout. Invalid controls retain their error borders, and disabled or read-only fields do not acquire an active glow. Their internal button corners stay square.
 Form sections share the cards’ border and resting shadow. Board headers use the same shadow.
-Issue cards add an accent glow on hover and keyboard focus.
+Issue cards add a primary glow on hover and keyboard focus.
 Sidebar groups omit the enclosing hover glow. Their headings, child links, and context navigation use text or glyph feedback rather than a glowing container. Keyboard focus remains visible independently of those effects.
-Standalone icon actions keep transparent borders. Hover illuminates the glyph with a small shadow. Keyboard focus adds a separate outline in the focus color, including monochrome mode and configurations with glow disabled. This outline appears only for keyboard focus; hover and selection keep the soft glow without a hard border.
+Standalone icon actions keep transparent borders. Hover illuminates the glyph with a small shadow. Keyboard focus adds a separate outline in the neutral focus color, including monochrome mode and configurations with glow disabled. This outline appears only for keyboard focus; hover and selection keep the soft glow without a hard border.
 Icons inside compound inputs retain the shared input outline.
 The theme adds no randomized dots or decoration listeners.
 
 Use `<Theme preset="laser">` for the dark first-pass presentation.
-Pass `mode="light"` for darker accents and weaker glow on light surfaces.
-The existing primary and secondary accent props remain available.
+Pass `mode="light"` for darker role colors and weaker glow on light surfaces.
+Laser uses the same palette choices as the other presets.
 Use `layers` to choose the canvas, pane, and content surfaces from the Laser scale.
 Laser defaults to `{ canvas: 0, pane: 1, content: 1 }`.
 The gallery supports `?gallery=everything&preset=laser` and selects dark mode when you choose Laser.
 
 `--ui-laser-elevation` overrides the resting panel shadow.
 Set it to `none` to remove that shadow without disabling hover glow.
-Laser resolves its glow at each control so a local accent also colors the glow.
+Laser resolves its glow at each control so a local primary color also colors the glow.
 `--ui-laser-glow`, `--ui-laser-text-glow`, and `--ui-laser-icon-shadow` accept complete effect overrides.
 Their default is CSS `initial`, which selects the stylesheet fallback.
 The stylesheet computes that effect from its inputs.
@@ -284,10 +303,10 @@ Success uses `--ui-success`. Error uses `--ui-error`. Modal backdrops use `--ui-
 Gantt dependencies and baselines use `--ui-muted-text`.
 Charts use the same popup surface, border, text, radius, and shadow roles as other popups.
 
-Selection and button colors follow `--ui-accent` on the theme owner.
-When you supply a custom accent color, also supply a suitable `--ui-on-accent` foreground.
+Selection and button colors follow `--ui-primary` on the theme owner.
+When you supply a custom primary color, also supply a suitable `--ui-on-primary` foreground.
 Use a nested `Theme` for a complete local theme. A local accent alone does not replace every inherited semantic role.
-Laser computes its default control, text, and icon glows at the consumer, so they follow a local accent.
+Laser computes its default control, text, and icon glows at the consumer, so they follow a local primary color.
 
 `--ui-divider-1` through `--ui-divider-4` define the selectable divider scale.
 Sketchy retains its separate divider palette. Vanilla and Laser link the scale to their surface palettes.
@@ -319,10 +338,10 @@ These inputs feed both resting shadows and the broad layer behind glow.
 Set the shadow color to `transparent` to remove that layer from both effects.
 
 Custom Tree, Select, and Combobox choices share `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
-These roles override selected and highlighted paint in every preset. Their defaults remain decorated Sketchy, neutral Vanilla, and translucent primary-accent Laser.
+These roles override selected and highlighted paint in every preset. Their defaults remain decorated Sketchy, neutral Vanilla, and translucent primary Laser.
 Sketchy also accepts `--ui-choice-decoration-color`, `--ui-choice-decoration-opacity`, and `--ui-choice-decoration-surface` for the dotted backing and its inner mask.
-The compatibility native picker uses `--ui-accent` and `--ui-on-accent`. They do not override custom choice paint; use the choice roles above for that purpose.
-Preset choice defaults resolve at each choice, so a local accent colors Laser glow and translucent selection without replacing the owning Theme.
+The compatibility native picker uses `--ui-primary` and `--ui-on-primary`. They do not override custom choice paint; use the choice roles above for that purpose.
+Preset choice defaults resolve at each choice, so a local primary color colors Laser glow and translucent selection without replacing the owning Theme.
 
 `--ui-tree-row-min-height`, `--ui-tree-toggle-size`, `--ui-tree-symbol-size`, and `--ui-tree-indent` control Tree geometry.
 The default profile preserves the compact Tree presentation. Explicit compact and comfortable densities derive these defaults from shared row and control dimensions.

@@ -14,7 +14,7 @@ test('button links retain native attributes, reactive presentation, refs, and li
     <ButtonLink
       href={href()}
       variant={filled() ? 'filled' : 'outline'}
-      tone="accent"
+      tone="primary"
       class={['caller', { selected: filled() }]}
       ref={(node) => (anchor = node)}
       target="_blank"

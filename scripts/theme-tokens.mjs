@@ -2,10 +2,10 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import * as prettier from 'prettier'
 import {
-  accents,
+  primaryColors,
   paletteRoles,
   schemes,
-  secondaryAccents,
+  secondaryColors,
 } from '../packages/components/src/theme/palette.ts'
 import { UI_DENSITIES } from '../packages/components/src/styles/density.ts'
 import {
@@ -18,8 +18,8 @@ const destination = fileURLToPath(
 )
 const blocks = tokenBlocks({
   schemes,
-  accents,
-  secondaryAccents,
+  primaryColors,
+  secondaryColors,
   roles: paletteRoles,
   densities: UI_DENSITIES,
 })

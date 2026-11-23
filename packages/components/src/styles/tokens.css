@@ -83,20 +83,20 @@
   --ui-neutral-button-border: var(--ui-button-color, var(--ui-button-border));
   --ui-table-row-divider: var(--ui-divider-2);
   --ui-table-column-divider: var(--ui-divider-2);
-  --ui-accent-light: #1971c2;
-  --ui-accent-dark: #4dabf7;
-  --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #000000;
-  --ui-secondary-accent-light: #1971c2;
-  --ui-secondary-accent-dark: #4dabf7;
-  --ui-accent: var(--ui-accent-light);
-  --ui-on-accent: var(--ui-on-accent-light);
-  --ui-secondary-accent: var(--ui-secondary-accent-light);
-  --ui-sidebar-accent: var(--ui-accent);
-  --ui-button-color: var(--ui-accent);
-  --ui-button-on-color: var(--ui-on-accent);
-  --ui-accent-hover: var(--ui-accent);
-  --ui-accent-inverted-hover: var(--ui-on-accent);
+  --ui-primary-light: #1971c2;
+  --ui-primary-dark: #4dabf7;
+  --ui-on-primary-light: #ffffff;
+  --ui-on-primary-dark: #000000;
+  --ui-secondary-light: #1971c2;
+  --ui-secondary-dark: #4dabf7;
+  --ui-primary: var(--ui-primary-light);
+  --ui-on-primary: var(--ui-on-primary-light);
+  --ui-secondary: var(--ui-secondary-light);
+  --ui-sidebar-primary: var(--ui-primary);
+  --ui-button-color: var(--ui-primary);
+  --ui-button-on-color: var(--ui-on-primary);
+  --ui-primary-hover: var(--ui-primary);
+  --ui-primary-inverted-hover: var(--ui-on-primary);
   --ui-success: #37734c;
   --ui-warning-surface: #fff7d9;
   --ui-warning-text: #765200;
@@ -111,9 +111,9 @@
     var(--ui-text) calc(var(--ui-disabled-opacity) * 100%),
     var(--ui-surface)
   );
-  --ui-disabled-accent: color-mix(
+  --ui-disabled-primary: color-mix(
     in srgb,
-    var(--ui-accent) calc(var(--ui-disabled-opacity) * 100%),
+    var(--ui-primary) calc(var(--ui-disabled-opacity) * 100%),
     var(--ui-surface)
   );
   --ui-disabled-border: color-mix(
@@ -124,7 +124,7 @@
   --ui-panel-shadow: none;
   --ui-popup-shadow: none;
   --ui-laser-inset-glow-strength: 0.6;
-  --ui-outline-accent-weight: 100%;
+  --ui-outline-primary-weight: 100%;
   --ui-action-hover-fill: none;
   --ui-choice-hover-fill: initial;
   --ui-choice-hover-text-shadow: none;
@@ -136,10 +136,10 @@
   --ui-invalid-decoration-opacity: 1;
   --ui-state-readonly-shadow: inset 0 0 0 var(--ui-border-width)
     var(--ui-muted-text);
-  --ui-state-open-shadow: 0 0 0 var(--ui-border-width) var(--ui-accent);
+  --ui-state-open-shadow: 0 0 0 var(--ui-border-width) var(--ui-primary);
   --ui-action-hover-shadow: 0 0 transparent;
   --ui-state-selected-shadow: inset 0 0 0 var(--ui-border-width)
-    var(--ui-accent);
+    var(--ui-primary);
   --ui-action-outline-opacity: 100%;
   --ui-disclosure-overflow: visible;
   --ui-disclosure-width: 10.5px;
@@ -177,8 +177,8 @@
   --ui-divider: var(--ui-border);
   --ui-focus: var(--ui-focus-ring);
   --ui-field-focus-border: var(--ui-focus-ring);
-  --ui-selection: var(--ui-accent);
-  --ui-on-selection: var(--ui-on-accent);
+  --ui-selection: var(--ui-primary);
+  --ui-on-selection: var(--ui-on-primary);
 }
 
 /* Dark mode */
@@ -197,9 +197,9 @@
   --ui-muted-text: #bbbbbb;
   --ui-border: #5c5c5c;
   --ui-neutral-button-border: #5c5c5c;
-  --ui-accent: var(--ui-accent-dark);
-  --ui-on-accent: var(--ui-on-accent-dark);
-  --ui-secondary-accent: var(--ui-secondary-accent-dark);
+  --ui-primary: var(--ui-primary-dark);
+  --ui-on-primary: var(--ui-on-primary-dark);
+  --ui-secondary: var(--ui-secondary-dark);
   --ui-success: #8ce99a;
   --ui-warning-surface: #39301c;
   --ui-warning-text: #f1d68c;
@@ -298,13 +298,13 @@
   --ui-decoration-dot-opacity: 0%;
   --ui-input-decoration-display: none;
   --ui-input-disclosure-arrow-visibility: visible;
-  --ui-toggle-checked-surface: var(--ui-accent);
-  --ui-toggle-checked-border: var(--ui-accent);
-  --ui-toggle-checked-text: var(--ui-on-accent);
+  --ui-toggle-checked-surface: var(--ui-primary);
+  --ui-toggle-checked-border: var(--ui-primary);
+  --ui-toggle-checked-text: var(--ui-on-primary);
   --ui-switch-track: var(--ui-border);
   --ui-switch-thumb: var(--ui-text);
-  --ui-switch-checked-thumb: var(--ui-on-accent);
-  --ui-outline-accent-weight: 0%;
+  --ui-switch-checked-thumb: var(--ui-on-primary);
+  --ui-outline-primary-weight: 0%;
   --ui-action-hover-fill: linear-gradient(
     var(--ui-action-hover-overlay),
     var(--ui-action-hover-overlay)
@@ -402,30 +402,30 @@
   --ui-border: #000000;
 }
 
-/* Vanilla without an application accent */
-:where([data-ui-tokens][data-ui-preset='vanilla']:not([data-ui-accent])) {
-  --ui-accent: #18181b;
-  --ui-on-accent: #fafafa;
+/* Vanilla without an application primary color */
+:where([data-ui-tokens][data-ui-preset='vanilla']:not([data-ui-primary])) {
+  --ui-primary: #18181b;
+  --ui-on-primary: #fafafa;
 }
 
-/* Vanilla without an application accent, dark mode */
+/* Vanilla without an application primary color, dark mode */
 :where(
   [data-ui-tokens][data-ui-preset='vanilla']:not(
-      [data-ui-accent]
+      [data-ui-primary]
     )[data-ui-mode='dark']
 ) {
-  --ui-accent: #fafafa;
-  --ui-on-accent: #18181b;
+  --ui-primary: #fafafa;
+  --ui-on-primary: #18181b;
 }
 
-/* Vanilla without an application accent, black and white mode */
+/* Vanilla without an application primary color, black and white mode */
 :where(
   [data-ui-tokens][data-ui-preset='vanilla']:not(
-      [data-ui-accent]
+      [data-ui-primary]
     )[data-ui-mode='monochrome']
 ) {
-  --ui-accent: #000000;
-  --ui-on-accent: #ffffff;
+  --ui-primary: #000000;
+  --ui-on-primary: #ffffff;
 }
 
 /* Laser */
@@ -449,8 +449,8 @@
   --ui-border: #b7c7de;
   --ui-table-row-divider: var(--ui-border);
   --ui-table-column-divider: var(--ui-border);
-  --ui-on-accent: #ffffff;
-  --ui-highlight: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
+  --ui-on-primary: #ffffff;
+  --ui-highlight: color-mix(in srgb, var(--ui-primary) 7%, var(--ui-surface));
   --ui-action-hover-fill: none;
   --ui-action-hover-shadow: initial;
   --ui-check-hover-fill: none;
@@ -462,7 +462,7 @@
   );
   --ui-field-hover-overlay: var(
     --ui-laser-action-surface,
-    color-mix(in srgb, var(--ui-accent) 12%, transparent)
+    color-mix(in srgb, var(--ui-primary) 12%, transparent)
   );
   --ui-laser-shadow-y: 2px;
   --ui-laser-shadow-blur: 12px;
@@ -496,14 +496,10 @@
   --ui-text: #e0eaff;
   --ui-muted-text: #a4b4d0;
   --ui-border: #252c39;
-  --ui-accent: color-mix(in srgb, var(--ui-accent-dark) 80%, white);
-  --ui-secondary-accent: color-mix(
-    in srgb,
-    var(--ui-secondary-accent-dark) 80%,
-    white
-  );
-  --ui-on-accent: #050505;
-  --ui-highlight: color-mix(in srgb, var(--ui-accent) 12%, var(--ui-surface));
+  --ui-primary: color-mix(in srgb, var(--ui-primary-dark) 80%, white);
+  --ui-secondary: color-mix(in srgb, var(--ui-secondary-dark) 80%, white);
+  --ui-on-primary: #050505;
+  --ui-highlight: color-mix(in srgb, var(--ui-primary) 12%, var(--ui-surface));
   --ui-laser-shadow-color: transparent;
   --ui-laser-glow-blur: 14px;
   --ui-laser-glow-ring-opacity: 65%;
@@ -523,8 +519,8 @@
   --ui-text: #000000;
   --ui-muted-text: #000000;
   --ui-border: #000000;
-  --ui-accent: #000000;
-  --ui-secondary-accent: #000000;
+  --ui-primary: #000000;
+  --ui-secondary: #000000;
   --ui-laser-elevation: none;
   --ui-laser-glow: none;
   --ui-laser-icon-shadow: none;
@@ -532,148 +528,148 @@
   --ui-popup-shadow: none;
 }
 
-/* Neutral accent */
-:where([data-ui-tokens][data-ui-accent='neutral']) {
-  --ui-accent-light: #000000;
-  --ui-accent-dark: #ffffff;
-  --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #000000;
+/* Neutral primary */
+:where([data-ui-tokens][data-ui-primary='neutral']) {
+  --ui-primary-light: #000000;
+  --ui-primary-dark: #ffffff;
+  --ui-on-primary-light: #ffffff;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Blue accent */
-:where([data-ui-tokens][data-ui-accent='blue']) {
-  --ui-accent-light: #1971c2;
-  --ui-accent-dark: #4dabf7;
-  --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #000000;
+/* Blue primary */
+:where([data-ui-tokens][data-ui-primary='blue']) {
+  --ui-primary-light: #1971c2;
+  --ui-primary-dark: #4dabf7;
+  --ui-on-primary-light: #ffffff;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Teal accent */
-:where([data-ui-tokens][data-ui-accent='teal']) {
-  --ui-accent-light: #087f5b;
-  --ui-accent-dark: #63e6be;
-  --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #000000;
+/* Teal primary */
+:where([data-ui-tokens][data-ui-primary='teal']) {
+  --ui-primary-light: #087f5b;
+  --ui-primary-dark: #63e6be;
+  --ui-on-primary-light: #ffffff;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Green accent */
-:where([data-ui-tokens][data-ui-accent='green']) {
-  --ui-accent-light: #2b8a3e;
-  --ui-accent-dark: #8ce99a;
-  --ui-on-accent-light: #000000;
-  --ui-on-accent-dark: #000000;
+/* Green primary */
+:where([data-ui-tokens][data-ui-primary='green']) {
+  --ui-primary-light: #2b8a3e;
+  --ui-primary-dark: #8ce99a;
+  --ui-on-primary-light: #000000;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Violet accent */
-:where([data-ui-tokens][data-ui-accent='violet']) {
-  --ui-accent-light: #7048e8;
-  --ui-accent-dark: #e5dbff;
-  --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #000000;
+/* Violet primary */
+:where([data-ui-tokens][data-ui-primary='violet']) {
+  --ui-primary-light: #7048e8;
+  --ui-primary-dark: #e5dbff;
+  --ui-on-primary-light: #ffffff;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Pink accent */
-:where([data-ui-tokens][data-ui-accent='pink']) {
-  --ui-accent-light: #a61e4d;
-  --ui-accent-dark: #faa2c1;
-  --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #000000;
+/* Pink primary */
+:where([data-ui-tokens][data-ui-primary='pink']) {
+  --ui-primary-light: #a61e4d;
+  --ui-primary-dark: #faa2c1;
+  --ui-on-primary-light: #ffffff;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Orange accent */
-:where([data-ui-tokens][data-ui-accent='orange']) {
-  --ui-accent-light: #f76707;
-  --ui-accent-dark: #ffe8cc;
-  --ui-on-accent-light: #000000;
-  --ui-on-accent-dark: #000000;
+/* Orange primary */
+:where([data-ui-tokens][data-ui-primary='orange']) {
+  --ui-primary-light: #f76707;
+  --ui-primary-dark: #ffe8cc;
+  --ui-on-primary-light: #000000;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Brown accent */
-:where([data-ui-tokens][data-ui-accent='brown']) {
-  --ui-accent-light: #6f4b2d;
-  --ui-accent-dark: #d3b79e;
-  --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #000000;
+/* Brown primary */
+:where([data-ui-tokens][data-ui-primary='brown']) {
+  --ui-primary-light: #6f4b2d;
+  --ui-primary-dark: #d3b79e;
+  --ui-on-primary-light: #ffffff;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Choco accent */
-:where([data-ui-tokens][data-ui-accent='choco']) {
-  --ui-accent-light: #8a4513;
-  --ui-accent-dark: #f1b280;
-  --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #000000;
+/* Choco primary */
+:where([data-ui-tokens][data-ui-primary='choco']) {
+  --ui-primary-light: #8a4513;
+  --ui-primary-dark: #f1b280;
+  --ui-on-primary-light: #ffffff;
+  --ui-on-primary-dark: #000000;
 }
 
-/* Neutral secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='neutral']) {
-  --ui-secondary-accent-light: #000000;
-  --ui-secondary-accent-dark: #ffffff;
+/* Neutral secondary */
+:where([data-ui-tokens][data-ui-secondary='neutral']) {
+  --ui-secondary-light: #000000;
+  --ui-secondary-dark: #ffffff;
 }
 
-/* Blue secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='blue']) {
-  --ui-secondary-accent-light: #1971c2;
-  --ui-secondary-accent-dark: #4dabf7;
+/* Blue secondary */
+:where([data-ui-tokens][data-ui-secondary='blue']) {
+  --ui-secondary-light: #1971c2;
+  --ui-secondary-dark: #4dabf7;
 }
 
-/* Teal secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='teal']) {
-  --ui-secondary-accent-light: #087f5b;
-  --ui-secondary-accent-dark: #63e6be;
+/* Teal secondary */
+:where([data-ui-tokens][data-ui-secondary='teal']) {
+  --ui-secondary-light: #087f5b;
+  --ui-secondary-dark: #63e6be;
 }
 
-/* Green secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='green']) {
-  --ui-secondary-accent-light: #2b8a3e;
-  --ui-secondary-accent-dark: #8ce99a;
+/* Green secondary */
+:where([data-ui-tokens][data-ui-secondary='green']) {
+  --ui-secondary-light: #2b8a3e;
+  --ui-secondary-dark: #8ce99a;
 }
 
-/* Violet secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='violet']) {
-  --ui-secondary-accent-light: #7048e8;
-  --ui-secondary-accent-dark: #e5dbff;
+/* Violet secondary */
+:where([data-ui-tokens][data-ui-secondary='violet']) {
+  --ui-secondary-light: #7048e8;
+  --ui-secondary-dark: #e5dbff;
 }
 
-/* Pink secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='pink']) {
-  --ui-secondary-accent-light: #a61e4d;
-  --ui-secondary-accent-dark: #faa2c1;
+/* Pink secondary */
+:where([data-ui-tokens][data-ui-secondary='pink']) {
+  --ui-secondary-light: #a61e4d;
+  --ui-secondary-dark: #faa2c1;
 }
 
-/* Orange secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='orange']) {
-  --ui-secondary-accent-light: #f76707;
-  --ui-secondary-accent-dark: #ffe8cc;
+/* Orange secondary */
+:where([data-ui-tokens][data-ui-secondary='orange']) {
+  --ui-secondary-light: #f76707;
+  --ui-secondary-dark: #ffe8cc;
 }
 
-/* Brown secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='brown']) {
-  --ui-secondary-accent-light: #6f4b2d;
-  --ui-secondary-accent-dark: #d3b79e;
+/* Brown secondary */
+:where([data-ui-tokens][data-ui-secondary='brown']) {
+  --ui-secondary-light: #6f4b2d;
+  --ui-secondary-dark: #d3b79e;
 }
 
-/* Choco secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='choco']) {
-  --ui-secondary-accent-light: #8a4513;
-  --ui-secondary-accent-dark: #f1b280;
+/* Choco secondary */
+:where([data-ui-tokens][data-ui-secondary='choco']) {
+  --ui-secondary-light: #8a4513;
+  --ui-secondary-dark: #f1b280;
 }
 
-/* Yellow secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='yellow']) {
-  --ui-secondary-accent-light: #fcc419;
-  --ui-secondary-accent-dark: #ffe066;
+/* Yellow secondary */
+:where([data-ui-tokens][data-ui-secondary='yellow']) {
+  --ui-secondary-light: #fcc419;
+  --ui-secondary-dark: #ffe066;
 }
 
-/* Light blue secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='light-blue']) {
-  --ui-secondary-accent-light: #74c0fc;
-  --ui-secondary-accent-dark: #74c0fc;
+/* Light blue secondary */
+:where([data-ui-tokens][data-ui-secondary='light-blue']) {
+  --ui-secondary-light: #74c0fc;
+  --ui-secondary-dark: #74c0fc;
 }
 
-/* Dark blue secondary accent */
-:where([data-ui-tokens][data-ui-secondary-accent='dark-blue']) {
-  --ui-secondary-accent-light: #1864ab;
-  --ui-secondary-accent-dark: #1971c2;
+/* Dark blue secondary */
+:where([data-ui-tokens][data-ui-secondary='dark-blue']) {
+  --ui-secondary-light: #1864ab;
+  --ui-secondary-dark: #1971c2;
 }
 
 /* Canvas on surface 1 */
@@ -763,34 +759,34 @@
 
 /* primary decoration dots */
 :where([data-ui-tokens][data-ui-dot-color='primary']) {
-  --ui-decoration-dot-color: var(--ui-accent);
+  --ui-decoration-dot-color: var(--ui-primary);
 }
 
 /* primary decoration borders */
 :where([data-ui-tokens][data-ui-border-color='primary']) {
-  --ui-decoration-border-color: var(--ui-accent);
+  --ui-decoration-border-color: var(--ui-primary);
 }
 
 /* primary input decoration */
 :where([data-ui-tokens][data-ui-input-decoration='primary']) {
-  --ui-input-decoration-dot-color: var(--ui-accent);
-  --ui-input-decoration-border-color: var(--ui-accent);
+  --ui-input-decoration-dot-color: var(--ui-primary);
+  --ui-input-decoration-border-color: var(--ui-primary);
 }
 
 /* secondary decoration dots */
 :where([data-ui-tokens][data-ui-dot-color='secondary']) {
-  --ui-decoration-dot-color: var(--ui-secondary-accent);
+  --ui-decoration-dot-color: var(--ui-secondary);
 }
 
 /* secondary decoration borders */
 :where([data-ui-tokens][data-ui-border-color='secondary']) {
-  --ui-decoration-border-color: var(--ui-secondary-accent);
+  --ui-decoration-border-color: var(--ui-secondary);
 }
 
 /* secondary input decoration */
 :where([data-ui-tokens][data-ui-input-decoration='secondary']) {
-  --ui-input-decoration-dot-color: var(--ui-secondary-accent);
-  --ui-input-decoration-border-color: var(--ui-secondary-accent);
+  --ui-input-decoration-dot-color: var(--ui-secondary);
+  --ui-input-decoration-border-color: var(--ui-secondary);
 }
 
 /* Input decoration turned off */

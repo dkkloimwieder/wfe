@@ -413,7 +413,7 @@
 }
 :where([data-ui]) .column-resize:hover .resize-grip,
 :where([data-ui]) .column-resize:active .resize-grip {
-  background: var(--ui-accent, #1971c2);
+  background: var(--ui-primary, #1971c2);
   width: 3px;
 }
 :where([data-ui]) .column-resize:focus-visible {
@@ -455,7 +455,7 @@
   stroke-linejoin: round;
 }
 :where([data-ui]) .header-filter-trigger[data-filtered='true'] {
-  color: var(--ui-accent, #1971c2);
+  color: var(--ui-primary, #1971c2);
 }
 :where([data-ui]) .header-filter-trigger[data-filtered='true']::after {
   content: '';
@@ -465,7 +465,7 @@
   right: 1px;
   top: 2px;
   border-radius: 50%;
-  background: var(--ui-accent, #1971c2);
+  background: var(--ui-primary, #1971c2);
 }
 :where([data-ui]) .header-filter-popup {
   position: fixed;
@@ -554,10 +554,10 @@
   background: var(--ui-highlight, #f5f5f5);
 }
 :where([data-ui]) [data-column-drop='before'] {
-  box-shadow: inset 3px 0 var(--ui-accent, #1971c2);
+  box-shadow: inset 3px 0 var(--ui-primary, #1971c2);
 }
 :where([data-ui]) [data-column-drop='after'] {
-  box-shadow: inset -3px 0 var(--ui-accent, #1971c2);
+  box-shadow: inset -3px 0 var(--ui-primary, #1971c2);
 }
 
 @media (max-width: 700px) {
@@ -671,10 +671,10 @@
   --_selection-left: 0;
   --_selection-right: 0;
   box-shadow:
-    inset 0 var(--_selection-top) var(--ui-accent, #1971c2),
-    inset 0 var(--_selection-bottom) var(--ui-accent, #1971c2),
-    inset var(--_selection-left) 0 var(--ui-accent, #1971c2),
-    inset var(--_selection-right) 0 var(--ui-accent, #1971c2);
+    inset 0 var(--_selection-top) var(--ui-primary, #1971c2),
+    inset 0 var(--_selection-bottom) var(--ui-primary, #1971c2),
+    inset var(--_selection-left) 0 var(--ui-primary, #1971c2),
+    inset var(--_selection-right) 0 var(--ui-primary, #1971c2);
 }
 :where([data-ui]) td[data-selection-edges~='top'] {
   --_selection-top: 1px;
@@ -700,6 +700,6 @@
 
 :where([data-ui]) table[data-table-selection]:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-accent));
+    var(--ui-focus-ring, var(--ui-primary));
   outline-offset: -2px;
 }

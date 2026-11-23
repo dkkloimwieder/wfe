@@ -89,7 +89,7 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  border: var(--ui-border-width, 1px) solid var(--ui-accent);
+  border: var(--ui-border-width, 1px) solid var(--ui-primary);
   color: var(--ui-text);
   background: var(--ui-surface);
   border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
@@ -102,7 +102,7 @@
   background: var(--ui-highlight, var(--ui-pane-surface));
 }
 :where([data-ui]) .ui-gantt-bar:focus-visible {
-  outline: 1px solid var(--ui-focus-ring, var(--ui-accent));
+  outline: 1px solid var(--ui-focus-ring, var(--ui-primary));
   outline-offset: -3px;
 }
 :where([data-ui]) .ui-gantt-bar[data-critical] {
@@ -172,7 +172,7 @@
   right: 0;
 }
 :where([data-ui]) .ui-gantt-resize:focus-visible {
-  outline: 1px solid var(--ui-accent);
+  outline: 1px solid var(--ui-primary);
   background: var(--ui-surface);
 }
 :where([data-ui]) .ui-gantt-dropzone {

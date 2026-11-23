@@ -43,7 +43,7 @@ export async function overlayButtonCases({ page, url, record, settle }) {
         await page.mouse.move(0, 0)
         for (const name of names) await sameButton(name)
         const refs = (await read()).refs
-        for (const tone of ['neutral', 'accent']) {
+        for (const tone of ['neutral', 'primary']) {
           for (const variant of variants) {
             await configure({ tone, variant })
             for (const name of names) await sameButton(name, variant, tone)
@@ -91,8 +91,8 @@ export async function overlayButtonCases({ page, url, record, settle }) {
         await page.mouse.move(0, 0)
         await sameButton(close)
         for (const variant of variants) {
-          await configure({ variant, tone: 'accent' })
-          await sameButton(close, variant, 'accent')
+          await configure({ variant, tone: 'primary' })
+          await sameButton(close, variant, 'primary')
           assert.equal(
             await node.evaluate(
               (node, name) =>
@@ -123,7 +123,7 @@ export async function overlayButtonCases({ page, url, record, settle }) {
     'overlay buttons: disabled triggers and close actions suppress callbacks and retain the overlay',
     async () => {
       await open()
-      await configure({ disabled: true, variant: 'filled', tone: 'accent' })
+      await configure({ disabled: true, variant: 'filled', tone: 'primary' })
       for (const name of [
         'dialog-trigger',
         'alert-trigger',

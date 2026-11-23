@@ -262,7 +262,7 @@ await withArtifactRun(
         await expect(page.locator('.chart-primary-tooltip')).toBeVisible()
       })
       await run(
-        'shared surfaces and accents repaint without replacing chart nodes',
+        'shared surfaces and primary colors repaint without replacing chart nodes',
         async () => {
           for (const surface of ['Dark', 'Light']) {
             await page
@@ -270,7 +270,7 @@ await withArtifactRun(
               .click()
             for (const accent of ['Blue', 'Violet', 'Orange']) {
               await page
-                .getByRole('button', { name: `${accent} accent`, exact: true })
+                .getByRole('button', { name: `${accent} primary`, exact: true })
                 .click()
             }
           }

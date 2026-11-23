@@ -2,7 +2,7 @@ import { styledClasses } from './classes'
 import { merge, omit } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 
-export const BUTTON_TONES = ['neutral', 'accent'] as const
+export const BUTTON_TONES = ['neutral', 'primary'] as const
 export const BUTTON_VARIANTS = [
   'outline',
   'filled',

@@ -29,7 +29,7 @@
 }
 :where([data-ui]) .ui-time-clock-face:focus-visible {
   outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-accent));
+    var(--ui-focus-ring, var(--ui-primary));
   outline-offset: var(--ui-focus-offset, 0px);
 }
 :where([data-ui])
@@ -50,7 +50,7 @@
   left: calc(50% - var(--ui-border-width, 1px));
   bottom: 50%;
   inline-size: calc(2 * var(--ui-border-width, 1px));
-  background: var(--ui-accent);
+  background: var(--ui-primary);
   transform-origin: bottom center;
   pointer-events: none;
 }
@@ -65,14 +65,14 @@
   inline-size: 2em;
   block-size: 2em;
   background: var(--ui-highlight);
-  border: var(--ui-border-width, 1px) solid var(--ui-accent);
+  border: var(--ui-border-width, 1px) solid var(--ui-primary);
 }
 :where([data-ui]) .ui-time-clock-center {
   left: 50%;
   top: 50%;
   inline-size: 0.5em;
   block-size: 0.5em;
-  background: var(--ui-accent);
+  background: var(--ui-primary);
 }
 :where([data-ui]) .ui-time-clock-unit {
   display: grid;
@@ -87,7 +87,7 @@
   font-variant-numeric: tabular-nums;
 }
 :where([data-ui]) .ui-time-clock-unit[data-active] input {
-  border-color: var(--ui-accent);
+  border-color: var(--ui-primary);
 }
 @media (forced-colors: active) {
   :where([data-ui]) .ui-time-clock-face {

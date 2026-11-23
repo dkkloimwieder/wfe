@@ -57,7 +57,7 @@
   border-color: color-mix(
     in srgb,
     var(--ui-button-color, var(--ui-button-border))
-      var(--ui-outline-accent-weight),
+      var(--ui-outline-primary-weight),
     var(--ui-control-border)
   );
 }
@@ -116,7 +116,7 @@
     &:is([aria-expanded='true'], :where(details[open]) > summary) {
       --_ui-action-open: var(
         --ui-state-open-shadow,
-        0 0 0 1px var(--ui-accent, #1971c2)
+        0 0 0 1px var(--ui-primary, #1971c2)
       );
     }
 
@@ -146,7 +146,7 @@
     ) {
       --_ui-action-selected: var(
         --ui-state-selected-shadow,
-        inset 0 0 0 1px var(--ui-accent, #1971c2)
+        inset 0 0 0 1px var(--ui-primary, #1971c2)
       );
     }
 
@@ -250,7 +250,7 @@
     &:is([aria-expanded='true'], :has([aria-expanded='true'])) {
       --_ui-field-open: var(
         --ui-state-open-shadow,
-        0 0 0 1px var(--ui-accent, #1971c2)
+        0 0 0 1px var(--ui-primary, #1971c2)
       );
     }
 
@@ -414,7 +414,7 @@
     &:is([data-checked], [data-indeterminate]) {
       --_ui-check-selected: var(
         --ui-state-selected-shadow,
-        inset 0 0 0 1px var(--ui-accent, #1971c2)
+        inset 0 0 0 1px var(--ui-primary, #1971c2)
       );
       background-color: var(
         --ui-toggle-checked-surface,
@@ -424,7 +424,7 @@
         --ui-toggle-checked-border,
         var(--ui-control-border, #e5e5e5)
       );
-      color: var(--ui-toggle-checked-text, var(--ui-accent, #1971c2));
+      color: var(--ui-toggle-checked-text, var(--ui-primary, #1971c2));
     }
 
     &:not(

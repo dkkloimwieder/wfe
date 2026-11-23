@@ -6,7 +6,7 @@ export const tokenGroups = [
   'surfaces',
   'text',
   'borders',
-  'accent',
+  'colors',
   'sizing',
   'radius',
   'shadows',
@@ -22,8 +22,8 @@ const rules: readonly [TokenGroup, RegExp][] = [
   ['spacing', /padding|gap|inset|margin|indent|offset/],
   ['sizing', /height|width|size/],
   [
-    'accent',
-    /accent|focus|selection|button-color|button-on|error|success|warning|decoration|dot|pattern|opacity|visibility/,
+    'colors',
+    /primary|secondary|accent|focus|selection|button-color|button-on|error|success|warning|decoration|dot|pattern|opacity|visibility/,
   ],
   ['surfaces', /surface|canvas|pane|hover|highlight|overlay|backdrop/],
   [

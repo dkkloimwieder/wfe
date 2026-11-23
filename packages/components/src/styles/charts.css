@@ -58,7 +58,7 @@
     --ui-text: CanvasText;
     --ui-muted-text: CanvasText;
     --ui-surface: Canvas;
-    --ui-accent: Highlight;
+    --ui-primary: Highlight;
     --ui-focus-ring: Highlight;
     --ui-border: GrayText;
   }

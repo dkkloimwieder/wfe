@@ -13,7 +13,7 @@ test('direct gallery links preserve example, state, width and presentation in a 
     state: 'readonly' as const,
     viewport: 'phone' as const,
     scheme: 2,
-    accent: 4,
+    primary: 4,
     layers: { canvas: 2 as const, pane: 1 as const, content: 2 as const },
   }
   const url = galleryUrl(
@@ -32,7 +32,7 @@ test('direct gallery links preserve example, state, width and presentation in a 
 test('invalid URL input falls back to finite presentation defaults and capability-aware states', () => {
   const route = readRoute(
     new URL(
-      'https://example.test/?gallery=buttons&state=readonly&scheme=Infinity&accent=-1&depth=9&canvas=1.5&pane=&content=invalid&viewport=giant',
+      'https://example.test/?gallery=buttons&state=readonly&scheme=Infinity&primary=-1&depth=9&canvas=1.5&pane=&content=invalid&viewport=giant',
     ),
   )
   expect(route).toEqual({ ...defaults, id: 'buttons', viewport: 'full' })
@@ -79,7 +79,7 @@ test('decoration URLs round trip and reject unbounded presentation values', () =
   ).toEqual(defaults.decorations)
 })
 
-test('additional secondary accents round trip without changing primary bounds', () => {
+test('additional secondary colors round trip without changing primary bounds', () => {
   for (const secondary of [9, 10, 11]) {
     const route = {
       ...defaults,
@@ -91,8 +91,8 @@ test('additional secondary accents round trip without changing primary bounds', 
       readRoute(galleryUrl(new URL('https://example.test'), route)),
     ).toEqual(route)
   }
-  expect(readRoute(new URL('https://example.test?accent=9')).accent).toBe(
-    defaults.accent,
+  expect(readRoute(new URL('https://example.test?primary=9')).primary).toBe(
+    defaults.primary,
   )
 })
 

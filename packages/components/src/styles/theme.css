@@ -27,7 +27,7 @@
 }
 
 :where([data-ui]) a[href]:not(.ui-button) {
-  color: var(--ui-accent, #1971c2);
+  color: var(--ui-primary, #1971c2);
   text-decoration: none;
 }
 

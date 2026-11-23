@@ -1,23 +1,23 @@
 import { For, Show, createMemo, createSignal } from 'solid-js'
-import { accentName, resolveThemeTokens } from '@wfe/components/theme'
+import { paletteColorName, resolveThemeTokens } from '@wfe/components/theme'
 import type {
-  ThemeAccent,
+  ThemePrimary,
   ThemeOptions,
-  ThemeSecondaryAccent,
+  ThemeSecondary,
 } from '@wfe/components/theme'
 import type { ButtonTone } from '@wfe/components'
 import { Button, Input, Field, Label } from '@wfe/components'
 import {
   schemes,
-  accents,
-  secondaryAccents,
+  primaryColors,
+  secondaryColors,
   decorationColors,
   schemeMode,
-  accentOption,
+  primaryOption,
 } from './appearance'
 import type {
   Decorations,
-  Accent,
+  PaletteColor,
   SurfaceScheme,
   SurfaceLayers,
   SurfaceLevel,
@@ -42,33 +42,33 @@ export function AppearanceReview(props: {
   placement?: 'left' | 'top' | 'right'
   onPlacementChange?: (placement: 'left' | 'top' | 'right') => void
   scheme: SurfaceScheme
-  accent: Accent
+  primary: PaletteColor
   dividers?: TableDividers
   onDividersChange?: (dividers: TableDividers) => void
   layers: SurfaceLayers
   onLayersChange: (layers: SurfaceLayers) => void
   onSchemeChange: (scheme: SurfaceScheme) => void
-  onAccentChange: (accent: Accent) => void
+  onPrimaryChange: (color: PaletteColor) => void
 }) {
   // The review samples the same token blocks that the theme style sheet applies.
   const options = (): ThemeOptions =>
     props.themeOptions ?? {
       mode: schemeMode(props.scheme),
-      accent: accentOption(props.accent),
+      primary: primaryOption(props.primary),
       layers: props.layers,
       dividers: props.dividers,
     }
   const active = createMemo(() => resolveThemeTokens(options()))
-  const accentSample = (accent: Accent, secondary = false) => {
-    const name = accentName(accent)
+  const colorSample = (color: PaletteColor, secondary = false) => {
+    const name = paletteColorName(color)
     const tokens = resolveThemeTokens({
       ...options(),
       ...(secondary
-        ? { secondaryAccent: name as ThemeSecondaryAccent }
-        : { accent: name as ThemeAccent }),
+        ? { secondary: name as ThemeSecondary }
+        : { primary: name as ThemePrimary }),
     })
     return {
-      background: tokens[secondary ? '--ui-secondary-accent' : '--ui-accent'],
+      background: tokens[secondary ? '--ui-secondary' : '--ui-primary'],
     }
   }
   const dividerSample = (key: keyof TableDividers, level: 0 | 1 | 2 | 3) => {
@@ -88,7 +88,7 @@ export function AppearanceReview(props: {
       text: [tokens['--ui-text']!, tokens['--ui-muted-text']!],
     }
   })
-  const [buttonTone, setButtonTone] = createSignal<ButtonTone>('accent')
+  const [buttonTone, setButtonTone] = createSignal<ButtonTone>('primary')
   return (
     <section class="appearance-review" aria-label="Appearance review">
       <div class="appearance-pickers">
@@ -110,25 +110,29 @@ export function AppearanceReview(props: {
             )}
           </For>
         </div>
-        <div class="appearance-options" role="group" aria-label="Accent colors">
-          <span data-ui-text="system">Accent</span>
-          <For each={accents}>
+        <div
+          class="appearance-options"
+          role="group"
+          aria-label="Primary colors"
+        >
+          <span data-ui-text="system">Primary</span>
+          <For each={primaryColors}>
             {(accent) => (
               <Button
-                class="accent-swatch"
-                aria-label={`${accent.name} accent`}
+                class="palette-swatch"
+                aria-label={`${accent.name} primary`}
                 title={accent.name}
-                aria-pressed={props.accent === accent ? 'true' : 'false'}
-                onClick={() => props.onAccentChange(accent)}
+                aria-pressed={props.primary === accent ? 'true' : 'false'}
+                onClick={() => props.onPrimaryChange(accent)}
               >
-                <span aria-hidden="true" style={accentSample(accent)} />
+                <span aria-hidden="true" style={colorSample(accent)} />
               </Button>
             )}
           </For>
         </div>
         <div class="appearance-options" role="group" aria-label="Button tone">
           <span data-ui-text="system">Tone</span>
-          <For each={['neutral', 'accent'] as const}>
+          <For each={['neutral', 'primary'] as const}>
             {(tone) => (
               <Button
                 aria-pressed={buttonTone() === tone ? 'true' : 'false'}
@@ -274,14 +278,14 @@ export function AppearanceReview(props: {
           <div
             class="appearance-options"
             role="group"
-            aria-label="Secondary accent colors"
+            aria-label="Secondary colors"
           >
-            <span data-ui-text="system">Secondary accent</span>
-            <For each={secondaryAccents}>
+            <span data-ui-text="system">Secondary</span>
+            <For each={secondaryColors}>
               {(accent, index) => (
                 <Button
-                  class="accent-swatch"
-                  aria-label={`${accent.name} secondary accent`}
+                  class="palette-swatch"
+                  aria-label={`${accent.name} secondary`}
                   aria-pressed={
                     props.decorations!.secondary === index() ? 'true' : 'false'
                   }
@@ -292,7 +296,7 @@ export function AppearanceReview(props: {
                     )
                   }
                 >
-                  <span aria-hidden="true" style={accentSample(accent, true)} />
+                  <span aria-hidden="true" style={colorSample(accent, true)} />
                 </Button>
               )}
             </For>

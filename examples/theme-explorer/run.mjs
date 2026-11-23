@@ -90,7 +90,7 @@ const groups = [
   'surfaces',
   'text',
   'borders',
-  'accent',
+  'colors',
   'sizing',
   'radius',
   'shadows',
@@ -180,7 +180,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
         await input.fill('7px')
         await expect.poll(() => rootValue('--ui-radius')).toBe('7px')
         const button = page
-          .getByRole('group', { name: 'accent buttons' })
+          .getByRole('group', { name: 'primary buttons' })
           .getByRole('button', { name: 'outline' })
         await expect
           .poll(() =>
@@ -592,10 +592,10 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       const targets = [
         ['button/text/default/outline', '.ui-button'],
         ['button/text/neutral/outline', '.ui-button'],
-        ['button/text/accent/outline', '.ui-button'],
+        ['button/text/primary/outline', '.ui-button'],
         ['button/icon/default/outline', '.ui-icon-button'],
         ['button/icon/neutral/outline', '.ui-icon-button'],
-        ['button/icon/accent/outline', '.ui-icon-button'],
+        ['button/icon/primary/outline', '.ui-icon-button'],
         ['input/text', '[data-ui-control-surface]'],
         ['number-input/default', '[data-ui-control-surface]'],
         ['textarea/default', '[data-ui-control-surface]'],
@@ -1317,7 +1317,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           const appearance = (preset, state) =>
             page
               .locator(
-                `.variant-sample[data-preset="${preset}"][data-variant="button/text/accent/outline/${state}"] .ui-button`,
+                `.variant-sample[data-preset="${preset}"][data-variant="button/text/primary/outline/${state}"] .ui-button`,
               )
               .evaluate((button) => {
                 const style = getComputedStyle(button)
@@ -1356,7 +1356,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
 
           const insetStrength = await page
             .locator(
-              '[data-preset="laser"][data-variant="button/text/accent/outline/hover"] .ui-button',
+              '[data-preset="laser"][data-variant="button/text/primary/outline/hover"] .ui-button',
             )
             .evaluate((button) => {
               const style = getComputedStyle(button)

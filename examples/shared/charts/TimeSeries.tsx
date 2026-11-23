@@ -110,9 +110,9 @@ export const timeSeriesViews = [
 ] as const
 type View = (typeof timeSeriesViews)[number]['value']
 const colors = [
-  'var(--ui-accent)',
-  'color-mix(in srgb, var(--ui-accent) 80%, var(--ui-surface))',
-  'color-mix(in srgb, var(--ui-accent) 60%, var(--ui-surface))',
+  'var(--ui-primary)',
+  'color-mix(in srgb, var(--ui-primary) 80%, var(--ui-surface))',
+  'color-mix(in srgb, var(--ui-primary) 60%, var(--ui-surface))',
 ]
 const dash = [undefined, '6 3', '2 3']
 const integers = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
@@ -307,7 +307,7 @@ export function TimeSeries() {
         color: {
           domain: [0, 1, 2, 3],
           range: [
-            'color-mix(in srgb, var(--ui-accent) 18%, var(--ui-surface))',
+            'color-mix(in srgb, var(--ui-primary) 18%, var(--ui-surface))',
             ...[...colors].reverse(),
           ],
         },
