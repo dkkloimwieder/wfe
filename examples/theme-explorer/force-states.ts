@@ -52,7 +52,11 @@ export function installForcedStateRules(document: Document) {
 
 export type ForcedState = 'hover' | 'focus' | 'pressed'
 
-export function forceState(sample: HTMLElement, state: ForcedState) {
+export function forceState(
+  sample: HTMLElement,
+  state: ForcedState,
+  auditAllFocusTargets: boolean,
+) {
   const focusable =
     'button, a[href], summary, input:not([type="hidden"], [type="file"]), textarea, select, [tabindex], [role="option"]'
   const pointer = '.ui-check-control, .ui-radio-control, .ui-switch-control'
@@ -83,5 +87,6 @@ export function forceState(sample: HTMLElement, state: ForcedState) {
     ) {
       for (const attribute of attributes) node.setAttribute(attribute, '')
     }
+    if (state === 'focus' && !auditAllFocusTargets) break
   }
 }

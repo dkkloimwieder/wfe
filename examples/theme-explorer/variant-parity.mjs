@@ -80,7 +80,7 @@ function readProbe(target) {
   }
   const nodes = [['control', target]]
   const frame = target.closest(
-    '.ui-input-affix, .choice-control, .ui-control-frame, .ui-file-input',
+    '.ui-input-affix, .ui-input-group, .choice-control, .ui-control-frame, .ui-file-input',
   )
   if (frame && frame !== target) nodes.push(['frame', frame])
   const check = target
@@ -113,7 +113,7 @@ export async function checkVariantParity(page, url) {
   let comparisons = 0
   await page.setViewportSize({ width: 1600, height: 1000 })
   for (const mode of ['light', 'dark']) {
-    await page.goto(new URL(`?variants&mode=${mode}`, url).href)
+    await page.goto(new URL(`?variants&mode=${mode}&audit-all-focus`, url).href)
     await page.locator('[data-variants-ready]').waitFor({
       state: 'attached',
       timeout: 45_000,

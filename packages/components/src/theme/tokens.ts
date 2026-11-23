@@ -315,8 +315,6 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-action-hover-shadow': '0 0 transparent',
         '--ui-state-selected-shadow':
           'inset 0 0 0 var(--ui-border-width) var(--ui-accent)',
-        '--ui-state-pressed-shadow':
-          'inset 0 0 0 var(--ui-focus-width) var(--ui-muted-text)',
         '--ui-action-outline-opacity': '100%',
         // Glyphs and choice lists
         '--ui-disclosure-overflow': 'visible',

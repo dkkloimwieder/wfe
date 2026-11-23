@@ -62,46 +62,27 @@ const stateExceptions = [
       'outline-width',
     ],
   },
+  {
+    name: 'Field adornments',
+    reason: 'The field frame draws the focus ring for its inner actions.',
+    matches: ({ role, state, fieldAdornment }) =>
+      role === 'actions' && state === 'focus' && fieldAdornment,
+  },
 ]
 
 const roleStates = {
   actions: [
     'hover',
     'focus',
-    'pressed',
     'selected',
     'open',
     'disabled',
     'invalid',
     'read-only',
   ],
-  fields: [
-    'hover',
-    'focus',
-    'pressed',
-    'open',
-    'disabled',
-    'invalid',
-    'read-only',
-  ],
-  choices: [
-    'hover',
-    'focus',
-    'pressed',
-    'selected',
-    'open',
-    'disabled',
-    'read-only',
-  ],
-  checks: [
-    'hover',
-    'focus',
-    'pressed',
-    'selected',
-    'disabled',
-    'invalid',
-    'read-only',
-  ],
+  fields: ['hover', 'focus', 'open', 'disabled', 'invalid', 'read-only'],
+  choices: ['hover', 'focus', 'selected', 'open', 'disabled', 'read-only'],
+  checks: ['hover', 'focus', 'selected', 'disabled', 'invalid', 'read-only'],
   surfaces: ['disabled'],
 }
 
@@ -717,7 +698,6 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
             }
             for (const [first, second] of [
               ['hover', 'focus'],
-              ['hover', 'pressed'],
               ['hover', 'selected'],
               ['focus', 'selected'],
             ]) {
@@ -735,6 +715,21 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                   statesWithSamePaint: [first, second],
                 })
             }
+            if (states.includes('hover')) {
+              const hover = group('hover')
+              const pressed = group('pressed')
+              if (
+                !pressed ||
+                !hover ||
+                pressed.size !== hover.size ||
+                [...pressed].some(
+                  ([delta, controls]) =>
+                    JSON.stringify(controls) !==
+                    JSON.stringify(hover.get(delta)),
+                )
+              )
+                problems.push({ mode, preset, role, state: 'pressed' })
+            }
           }
         }
       }
@@ -745,6 +740,176 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
         'See variantStateProblems in the browser report',
       )
     })
+
+    await record(
+      'Variants draw one focus ring on the visible frame',
+      async () => {
+        const problems = []
+        for (const mode of ['light', 'dark']) {
+          await page.goto(
+            new URL(
+              `?variants&mode=${mode}&audit-all-focus`,
+              server.resolvedUrls.local[0],
+            ).href,
+          )
+          await page.locator('[data-variants-ready]').waitFor({
+            state: 'attached',
+            timeout: 45_000,
+          })
+          await page.mouse.move(0, 0)
+          const result = await page.evaluate(() => {
+            const compound =
+              '.ui-input-affix, .ui-input-group, .filter-input, .choice-control'
+            const nativeFrame =
+              '.ui-control-frame:has(> :is(.ui-input, .ui-textarea, .ui-native-select, .choice-input))'
+            const focusAttributes = [
+              'data-force-focus-visible',
+              'data-force-focus',
+              'data-force-focus-within',
+            ]
+            const body = document.querySelector('.variants-grid > tbody')
+            const rows = [...body.children].filter((row) =>
+              row.dataset.variantStates.split(' ').includes('focus'),
+            )
+            const failures = []
+            let targetsChecked = 0
+            function readRings(nodes) {
+              return nodes.map((node) => {
+                const style = getComputedStyle(node)
+                const outline =
+                  style.outlineStyle !== 'none' &&
+                  parseFloat(style.outlineWidth) > 0 &&
+                  style.outlineColor !== 'rgba(0, 0, 0, 0)'
+                    ? style.outline
+                    : null
+                const shadows = style.boxShadow
+                  .split(/,(?![^()]*\))/)
+                  .map((layer) => layer.trim())
+                  .filter(
+                    (layer) =>
+                      layer !== 'none' && !layer.startsWith('rgba(0, 0, 0, 0)'),
+                  )
+                return { outline, shadows }
+              })
+            }
+            for (const row of rows) {
+              body.replaceChildren(row)
+              for (const cell of row.querySelectorAll(
+                '[data-variant-state="focus"]',
+              )) {
+                const targets = [
+                  ...cell.querySelectorAll('[data-force-focus-visible]'),
+                ]
+                const descendants = [...cell.querySelectorAll('*')]
+                for (const node of descendants)
+                  for (const attribute of focusAttributes)
+                    node.removeAttribute(attribute)
+                const nodes = descendants.filter(
+                  (node) =>
+                    node.checkVisibility({
+                      visibilityProperty: true,
+                      opacityProperty: true,
+                    }) &&
+                    node.getBoundingClientRect().width > 2 &&
+                    node.getBoundingClientRect().height > 2,
+                )
+                const resting = readRings(nodes)
+                for (const target of targets) {
+                  if (!target.checkVisibility({ visibilityProperty: true }))
+                    continue
+                  const ancestors = []
+                  for (
+                    let node = target;
+                    node !== cell;
+                    node = node.parentElement
+                  )
+                    ancestors.push(node)
+                  target.setAttribute('data-force-focus-visible', '')
+                  target.setAttribute('data-force-focus', '')
+                  for (const node of ancestors)
+                    node.setAttribute('data-force-focus-within', '')
+
+                  const visibleFrame =
+                    ancestors.findLast((node) => node.matches(compound)) ??
+                    target.closest(nativeFrame) ??
+                    (target.matches(
+                      '.ui-file-picker, .ui-file-actions > button',
+                    )
+                      ? target.closest('.ui-file-input')
+                      : null) ??
+                    target
+                      .closest('.ui-toggle, .ui-radio-item')
+                      ?.querySelector(
+                        '.ui-check-control, .ui-radio-control, .ui-switch-control',
+                      )
+                  const expected = visibleFrame ?? target
+                  const frame = getComputedStyle(expected)
+                  const radius = frame.borderRadius
+                  const groupParts = expected.matches(
+                    '.ui-input-group:not(.ui-input-affix)',
+                  )
+                    ? [...expected.children].filter((part) =>
+                        part.checkVisibility({ visibilityProperty: true }),
+                      )
+                    : []
+                  const groupCornersMatch =
+                    groupParts.length < 2 ||
+                    (frame.borderStartStartRadius ===
+                      getComputedStyle(groupParts[0]).borderStartStartRadius &&
+                      frame.borderStartEndRadius ===
+                        getComputedStyle(groupParts.at(-1))
+                          .borderStartEndRadius)
+                  const rings = readRings(nodes).flatMap(
+                    ({ outline, shadows }, index) =>
+                      (outline && outline !== resting[index].outline) ||
+                      shadows.some(
+                        (shadow) => !resting[index].shadows.includes(shadow),
+                      )
+                        ? [nodes[index]]
+                        : [],
+                  )
+                  targetsChecked++
+                  if (
+                    rings.length > 1 ||
+                    (visibleFrame && rings[0] !== visibleFrame) ||
+                    !groupCornersMatch ||
+                    rings.some(
+                      (node) => getComputedStyle(node).borderRadius !== radius,
+                    )
+                  )
+                    failures.push({
+                      preset: cell.dataset.preset,
+                      cell: cell.dataset.variant,
+                      target: target.className || target.localName,
+                      expected: expected.className || expected.localName,
+                      radius,
+                      groupCornersMatch,
+                      rings: rings.map((node) => ({
+                        node: node.className || node.localName,
+                        radius: getComputedStyle(node).borderRadius,
+                      })),
+                    })
+                  for (const node of ancestors)
+                    for (const attribute of focusAttributes)
+                      node.removeAttribute(attribute)
+                }
+              }
+            }
+            return { targetsChecked, failures }
+          })
+          assert.ok(result.targetsChecked > 0, `${mode} focus targets`)
+          problems.push(
+            ...result.failures.map((failure) => ({ mode, ...failure })),
+          )
+        }
+        report.variantFocusProblems = problems
+        assert.deepEqual(
+          problems.slice(0, 8),
+          [],
+          `${problems.length} focus problems`,
+        )
+      },
+    )
 
     await record('Variants forced paint matches native input', async () => {
       report.variantParity = await checkVariantParity(
@@ -1106,6 +1271,11 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
               await appearance(preset, 'hover'),
               await appearance(preset, 'rest'),
               `${preset} ${mode} forced hover`,
+            )
+            assert.deepEqual(
+              await appearance(preset, 'pressed'),
+              await appearance(preset, 'hover'),
+              `${preset} ${mode} held button paint`,
             )
           }
 

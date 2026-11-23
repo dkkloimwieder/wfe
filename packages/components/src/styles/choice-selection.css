@@ -3,7 +3,6 @@
 :is([data-ui], [data-ui-tokens])
   :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button) {
   --_ui-choice-selected: 0 0 transparent;
-  --_ui-choice-pressed: 0 0 transparent;
 
   @media (forced-colors: none) {
     &:not(:disabled, [data-disabled], [aria-disabled='true'], [data-readonly]) {
@@ -15,12 +14,6 @@
         text-shadow: var(
           --ui-choice-hover-text-shadow,
           var(--ui-laser-text-glow, var(--_ui-laser-text-glow, none))
-        );
-      }
-      &:active {
-        --_ui-choice-pressed: var(
-          --ui-state-pressed-shadow,
-          inset 0 0 0 1px var(--ui-muted-text, #999999)
         );
       }
     }
@@ -49,18 +42,12 @@
       [data-selected],
       [data-checked],
       [aria-checked='true'],
-      [aria-selected='true'],
-      :active
+      [aria-selected='true']
     ) {
-      box-shadow: var(--_ui-choice-pressed), var(--_ui-choice-selected);
+      box-shadow: var(--_ui-choice-selected);
     }
 
-    &:is(
-      :focus-visible,
-      .popup-option[data-highlighted]:not(:hover),
-      :where(.ui-command:has(input:focus-visible))
-        .ui-command-option[data-highlighted]
-    ) {
+    &:is(:focus-visible, .popup-option[data-highlighted]:not(:hover)) {
       outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
       outline-offset: -2px;
     }

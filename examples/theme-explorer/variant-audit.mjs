@@ -102,6 +102,9 @@ function collectSamples(roles) {
             node.textContent.trim().replace(/\s+/g, ' ').slice(0, 70),
           baselineRow: sample.dataset.variantBaseline || row,
           style: styleId(node),
+          fieldAdornment: node.matches(
+            ':is(.ui-input-affix, .ui-input-group, .filter-input, .choice-control) *, .ui-file-actions > button',
+          ),
           selected:
             node.matches(
               '[data-selected], [data-checked], [aria-selected="true"], [aria-current="page"], [aria-pressed="true"], [aria-checked="true"], [data-ui-active="true"], details[data-ui-active="true"] > summary',
@@ -141,7 +144,7 @@ function collectSamples(roles) {
 export async function measureVariants(page, url) {
   const modes = {}
   for (const mode of ['light', 'dark']) {
-    await page.goto(new URL(`?variants&mode=${mode}`, url).href)
+    await page.goto(new URL(`?variants&mode=${mode}&audit-all-focus`, url).href)
     await page.locator('[data-variants-ready]').waitFor({
       state: 'attached',
       timeout: 45_000,

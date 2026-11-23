@@ -53,9 +53,3 @@
 :where([data-ui]).ui-file-input[data-dragging] {
   border-color: var(--ui-accent, #1971c2);
 }
-:where([data-ui]).ui-file-input:has(.ui-file-picker:focus-visible)
-  .ui-file-actions
-  > button {
-  outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
-  outline-offset: var(--ui-focus-offset, 0px);
-}

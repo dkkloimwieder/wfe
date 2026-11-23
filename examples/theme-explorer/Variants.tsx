@@ -115,7 +115,7 @@ export function Variants() {
       )) {
         const state = sample.dataset.variantState
         if (state === 'hover' || state === 'focus' || state === 'pressed')
-          forceState(sample, state)
+          forceState(sample, state, params.has('audit-all-focus'))
       }
       readyTimer = window.setTimeout(() => {
         main.inert = false

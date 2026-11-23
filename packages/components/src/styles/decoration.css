@@ -374,7 +374,7 @@
     }
   }
 
-  /* A compound face owns the backing; nested controls keep their focus outline. */
+  /* A compound face owns the backing for its nested fields. */
   :scope [data-ui-control-surface] [data-ui-control-surface]::before,
   :scope [data-ui-control-surface] .popup-trigger::before,
   :scope

@@ -108,7 +108,6 @@
     [data-ui-action]
   ) {
   --_ui-action-selected: 0 0 transparent;
-  --_ui-action-pressed: 0 0 transparent;
   --_ui-action-hover: 0 0 transparent;
   --_ui-action-open: 0 0 transparent;
   --_ui-action-decoration-opacity: 0;
@@ -136,12 +135,6 @@
         );
         --_ui-action-decoration-opacity: 1;
       }
-      &:active {
-        --_ui-action-pressed: var(
-          --ui-state-pressed-shadow,
-          inset 0 0 0 1px var(--ui-muted-text, #999999)
-        );
-      }
     }
 
     &:is(
@@ -159,7 +152,6 @@
 
     &:is(
       :hover,
-      :active,
       [aria-expanded='true'],
       :where(details[open]) > summary,
       [aria-pressed='true'],
@@ -169,8 +161,8 @@
       :where(details[data-ui-active='true']) > summary
     ) {
       box-shadow:
-        var(--_ui-action-pressed), var(--_ui-action-selected),
-        var(--_ui-action-hover), var(--_ui-action-open);
+        var(--_ui-action-selected), var(--_ui-action-hover),
+        var(--_ui-action-open);
     }
 
     &:focus-visible {
@@ -242,17 +234,6 @@
         --_ui-field-hover: var(--_ui-field-halo);
         --_ui-field-decoration-opacity: 1;
       }
-      &:active {
-        --_ui-field-inset: var(
-          --ui-state-pressed-shadow,
-          inset 0 0 0 1px var(--ui-muted-text, #999999)
-        );
-      }
-    }
-
-    &:is(:focus-visible, :has(:focus-visible)) {
-      outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
-      outline-offset: var(--ui-focus-offset, 0px);
     }
 
     &:is(
@@ -292,7 +273,6 @@
 
     &:is(
       :hover,
-      :active,
       [aria-expanded='true'],
       :has([aria-expanded='true']),
       [aria-invalid='true'],
@@ -316,7 +296,7 @@
     .ui-input-group,
     .filter-input,
     .choice-control
-  ):is(:hover, :active, :has([aria-expanded='true']))
+  ):is(:hover, :has([aria-expanded='true']))
   :is(input, select, textarea):not(:disabled, [readonly], [type='hidden']) {
   background-color: transparent;
 }
@@ -337,11 +317,81 @@
   background-color: var(--ui-control-surface);
 }
 
+:where([data-ui], [data-ui-tokens]) .ui-input-group {
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
+}
+
+/* The visible frame owns keyboard focus for its input and adornments. */
+:is(
+    :where([data-ui], [data-ui-tokens])
+      :is(
+        .ui-control-frame:where(
+          :has(> :is(.ui-input, .ui-textarea, .ui-native-select, .choice-input))
+        ),
+        .ui-input-affix,
+        .ui-input-group,
+        .filter-input,
+        .choice-control
+      ),
+    .ui-file-input:where(
+      [data-ui]:has(
+        :is(.ui-file-picker, .ui-file-actions > button):focus-visible
+      )
+    )
+  ):is(:focus-visible, :has(:focus-visible)):not(
+    :where(.ui-input-affix, .ui-input-group, .filter-input, .choice-control) *
+  ) {
+  outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
+  outline-offset: var(--ui-focus-offset, 0px);
+}
+
+:is(
+  :where([data-ui], [data-ui-tokens])
+    :is(
+      .ui-control-frame,
+      .ui-input-affix,
+      .ui-input-group,
+      .filter-input,
+      .choice-control
+    )
+    :is(
+      input,
+      select,
+      textarea,
+      button,
+      .popup-trigger,
+      .ui-button,
+      [data-ui-action]
+    ),
+  .ui-file-input:where([data-ui])
+    :is(.ui-file-picker, .ui-file-actions > button)
+):focus-visible {
+  outline: none;
+}
+
 @media (forced-colors: none) {
-  :where([data-ui-tokens])
-    .ui-control-frame
-    > :is(input, select, textarea):focus-visible {
-    outline: none;
+  /* The command field owns the ring. Its active result uses the choice fill. */
+  :where(.ui-command:is([data-ui], [data-ui] *, [data-ui-tokens] *)):has(
+      input:focus-visible
+    )
+    .ui-command-option[data-highlighted]:not(:focus-visible) {
+    background-color: var(
+      --ui-choice-selected-fill,
+      var(--ui-highlight, #f5f5f5)
+    );
+  }
+
+  :where([data-ui], [data-ui-tokens])
+    :is(
+      .popup-trigger,
+      .ui-date-range-picker > .ui-button:first-child
+    ):focus-visible:where(
+      :not(
+        :is(.ui-input-affix, .ui-input-group, .filter-input, .choice-control) *
+      )
+    ) {
+    outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
+    outline-offset: var(--ui-focus-offset, 0px);
   }
 }
 
@@ -358,7 +408,6 @@
   ) {
   --_ui-field-decoration-opacity: 0;
   --_ui-check-selected: 0 0 transparent;
-  --_ui-check-pressed: 0 0 transparent;
   --_ui-check-hover: 0 0 transparent;
 
   @media (forced-colors: none) {
@@ -395,24 +444,15 @@
         );
         --_ui-field-decoration-opacity: 1;
       }
-      &:is(:active, :where(.ui-toggle, .ui-radio-item):active *) {
-        --_ui-check-pressed: var(
-          --ui-state-pressed-shadow,
-          inset 0 0 0 1px var(--ui-muted-text, #999999)
-        );
-      }
     }
 
     &:is(
       [data-checked],
       [data-indeterminate],
       :hover,
-      :active,
-      :where(.ui-toggle, .ui-radio-item):is(:hover, :active) *
+      :where(.ui-toggle, .ui-radio-item):hover *
     ) {
-      box-shadow:
-        var(--_ui-check-pressed), var(--_ui-check-selected),
-        var(--_ui-check-hover);
+      box-shadow: var(--_ui-check-selected), var(--_ui-check-hover);
     }
 
     &:is(
