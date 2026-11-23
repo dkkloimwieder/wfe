@@ -15,6 +15,7 @@ import {
   selectGroups,
 } from '../shared/browser/runner.mjs'
 import { withArtifactRun } from '../../scripts/artifacts.mjs'
+import { checkVariantParity } from './variant-parity.mjs'
 
 const groups = [
   'surfaces',
@@ -524,6 +525,13 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
         .toBeLessThanOrEqual(0)
       assert.deepEqual(report.errors, [])
       assert.deepEqual(report.warnings, [])
+    })
+
+    await record('Variants forced paint matches native input', async () => {
+      report.variantParityComparisons = await checkVariantParity(
+        page,
+        server.resolvedUrls.local[0],
+      )
     })
 
     await record(

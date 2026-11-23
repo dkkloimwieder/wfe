@@ -8,7 +8,12 @@ export function DefaultAppearance(props: {
   children: JSX.Element
   options?: Pick<
     ThemeOptions,
-    'accent' | 'secondaryAccent' | 'layers' | 'dividers' | 'decorations'
+    | 'accent'
+    | 'secondaryAccent'
+    | 'layers'
+    | 'dividers'
+    | 'decorations'
+    | 'decorationGeometry'
   >
   preset?: ThemeOptions['preset']
   mode?: ThemeOptions['mode']

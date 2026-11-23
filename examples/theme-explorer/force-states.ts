@@ -1,28 +1,9 @@
 const pseudoClass =
   /\\.|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|::[\w-]+|:(hover|focus-visible|focus-within|focus|active)(?![\w-])/g
 
-// Split selector lists without splitting :is(), :has(), or attribute values.
-function scopeSelectors(selectors: string) {
-  const prefix = ':where([data-variants-page]) '
-  let depth = 0
-  return (
-    prefix +
-    selectors.replace(
-      /\\.|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[()[\],]/g,
-      (token) => {
-        if (token === '(' || token === '[') depth++
-        if (token === ')' || token === ']') depth--
-        return token === ',' && depth === 0 ? ', ' + prefix : token
-      },
-    )
-  )
-}
-
-type RuleList = CSSStyleSheet | CSSGroupingRule | CSSStyleRule
-
-/** Insert copies next to their originals, in the original cascade and group. */
+/** Add a synthetic match without changing the declarations or the cascade. */
 export function installForcedStateRules(document: Document) {
-  const copies: { parent: RuleList; rule: CSSRule }[] = []
+  const originals = new Map<CSSStyleRule, string>()
   const visited = new Set<CSSStyleSheet>()
 
   function copySheet(sheet: CSSStyleSheet | null) {
@@ -37,44 +18,35 @@ export function installForcedStateRules(document: Document) {
         return
       throw error
     }
-    copyRules(sheet, rules)
+    extendRules(rules)
   }
 
-  function copyRules(parent: RuleList, rules: CSSRuleList) {
-    // Walk backwards so insertions leave the remaining indices intact.
-    for (let index = rules.length - 1; index >= 0; index--) {
-      const rule = rules[index]!
+  function extendRules(rules: CSSRuleList) {
+    for (const rule of rules) {
       if (rule instanceof CSSImportRule) copySheet(rule.styleSheet)
       if (rule instanceof CSSStyleRule) {
-        const replaced = rule.selectorText.replace(
-          pseudoClass,
-          (token, state) => (state ? `[data-force-${state}]` : token),
+        const original = rule.selectorText
+        const extended = original.replace(pseudoClass, (token, state) =>
+          state
+            ? `:is(${token}, [data-force-${state}]:where([data-variants-page] *))`
+            : token,
         )
-        if (replaced !== rule.selectorText) {
-          const nested = Array.from(
-            rule.cssRules,
-            (child) => child.cssText,
-          ).join(' ')
-          const selector = scopeSelectors(replaced)
-          parent.insertRule(
-            `${selector} { ${rule.style.cssText} ${nested} }`,
-            index + 1,
-          )
-          copies.push({ parent, rule: rules[index + 1]! })
+        if (extended !== original) {
+          // CSSOM cannot round-trip a variable shorthand when a longhand
+          // overrides part of it. Editing the selector keeps the parsed paint.
+          rule.selectorText = extended
+          originals.set(rule, original)
         }
-        copyRules(rule, rule.cssRules)
+        extendRules(rule.cssRules)
       }
-      if (rule instanceof CSSGroupingRule) copyRules(rule, rule.cssRules)
+      if (rule instanceof CSSGroupingRule) extendRules(rule.cssRules)
     }
   }
 
   for (const sheet of document.styleSheets) copySheet(sheet)
   for (const sheet of document.adoptedStyleSheets) copySheet(sheet)
   return () => {
-    for (const { parent, rule } of copies.reverse()) {
-      const index = Array.from(parent.cssRules).indexOf(rule)
-      if (index !== -1) parent.deleteRule(index)
-    }
+    for (const [rule, selector] of originals) rule.selectorText = selector
   }
 }
 
@@ -82,29 +54,34 @@ export type ForcedState = 'hover' | 'focus' | 'pressed'
 
 export function forceState(sample: HTMLElement, state: ForcedState) {
   const focusable =
-    'button, a[href], summary, input:not([type="hidden"]), textarea, select, [tabindex], [role="slider"]'
-  const pointer =
-    '.ui-check-control, .ui-radio-control, .ui-switch-control, .ui-file-actions > button, [role="slider"]'
-  const target =
-    sample.querySelector('[role="gridcell"] button[tabindex="0"]') ??
-    (state === 'focus' ? null : sample.querySelector(pointer)) ??
-    sample.querySelector(focusable)
-  if (!target) return
+    'button, a[href], summary, input:not([type="hidden"], [type="file"]), textarea, select, [tabindex]'
+  const pointer = '.ui-check-control, .ui-radio-control, .ui-switch-control'
 
-  if (state === 'focus') {
-    target.setAttribute('data-force-focus', '')
-    target.setAttribute('data-force-focus-visible', '')
-  }
-  const attribute = {
-    hover: 'data-force-hover',
-    focus: 'data-force-focus-within',
-    pressed: 'data-force-active',
+  const attributes = {
+    hover: ['data-force-hover'],
+    focus: ['data-force-focus-within'],
+    pressed: ['data-force-hover', 'data-force-active'],
   }[state]
-  for (
-    let node: Element | null = target;
-    node && node !== sample;
-    node = node.parentElement
-  ) {
-    node.setAttribute(attribute, '')
+  for (const target of sample.querySelectorAll(
+    state === 'focus' ? focusable : `${focusable}, ${pointer}`,
+  )) {
+    const closed = target.closest('details:not([open])')
+    if (
+      target.matches(':disabled, [aria-disabled="true"], [data-disabled]') ||
+      target.closest('[hidden]') ||
+      (closed && !target.closest('summary'))
+    )
+      continue
+    if (state === 'focus') {
+      target.setAttribute('data-force-focus', '')
+      target.setAttribute('data-force-focus-visible', '')
+    }
+    for (
+      let node: Element | null = target;
+      node && node !== sample;
+      node = node.parentElement
+    ) {
+      for (const attribute of attributes) node.setAttribute(attribute, '')
+    }
   }
 }

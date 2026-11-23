@@ -22,11 +22,20 @@ const presets = (
 ).map(({ value, label }) => ({
   value,
   label,
-  options: galleryThemeOptions({
-    ...defaults,
-    preset: value,
-    layers: layersForPreset(value),
-  }),
+  options: {
+    ...galleryThemeOptions({
+      ...defaults,
+      preset: value,
+      layers: layersForPreset(value),
+    }),
+    // A random backing would change even between two resting specimens.
+    decorationGeometry: {
+      rotation: 0,
+      taperX: 0,
+      taperY: 0,
+      randomizeOnHover: false,
+    },
+  },
 }))
 
 const specimens = [...buttonSpecimens, ...fieldSpecimens, ...surfaceSpecimens]
