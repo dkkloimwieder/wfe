@@ -1,8 +1,12 @@
 import { render } from '@solidjs/web'
-import { ThemeExplorer } from './App'
 
-const showVariants = new URLSearchParams(location.search).has('variants')
-const Page = showVariants
-  ? (await import('./Variants')).Variants
-  : ThemeExplorer
-render(() => <Page />, document.getElementById('root')!)
+const params = new URLSearchParams(location.search)
+const root = document.getElementById('root')!
+if (params.has('variants')) {
+  const { Variants, loadVariantGroup } = await import('./Variants')
+  const { group, specimens } = await loadVariantGroup(params.get('variants'))
+  render(() => <Variants group={group} specimens={specimens} />, root)
+} else {
+  const { ThemeExplorer } = await import('./App')
+  render(() => <ThemeExplorer />, root)
+}

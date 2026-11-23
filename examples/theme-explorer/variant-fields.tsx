@@ -12,6 +12,9 @@ import {
   DateTimePicker,
   Field,
   FieldError,
+  FieldGroup,
+  FieldSet,
+  FieldValue,
   FileInput,
   InputGroup,
   Button,
@@ -50,7 +53,7 @@ const choices: Choice[] = [
 const help = 'Use a sample value.'
 const error = 'Review this value.'
 
-export function LabeledField(props: {
+function LabeledField(props: {
   label: string
   state: State
   children: JSX.Element
@@ -408,7 +411,7 @@ const fieldRoleSpecimens = [
   )),
 ]
 
-export const fieldSpecimens = [
+export const specimens = [
   specimen('input/text', 'Input / text', editingStates, (state) => (
     <LabeledField label="Name" state={state}>
       <Input value="Sample record" onValueChange={noop} />
@@ -707,4 +710,56 @@ export const fieldSpecimens = [
     ),
   ),
   ...fieldRoleSpecimens,
+  specimen(
+    'field-group/default',
+    'FieldGroup',
+    ['rest', 'disabled'],
+    (state) => (
+      <FieldGroup
+        title="Record"
+        help="Edit the record."
+        disabled={state === 'disabled'}
+      >
+        <LabeledField label="Name" state={state}>
+          <Input value="Sample record" />
+        </LabeledField>
+      </FieldGroup>
+    ),
+  ),
+  specimen('field-set/default', 'FieldSet', ['rest', 'disabled'], (state) => (
+    <FieldSet disabled={state === 'disabled'}>
+      <legend>Record</legend>
+      <LabeledField label="Name" state={state}>
+        <Input value="Sample record" />
+      </LabeledField>
+    </FieldSet>
+  )),
+  specimen('input-group/default', 'InputGroup', actionStates, (state) => (
+    <LabeledField label="Search" state={state}>
+      <InputGroup>
+        <Input value="Sample" />
+        <Button disabled={state === 'disabled'}>Go</Button>
+      </InputGroup>
+    </LabeledField>
+  )),
+  specimen(
+    'field-value/boolean',
+    'FieldValue / boolean',
+    ['read-only'],
+    (state) => (
+      <LabeledField label="Published" state={state}>
+        <FieldValue format="boolean-symbol" value={false} />
+      </LabeledField>
+    ),
+  ),
+  ...roleSpecimens(
+    'field-group/decoration',
+    'FieldGroup decoration',
+    (decoration) => (
+      <FieldGroup title="Record" decoration={decoration}>
+        <Input aria-label="Name" value="Sample record" />
+      </FieldGroup>
+    ),
+    ['hover'],
+  ),
 ]

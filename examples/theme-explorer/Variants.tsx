@@ -7,11 +7,7 @@ import {
   layersForPreset,
 } from '../shared/appearance/galleryConfig'
 import { forceState, installForcedStateRules } from './force-states'
-import { buttonSpecimens } from './variant-buttons'
-import { fieldSpecimens } from './variant-fields'
-import { surfaceSpecimens } from './variant-surfaces'
-import { additionalSpecimens } from './variant-extra'
-import { colorRoleSpecimens } from './variant-roles'
+import groups from './variant-groups.json'
 import type { Specimen, State } from './variant-types'
 import './variants.css'
 
@@ -31,13 +27,21 @@ const presets = (
   }),
 }))
 
-const specimens = [
-  ...buttonSpecimens,
-  ...fieldSpecimens,
-  ...surfaceSpecimens,
-  ...additionalSpecimens,
-  ...colorRoleSpecimens,
-]
+type Group = keyof typeof groups
+
+const loadGroup = {
+  buttons: () => import('./variant-buttons'),
+  inputs: () => import('./variant-fields'),
+  icons: () => import('./variant-icons'),
+  surfaces: () => import('./variant-surfaces'),
+} satisfies Record<Group, () => Promise<{ specimens: Specimen[] }>>
+
+export async function loadVariantGroup(value: string | null) {
+  const group =
+    value && Object.hasOwn(loadGroup, value) ? (value as Group) : 'buttons'
+  const { specimens } = await loadGroup[group]()
+  return { group, specimens }
+}
 
 function VariantSample(props: {
   specimen: Specimen
@@ -62,7 +66,7 @@ function VariantSample(props: {
   )
 }
 
-export function Variants() {
+export function Variants(props: { group: Group; specimens: Specimen[] }) {
   const params = new URLSearchParams(location.search)
   const [mode, setMode] = createSignal<'light' | 'dark'>(
     params.get('mode') === 'dark' ? 'dark' : 'light',
@@ -73,6 +77,12 @@ export function Variants() {
     setMode(next)
     params.set('mode', next)
     history.replaceState(null, '', `?${params}`)
+  }
+  function groupHref(group: string) {
+    const next = new URLSearchParams(params)
+    next.set('variants', group)
+    next.set('mode', mode())
+    return `?${next}`
   }
 
   onSettled(() => {
@@ -147,6 +157,18 @@ export function Variants() {
             Dark mode
           </Button>
         </header>
+        <nav class="variants-groups" aria-label="Variant groups">
+          <For each={Object.entries(groups)}>
+            {([group, label]) => (
+              <a
+                href={groupHref(group)}
+                aria-current={group === props.group ? 'page' : undefined}
+              >
+                {label}
+              </a>
+            )}
+          </For>
+        </nav>
         <table class="variants-grid" aria-label="Component variants">
           <colgroup>
             <col class="variants-labels" />
@@ -171,7 +193,7 @@ export function Variants() {
             </tr>
           </thead>
           <tbody>
-            <For each={specimens}>
+            <For each={props.specimens}>
               {(entry) => (
                 <tr
                   data-variant-row={entry.id}

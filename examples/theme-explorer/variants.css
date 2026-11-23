@@ -14,6 +14,17 @@ body:has([data-variants-page]) {
   margin: 0;
 }
 
+.variants-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ui-gap);
+  padding-inline: var(--ui-gap);
+}
+
+.variants-groups a[aria-current='page'] {
+  font-weight: bold;
+}
+
 .variants-grid {
   inline-size: 100%;
   table-layout: fixed;

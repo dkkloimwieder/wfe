@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { openVariants, variantGroups } from './variant-browser.mjs'
 import {
   normalizeVariantBacking,
   paintDelta,
@@ -144,18 +145,34 @@ function collectSamples(roles) {
 export async function measureVariants(page, url) {
   const modes = {}
   for (const mode of ['light', 'dark']) {
-    await page.goto(new URL(`?variants&mode=${mode}&audit-all-focus`, url).href)
-    await page.locator('[data-variants-ready]').waitFor({
-      state: 'attached',
-      timeout: 45_000,
-    })
-    await page.mouse.move(0, 0)
-    await page.evaluate(() => document.fonts.ready)
-    await normalizeVariantBacking(page)
-    await page.addScriptTag({
-      content: `globalThis.readVariantPaint = ${readVariantPaint.toString()}`,
-    })
-    const { entries, styles, rows } = await page.evaluate(collectSamples, roles)
+    const entries = []
+    const styles = []
+    const rows = []
+    const styleIds = new Map()
+    for (const group of variantGroups) {
+      await openVariants(page, url, group, mode, { allFocus: true })
+      await page.mouse.move(0, 0)
+      await page.evaluate(() => document.fonts.ready)
+      await normalizeVariantBacking(page)
+      await page.addScriptTag({
+        content: `globalThis.readVariantPaint = ${readVariantPaint.toString()}`,
+      })
+      const samples = await page.evaluate(collectSamples, roles)
+      const ids = samples.styles.map((style) => {
+        const signature = JSON.stringify(style)
+        if (!styleIds.has(signature)) {
+          styleIds.set(signature, styles.length)
+          styles.push(style)
+        }
+        return styleIds.get(signature)
+      })
+      for (const entry of samples.entries) {
+        entry.style = ids[entry.style]
+        entry.parts = entry.parts.map((part) => ids[part])
+        entries.push(entry)
+      }
+      rows.push(...samples.rows)
+    }
     const keys = ({ preset, role, row, index, component }) =>
       [preset, role, row, index, component].join('/')
     const rest = new Map(

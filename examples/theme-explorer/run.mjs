@@ -15,6 +15,7 @@ import {
   selectGroups,
 } from '../shared/browser/runner.mjs'
 import { withArtifactRun } from '../../scripts/artifacts.mjs'
+import { openVariants, variantPages } from './variant-browser.mjs'
 import { checkVariantParity } from './variant-parity.mjs'
 import {
   measureVariants,
@@ -585,18 +586,14 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       assert.deepEqual(report.warnings, [])
     })
 
+    const explorerUrl = server.resolvedUrls.local[0]
+
     await record(
       'Variants show neutral keyboard focus and distinct role hues',
       async () => {
         await page.setViewportSize({ width: 1600, height: 1000 })
         for (const mode of ['light', 'dark']) {
-          await page.goto(
-            new URL(`?variants&mode=${mode}`, server.resolvedUrls.local[0])
-              .href,
-          )
-          await page
-            .locator('[data-variants-ready]')
-            .waitFor({ timeout: 45_000 })
+          await openVariants(page, explorerUrl, 'buttons', mode)
 
           const samples = await page.evaluate(() => {
             // Canvas normalizes both rgb() and modern CSS color forms to sRGB.
@@ -666,17 +663,23 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       await page.setViewportSize({ width: 1600, height: 1000 })
       // The gallery allows up to 4.75 degrees before size reduction.
       const maxAngle = 4.75
-      const targets = [
-        ['button/text/default/outline', '.ui-button'],
-        ['button/text/neutral/outline', '.ui-button'],
-        ['button/text/primary/outline', '.ui-button'],
-        ['button/icon/default/outline', '.ui-icon-button'],
-        ['button/icon/neutral/outline', '.ui-icon-button'],
-        ['button/icon/primary/outline', '.ui-icon-button'],
-        ['input/text', '[data-ui-control-surface]'],
-        ['number-input/default', '[data-ui-control-surface]'],
-        ['textarea/default', '[data-ui-control-surface]'],
-      ]
+      const targets = {
+        buttons: [
+          ['button/text/default/outline', '.ui-button'],
+          ['button/text/neutral/outline', '.ui-button'],
+          ['button/text/primary/outline', '.ui-button'],
+        ],
+        icons: [
+          ['button/icon/default/outline', '.ui-icon-button'],
+          ['button/icon/neutral/outline', '.ui-icon-button'],
+          ['button/icon/primary/outline', '.ui-icon-button'],
+        ],
+        inputs: [
+          ['input/text', '[data-ui-control-surface]'],
+          ['number-input/default', '[data-ui-control-surface]'],
+          ['textarea/default', '[data-ui-control-surface]'],
+        ],
+      }
       const restingTarget = (preset, [row, selector]) =>
         page.locator(
           `[data-preset="${preset}"][data-variant="${row}/rest"] ${selector}`,
@@ -691,50 +694,50 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
         return { content, transform, angle }
       }
       for (const mode of ['light', 'dark']) {
-        await page.mouse.move(0, 0)
-        await page.goto(
-          new URL(`?variants&mode=${mode}`, server.resolvedUrls.local[0]).href,
-        )
-        await page.locator('[data-variants-ready]').waitFor({ timeout: 45_000 })
-        await page.evaluate(() => document.fonts.ready)
         const angles = []
-        for (const target of targets) {
-          const { content, transform, angle } = await restingTarget(
-            'default',
-            target,
-          ).evaluate(readBacking)
-          const detail = `${mode} Sketchy ${target[0]}: ${transform} (${angle}deg)`
-          assert.equal(content, '""', detail)
-          assert.ok(Math.abs(angle) > 0 && Math.abs(angle) <= maxAngle, detail)
-          angles.push(angle)
-          for (const preset of ['vanilla', 'laser']) {
-            const backing = await restingTarget(preset, target).evaluate(
-              readBacking,
-            )
-            assert.equal(
-              backing.content,
-              'none',
-              `${mode} ${preset} ${target[0]}`,
-            )
-            assert.equal(
-              backing.transform,
-              'none',
-              `${mode} ${preset} ${target[0]}`,
-            )
-          }
-        }
-        assert.ok(new Set(angles).size > 1, `${mode} Sketchy resting angles`)
-
         const hoveredAngles = []
-        for (const target of [targets[0], targets[3], targets[6]]) {
-          const node = restingTarget('default', target)
+        const firstAngleIndices = []
+        for (const [group, groupTargets] of Object.entries(targets)) {
+          await page.mouse.move(0, 0)
+          await openVariants(page, explorerUrl, group, mode)
+          await page.evaluate(() => document.fonts.ready)
+          firstAngleIndices.push(angles.length)
+          for (const target of groupTargets) {
+            const { content, transform, angle } = await restingTarget(
+              'default',
+              target,
+            ).evaluate(readBacking)
+            const detail = `${mode} Sketchy ${target[0]}: ${transform} (${angle}deg)`
+            assert.equal(content, '""', detail)
+            assert.ok(
+              Math.abs(angle) > 0 && Math.abs(angle) <= maxAngle,
+              detail,
+            )
+            angles.push(angle)
+            for (const preset of ['vanilla', 'laser']) {
+              const backing = await restingTarget(preset, target).evaluate(
+                readBacking,
+              )
+              assert.equal(
+                backing.content,
+                'none',
+                `${mode} ${preset} ${target[0]}`,
+              )
+              assert.equal(
+                backing.transform,
+                'none',
+                `${mode} ${preset} ${target[0]}`,
+              )
+            }
+          }
+          const node = restingTarget('default', groupTargets[0])
           await node.hover()
           hoveredAngles.push((await node.evaluate(readBacking)).angle)
-          await page.mouse.move(0, 0)
         }
+        assert.ok(new Set(angles).size > 1, `${mode} Sketchy resting angles`)
         assert.notDeepEqual(
           hoveredAngles,
-          [angles[0], angles[3], angles[6]],
+          firstAngleIndices.map((index) => angles[index]),
           `${mode} Sketchy samples on hover`,
         )
       }
@@ -835,14 +838,8 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
     })
 
     await record('Sketchy keeps the error backing when hovered', async () => {
-      for (const mode of ['light', 'dark']) {
-        await page.goto(
-          new URL(`?variants&mode=${mode}`, server.resolvedUrls.local[0]).href,
-        )
-        await page.locator('[data-variants-ready]').waitFor({
-          state: 'attached',
-          timeout: 45_000,
-        })
+      for (const { group, mode } of variantPages()) {
+        await openVariants(page, explorerUrl, group, mode)
         await page.mouse.move(0, 0)
         const problems = await page.evaluate(() => {
           const failures = []
@@ -889,7 +886,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           }
           return failures
         })
-        assert.deepEqual(problems, [], mode)
+        assert.deepEqual(problems, [], `${group}/${mode}`)
       }
     })
 
@@ -897,17 +894,8 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       'Variants draw one focus ring on the visible frame',
       async () => {
         const problems = []
-        for (const mode of ['light', 'dark']) {
-          await page.goto(
-            new URL(
-              `?variants&mode=${mode}&audit-all-focus`,
-              server.resolvedUrls.local[0],
-            ).href,
-          )
-          await page.locator('[data-variants-ready]').waitFor({
-            state: 'attached',
-            timeout: 45_000,
-          })
+        for (const { group, mode } of variantPages()) {
+          await openVariants(page, explorerUrl, group, mode, { allFocus: true })
           await page.mouse.move(0, 0)
           const result = await page.evaluate(() => {
             const compound =
@@ -1049,9 +1037,9 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
             }
             return { targetsChecked, failures }
           })
-          assert.ok(result.targetsChecked > 0, `${mode} focus targets`)
+          assert.ok(result.targetsChecked > 0, `${group}/${mode} focus targets`)
           problems.push(
-            ...result.failures.map((failure) => ({ mode, ...failure })),
+            ...result.failures.map((failure) => ({ group, mode, ...failure })),
           )
         }
         report.variantFocusProblems = problems
@@ -1083,46 +1071,79 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           import.meta.url,
         )
         const presets = ['default', 'vanilla', 'laser']
-        const requiredGroups = [
-          'button',
-          'toggle',
-          'toggle-group',
-          'icon',
-          'input',
-          'number-input',
-          'textarea',
-          'native-select',
-          'select-field',
-          'select',
-          'combobox',
-          'checkbox',
-          'radio-group',
-          'switch',
-          'slider',
-          'range-slider',
-          'date-picker',
-          'date-range-picker',
-          'date-time-picker',
-          'time-picker',
-          'calendar',
-          'range-calendar',
-          'color-picker',
-          'file-input',
-          'popover',
-          'tooltip',
-          'dropdown-menu',
-          'context-menu',
-          'dialog',
-          'sheet',
-          'card',
-          'field-group',
-          'collapsible-section',
-          'dashboard-panel',
-          'badge',
-          'tabs',
-          'breadcrumbs',
-          'drag-handle',
-        ]
+        const requiredControls = {
+          buttons: [
+            'accordion',
+            'breadcrumbs',
+            'button',
+            'collapsible',
+            'collapsible-section',
+            'command',
+            'command-palette',
+            'context-menu',
+            'dropdown-menu',
+            'sidebar-context-switcher',
+            'sidebar-group',
+            'tabs',
+            'toggle',
+            'toggle-group',
+            'tree',
+          ],
+          inputs: [
+            'calendar',
+            'checkbox',
+            'color-picker',
+            'combobox',
+            'date-picker',
+            'date-range-picker',
+            'date-time-picker',
+            'field',
+            'field-group',
+            'field-set',
+            'field-value',
+            'file-input',
+            'input',
+            'input-group',
+            'native-select',
+            'number-input',
+            'radio-group',
+            'range-calendar',
+            'range-slider',
+            'select',
+            'select-field',
+            'slider',
+            'switch',
+            'textarea',
+            'time-picker',
+          ],
+          icons: ['drag-handle', 'icon', 'icon-button', 'table-pagination'],
+          surfaces: [
+            'alert-dialog',
+            'badge',
+            'card',
+            'dashboard-panel',
+            'dialog',
+            'drag-preview',
+            'drop-indicator',
+            'empty-state',
+            'entry-panel',
+            'inline-alert',
+            'kanban-column',
+            'kanban-item',
+            'popover',
+            'progress',
+            'resizable',
+            'separator',
+            'sheet',
+            'skeleton',
+            'spinner',
+            'status-tile',
+            'table',
+            'toast',
+            'tooltip',
+            'value-display',
+          ],
+        }
         const popupSelectors = {
           'select-field/popup': '[role="listbox"]',
           'select/single-popup': '[role="listbox"]',
@@ -1281,30 +1302,36 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           page.getByRole('link', { name: 'Theme explorer', exact: true }),
         ).toHaveAttribute('href', './')
         await page.mouse.move(0, 0)
-        await mkdir(screenshots, { recursive: true })
+        const navigation = page.getByRole('navigation', {
+          name: 'Variant groups',
+        })
+        await expect(
+          navigation.getByRole('link', { name: 'Buttons' }),
+        ).toHaveAttribute('aria-current', 'page')
+        const toggle = page.getByRole('button', {
+          name: 'Dark mode',
+          exact: true,
+        })
+        await toggle.click()
+        await expect(toggle).toHaveAttribute('aria-pressed', 'true')
+        await expect(page).toHaveURL(/mode=dark/)
+        await navigation.getByRole('link', { name: 'Icons' }).click()
+        await expect(ready).toHaveCount(1, { timeout: 45_000 })
+        await expect(page).toHaveURL(/variants=icons/)
+        await expect(
+          page.locator('.variants-preset > [data-ui-mode=dark]'),
+        ).toHaveCount(3)
 
-        for (const mode of ['light', 'dark']) {
-          if (mode === 'dark') {
-            const toggle = page.getByRole('button', {
-              name: 'Dark mode',
-              exact: true,
-            })
-            await toggle.click()
-            await expect(toggle).toHaveAttribute('aria-pressed', 'true')
-            await expect(page).toHaveURL(/mode=dark/)
-            await expect(
-              page.locator('.variants-preset > [data-ui-mode=dark]'),
-            ).toHaveCount(3)
-            await page.reload()
-            await expect(ready).toHaveCount(1, { timeout: 45_000 })
-            await page.mouse.move(0, 0)
-          }
+        await mkdir(screenshots, { recursive: true })
+        for (const { group, mode } of variantPages()) {
+          await openVariants(page, explorerUrl, group, mode)
+          await page.mouse.move(0, 0)
           await page.evaluate(() => document.fonts.ready)
           const layout = {}
           for (const width of [1280, 1600]) {
             layout[width] = { scrollers: await checkLayout(width, mode) }
             if (width === 1280 && mode === 'light')
-              layout[width].path = await capture('light-1280')
+              layout[width].path = await capture(`${group}-light-1280`)
           }
           assert.deepEqual(
             await presetHeaders.evaluateAll((nodes) =>
@@ -1326,7 +1353,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                 const rect = node.getBoundingClientRect()
                 return rect.width > 0 && rect.height > 0
               }
-              const groups = new Set()
+              const controls = new Set()
               let expectedCells = 0
               for (const row of rows) {
                 const id = row.dataset.variantRow
@@ -1337,7 +1364,10 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                     sample,
                   ]),
                 )
-                groups.add(id.split('/')[0])
+                if (id.startsWith('button/icon/')) controls.add('icon-button')
+                else if (id === 'table/pagination')
+                  controls.add('table-pagination')
+                else controls.add(id.split('/')[0])
                 expectedCells += states.length * presets.length
                 const top = row.getBoundingClientRect().top
                 for (const state of states) {
@@ -1376,7 +1406,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                 )
               return {
                 problems,
-                groups: [...groups],
+                controls: [...controls].sort(),
                 rows: rows.length,
                 cells: cells.length,
               }
@@ -1386,74 +1416,78 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           assert.deepEqual(
             result.problems.slice(0, 15),
             [],
-            `${mode}: ${result.problems.length} problems`,
+            `${group}/${mode}: ${result.problems.length} problems`,
           )
-          for (const group of requiredGroups)
-            assert.ok(result.groups.includes(group), group)
+          assert.deepEqual(result.controls, requiredControls[group], group)
 
-          const appearance = (preset, state) =>
-            page
+          if (group === 'buttons') {
+            const appearance = (preset, state) =>
+              page
+                .locator(
+                  `.variant-sample[data-preset="${preset}"][data-variant="button/text/primary/outline/${state}"] .ui-button`,
+                )
+                .evaluate((button) => {
+                  const style = getComputedStyle(button)
+                  const backing = getComputedStyle(button, '::before')
+                  return [
+                    style.backgroundColor,
+                    style.color,
+                    style.borderColor,
+                    style.boxShadow,
+                    backing.opacity,
+                  ]
+                })
+            for (const preset of presets) {
+              const outlineColor = (tone) =>
+                page
+                  .locator(
+                    `[data-preset="${preset}"][data-variant="button/text/${tone}/outline/rest"] .ui-button`,
+                  )
+                  .evaluate((node) => getComputedStyle(node).color)
+              assert.equal(
+                await outlineColor('default'),
+                await outlineColor('neutral'),
+                `${preset} ${mode} neutral default outline foreground`,
+              )
+              assert.notDeepEqual(
+                await appearance(preset, 'hover'),
+                await appearance(preset, 'rest'),
+                `${preset} ${mode} forced hover`,
+              )
+              assert.deepEqual(
+                await appearance(preset, 'pressed'),
+                await appearance(preset, 'hover'),
+                `${preset} ${mode} held button paint`,
+              )
+            }
+
+            const insetStrength = await page
               .locator(
-                `.variant-sample[data-preset="${preset}"][data-variant="button/text/primary/outline/${state}"] .ui-button`,
+                '[data-preset="laser"][data-variant="button/text/primary/outline/hover"] .ui-button',
               )
               .evaluate((button) => {
                 const style = getComputedStyle(button)
-                const backing = getComputedStyle(button, '::before')
-                return [
-                  style.backgroundColor,
-                  style.color,
-                  style.borderColor,
-                  style.boxShadow,
-                  backing.opacity,
-                ]
-              })
-          for (const preset of presets) {
-            const outlineColor = (tone) =>
-              page
-                .locator(
-                  `[data-preset="${preset}"][data-variant="button/text/${tone}/outline/rest"] .ui-button`,
+                const inset = style.boxShadow
+                  .split(/,(?![^()]*\))/)
+                  .find((layer) => layer.includes('inset'))
+                const alpha = inset?.match(/\/\s*([\d.]+)\)/)?.[1]
+                const opacity = style.getPropertyValue(
+                  '--ui-laser-glow-opacity',
                 )
-                .evaluate((node) => getComputedStyle(node).color)
-            assert.equal(
-              await outlineColor('default'),
-              await outlineColor('neutral'),
-              `${preset} ${mode} neutral default outline foreground`,
-            )
-            assert.notDeepEqual(
-              await appearance(preset, 'hover'),
-              await appearance(preset, 'rest'),
-              `${preset} ${mode} forced hover`,
-            )
-            assert.deepEqual(
-              await appearance(preset, 'pressed'),
-              await appearance(preset, 'hover'),
-              `${preset} ${mode} held button paint`,
+                return Number(alpha) / (parseFloat(opacity) / 100)
+              })
+            // The inset originally used 60% of the shared glow opacity.
+            assert.ok(
+              Math.abs(insetStrength - 0.6 / 2) < 0.000001,
+              `Laser ${mode} inset opacity should be half its original strength, got ${insetStrength}`,
             )
           }
-
-          const insetStrength = await page
-            .locator(
-              '[data-preset="laser"][data-variant="button/text/primary/outline/hover"] .ui-button',
-            )
-            .evaluate((button) => {
-              const style = getComputedStyle(button)
-              const inset = style.boxShadow
-                .split(/,(?![^()]*\))/)
-                .find((layer) => layer.includes('inset'))
-              const alpha = inset?.match(/\/\s*([\d.]+)\)/)?.[1]
-              const opacity = style.getPropertyValue('--ui-laser-glow-opacity')
-              return Number(alpha) / (parseFloat(opacity) / 100)
-            })
-          // The inset originally used 60% of the shared glow opacity.
-          assert.ok(
-            Math.abs(insetStrength - 0.6 / 2) < 0.000001,
-            `Laser ${mode} inset opacity should be half its original strength, got ${insetStrength}`,
-          )
           assert.deepEqual(report.errors, [])
           assert.deepEqual(report.warnings, [])
           report.variants ??= {}
-          report.variants[mode] = {
-            path: await capture(mode),
+          report.variants[mode] ??= {}
+          report.variants[mode][group] = {
+            path: await capture(`${group}-${mode}`),
             rows: result.rows,
             cells: result.cells,
             layout,

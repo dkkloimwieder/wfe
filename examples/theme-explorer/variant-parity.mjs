@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { openVariants, variantPages } from './variant-browser.mjs'
 import {
   normalizeVariantBacking,
   paintDelta,
@@ -112,12 +113,8 @@ export async function checkVariantParity(page, url) {
   const problems = []
   let comparisons = 0
   await page.setViewportSize({ width: 1600, height: 1000 })
-  for (const mode of ['light', 'dark']) {
-    await page.goto(new URL(`?variants&mode=${mode}&audit-all-focus`, url).href)
-    await page.locator('[data-variants-ready]').waitFor({
-      state: 'attached',
-      timeout: 45_000,
-    })
+  for (const { group, mode } of variantPages()) {
+    await openVariants(page, url, group, mode, { allFocus: true })
     await normalizeVariantBacking(page)
     await page.addStyleTag({
       content: `
@@ -277,7 +274,7 @@ export async function checkVariantParity(page, url) {
         }
       }
       console.log(
-        `Variants parity ${mode}/${preset}: ${comparisons} comparisons, ${problems.length} differences so far`,
+        `Variants parity ${mode}/${group}/${preset}: ${comparisons} comparisons, ${problems.length} differences so far`,
       )
       if (problems.length > previousProblemCount)
         console.log(
