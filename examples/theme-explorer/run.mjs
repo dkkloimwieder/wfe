@@ -16,6 +16,94 @@ import {
 } from '../shared/browser/runner.mjs'
 import { withArtifactRun } from '../../scripts/artifacts.mjs'
 import { checkVariantParity } from './variant-parity.mjs'
+import {
+  measureVariants,
+  variantStateGroups,
+  writeVariantAudit,
+} from './variant-audit.mjs'
+
+const stateExceptions = [
+  {
+    name: 'Passive display samples',
+    reason:
+      'The breadcrumb link owns interactive paint. The breadcrumb container and other display roles show content.',
+    matches: ({ role }) => role === 'display',
+  },
+  {
+    name: 'Surface visibility',
+    reason:
+      'A surface mounts on open. Its trigger or nested control owns pointer, focus and selection paint.',
+    matches: ({ role, state }) => role === 'surfaces' && state !== 'disabled',
+  },
+  {
+    name: 'Closed disclosure',
+    reason: 'The closed specimen repeats the resting state.',
+    matches: ({ state }) => state === 'closed',
+  },
+  {
+    name: 'Calendar range underlay',
+    reason: 'The continuous fill shows which dates fall between the two ends.',
+    matches: ({ role, row, state }) =>
+      role === 'choices' &&
+      state === 'selected' &&
+      row.startsWith('range-calendar/'),
+    ignore: ['background-image', 'background-size'],
+  },
+  {
+    name: 'Select active descendant',
+    reason:
+      'Opening a list with a selected value also highlights its keyboard starting point.',
+    matches: ({ role, row, state }) =>
+      role === 'choices' && state === 'selected' && row.startsWith('select/'),
+    ignore: [
+      'outline-color',
+      'outline-offset',
+      'outline-style',
+      'outline-width',
+    ],
+  },
+]
+
+const roleStates = {
+  actions: [
+    'hover',
+    'focus',
+    'pressed',
+    'selected',
+    'open',
+    'disabled',
+    'invalid',
+    'read-only',
+  ],
+  fields: [
+    'hover',
+    'focus',
+    'pressed',
+    'open',
+    'disabled',
+    'invalid',
+    'read-only',
+  ],
+  choices: [
+    'hover',
+    'focus',
+    'pressed',
+    'selected',
+    'open',
+    'disabled',
+    'read-only',
+  ],
+  checks: [
+    'hover',
+    'focus',
+    'pressed',
+    'selected',
+    'disabled',
+    'invalid',
+    'read-only',
+  ],
+  surfaces: ['disabled'],
+}
 
 const groups = [
   'surfaces',
@@ -516,10 +604,79 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       assert.deepEqual(report.warnings, [])
     })
 
+    await record('Variants share visible state changes by role', async () => {
+      await page.setViewportSize({ width: 1600, height: 1000 })
+      const modes = await measureVariants(page, server.resolvedUrls.local[0])
+      if (process.env.THEME_AUDIT_OUTPUT)
+        await writeVariantAudit(
+          process.env.THEME_AUDIT_OUTPUT,
+          'matrix-after',
+          modes,
+          execFileSync('git', ['describe', '--always', '--dirty'], {
+            encoding: 'utf8',
+          }).trim(),
+        )
+      report.variantStateExceptions = stateExceptions.map(
+        ({ name, reason }) => ({ name, reason }),
+      )
+      const groups = variantStateGroups(modes, stateExceptions)
+      const problems = []
+      for (const mode of Object.keys(modes)) {
+        for (const preset of ['default', 'vanilla', 'laser']) {
+          for (const [role, states] of Object.entries(roleStates)) {
+            const group = (state) =>
+              groups.get(`${mode}/${preset}/${role}/${state}`)
+            for (const state of states) {
+              const changes = group(state)
+              if (!changes || changes.size !== 1 || changes.has('{}'))
+                problems.push({
+                  mode,
+                  preset,
+                  role,
+                  state,
+                  deltas: changes ? Object.fromEntries(changes) : {},
+                })
+            }
+            for (const [first, second] of [
+              ['hover', 'focus'],
+              ['hover', 'pressed'],
+              ['hover', 'selected'],
+              ['focus', 'selected'],
+            ]) {
+              if (
+                group(first) &&
+                group(second) &&
+                [...group(first).keys()].some((delta) =>
+                  group(second).has(delta),
+                )
+              )
+                problems.push({
+                  mode,
+                  preset,
+                  role,
+                  statesWithSamePaint: [first, second],
+                })
+            }
+          }
+        }
+      }
+      report.variantStateProblems = problems
+      assert.equal(
+        problems.length,
+        0,
+        'See variantStateProblems in the browser report',
+      )
+    })
+
     await record('Variants forced paint matches native input', async () => {
-      report.variantParityComparisons = await checkVariantParity(
+      report.variantParity = await checkVariantParity(
         page,
         server.resolvedUrls.local[0],
+      )
+      assert.equal(
+        report.variantParity.problems.length,
+        0,
+        `Forced paint in ${report.variantParity.comparisons} native comparisons`,
       )
     })
 
@@ -856,6 +1013,17 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                 ]
               })
           for (const preset of presets) {
+            const outlineColor = (tone) =>
+              page
+                .locator(
+                  `[data-preset="${preset}"][data-variant="button/text/${tone}/outline/rest"] .ui-button`,
+                )
+                .evaluate((node) => getComputedStyle(node).color)
+            assert.equal(
+              await outlineColor('default'),
+              await outlineColor('neutral'),
+              `${preset} ${mode} neutral default outline foreground`,
+            )
             assert.notDeepEqual(
               await appearance(preset, 'hover'),
               await appearance(preset, 'rest'),

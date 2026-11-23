@@ -54,7 +54,7 @@ export type ForcedState = 'hover' | 'focus' | 'pressed'
 
 export function forceState(sample: HTMLElement, state: ForcedState) {
   const focusable =
-    'button, a[href], summary, input:not([type="hidden"], [type="file"]), textarea, select, [tabindex]'
+    'button, a[href], summary, input:not([type="hidden"], [type="file"]), textarea, select, [tabindex], [role="option"]'
   const pointer = '.ui-check-control, .ui-radio-control, .ui-switch-control'
 
   const attributes = {

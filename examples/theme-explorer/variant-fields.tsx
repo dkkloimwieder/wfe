@@ -61,19 +61,24 @@ export function LabeledField(props: {
   )
 }
 
-function SelectSample(props: { state: State; multiple?: boolean }) {
-  const open = () => props.state === 'open'
-  const selected = () => props.state === 'selected' || open()
+function SelectSample(props: {
+  state: State
+  multiple?: boolean
+  items?: boolean
+}) {
+  const open = () => props.items || props.state === 'open'
+  const selected = () => props.state === 'selected' || (!props.items && open())
+  const options = () => sampleOptions(props.items, props.state)
   return (
     <Select<Choice>
-      {...stateProps(props.state)}
-      options={choices}
+      {...stateProps(props.items ? 'rest' : props.state)}
+      options={options()}
       optionValue="value"
       optionTextValue="label"
       optionDisabled="disabled"
       {...(props.multiple
-        ? { multiple: true, value: selected() ? choices.slice(0, 2) : [] }
-        : { multiple: false, value: selected() ? choices[0]! : null })}
+        ? { multiple: true, value: selected() ? options().slice(0, 2) : [] }
+        : { multiple: false, value: selected() ? options()[0]! : null })}
       placeholder="Choose a team"
       open={open()}
       modal={false}
@@ -106,20 +111,31 @@ function SelectSample(props: { state: State; multiple?: boolean }) {
   )
 }
 
-function ComboboxSample(props: { state: State; multiple?: boolean }) {
-  const open = () => props.state === 'open'
-  const selected = () => props.state === 'selected' || open()
+function sampleOptions(items: boolean | undefined, state: State) {
+  return items && state === 'disabled'
+    ? [{ ...choices[0]!, disabled: true }, ...choices.slice(1)]
+    : choices
+}
+
+function ComboboxSample(props: {
+  state: State
+  multiple?: boolean
+  items?: boolean
+}) {
+  const open = () => props.items || props.state === 'open'
+  const selected = () => props.state === 'selected' || (!props.items && open())
+  const options = () => sampleOptions(props.items, props.state)
   return (
     <Combobox<Choice>
       defaultFilter={() => true}
-      {...stateProps(props.state)}
-      options={choices}
+      {...stateProps(props.items ? 'rest' : props.state)}
+      options={options()}
       optionValue="value"
       optionTextValue="label"
       optionDisabled="disabled"
       {...(props.multiple
-        ? { multiple: true, value: selected() ? choices.slice(0, 2) : [] }
-        : { multiple: false, value: selected() ? choices[0]! : null })}
+        ? { multiple: true, value: selected() ? options().slice(0, 2) : [] }
+        : { multiple: false, value: selected() ? options()[0]! : null })}
       open={open()}
       modal={false}
       itemComponent={(item) => (
@@ -170,12 +186,14 @@ const selectField = (state: State) => (
   </LabeledField>
 )
 
-const datePicker = (state: State) => (
+const datePicker = (state: State, withValue = false) => (
   <LabeledField label="Start date" state={state}>
     <DatePicker
       {...stateProps(state)}
       label="Start date"
-      value={state === 'selected' || state === 'open' ? date : undefined}
+      value={
+        withValue || state === 'selected' || state === 'open' ? date : undefined
+      }
       initialMonth={date}
       dateFormat="yyyy-MM-dd"
       onValueChange={noop}
@@ -289,13 +307,10 @@ export const fieldSpecimens = [
     choicesStates,
     selectField,
   ),
-  specimen(
-    'select-field/popup',
-    'SelectField / popup',
-    ['open'],
-    selectField,
-    popupLayout,
-  ),
+  specimen('select-field/popup', 'SelectField / popup', ['open'], selectField, {
+    ...popupLayout,
+    baseline: 'select-field/single',
+  }),
   ...([false, true] as const).flatMap((multiple) => {
     const variant = multiple ? 'multiple' : 'single'
     return [
@@ -310,6 +325,13 @@ export const fieldSpecimens = [
         `Select / ${variant} popup`,
         ['open'],
         (state) => <SelectSample state={state} multiple={multiple} />,
+        { baseline: `select/${variant}` },
+      ),
+      specimen(
+        `select/${variant}-items`,
+        `Select / ${variant} options`,
+        [...actionStates, 'selected'],
+        (state) => <SelectSample state={state} multiple={multiple} items />,
       ),
       specimen(
         `combobox/${variant}`,
@@ -322,6 +344,13 @@ export const fieldSpecimens = [
         `Combobox / ${variant} popup`,
         ['open'],
         (state) => <ComboboxSample state={state} multiple={multiple} />,
+        { baseline: `combobox/${variant}` },
+      ),
+      specimen(
+        `combobox/${variant}-items`,
+        `Combobox / ${variant} options`,
+        [...actionStates, 'selected'],
+        (state) => <ComboboxSample state={state} multiple={multiple} items />,
       ),
     ]
   }),
@@ -417,12 +446,15 @@ export const fieldSpecimens = [
   ]),
   specimen('date-picker/default', 'DatePicker', choicesStates, datePicker),
   specimen(
-    'date-picker/popup',
-    'DatePicker / popup',
-    ['open'],
-    datePicker,
-    popupLayout,
+    'date-picker/adornments',
+    'DatePicker / available clear and calendar buttons',
+    editingStates,
+    (state) => datePicker(state, true),
   ),
+  specimen('date-picker/popup', 'DatePicker / popup', ['open'], datePicker, {
+    ...popupLayout,
+    baseline: 'date-picker/default',
+  }),
   specimen(
     'date-range-picker/default',
     'DateRangePicker',
@@ -434,7 +466,7 @@ export const fieldSpecimens = [
     'DateRangePicker / popup',
     ['open'],
     dateRangePicker,
-    popupLayout,
+    { ...popupLayout, baseline: 'date-range-picker/default' },
   ),
   ...(['columns', 'clock'] as const).flatMap((view) => [
     specimen(
@@ -448,7 +480,7 @@ export const fieldSpecimens = [
       `DateTimePicker / ${view} popup`,
       ['open'],
       (state) => dateTimePicker(state, view),
-      popupLayout,
+      { ...popupLayout, baseline: `date-time-picker/${view}` },
     ),
     specimen(
       `time-picker/${view}`,
@@ -461,7 +493,7 @@ export const fieldSpecimens = [
       `TimePicker / ${view} popup`,
       ['open'],
       (state) => timePicker(state, view),
-      popupLayout,
+      { ...popupLayout, baseline: `time-picker/${view}` },
     ),
   ]),
   specimen(
@@ -501,7 +533,7 @@ export const fieldSpecimens = [
     'ColorPicker / RGB popup',
     ['open'],
     colorPicker,
-    popupLayout,
+    { ...popupLayout, baseline: 'color-picker/hex' },
   ),
   ...(['single', 'multiple'] as const).map((kind) =>
     specimen(

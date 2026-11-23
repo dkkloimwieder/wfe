@@ -445,3 +445,61 @@ The Sketchy action decoration is a `::before` layer with a dotted ring. Before t
 - A mask limits the layer to a 6px ring band (`--ui-action-decoration-ring`). Inside the ring, the dots show only at the inside dot visibility, as before.
 - Sections draw the ring inside their frame (`--ui-action-decoration-inset: 0px`), because they run from edge to edge. Sidebar groups keep the outside ring in their inset margin. Actions in the table header and summary bands keep the ring inside the band padding.
 - The explorer suite checks in every preset that each rail section, filter section and table header action has a ring inside every clipping ancestor, and that no neighbor covers it.
+
+## Part 8. Rendered state audit
+
+### 8.1 Method
+
+A state delta is the change in computed paint from the resting specimen. Chromium measured both modes in each of the three preset columns at 1600 × 1000 pixels. The matrix records backgrounds, borders, colors, outer and inset shadows, outlines, text shadows, opacity, filters, transforms, and the two pseudo-elements.
+
+The explorer extends each CSS selector in place. This preserves the parsed declaration and its place in the cascade. Serializing a variable shorthand with a longhand override can lose the shorthand. At `ca2bfd8`, the Laser accent outline hover cell showed the opaque highlight in place of its translucent tint.
+
+Independent specimens use flat decoration geometry so their random backing angles do not affect the comparison. The gallery retains the preset's geometry. The browser case compares authored state paint with a real pointer, keyboard modality, and a held mouse button. It exercises each kind of repeated calendar day. The matrix records every day.
+
+The screenshot index and the raw and grouped matrices are in `test-results/theme-cleanup/reaudit/`. Baseline shots use `ca2bfd8`. The baseline matrix uses the corrected forcing against the same component styles. Open-only rows show the appearance of the surface after it mounts.
+
+### 8.2 Shared state paint
+
+Hover adds paint over the resting specimen. A pressed control adds an inset edge. Keyboard focus draws the preset's focus outline. A selected control adds an accent edge. An expanded trigger adds an outer accent edge.
+
+| Role         | Sketchy hover                                 | Vanilla hover                                 | Laser hover                                   | Other state cues                                                                                                                     |
+| ------------ | --------------------------------------------- | --------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Actions      | Dotted backing                                | Flat tint                                     | Outer and inset box glow                      | Disabled actions use muted text. Invalid actions use an error border. Read-only actions use a muted inset edge.                      |
+| Fields       | Dotted frame backing                          | Flat frame tint                               | Tinted frame and box glow                     | The frame carries the focus outline and the open, invalid, and read-only edges. Disabled fields use muted text and surfaces.         |
+| Choice items | Dotted fill                                   | Flat tint                                     | Text glow                                     | The selected edge differs from hover and the focus outline. Disabled rows use muted text. Read-only calendar cells use a muted edge. |
+| Checks       | Dotted backing                                | Flat tint                                     | Outer and inset box glow                      | Checked faces use the checked palette and an accent edge. Invalid faces use an error border. A read-only face uses a muted edge.     |
+| Surfaces     | The contained control draws its own hover cue | The contained control draws its own hover cue | The contained control draws its own hover cue | An open surface appears in its portal. A disabled fieldset uses a muted border and text.                                             |
+| Display      | State appears in the displayed content        | State appears in the displayed content        | State appears in the displayed content        | Breadcrumb links use the action rules.                                                                                               |
+
+Laser icon buttons share the action box glow. The hover rule keeps each icon button's resting background. Sketchy default outline buttons use the neutral foreground. Selection on tabs and toggles uses an accent edge. An explicit Toggle `pressedVariant` still selects an application-provided variant.
+
+### 8.3 Comparison exceptions
+
+- Passive display samples record their paint. Breadcrumb links carry the interactive states.
+- A popup surface mounts when it opens. The comparison pairs its trigger with the closed specimen.
+- Closed disclosure cells repeat the resting state.
+- Choice items share the selected edge. The calendar range fill shows continuity, and an active descendant can carry a focus outline.
+
+The field matrix records value changes. A selected value in a field appears as content. This includes a selected date or a file name. The choice row owns the persistent selection cue.
+
+### 8.4 Observed differences
+
+The expanded comparison covers 216 rows and 10,743 paint entries per mode. It uses the same specimens with the baseline and current component styles.
+
+The count is the number of applicable specimens outside the largest group with a visible change. If every specimen lacks a cue, the count includes all of them. The count includes each calendar day.
+
+| Role         | Baseline differences | Fixed in the current matrix |
+| ------------ | -------------------: | --------------------------: |
+| Actions      |                1,666 |                       1,666 |
+| Fields       |                  610 |                         610 |
+| Choice items |                1,632 |                       1,600 |
+| Checks       |                   78 |                          78 |
+| Surfaces     |                   12 |                          12 |
+| Display      |                    0 |                           0 |
+
+The role test compares the shared painted changes in both modes. The raw tables also show the two choice exceptions.
+
+### 8.5 Questions for the owner
+
+- Do selected Sketchy range days keep the continuous dotted fill, or use the same surface as a single selected row?
+- When a Select opens, does the selected option show the keyboard starting point immediately, or wait for keyboard navigation?

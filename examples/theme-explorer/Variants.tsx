@@ -10,6 +10,7 @@ import { forceState, installForcedStateRules } from './force-states'
 import { buttonSpecimens } from './variant-buttons'
 import { fieldSpecimens } from './variant-fields'
 import { surfaceSpecimens } from './variant-surfaces'
+import { additionalSpecimens } from './variant-extra'
 import type { Specimen, State } from './variant-types'
 import './variants.css'
 
@@ -38,7 +39,12 @@ const presets = (
   },
 }))
 
-const specimens = [...buttonSpecimens, ...fieldSpecimens, ...surfaceSpecimens]
+const specimens = [
+  ...buttonSpecimens,
+  ...fieldSpecimens,
+  ...surfaceSpecimens,
+  ...additionalSpecimens,
+]
 
 function VariantSample(props: {
   specimen: Specimen
@@ -51,6 +57,7 @@ function VariantSample(props: {
       data-variant={`${props.specimen.id}/${props.state}`}
       data-preset={props.preset}
       data-variant-state={props.state}
+      data-variant-baseline={props.specimen.baseline}
       data-variant-open-trigger={
         props.state === 'open' ? props.specimen.openTrigger : undefined
       }
@@ -95,10 +102,7 @@ export function Variants() {
       for (const sample of main.querySelectorAll<HTMLElement>(
         '.variant-sample',
       )) {
-        const { variantState: state, variantOpenTrigger: selector } =
-          sample.dataset
-        if (state === 'hover' || state === 'focus' || state === 'pressed')
-          forceState(sample, state)
+        const selector = sample.dataset.variantOpenTrigger
         if (!selector) continue
         const trigger = sample.querySelector<HTMLButtonElement>(selector)
         if (trigger?.getAttribute('aria-haspopup') === 'listbox') {
@@ -115,6 +119,13 @@ export function Variants() {
       // Mount the portals and let their autofocus callbacks run before
       // restoring interaction.
       flush()
+      for (const sample of main.querySelectorAll<HTMLElement>(
+        '.variant-sample',
+      )) {
+        const state = sample.dataset.variantState
+        if (state === 'hover' || state === 'focus' || state === 'pressed')
+          forceState(sample, state)
+      }
       readyTimer = window.setTimeout(() => {
         main.inert = false
         main.dataset.variantsReady = ''
