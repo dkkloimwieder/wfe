@@ -769,11 +769,6 @@
   --ui-neutral-button-border: var(--ui-disabled-border, #f0f0f0);
   color: var(--ui-disabled-text, #919191);
 }
-:where([data-ui]).ui-slider:not([data-disabled], [data-readonly])
-  .ui-slider-thumb:hover {
-  background-color: var(--ui-control-hover, var(--ui-highlight, #f5f5f5));
-}
-
 :where([data-ui]).ui-toggle-group {
   display: flex;
   flex-wrap: wrap;

@@ -79,78 +79,12 @@
   margin-block: var(--ui-option-margin-y, 0);
 }
 
-/* Checked toggles. Optional tokens fill the control; unset keeps the field paint. */
-[data-ui-tokens] :is(.ui-check-control, .ui-switch-control)[data-checked] {
-  border-color: var(--ui-toggle-checked-border, var(--ui-control-border));
-  color: var(--ui-toggle-checked-text, inherit);
-}
-[data-ui-tokens] .ui-check-control[data-checked] {
-  background: var(--ui-toggle-checked-surface, var(--ui-control-surface));
-}
-[data-ui-tokens] .ui-switch-control[data-checked] {
-  background: var(--ui-toggle-checked-surface, var(--ui-highlight));
-}
-[data-ui-tokens]
-  :is(.ui-check-control, .ui-switch-control)[data-checked]:is(
-    [data-disabled],
-    [data-readonly]
-  ) {
-  background: var(--ui-toggle-checked-surface, var(--ui-muted-surface));
-}
-[data-ui-tokens]
-  :is(.ui-check-control, .ui-switch-control)[data-checked]:hover:not(
-    [data-disabled],
-    [data-readonly]
-  ) {
-  background: var(--ui-toggle-checked-surface, var(--ui-control-hover));
-}
-[data-ui-tokens]
-  :is(.ui-check-control, .ui-switch-control)[data-checked][data-disabled] {
-  border-color: color-mix(
-    in srgb,
-    var(--ui-toggle-checked-border, var(--ui-control-border))
-      calc(var(--ui-disabled-opacity) * 100%),
-    var(--ui-surface)
-  );
-  background: color-mix(
-    in srgb,
-    var(--ui-toggle-checked-surface, var(--ui-muted-surface))
-      calc(var(--ui-disabled-opacity) * 100%),
-    var(--ui-surface)
-  );
-}
-[data-ui-tokens]
-  :is(.ui-check-control, .ui-switch-control)[data-checked][data-invalid] {
-  border-color: var(--ui-toggle-checked-border, var(--ui-error));
-}
-[data-ui-tokens] .ui-switch-control:not([data-checked]) {
-  background: var(--ui-switch-track, var(--ui-control-surface));
-}
-[data-ui-tokens]
-  .ui-switch-control:not([data-checked]):is([data-disabled], [data-readonly]) {
-  background: var(--ui-switch-track, var(--ui-muted-surface));
-}
-[data-ui-tokens]
-  .ui-switch-control:not([data-checked]):hover:not(
-    [data-disabled],
-    [data-readonly]
-  ) {
-  background: var(--ui-switch-track, var(--ui-control-hover));
-}
 [data-ui-tokens] .ui-switch-thumb {
   background: var(--ui-switch-thumb, currentColor);
 }
 [data-ui-tokens] .ui-switch-control[data-checked] .ui-switch-thumb {
   background: var(--ui-switch-checked-thumb, currentColor);
 }
-[data-ui-tokens] .ui-radio-control[data-checked] {
-  color: var(--ui-toggle-checked-border, inherit);
-  border-color: var(--ui-toggle-checked-border, var(--ui-control-border));
-}
-[data-ui-tokens] .ui-radio-control[data-checked][data-invalid] {
-  border-color: var(--ui-toggle-checked-border, var(--ui-error));
-}
-
 /* State paint is layered over each action's resting variant. */
 :where([data-ui], [data-ui-tokens])
   :is(
@@ -236,7 +170,9 @@
 :where([data-ui], [data-ui-tokens])
   :is(
     .ui-control-frame:where(
-      :not(:is(.ui-input-affix, .filter-input, .choice-control) *)
+      :has(
+        > :is(.ui-input, .ui-textarea, .ui-native-select, .choice-input)
+      ):not(:is(.ui-input-affix, .filter-input, .choice-control) *)
     ),
     .ui-input-affix,
     .filter-input,
@@ -325,7 +261,9 @@
 :where([data-ui-tokens])
   :is(
     .ui-control-frame:where(
-      :not(:is(.ui-input-affix, .filter-input, .choice-control) *)
+      :has(
+        > :is(.ui-input, .ui-textarea, .ui-native-select, .choice-input)
+      ):not(:is(.ui-input-affix, .filter-input, .choice-control) *)
     ),
     .ui-input-affix,
     .filter-input,
@@ -339,5 +277,89 @@
     .ui-control-frame
     > :is(input, select, textarea):focus-visible {
     outline: none;
+  }
+}
+
+[data-ui-tokens]
+  .ui-switch-control:not([data-checked], [data-disabled], [data-readonly]) {
+  background-color: var(--ui-switch-track, var(--ui-control-surface));
+}
+/* Checks and slider thumbs share paint. Their indicators keep their own geometry. */
+:where([data-ui], [data-ui-tokens])
+  :is(
+    .ui-check-control,
+    .ui-radio-control,
+    .ui-switch-control,
+    .ui-slider-thumb
+  ) {
+  --_ui-field-decoration-opacity: 0;
+  --_ui-check-selected: 0 0 transparent;
+  --_ui-check-pressed: 0 0 transparent;
+  --_ui-check-hover: 0 0 transparent;
+
+  @media (forced-colors: none) {
+    &:is([data-checked], [data-indeterminate]) {
+      --_ui-check-selected: var(--ui-state-selected-shadow);
+      background-color: var(
+        --ui-toggle-checked-surface,
+        var(--ui-control-surface)
+      );
+      border-color: var(--ui-toggle-checked-border, var(--ui-control-border));
+      color: var(--ui-toggle-checked-text, var(--ui-accent));
+    }
+
+    &:not(
+      [data-disabled],
+      [data-readonly],
+      [aria-disabled='true'],
+      [aria-readonly='true']
+    ) {
+      &:is(:hover, :where(.ui-toggle, .ui-radio-item):hover *) {
+        --_ui-check-hover: var(
+          --ui-action-hover-shadow,
+          var(--ui-laser-glow, var(--_ui-laser-glow, 0 0 transparent))
+        );
+        background-image: var(--ui-action-hover-fill);
+        --_ui-field-decoration-opacity: 1;
+      }
+      &:is(:active, :where(.ui-toggle, .ui-radio-item):active *) {
+        --_ui-check-pressed: var(--ui-state-pressed-shadow);
+      }
+    }
+
+    &:is(
+      [data-checked],
+      [data-indeterminate],
+      :hover,
+      :active,
+      :where(.ui-toggle, .ui-radio-item):is(:hover, :active) *
+    ) {
+      box-shadow:
+        var(--_ui-check-pressed), var(--_ui-check-selected),
+        var(--_ui-check-hover);
+    }
+
+    &:is(
+      :focus-visible,
+      :where(.ui-toggle, .ui-radio-item):has(input:focus-visible) *
+    ) {
+      outline: var(--ui-focus-width) solid var(--ui-focus-ring);
+      outline-offset: var(--ui-focus-offset);
+    }
+
+    &:is([data-disabled], [aria-disabled='true']) {
+      background-color: var(--ui-muted-surface);
+      color: var(--ui-disabled-text);
+      border-color: var(--ui-disabled-border);
+    }
+
+    &:is([data-readonly], [aria-readonly='true']) {
+      background-color: var(--ui-muted-surface);
+      box-shadow: var(--ui-state-readonly-shadow);
+    }
+
+    &:is([data-invalid], [aria-invalid='true']) {
+      border-color: var(--ui-error);
+    }
   }
 }

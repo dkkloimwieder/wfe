@@ -24,6 +24,7 @@
       .ui-check-control,
       .ui-radio-control,
       .ui-switch-control,
+      .ui-slider-thumb,
       .popup-content,
       .header-filter-popup,
       .column-move-menu,
@@ -121,19 +122,6 @@
     --_ui-popup-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
   }
   :scope .ui-kanban-item:is(:hover, :focus-within):not([aria-disabled='true']) {
-    box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
-  }
-  :scope
-    :is(
-      .ui-check-control,
-      .ui-radio-control,
-      .ui-switch-control
-    )[data-checked] {
-    box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
-  }
-  :scope
-    :is(.ui-toggle, .ui-radio-item):hover:not([data-disabled], [data-readonly])
-    :is(.ui-check-control, .ui-radio-control, .ui-switch-control) {
     box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
   }
   :scope .column-header:is(:hover, :focus-within) {

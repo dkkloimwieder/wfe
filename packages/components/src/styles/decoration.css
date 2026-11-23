@@ -370,6 +370,7 @@
     position: relative;
   }
   :scope [data-ui-control-surface]::before,
+  :scope .ui-slider-thumb::before,
   :scope [data-ui-section-decoration]::before,
   :scope
     [data-popper-positioner]:has(
@@ -412,6 +413,7 @@
   }
   @media (forced-colors: active) {
     :scope [data-ui-control-surface]::before,
+    :scope .ui-slider-thumb::before,
     :scope [data-ui-section-decoration]::before,
     :scope
       [data-popper-positioner]:has(
@@ -556,6 +558,7 @@
       opacity: 1;
     }
     :scope .ui-slider-thumb {
+      position: relative;
       border-color: var(--ui-accent);
       background-color: var(--ui-canvas-surface);
       --_ui-dots: var(--ui-accent);
