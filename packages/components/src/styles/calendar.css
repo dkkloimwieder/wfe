@@ -32,10 +32,6 @@
 :where([data-ui]) .ui-calendar [data-outside] {
   color: var(--ui-muted-text, #999999);
 }
-:where([data-ui]) .ui-calendar [data-selected] {
-  border-color: var(--ui-control-border, #e5e5e5);
-  background: var(--ui-highlight, #f5f5f5);
-}
 :where([data-ui]) .ui-date-popup {
   padding: var(--ui-gap, 8px);
 }

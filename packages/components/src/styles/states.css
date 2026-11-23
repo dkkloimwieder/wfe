@@ -4,6 +4,16 @@
 :where([data-ui]) textarea:focus-visible,
 :where([data-ui]) select:focus-visible,
 :where([data-ui]) summary:focus-visible,
+:where([data-ui])
+  :is(
+    .popup-listbox,
+    .ui-menu,
+    .ui-command-list,
+    .ui-calendar,
+    .ui-tabs-content,
+    .table-scroll
+  ):focus-visible,
+:where([data-ui]).table-workspace:focus-visible,
 :where([data-ui]).ui-resize-handle:focus-visible,
 :where([data-ui]).ui-context-trigger:focus-visible,
 :where([data-ui]) .ui-slider-thumb:focus-visible,
@@ -38,9 +48,8 @@
 :where([data-ui]) input[aria-invalid='true'],
 :where([data-ui]) textarea[aria-invalid='true'],
 :where([data-ui]) select[aria-invalid='true'],
-:where([data-ui]) .popup-trigger[aria-invalid='true'],
-:where([data-ui]) [data-invalid],
-:where([data-ui])[data-invalid],
+:where([data-ui]) [data-invalid]:where(:not(.popup-trigger, .ui-file-input)),
+:where([data-ui])[data-invalid]:where(:not(.ui-file-input)),
 :where([data-ui]) .ui-check-control[data-invalid],
 :where([data-ui]) .ui-radio-control[data-invalid],
 :where([data-ui]) .ui-switch-control[data-invalid],
@@ -48,8 +57,10 @@
   border-color: var(--ui-error, #9d251e);
 }
 /* Disabled controls keep their opaque background and dim only the foreground. */
-:where([data-ui]) button:disabled,
-:where([data-ui]) :where(.ui-button):is(:disabled, [aria-disabled='true']),
+:where([data-ui])
+  button:disabled:where(
+    :not(.ui-button, .choice-toggle, .popup-trigger, [data-ui-action])
+  ),
 :where([data-ui]) input:disabled,
 :where([data-ui]) textarea:disabled,
 :where([data-ui]) select:disabled,
@@ -72,12 +83,7 @@
 :where([data-ui]) input:is([readonly], :disabled),
 :where([data-ui]) textarea:is([readonly], :disabled),
 :where([data-ui]) select:disabled,
-:where([data-ui]) .popup-trigger:is([data-readonly], [data-disabled]),
-:where([data-ui])
-  :is(.ui-check-control, .ui-radio-control, .ui-switch-control):is(
-    [data-readonly],
-    [data-disabled]
-  ) {
+:where([data-ui]) .popup-trigger:is([data-readonly], [data-disabled]) {
   background-color: var(--ui-muted-surface, #fcfcfd);
 }
 :where([data-ui]) .popup-trigger:is([data-readonly], [data-disabled]),
@@ -89,7 +95,6 @@
   cursor: default;
 }
 :where([data-ui]) .choice-control:is([data-disabled], [data-readonly]) button {
-  background-color: var(--ui-muted-surface, #fcfcfd);
   cursor: default;
 }
 
@@ -100,13 +105,6 @@
   )
   > :is(input, button.ui-button, button.choice-toggle) {
   border-color: var(--ui-error, #9d251e);
-}
-:where([data-ui])
-  :is(.ui-input-affix, .filter-input, .choice-control):has(
-    input:is([readonly], :disabled)
-  )
-  > button:is(.ui-button, .choice-toggle) {
-  background: var(--ui-muted-surface, #fcfcfd);
 }
 :where([data-ui])
   :is(.ui-input-affix, .filter-input, .choice-control)

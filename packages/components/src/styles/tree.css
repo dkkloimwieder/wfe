@@ -57,25 +57,10 @@
     border-color: transparent;
     background: transparent;
   }
-  :scope .ui-tree .ui-button.ui-tree-toggle::before {
-    display: none;
-  }
 }
 @scope ([data-ui-tokens][data-ui-glow]) to ([data-ui-tokens]) {
   :scope .ui-tree .ui-button.ui-tree-toggle[data-variant] {
     border-color: transparent;
     background: transparent;
-    box-shadow: none;
-    text-shadow: none;
-  }
-  :scope .ui-tree .ui-button.ui-tree-toggle .ui-tree-symbol {
-    filter: none;
-  }
-  :scope
-    .ui-tree
-    .ui-button.ui-tree-toggle:hover:not(:disabled)
-    .ui-tree-symbol {
-    color: var(--ui-accent);
-    filter: var(--ui-laser-icon-shadow, var(--_ui-laser-icon-shadow));
   }
 }

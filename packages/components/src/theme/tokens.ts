@@ -301,6 +301,9 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         // Default-tone outline buttons: 100% uses the button color, 0% the neutral text and border.
         '--ui-outline-accent-weight': '100%',
         '--ui-action-hover-fill': 'none',
+        '--ui-choice-hover-fill': 'initial',
+        '--ui-choice-hover-text-shadow': 'none',
+        '--ui-choice-selected-fill': 'var(--ui-highlight)',
         '--ui-field-hover-fill': 'var(--ui-action-hover-fill)',
         '--ui-field-hover-overlay': 'transparent',
         '--ui-state-invalid-shadow':
@@ -310,8 +313,6 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-state-open-shadow':
           '0 0 0 var(--ui-border-width) var(--ui-accent)',
         '--ui-action-hover-shadow': '0 0 transparent',
-        '--ui-action-open-fill':
-          'linear-gradient(var(--ui-highlight), var(--ui-highlight))',
         '--ui-state-selected-shadow':
           'inset 0 0 0 var(--ui-border-width) var(--ui-accent)',
         '--ui-state-pressed-shadow':
@@ -467,6 +468,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-outline-accent-weight': '0%',
         '--ui-action-hover-fill':
           'linear-gradient(var(--ui-action-hover-overlay), var(--ui-action-hover-overlay))',
+        '--ui-check-hover-fill': 'var(--ui-action-hover-fill)',
+        '--ui-choice-hover-fill': 'var(--ui-action-hover-fill)',
         '--ui-action-hover-overlay':
           'color-mix(in srgb, var(--ui-highlight) 50%, transparent)',
         '--ui-disclosure-overflow': 'hidden',
@@ -579,6 +582,9 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
           'color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface))',
         '--ui-action-hover-fill': 'none',
         '--ui-action-hover-shadow': 'initial',
+        '--ui-check-hover-fill': 'none',
+        '--ui-choice-hover-fill': 'none',
+        '--ui-choice-hover-text-shadow': 'initial',
         '--ui-field-hover-fill':
           'linear-gradient(var(--ui-field-hover-overlay), var(--ui-field-hover-overlay))',
         '--ui-field-hover-overlay':

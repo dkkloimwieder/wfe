@@ -32,6 +32,10 @@
 [data-ui-tokens] .ui-entry-panel-surface::after {
   border-radius: inherit;
 }
+[data-ui-tokens] .ui-field-set:disabled {
+  border-color: var(--ui-disabled-border);
+  color: var(--ui-disabled-text);
+}
 
 /* Elevation: every panel reads one shadow token. */
 [data-ui-tokens]
@@ -89,7 +93,7 @@
 :where([data-ui], [data-ui-tokens])
   :is(
     .ui-button:where(
-      :not(
+      :is(button, a[href], [role='button'], [tabindex]):not(
         .popup-trigger,
         .ui-calendar td button,
         .ui-date-range-picker > .ui-button:first-child
@@ -106,10 +110,12 @@
   --_ui-action-selected: 0 0 transparent;
   --_ui-action-pressed: 0 0 transparent;
   --_ui-action-hover: 0 0 transparent;
+  --_ui-action-open: 0 0 transparent;
+  --_ui-action-decoration-opacity: 0;
 
   @media (forced-colors: none) {
     &:is([aria-expanded='true'], :where(details[open]) > summary) {
-      background-image: var(--ui-action-open-fill);
+      --_ui-action-open: var(--ui-state-open-shadow);
     }
 
     &:not(:disabled, [aria-disabled='true'], [data-disabled], [data-readonly]) {
@@ -130,7 +136,8 @@
       [aria-pressed='true'],
       [aria-selected='true'],
       [aria-current='page'],
-      [data-ui-active='true']
+      [data-ui-active='true'],
+      :where(details[data-ui-active='true']) > summary
     ) {
       --_ui-action-selected: var(--ui-state-selected-shadow);
     }
@@ -138,14 +145,17 @@
     &:is(
       :hover,
       :active,
+      [aria-expanded='true'],
+      :where(details[open]) > summary,
       [aria-pressed='true'],
       [aria-selected='true'],
       [aria-current='page'],
-      [data-ui-active='true']
+      [data-ui-active='true'],
+      :where(details[data-ui-active='true']) > summary
     ) {
       box-shadow:
         var(--_ui-action-pressed), var(--_ui-action-selected),
-        var(--_ui-action-hover);
+        var(--_ui-action-hover), var(--_ui-action-open);
     }
 
     &:focus-visible {
@@ -160,8 +170,13 @@
     ) {
       border-color: var(--ui-error);
     }
+    &:is(:disabled, [aria-disabled='true'], [data-disabled]):not(
+        [data-readonly]
+      ) {
+      color: var(--ui-disabled-text);
+    }
     &[data-readonly] {
-      background-image: var(--ui-action-open-fill);
+      box-shadow: var(--ui-state-readonly-shadow);
     }
   }
 }
@@ -175,6 +190,7 @@
       ):not(:is(.ui-input-affix, .filter-input, .choice-control) *)
     ),
     .ui-input-affix,
+    .ui-input-group,
     .filter-input,
     .choice-control,
     .popup-trigger:where(
@@ -191,6 +207,8 @@
     )
   );
   --_ui-field-inset: 0 0 transparent;
+  --_ui-field-hover: 0 0 transparent;
+  --_ui-field-open: 0 0 transparent;
   --_ui-field-decoration-opacity: 0;
 
   @media (forced-colors: none) {
@@ -203,12 +221,11 @@
     ) {
       &:hover {
         background-image: var(--ui-field-hover-fill);
-        box-shadow: var(--_ui-field-inset), var(--_ui-field-halo);
+        --_ui-field-hover: var(--_ui-field-halo);
         --_ui-field-decoration-opacity: 1;
       }
       &:active {
         --_ui-field-inset: var(--ui-state-pressed-shadow);
-        box-shadow: var(--_ui-field-inset), var(--_ui-field-halo);
       }
     }
 
@@ -222,26 +239,40 @@
       [data-invalid],
       :has(:is(input, select, textarea)[aria-invalid='true'])
     ) {
-      box-shadow: var(--ui-state-invalid-shadow);
+      --_ui-field-inset: var(--ui-state-invalid-shadow);
     }
 
     &:is([aria-expanded='true'], :has([aria-expanded='true'])) {
-      background-image: var(--ui-action-open-fill);
-      box-shadow: var(--ui-state-open-shadow);
+      --_ui-field-open: var(--ui-state-open-shadow);
     }
 
-    &:is(
-      [data-disabled],
-      :disabled,
-      :has(:is(input, select, textarea):disabled)
-    ) {
+    &:not([data-readonly]):is(
+        [data-disabled],
+        :disabled,
+        :has(:is(input, select, textarea):disabled)
+      ) {
       color: var(--ui-disabled-text);
       background-color: var(--ui-muted-surface);
     }
 
     &:is([data-readonly], :has(:is(input, textarea)[readonly])) {
       background-color: var(--ui-muted-surface);
-      box-shadow: var(--ui-state-readonly-shadow);
+      --_ui-field-inset: var(--ui-state-readonly-shadow);
+    }
+
+    &:is(
+      :hover,
+      :active,
+      [aria-expanded='true'],
+      :has([aria-expanded='true']),
+      [aria-invalid='true'],
+      [data-invalid],
+      :has(:is(input, select, textarea)[aria-invalid='true']),
+      [data-readonly],
+      :has(:is(input, textarea)[readonly])
+    ) {
+      box-shadow:
+        var(--_ui-field-inset), var(--_ui-field-hover), var(--_ui-field-open);
     }
   }
 }
@@ -249,11 +280,13 @@
 /* A frame paints behind its input. Keep the editing surface transparent so
    one field cue spans all its parts, including the adornments. */
 :where([data-ui-tokens])
-  :is(.ui-control-frame, .ui-input-affix, .filter-input, .choice-control):is(
-    :hover,
-    :active,
-    :has([aria-expanded='true'])
-  )
+  :is(
+    .ui-control-frame,
+    .ui-input-affix,
+    .ui-input-group,
+    .filter-input,
+    .choice-control
+  ):is(:hover, :active, :has([aria-expanded='true']))
   :is(input, select, textarea):not(:disabled, [readonly], [type='hidden']) {
   background-color: transparent;
 }
@@ -266,8 +299,10 @@
       ):not(:is(.ui-input-affix, .filter-input, .choice-control) *)
     ),
     .ui-input-affix,
+    .ui-input-group,
     .filter-input,
-    .choice-control
+    .choice-control,
+    .ui-date-range-picker > .ui-button:first-child
   ) {
   background-color: var(--ui-control-surface);
 }
@@ -280,8 +315,7 @@
   }
 }
 
-[data-ui-tokens]
-  .ui-switch-control:not([data-checked], [data-disabled], [data-readonly]) {
+[data-ui-tokens] .ui-switch-control:not([data-checked]) {
   background-color: var(--ui-switch-track, var(--ui-control-surface));
 }
 /* Checks and slider thumbs share paint. Their indicators keep their own geometry. */
@@ -319,7 +353,10 @@
           --ui-action-hover-shadow,
           var(--ui-laser-glow, var(--_ui-laser-glow, 0 0 transparent))
         );
-        background-image: var(--ui-action-hover-fill);
+        background-image: var(
+          --ui-check-hover-fill,
+          var(--_ui-check-rest-fill, none)
+        );
         --_ui-field-decoration-opacity: 1;
       }
       &:is(:active, :where(.ui-toggle, .ui-radio-item):active *) {
@@ -348,13 +385,11 @@
     }
 
     &:is([data-disabled], [aria-disabled='true']) {
-      background-color: var(--ui-muted-surface);
       color: var(--ui-disabled-text);
       border-color: var(--ui-disabled-border);
     }
 
     &:is([data-readonly], [aria-readonly='true']) {
-      background-color: var(--ui-muted-surface);
       box-shadow: var(--ui-state-readonly-shadow);
     }
 

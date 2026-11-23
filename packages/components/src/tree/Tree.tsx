@@ -216,10 +216,6 @@ export function Tree(props: TreeProps) {
           return (
             <div
               class="ui-tree-item"
-              data-ui-section-decoration="accent"
-              data-ui-section-active={
-                props.selected.includes(row().node.id) ? '' : undefined
-              }
               role="treeitem"
               data-tree-id={row().node.id}
               aria-label={row().node.label}

@@ -62,9 +62,7 @@ export function Toggle(props: ToggleProps) {
         aria-pressed={props.pressed ? 'true' : 'false'}
         aria-disabled={state.readonly() ? 'true' : props['aria-disabled']}
         data-readonly={state.readonly() ? '' : undefined}
-        variant={
-          props.pressed ? (props.pressedVariant ?? 'filled') : props.variant
-        }
+        variant={(props.pressed && props.pressedVariant) || props.variant}
         class={styledClasses('ui-toggle-button', props.class)}
         onClick={(event) => {
           if (state.disabled() || state.readonly()) {

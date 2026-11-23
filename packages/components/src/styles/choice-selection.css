@@ -1,126 +1,100 @@
-/* Tree, Select and Combobox share selection paint; fields keep their own surface. */
-:where([data-ui])
-  :is(
-    .popup-option:is([data-selected], [data-highlighted]),
-    .ui-tree-item[aria-selected='true']
-  ) {
-  background: var(
-    --ui-choice-selection-surface,
-    var(--_ui-choice-selection-surface, var(--ui-accent))
-  );
-  color: var(
-    --ui-choice-selection-text,
-    var(--_ui-choice-selection-text, var(--ui-on-accent, var(--ui-text)))
-  );
-}
-:where([data-ui]) .popup-option[data-highlighted] {
-  outline: var(--ui-focus-width, 1px) solid
-    var(--ui-focus-ring, var(--ui-accent));
-  outline-offset: -2px;
-}
-:where([data-ui])
-  .ui-tree-item[aria-selected='true']
-  .ui-button.ui-tree-toggle {
-  color: inherit;
-  background: transparent;
-}
-@scope ([data-ui-tokens]:not([data-ui-decoration])) to ([data-ui-tokens]) {
-  :scope :is(.popup-option, .ui-tree-item) {
-    --_ui-choice-selection-text: var(--ui-text);
-    --_ui-choice-selection-surface: var(--ui-highlight);
-  }
-}
-@scope ([data-ui-tokens][data-ui-decoration]) to ([data-ui-tokens]) {
-  :scope :is(.popup-option, .ui-tree-item) {
-    --_ui-choice-selection-text: var(--ui-text);
-    --_ui-choice-selection-surface: transparent;
-    isolation: isolate;
-  }
-  :scope
-    :is(
-      .popup-option:is([data-selected], [data-highlighted]),
-      .ui-tree-item[aria-selected='true']
-    ) {
-    z-index: 2;
-  }
-  :scope :is(.popup-option, .ui-tree-item)[data-ui-section-decoration]::before {
-    --ui-input-decoration-dot-color: var(
-      --ui-choice-decoration-color,
-      var(--ui-accent)
-    );
-    --ui-input-decoration-border-color: var(
-      --ui-choice-decoration-color,
-      var(--ui-accent)
-    );
-    inset: -2px;
-    z-index: -2;
-  }
-  :scope .popup-option[data-highlighted],
-  :scope .ui-tree-item:focus-within {
-    z-index: 3;
-  }
-  :scope
-    :is(
-      .popup-option:is([data-selected], [data-highlighted]),
-      .ui-tree-item[aria-selected='true']
-    )::before {
-    opacity: var(--ui-choice-decoration-opacity, 1);
-  }
-  :scope
-    :is(
-      .popup-option:is([data-selected], [data-highlighted]),
-      .ui-tree-item[aria-selected='true']
-    )::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: var(
-      --ui-choice-decoration-surface,
-      var(--ui-choice-selection-surface, var(--ui-surface))
-    );
-    pointer-events: none;
-  }
-}
-@scope ([data-ui-tokens][data-ui-glow]) to ([data-ui-tokens]) {
-  :scope :is(.popup-option, .ui-tree-item) {
-    --_ui-choice-selection-text: var(--ui-text);
-    --_ui-choice-selection-surface: color-mix(
-      in srgb,
-      var(--ui-accent) 12%,
-      transparent
-    );
-  }
+/* Options, menu and command items, tree rows, and calendar days share the
+   same interactions. An item can also mark an active keyboard descendant. */
+:is([data-ui], [data-ui-tokens])
+  :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button) {
+  --_ui-choice-selected: 0 0 transparent;
+  --_ui-choice-pressed: 0 0 transparent;
+
   @media (forced-colors: none) {
-    :scope
-      :is(
-        .popup-option:is([data-selected], [data-highlighted]),
-        .ui-tree-item[aria-selected='true']
-      ) {
-      box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
+    &:not(:disabled, [data-disabled], [aria-disabled='true'], [data-readonly]) {
+      &:hover {
+        background-image: var(
+          --ui-choice-hover-fill,
+          var(--ui-dot-pattern, none)
+        );
+        text-shadow: var(
+          --ui-choice-hover-text-shadow,
+          var(--ui-laser-text-glow, var(--_ui-laser-text-glow, none))
+        );
+      }
+      &:active {
+        --_ui-choice-pressed: var(--ui-state-pressed-shadow);
+      }
     }
-  }
-  :scope .ui-tree-item[aria-selected='true'] .ui-tree-symbol {
-    color: inherit;
-  }
-}
-@media (forced-colors: active) {
-  :where([data-ui])
-    :is(
-      .popup-option:is([data-selected], [data-highlighted]),
-      .ui-tree-item[aria-selected='true']
+
+    &:is(
+      [data-selected],
+      [data-checked],
+      [aria-checked='true'],
+      [aria-selected='true']:not(.ui-command-option)
     ) {
-    outline: var(--ui-control-border-width, 1px) solid Highlight !important;
-    outline-offset: -1px;
+      --_ui-choice-selected: var(--ui-state-selected-shadow);
+      background-color: var(
+        --ui-choice-selection-surface,
+        var(--ui-choice-decoration-surface, var(--ui-choice-selected-fill))
+      );
+      color: var(--ui-choice-selection-text, var(--ui-text));
+    }
+
+    &:is(
+      [data-selected],
+      [data-checked],
+      [aria-checked='true'],
+      [aria-selected='true'],
+      :active
+    ) {
+      box-shadow: var(--_ui-choice-pressed), var(--_ui-choice-selected);
+    }
+
+    &:is(
+      :focus-visible,
+      .popup-option[data-highlighted]:not(:hover),
+      :where(.ui-command:has(input:focus-visible))
+        .ui-command-option[data-highlighted]
+    ) {
+      outline: var(--ui-focus-width) solid var(--ui-focus-ring);
+      outline-offset: -2px;
+    }
+
+    &:is(:disabled, [data-disabled], [aria-disabled='true']) {
+      color: var(--ui-disabled-text);
+    }
+
+    &:is([data-readonly], :where(.ui-calendar[data-readonly]) *) {
+      box-shadow: var(--ui-state-readonly-shadow);
+    }
+
+    &[aria-expanded='true'] {
+      box-shadow: var(--ui-state-open-shadow);
+    }
   }
 }
 
-/* Keyboard focus remains independent of every preset's persistent choice paint. */
-@scope (.ui-theme) to (.ui-theme) {
-  :scope .ui-tree-item:focus-visible {
-    outline: var(--ui-focus-width, 1px) solid
-      var(--ui-focus-ring, var(--ui-accent));
+/* Expanded tree rows and calendar ranges retain their structural cues. */
+:where([data-ui]) .ui-tree-item[aria-selected='true'] .ui-tree-toggle {
+  color: inherit;
+}
+@scope ([data-ui-tokens][data-ui-decoration]) to ([data-ui-tokens]) {
+  :scope
+    :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button) {
+    --_ui-dots: color-mix(
+      in srgb,
+      var(--ui-choice-decoration-color, var(--ui-accent))
+        calc(var(--ui-choice-decoration-opacity, 1) * 100%),
+      transparent
+    );
+  }
+}
+
+@media (forced-colors: active) {
+  :where([data-ui])
+    :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button):is(
+      :focus-visible,
+      [data-highlighted],
+      [data-selected],
+      [aria-selected='true']
+    ) {
+    outline: var(--ui-focus-width) solid Highlight;
     outline-offset: -2px;
   }
 }

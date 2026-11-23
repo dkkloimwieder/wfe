@@ -39,6 +39,7 @@
       .choice-toggle,
       [data-ui-action]
     ):not(
+      .ui-section,
       .popup-trigger,
       .ui-calendar td button,
       .ui-date-range-picker > .ui-button:first-child
@@ -75,6 +76,7 @@
       [aria-disabled='true'],
       [data-disabled],
       [data-readonly],
+      .ui-section,
       .popup-trigger,
       .ui-calendar td button,
       .ui-date-range-picker > .ui-button:first-child
@@ -97,7 +99,7 @@
       linear-gradient(#000 0 0) border-box;
     border: var(--ui-border-width, 1px) solid var(--ui-decoration-border);
     background-color: var(--ui-canvas-surface);
-    --_ui-dots: var(--_ui-action-dots, var(--ui-decoration-dot-color));
+    --_ui-dots: var(--ui-decoration-dot-color);
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
     opacity: var(--_ui-action-decoration-opacity, 0);
@@ -107,60 +109,8 @@
     padding: 12px;
   }
 
-  :scope
-    :is(
-      .ui-sidebar-group,
-      .ui-sidebar-context,
-      .ui-sidebar-context-popup,
-      .ui-sidebar-flyout,
-      .table-workspace-title-face,
-      .table-controls-toggle,
-      .table-workspace-header-actions .ui-icon-button,
-      .table-page-size,
-      .table-refresh
-    ) {
-    --ui-decoration-border: color-mix(
-      in srgb,
-      var(--ui-sidebar-accent) var(--ui-decoration-border-opacity, 100%),
-      transparent
-    );
-    --_ui-action-dots: var(--ui-sidebar-accent);
-  }
-  :scope :is(.ui-sidebar-group, .ui-sidebar-flyout) .ui-dashboard-menu > a {
-    --ui-decoration-border: color-mix(
-      in srgb,
-      var(--ui-neutral-border-color, var(--ui-neutral-dot-color))
-        var(--ui-decoration-border-opacity, 100%),
-      transparent
-    );
-    --_ui-action-dots: var(--ui-neutral-dot-color, var(--ui-sidebar-neutral));
-  }
   :scope .ui-sidebar-flyout .ui-popup-title {
     color: var(--ui-sidebar-neutral);
-  }
-  /* Controls inside sections use the theme's decoration colors. */
-  :scope .ui-section > .ui-collapsible-content {
-    --ui-decoration-border: color-mix(
-      in srgb,
-      var(--ui-decoration-border-color) var(--ui-decoration-border-opacity),
-      transparent
-    );
-    --_ui-action-dots: initial;
-  }
-
-  :scope
-    :is(
-      .ui-sidebar-group,
-      .ui-sidebar-context,
-      .ui-sidebar-context-popup,
-      .ui-sidebar-flyout
-    )
-    .ui-button[data-variant='outline'],
-  :scope
-    :is(.ui-sidebar-group, .ui-sidebar-flyout)
-    .ui-dashboard-menu
-    > a:is(:hover, [aria-current='page']) {
-    border-color: var(--ui-control-border);
   }
 
   /* Keep the action face quieter than its text and separate from the backing. */
@@ -542,27 +492,11 @@
       background: var(--ui-canvas-surface, var(--ui-surface));
       text-decoration: inherit;
     }
-    :scope
-      .ui-calendar[data-range]
-      .ui-button:is([data-range-start], [data-range-end]) {
-      --ui-decoration-border: color-mix(
-        in srgb,
-        var(--ui-accent) var(--ui-decoration-border-opacity, 100%),
-        transparent
-      );
-      --_ui-action-dots: var(--ui-accent);
-    }
-    :scope
-      .ui-calendar[data-range]
-      .ui-button:is([data-range-start], [data-range-end])::before {
-      opacity: 1;
-    }
     :scope .ui-slider-thumb {
       position: relative;
-      border-color: var(--ui-accent);
-      background-color: var(--ui-canvas-surface);
-      --_ui-dots: var(--ui-accent);
-      background-image: var(--ui-dot-pattern);
+      --_ui-check-rest-fill: var(--ui-dot-pattern);
+      --_ui-dots: var(--ui-decoration-dot-color);
+      background-image: var(--_ui-check-rest-fill);
       background-size: var(--ui-canvas-pattern-size);
     }
   }

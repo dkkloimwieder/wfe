@@ -10,6 +10,9 @@
       svg,
       img,
       .ui-card,
+      .ui-context-trigger,
+      [data-ui-action],
+      .ui-input-group,
       .ui-menu-item,
       .ui-tree-item,
       .popup-option,
@@ -156,18 +159,7 @@
       border-color: transparent;
       background: transparent;
     }
-    :scope
-      .ui-calendar
-      td
-      button:is(:hover, :focus-visible, [data-selected]):not(:disabled) {
-      border-color: transparent;
-      box-shadow: none;
-      background: transparent;
-      color: var(--ui-accent);
-      text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
-    }
-
-    /* Navigation entries share menu text feedback, including button entries. */
+    /* Navigation has a frameless resting face. */
     :scope
       :is(
         .ui-dashboard-menu > :is(a, .ui-button),
@@ -180,15 +172,6 @@
       --ui-highlight: transparent;
       border-color: transparent;
       background: transparent;
-    }
-    :scope
-      .ui-menu-item:is(:hover, [data-highlighted], :focus-visible):not(
-        [data-disabled]
-      ) {
-      border-color: transparent;
-      background: transparent;
-      color: var(--ui-accent);
-      text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
     }
   }
   @media (forced-colors: active) {

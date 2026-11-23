@@ -57,5 +57,5 @@
   .ui-file-actions
   > button {
   outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
-  outline-offset: 2px;
+  outline-offset: var(--ui-focus-offset, 0px);
 }
