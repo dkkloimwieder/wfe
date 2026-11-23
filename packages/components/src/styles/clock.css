@@ -117,21 +117,51 @@
   flex: 1 1 4rem;
   min-inline-size: 0;
 }
+:where([data-ui]) .ui-time-column-frame {
+  --_ui-time-column-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
+  /* Inset the square scrollport on both axes to clear the rounded corners. */
+  --_ui-time-column-inline-inset: max(
+    var(--ui-border-width, 1px),
+    min(
+      calc(var(--_ui-time-column-radius) / 2),
+      var(--ui-control-padding-y, 4px)
+    )
+  );
+  --_ui-time-column-block-inset: max(
+    var(--ui-border-width, 1px),
+    calc(var(--_ui-time-column-radius) - var(--_ui-time-column-inline-inset))
+  );
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-block-size: 0;
+  padding: var(--_ui-time-column-block-inset)
+    var(--_ui-time-column-inline-inset);
+  border: var(--ui-border-width, 1px) solid var(--ui-border);
+  border-radius: var(--_ui-time-column-radius);
+}
 :where([data-ui]) .ui-time-column-list {
-  display: flex;
-  flex-direction: column;
   position: relative;
-  max-block-size: 16rem;
-  overflow-y: auto;
+  max-block-size: calc(
+    16rem - 2 *
+      (var(--_ui-time-column-block-inset) + var(--ui-border-width, 1px))
+  );
+  overflow: hidden auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  border: var(--ui-border-width, 1px) solid var(--ui-border);
-  border-radius: var(--ui-panel-radius, var(--ui-radius, 0px));
-  padding: var(--ui-border-width, 1px);
+  scrollbar-color: var(--ui-muted-text, #999999) transparent;
+  scrollbar-gutter: stable;
+}
+:where([data-ui]) .ui-time-column-options {
+  display: flex;
+  flex-direction: column;
+  /* Option decoration can extend past the button's layout box. */
+  overflow: clip;
 }
 :where([data-ui]) .ui-time-option {
   flex: none;
   inline-size: 100%;
+  min-inline-size: 0;
+  padding-inline: var(--ui-border-width, 1px);
   font-variant-numeric: tabular-nums;
 }
 :where([data-ui]) .ui-time-option[aria-selected='true'] {

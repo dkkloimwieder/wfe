@@ -128,60 +128,67 @@ function TimeColumn(props: {
       <span class="ui-label" id={id}>
         {props.label}
       </span>
-      <div
-        class="ui-time-column-list"
-        role="listbox"
-        aria-labelledby={id}
-        aria-disabled={props.disabled || props.readonly ? 'true' : undefined}
-        ref={(node) => {
-          list = node
-        }}
-        onKeyDown={(event) => {
-          if (props.disabled || event.isComposing) return
-          const target =
-            event.target instanceof HTMLElement
-              ? event.target.closest<HTMLElement>('[data-time-value]')
-              : null
-          if (!target) return
-          const index = props.options.indexOf(Number(target.dataset.timeValue))
-          let next: number
-          if (event.key === 'Home') next = 0
-          else if (event.key === 'End') next = props.options.length - 1
-          else if (event.key === 'ArrowDown' || event.key === 'ArrowUp')
-            next =
-              (index +
-                (event.key === 'ArrowDown' ? 1 : -1) +
-                props.options.length) %
-              props.options.length
-          else return
-          event.preventDefault()
-          const value = props.options[next]!
-          if (!props.readonly) props.onChange(value)
-          list
-            ?.querySelector<HTMLElement>(`[data-time-value="${value}"]`)
-            ?.focus({ preventScroll: true })
-        }}
-      >
-        <For each={props.options}>
-          {(value) => (
-            <Button
-              type="button"
-              variant="ghost"
-              class="ui-time-option"
-              role="option"
-              aria-selected={props.value === value ? 'true' : 'false'}
-              data-time-value={value}
-              tabindex={!props.disabled && props.value === value ? 0 : -1}
-              disabled={props.disabled}
-              aria-disabled={props.readonly ? 'true' : undefined}
-              onClick={() => {
-                if (!props.disabled && !props.readonly) props.onChange(value)
-              }}
-            >
-              {props.text(value)}
-            </Button>
-          )}
-        </For>
+      <div class="ui-time-column-frame">
+        <div
+          class="ui-time-column-list"
+          role="listbox"
+          aria-labelledby={id}
+          aria-disabled={props.disabled || props.readonly ? 'true' : undefined}
+          ref={(node) => {
+            list = node
+          }}
+          onKeyDown={(event) => {
+            if (props.disabled || event.isComposing) return
+            const target =
+              event.target instanceof HTMLElement
+                ? event.target.closest<HTMLElement>('[data-time-value]')
+                : null
+            if (!target) return
+            const index = props.options.indexOf(
+              Number(target.dataset.timeValue),
+            )
+            let next: number
+            if (event.key === 'Home') next = 0
+            else if (event.key === 'End') next = props.options.length - 1
+            else if (event.key === 'ArrowDown' || event.key === 'ArrowUp')
+              next =
+                (index +
+                  (event.key === 'ArrowDown' ? 1 : -1) +
+                  props.options.length) %
+                props.options.length
+            else return
+            event.preventDefault()
+            const value = props.options[next]!
+            if (!props.readonly) props.onChange(value)
+            list
+              ?.querySelector<HTMLElement>(`[data-time-value="${value}"]`)
+              ?.focus({ preventScroll: true })
+          }}
+        >
+          <div class="ui-time-column-options">
+            <For each={props.options}>
+              {(value) => (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  class="ui-time-option"
+                  role="option"
+                  aria-selected={props.value === value ? 'true' : 'false'}
+                  data-time-value={value}
+                  tabindex={!props.disabled && props.value === value ? 0 : -1}
+                  disabled={props.disabled}
+                  aria-disabled={props.readonly ? 'true' : undefined}
+                  onClick={() => {
+                    if (!props.disabled && !props.readonly)
+                      props.onChange(value)
+                  }}
+                >
+                  {props.text(value)}
+                </Button>
+              )}
+            </For>
+          </div>
+        </div>
       </div>
     </div>
   )

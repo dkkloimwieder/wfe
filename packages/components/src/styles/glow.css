@@ -5,6 +5,9 @@
   :scope
     :is(
       button,
+      input,
+      select,
+      textarea,
       summary,
       a,
       svg,
@@ -42,7 +45,7 @@
     --_ui-laser-ring-glow: 0 0 3px var(--ui-laser-glow-width)
       color-mix(
         in srgb,
-        var(--ui-primary)
+        var(--_ui-laser-glow-color, var(--ui-primary))
           calc(
             var(--ui-laser-glow-ring-opacity) * var(--ui-laser-glow-strength, 1)
           ),
@@ -51,38 +54,42 @@
     --_ui-laser-halo: 0 0 var(--ui-laser-glow-blur)
       color-mix(
         in srgb,
-        var(--ui-primary)
+        var(--_ui-laser-glow-color, var(--ui-primary))
           calc(var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1)),
         transparent
       );
-    --_ui-laser-glow:
-      inset 0 0 var(--ui-laser-glow-blur)
-        color-mix(
-          in srgb,
-          var(--ui-primary)
-            calc(
-              var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1) *
-                var(--ui-laser-inset-glow-strength)
-            ),
-          transparent
-        ),
+    --_ui-laser-inset-glow: inset 0 0 var(--ui-laser-glow-blur)
+      color-mix(
+        in srgb,
+        var(--_ui-laser-glow-color, var(--ui-primary))
+          calc(
+            var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1) *
+              var(--ui-laser-inset-glow-strength)
+          ),
+        transparent
+      );
+    --_ui-laser-outer-glow:
       var(--_ui-laser-ring-glow),
-      var(--ui-laser-control-shadow, var(--ui-laser-elevation)),
+      var(
+        --_ui-laser-glow-elevation,
+        var(--ui-laser-control-shadow, var(--ui-laser-elevation))
+      ),
       var(--_ui-laser-halo),
       0 0 calc(var(--ui-laser-glow-blur) * 2) 3px
         color-mix(
           in srgb,
-          var(--ui-primary)
+          var(--_ui-laser-glow-color, var(--ui-primary))
             calc(
               var(--ui-laser-glow-opacity) * var(--ui-laser-glow-strength, 1) *
                 0.4
             ),
           transparent
         );
+    --_ui-laser-glow: var(--_ui-laser-inset-glow), var(--_ui-laser-outer-glow);
     --_ui-laser-text-glow: 0 0 var(--ui-laser-text-glow-blur)
       color-mix(
         in srgb,
-        var(--ui-primary)
+        var(--_ui-laser-glow-color, var(--ui-primary))
           calc(
             var(--ui-laser-text-glow-opacity) *
               var(
@@ -97,7 +104,7 @@
         0 0 var(--ui-laser-icon-glow-blur)
           color-mix(
             in srgb,
-            var(--ui-primary)
+            var(--_ui-laser-glow-color, var(--ui-primary))
               calc(
                 var(--ui-laser-icon-glow-opacity) *
                   var(
@@ -108,6 +115,96 @@
             transparent
           )
       );
+  }
+  @media (forced-colors: none) {
+    /* A compound frame owns the halo. The inset is painted on each face. */
+    :scope
+      :is(
+        .ui-control-frame:not([data-scroll-field]),
+        .ui-input-affix,
+        .ui-input-group,
+        .filter-input,
+        .choice-control
+      ) {
+      --_ui-laser-glow: var(--_ui-laser-outer-glow);
+    }
+    :scope
+      :is(
+        :is(.ui-input-affix, .filter-input, .choice-control) > button,
+        .ui-input-group > .ui-button,
+        :is(.ui-control-frame, .ui-input-affix, .filter-input, .choice-control)
+          > :is(input, select, textarea, .popup-trigger)
+      ) {
+      --_ui-laser-glow: var(--_ui-laser-inset-glow);
+    }
+    :scope
+      :is(
+        input,
+        select,
+        textarea,
+        :where(.ui-input-affix) > button[aria-haspopup],
+        :where(.ui-input-affix, .filter-input, .choice-control) .popup-trigger
+      ):where(
+        :not(
+          :disabled,
+          [readonly],
+          [aria-disabled='true'],
+          [data-disabled],
+          [data-readonly],
+          [type='hidden'],
+          .ui-toggle-input,
+          .ui-control-frame[data-scroll-field] > *
+        )
+      ):hover {
+      box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
+    }
+
+    /* Resolve every shadow layer and the border from the same invalid color. */
+    :scope
+      :is(
+        :is(
+          button,
+          summary,
+          input:not([type='hidden'], .ui-toggle-input),
+          select,
+          textarea,
+          .ui-button,
+          [data-ui-action],
+          [data-ui-control-surface],
+          .popup-trigger,
+          .ui-slider-thumb
+        ):is([aria-invalid='true'], [data-invalid]),
+        :is(
+          .ui-control-frame,
+          .ui-input-affix,
+          .filter-input,
+          .choice-control
+        ):has(
+          > :is(input, select, textarea, .popup-trigger)[aria-invalid='true']
+        ),
+        :is(.ui-input-affix, .filter-input, .choice-control):is(
+            [data-invalid],
+            :has(
+              > :is(
+                  input,
+                  select,
+                  textarea,
+                  .popup-trigger
+                )[aria-invalid='true']
+            )
+          )
+          > button,
+        .ui-toggle-group[data-invalid] .ui-toggle-button
+      ) {
+      --_ui-laser-glow-color: var(--ui-error);
+      --_ui-laser-glow-elevation: 0 0 transparent;
+      border-color: var(--ui-error);
+      box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
+    }
+    /* The editor stays transparent inside the rounded scroll field frame. */
+    :scope .ui-control-frame[data-scroll-field] > :is(textarea, select) {
+      box-shadow: none;
+    }
   }
   :scope
     :is(
