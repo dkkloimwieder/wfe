@@ -175,7 +175,7 @@
   --ui-subtle-text: var(--ui-muted-text);
   --ui-hover: var(--ui-highlight);
   --ui-divider: var(--ui-border);
-  --ui-focus: var(--ui-accent);
+  --ui-focus: var(--ui-focus-ring);
   --ui-field-focus-border: var(--ui-focus-ring);
   --ui-selection: var(--ui-accent);
   --ui-on-selection: var(--ui-on-accent);
@@ -373,7 +373,7 @@
   --ui-border: #e4e4e7;
   --ui-table-row-divider: var(--ui-border);
   --ui-table-column-divider: var(--ui-border);
-  --ui-focus-ring: var(--ui-muted-text);
+  --ui-focus-ring: #737373;
   --ui-focus-width: 2px;
   --ui-popup-shadow: 0 4px 12px rgb(0 0 0 / 10%);
 }
@@ -387,6 +387,7 @@
   --ui-highlight: #27272a;
   --ui-text: #fafafa;
   --ui-muted-text: #a1a1aa;
+  --ui-focus-ring: #a3a3a3;
   --ui-border: #27272a;
 }
 
@@ -449,7 +450,6 @@
   --ui-table-row-divider: var(--ui-border);
   --ui-table-column-divider: var(--ui-border);
   --ui-on-accent: #ffffff;
-  --ui-focus-ring: var(--ui-accent);
   --ui-highlight: color-mix(in srgb, var(--ui-accent) 7%, var(--ui-surface));
   --ui-action-hover-fill: none;
   --ui-action-hover-shadow: initial;

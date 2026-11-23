@@ -286,6 +286,11 @@ export async function galleryThemeCases({ page, url, record }) {
         ),
         true,
       )
+      const [red, green, blue] = await icon.evaluate((node) =>
+        getComputedStyle(node).outlineColor.match(/\d+/g).map(Number),
+      )
+      assert.equal(red, green)
+      assert.equal(green, blue)
     },
   )
 

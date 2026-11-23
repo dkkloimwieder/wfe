@@ -164,5 +164,5 @@ Fields shrink to the available width on narrow screens.
 `--ui-control-line-height`, `--ui-label-line-height`, and `--ui-label-weight` control shared typography.
 `--ui-focus-width` and `--ui-focus-offset` control the focus outline.
 Focused editable fields use `--ui-focus-ring` for their border color.
-The token base keeps `--ui-subtle-text`, `--ui-hover`, `--ui-divider`, `--ui-focus`, `--ui-field-focus-border`, `--ui-selection` and `--ui-on-selection` as aliases of `--ui-muted-text`, `--ui-highlight`, `--ui-border`, `--ui-accent`, `--ui-focus-ring`, `--ui-accent` and `--ui-on-accent`. Components read the canonical names.
+The token base keeps `--ui-subtle-text`, `--ui-hover`, `--ui-divider`, `--ui-focus`, `--ui-field-focus-border`, `--ui-selection` and `--ui-on-selection` as aliases of `--ui-muted-text`, `--ui-highlight`, `--ui-border`, `--ui-focus-ring`, `--ui-focus-ring`, `--ui-accent` and `--ui-on-accent`. Components read the canonical names.
 `--ui-field-gap` supplies form section spacing. Action rows retain `--ui-gap`.
