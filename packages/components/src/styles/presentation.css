@@ -127,7 +127,13 @@
     }
 
     &:not(:disabled, [aria-disabled='true'], [data-disabled], [data-readonly]) {
-      &:hover {
+      /* A selected control has no action to offer, so it shows no hover cue. */
+      &:hover:not(
+        [aria-pressed='true'],
+        [aria-selected='true'],
+        [aria-current='page'],
+        [data-ui-active='true']
+      ) {
         --_ui-action-hover: var(
           --ui-action-hover-shadow,
           var(--ui-laser-glow, var(--_ui-laser-glow, 0 0 transparent))

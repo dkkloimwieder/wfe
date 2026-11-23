@@ -121,6 +121,15 @@ export function decorateActions(root: HTMLDivElement) {
     )
       return
     pin(node)
+    if (
+      node.matches(`.ui-button:is(
+        [aria-pressed='true'],
+        [aria-selected='true'],
+        [aria-current='page'],
+        [data-ui-active='true']
+      )`)
+    )
+      return
     const state = nodes.get(node)!
     if (!options.randomizeOnHover && resize) return
     if (options.randomizeOnHover) state.samples = sample()

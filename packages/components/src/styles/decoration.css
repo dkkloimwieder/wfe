@@ -126,6 +126,27 @@
   :scope .ui-sidebar-group-panel:is(:hover, [data-ui-active='true'])::before {
     --_ui-action-decoration-opacity: 1;
   }
+  @media (forced-colors: none) {
+    :scope
+      .ui-button:is(
+        [aria-pressed='true'],
+        [aria-selected='true'],
+        [aria-current='page'],
+        [data-ui-active='true']
+      ):not(:disabled, [aria-disabled='true'], [data-disabled], [data-readonly]) {
+      --ui-state-selected-shadow: 0 0 transparent;
+
+      &::before {
+        --_ui-action-decoration-opacity: 1;
+        --_ui-action-dot-color: var(--ui-primary);
+        --ui-decoration-border: color-mix(
+          in srgb,
+          var(--ui-primary) var(--ui-decoration-border-opacity, 100%),
+          transparent
+        );
+      }
+    }
+  }
   :scope
     :is(.ui-sidebar-group, .ui-sidebar-flyout)
     .ui-dashboard-menu
