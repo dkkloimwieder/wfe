@@ -16,7 +16,7 @@
     );
     min-block-size: 0;
   }
-  /* Navigation uses flat rows; an open group is not a selected control. */
+  /* Compact navigation rows share the same control height. */
   :scope .ui-sidebar-group {
     --_ui-sidebar-row-height: calc(
       var(--ui-sidebar-control-height, var(--ui-control-height)) + 2 *

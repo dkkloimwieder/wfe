@@ -95,6 +95,7 @@ export function SidebarGroup(props: SidebarGroupProps) {
     retainFocus()
     return (
       <CollapsibleSection
+        class="ui-sidebar-group-panel"
         title={props.label}
         icon={icon()}
         active={props.active}

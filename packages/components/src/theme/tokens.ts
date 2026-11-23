@@ -313,6 +313,8 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         // States. The muted surface is the sunken surface of disabled and read-only fields.
         // Every preset dims disabled controls with this one opacity.
         '--ui-disabled-opacity': '0.5',
+        // The light green fill limits darkening when its black text stays fixed.
+        '--ui-disabled-fill-darkening': '3%',
         // Disabled foreground: text and borders mixed toward the surface at the ratio
         // above. Backgrounds stay opaque, so no layer shows through a disabled control.
         '--ui-disabled-text':
@@ -605,7 +607,6 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-border': '#b7c7de',
         '--ui-table-row-divider': 'var(--ui-border)',
         '--ui-table-column-divider': 'var(--ui-border)',
-        '--ui-on-primary': '#ffffff',
         '--ui-highlight':
           'color-mix(in srgb, var(--ui-primary) 7%, var(--ui-surface))',
         '--ui-action-hover-fill': 'none',

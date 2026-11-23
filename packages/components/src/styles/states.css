@@ -41,6 +41,31 @@
 :where([data-ui]).ui-slider[data-invalid] .ui-slider-thumb {
   border-color: var(--ui-error, #9d251e);
 }
+
+:where([data-ui], [data-ui] *)
+  :is(.ui-control-frame, .ui-input-affix, .filter-input):has(
+    > :is(input, textarea, select):is(:disabled, [aria-disabled='true'])
+  ),
+:is([data-ui], :where([data-ui]) *):is(
+    :disabled,
+    [aria-disabled='true'],
+    [data-disabled]
+  ),
+:where([data-ui], [data-ui] *) .choice-control[data-disabled] > button,
+:where([data-ui], [data-ui] *)
+  fieldset:disabled
+  :where(a[href], summary, [role], [tabindex], [data-ui-action]):not(
+    :where(
+      button,
+      input,
+      textarea,
+      select,
+      fieldset:disabled > legend:first-of-type *
+    )
+  ) {
+  cursor: not-allowed;
+}
+
 /* Disabled controls keep their opaque background and dim only the foreground. */
 :where([data-ui])
   button:disabled:where(
@@ -53,7 +78,6 @@
 :where([data-ui]) .ui-radio-item[data-disabled],
 :where([data-ui]) .ui-menu-item[data-disabled],
 :where([data-ui]) .ui-tree-item[aria-disabled='true'] {
-  cursor: default;
   --ui-text: var(--ui-disabled-text, #919191);
   --ui-muted-text: var(--ui-disabled-text, #919191);
   --ui-primary: var(--ui-disabled-primary, #8cb8e0);
@@ -71,15 +95,17 @@
 :where([data-ui]) .popup-trigger:is([data-readonly], [data-disabled]) {
   background-color: var(--ui-muted-surface, #fcfcfd);
 }
-:where([data-ui]) .popup-trigger:is([data-readonly], [data-disabled]),
 :where([data-ui])
-  :is(.ui-check-control, .ui-radio-control, .ui-switch-control):is(
-    [data-readonly],
-    [data-disabled]
+  .popup-trigger[data-readonly]:where(
+    :not([data-disabled], [aria-disabled='true'])
+  ),
+:where([data-ui])
+  :is(.ui-check-control, .ui-radio-control, .ui-switch-control)[data-readonly]:where(
+    :not([data-disabled], [aria-disabled='true'])
   ) {
   cursor: default;
 }
-:where([data-ui]) .choice-control:is([data-disabled], [data-readonly]) button {
+:where([data-ui]) .choice-control[data-readonly]:not([data-disabled]) button {
   cursor: default;
 }
 

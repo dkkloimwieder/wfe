@@ -77,14 +77,11 @@
   font-size: inherit;
   font-weight: var(--ui-kanban-heading-weight, var(--ui-heading-weight, 500));
 }
-:where([data-ui]) .ui-kanban-item[data-drag-surface='card'] {
+:where([data-ui]) .ui-kanban-item:where([data-drag-surface='card']) {
   cursor: grab;
 }
-:where([data-ui]) .ui-kanban-item[data-dragging] {
+:where([data-ui]) .ui-kanban-item:where([data-dragging]) {
   cursor: grabbing;
-}
-:where([data-ui]) .ui-kanban-item[aria-disabled='true'] {
-  cursor: default;
 }
 :where([data-ui]) .ui-kanban-item[data-drag-surface='card']:focus-visible {
   outline: var(--ui-focus-width, 1px) solid

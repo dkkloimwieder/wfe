@@ -29,7 +29,7 @@
   background: var(--ui-pane-surface, var(--ui-surface, #fcfcfd));
   outline-offset: -2px;
 }
-:where([data-ui]).ui-resize-handle[aria-orientation='horizontal'] {
+:where([data-ui]).ui-resize-handle:where([aria-orientation='horizontal']) {
   cursor: row-resize;
 }
 :where([data-ui]).ui-resize-handle::after {
@@ -56,10 +56,6 @@
 :where([data-ui]).ui-resize-handle:focus-visible {
   outline-offset: -2px;
 }
-:where([data-ui]).ui-resize-handle[aria-disabled='true'] {
-  cursor: default;
-}
-
 @media (pointer: coarse) {
   :where([data-ui]).ui-resizable,
   :where([data-ui]).table-workspace {

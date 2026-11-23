@@ -519,9 +519,6 @@
   cursor: pointer;
   outline: none;
 }
-:where([data-ui]) .ui-menu-item[data-disabled] {
-  cursor: default;
-}
 :where([data-ui]) .ui-menu-separator {
   margin: var(--ui-menu-separator-margin-y, 3px) 0;
   border: 0;
@@ -749,7 +746,7 @@
 :where([data-ui]).ui-slider[data-orientation='vertical'] .ui-slider-thumb-slot {
   left: 50%;
 }
-:where([data-ui]).ui-slider:is([data-disabled], [data-readonly])
+:where([data-ui]).ui-slider[data-readonly]:not([data-disabled])
   .ui-slider-thumb {
   cursor: default;
 }

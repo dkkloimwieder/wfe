@@ -119,6 +119,7 @@
   --ui-focus-width: 1px;
   --ui-focus-offset: 0px;
   --ui-disabled-opacity: 0.5;
+  --ui-disabled-fill-darkening: 3%;
   --ui-disabled-text: color-mix(
     in srgb,
     var(--ui-text) calc(var(--ui-disabled-opacity) * 100%),
@@ -465,7 +466,6 @@
   --ui-border: #b7c7de;
   --ui-table-row-divider: var(--ui-border);
   --ui-table-column-divider: var(--ui-border);
-  --ui-on-primary: #ffffff;
   --ui-highlight: color-mix(in srgb, var(--ui-primary) 7%, var(--ui-surface));
   --ui-action-hover-fill: none;
   --ui-action-hover-shadow: initial;
@@ -586,7 +586,7 @@
 /* Violet primary */
 :where([data-ui-tokens][data-ui-primary='violet']) {
   --ui-primary-light: #7048e8;
-  --ui-primary-dark: #e5dbff;
+  --ui-primary-dark: #9775fa;
   --ui-on-primary-light: #ffffff;
   --ui-on-primary-dark: #000000;
 }
@@ -602,7 +602,7 @@
 /* Orange primary */
 :where([data-ui-tokens][data-ui-primary='orange']) {
   --ui-primary-light: #f76707;
-  --ui-primary-dark: #ffe8cc;
+  --ui-primary-dark: #ffa94d;
   --ui-on-primary-light: #000000;
   --ui-on-primary-dark: #000000;
 }
@@ -610,7 +610,7 @@
 /* Brown primary */
 :where([data-ui-tokens][data-ui-primary='brown']) {
   --ui-primary-light: #6f4b2d;
-  --ui-primary-dark: #d3b79e;
+  --ui-primary-dark: #c5a285;
   --ui-on-primary-light: #ffffff;
   --ui-on-primary-dark: #000000;
 }
@@ -658,7 +658,7 @@
 /* Violet secondary */
 :where([data-ui-tokens][data-ui-secondary='violet']) {
   --ui-secondary-light: #7048e8;
-  --ui-secondary-dark: #e5dbff;
+  --ui-secondary-dark: #9775fa;
   --ui-on-secondary-light: #ffffff;
   --ui-on-secondary-dark: #000000;
 }
@@ -674,7 +674,7 @@
 /* Orange secondary */
 :where([data-ui-tokens][data-ui-secondary='orange']) {
   --ui-secondary-light: #f76707;
-  --ui-secondary-dark: #ffe8cc;
+  --ui-secondary-dark: #ffa94d;
   --ui-on-secondary-light: #000000;
   --ui-on-secondary-dark: #000000;
 }
@@ -682,7 +682,7 @@
 /* Brown secondary */
 :where([data-ui-tokens][data-ui-secondary='brown']) {
   --ui-secondary-light: #6f4b2d;
-  --ui-secondary-dark: #d3b79e;
+  --ui-secondary-dark: #c5a285;
   --ui-on-secondary-light: #ffffff;
   --ui-on-secondary-dark: #000000;
 }
@@ -714,9 +714,9 @@
 /* Dark blue secondary */
 :where([data-ui-tokens][data-ui-secondary='dark-blue']) {
   --ui-secondary-light: #1864ab;
-  --ui-secondary-dark: #1971c2;
+  --ui-secondary-dark: #339af0;
   --ui-on-secondary-light: #ffffff;
-  --ui-on-secondary-dark: #ffffff;
+  --ui-on-secondary-dark: #000000;
 }
 
 /* Neutral accent */
@@ -754,7 +754,7 @@
 /* Violet accent */
 :where([data-ui-tokens][data-ui-accent='violet']) {
   --ui-accent-light: #7048e8;
-  --ui-accent-dark: #e5dbff;
+  --ui-accent-dark: #9775fa;
   --ui-on-accent-light: #ffffff;
   --ui-on-accent-dark: #000000;
 }
@@ -770,7 +770,7 @@
 /* Orange accent */
 :where([data-ui-tokens][data-ui-accent='orange']) {
   --ui-accent-light: #f76707;
-  --ui-accent-dark: #ffe8cc;
+  --ui-accent-dark: #ffa94d;
   --ui-on-accent-light: #000000;
   --ui-on-accent-dark: #000000;
 }
@@ -778,7 +778,7 @@
 /* Brown accent */
 :where([data-ui-tokens][data-ui-accent='brown']) {
   --ui-accent-light: #6f4b2d;
-  --ui-accent-dark: #d3b79e;
+  --ui-accent-dark: #c5a285;
   --ui-on-accent-light: #ffffff;
   --ui-on-accent-dark: #000000;
 }
@@ -810,9 +810,9 @@
 /* Dark blue accent */
 :where([data-ui-tokens][data-ui-accent='dark-blue']) {
   --ui-accent-light: #1864ab;
-  --ui-accent-dark: #1971c2;
+  --ui-accent-dark: #339af0;
   --ui-on-accent-light: #ffffff;
-  --ui-on-accent-dark: #ffffff;
+  --ui-on-accent-dark: #000000;
 }
 
 /* Canvas on surface 1 */

@@ -1,5 +1,5 @@
 import { styledClasses, type ClassValue } from './classes'
-import { createContext, useContext } from 'solid-js'
+import { createContext, createEffect, useContext } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import type { DecorationColor } from '../theme/appearance'
 
@@ -39,19 +39,52 @@ export function ControlFrame(
   props: NativeControlFrameProps & {
     children: JSX.Element
     hidden?: boolean
+    scrollable?: boolean
   },
 ) {
   const compound = useContext(CompoundControl)
   // Read children inside JSX: a direct read in the body is untracked.
-  if (compound) return <>{props.children}</>
+  if (compound && props.scrollable === undefined) return <>{props.children}</>
+
+  const framed = () => !compound || props.scrollable
+  let frame: HTMLSpanElement | undefined
+  createEffect(
+    () => Boolean(props.scrollable),
+    (scrollable) => {
+      if (!scrollable || !frame || typeof ResizeObserver === 'undefined') return
+      const node = frame
+      // CSS cannot use the used radius of an intrinsically sized native field.
+      const observer = new ResizeObserver(([entry]) => {
+        const size = entry?.borderBoxSize?.[0]
+        if (!size) return
+        node.style.setProperty(
+          '--_ui-scroll-radius-limit',
+          `${Math.min(size.inlineSize, size.blockSize) / 2}px`,
+        )
+      })
+      observer.observe(node, { box: 'border-box' })
+      return () => observer.disconnect()
+    },
+  )
   return (
     <span
-      class={styledClasses('ui-control-frame', props.frameClass)}
-      style={props.frameStyle}
-      hidden={props.hidden}
-      data-ui-control-surface=""
+      class={styledClasses(
+        'ui-control-frame',
+        framed() ? props.frameClass : undefined,
+      )}
+      style={framed() ? props.frameStyle : undefined}
+      ref={(node) => {
+        frame = node
+      }}
+      data-scroll-field={props.scrollable ? '' : undefined}
+      hidden={Boolean(framed() && props.hidden)}
+      data-ui-control-surface={framed() ? '' : undefined}
       data-ui-control-decoration={
-        props.decoration === false ? 'none' : props.decoration
+        framed()
+          ? props.decoration === false
+            ? 'none'
+            : props.decoration
+          : undefined
       }
     >
       {props.children}

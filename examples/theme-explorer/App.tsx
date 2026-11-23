@@ -217,11 +217,10 @@ export function ThemeExplorer() {
             </div>
           </>
         }
-        // The sidebar holds the library sections that the gallery sidebar and
-        // the table filter pane use. The explorer adds no styling of its own.
         navigation={() => (
           <>
             <CollapsibleSection
+              class="ui-sidebar-group-panel"
               title="Changes"
               count={`${Object.keys(active()).length} edited`}
               defaultOpen
@@ -265,6 +264,7 @@ export function ThemeExplorer() {
             <For each={groups()}>
               {(entry) => (
                 <CollapsibleSection
+                  class="ui-sidebar-group-panel"
                   title={entry.group}
                   count={`${entry.names.length} tokens`}
                   defaultOpen

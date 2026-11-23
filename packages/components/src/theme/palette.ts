@@ -4,6 +4,8 @@
 // Source SHA-256: 9197aaccf67264fa1f4acc6c19504f3b79fa7c4c1d684af7e29368dcca4cf39f
 // Accent and table-divider samples retain the Open Props provenance above.
 // Local adaptation: neutral roles match the measured reference presentation.
+// Dark swatches use mid steps from the same families. Violet and orange use
+// step 4, brown uses step 4, and dark blue uses step 5 for surface contrast.
 // Defaults use Surface 1 for the canvas, Surface 3 for panes, and Surface 2 for content.
 export type SurfaceScheme = {
   name: string
@@ -43,17 +45,17 @@ export const primaryColors: readonly PaletteColor[] = [
   { name: 'Blue', light: '#1971c2', dark: '#4dabf7' },
   { name: 'Teal', light: '#087f5b', dark: '#63e6be' },
   { name: 'Green', light: '#2b8a3e', dark: '#8ce99a' },
-  { name: 'Violet', light: '#7048e8', dark: '#e5dbff' },
+  { name: 'Violet', light: '#7048e8', dark: '#9775fa' },
   { name: 'Pink', light: '#a61e4d', dark: '#faa2c1' },
-  { name: 'Orange', light: '#f76707', dark: '#ffe8cc' },
-  { name: 'Brown', light: '#6f4b2d', dark: '#d3b79e' },
+  { name: 'Orange', light: '#f76707', dark: '#ffa94d' },
+  { name: 'Brown', light: '#6f4b2d', dark: '#c5a285' },
   { name: 'Choco', light: '#8a4513', dark: '#f1b280' },
 ]
 export const secondaryColors: readonly PaletteColor[] = [
   ...primaryColors,
   { name: 'Yellow', light: '#fcc419', dark: '#ffe066' },
   { name: 'Light blue', light: '#74c0fc', dark: '#74c0fc' },
-  { name: 'Dark blue', light: '#1864ab', dark: '#1971c2' },
+  { name: 'Dark blue', light: '#1864ab', dark: '#339af0' },
 ]
 
 export const accentColors = secondaryColors

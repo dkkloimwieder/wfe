@@ -133,7 +133,7 @@
   /* Preserve frameless rest paint on icon actions. */
   :scope
     :is(
-      .ui-icon-button,
+      .ui-icon-button:where(:not([data-variant='filled'])),
       .table-refresh,
       .table-controls-toggle,
       [data-ui-action='header'],

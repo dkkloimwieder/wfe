@@ -427,7 +427,6 @@
   min-width: 0;
 }
 :where([data-ui]) .column-resize[aria-disabled='true'] {
-  cursor: default;
   opacity: 1;
 }
 :where([data-ui]) .header-filter {
@@ -576,9 +575,6 @@
   gap: var(--ui-gap, 8px);
 }
 
-:where([data-ui]) .table-filter-actions button[aria-disabled='true'] {
-  cursor: not-allowed;
-}
 :where([data-ui])
   .column-header:is(
     [data-column-alignment='center'],

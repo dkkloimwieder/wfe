@@ -38,7 +38,7 @@
         .choice-toggle,
         [data-ui-action]
       ):not(
-        .ui-section,
+        .ui-section:not(.ui-sidebar-group-panel),
         .popup-trigger,
         .ui-calendar td button,
         .ui-date-range-picker > .ui-button:first-child
@@ -77,7 +77,8 @@
       [aria-disabled='true'],
       [data-disabled],
       [data-readonly],
-      .ui-section,
+      .ui-section:not(.ui-sidebar-group-panel),
+      .ui-sidebar-group-panel > summary,
       .popup-trigger,
       .ui-calendar td button,
       .ui-date-range-picker > .ui-button:first-child
@@ -103,7 +104,7 @@
     background-color: var(--ui-canvas-surface);
     --_ui-dots: var(
       --_ui-action-decoration-error,
-      var(--ui-decoration-dot-color)
+      var(--_ui-action-dot-color, var(--ui-decoration-dot-color))
     );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
@@ -112,6 +113,69 @@
       var(--_ui-action-decoration-opacity, 0)
     );
   }
+  :scope .ui-sidebar-group-panel::before {
+    /* Leave room for the tilt inside the 8px rail inset. */
+    --ui-action-decoration-inset: -4px;
+    --ui-decoration-border: color-mix(
+      in srgb,
+      var(--ui-sidebar-primary) var(--ui-decoration-border-opacity, 100%),
+      transparent
+    );
+    --_ui-action-dot-color: var(--ui-sidebar-primary);
+  }
+  :scope .ui-sidebar-group-panel:is(:hover, [data-ui-active='true'])::before {
+    --_ui-action-decoration-opacity: 1;
+  }
+  :scope
+    :is(.ui-sidebar-group, .ui-sidebar-flyout)
+    .ui-dashboard-menu
+    > a {
+    color: var(--ui-sidebar-primary);
+  }
+  :scope
+    :is(.ui-sidebar-group, .ui-sidebar-flyout)
+    .ui-dashboard-menu
+    > a::before {
+    --ui-decoration-border: color-mix(
+      in srgb,
+      var(--ui-neutral-border-color) var(--ui-decoration-border-opacity, 100%),
+      transparent
+    );
+    --_ui-action-dot-color: var(--ui-neutral-dot-color);
+  }
+  :scope
+    :is(.ui-sidebar-group, .ui-sidebar-flyout)
+    .ui-dashboard-menu
+    > a[aria-current='page']::before {
+    --_ui-action-decoration-opacity: 1;
+  }
+  @media (forced-colors: none) {
+    :scope
+      :is(.ui-sidebar-group, .ui-sidebar-flyout)
+      .ui-dashboard-menu
+      > a:is(:hover, [aria-current='page']) {
+      border-color: color-mix(
+        in srgb,
+        var(--ui-control-border) var(--ui-action-outline-opacity),
+        transparent
+      );
+      box-shadow: none;
+    }
+    :scope
+      :is(
+        .ui-sidebar-group-panel:is(:hover, [data-ui-active='true']),
+        :is(.ui-sidebar-group, .ui-sidebar-flyout)
+          .ui-dashboard-menu
+          > a:is(:hover, [aria-current='page'])
+      ) {
+      background-color: color-mix(
+        in srgb,
+        var(--ui-canvas-surface) calc(100% - var(--ui-action-dot-visibility)),
+        transparent
+      );
+    }
+  }
+
   /* Leave room for the decorative link outlines inside scrolling flyouts. */
   :scope .ui-sidebar-flyout {
     padding: 12px;
@@ -241,15 +305,15 @@
     transform-box: fill-box;
     transform-origin: 50% 50%;
     scale: calc(4 / 7);
-    visibility: var(--_ui-expanded-disclosure-arrow, visible);
+    visibility: var(--_ui-disclosure-arrow-visibility, visible);
   }
   :scope .ui-disclosure-decoration {
     display: initial;
-    opacity: var(--_ui-expanded-disclosure-opacity, 0);
+    opacity: var(--_ui-disclosure-decoration-opacity, 0);
     pointer-events: none;
   }
   :scope
-    .ui-section
+    .ui-section[open]
     > summary
     > .ui-disclosure-indicator
     > .ui-disclosure-decoration {
@@ -258,10 +322,32 @@
     scale: 0.9;
   }
   @media (forced-colors: none) {
-    /* The glyph records an open section independently of action paint. */
     :scope .ui-section[open] > summary > .ui-disclosure-indicator {
-      --_ui-expanded-disclosure-opacity: 1;
-      --_ui-expanded-disclosure-arrow: hidden;
+      --_ui-disclosure-decoration-opacity: 1;
+      --_ui-disclosure-arrow-visibility: hidden;
+    }
+    :scope
+      :is(.ui-disclosure-trigger, .sub-table-toggle):focus-visible
+      .ui-disclosure-indicator {
+      --_ui-disclosure-decoration-opacity: 1;
+      --_ui-disclosure-arrow-visibility: var(
+        --_ui-disclosure-interactive-arrow,
+        hidden
+      );
+    }
+  }
+  @media (hover: hover) and (forced-colors: none) {
+    :scope
+      :is(.ui-disclosure-trigger, .sub-table-toggle):hover:not(
+        :disabled,
+        [aria-disabled='true']
+      )
+      .ui-disclosure-indicator {
+      --_ui-disclosure-decoration-opacity: 1;
+      --_ui-disclosure-arrow-visibility: var(
+        --_ui-disclosure-interactive-arrow,
+        hidden
+      );
     }
   }
   @media (forced-colors: active) {
@@ -269,7 +355,7 @@
       display: none;
     }
     :scope
-      .ui-disclosure-trigger:is(:hover, :focus-visible)
+      :is(.ui-disclosure-trigger, .sub-table-toggle):is(:hover, :focus-visible)
       .ui-disclosure-arrow {
       fill: Highlight;
       visibility: visible;
@@ -418,6 +504,11 @@
       --_ui-field-decoration-error: var(--ui-invalid-decoration-color);
       --_ui-invalid-backing-opacity: var(--ui-invalid-decoration-opacity);
     }
+    :scope
+      .ui-date-range-picker
+      > [data-ui-control-surface][aria-invalid='true'] {
+      border-color: var(--ui-error);
+    }
   }
   @media (forced-colors: active) {
     :scope [data-ui-control-surface]::before,
@@ -432,7 +523,11 @@
   }
 
   /* A compound face owns the backing for its nested fields. */
-  :scope [data-ui-control-surface] [data-ui-control-surface]::before,
+  :scope
+    [data-ui-control-surface]
+    [data-ui-control-surface]:not(
+      .ui-date-range-picker > [aria-invalid='true']
+    )::before,
   :scope [data-ui-control-surface] .popup-trigger::before,
   :scope
     :is(.ui-toggle, .ui-radio-item):has(input:disabled)

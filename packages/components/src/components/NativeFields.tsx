@@ -339,6 +339,7 @@ export function Textarea(props: TextareaProps) {
       frameClass={props.frameClass}
       frameStyle={props.frameStyle}
       hidden={Boolean(props.hidden && props.hidden !== 'until-found')}
+      scrollable
     >
       <textarea
         {...state.attributes}
@@ -486,6 +487,7 @@ export function NativeSelect(props: NativeSelectProps) {
       frameClass={props.frameClass}
       frameStyle={props.frameStyle}
       hidden={Boolean(props.hidden && props.hidden !== 'until-found')}
+      scrollable={props.multiple || Number(props.size) > 1}
     >
       <select
         {...attributes}

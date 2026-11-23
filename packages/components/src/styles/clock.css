@@ -33,7 +33,7 @@
   outline-offset: var(--ui-focus-offset, 0px);
 }
 :where([data-ui])
-  .ui-time-clock-face:is([aria-disabled='true'], [aria-readonly='true']) {
+  .ui-time-clock-face[aria-readonly='true']:not([aria-disabled='true']) {
   cursor: default;
 }
 :where([data-ui]) .ui-time-clock-number {

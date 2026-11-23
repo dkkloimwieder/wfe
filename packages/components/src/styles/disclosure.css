@@ -59,28 +59,11 @@
     :scope .ui-choice-icon .ui-disclosure-indicator pattern circle {
       fill: var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color));
     }
-  }
-  @media (hover: hover) and (forced-colors: none) {
-    :scope
-      :is(.popup-trigger, .choice-toggle):hover:not(
-        :disabled,
-        [aria-disabled='true']
-      )
-      .ui-choice-icon
-      .ui-disclosure-arrow {
-      visibility: var(--ui-input-disclosure-arrow-visibility, hidden);
-    }
-  }
-
-  @media (forced-colors: active) {
-    :scope
-      :is(.popup-trigger, .choice-toggle):is(:hover, :focus-visible):not(
-        :disabled,
-        [aria-disabled='true']
-      )
-      .ui-choice-icon
-      .ui-disclosure-arrow {
-      visibility: visible;
+    :scope .ui-choice-icon .ui-disclosure-indicator {
+      --_ui-disclosure-interactive-arrow: var(
+        --ui-input-disclosure-arrow-visibility,
+        hidden
+      );
     }
   }
 }

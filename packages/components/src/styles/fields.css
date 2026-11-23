@@ -101,11 +101,59 @@
   inline-size: 100%;
   max-inline-size: var(--ui-field-max-width, 30rem);
 }
+/* A native select can change between a dropdown and an inline list box. */
+:where([data-ui]) .ui-control-frame:not([data-ui-control-surface]) {
+  display: contents;
+}
 :where([data-ui]) .ui-control-frame[hidden] {
   display: none;
 }
 :where([data-ui]) .ui-input-group > .ui-control-frame {
   flex: 1;
+}
+
+/* The frame keeps its shape while the native editor uses a square scrollport. */
+:where([data-ui]) .ui-control-frame[data-scroll-field] {
+  --_ui-scroll-field-radius: var(--ui-control-radius, var(--ui-radius, 0px));
+  --_ui-scroll-block-inset: var(--ui-control-padding-y, 4px);
+  --_ui-scroll-thumb: var(--ui-muted-text, #999999);
+  /* On a circular corner, a rectangle with insets summing to the radius
+     lies inside the curve. The border leaves an extra pixel of clearance. */
+  padding-block: var(--_ui-scroll-block-inset);
+  padding-inline: max(
+    var(--ui-input-padding-x, 10px),
+    calc(
+      min(var(--_ui-scroll-field-radius), var(--_ui-scroll-radius-limit, 0px)) -
+        var(--_ui-scroll-block-inset)
+    )
+  );
+  border: var(--ui-control-border-width, var(--ui-border-width, 1px)) solid
+    var(--ui-control-border, #e5e5e5);
+  background-color: var(--ui-control-surface, var(--ui-surface, #fcfcfd));
+}
+:where([data-ui]) .ui-control-frame[data-scroll-field]:has(> textarea) {
+  --_ui-scroll-field-radius: var(
+    --ui-textarea-radius,
+    var(--ui-control-radius, var(--ui-radius, 0px))
+  );
+}
+
+:where([data-ui])
+  :is(
+    textarea,
+    select[multiple],
+    select[size]:not([size='0'], [size='1'], [size=''])
+  ) {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--_ui-scroll-thumb, var(--ui-muted-text, #999999))
+    transparent;
+}
+:where([data-ui]) .ui-control-frame[data-scroll-field] > :is(textarea, select) {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 /* Shared affixed input layout, independent of table controls. */

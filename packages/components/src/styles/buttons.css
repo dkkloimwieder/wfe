@@ -50,6 +50,23 @@
   background: var(--_button-color);
   color: var(--_button-contrast);
 }
+@media (forced-colors: none) {
+  :where([data-ui])
+    .ui-button[data-variant='filled']:is(
+      :disabled,
+      [aria-disabled='true'],
+      [data-disabled]
+    ) {
+    --_ui-disabled-fill: color-mix(
+      in srgb,
+      black var(--ui-disabled-fill-darkening, 3%),
+      var(--_button-color)
+    );
+    border-color: var(--_ui-disabled-fill);
+    background: var(--_ui-disabled-fill);
+    outline: none;
+  }
+}
 :where([data-ui]) .ui-button[data-variant='inverted'] {
   border-color: var(--_button-contrast);
   background: var(--_button-contrast);

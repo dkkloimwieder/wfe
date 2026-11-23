@@ -433,11 +433,11 @@
   ~ :not(.ui-collapsible) {
   margin-block-start: var(--ui-region-gap, var(--ui-gap, 8px));
 }
-/* Sections touch the rail edges and each other, as in the table filter pane. */
+/* Compact sections touch the rail edges, as in the table filter pane. */
 :where([data-ui])
-  :is(.ui-dashboard-navigation, .ui-dashboard-context):has(> .ui-collapsible),
-:where([data-ui])
-  .ui-dashboard-navigation:has(> .ui-sidebar-group > .ui-section) {
+  :is(.ui-dashboard-navigation, .ui-dashboard-context):has(
+    > .ui-collapsible:not(.ui-sidebar-group-panel)
+  ) {
   padding: 0;
 }
 /* Panels in side regions are compact, as the filter sections are. */
@@ -451,9 +451,34 @@
   --ui-field-gap: var(--ui-gap, 8px);
   padding: var(--ui-cell-padding-x, 8px);
 }
-:where([data-ui]) .ui-dashboard-navigation:has(> .ui-sidebar-group) {
+:where([data-ui])
+  .ui-dashboard-navigation:has(> .ui-sidebar-group, > .ui-sidebar-group-panel) {
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+}
+:where([data-ui])
+  .ui-dashboard-navigation:has(> .ui-sidebar-group):not(
+    :has(
+      > .ui-sidebar-group-panel,
+      > .ui-sidebar-group > .ui-sidebar-group-panel
+    )
+  ) {
   padding-inline: 0;
   padding-block: max(0px, calc(var(--_ui-sidebar-inset) - var(--ui-gap, 8px)));
+}
+:where([data-ui])
+  .ui-dashboard-navigation:has(
+    > .ui-sidebar-group-panel,
+    > .ui-sidebar-group > .ui-sidebar-group-panel
+  ) {
+  --_ui-sidebar-card-gap: 8px;
+  padding: var(--_ui-sidebar-card-gap);
+}
+:where([data-ui])
+  .ui-dashboard-navigation
+  > :is(.ui-sidebar-group:not([data-compact]), .ui-sidebar-group-panel)
+  + :is(.ui-sidebar-group:not([data-compact]), .ui-sidebar-group-panel) {
+  margin-block-start: var(--_ui-sidebar-card-gap);
 }
 :where([data-ui]) .ui-sidebar-group {
   --_ui-sidebar-row-height: calc(

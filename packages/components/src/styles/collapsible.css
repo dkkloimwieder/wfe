@@ -40,19 +40,27 @@
 
 /* A section holds form controls, filters or navigation links. */
 :where([data-ui]) .ui-collapsible.ui-section {
+  --_ui-section-heading-size: var(
+    --ui-sidebar-control-height,
+    var(--ui-control-height, 32px)
+  );
   /* Keep content margins inside the section when there is no border. */
   display: flow-root;
   border: 0;
   padding: 0;
   text-align: start;
 }
+:where([data-ui]) .ui-collapsible.ui-sidebar-group-panel {
+  --_ui-section-heading-size: calc(
+    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) -
+      2 * var(--ui-border-width, 1px)
+  );
+  border: var(--ui-border-width, 1px) solid var(--ui-control-border, #e5e5e5);
+}
 :where([data-ui]) .ui-collapsible.ui-section > summary {
   display: flex;
   align-items: center;
-  min-block-size: var(
-    --ui-sidebar-control-height,
-    var(--ui-control-height, 32px)
-  );
+  min-block-size: var(--_ui-section-heading-size);
   padding: 0;
   list-style: none;
   color: inherit;
@@ -73,7 +81,7 @@
   gap: var(--ui-gap, 8px);
   inline-size: 100%;
   min-inline-size: 0;
-  block-size: var(--ui-sidebar-control-height, var(--ui-control-height, 32px));
+  block-size: var(--_ui-section-heading-size);
   padding: 0;
   text-align: start;
 }
@@ -86,8 +94,8 @@
   justify-content: center;
   flex: none;
   padding: 0;
-  inline-size: var(--ui-sidebar-control-height, var(--ui-control-height, 32px));
-  block-size: var(--ui-sidebar-control-height, var(--ui-control-height, 32px));
+  inline-size: var(--_ui-section-heading-size);
+  block-size: var(--_ui-section-heading-size);
 }
 :where([data-ui]) .ui-section-label {
   flex: 1;
