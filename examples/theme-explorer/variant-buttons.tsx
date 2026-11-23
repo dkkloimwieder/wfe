@@ -5,7 +5,6 @@ import {
   IconButton,
   Toggle,
   ToggleGroup,
-  uiScope,
 } from '@wfe/components'
 import type { ButtonTone, ButtonVariant, IconName } from '@wfe/components'
 import {
@@ -99,19 +98,6 @@ export const buttonSpecimens = [
           actionStates,
           (state) => exampleButton(form, tone, treatment, state === 'disabled'),
         ),
-      ),
-    ),
-  ),
-  // Button has no size prop. These are the two public density overrides.
-  ...(['compact', 'comfortable'] as const).map((density) =>
-    specimen(
-      `button/size/${density}`,
-      `Button / ${density} density`,
-      actionStates,
-      (state) => (
-        <div {...uiScope(density)}>
-          <Button disabled={state === 'disabled'}>Save</Button>
-        </div>
       ),
     ),
   ),

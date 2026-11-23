@@ -1,6 +1,10 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
-import { paintDelta, readVariantPaint } from './variant-paint.mjs'
+import {
+  normalizeVariantBacking,
+  paintDelta,
+  readVariantPaint,
+} from './variant-paint.mjs'
 
 const roles = {
   actions: [
@@ -144,6 +148,7 @@ export async function measureVariants(page, url) {
     })
     await page.mouse.move(0, 0)
     await page.evaluate(() => document.fonts.ready)
+    await normalizeVariantBacking(page)
     await page.addScriptTag({
       content: `globalThis.readVariantPaint = ${readVariantPaint.toString()}`,
     })

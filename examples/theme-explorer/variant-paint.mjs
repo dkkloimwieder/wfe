@@ -1,3 +1,17 @@
+export function normalizeVariantBacking(page) {
+  // Give the inherited random angles fixed values on the backing alone.
+  // Keep measuring its computed transform, including any fixed transform.
+  return page.addStyleTag({
+    content: `
+      .variant-sample *::before {
+        --ui-action-angle: 0deg;
+        --ui-action-taper: 0deg;
+        --ui-action-taper-y: 0deg;
+      }
+    `,
+  })
+}
+
 // This function also runs in the browser through Playwright.
 export function readVariantPaint(element) {
   const properties = [

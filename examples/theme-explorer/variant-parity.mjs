@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict'
-import { paintDelta, readVariantPaint } from './variant-paint.mjs'
+import {
+  normalizeVariantBacking,
+  paintDelta,
+  readVariantPaint,
+} from './variant-paint.mjs'
 
 const targets = [
   'button:not(:disabled)',
@@ -114,6 +118,7 @@ export async function checkVariantParity(page, url) {
       state: 'attached',
       timeout: 45_000,
     })
+    await normalizeVariantBacking(page)
     await page.addStyleTag({
       content: `
         [data-variants-page] *, [data-variants-page] *::before, [data-variants-page] *::after {

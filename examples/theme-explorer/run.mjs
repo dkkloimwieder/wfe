@@ -604,6 +604,84 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       assert.deepEqual(report.warnings, [])
     })
 
+    await record('Variants use the gallery backing geometry', async () => {
+      await page.setViewportSize({ width: 1600, height: 1000 })
+      // The gallery allows up to 4.75 degrees before size reduction.
+      const maxAngle = 4.75
+      const targets = [
+        ['button/text/default/outline', '.ui-button'],
+        ['button/text/neutral/outline', '.ui-button'],
+        ['button/text/accent/outline', '.ui-button'],
+        ['button/icon/default/outline', '.ui-icon-button'],
+        ['button/icon/neutral/outline', '.ui-icon-button'],
+        ['button/icon/accent/outline', '.ui-icon-button'],
+        ['input/text', '[data-ui-control-surface]'],
+        ['number-input/default', '[data-ui-control-surface]'],
+        ['textarea/default', '[data-ui-control-surface]'],
+      ]
+      const restingTarget = (preset, [row, selector]) =>
+        page.locator(
+          `[data-preset="${preset}"][data-variant="${row}/rest"] ${selector}`,
+        )
+      const readBacking = (node) => {
+        const { content, transform } = getComputedStyle(node, '::before')
+        const matrix = new DOMMatrix(
+          transform === 'none' ? undefined : transform,
+        )
+        // The second column gives the planar rotation independently of taper.
+        const angle = Math.atan2(-matrix.m21, matrix.m22) * (180 / Math.PI)
+        return { content, transform, angle }
+      }
+      for (const mode of ['light', 'dark']) {
+        await page.mouse.move(0, 0)
+        await page.goto(
+          new URL(`?variants&mode=${mode}`, server.resolvedUrls.local[0]).href,
+        )
+        await page.locator('[data-variants-ready]').waitFor({ timeout: 45_000 })
+        await page.evaluate(() => document.fonts.ready)
+        const angles = []
+        for (const target of targets) {
+          const { content, transform, angle } = await restingTarget(
+            'default',
+            target,
+          ).evaluate(readBacking)
+          const detail = `${mode} Sketchy ${target[0]}: ${transform} (${angle}deg)`
+          assert.equal(content, '""', detail)
+          assert.ok(Math.abs(angle) > 0 && Math.abs(angle) <= maxAngle, detail)
+          angles.push(angle)
+          for (const preset of ['vanilla', 'laser']) {
+            const backing = await restingTarget(preset, target).evaluate(
+              readBacking,
+            )
+            assert.equal(
+              backing.content,
+              'none',
+              `${mode} ${preset} ${target[0]}`,
+            )
+            assert.equal(
+              backing.transform,
+              'none',
+              `${mode} ${preset} ${target[0]}`,
+            )
+          }
+        }
+        assert.ok(new Set(angles).size > 1, `${mode} Sketchy resting angles`)
+
+        const hoveredAngles = []
+        for (const target of [targets[0], targets[3], targets[6]]) {
+          const node = restingTarget('default', target)
+          await node.hover()
+          hoveredAngles.push((await node.evaluate(readBacking)).angle)
+          await page.mouse.move(0, 0)
+        }
+        assert.notDeepEqual(
+          hoveredAngles,
+          [angles[0], angles[3], angles[6]],
+          `${mode} Sketchy samples on hover`,
+        )
+      }
+    })
+
     await record('Variants share visible state changes by role', async () => {
       await page.setViewportSize({ width: 1600, height: 1000 })
       const modes = await measureVariants(page, server.resolvedUrls.local[0])

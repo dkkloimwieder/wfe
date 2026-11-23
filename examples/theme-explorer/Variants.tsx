@@ -23,20 +23,11 @@ const presets = (
 ).map(({ value, label }) => ({
   value,
   label,
-  options: {
-    ...galleryThemeOptions({
-      ...defaults,
-      preset: value,
-      layers: layersForPreset(value),
-    }),
-    // A random backing would change even between two resting specimens.
-    decorationGeometry: {
-      rotation: 0,
-      taperX: 0,
-      taperY: 0,
-      randomizeOnHover: false,
-    },
-  },
+  options: galleryThemeOptions({
+    ...defaults,
+    preset: value,
+    layers: layersForPreset(value),
+  }),
 }))
 
 const specimens = [
@@ -142,7 +133,7 @@ export function Variants() {
   })
 
   return (
-    <DefaultAppearance mode={mode()}>
+    <DefaultAppearance options={galleryThemeOptions(defaults)} mode={mode()}>
       <main data-variants-page ref={main} id="variants">
         <header class="variants-header">
           <a href="./">Theme explorer</a>
