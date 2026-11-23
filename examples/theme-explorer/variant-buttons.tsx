@@ -98,7 +98,6 @@ export const buttonSpecimens = [
           `${{ text: 'Button', icon: 'IconButton', 'icon-text': 'Button with icon', link: 'ButtonLink' }[form]} / ${tone} / ${treatment}`,
           actionStates,
           (state) => exampleButton(form, tone, treatment, state === 'disabled'),
-          { columns: 5 },
         ),
       ),
     ),
@@ -114,7 +113,6 @@ export const buttonSpecimens = [
           <Button disabled={state === 'disabled'}>Save</Button>
         </div>
       ),
-      { columns: 5 },
     ),
   ),
   specimen(
@@ -130,7 +128,6 @@ export const buttonSpecimens = [
         Pin
       </Toggle>
     ),
-    { columns: 7 },
   ),
   ...(['single', 'multiple'] as const).flatMap((selection) =>
     (['horizontal', 'vertical'] as const).map((orientation) =>
@@ -181,7 +178,6 @@ export const buttonSpecimens = [
           <Icon name={name} />
         </IconButton>
       ),
-      { columns: 5 },
     ),
   ]),
 ]

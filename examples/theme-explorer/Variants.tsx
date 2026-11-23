@@ -13,11 +13,21 @@ import { surfaceSpecimens } from './variant-surfaces'
 import type { Specimen, State } from './variant-types'
 import './variants.css'
 
-const presets = [
-  { value: 'default', label: 'Sketchy' },
-  { value: 'vanilla', label: 'Vanilla' },
-  { value: 'laser', label: 'Laser' },
-] as const
+const presets = (
+  [
+    { value: 'default', label: 'Sketchy' },
+    { value: 'vanilla', label: 'Vanilla' },
+    { value: 'laser', label: 'Laser' },
+  ] as const
+).map(({ value, label }) => ({
+  value,
+  label,
+  options: galleryThemeOptions({
+    ...defaults,
+    preset: value,
+    layers: layersForPreset(value),
+  }),
+}))
 
 const specimens = [...buttonSpecimens, ...fieldSpecimens, ...surfaceSpecimens]
 
@@ -124,61 +134,64 @@ export function Variants() {
             Dark mode
           </Button>
         </header>
-        <div
-          class="variants-grid"
-          style={{ '--variant-rows': specimens.length + 1 }}
-        >
-          <div class="variants-labels">
-            <div>Component and variant</div>
+        <table class="variants-grid" aria-label="Component variants">
+          <colgroup>
+            <col class="variants-labels" />
+            <For each={presets}>{() => <col class="variants-column" />}</For>
+          </colgroup>
+          <thead>
+            <tr>
+              <th scope="col">Component and variant</th>
+              <For each={presets}>
+                {(preset) => (
+                  <th scope="col" class="variants-preset">
+                    <DefaultAppearance
+                      options={preset.options}
+                      preset={preset.value}
+                      mode={mode()}
+                    >
+                      <h2>{preset.label}</h2>
+                    </DefaultAppearance>
+                  </th>
+                )}
+              </For>
+            </tr>
+          </thead>
+          <tbody>
             <For each={specimens}>
               {(entry) => (
-                <div
+                <tr
                   data-variant-row={entry.id}
                   data-variant-states={entry.states.join(' ')}
                 >
-                  {entry.label}
-                </div>
+                  <th scope="row">{entry.label}</th>
+                  <For each={presets}>
+                    {(preset) => (
+                      <td>
+                        <DefaultAppearance
+                          class="variant-states"
+                          options={preset.options}
+                          preset={preset.value}
+                          mode={mode()}
+                        >
+                          <For each={entry.states}>
+                            {(state) => (
+                              <VariantSample
+                                specimen={entry}
+                                state={state}
+                                preset={preset.value}
+                              />
+                            )}
+                          </For>
+                        </DefaultAppearance>
+                      </td>
+                    )}
+                  </For>
+                </tr>
               )}
             </For>
-          </div>
-          <For each={presets}>
-            {(preset) => (
-              <DefaultAppearance
-                class="variants-column"
-                options={galleryThemeOptions({
-                  ...defaults,
-                  preset: preset.value,
-                  layers: layersForPreset(preset.value),
-                })}
-                preset={preset.value}
-                mode={mode()}
-              >
-                <h2>{preset.label}</h2>
-                <For each={specimens}>
-                  {(entry) => (
-                    <div
-                      class="variant-states"
-                      style={{
-                        '--variant-states':
-                          entry.columns ?? entry.states.length,
-                      }}
-                    >
-                      <For each={entry.states}>
-                        {(state) => (
-                          <VariantSample
-                            specimen={entry}
-                            state={state}
-                            preset={preset.value}
-                          />
-                        )}
-                      </For>
-                    </div>
-                  )}
-                </For>
-              </DefaultAppearance>
-            )}
-          </For>
-        </div>
+          </tbody>
+        </table>
       </main>
     </DefaultAppearance>
   )

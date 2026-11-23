@@ -238,7 +238,7 @@ const colorPicker = (state: State) => (
 
 const choicesStates = [...editingStates, 'selected'] as const
 const popupTrigger = 'button[aria-haspopup]'
-const popupLayout = { columns: 1, openTrigger: popupTrigger }
+const popupLayout = { openTrigger: popupTrigger }
 
 export const fieldSpecimens = [
   specimen('input/text', 'Input / text', editingStates, (state) => (
@@ -310,7 +310,6 @@ export const fieldSpecimens = [
         `Select / ${variant} popup`,
         ['open'],
         (state) => <SelectSample state={state} multiple={multiple} />,
-        { columns: 1 },
       ),
       specimen(
         `combobox/${variant}`,
@@ -323,7 +322,6 @@ export const fieldSpecimens = [
         `Combobox / ${variant} popup`,
         ['open'],
         (state) => <ComboboxSample state={state} multiple={multiple} />,
-        { columns: 1 },
       ),
     ]
   }),
@@ -479,7 +477,6 @@ export const fieldSpecimens = [
         onValueChange={noop}
       />
     ),
-    { columns: 2 },
   ),
   ...([1, 2, 3] as const).map((numberOfMonths) =>
     specimen(
@@ -496,7 +493,6 @@ export const fieldSpecimens = [
           onValueChange={noop}
         />
       ),
-      { columns: numberOfMonths === 1 ? 2 : 1 },
     ),
   ),
   specimen('color-picker/hex', 'ColorPicker / hex', editingStates, colorPicker),

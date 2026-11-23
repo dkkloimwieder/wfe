@@ -140,24 +140,18 @@ export const surfaceSpecimens = [
       <Popover.Trigger disabled={state === 'disabled'}>Details</Popover.Trigger>
     </Popover>
   )),
-  specimen(
-    'popover/surface',
-    'Popover / surface',
-    ['open'],
-    () => (
-      <Popover open>
-        <Popover.Trigger>Details</Popover.Trigger>
-        <Popover.Portal>
-          <Popover.Content onOpenAutoFocus={preventFocus}>
-            <Popover.Title>Record details</Popover.Title>
-            <Popover.Description>Review the sample record.</Popover.Description>
-            <Popover.CloseButton>Close</Popover.CloseButton>
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover>
-    ),
-    { columns: 1 },
-  ),
+  specimen('popover/surface', 'Popover / surface', ['open'], () => (
+    <Popover open>
+      <Popover.Trigger>Details</Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content onOpenAutoFocus={preventFocus}>
+          <Popover.Title>Record details</Popover.Title>
+          <Popover.Description>Review the sample record.</Popover.Description>
+          <Popover.CloseButton>Close</Popover.CloseButton>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover>
+  )),
   specimen('tooltip/trigger', 'Tooltip / trigger', actionStates, (state) => (
     <Tooltip open={false}>
       <Tooltip.Trigger as={Button} disabled={state === 'disabled'}>
@@ -165,20 +159,14 @@ export const surfaceSpecimens = [
       </Tooltip.Trigger>
     </Tooltip>
   )),
-  specimen(
-    'tooltip/content',
-    'Tooltip / content',
-    ['open'],
-    () => (
-      <Tooltip open>
-        <Tooltip.Trigger as={Button}>More information</Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Content>View the sample record.</Tooltip.Content>
-        </Tooltip.Portal>
-      </Tooltip>
-    ),
-    { columns: 1 },
-  ),
+  specimen('tooltip/content', 'Tooltip / content', ['open'], () => (
+    <Tooltip open>
+      <Tooltip.Trigger as={Button}>More information</Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content>View the sample record.</Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip>
+  )),
   ...(['dropdown-menu', 'context-menu'] as const).flatMap((kind) => {
     const context = kind === 'context-menu'
     const name = context ? 'ContextMenu' : 'DropdownMenu'
@@ -210,21 +198,15 @@ export const surfaceSpecimens = [
         </Surface.Trigger>
       </Surface.Root>
     )),
-    specimen(
-      `${id}/surface`,
-      `${label} / surface`,
-      ['open'],
-      () => (
-        <Surface.Root open modal={false}>
-          <Surface.Content onOpenAutoFocus={preventFocus}>
-            <Surface.Title>Record details</Surface.Title>
-            <Surface.Description>Review the sample record.</Surface.Description>
-            <Surface.CloseButton>Close</Surface.CloseButton>
-          </Surface.Content>
-        </Surface.Root>
-      ),
-      { columns: 1 },
-    ),
+    specimen(`${id}/surface`, `${label} / surface`, ['open'], () => (
+      <Surface.Root open modal={false}>
+        <Surface.Content onOpenAutoFocus={preventFocus}>
+          <Surface.Title>Record details</Surface.Title>
+          <Surface.Description>Review the sample record.</Surface.Description>
+          <Surface.CloseButton>Close</Surface.CloseButton>
+        </Surface.Content>
+      </Surface.Root>
+    )),
   ]),
   specimen(
     'alert-dialog/trigger',

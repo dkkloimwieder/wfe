@@ -22,8 +22,6 @@ export type Specimen = {
   id: string
   label: string
   states: readonly State[]
-  /** Number of state slots across one preset column. */
-  columns?: number
   /** Open a composite control through its own trigger after mounting. */
   openTrigger?: string
   render: (state: State) => JSX.Element
@@ -40,7 +38,7 @@ export function specimen(
   label: string,
   states: readonly State[],
   render: Specimen['render'],
-  layout?: Pick<Specimen, 'columns' | 'openTrigger'>,
+  options?: Pick<Specimen, 'openTrigger'>,
 ): Specimen {
-  return { id, label, states, render, ...layout }
+  return { id, label, states, render, ...options }
 }

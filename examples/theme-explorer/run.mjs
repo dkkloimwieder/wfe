@@ -595,10 +595,139 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           'sheet/surface': '.ui-sheet',
         }
 
-        await page.setViewportSize({ width: 3600, height: 900 })
+        const ready = page.locator('[data-variants-ready]')
+        const presetHeaders = page.locator('.variants-preset > .ui-theme')
+        const headers = page
+          .locator('.variants-grid > thead')
+          .getByRole('columnheader', { name: /^(Sketchy|Vanilla|Laser)$/ })
+        async function capture(name) {
+          const path = fileURLToPath(new URL(`${name}.png`, screenshots))
+          await page.screenshot({
+            path,
+            fullPage: true,
+            animations: 'disabled',
+            timeout: 90_000,
+          })
+          return path
+        }
+
+        async function checkLayout(width, mode) {
+          await page.setViewportSize({ width, height: 1000 })
+          const geometry = await page.evaluate(
+            ({ presets, mode }) => {
+              const viewport = document.documentElement.clientWidth
+              const documentWidth = document.documentElement.scrollWidth
+              const inside = (inner, outer) =>
+                outer &&
+                inner.width > 0 &&
+                inner.left >= outer.left - 0.5 &&
+                inner.right <= outer.right + 0.5
+              const viewportBounds = { left: 0, right: viewport }
+              const columns = [...document.querySelectorAll('.variants-column')]
+              const headers = [
+                ...document.querySelectorAll(
+                  '.variants-preset[scope="col"] h2',
+                ),
+              ]
+              const problems = []
+              if (documentWidth !== viewport)
+                problems.push(
+                  `Document is ${documentWidth}px wide in a ${viewport}px viewport`,
+                )
+              const bounds = columns.map((column) =>
+                column.getBoundingClientRect(),
+              )
+              if (bounds.length !== presets.length)
+                return { problems: [`Found ${bounds.length} preset columns`] }
+              const label = document.querySelector('.variants-labels')
+              if (label.getBoundingClientRect().width * 2 >= bounds[0].width)
+                problems.push('Row labels take up too much space')
+              for (const [index, rect] of bounds.entries()) {
+                if (!inside(rect, viewportBounds))
+                  problems.push(
+                    `Column ${index + 1} runs from ${rect.left}px to ${rect.right}px`,
+                  )
+                if (Math.abs(rect.width - bounds[0].width) > 0.5)
+                  problems.push(`Column ${index + 1} is a different width`)
+              }
+              for (const [index, header] of headers.entries()) {
+                const text = document.createRange()
+                text.selectNodeContents(header)
+                const rect = header.closest('th').getBoundingClientRect()
+                const name = text.getBoundingClientRect()
+                if (
+                  !inside(rect, viewportBounds) ||
+                  !inside(name, rect) ||
+                  name.top < 0 ||
+                  name.bottom > innerHeight ||
+                  Math.abs(rect.left - bounds[index].left) > 0.5 ||
+                  Math.abs(rect.right - bounds[index].right) > 0.5
+                )
+                  problems.push(
+                    `${header.textContent.trim()} header is outside its column or viewport`,
+                  )
+              }
+              const scrollers = []
+              for (const cell of document.querySelectorAll('.variant-states')) {
+                const td = cell.parentElement.getBoundingClientRect()
+                const rect = cell.getBoundingClientRect()
+                const samples = [...cell.querySelectorAll('.variant-sample')]
+                const { preset, variant } = samples[0].dataset
+                const index = presets.indexOf(preset)
+                if (!inside(td, bounds[index]) || !inside(rect, td))
+                  problems.push(
+                    `${preset}/${variant}: cell is outside its column`,
+                  )
+                if (
+                  cell.dataset.uiPreset !== preset ||
+                  cell.dataset.uiMode !== mode
+                )
+                  problems.push(
+                    `${preset}/${variant}: cell has the wrong appearance`,
+                  )
+                for (const sample of samples)
+                  if (!inside(sample.getBoundingClientRect(), rect))
+                    problems.push(
+                      `${preset}/${sample.dataset.variant}: state slot is outside its cell`,
+                    )
+                if (cell.scrollWidth > cell.clientWidth) {
+                  const row = variant.slice(0, variant.lastIndexOf('/'))
+                  scrollers.push({ preset, row })
+                  cell.scrollLeft = cell.scrollWidth - cell.clientWidth
+                  if (
+                    cell.scrollLeft <= 0 ||
+                    getComputedStyle(cell).overflowX !== 'auto'
+                  )
+                    problems.push(
+                      `${preset}/${row}: overflowing cell cannot scroll sideways`,
+                    )
+                  cell.scrollLeft = 0
+                }
+              }
+              return { problems, scrollers }
+            },
+            { presets, mode },
+          )
+          assert.deepEqual(
+            geometry.problems.slice(0, 15),
+            [],
+            `${mode} ${width}px layout`,
+          )
+          await expect(headers).toHaveText(['Sketchy', 'Vanilla', 'Laser'])
+          await page.evaluate(() => window.scrollTo(0, 1000))
+          assert.equal(await page.evaluate(() => window.scrollY), 1000)
+          const headerRow = page.locator('.variants-grid > thead')
+          assert.equal((await headerRow.boundingBox()).y, 0)
+          for (const header of await headers.all())
+            await expect(header).toBeInViewport({ ratio: 1 })
+          await page.evaluate(() => window.scrollTo(0, 0))
+          return geometry.scrollers
+        }
+
+        await page.setViewportSize({ width: 1600, height: 1000 })
         await page.goto(server.resolvedUrls.local[0])
         await page.getByRole('link', { name: 'Variants', exact: true }).click()
-        await expect(page.locator('[data-variants-ready]')).toHaveCount(1)
+        await expect(ready).toHaveCount(1, { timeout: 45_000 })
         await expect(
           page.getByRole('link', { name: 'Theme explorer', exact: true }),
         ).toHaveAttribute('href', './')
@@ -615,38 +744,32 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
             await expect(toggle).toHaveAttribute('aria-pressed', 'true')
             await expect(page).toHaveURL(/mode=dark/)
             await expect(
-              page.locator('.variants-column[data-ui-mode=dark]'),
+              page.locator('.variants-preset > [data-ui-mode=dark]'),
             ).toHaveCount(3)
             await page.reload()
-            await expect(page.locator('[data-variants-ready]')).toHaveCount(1)
+            await expect(ready).toHaveCount(1, { timeout: 45_000 })
             await page.mouse.move(0, 0)
           }
-          const columns = page.locator('.variants-column')
-          await expect(columns).toHaveCount(3)
+          await page.evaluate(() => document.fonts.ready)
+          const layout = {}
+          for (const width of [1280, 1600]) {
+            layout[width] = { scrollers: await checkLayout(width, mode) }
+            if (width === 1280 && mode === 'light')
+              layout[width].path = await capture('light-1280')
+          }
           assert.deepEqual(
-            await columns.evaluateAll((nodes) =>
+            await presetHeaders.evaluateAll((nodes) =>
               nodes.map((node) => node.dataset.uiPreset),
             ),
             presets,
           )
-          await expect(
-            page.locator(`.variants-column[data-ui-mode="${mode}"]`),
-          ).toHaveCount(3)
-          await page.evaluate(() => document.fonts.ready)
+          for (const heading of await presetHeaders.all())
+            await expect(heading).toHaveAttribute('data-ui-mode', mode)
 
           const result = await page.evaluate(
             ({ presets, popupSelectors }) => {
               const rows = [...document.querySelectorAll('[data-variant-row]')]
-              const columns = [...document.querySelectorAll('.variants-column')]
               const cells = [...document.querySelectorAll('.variant-sample')]
-              const colCells = columns.map(
-                (column) =>
-                  new Map(
-                    [...column.querySelectorAll('.variant-sample')].map(
-                      (cell) => [cell.dataset.variant, cell],
-                    ),
-                  ),
-              )
               const problems = []
               const visible = (node) => {
                 if (!node?.checkVisibility({ visibilityProperty: true }))
@@ -659,15 +782,21 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
               for (const row of rows) {
                 const id = row.dataset.variantRow
                 const states = row.dataset.variantStates.split(' ')
+                const samples = new Map(
+                  [...row.querySelectorAll('.variant-sample')].map((sample) => [
+                    `${sample.dataset.preset}/${sample.dataset.variant}`,
+                    sample,
+                  ]),
+                )
                 groups.add(id.split('/')[0])
                 expectedCells += states.length * presets.length
+                const top = row.getBoundingClientRect().top
                 for (const state of states) {
                   const name = `${id}/${state}`
-                  const top = row.getBoundingClientRect().top
-                  for (const [index, preset] of presets.entries()) {
-                    const cell = colCells[index].get(name)
+                  for (const preset of presets) {
+                    const cell = samples.get(`${preset}/${name}`)
                     const content = cell?.querySelector('.variant-content')
-                    if (!visible(content) || cell.dataset.preset !== preset) {
+                    if (!visible(content)) {
                       problems.push(`${preset}/${name}: missing or hidden`)
                       continue
                     }
@@ -738,18 +867,12 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
           }
           assert.deepEqual(report.errors, [])
           assert.deepEqual(report.warnings, [])
-          const path = fileURLToPath(new URL(`${mode}.png`, screenshots))
-          await page.screenshot({
-            path,
-            fullPage: true,
-            animations: 'disabled',
-            timeout: 90_000,
-          })
           report.variants ??= {}
           report.variants[mode] = {
-            path,
+            path: await capture(mode),
             rows: result.rows,
             cells: result.cells,
+            layout,
           }
         }
       },
