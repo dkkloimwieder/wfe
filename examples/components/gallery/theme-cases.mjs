@@ -4,6 +4,151 @@ import { expect } from '@playwright/test'
 
 export async function galleryThemeCases({ page, url, record }) {
   await record(
+    'gallery: Sketchy sidebar cards stay within their scroll gutter',
+    async () => {
+      for (const scheme of [1, 2]) {
+        for (const [width, height] of [
+          [1600, 1000],
+          [1280, 800],
+        ]) {
+          const detail = `${scheme === 1 ? 'light' : 'dark'} ${width}×${height}`
+          await page.setViewportSize({ width, height })
+          await page.goto(`${url}?gallery&preset=default&scheme=${scheme}`)
+          const nav = page.getByRole('navigation', {
+            name: 'Component catalog',
+          })
+          const summaries = nav.locator('details > summary')
+          const handle = page.locator('.ui-dashboard-divider-toggle')
+          await expect(summaries).toHaveCount(7)
+          await page.mouse.move(width - 1, 0)
+          await expect(handle).toHaveCSS('outline-style', 'none')
+          await expect(handle).toHaveCSS('box-shadow', 'none')
+          const layout = () =>
+            nav.evaluate((node) => {
+              const style = getComputedStyle(node)
+              const frame = node.getBoundingClientRect()
+              const left = frame.left + node.clientLeft
+              const right = left + node.clientWidth
+              const top = frame.top + node.clientTop
+              const cards = [
+                ...node.querySelectorAll('.ui-sidebar-group > details'),
+              ]
+              let previous = top - node.scrollTop
+              const geometry = cards.map((card) => {
+                const box = card.getBoundingClientRect()
+                const style = getComputedStyle(card)
+                const result = {
+                  left: box.left - left,
+                  right: right - box.right,
+                  gap: box.top - previous,
+                  top: box.top,
+                  bottom: box.bottom,
+                  width: box.width,
+                  bordered: [
+                    style.borderTopWidth,
+                    style.borderRightWidth,
+                    style.borderBottomWidth,
+                    style.borderLeftWidth,
+                  ].every((value) => parseFloat(value) > 0),
+                }
+                previous = box.bottom
+                return result
+              })
+              return {
+                gutter: style.scrollbarGutter,
+                scrollbar: style.scrollbarWidth,
+                gutters: [
+                  node.clientLeft - parseFloat(style.borderLeftWidth),
+                  frame.right - right - parseFloat(style.borderRightWidth),
+                ],
+                paddingBottom: parseFloat(style.paddingBottom),
+                top,
+                bottom: top + node.clientHeight,
+                scrollTop: node.scrollTop,
+                geometry,
+              }
+            })
+          const initial = await layout()
+          assert.equal(initial.gutter, 'stable both-edges', detail)
+          assert.equal(initial.scrollbar, 'thin', detail)
+          assert.ok(
+            initial.gutters[0] > 0 && initial.gutters[0] === initial.gutters[1],
+            detail,
+          )
+          const columns = (state) =>
+            state.geometry.map(({ left, width }) => [left, width])
+          function checkGaps(state) {
+            assert.equal(state.paddingBottom, 8, detail)
+            for (const { left, right, gap, bordered } of state.geometry) {
+              assert.ok(
+                [left, right, gap].every((space) => Math.abs(space - 8) < 0.5),
+                `${detail} spacing: ${[left, right, gap]}`,
+              )
+              assert.ok(bordered, detail)
+            }
+          }
+          checkGaps(initial)
+
+          const header = nav.locator('details:not([open]) > summary').first()
+          // Keep a stable locator once the selected disclosure opens.
+          const index = await header.evaluate((node) =>
+            [
+              ...node.closest('nav').querySelectorAll('details > summary'),
+            ].indexOf(node),
+          )
+          const closed = summaries.nth(index)
+          const dotted = closed.locator('.ui-disclosure-decoration')
+          const arrow = closed.locator('.ui-disclosure-arrow')
+          await expect(dotted).toHaveCSS('opacity', '0')
+          await expect(arrow).toHaveCSS('visibility', 'visible')
+          await closed.hover()
+          await expect(dotted).toHaveCSS('opacity', '1')
+          await expect(arrow).toHaveCSS('visibility', 'hidden')
+          await expect
+            .poll(() =>
+              closed.evaluate((node) => {
+                const layer = getComputedStyle(node.parentElement, '::before')
+                return (
+                  layer.content !== 'none' &&
+                  Number(layer.opacity) > 0 &&
+                  layer.backgroundImage.includes('radial-gradient') &&
+                  layer.transform !== 'none'
+                )
+              }),
+            )
+            .toBe(true)
+          await closed.click()
+          await page.mouse.move(width - 1, 0)
+          await expect(dotted).toHaveCSS('scale', '0.9')
+          await expect(closed).toHaveCSS('box-shadow', 'none')
+          assert.deepEqual(columns(await layout()), columns(initial), detail)
+          await closed.click()
+          await page.mouse.move(width - 1, 0)
+          await expect(dotted).toHaveCSS('opacity', '0')
+          assert.deepEqual(columns(await layout()), columns(initial), detail)
+
+          for (const summary of await summaries.all()) {
+            if (!(await summary.evaluate((node) => node.parentElement.open)))
+              await summary.click()
+          }
+          await nav.evaluate((node) => {
+            node.scrollTop = node.scrollHeight
+          })
+          const expanded = await layout()
+          checkGaps(expanded)
+          const last = expanded.geometry.at(-1)
+          assert.ok(expanded.scrollTop > 0, detail)
+          assert.ok(
+            last.top >= expanded.top &&
+              Math.abs(expanded.bottom - last.bottom - 8) < 1,
+            `${detail} last open card: ${JSON.stringify({ last, expanded })}`,
+          )
+        }
+      }
+    },
+  )
+
+  await record(
     'gallery: theme audit nested owners isolate optional overrides and retain popup state',
     async () => {
       await page.goto(`${url}?gallery=themes&preset=vanilla`)

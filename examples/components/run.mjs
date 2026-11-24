@@ -151,7 +151,10 @@ await withArtifactRun(
         })
       }
       const url = process.env.BENCH_URL ?? server.url
-      browser = await launchBrowser({ chromium })
+      browser = await launchBrowser({
+        chromium,
+        launchOptions: { ignoreDefaultArgs: ['--hide-scrollbars'] },
+      })
       report.browser = browser.version()
       async function createPage() {
         const page = await browser.newPage({

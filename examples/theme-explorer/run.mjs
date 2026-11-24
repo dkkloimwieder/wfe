@@ -62,6 +62,55 @@ const stateExceptions = [
     matches: ({ state }) => state === 'closed',
   },
   {
+    name: 'Open disclosure headers',
+    reason:
+      'The disclosure glyph shows the expanded state. The header has no outer shadow.',
+    matches: ({ role, state, component }) =>
+      role === 'actions' &&
+      state === 'open' &&
+      component === 'ui-disclosure-trigger',
+  },
+  {
+    name: 'Sidebar card backing',
+    reason: 'The navigation card owns its dotted hover backing.',
+    matches: ({ preset, role, state, row, component }) =>
+      preset === 'default' &&
+      role === 'actions' &&
+      state === 'hover' &&
+      row.startsWith('sidebar-group/') &&
+      component === 'ui-disclosure-trigger',
+  },
+  {
+    name: 'Selected sidebar link backing',
+    reason:
+      'Sketchy marks the current link with a dotted backing and border.',
+    matches: ({ preset, role, state, row, component }) =>
+      preset === 'default' &&
+      role === 'actions' &&
+      state === 'selected' &&
+      row.startsWith('sidebar-group/') &&
+      component === 'a',
+  },
+  {
+    name: 'Invalid date range trigger border',
+    reason:
+      'The date range frame draws the field backing. Its trigger carries a matching error border.',
+    matches: ({ role, row, state, component }) =>
+      role === 'fields' &&
+      row === 'date-range-picker/default' &&
+      state === 'invalid' &&
+      component === 'ui-button',
+  },
+  {
+    name: 'Disabled filled buttons',
+    reason: 'Filled buttons share a disabled fill, border and text color.',
+    matches: ({ role, row, state }) =>
+      role === 'actions' &&
+      state === 'disabled' &&
+      row.startsWith('button/') &&
+      row.endsWith('/filled'),
+  },
+  {
     name: 'Calendar range underlay',
     reason: 'The continuous fill shows which dates fall between the two ends.',
     matches: ({ role, row, state }) =>
@@ -140,7 +189,10 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
     })
     browser = await launchBrowser({
       chromium,
-      launchOptions: { args: ['--no-sandbox'] },
+      launchOptions: {
+        args: ['--no-sandbox'],
+        ignoreDefaultArgs: ['--hide-scrollbars'],
+      },
     })
     const context = await browser.newContext({
       viewport: { width: 1440, height: 900 },
@@ -350,53 +402,61 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
       },
     )
 
-    await record('The token rail matches the table filter pane', async () => {
-      for (const preset of ['Sketchy', 'Vanilla', 'Laser']) {
-        await choose('Preset', preset)
-        const padding = []
-        for (const selector of [
-          '.ui-dashboard-navigation',
-          '.table-workspace-controls-body',
-        ]) {
-          const { gaps, content } = await page
-            .locator(selector)
-            .evaluate((rail) => {
-              const sections = [
-                ...rail.querySelectorAll(':scope > .ui-section'),
-              ]
-              const frame = rail.getBoundingClientRect()
-              const left = frame.left + rail.clientLeft
-              const right = left + rail.clientWidth
-              let previousBottom = frame.top + rail.clientTop - rail.scrollTop
-              const gaps = sections.map((section) => {
-                const box = section.getBoundingClientRect()
-                const gap = [
-                  box.left - left,
-                  right - box.right,
-                  box.top - previousBottom,
+    await record(
+      'The token rail has cards and the table filter pane stays flush',
+      async () => {
+        for (const preset of ['Sketchy', 'Vanilla', 'Laser']) {
+          await choose('Preset', preset)
+          const padding = []
+          for (const selector of [
+            '.ui-dashboard-navigation',
+            '.table-workspace-controls-body',
+          ]) {
+            const { gaps, content } = await page
+              .locator(selector)
+              .evaluate((rail) => {
+                const sections = [
+                  ...rail.querySelectorAll(':scope > .ui-section'),
                 ]
-                previousBottom = box.bottom
-                return gap
+                const frame = rail.getBoundingClientRect()
+                const left = frame.left + rail.clientLeft
+                const right = left + rail.clientWidth
+                let previousBottom = frame.top + rail.clientTop - rail.scrollTop
+                const gaps = sections.map((section) => {
+                  const box = section.getBoundingClientRect()
+                  const gap = [
+                    box.left - left,
+                    right - box.right,
+                    box.top - previousBottom,
+                  ]
+                  previousBottom = box.bottom
+                  return gap
+                })
+                return {
+                  gaps,
+                  content: getComputedStyle(
+                    sections[0].querySelector(
+                      ':scope > .ui-collapsible-content',
+                    ),
+                  ).padding,
+                }
               })
-              return {
-                gaps,
-                content: getComputedStyle(
-                  sections[0].querySelector(':scope > .ui-collapsible-content'),
-                ).padding,
-              }
-            })
-          const detail = `${preset} ${selector} ${JSON.stringify(gaps)}`
-          assert.ok(gaps.length > 2, detail)
-          assert.ok(
-            gaps.flat().every((gap) => Math.abs(gap) < 0.5),
-            detail,
-          )
-          padding.push(content)
+            const detail = `${preset} ${selector} ${JSON.stringify(gaps)}`
+            assert.ok(gaps.length > 2, detail)
+            assert.ok(
+              gaps.flat().every((gap) => {
+                const expected = selector === '.ui-dashboard-navigation' ? 8 : 0
+                return Math.abs(gap - expected) < 0.5
+              }),
+              detail,
+            )
+            padding.push(content)
+          }
+          assert.equal(padding[0], padding[1], preset)
         }
-        assert.equal(padding[0], padding[1], preset)
-      }
-      await choose('Preset', 'Sketchy')
-    })
+        await choose('Preset', 'Sketchy')
+      },
+    )
 
     await record(
       'Section and table band decoration paints in view and on top',
@@ -409,10 +469,26 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
             for (const section of document.querySelectorAll('.ui-section')) {
               const name = section.querySelector('summary').textContent.trim()
               const face = getComputedStyle(section)
-              if (getComputedStyle(section, '::before').content !== 'none')
-                problems.push(`${name}: section has a decoration layer`)
-              if (face.outlineStyle !== 'none' || face.borderStyle !== 'none')
-                problems.push(`${name}: section has a frame`)
+              const card = section.classList.contains('ui-sidebar-group-panel')
+              const decorated = Boolean(
+                card &&
+                section
+                  .closest('[data-ui-tokens]')
+                  ?.hasAttribute('data-ui-decoration'),
+              )
+              const hasLayer =
+                getComputedStyle(section, '::before').content !== 'none'
+              if (hasLayer !== decorated)
+                problems.push(
+                  `${name}: unexpected decoration layer (${hasLayer})`,
+                )
+              if (
+                face.outlineStyle !== 'none' ||
+                (face.borderStyle === 'solid') !== card
+              )
+                problems.push(
+                  `${name}: unexpected section frame (${face.borderStyle})`,
+                )
             }
             const header = document.querySelector('.table-workspace-header')
             header.scrollIntoView({ block: 'nearest' })
@@ -539,7 +615,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
     )
 
     await record(
-      'Sketchy sections keep the open indicator distinct from hover',
+      'Sketchy sections show the dotted indicator on hover, focus and open',
       async () => {
         const section = page
           .getByRole('navigation', { name: 'Theme tokens' })
@@ -556,26 +632,40 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
             return {
               opacity: style.opacity,
               arrow: getComputedStyle(arrow).visibility,
+              scale: style.scale,
             }
           })
         if (await section.evaluate((node) => node.open)) await summary.click()
         await page.mouse.move(0, 0)
         const normal = await appearance()
-        assert.deepEqual(normal, { opacity: '0', arrow: 'visible' })
+        assert.deepEqual(normal, {
+          opacity: '0',
+          arrow: 'visible',
+          scale: 'none',
+        })
 
+        const revealed = { opacity: '1', arrow: 'hidden', scale: 'none' }
         await summary.hover()
-        assert.deepEqual(await appearance(), normal)
+        assert.deepEqual(await appearance(), revealed)
+        await page.mouse.move(0, 0)
+        await page.keyboard.press('Shift')
+        await summary.focus()
+        await expect(summary.and(page.locator(':focus-visible'))).toBeFocused()
+        assert.deepEqual(await appearance(), revealed)
 
         await summary.click()
         await expect(section).toHaveAttribute('open', '')
         await page.mouse.move(0, 0)
+        await expect(summary).toHaveCSS('box-shadow', 'none')
         assert.deepEqual(await appearance(), {
           opacity: '1',
           arrow: 'hidden',
+          scale: '0.9',
         })
 
         await summary.click()
         await expect(section).not.toHaveAttribute('open')
+        await summary.evaluate((node) => node.blur())
         await page.mouse.move(0, 0)
         assert.deepEqual(await appearance(), normal)
       },
@@ -637,13 +727,26 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
               preset,
               roles: ['primary', 'secondary', 'accent'].map((role) => {
                 const focus = paint(preset, role, 'focus')
+                const rest = paint(preset, role, 'rest')
+                const disabled = paint(preset, role, 'disabled')
+                const surface = rest.getPropertyValue('--ui-surface')
                 return {
                   role,
                   ring: channels(focus.outlineColor),
                   ringVisible:
                     focus.outlineStyle !== 'none' &&
                     parseFloat(focus.outlineWidth) > 0,
-                  fill: channels(paint(preset, role, 'rest').backgroundColor),
+                  fill: channels(rest.backgroundColor),
+                  surface: channels(surface),
+                  disabledFill: channels(disabled.backgroundColor),
+                  disabledBorder: channels(disabled.borderTopColor),
+                  disabledText: channels(disabled.color),
+                  expectedDisabledFill: channels(
+                    disabled.getPropertyValue('--ui-disabled-fill'),
+                  ),
+                  expectedDisabledText: channels(
+                    disabled.getPropertyValue('--ui-disabled-fill-text'),
+                  ),
                 }
               }),
             }))
@@ -651,7 +754,8 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
 
           for (const { preset, roles } of samples) {
             const hues = []
-            for (const { role, ring, ringVisible, fill } of roles) {
+            for (const sample of roles) {
+              const { role, ring, ringVisible, fill, surface } = sample
               const [red, green, blue, alpha] = ring
               const detail = `${preset} ${mode} ${role}`
               assert.ok(ringVisible && alpha > 0, `${detail} ring is visible`)
@@ -664,6 +768,44 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                 opacity > 0 && Math.max(r, g, b) > Math.min(r, g, b),
                 `${detail} fill has a hue: ${fill}`,
               )
+              assert.deepEqual(
+                sample.disabledFill,
+                sample.expectedDisabledFill,
+                `${detail} disabled fill`,
+              )
+              assert.deepEqual(
+                sample.disabledBorder,
+                sample.expectedDisabledFill,
+                `${detail} disabled border`,
+              )
+              assert.deepEqual(
+                sample.disabledText,
+                sample.expectedDisabledText,
+                `${detail} disabled text`,
+              )
+              if (mode === 'dark') {
+                const max = Math.max(r, g, b) / 255
+                const min = Math.min(r, g, b) / 255
+                const lightness = (max + min) / 2
+                const saturation =
+                  (max - min) / (1 - Math.abs(2 * lightness - 1))
+                assert.ok(
+                  saturation > 0.5 && lightness < 0.85,
+                  `${detail} is a saturated midtone: ${fill}`,
+                )
+                const luminance = (color) => {
+                  const [r, g, b] = color.map((value) => {
+                    const channel = value / 255
+                    return channel <= 0.04045
+                      ? channel / 12.92
+                      : ((channel + 0.055) / 1.055) ** 2.4
+                  })
+                  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+                }
+                const contrast =
+                  (luminance(fill) + 0.05) / (luminance(surface) + 0.05)
+                assert.ok(contrast >= 3, `${detail} contrast is ${contrast}:1`)
+              }
               const hue = Math.atan2(Math.sqrt(3) * (g - b), 2 * r - g - b)
               for (const other of hues) {
                 const distance = Math.acos(Math.cos(hue - other))
@@ -675,6 +817,167 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
               hues.push(hue)
             }
           }
+        }
+      },
+    )
+
+    await record(
+      'Variants keep native field scrollbars inside their frames',
+      async () => {
+        for (const mode of ['light', 'dark']) {
+          await openVariants(page, explorerUrl, 'inputs', mode)
+          for (const preset of ['default', 'vanilla', 'laser']) {
+            const detail = `${preset} ${mode}`
+            const select = page.locator(
+              `[data-preset="${preset}"][data-variant="native-select/multiple/rest"] select`,
+            )
+            const measure = (control) =>
+              control.evaluate((node) => {
+                const style = getComputedStyle(node)
+                const frame = getComputedStyle(node.parentElement)
+                const bounds = node.parentElement.getBoundingClientRect()
+                const inner = node.getBoundingClientRect()
+                const scrollbarWidth = node.offsetWidth - node.clientWidth
+                const radius = parseFloat(frame.borderTopRightRadius)
+                const usedRadius = Math.min(
+                  radius,
+                  bounds.width / 2,
+                  bounds.height / 2,
+                )
+                const border = parseFloat(frame.borderRightWidth)
+                // Chromium uses a classic scrollbar here. Test all corners of the
+                // track, including the two furthest into the outer corner curves.
+                const inside = [
+                  [inner.right, inner.top],
+                  [inner.right, inner.bottom],
+                  [inner.right - scrollbarWidth, inner.top],
+                  [inner.right - scrollbarWidth, inner.bottom],
+                ].every(([x, y]) => {
+                  const left = x - bounds.left
+                  const right = bounds.right - x
+                  const top = y - bounds.top
+                  const bottom = bounds.bottom - y
+                  const dx = Math.max(0, usedRadius - Math.min(left, right))
+                  const dy = Math.max(0, usedRadius - Math.min(top, bottom))
+                  return (
+                    Math.min(left, right, top, bottom) > border &&
+                    Math.hypot(dx, dy) <=
+                      Math.max(0, usedRadius - border) + 0.01
+                  )
+                })
+                const muted = document.createElement('span')
+                muted.style.color = 'var(--ui-muted-text)'
+                node.parentElement.append(muted)
+                const scrollbarColor = `${getComputedStyle(muted).color} rgba(0, 0, 0, 0)`
+                muted.remove()
+                return {
+                  radius,
+                  overflow: style.overflowY,
+                  thin: style.scrollbarWidth === 'thin',
+                  muted: style.scrollbarColor === scrollbarColor,
+                  scrolls: node.scrollHeight > node.clientHeight,
+                  scrollbarWidth,
+                  inside,
+                }
+              })
+            const initial = await measure(select)
+            const { radius } = initial
+            assert.equal(radius === 0, preset !== 'vanilla', detail)
+            assert.deepEqual(
+              initial,
+              {
+                radius,
+                overflow: 'auto',
+                thin: true,
+                muted: true,
+                scrolls: false,
+                scrollbarWidth: 0,
+                inside: true,
+              },
+              detail,
+            )
+            await select.evaluate((node) => {
+              for (let i = 0; i < 8; i++) node.add(new Option(`Team ${i + 4}`))
+            })
+            await expect
+              .poll(() => measure(select), { message: detail })
+              .toMatchObject({
+                radius,
+                overflow: 'auto',
+                thin: true,
+                muted: true,
+                scrolls: true,
+                inside: true,
+              })
+            assert.ok((await measure(select)).scrollbarWidth > 0, detail)
+
+            const notes = page.locator(
+              `[data-preset="${preset}"][data-variant="textarea/default/rest"] textarea`,
+            )
+            assert.equal((await measure(notes)).scrollbarWidth, 0, detail)
+            await notes.evaluate((node) => {
+              node.value = 'A long note\n'.repeat(12)
+            })
+            const multiline = await measure(notes)
+            assert.ok(
+              multiline.inside &&
+                multiline.muted &&
+                multiline.thin &&
+                multiline.radius === radius &&
+                multiline.scrollbarWidth > 0,
+              detail,
+            )
+          }
+        }
+      },
+    )
+
+    await record(
+      'Sketchy date ranges use invalid field decoration',
+      async () => {
+        for (const mode of ['light', 'dark']) {
+          await openVariants(page, explorerUrl, 'inputs', mode)
+          const trigger = page.locator(
+            '[data-preset="default"][data-variant="date-range-picker/default/invalid"] button[aria-haspopup]',
+          )
+          await expect(trigger).toHaveAttribute('aria-invalid', 'true')
+          const paint = await trigger.evaluate((node) => {
+            const frame = node.closest('.ui-date-range-picker')
+            const layer = getComputedStyle(frame, '::before')
+            const style = getComputedStyle(node)
+            const sample = document.createElement('span')
+            frame.append(sample)
+            function color(value) {
+              sample.style.color = value
+              return getComputedStyle(sample).color
+            }
+            const error = color('var(--ui-error)')
+            const errorToken = style.getPropertyValue('--ui-error').trim()
+            const edge = color(
+              'color-mix(in srgb, var(--ui-error) var(--ui-decoration-border-opacity), transparent)',
+            )
+            sample.remove()
+            return {
+              visible:
+                layer.content !== 'none' &&
+                layer.display !== 'none' &&
+                Number(layer.opacity) > 0,
+              redDots:
+                layer.backgroundImage.includes('radial-gradient') &&
+                layer.getPropertyValue('--_ui-dots').trim() ===
+                  errorToken,
+              face: style.borderTopColor,
+              backing: layer.borderTopColor,
+              error,
+              edge,
+            }
+          })
+          assert.ok(
+            paint.visible && paint.redDots,
+            `${mode}: ${JSON.stringify(paint)}`,
+          )
+          assert.equal(paint.face, paint.error, mode)
+          assert.equal(paint.backing, paint.edge, mode)
         }
       },
     )
