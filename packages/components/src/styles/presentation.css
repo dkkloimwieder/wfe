@@ -57,16 +57,28 @@
   box-shadow: var(--ui-panel-shadow);
 }
 
-/* Default-tone outline buttons use the neutral foreground in every preset. */
 :where([data-ui-tokens])
-  .ui-button[data-variant='outline'][data-tone='default'] {
-  color: var(--ui-text);
-  border-color: color-mix(
+  :where(
+    .ui-button[data-variant='outline'][data-tone='default'],
+    .ui-control-frame[data-ui-control-surface],
+    .ui-input-affix,
+    .ui-input-group,
+    .choice-control,
+    .popup-trigger
+  ) {
+  --_ui-outline-border: color-mix(
     in srgb,
     var(--ui-button-color, var(--ui-button-border))
       var(--ui-outline-primary-weight),
     var(--ui-control-border)
   );
+}
+
+/* Default-tone outline buttons use the neutral foreground in every preset. */
+:where([data-ui-tokens])
+  .ui-button[data-variant='outline'][data-tone='default'] {
+  color: var(--ui-text);
+  border-color: var(--_ui-outline-border);
 }
 
 /* Field shapes */
@@ -299,7 +311,10 @@
         :has(:is(input, select, textarea):disabled)
       ) {
       color: var(--ui-disabled-text, #919191);
-      background-color: var(--ui-muted-surface, #fcfcfd);
+      background-color: var(
+        --_ui-field-surface,
+        var(--ui-muted-surface, #fcfcfd)
+      );
     }
 
     &:is([data-readonly], :has(:is(input, textarea)[readonly])) {

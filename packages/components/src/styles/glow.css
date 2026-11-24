@@ -85,7 +85,9 @@
             ),
           transparent
         );
-    --_ui-laser-glow: var(--_ui-laser-inset-glow), var(--_ui-laser-outer-glow);
+    --_ui-laser-action-glow:
+      var(--_ui-laser-inset-glow), var(--_ui-laser-outer-glow);
+    --_ui-laser-glow: var(--_ui-laser-action-glow);
     --_ui-laser-text-glow: 0 0 var(--ui-laser-text-glow-blur)
       color-mix(
         in srgb,

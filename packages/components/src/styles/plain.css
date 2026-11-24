@@ -128,3 +128,132 @@
     }
   }
 }
+
+/* The outline action and field frame share one face in the plain presets. */
+@scope ([data-ui-tokens]:not([data-ui-decoration])) to ([data-ui-tokens]) {
+  @media (forced-colors: none) {
+    :scope
+      :is(
+        .ui-control-frame[data-ui-control-surface],
+        .ui-input-affix,
+        .choice-control,
+        .ui-input-group,
+        .popup-trigger:where(
+          :not(
+            :is(
+                .ui-input-affix,
+                .choice-control,
+                .ui-input-group,
+                .filter-input
+              )
+              *
+          )
+        )
+      ) {
+      --_ui-field-surface: var(--ui-surface);
+      --_ui-outline-shadow: none;
+      --_ui-outline-open-shadow: 0 0 transparent;
+      border: var(--ui-control-border-width, var(--ui-border-width, 1px)) solid
+        var(--_ui-outline-border);
+      background-color: var(--_ui-field-surface);
+      background-image: none;
+      box-shadow: var(--_ui-outline-shadow);
+
+      /* An expanded inline Command list does not have a popup. */
+      &:is(
+        [aria-haspopup][aria-expanded='true'],
+        :has([aria-haspopup][aria-expanded='true'])
+      ) {
+        --_ui-outline-open-shadow: var(--ui-state-open-shadow);
+        --_ui-outline-shadow: var(--_ui-outline-open-shadow);
+      }
+
+      &:hover:where(
+          :not(
+            :disabled,
+            [data-disabled],
+            [aria-disabled='true'],
+            [data-readonly],
+            :has(
+              :is(input, select, textarea, .ui-affix-trigger):is(
+                  :disabled,
+                  [readonly],
+                  [data-readonly],
+                  [aria-disabled='true']
+                ):not([type='hidden'])
+            )
+          )
+        ) {
+        background-image: var(--ui-action-hover-fill);
+        --_ui-outline-shadow:
+          0 0 transparent,
+          var(
+            --ui-action-hover-shadow,
+            var(--ui-laser-glow, var(--_ui-laser-action-glow, 0 0 transparent))
+          ),
+          var(--_ui-outline-open-shadow);
+      }
+
+      &:is([data-readonly], :has(:is(input, textarea)[readonly])) {
+        background-color: var(--ui-muted-surface);
+        box-shadow: var(--ui-state-readonly-shadow);
+      }
+
+      &:is(
+        [aria-invalid='true'],
+        [data-invalid],
+        :has(
+          :is(input, select, textarea, .ui-affix-trigger)[aria-invalid='true']
+        )
+      ) {
+        --_ui-laser-glow-color: var(--ui-error);
+        --_ui-laser-glow-elevation: 0 0 transparent;
+        border-color: var(--ui-error);
+        box-shadow: var(
+          --ui-laser-glow,
+          var(--_ui-laser-action-glow, var(--_ui-outline-shadow))
+        );
+      }
+    }
+
+    :scope .ui-input-group {
+      align-items: stretch;
+      gap: 0;
+    }
+
+    /* Transparent parts let the frame paint through across the entire field. */
+    :scope
+      :is(
+        .ui-control-frame[data-ui-control-surface],
+        .ui-input-affix,
+        .choice-control,
+        .ui-input-group
+      )
+      > :is(input, select, textarea, button, .ui-button, .popup-trigger),
+    :scope .ui-input-affix > .ui-select-field > .popup-trigger {
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    :scope
+      :is(.ui-input-affix, .choice-control, .ui-input-group)
+      > :is(button, .ui-button):hover:not(
+        .ui-affix-trigger,
+        .popup-trigger,
+        :disabled,
+        [data-disabled],
+        [aria-disabled='true'],
+        [data-readonly]
+      ) {
+      background-image: var(--ui-action-hover-fill);
+      box-shadow:
+        0 0 transparent,
+        var(
+          --ui-action-hover-shadow,
+          var(--ui-laser-glow, var(--_ui-laser-action-glow, 0 0 transparent))
+        ),
+        0 0 transparent;
+    }
+  }
+}
