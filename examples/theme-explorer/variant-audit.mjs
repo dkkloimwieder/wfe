@@ -82,7 +82,12 @@ function collectSamples(roles) {
     return seenStyles.get(signature)
   }
   for (const sample of document.querySelectorAll('.variant-sample')) {
-    const { preset, variantState: state, variant } = sample.dataset
+    const {
+      preset,
+      variantState: state,
+      variant,
+      variantStateTarget,
+    } = sample.dataset
     const row = variant.slice(0, variant.lastIndexOf('/'))
     for (const [role, selectors] of Object.entries(roles)) {
       const matches = sample.querySelectorAll(selectors.join(', '))
@@ -96,6 +101,7 @@ function collectSamples(roles) {
           role,
           row,
           state,
+          targeted: !variantStateTarget || node.matches(variantStateTarget),
           index,
           component: component || node.getAttribute('role') || node.localName,
           label:
@@ -332,6 +338,8 @@ export function variantStateGroups(modes, exceptions = []) {
     for (const entry of entries) {
       const { preset, role, state, row, index, component, delta } = entry
       if (delta === undefined) continue
+      if (entry.targeted === false && ['hover', 'focus'].includes(state))
+        continue
       const baseline =
         baselines.get(identity(entry)) ??
         baselines.get(identity({ ...entry, row: entry.baselineRow }))

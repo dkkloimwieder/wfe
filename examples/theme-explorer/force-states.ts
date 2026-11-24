@@ -1,5 +1,5 @@
 const pseudoClass =
-  /\\.|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|::[\w-]+|:(hover|focus-visible|focus-within|focus|active)(?![\w-])/g
+  /\\.|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|::[\w-]+|:(hover|focus-visible|focus-within|focus)(?![\w-])/g
 
 /** Add a synthetic match without changing the declarations or the cascade. */
 export function installForcedStateRules(document: Document) {
@@ -50,7 +50,7 @@ export function installForcedStateRules(document: Document) {
   }
 }
 
-export type ForcedState = 'hover' | 'focus' | 'pressed'
+export type ForcedState = 'hover' | 'focus' | 'pressed' | 'disabled'
 
 export function forceState(
   sample: HTMLElement,
@@ -60,14 +60,20 @@ export function forceState(
   const focusable =
     'button, a[href], summary, input:not([type="hidden"], [type="file"]), textarea, select, [tabindex], [role="option"]'
   const pointer = '.ui-check-control, .ui-radio-control, .ui-switch-control'
+  const stateTarget = sample.dataset.variantStateTarget
 
-  const attributes = {
-    hover: ['data-force-hover'],
-    focus: ['data-force-focus-within'],
-    pressed: ['data-force-hover', 'data-force-active'],
-  }[state]
+  if (state === 'disabled') {
+    const target = stateTarget && sample.querySelector<HTMLElement>(stateTarget)
+    if (target) {
+      target.setAttribute('aria-disabled', 'true')
+      target.tabIndex = -1
+    }
+    return
+  }
+  const ancestorAttribute =
+    state === 'hover' ? 'data-force-hover' : 'data-force-focus-within'
   for (const target of sample.querySelectorAll(
-    state === 'focus' ? focusable : `${focusable}, ${pointer}`,
+    stateTarget ?? (state === 'focus' ? focusable : `${focusable}, ${pointer}`),
   )) {
     const closed = target.closest('details:not([open])')
     if (
@@ -80,12 +86,17 @@ export function forceState(
       target.setAttribute('data-force-focus', '')
       target.setAttribute('data-force-focus-visible', '')
     }
+    if (state === 'pressed') {
+      // A pressed specimen marks its target and uses resting paint.
+      target.setAttribute('data-force-active', '')
+      continue
+    }
     for (
       let node: Element | null = target;
       node && node !== sample;
       node = node.parentElement
     ) {
-      for (const attribute of attributes) node.setAttribute(attribute, '')
+      node.setAttribute(ancestorAttribute, '')
     }
     if (state === 'focus' && !auditAllFocusTargets) break
   }

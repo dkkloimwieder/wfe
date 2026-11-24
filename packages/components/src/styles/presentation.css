@@ -26,7 +26,14 @@
   border-radius: var(--ui-control-radius, var(--ui-radius));
 }
 [data-ui-tokens]
-  :is(.ui-card, .ui-field-group, .ui-field-set, .ui-entry-panel-surface) {
+  :is(
+    .ui-card,
+    .ui-field-group,
+    .ui-field-set,
+    .ui-entry-panel-surface,
+    .ui-collapsible,
+    .ui-accordion
+  ) {
   border-radius: var(--ui-panel-radius, var(--ui-radius));
 }
 [data-ui-tokens] .ui-entry-panel-surface::after {

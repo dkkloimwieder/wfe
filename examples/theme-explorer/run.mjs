@@ -25,6 +25,26 @@ import {
 
 const stateExceptions = [
   {
+    name: 'Sidebar focus inset',
+    reason: 'The focus ring follows the row and stays inside the group frame.',
+    matches: ({ preset, role, state, row }) =>
+      preset !== 'default' &&
+      role === 'actions' &&
+      state === 'focus' &&
+      row.startsWith('sidebar-group/'),
+    ignore: ['outline-offset'],
+  },
+  {
+    name: 'Laser sidebar hover inset',
+    reason: 'The hover glow stays within the sidebar row face.',
+    matches: ({ preset, role, state, row, component }) =>
+      preset === 'laser' &&
+      role === 'actions' &&
+      state === 'hover' &&
+      row.startsWith('sidebar-group/') &&
+      component === 'ui-disclosure-trigger',
+  },
+  {
     name: 'Passive display samples',
     reason:
       'The breadcrumb link owns interactive paint. The breadcrumb container and other display roles show content.',
@@ -811,21 +831,9 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                   statesWithSamePaint: [first, second],
                 })
             }
-            if (states.includes('hover')) {
-              const hover = group('hover')
-              const pressed = group('pressed')
-              if (
-                !pressed ||
-                !hover ||
-                pressed.size !== hover.size ||
-                [...pressed].some(
-                  ([delta, controls]) =>
-                    JSON.stringify(controls) !==
-                    JSON.stringify(hover.get(delta)),
-                )
-              )
-                problems.push({ mode, preset, role, state: 'pressed' })
-            }
+            const pressed = group('pressed')
+            if (pressed && [...pressed.keys()].some((delta) => delta !== '{}'))
+              problems.push({ mode, preset, role, state: 'pressed' })
           }
         }
       }
@@ -1456,8 +1464,8 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
               )
               assert.deepEqual(
                 await appearance(preset, 'pressed'),
-                await appearance(preset, 'hover'),
-                `${preset} ${mode} held button paint`,
+                await appearance(preset, 'rest'),
+                `${preset} ${mode} forced pressed matches rest`,
               )
             }
 

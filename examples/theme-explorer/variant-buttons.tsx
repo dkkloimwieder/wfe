@@ -31,6 +31,7 @@ import {
 const noop = () => {}
 const preventDefault = (event: Event) => event.preventDefault()
 const disclosureStates = [...interactiveStates, 'open', 'closed'] as const
+const sidebarHeaderTarget = { stateTarget: '.ui-sidebar-group-panel > summary' }
 const commandItems = [
   {
     id: 'copy',
@@ -322,7 +323,7 @@ export const specimens = [
       `sidebar-group/${kind}`,
       `SidebarGroup / ${kind}`,
       [
-        ...interactiveStates,
+        ...(kind === 'inline' ? actionStates : interactiveStates),
         'closed',
         'selected',
         ...(kind === 'inline' ? ['open' as const] : []),
@@ -332,18 +333,23 @@ export const specimens = [
           label="Records"
           compact={kind !== 'inline'}
           behavior={kind === 'expand' ? 'expand' : 'flyout'}
-          open={state === 'open'}
-          active={state === 'selected'}
+          open={state === 'open' || (kind === 'inline' && state === 'selected')}
+          active={kind !== 'inline' && state === 'selected'}
           onOpenChange={noop}
           onExpand={noop}
         >
           {() => (
-            <a href="#variants" onClick={preventDefault}>
+            <a
+              href="#variants"
+              aria-current={state === 'selected' ? 'page' : undefined}
+              onClick={preventDefault}
+            >
               All records
             </a>
           )}
         </SidebarGroup>
       ),
+      kind === 'inline' ? sidebarHeaderTarget : undefined,
     ),
   ),
   ...([false, true] as const).map((compact) =>
@@ -413,8 +419,6 @@ export const specimens = [
           <a
             href="#variants"
             aria-current={state === 'selected' ? 'page' : undefined}
-            aria-disabled={state === 'disabled' ? 'true' : undefined}
-            tabindex={state === 'disabled' ? -1 : undefined}
             onClick={(event) => event.preventDefault()}
           >
             All records
@@ -422,6 +426,7 @@ export const specimens = [
         )}
       </SidebarGroup>
     ),
+    sidebarHeaderTarget,
   ),
   specimen(
     'tree/items',

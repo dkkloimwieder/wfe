@@ -28,6 +28,8 @@ export type Specimen = {
   openTrigger?: string
   /** Resting row for a specimen that only exists with its popup open. */
   baseline?: string
+  /** Row to use when a specimen shows more than one interactive target. */
+  stateTarget?: string
   render: (state: State) => JSX.Element
 }
 
@@ -53,7 +55,7 @@ export function specimen(
   label: string,
   states: readonly State[],
   render: Specimen['render'],
-  options?: Pick<Specimen, 'openTrigger' | 'baseline'>,
+  options?: Pick<Specimen, 'openTrigger' | 'baseline' | 'stateTarget'>,
 ): Specimen {
   return { id, label, states, render, ...options }
 }

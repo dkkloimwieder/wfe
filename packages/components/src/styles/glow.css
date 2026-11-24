@@ -117,6 +117,11 @@
       );
   }
   @media (forced-colors: none) {
+    /* Keep each sidebar row's glow within its own face. */
+    :scope .ui-sidebar-group-panel > summary,
+    :scope .ui-sidebar-group-panel .ui-dashboard-menu > a {
+      --ui-laser-glow: var(--_ui-laser-inset-glow);
+    }
     /* A compound frame owns the halo. The inset is painted on each face. */
     :scope
       :is(

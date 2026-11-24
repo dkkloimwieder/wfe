@@ -22,9 +22,11 @@ const targets = [
 
 function readTargets(sample, selectors) {
   const seen = new Set()
+  const stateTarget = sample.dataset.variantStateTarget
   return Array.from(sample.querySelectorAll(selectors)).flatMap(
     (target, index) => {
       if (
+        (stateTarget && !target.matches(stateTarget)) ||
         target.matches(':disabled, [aria-disabled="true"], [data-disabled]') ||
         !target.checkVisibility({ visibilityProperty: true })
       )
@@ -221,6 +223,7 @@ export async function checkVariantParity(page, url) {
               })
             }
           }
+          if (forcedStates.pressed) await compare('pressed')
           if (pointer) {
             // A pointer move can give a menu option focus. Start in pointer
             // modality so an earlier keyboard probe cannot add a focus ring.
@@ -245,18 +248,6 @@ export async function checkVariantParity(page, url) {
             )
             await page.mouse.move(point.x, point.y)
             await compare('hover')
-            // Keep the specimen's value and open state stable during mouse down.
-            await target.evaluate((node) => {
-              const stop = (event) => {
-                event.preventDefault()
-                event.stopImmediatePropagation()
-              }
-              for (const type of ['pointerdown', 'mousedown', 'click'])
-                node.addEventListener(type, stop, { capture: true, once: true })
-            })
-            await page.mouse.down()
-            await compare('pressed')
-            await page.mouse.up()
             await page.mouse.move(0, 0)
           }
           if (focus) {

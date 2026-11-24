@@ -54,6 +54,7 @@ function VariantSample(props: {
       data-variant={`${props.specimen.id}/${props.state}`}
       data-preset={props.preset}
       data-variant-state={props.state}
+      data-variant-state-target={props.specimen.stateTarget}
       data-variant-baseline={props.specimen.baseline}
       data-variant-open-trigger={
         props.state === 'open' ? props.specimen.openTrigger : undefined
@@ -126,7 +127,12 @@ export function Variants(props: { group: Group; specimens: Specimen[] }) {
         '.variant-sample',
       )) {
         const state = sample.dataset.variantState
-        if (state === 'hover' || state === 'focus' || state === 'pressed')
+        if (
+          state === 'hover' ||
+          state === 'focus' ||
+          state === 'pressed' ||
+          (state === 'disabled' && sample.dataset.variantStateTarget)
+        )
           forceState(sample, state, params.has('audit-all-focus'))
       }
       readyTimer = window.setTimeout(() => {

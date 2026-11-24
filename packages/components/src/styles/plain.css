@@ -26,12 +26,24 @@
   :scope .ui-collapsible.ui-section {
     background: transparent;
   }
+  :scope .ui-collapsible > summary {
+    border-radius: inherit;
+  }
   :scope .ui-collapsible.ui-section > summary {
-    border-radius: var(--ui-control-radius);
     font-weight: var(
       --ui-sidebar-heading-weight,
       var(--ui-heading-weight, 500)
     );
+  }
+  :scope .ui-sidebar-group-panel > summary {
+    border-radius: max(
+      0px,
+      calc(var(--ui-panel-radius, var(--ui-radius)) - var(--ui-border-width))
+    );
+  }
+  :scope .ui-sidebar-group-panel > summary:focus-visible,
+  :scope .ui-sidebar-group-panel .ui-dashboard-menu > a:focus-visible {
+    outline-offset: calc(-1 * var(--ui-focus-width, 1px));
   }
   /* Navigation links hang from a guide line under the group title. */
   :scope .ui-sidebar-group .ui-collapsible-content {
