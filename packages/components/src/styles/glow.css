@@ -208,7 +208,7 @@
       border-color: var(--ui-error);
       box-shadow: var(--ui-laser-glow, var(--_ui-laser-glow));
     }
-    /* The editor stays transparent inside the rounded scroll field frame. */
+    /* The scroll field frame owns the glow. */
     :scope .ui-control-frame[data-scroll-field] > :is(textarea, select) {
       box-shadow: none;
     }
