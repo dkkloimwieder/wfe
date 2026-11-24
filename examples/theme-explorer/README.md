@@ -15,6 +15,14 @@ Edits stay with their preset when you switch presets.
 
 The [theme audit](../../docs/plan/theme-audit.md) explains the token groups and the cleanup plan.
 
+## Variants
+
+`/?variants=<group>` shows each control in every state (rest, hover, focus, pressed, disabled, invalid, selected)
+side by side in Sketchy, Vanilla and Laser. The groups are `buttons` (the default), `inputs`, `icons` and `surfaces`.
+Each page loads only its own group. Add `&mode=dark` for dark mode, or use the toggle in the header.
+`force-states.ts` forces the states. `variant-groups.json` lists the groups.
+`run.mjs` uses `variant-parity.mjs` and `variant-audit.mjs` to compare the computed styles of every group in both modes.
+
 Run commands from the repository root after installing dependencies.
 Start an interactive preview on an unused port:
 
