@@ -623,7 +623,7 @@ Generated packages consume it, and `@wfe/components` does not import it.
 
 ### Solid 2 surface the adapter uses
 
-The adapter targets Solid `2.0.0-rc.18` or later.
+The adapter declares a Solid peer range of `>=2.0.0-rc.21 <3.0.0`.
 Stores come from `solid-js`, and the web runtime comes from `@solidjs/web`.
 The table also covers screen and test primitives around the adapter.
 It imports `createStore`, `createProjection`, `createOptimisticStore`, `action`, `until`, `from`, `createMemo`, `runWithOwner`, `onSettled`, and `onCleanup`.
@@ -706,7 +706,8 @@ Restored refusals keep their tentative rows until discard or successful resubmis
 
 ### Pinned versions
 
-[`pnpm-workspace.yaml`](../../pnpm-workspace.yaml), `overrides`, aligns the Solid runtime and compiler at `2.0.0-rc.18`.
+The workspace pins Solid, Web, and Signals to `2.0.4` and the compiler and Babel plugin to `2.0.3`.
+See [the workspace overrides](../../pnpm-workspace.yaml).
 Adapter tests cover delta application, keyed projections, feed confirmation, refusal, and overlapping actions.
 `until` waits for authoritative confirmation or correction and rejects a failed landing.
 Overlapping actions keep their optimistic rows whole while their source changes.

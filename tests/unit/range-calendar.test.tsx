@@ -323,6 +323,38 @@ test('later accepted endpoints close the picker without a second change request'
   expect(document.activeElement).toBe(trigger)
 })
 
+test('the picker formatter receives the accepted partial or complete range and locale', () => {
+  const [value, setValue] = createSignal<CalendarRange | undefined>({
+    start: '2026-01-05',
+  })
+  const [locale, setLocale] = createSignal<string>()
+  const change = vi.fn()
+  const h = render(() => (
+    <DateRangePicker
+      label="Stay"
+      value={value()}
+      locale={locale()}
+      formatRange={(range, language) =>
+        `${range.start} to ${range.end ?? '…'} (${language})`
+      }
+      onValueChange={change}
+    />
+  ))
+  expect(
+    h.getByRole('button', { name: 'Stay: 2026-01-05 to … (en-US)' }),
+  ).toBeTruthy()
+  setLocale('en-GB')
+  setValue({ start: '2026-01-05', end: '2026-01-10' })
+  flush()
+  expect(
+    h.getByRole('button', { name: 'Stay: 2026-01-05 to 2026-01-10 (en-GB)' }),
+  ).toBeTruthy()
+  setValue(undefined)
+  flush()
+  expect(h.getByRole('button', { name: 'Stay' }).textContent).toBe('Stay')
+  expect(change).not.toHaveBeenCalled()
+})
+
 test('accepted picker changes preserve an explicit caller focus choice', async () => {
   const [value, setValue] = createSignal<CalendarRange>({ start: '2026-01-05' })
   let next: HTMLInputElement | undefined

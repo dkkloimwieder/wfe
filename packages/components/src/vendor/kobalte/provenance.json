@@ -91,7 +91,7 @@
     },
     "core/src/dismissable-layer/dismissable-layer.tsx": {
       "upstreamSha256": "f877e291437c4170dd5d4ffd735334b9433c67b233027ec7848a448d2775b4d3",
-      "localSha256": "45d5d03b04ed98b45a9196399bc7cec9a5339f85a335419ce3da4013d36d986c"
+      "localSha256": "9dbf9122602e28a7361fbaa258ac1f5a6b147b5655a663a19818d701256a19f4"
     },
     "core/src/dismissable-layer/index.ts": {
       "upstreamSha256": "50c0ae43bbc053ee7620849f0081c846653befb3f2ea8931a9469d9974a3b04b",
@@ -199,15 +199,15 @@
     },
     "core/src/listbox/listbox-item-description.tsx": {
       "upstreamSha256": "6f85b9089e083996f1fa9d004f926f00d69691a3879f9bfe0676d0a395d58fb5",
-      "localSha256": "a58150d2051a2c27a4dbb6505f87fedb75a413fbab1dddf8fc510bf6b0a3a1b5"
+      "localSha256": "017800f8e22525c3529f14df8ab5513337a428db18a9dbe470964618c346be35"
     },
     "core/src/listbox/listbox-item-indicator.tsx": {
       "upstreamSha256": "871ddd6eb51fb76a7a66bd98365b3ba30f73d6d31ee4e3039940f5842c1dc752",
-      "localSha256": "3e239417e18bd4d20e8f044bd8b9fe84f3f91d691030bae0b3bbca63196a5dd5"
+      "localSha256": "e0bd81ca871e40a6b9884f9cbf0c5326fc74d8199eab0fbf06cc5314fb98af2b"
     },
     "core/src/listbox/listbox-item-label.tsx": {
       "upstreamSha256": "e60fdc0d2ef0643ee4ff20cf1a05752c8945efc6a42884a6f737830af3727419",
-      "localSha256": "1836ba8f1c56672097e5136fd2bdf9a10a2f89301fba8e10b0be64a9c5910f9c"
+      "localSha256": "5945d1581b90a0f308119de332505d99aea04a7e2a22fb368851ab03ab717a90"
     },
     "core/src/listbox/listbox-item.tsx": {
       "upstreamSha256": "2e7400eac5057bd05d58a16869db36becf08f51fb616e4b0ee549a8813857502",
@@ -255,7 +255,7 @@
     },
     "core/src/popper/popper-root.tsx": {
       "upstreamSha256": "1a1e65b6cb0204c6194050e74a385756f49937cdf4fb1fb1d3d0a6671dd0d7ee",
-      "localSha256": "a76a4a0692a2b480d69dad12b4536bab2be59f5596537524e682051f86339970"
+      "localSha256": "cddb36f62f1fe151d109a7d956b5d90ff725e7809aafc71be7703dac0e147a61"
     },
     "core/src/popper/utils.ts": {
       "upstreamSha256": "07d61d76d4eee8d2f5428ec06104a607417a4f246f068dd9ec634ffddf2d7f06",
@@ -351,11 +351,11 @@
     },
     "core/src/select/select-base.tsx": {
       "upstreamSha256": "96659e93e1ebd146d4a18b8f5d986c1e088d4283956f050a060e0df1c13465e7",
-      "localSha256": "7e09f4dd1a3afb6c876e3bb16cf5aa4e7d0d9d5379f730f4152e309af5b2c822"
+      "localSha256": "fc7567a49add112f0b677bb48abd7565959d5cd769b95fe2e0d03b1d785b898c"
     },
     "core/src/select/select-content.tsx": {
       "upstreamSha256": "75f9d9d9a3ac570a9805d952ea3aec8a2d87b942e1e74c7c3be8c17698a97b27",
-      "localSha256": "ddf56bc91edba0d21a7efada8b20e955956423bc22c2917cd74d1cc5287ed746"
+      "localSha256": "dff17d7a6a94e01d632112387a6ae1babd766977e8e3ad6a652ee4e118f7ae96"
     },
     "core/src/select/select-context.tsx": {
       "upstreamSha256": "de40a7fdde2451b44ecd48b3587810ffa905b238a1fed6ed8af9a611c14b359b",
@@ -752,15 +752,15 @@
     },
     "core/src/menu/menu-item-description.tsx": {
       "upstreamSha256": "aa4fc27b8a6b39ef96fe9c660d719fcc5e07032f0e2e6bc5a5ac5d19c912fca3",
-      "localSha256": "176b31c5cbf1611875fb395293be003d0e9ebd5231cd36a163595550cd0d7682"
+      "localSha256": "0d3bf4115ea5aa998148e6f6b1371b96d3c95922e2354610ecead4dbb59dd5ee"
     },
     "core/src/menu/menu-item-indicator.tsx": {
       "upstreamSha256": "50db76d48f38e47e6f0a439a99cce54e6cd112f7514ec83548b846109788c321",
-      "localSha256": "59452128145ad9f5c907f13b8109f979345dbd5e371b9458123fd27187a47056"
+      "localSha256": "b6a01505119e0df53f8c46ea1c372767807c7142dc616fb9ad1eca6f32f726ec"
     },
     "core/src/menu/menu-item-label.tsx": {
       "upstreamSha256": "c3e7abaedca5009edfe089ce765db23ee3fc650796ccfc2594101ebea2afbd30",
-      "localSha256": "8a92c77707967f7c6ab225810bf0ca58ba06262a07d1f118eee20032b588f009"
+      "localSha256": "b68f2e8d15292bd8e391db05523de78c3b401a2de0ca433d727c43cf594544df"
     },
     "core/src/menu/menu-portal.tsx": {
       "upstreamSha256": "97391793902487b5c0482d8ed7d2aaaa5452b8fb9420ea525e1d731bded3456a",
@@ -877,7 +877,7 @@
     },
     "core/src/breadcrumbs/breadcrumbs-root.tsx": {
       "upstreamSha256": "a0008fab053fda83144a4c2591ec669929a3dfcaa75d5fa290180037bc292d6e",
-      "localSha256": "58cbe651d5aeaf4ac2d3bec6e38234bbb89b1db06adc55780eea59be6db13c49"
+      "localSha256": "bc3b0cad98dc0caae2feaa6e742721bc4515096906c4d3a826047d61d056e82e"
     },
     "core/src/breadcrumbs/breadcrumbs-context.tsx": {
       "upstreamSha256": "62a0a4aa01b151a1d5ce5567a214da1bee9ce498ec76bb5ae755277597ac1735",
@@ -891,5 +891,111 @@
       "upstreamSha256": "5bb1b0b27c1aead52f85605c67c453d523eb6e43fbb218e9615402b01b55a67f",
       "localSha256": "3e7350e1b6e31909a1d6e61e2f03a3616d079f4fc287c34ac01985f02ca2eae3"
     }
-  }
+  },
+  "repairs": {
+    "ui:interact-outside": {
+      "source": "core/src/dismissable-layer/dismissable-layer.tsx",
+      "change": "Dispatch a cancelable event from the dismissable layer so a containing view can keep a popup open.",
+      "reason": "owner decision: keep"
+    },
+    "core/src/popper/popper-root.tsx": {
+      "change": "Position new popups immediately, then coalesce automatic position updates on the next animation frame. This keeps size middleware out of ResizeObserver delivery and cancels queued updates when the popup closes.",
+      "reason": "owner decision: keep"
+    },
+    "core/src/menu/menu-item-label.tsx": {
+      "change": "Resolve the generated label ID at tracked read sites and snapshot the forwarded ref once at mount. Preserve reactive caller IDs and label registration.",
+      "reason": "owner decision: keep"
+    },
+    "core/src/menu/menu-item-description.tsx": {
+      "change": "Resolve the generated item part ID at tracked read sites to preserve reactive parent and caller IDs without eager Solid reads.",
+      "reason": "owner decision: keep"
+    },
+    "core/src/menu/menu-item-indicator.tsx": {
+      "change": "Resolve the generated item part ID at tracked read sites to preserve reactive parent and caller IDs without eager Solid reads.",
+      "reason": "owner decision: keep"
+    },
+    "core/src/listbox/listbox-item-label.tsx": {
+      "change": "Resolve the generated item part ID at tracked read sites to preserve reactive parent and caller IDs without eager Solid reads.",
+      "reason": "owner decision: keep"
+    },
+    "core/src/listbox/listbox-item-description.tsx": {
+      "change": "Resolve the generated item part ID at tracked read sites to preserve reactive parent and caller IDs without eager Solid reads.",
+      "reason": "owner decision: keep"
+    },
+    "core/src/listbox/listbox-item-indicator.tsx": {
+      "change": "Resolve the generated item part ID at tracked read sites to preserve reactive parent and caller IDs without eager Solid reads.",
+      "reason": "owner decision: keep"
+    },
+    "primitive-barrel": {
+      "change": "Re-export the controllable signal and its type by name.",
+      "reason": "owner decision: keep"
+    },
+    "owned-events-and-polymorphism": {
+      "change": "Use owned native event listeners and retain custom as forwarding.",
+      "reason": "owner decision: keep"
+    },
+    "solid-2-refs-and-strict-reads": {
+      "change": "Preserve tracked reads, stable generated IDs, typed ref arrays, and intended initialization snapshots.",
+      "reason": "owner decision: keep"
+    },
+    "collection-navigation-and-scrolling": {
+      "change": "Keep scrolling within the collection viewport. Guard missing keys, disabled items, and exact key matching.",
+      "reason": "owner decision: keep"
+    },
+    "menu-focus-and-presence": {
+      "change": "Preserve established focus, restore focus on dismissal, and keep transition-free presence and timer cleanup.",
+      "reason": "owner decision: keep"
+    },
+    "popup-layout-observation": {
+      "change": "Keep anchor layout observation by default and allow fixed viewport anchors to opt out.",
+      "reason": "owner decision: keep"
+    },
+    "dialog-layer-and-focus": {
+      "change": "Keep enabled layer registration, focus restoration, background hiding, and modal and outside-interaction behavior.",
+      "reason": "owner decision: keep"
+    },
+    "controlled-choice-values": {
+      "change": "Retain controlled Combobox drafts and missing selected Select and Combobox options. Preserve validation and announcements.",
+      "reason": "owner decision: keep"
+    },
+    "native-choice-selection-and-reset": {
+      "change": "Restore accepted keys, native submission, multiple selection, filtered selection, and reset behavior.",
+      "reason": "owner decision: keep"
+    },
+    "native-boolean-controls": {
+      "change": "Preserve caller event cancellation, controlled values, disabled and read-only behavior, and form resets.",
+      "reason": "owner decision: keep"
+    },
+    "field-registration-and-hydration": {
+      "change": "Register rendered field parts on server and client. Retain caller IDs, associations, and announcement behavior.",
+      "reason": "owner decision: keep"
+    },
+    "tabs-selection-and-focus": {
+      "change": "Preserve bounded keyboard navigation, stable server IDs, retained panels, selected-panel observers, and focus restoration.",
+      "reason": "owner decision: keep"
+    },
+    "breadcrumbs-semantics": {
+      "change": "Retain native ordered lists, anchors, and aria-current text.",
+      "reason": "owner decision: keep"
+    }
+  },
+  "ports": [
+    {
+      "pullRequest": "https://github.com/kobaltedev/kobalte/pull/781",
+      "revision": "ba72109e380e150e82cc4f6343519b2eafb923e9",
+      "files": ["core/src/breadcrumbs/breadcrumbs-root.tsx"],
+      "change": "Apply default separator and translation even when caller props are explicitly undefined.",
+      "reason": "owner decision: keep"
+    },
+    {
+      "pullRequest": "https://github.com/kobaltedev/kobalte/pull/786",
+      "revision": "d40f26045b6fe596203268d95deb11fcbf148457",
+      "files": [
+        "core/src/select/select-base.tsx",
+        "core/src/select/select-content.tsx"
+      ],
+      "change": "Port the two Select read guards for non-modal close focus and uncontrolled selection pruning. Retain the local controlled-value guard.",
+      "reason": "owner decision: keep"
+    }
+  ]
 }

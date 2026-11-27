@@ -7,6 +7,11 @@ import {
 } from '../../shared/appearance/appearance'
 import type { Decorations } from '../../shared/appearance/appearance'
 import {
+  previewScheme,
+  schemeIndex,
+} from '../../shared/settings/demoAppearance'
+import { isThemePreset } from '../../shared/settings/settingsRecord'
+import {
   defaults,
   layersForPreset,
   schemeForPreset,
@@ -28,6 +33,126 @@ export type {
   GalleryState,
 } from '../../shared/appearance/galleryConfig'
 export const entries = [
+  {
+    id: 'blocks-tenant-admin',
+    label: 'Tenant administration',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-records',
+    label: 'Records workspace',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-dashboard',
+    label: 'Platform dashboard',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-tenant-admin-sidebar',
+    label: 'Tenant administration (sidebar)',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-records-sidebar',
+    label: 'Records workspace (sidebar)',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-dashboard-sidebar',
+    label: 'Platform dashboard (sidebar)',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-tenant-settings',
+    label: 'Tenant settings',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-billing',
+    label: 'Billing and usage',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-app-catalog',
+    label: 'Application catalog',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-user-detail',
+    label: 'User access',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-create-tenant',
+    label: 'Create tenant',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-integrations',
+    label: 'Integrations and webhooks',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-issue-tracker',
+    label: 'Issue tracker',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-admin-app',
+    label: 'Admin application',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-user-home',
+    label: 'Member home',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-user-support',
+    label: 'Customer support portal',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-user-account',
+    label: 'Account',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-user-preferences',
+    label: 'Preferences',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-user-notifications',
+    label: 'Notifications inbox',
+    group: 'Blocks',
+    states: ['normal'],
+  },
+  {
+    id: 'blocks-user-invitation',
+    label: 'Invitation and onboarding',
+    group: 'Blocks',
+    states: ['normal'],
+  },
   { id: 'tree', label: 'Tree', group: 'Navigation', states: ['normal'] },
   {
     id: 'workflow',
@@ -171,6 +296,12 @@ export const entries = [
   },
   { id: 'entry', label: 'Entry panel', group: 'Layout', states: ['normal'] },
   {
+    id: 'dashboard-layout',
+    label: 'Dashboard layout',
+    group: 'Layout',
+    states: ['normal'],
+  },
+  {
     id: 'everything',
     label: 'Everything form',
     group: 'Forms',
@@ -216,6 +347,13 @@ export const entries = [
     group: 'Navigation',
     states: ['normal'],
   },
+  { id: 'step-list', label: 'Steps', group: 'Navigation', states: ['normal'] },
+  {
+    id: 'sidebar-links',
+    label: 'Sidebar links',
+    group: 'Navigation',
+    states: ['normal'],
+  },
   {
     id: 'collapsible',
     label: 'Collapsible',
@@ -248,6 +386,18 @@ export const entries = [
     states: ['normal'],
   },
   {
+    id: 'meter',
+    label: 'Usage meter',
+    group: 'Components',
+    states: ['normal'],
+  },
+  {
+    id: 'summary-list',
+    label: 'Summary list',
+    group: 'Components',
+    states: ['normal'],
+  },
+  {
     id: 'pagination',
     label: 'Pagination and header actions',
     group: 'Tables',
@@ -274,7 +424,18 @@ const integer = (value: unknown, max: number) =>
   Number.isInteger(value) &&
   value >= 0 &&
   value <= max
-export function readRoute(url: URL): GalleryRoute {
+export function galleryOverrides(url: URL) {
+  const preset = url.searchParams.get('preset')
+  return {
+    preset: isThemePreset(preset) ? preset : undefined,
+    scheme: previewScheme(url.searchParams.get('scheme')),
+  }
+}
+
+export function readRoute(
+  url: URL,
+  fallback?: Pick<GalleryRoute, 'preset' | 'scheme'>,
+): GalleryRoute {
   const id = entryFor(
     url.searchParams.get('gallery') ?? url.searchParams.get('galleryPreview'),
   ).id
@@ -283,11 +444,8 @@ export function readRoute(url: URL): GalleryRoute {
     const n = raw === null || !/^\d+$/.test(raw) ? fallback : Number(raw)
     return integer(n, max) ? n : fallback
   }
-  const requestedPreset = url.searchParams.get('preset')
-  const preset =
-    requestedPreset === 'vanilla' || requestedPreset === 'laser'
-      ? requestedPreset
-      : 'default'
+  const override = galleryOverrides(url)
+  const preset = override.preset ?? fallback?.preset ?? 'default'
   const layers = layersForPreset(preset)
   const state = url.searchParams.get('state') as GalleryState
   const viewport = url.searchParams.get('viewport')
@@ -312,7 +470,9 @@ export function readRoute(url: URL): GalleryRoute {
           (value) => value === url.searchParams.get('borderColor'),
         ) ?? 'neutral',
     },
-    scheme: number('scheme', schemeForPreset(preset), 2),
+    scheme: override.scheme
+      ? schemeIndex[override.scheme]
+      : (fallback?.scheme ?? schemeForPreset(preset)),
     primary: number('primary', defaults.primary, primaryColors.length - 1),
     accent: number('accent', defaults.accent, accentColors.length - 1),
     layers: {
@@ -326,18 +486,23 @@ export function readRoute(url: URL): GalleryRoute {
     viewport: viewport === 'phone' || viewport === 'tablet' ? viewport : 'full',
   }
 }
-export function galleryUrl(base: URL, route: GalleryRoute, preview = false) {
+export function galleryUrl(
+  base: URL,
+  route: GalleryRoute,
+  appearance: { preset?: GalleryRoute['preset']; scheme?: number },
+) {
   const url = new URL(base)
   url.search = ''
   url.hash = ''
-  url.searchParams.set(preview ? 'galleryPreview' : 'gallery', route.id)
+  url.searchParams.set('gallery', route.id)
+  if (appearance.preset) url.searchParams.set('preset', appearance.preset)
+  if (appearance.scheme !== undefined)
+    url.searchParams.set('scheme', String(appearance.scheme))
   for (const [key, value, fallback] of [
     ...Object.entries(defaults.decorations).map(
       ([key, fallback]) =>
         [key, route.decorations[key as keyof Decorations], fallback] as const,
     ),
-    ['preset', route.preset, 'default'],
-    ['scheme', route.scheme, schemeForPreset(route.preset)],
     ['primary', route.primary, defaults.primary],
     ['accent', route.accent, defaults.accent],
     ['canvas', route.layers.canvas, layersForPreset(route.preset).canvas],

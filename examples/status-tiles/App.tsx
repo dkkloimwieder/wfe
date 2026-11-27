@@ -1,3 +1,4 @@
+import '@wfe/components/styles.css'
 import { createSignal, onCleanup } from 'solid-js'
 import { DashboardShell, StatusTile, TileRow } from '@wfe/components'
 import type { StatusTileState, ValueFormat } from '@wfe/components'

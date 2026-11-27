@@ -1,6 +1,4 @@
-/* Editing-fixture presentation. The reusable import has no document baseline. */
-@import '@wfe/components/styles.css';
-
+/* Editing-fixture presentation. */
 :where([data-ui]) .buttons,
 :where([data-ui]) .hidden-draft {
   display: flex;

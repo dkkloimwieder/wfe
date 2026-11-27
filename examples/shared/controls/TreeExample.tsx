@@ -37,6 +37,7 @@ export function TreeExample(props: { comparisons?: boolean }) {
   const [reject, setReject] = createSignal(false)
   const [multiple, setMultiple] = createSignal(false)
   const [rtl, setRtl] = createSignal(false)
+  const [chevrons, setChevrons] = createSignal(false)
   const [request, setRequest] = createSignal('None')
   return (
     <section style={{ padding: '12px', 'max-width': '720px', margin: 'auto' }}>
@@ -74,6 +75,13 @@ export function TreeExample(props: { comparisons?: boolean }) {
           </Checkbox.Control>
           <Checkbox.Label>Right to left</Checkbox.Label>
         </Checkbox>
+        <Checkbox checked={chevrons()} onChange={setChevrons}>
+          <Checkbox.Input />
+          <Checkbox.Control>
+            <Checkbox.Indicator />
+          </Checkbox.Control>
+          <Checkbox.Label>Chevron toggles</Checkbox.Label>
+        </Checkbox>
         <Button onClick={() => setNodes((value) => structuredClone(value))}>
           Refresh records
         </Button>
@@ -96,6 +104,7 @@ export function TreeExample(props: { comparisons?: boolean }) {
         expanded={expanded()}
         multiple={multiple()}
         dir={rtl() ? 'rtl' : 'ltr'}
+        toggleGlyph={chevrons() ? 'chevron' : 'plus-minus'}
         onSelectionChange={(ids) => {
           setRequest(`Select ${ids.join(', ')}`)
           if (!reject()) setSelected(ids)

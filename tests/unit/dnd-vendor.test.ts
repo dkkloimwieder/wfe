@@ -8,6 +8,9 @@ import { PointerSensor } from '../../packages/components/src/vendor/dnd-kit/dom/
 import { parseScale } from '../../packages/components/src/vendor/dnd-kit/dom/src/utilities/transform/parseScale'
 import { parseTranslate } from '../../packages/components/src/vendor/dnd-kit/dom/src/utilities/transform/parseTranslate'
 import { cloneElement } from '../../packages/components/src/vendor/dnd-kit/dom/src/utilities/element/cloneElement'
+import { canScroll } from '../../packages/components/src/vendor/dnd-kit/dom/src/utilities/scroll/canScroll'
+import { getScrollPosition } from '../../packages/components/src/vendor/dnd-kit/dom/src/utilities/scroll/getScrollPosition'
+import { snapshot } from '../../packages/components/src/vendor/dnd-kit/state/src/snapshot'
 
 const cleanup: (() => void)[] = []
 afterEach(() => {
@@ -19,6 +22,56 @@ afterEach(() => {
 })
 
 describe('vendored drag engine repairs', () => {
+  it('uses negative horizontal bounds for an RTL scroll container with a sticky header', () => {
+    const viewport = document.createElement('div')
+    const stickyHeader = document.createElement('header')
+    Object.assign(viewport.style, { direction: 'rtl', overflow: 'auto' })
+    Object.assign(stickyHeader.style, { position: 'sticky', top: '0' })
+    viewport.append(stickyHeader)
+    document.body.append(viewport)
+    cleanup.push(() => viewport.remove())
+    Object.defineProperties(viewport, {
+      clientWidth: { value: 100 },
+      scrollWidth: { value: 400 },
+      clientHeight: { value: 100 },
+      scrollHeight: { value: 200 },
+    })
+    viewport.scrollLeft = -120
+    viewport.scrollTop = 25
+    const scroll = getScrollPosition(viewport)
+    expect(scroll.position.min).toEqual({ x: -300, y: 0 })
+    expect(scroll.position.max).toEqual({ x: 0, y: 100 })
+    expect(canScroll(viewport, { x: -20, y: -10 }, scroll)).toMatchObject({
+      left: true,
+      right: true,
+      top: true,
+      bottom: true,
+    })
+    viewport.scrollLeft = -300
+    expect(canScroll(viewport)).toMatchObject({ left: false, right: true })
+    viewport.scrollLeft = 0
+    expect(canScroll(viewport)).toMatchObject({ left: true, right: false })
+  })
+
+  it('copies enumerable snapshot fields as own data properties', () => {
+    const state = Object.assign(
+      Object.create({ inherited: 2 }) as {
+        inherited: number
+      },
+      { visible: 1 },
+    )
+    Object.defineProperty(state, '__proto__', {
+      enumerable: true,
+      value: { field: 'ordinary value' },
+    })
+    const copy = snapshot(state)
+    expect(Object.getPrototypeOf(copy)).toBe(Object.prototype)
+    expect(Object.keys(copy)).toEqual(['visible', '__proto__', 'inherited'])
+    expect(Object.getOwnPropertyDescriptor(copy, '__proto__')?.value).toEqual({
+      field: 'ordinary value',
+    })
+    expect(copy.inherited).toBe(2)
+  })
   it('shares the touch workaround across managers and releases the final binding', () => {
     const added = vi.spyOn(window, 'addEventListener')
     const removed = vi.spyOn(window, 'removeEventListener')

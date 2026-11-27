@@ -10,6 +10,7 @@ import {
   Separator,
   Skeleton,
   Spinner,
+  ValueDisplay,
   Toast,
   uiScope,
 } from '@wfe/components'
@@ -96,6 +97,25 @@ export function DisplayControls(props: { embedded?: boolean } = {}) {
         <Spinner />
         <Spinner aria-label="Loading rows" />
       </Card>
+      <div class="example-actions">
+        <span>
+          US subscription{' '}
+          <span>
+            <ValueDisplay value={1249.5} format="currency" currency="USD" />
+          </span>
+        </span>
+        <span>
+          German subscription{' '}
+          <span>
+            <ValueDisplay
+              value={1249.5}
+              format="currency"
+              currency="EUR"
+              locale="de-DE"
+            />
+          </span>
+        </span>
+      </div>
       <div
         id="reserved-viewport"
         style={{

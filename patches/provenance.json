@@ -3,17 +3,17 @@
   "patches": [
     {
       "package": "@solid-primitives/interaction",
-      "version": "1.0.0",
-      "patch": "solid-primitives-interaction-1.0.0.patch",
-      "patchSha256": "8a7025f586d717e71669c2ef151da8704aa21cba7dac1b4cbf661d992cecd88d",
+      "version": "1.0.1",
+      "patch": "solid-primitives-interaction-1.0.1.patch",
+      "patchSha256": "67a25a3f4f50db59e420d60c74a6d00bde324ed8a7d695c794d345f445cc61db",
       "archive": {
-        "url": "https://registry.npmjs.org/@solid-primitives/interaction/-/interaction-1.0.0.tgz",
-        "integrity": "sha512-PN4K92MERywHNVPq3/H3alk7mbqpTxv0xe+r0Pr3dt01Pv+HY+KxPqWeFFwEQNvoCPcV5WSNb8c0VmfmNC46cQ==",
-        "sha256": "f6cdf8210141e2abd56fa4460671a64e12b1403118d1f83dee632eaba0eb53fd"
+        "url": "https://registry.npmjs.org/@solid-primitives/interaction/-/interaction-1.0.1.tgz",
+        "integrity": "sha512-1EJiPARIARikeYZH82Fzed/DGCwW8xTxi4iImP/1vizIIII99HcApUVbzG8GYD8ufdMeOBTWJ63/m79xTp1iFw==",
+        "sha256": "b81f7fb3fc6c948bb2b18feed0b409eecf908538842d5913f7c1e9b48730333b"
       },
       "target": "dist/index.js",
-      "upstreamSha256": "c3aa913b3d70ee421aeb49180bfa03bc1353273bbf8f5fd28a27f5e2f3fd8060",
-      "localSha256": "4d78781942f7751d685c8fca5f1f98cc5260c6f710b5995258b848307aaa8603",
+      "upstreamSha256": "d17d61c3f3a2f1e49d56403dc1064b2c6838d88d45654398e31e08e04e637f17",
+      "localSha256": "e51b9e7c8f04d3fe192a0e7a2abbbd7fd3de3bdb51432eb28cddf7e2e6298edf",
       "license": "LICENSE",
       "licenseSha256": "906021a46b3afdc3f682e00a26d681a2494bb9c9fe32cecb9d57ba168b60068f",
       "repair": "Register focus immediately while preserving deferred pointer setup and cleanup."

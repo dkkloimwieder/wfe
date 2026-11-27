@@ -280,7 +280,7 @@ await withArtifactRun(
         locator.evaluate((node) => node === document.activeElement)
       async function start(size = 8, mode = 'row') {
         if (!(await page.evaluate(() => Boolean(window.editingFixture))))
-          await page.goto(url)
+          await page.goto(`${url}?editing`)
         await call('start', size, mode)
         await page.waitForFunction(() => window.editingFixture.ready())
         await settle()
@@ -407,7 +407,7 @@ await withArtifactRun(
           assert.equal(await input.inputValue(), 'Beta')
         },
       )
-      await page.goto(url)
+      await page.goto(`${url}?editing`)
       await applicationRecordCases({
         page,
         call,
@@ -961,7 +961,7 @@ await withArtifactRun(
           )
           assertDisposed(report.interactionsDisposed)
         }
-        await page.goto(`${url}?size=100`)
+        await page.goto(`${url}?editing&size=100`)
         await page.waitForFunction(() => window.editingFixture.ready())
         await settle()
         await call('remember', 'R0001')

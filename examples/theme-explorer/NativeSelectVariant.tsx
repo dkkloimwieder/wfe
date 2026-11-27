@@ -8,6 +8,8 @@ export function NativeSelectVariant(props: {
   selected: boolean
   multiple?: boolean
   decoration?: ColorRole
+  /** Leave the value to the browser so a click changes it. */
+  live?: boolean
 }) {
   return (
     <NativeSelect
@@ -15,7 +17,7 @@ export function NativeSelectVariant(props: {
       multiple={props.multiple}
       size={props.multiple ? 3 : undefined}
       value={
-        props.multiple
+        props.multiple || props.live
           ? undefined
           : props.selected
             ? props.choices[0]?.value

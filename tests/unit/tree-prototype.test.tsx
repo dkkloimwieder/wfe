@@ -17,7 +17,7 @@ afterEach(() => {
   cleanup()
   vi.useRealTimers()
 })
-function fixture() {
+function fixture(toggleGlyph?: 'plus-minus' | 'chevron') {
   const [value, setValue] = createSignal<readonly string[]>(['a'])
   const [expanded, setExpanded] = createSignal<readonly string[]>(['root'])
   const [records, setRecords] = createSignal(nodes)
@@ -33,6 +33,7 @@ function fixture() {
       expanded={expanded()}
       multiple={multiple()}
       dir={dir()}
+      toggleGlyph={toggleGlyph}
       onSelectionChange={select}
       onExpandedChange={expand}
     />
@@ -50,6 +51,18 @@ function fixture() {
     item: (name: string) => view.getByRole('treeitem', { name }),
   }
 }
+test('the chevron option keeps the same glyph while expansion changes', () => {
+  const f = fixture('chevron')
+  const root = f.item('Root')
+  const glyph = root.querySelector('.ui-tree-symbol')
+  expect(glyph?.getAttribute('data-shape')).toBe('chevron')
+  expect(root.getAttribute('aria-expanded')).toBe('true')
+  f.setExpanded([])
+  flush()
+  expect(root.getAttribute('aria-expanded')).toBe('false')
+  expect(root.querySelector('.ui-tree-symbol')).toBe(glyph)
+  expect(glyph?.getAttribute('data-shape')).toBe('chevron')
+})
 test('selection requests leave accepted IDs and DOM intact until the application accepts', () => {
   const f = fixture()
   const alpha = f.item('Alpha')

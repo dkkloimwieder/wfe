@@ -138,6 +138,17 @@ export function DismissableLayer<T extends ValidComponent = 'div'>(
       )
     })
 
+  // The primitive's event targets the outside element. This event lets an
+  // ancestor of the layer cancel only the interactions that affect its layer.
+  const allowOutsideInteraction = (event: InteractOutsideEvent) =>
+    ref()?.dispatchEvent(
+      new CustomEvent('ui:interact-outside', {
+        bubbles: true,
+        cancelable: true,
+        detail: event,
+      }),
+    ) ?? true
+
   const onPointerDownOutside = (e: PointerDownOutsideEvent) =>
     untrack(() => {
       if (untrack(() => props.enabled === false)) return
@@ -152,6 +163,7 @@ export function DismissableLayer<T extends ValidComponent = 'div'>(
         return
       }
 
+      if (!allowOutsideInteraction(e)) return
       props.onPointerDownOutside?.(e)
       props.onInteractOutside?.(e)
 
@@ -162,7 +174,7 @@ export function DismissableLayer<T extends ValidComponent = 'div'>(
 
   const onFocusOutside = (e: FocusOutsideEvent) =>
     untrack(() => {
-      if (untrack(() => props.enabled === false)) return
+      if (props.enabled === false || !allowOutsideInteraction(e)) return
       props.onFocusOutside?.(e)
       props.onInteractOutside?.(e)
 

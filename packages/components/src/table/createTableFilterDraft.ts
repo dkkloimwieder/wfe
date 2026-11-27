@@ -55,7 +55,10 @@ function sameColumns(
 /** Pending UI criteria. Application changes replace the pending snapshot. */
 export function createTableFilterDraft<T, M>(
   table: NativeTable<T, M>,
-  options: { onApply?: (criteria: TableFilterCriteria) => void } = {},
+  options: {
+    live?: boolean
+    onApply?: (criteria: TableFilterCriteria) => void
+  } = {},
 ) {
   const snapshot = (): TableFilterCriteria => ({
     columnFilters: table.state.columnFilters.map(({ id, value }) => ({
@@ -79,7 +82,43 @@ export function createTableFilterDraft<T, M>(
       !sameColumns(value.columnFilters, table.state.columnFilters)
     )
   })
+  function applyCriteria(
+    value: TableFilterCriteria,
+    previous: TableFilterCriteria = table.state,
+  ) {
+    const columnFilters = value.columnFilters.map(({ id, value }) => ({
+      id,
+      value,
+    }))
+    if (options.onApply) {
+      options.onApply({ columnFilters, globalFilter: value.globalFilter })
+      return
+    }
+    if (!sameColumns(columnFilters, previous.columnFilters))
+      table.setColumnFilters(columnFilters)
+    if (value.globalFilter !== previous.globalFilter)
+      table.setGlobalFilter(value.globalFilter)
+  }
+  function update(change: (old: TableFilterCriteria) => TableFilterCriteria) {
+    if (!options.live) {
+      setDraft(change)
+      return
+    }
+    let previous!: TableFilterCriteria
+    const value = setDraft((old) => {
+      previous = old
+      return change(old)
+    })
+    applyCriteria(value, previous)
+  }
   return {
+    get criteria() {
+      return draft()
+    },
+    restore(value: TableFilterCriteria) {
+      setDraft(value)
+      applyCriteria(value)
+    },
     get changed() {
       return changed()
     },
@@ -90,7 +129,7 @@ export function createTableFilterDraft<T, M>(
       return draft().columnFilters.find((filter) => filter.id === id)?.value
     },
     setValue(id: string, value: unknown) {
-      setDraft((old) => ({
+      update((old) => ({
         ...old,
         columnFilters:
           value === undefined || value === ''
@@ -103,27 +142,19 @@ export function createTableFilterDraft<T, M>(
       }))
     },
     setGlobalFilter(value: string) {
-      setDraft((old) => ({ ...old, globalFilter: value }))
+      update((old) => ({ ...old, globalFilter: value }))
+    },
+    clear() {
+      const value = { columnFilters: [], globalFilter: '' }
+      if (options.live) update(() => value)
+      else {
+        setDraft(value)
+        applyCriteria(value)
+      }
     },
     apply({ refresh = false }: { refresh?: boolean } = {}) {
       if (!untrack(changed) && !refresh) return
-      const value = untrack(draft)
-      if (options.onApply) {
-        options.onApply({
-          columnFilters: value.columnFilters.map(({ id, value }) => ({
-            id,
-            value,
-          })),
-          globalFilter: value.globalFilter,
-        })
-        return
-      }
-      if (!sameColumns(value.columnFilters, table.state.columnFilters))
-        table.setColumnFilters(
-          value.columnFilters.map(({ id, value }) => ({ id, value })),
-        )
-      if (value.globalFilter !== table.state.globalFilter)
-        table.setGlobalFilter(value.globalFilter)
+      applyCriteria(untrack(draft))
     },
   }
 }

@@ -1,11 +1,12 @@
 # Dependency patches
 
 Pnpm applies these repairs to the pinned external dependencies during installation.
-Keep the package versions and upstream licenses unchanged.
+When a patched package version changes, apply the repair to the new archive and update its provenance records.
+Preserve the upstream license.
 
 ## Interaction focus timing
 
-`solid-primitives-interaction-1.0.0.patch` registers the focus handler immediately.
+`solid-primitives-interaction-1.0.1.patch` registers the focus handler immediately.
 The pointer handler retains its opening delay.
 If the element moves to another document before the pointer timer runs, the focus handler follows it.
 Both handlers retain their existing disposal cleanup.

@@ -23,11 +23,17 @@ export function createChoiceScope(props: {
   let content: HTMLElement | undefined
   let disposed = false
   let restoreFocus = true
+  let cancelRestore: (() => void) | undefined
+  const open = () => !props.disabled && (props.open ?? localOpen())
   onCleanup(() => {
     disposed = true
+    cancelRestore?.()
   })
   function changeOpen(value: boolean, mode?: ComboboxTriggerMode) {
-    if (value) restoreFocus = true
+    if (value) {
+      restoreFocus = true
+      cancelRestore?.()
+    }
     setLocalOpen(value)
     untrack(() => props.onOpenChange?.(value, mode))
   }
@@ -38,8 +44,11 @@ export function createChoiceScope(props: {
         changeOpen(false)
     },
   )
+  createEffect(open, (opened) => {
+    if (opened) cancelRestore?.()
+  })
   return {
-    open: () => !props.disabled && (props.open ?? localOpen()),
+    open,
     changeOpen,
     setControl: (node: HTMLElement) => {
       control = node
@@ -105,10 +114,23 @@ export function createChoiceScope(props: {
     closeAutoFocus: (event: Event) => {
       if (event.defaultPrevented) return
       event.preventDefault()
-      untrack(() => {
+      cancelRestore?.()
+      const view = control?.ownerDocument.defaultView
+      if (disposed || !restoreFocus || !view) return
+      let frame = view.requestAnimationFrame(() => {
+        // Let the closing update render before focusing the trigger.
+        frame = view.requestAnimationFrame(restore)
+      })
+      cancelRestore = () => {
+        view.cancelAnimationFrame(frame)
+        cancelRestore = undefined
+      }
+      function restore() {
+        cancelRestore = undefined
         if (
           disposed ||
           props.disabled ||
+          open() ||
           !restoreFocus ||
           !control?.isConnected ||
           control.hasAttribute('disabled') ||
@@ -121,7 +143,7 @@ export function createChoiceScope(props: {
           (doc.activeElement && content?.contains(doc.activeElement))
         )
           control.focus({ preventScroll: true })
-      })
+      }
     },
   }
 }

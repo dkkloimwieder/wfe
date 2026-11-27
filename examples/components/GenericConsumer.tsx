@@ -373,7 +373,13 @@ export function GenericConsumer() {
               <AlertDialog.Cancel as={Button} disabled={saving()}>
                 Keep editing
               </AlertDialog.Cancel>
-              <AlertDialog.Action disabled={saving()} onClick={save}>
+              <AlertDialog.Action
+                disabled={saving()}
+                onClick={(event) => {
+                  event.preventDefault()
+                  save()
+                }}
+              >
                 {saving() ? 'Saving record' : 'Save record'}
               </AlertDialog.Action>
             </AlertDialog.Content>

@@ -31,6 +31,7 @@ export function createContainerLayout(
   )
   let alive = true
   let initialFont = 0
+  let observedWidth = 0
   let previous: LayoutState = {}
   const font = initialFonts.get(doc) ?? { size: 0, owners: 0 }
   initialFonts.set(doc, font)
@@ -50,7 +51,7 @@ export function createContainerLayout(
   }
   const measure = () => {
     if (!alive || !node.isConnected) return
-    const width = containerObservation ? node.getBoundingClientRect().width : 0
+    const width = containerObservation ? observedWidth : 0
     const state: Partial<Record<LayoutRegion, boolean>> = {}
     let different = false
     for (const [region, query] of queries) {
@@ -81,6 +82,13 @@ export function createContainerLayout(
   win.addEventListener('resize', resize)
   return {
     measure,
+    observe: (entries: readonly ResizeObserverEntry[]) => {
+      const entry = entries.find((entry) => entry.target === node)
+      if (entry)
+        observedWidth =
+          entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width
+      measure()
+    },
     dispose() {
       if (!alive) return
       alive = false

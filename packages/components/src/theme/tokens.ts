@@ -328,6 +328,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-panel-shadow': 'none',
         '--ui-popup-shadow': 'none',
         '--ui-laser-inset-glow-strength': '0.6',
+        '--ui-laser-guide-visibility': '0',
         // Default-tone outline buttons: 100% uses the button color, 0% the neutral text and border.
         '--ui-outline-primary-weight': '100%',
         '--ui-action-hover-fill': 'none',
@@ -635,6 +636,7 @@ export function tokenBlocks(source: TokenSources): TokenBlock[] {
         '--ui-laser-glow-ring-opacity': '55%',
         '--ui-laser-glow-opacity': '16%',
         '--ui-laser-inset-glow-strength': '0.3',
+        '--ui-laser-guide-visibility': '1',
         '--ui-laser-text-glow-blur': '6px',
         '--ui-laser-text-glow-opacity': '22%',
         '--ui-laser-icon-elevation': '0 3px 3px rgb(255 255 255 / 95%)',

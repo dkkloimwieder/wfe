@@ -36,7 +36,12 @@ export type TabsTriggerProps = Omit<
 export type TabsContentProps = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,
   'id' | 'hidden' | 'inert'
-> & { id?: never; value: string; class?: ClassValue }
+> & {
+  id?: never
+  value: string
+  class?: ClassValue
+  padding?: 'default' | 'none'
+}
 const MountContext = createContext<() => TabsPanelMount>()
 
 export function TabsRoot(props: TabsRootProps) {
@@ -84,8 +89,9 @@ export function TabsContent(props: TabsContentProps) {
   if (!mount) throw new Error('Tabs.Content requires Tabs.Root')
   return (
     <Content
-      {...props}
+      {...omit(props, 'padding')}
       forceMount={mount() === 'retain'}
+      data-padding={props.padding === 'none' ? 'none' : undefined}
       class={styledClasses('ui-tabs-content', props.class)}
     />
   )

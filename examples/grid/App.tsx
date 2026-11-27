@@ -1,3 +1,4 @@
+import '@wfe/components/styles.css'
 import { createMemo, createSignal, onCleanup } from 'solid-js'
 import { GridView } from '@wfe/generator'
 import type { GridCellChange, GridDescription } from '@wfe/generator'

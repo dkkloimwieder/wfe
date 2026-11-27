@@ -1,3 +1,4 @@
+import '@wfe/components/styles.css'
 import type { JSX } from '@solidjs/web'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 

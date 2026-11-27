@@ -285,9 +285,13 @@ test.each([true, false])(
   'a later configuration panel measures and cleans up (observer: %s)',
   async (observerAvailable) => {
     const observed = new Set<Element>()
+    let deliver: ((entries: ResizeObserverEntry[]) => void) | undefined
     vi.stubGlobal(
       'ResizeObserver',
       class {
+        constructor(callback: ResizeObserverCallback) {
+          deliver = (entries) => callback(entries, this)
+        }
         observe(node: Element) {
           observed.add(node)
         }
@@ -317,14 +321,22 @@ test.each([true, false])(
     const panel = h.container.querySelector('.table-workspace-controls')!
     expect(observed.has(panel)).toBe(observerAvailable)
     const results = h.container.querySelector('.table-workspace-results')!
-    vi.spyOn(panel, 'getBoundingClientRect').mockReturnValue({
-      width: 200,
-      height: 400,
-    } as DOMRect)
-    vi.spyOn(results, 'getBoundingClientRect').mockReturnValue({
-      width: 800,
-      height: 400,
-    } as DOMRect)
+    const panelBox = new DOMRect(0, 0, 200, 400)
+    const resultsBox = new DOMRect(0, 0, 800, 400)
+    if (observerAvailable) {
+      expect(observed.has(results)).toBe(true)
+      const entry = (target: Element, box: DOMRect): ResizeObserverEntry => ({
+        target,
+        borderBoxSize: [{ inlineSize: box.width, blockSize: box.height }],
+        contentBoxSize: [],
+        contentRect: box,
+        devicePixelContentBoxSize: [],
+      })
+      deliver?.([entry(panel, panelBox), entry(results, resultsBox)])
+    } else {
+      vi.spyOn(panel, 'getBoundingClientRect').mockReturnValue(panelBox)
+      vi.spyOn(results, 'getBoundingClientRect').mockReturnValue(resultsBox)
+    }
     await Promise.resolve()
     flush()
     expect(h.getByRole('separator').getAttribute('aria-valuenow')).toBe('20')

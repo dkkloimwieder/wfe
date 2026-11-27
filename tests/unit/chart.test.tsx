@@ -19,6 +19,55 @@ const definition = () =>
   })
 afterEach(cleanup)
 
+test('reuses typography across data updates and refreshes for inherited changes and fonts', async () => {
+  const fonts = new EventTarget()
+  const originalFonts = Object.getOwnPropertyDescriptor(document, 'fonts')
+  Object.defineProperty(document, 'fonts', { configurable: true, value: fonts })
+  using styles = vi.spyOn(window, 'getComputedStyle')
+  const [values, setValues] = createSignal([1, 3, 2])
+  const chart = createMemo(() =>
+    defineChart({ ...definition(), marks: [lineY(values())] }),
+  )
+  const h = render(() => (
+    <div data-ui-preset="default">
+      <Chart
+        definition={chart()}
+        ariaLabel="Requests"
+        width={480}
+        height={260}
+      />
+    </div>
+  ))
+  try {
+    flush()
+    const surface = h.container.querySelector('.ui-chart-surface')!
+    const theme = surface.closest('[data-ui-preset]')!
+    const styleReads = () =>
+      styles.mock.calls.filter(([node]) => node === surface).length
+    const initial = styleReads()
+    expect(initial).toBeGreaterThan(0)
+    setValues([4, 6, 8])
+    flush()
+    expect(styleReads()).toBe(initial)
+
+    theme.setAttribute('dir', 'rtl')
+    theme.setAttribute('data-ui-preset', 'laser')
+    setValues([5, 4, 3])
+    flush()
+    expect(styleReads()).toBe(initial + 1)
+
+    fonts.dispatchEvent(new Event('loadingdone'))
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => resolve())
+    })
+    expect(styleReads()).toBe(initial + 2)
+  } finally {
+    h.unmount()
+    if (originalFonts) Object.defineProperty(document, 'fonts', originalFonts)
+    else Reflect.deleteProperty(document, 'fonts')
+  }
+})
+
 test('updates the existing SVG with accepted definition, dimensions and accessible name', () => {
   const [values, setValues] = createSignal([1, 3, 2])
   const [width, setWidth] = createSignal(480)

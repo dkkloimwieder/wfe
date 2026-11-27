@@ -2,6 +2,67 @@ import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 
 export async function galleryTimeCases({ page, url, record }) {
+  await record(
+    'gallery: standalone TimeClock responds to input and respects state',
+    async () => {
+      await page.setViewportSize({ width: 390, height: 820 })
+      await page.goto(`${url}?gallery=dates&viewport=phone`)
+      const clock = page.getByRole('group', { name: 'Time clock', exact: true })
+      const dial = clock.getByRole('slider')
+      const hour = clock.getByRole('textbox', { name: 'Hour', exact: true })
+      const minute = clock.getByRole('textbox', { name: 'Minute', exact: true })
+      const state = (name) =>
+        page
+          .getByRole('group', { name: 'Example state' })
+          .getByRole('button', { name, exact: true })
+      const clickTick = async (tick) => {
+        await dial.scrollIntoViewIfNeeded()
+        const tickBounds = await dial
+          .getByText(tick, { exact: true })
+          .boundingBox()
+        assert.ok(tickBounds)
+        await page.mouse.click(
+          tickBounds.x + tickBounds.width / 2,
+          tickBounds.y + tickBounds.height / 2,
+        )
+      }
+
+      await expect(hour).toHaveValue('14')
+      await clickTick('3')
+      await expect(hour).toHaveValue('03')
+      await expect(dial).toHaveAccessibleName('Minute')
+      await clickTick('25')
+      await expect(minute).toHaveValue('25')
+
+      await hour.focus()
+      await dial.press('ArrowRight')
+      await expect(hour).toHaveValue('04')
+      await dial.press('Enter')
+      await expect(dial).toHaveAccessibleName('Minute')
+      await dial.press('ArrowDown')
+      await expect(minute).toHaveValue('24')
+
+      await state('readonly').click()
+      await expect(dial).toHaveAttribute('aria-readonly', 'true')
+      await clickTick('10')
+      await dial.press('ArrowRight')
+      await expect(hour).toHaveValue('04')
+      await expect(minute).toHaveValue('24')
+
+      await state('disabled').click()
+      await expect(hour).toBeDisabled()
+      await expect(minute).toBeDisabled()
+      await expect(dial).toBeDisabled()
+      await expect(dial).toHaveAttribute('tabindex', '-1')
+      await page.getByRole('region', { name: 'Preview viewport' }).focus()
+      await page.keyboard.press('Tab')
+      const containsFocus = () =>
+        clock.evaluate((node) => node.contains(document.activeElement))
+      assert.equal(await containsFocus(), false)
+      await clickTick('10')
+      assert.equal(await containsFocus(), false)
+    },
+  )
   for (const preset of ['sketchy', 'vanilla', 'laser']) {
     await record(
       `gallery: ${preset} integrated datetime columns and clock`,

@@ -2,9 +2,13 @@ import { createSignal } from 'solid-js'
 import {
   Button,
   Checkbox,
+  Field,
   FieldGroup,
   FormActions,
+  FormGrid,
   Icon,
+  Input,
+  Label,
 } from '@wfe/components'
 import { createForm } from '@wfe/form'
 import { FormView } from '@wfe/generator'
@@ -91,6 +95,26 @@ export function FormActionsExample() {
           </Button>
           <Button onClick={() => setMessage('Reset requested.')}>Reset</Button>
         </FormActions>
+      </FieldGroup>
+      <FieldGroup title="Form grid with a footer">
+        <FormGrid
+          as="form"
+          onSubmit={(event) => {
+            event.preventDefault()
+            const name = new FormData(event.currentTarget).get('name')
+            setMessage(`Grid saved ${typeof name === 'string' ? name : ''}.`)
+          }}
+          footer={
+            <Button type="submit" tone="primary">
+              Save grid
+            </Button>
+          }
+        >
+          <Field required>
+            <Label>Grid record name</Label>
+            <Input name="name" defaultValue="Draft" />
+          </Field>
+        </FormGrid>
       </FieldGroup>
       <p role="status" aria-live="polite">
         {message()}

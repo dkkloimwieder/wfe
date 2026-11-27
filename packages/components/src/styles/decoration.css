@@ -4,11 +4,9 @@
 /* Dotted decoration. Theme turns it on with the decoration choice, which
    Sketchy enables by default. Rules stop at a nested theme root. */
 @scope ([data-ui-tokens][data-ui-decoration]) to ([data-ui-tokens]) {
-  /* The one dot pattern. --ui-canvas-pattern reads it too. Each rule only sets the
-     dot color through --_ui-dots; the pattern resolves where it is used. */
-  :scope,
-  :scope *,
-  :scope *::before {
+  /* Resolve the canvas pattern at the root. Other readers resolve their local
+     color through --_ui-dots. */
+  :scope {
     --ui-dot-pattern: radial-gradient(
       circle,
       color-mix(
@@ -42,7 +40,8 @@
         .popup-trigger,
         .ui-calendar td button,
         .ui-affix-trigger
-      )
+      ),
+      :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button)
     ) {
     position: relative;
   }
@@ -81,7 +80,20 @@
       .ui-sidebar-group-panel > summary,
       .popup-trigger,
       .ui-calendar td button,
-      .ui-affix-trigger
+      .ui-affix-trigger,
+      .ui-tree-toggle
+    )::before,
+  :scope
+    :is(
+      .popup-option,
+      .ui-menu-item,
+      .ui-tree-item,
+      .ui-calendar td button
+    ):not(
+      :disabled,
+      [aria-disabled='true'],
+      [data-disabled],
+      [data-readonly]
     )::before {
     content: '';
     position: absolute;
@@ -106,6 +118,17 @@
       --_ui-action-decoration-error,
       var(--_ui-action-dot-color, var(--ui-decoration-dot-color))
     );
+    --ui-dot-pattern: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--_ui-dots, var(--ui-decoration-dot-color))
+            var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
     opacity: var(
@@ -113,8 +136,24 @@
       var(--_ui-action-decoration-opacity, 0)
     );
   }
+  :scope
+    :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button) {
+    isolation: isolate;
+
+    &::before {
+      --ui-action-decoration-inset: var(--ui-border-width, 1px);
+      --ui-action-dot-visibility: 0%;
+      --_ui-action-dot-color: color-mix(
+        in srgb,
+        var(--ui-choice-decoration-color, var(--ui-decoration-dot-color))
+          calc(var(--ui-choice-decoration-opacity, 1) * 100%),
+        transparent
+      );
+      border-radius: inherit;
+    }
+  }
   :scope .ui-sidebar-group-panel::before {
-    /* Leave room for the tilt inside the 8px rail inset. */
+    /* Extend the backing past the group border. */
     --ui-action-decoration-inset: -4px;
     --ui-decoration-border: color-mix(
       in srgb,
@@ -133,7 +172,12 @@
         [aria-selected='true'],
         [aria-current='page'],
         [data-ui-active='true']
-      ):not(:disabled, [aria-disabled='true'], [data-disabled], [data-readonly]) {
+      ):not(
+        :disabled,
+        [aria-disabled='true'],
+        [data-disabled],
+        [data-readonly]
+      ) {
       --ui-state-selected-shadow: 0 0 transparent;
 
       &::before {
@@ -147,10 +191,7 @@
       }
     }
   }
-  :scope
-    :is(.ui-sidebar-group, .ui-sidebar-flyout)
-    .ui-dashboard-menu
-    > a {
+  :scope :is(.ui-sidebar-group, .ui-sidebar-flyout) .ui-dashboard-menu > a {
     color: var(--ui-sidebar-primary);
   }
   :scope
@@ -266,6 +307,17 @@
   :scope :is(.table-workspace-header, .table-workspace-summary) {
     background-color: var(--ui-pane-surface);
     --_ui-dots: var(--ui-neutral-dot-color, var(--ui-muted-text));
+    --ui-dot-pattern: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--_ui-dots, var(--ui-decoration-dot-color))
+            var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
   }
@@ -477,6 +529,7 @@
     inset: -4px;
     z-index: -1;
     pointer-events: none;
+    box-sizing: border-box;
     border: var(--ui-border-width, 1px) solid
       color-mix(
         in srgb,
@@ -495,12 +548,31 @@
       --_ui-field-decoration-error,
       var(--ui-input-decoration-dot-color, var(--ui-neutral-dot-color))
     );
+    --ui-dot-pattern: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--_ui-dots, var(--ui-decoration-dot-color))
+            var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
     opacity: var(
       --_ui-invalid-backing-opacity,
       var(--_ui-field-decoration-opacity, 0)
     );
+  }
+  /* A field shows the dots only as a ring outside its edge. A field that holds
+     buttons is its own stacking context, so a full backing would cover it. */
+  :scope [data-ui-control-surface]::before {
+    padding: calc(4px - var(--ui-border-width, 1px));
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0) border-box;
   }
   :scope
     [data-ui-control-surface]:is(
@@ -593,9 +665,7 @@
   :scope [data-ui-section-decoration][data-ui-section-active]::before,
   :scope [data-ui-section-decoration][data-ui-section-hover]:hover::before,
   :scope
-    [data-ui-section-decoration][data-ui-section-focus]:focus-within::before {
-    opacity: 1;
-  }
+    [data-ui-section-decoration][data-ui-section-focus]:focus-within::before,
   :scope
     [data-popper-positioner]:has(
       > .ui-menu[data-ui-section-decoration][data-ui-section-always]:not(
@@ -609,9 +679,7 @@
   :scope
     [data-popper-positioner]:has(
       > .ui-menu[data-ui-section-decoration='none']
-    )::before {
-    display: none;
-  }
+    )::before,
   :scope [data-ui-section-decoration='none']::before,
   :scope [data-ui-section-decoration]:disabled::before {
     display: none;
@@ -629,12 +697,34 @@
         transparent
       );
     --_ui-dots: var(--ui-primary, #1971c2);
+    --ui-dot-pattern: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--_ui-dots, var(--ui-decoration-dot-color))
+            var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
     pointer-events: none;
   }
   :scope .ui-gantt-progress {
     --_ui-dots: var(--ui-primary);
+    --ui-dot-pattern: radial-gradient(
+      circle,
+      color-mix(
+          in srgb,
+          var(--_ui-dots, var(--ui-decoration-dot-color))
+            var(--ui-decoration-dot-opacity, 50%),
+          transparent
+        )
+        0.75px,
+      transparent 0.75px
+    );
     background-image: var(--ui-dot-pattern);
     background-size: var(--ui-canvas-pattern-size);
   }
@@ -652,23 +742,21 @@
       position: relative;
       z-index: 2;
     }
-    :scope .ui-calendar[data-range] [data-selected] {
-      background-color: var(--ui-canvas-surface);
-      --_ui-dots: var(--ui-neutral-dot-color, var(--ui-muted-text));
-      background-image: var(--ui-dot-pattern);
-      background-size: var(--ui-canvas-pattern-size);
-    }
-    :scope .ui-calendar[data-range] [data-selected] .ui-calendar-day-number {
-      display: inline-block;
-      min-inline-size: 2ch;
-      padding-inline: 0.15em;
-      background: var(--ui-canvas-surface, var(--ui-surface));
-      text-decoration: inherit;
-    }
     :scope .ui-slider-thumb {
       position: relative;
       --_ui-check-rest-fill: var(--ui-dot-pattern);
       --_ui-dots: var(--ui-decoration-dot-color);
+      --ui-dot-pattern: radial-gradient(
+        circle,
+        color-mix(
+            in srgb,
+            var(--_ui-dots, var(--ui-decoration-dot-color))
+              var(--ui-decoration-dot-opacity, 50%),
+            transparent
+          )
+          0.75px,
+        transparent 0.75px
+      );
       background-image: var(--_ui-check-rest-fill);
       background-size: var(--ui-canvas-pattern-size);
     }

@@ -6,31 +6,63 @@ import { nativeEventProps, ownedElementEvents } from '../internal/events'
 
 export type FormColumns = 1 | 2 | 3
 export type FormSpan = FormColumns | 'full'
-export type FormGridProps = JSX.HTMLAttributes<HTMLDivElement> & {
+export type FormGridProps = {
   columns?: FormColumns
-}
+  /** Actions rendered below the fields within the same container. */
+  footer?: JSX.Element
+} & (
+  | ({ as?: 'div' } & JSX.HTMLAttributes<HTMLDivElement>)
+  | ({ as: 'form' } & JSX.FormHTMLAttributes<HTMLFormElement>)
+)
 
-/** A container-responsive grid for fields or field groups. */
-export function FormGrid(props: FormGridProps) {
-  const attributes = omit(
+function formGridAttributes<Props extends FormGridProps>(props: Props) {
+  return omit(
     props,
+    'as',
     'columns',
+    'footer',
     'children',
     'ref',
     ...nativeEventProps,
   )
+}
+
+/** A container-responsive grid for fields or field groups. */
+export function FormGrid(props: FormGridProps) {
   const events = ownedElementEvents(props)
-  return (
-    <div
-      {...attributes}
-      data-ui=""
-      class={styledClasses('ui-form-layout', props.class)}
-      ref={[props.ref, events]}
-    >
+  const content = () => (
+    <>
       <div class="ui-form-grid" data-columns={props.columns ?? 1}>
         {props.children}
       </div>
-    </div>
+      <Show when={props.footer}>
+        <FormActions class="ui-form-grid-footer">{props.footer}</FormActions>
+      </Show>
+    </>
+  )
+  return (
+    <Show
+      when={props.as === 'form'}
+      fallback={
+        <div
+          {...(props.as !== 'form' ? formGridAttributes(props) : {})}
+          data-ui=""
+          class={styledClasses('ui-form-layout', props.class)}
+          ref={[props.as !== 'form' ? props.ref : undefined, events]}
+        >
+          {content()}
+        </div>
+      }
+    >
+      <form
+        {...(props.as === 'form' ? formGridAttributes(props) : {})}
+        data-ui=""
+        class={styledClasses('ui-form-layout', props.class)}
+        ref={[props.as === 'form' ? props.ref : undefined, events]}
+      >
+        {content()}
+      </form>
+    </Show>
   )
 }
 

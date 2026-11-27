@@ -64,7 +64,7 @@ function PaletteRow(props: {
   )
 }
 
-/** Temporary application-owned review. Nothing is persisted. */
+/** Application-owned appearance controls and token samples. */
 export function AppearanceReview(props: {
   themeOptions?: ThemeOptions
   showDecorationControls?: boolean
@@ -80,6 +80,8 @@ export function AppearanceReview(props: {
   layers: SurfaceLayers
   onLayersChange: (layers: SurfaceLayers) => void
   onSchemeChange: (scheme: SurfaceScheme) => void
+  systemScheme?: boolean
+  onSystemScheme?: () => void
   onPrimaryChange: (color: PaletteColor) => void
   onAccentChange?: (color: PaletteColor) => void
 }) {
@@ -178,13 +180,26 @@ export function AppearanceReview(props: {
             {(scheme) => (
               <Button
                 aria-label={`${scheme.name} surfaces`}
-                aria-pressed={props.scheme === scheme ? 'true' : 'false'}
+                aria-pressed={
+                  !props.systemScheme && props.scheme === scheme
+                    ? 'true'
+                    : 'false'
+                }
                 onClick={() => props.onSchemeChange(scheme)}
               >
                 {scheme.name}
               </Button>
             )}
           </For>
+          <Show when={props.onSystemScheme}>
+            <Button
+              aria-label="System surfaces"
+              aria-pressed={props.systemScheme ? 'true' : 'false'}
+              onClick={() => props.onSystemScheme?.()}
+            >
+              System
+            </Button>
+          </Show>
         </div>
         <Show when={!props.accent}>{primaryRow()}</Show>
         <div class="appearance-options" role="group" aria-label="Button tone">

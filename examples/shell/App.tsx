@@ -1,3 +1,4 @@
+import '@wfe/components/styles.css'
 import {
   createEffect,
   createSignal,

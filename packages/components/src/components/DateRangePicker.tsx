@@ -38,6 +38,8 @@ export type DateRangePickerProps = Omit<
   invalid?: boolean
   clearLabel?: string
   'aria-describedby'?: string
+  /** Format the accepted range, including a start with no end yet. */
+  formatRange?: (range: CalendarRange, locale: string) => string
   onValueChange: (value: CalendarRange | undefined) => void
   ref?: (node: HTMLButtonElement) => void
 }
@@ -72,7 +74,9 @@ export function DateRangePicker(props: DateRangePickerProps) {
   const display = createMemo(() => {
     const range = value()
     if (!range) return ''
-    const formatter = dateFormatter(props.locale ?? 'en-US', {
+    const locale = props.locale ?? 'en-US'
+    if (props.formatRange) return props.formatRange(range, locale)
+    const formatter = dateFormatter(locale, {
       calendar: 'gregory',
       dateStyle: 'medium',
       timeZone: 'UTC',
@@ -128,6 +132,7 @@ export function DateRangePicker(props: DateRangePickerProps) {
     'aria-describedby',
     'ref',
     'onValueChange',
+    'formatRange',
     'value',
   )
   return renderCompoundFieldRoot(() =>

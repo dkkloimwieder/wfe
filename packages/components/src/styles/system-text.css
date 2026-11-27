@@ -1,66 +1,57 @@
-:where([data-ui])
-  :where(
-    button,
-    .ui-button,
-    label,
-    legend,
-    summary,
-    th,
-    caption,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6,
-    .ui-label,
-    .ui-badge,
-    .ui-menu-item,
-    .ui-menu-label,
-    .ui-dialog-title,
-    .ui-popup-title,
-    .ui-toast-title,
-    .grouping-level-label,
-    .group-count,
-    .ui-section-count,
-    .table-workspace-summary,
-    .result-count
-  ) {
+:where([data-ui]) :where(button),
+:where([data-ui]) :where(.ui-button),
+:where([data-ui]) :where(label),
+:where([data-ui]) :where(legend),
+:where([data-ui]) :where(summary),
+:where([data-ui]) :where(th),
+:where([data-ui]) :where(caption),
+:where([data-ui]) :where(h1),
+:where([data-ui]) :where(h2),
+:where([data-ui]) :where(h3),
+:where([data-ui]) :where(h4),
+:where([data-ui]) :where(h5),
+:where([data-ui]) :where(h6),
+:where([data-ui]) :where(.ui-label),
+:where([data-ui]) :where(.ui-badge),
+:where([data-ui]) :where(.ui-menu-item),
+:where([data-ui]) :where(.ui-menu-label),
+:where([data-ui]) :where(.ui-dialog-title),
+:where([data-ui]) :where(.ui-popup-title),
+:where([data-ui]) :where(.ui-toast-title),
+:where([data-ui]) :where(.grouping-level-label),
+:where([data-ui]) :where(.group-count),
+:where([data-ui]) :where(.ui-section-count),
+:where([data-ui]) :where(.table-workspace-summary),
+:where([data-ui]) :where(.result-count) {
   text-transform: var(--ui-system-text-transform, uppercase);
 }
 
-:where([data-ui])
-  :where(
-    input,
-    textarea,
-    select,
-    option,
-    .popup-trigger,
-    .popup-option,
-    [data-group-toggle],
-    .cell-value,
-    [data-value],
-    .ui-radio-item .ui-label,
-    p,
-    .ui-help,
-    .ui-field-error,
-    .ui-dialog-description,
-    .ui-popup-description,
-    .ui-toast-description,
-    .summary-help
-  ) {
+:where([data-ui]) :where(input),
+:where([data-ui]) :where(textarea),
+:where([data-ui]) :where(select),
+:where([data-ui]) :where(option),
+:where([data-ui]) :where(.popup-trigger),
+:where([data-ui]) :where(.popup-option),
+:where([data-ui]) :where([data-group-toggle]),
+:where([data-ui]) :where(.cell-value),
+:where([data-ui]) :where([data-value]),
+:where([data-ui]) :where(.ui-radio-item .ui-label),
+:where([data-ui]) :where(p),
+:where([data-ui]) :where(.ui-help),
+:where([data-ui]) :where(.ui-field-error),
+:where([data-ui]) :where(.ui-dialog-description),
+:where([data-ui]) :where(.ui-popup-description),
+:where([data-ui]) :where(.ui-toast-description),
+:where([data-ui]) :where(.summary-help) {
   text-transform: none;
 }
 
-:where([data-ui])
-  :where(
-    .grouping-controls select,
-    .grouping-controls option,
-    .popup-trigger [data-placeholder-shown],
-    [data-ui-text='system'],
-    [data-ui-text='system'] > option,
-    .popup-content[data-ui-text='system'] .popup-option
-  ) {
+:where([data-ui]) :where(.grouping-controls select),
+:where([data-ui]) :where(.grouping-controls option),
+:where([data-ui]) :where(.popup-trigger [data-placeholder-shown]),
+:where([data-ui]) :where([data-ui-text='system']),
+:where([data-ui]) :where([data-ui-text='system'] > option),
+:where([data-ui]) :where(.popup-content[data-ui-text='system'] .popup-option) {
   text-transform: var(--ui-system-text-transform, uppercase);
 }
 
@@ -71,6 +62,7 @@
   text-transform: var(--ui-system-text-transform, uppercase);
 }
 
-:where([data-ui]) :where([data-ui-text='value'], [data-ui-text='prose']) {
+:where([data-ui]) :where([data-ui-text='value']),
+:where([data-ui]) :where([data-ui-text='prose']) {
   text-transform: none;
 }

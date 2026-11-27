@@ -1,12 +1,8 @@
 /* Table primitives and controls; workspace layout stays in table-workspace.css. */
-
 :where([data-ui]) .toolbar {
   display: flex;
-  align-items: center;
   gap: var(--ui-gap, 8px);
   flex-wrap: wrap;
-}
-:where([data-ui]) .toolbar {
   margin: 10px 0 6px;
   align-items: end;
 }
@@ -28,6 +24,9 @@
   );
   border-collapse: collapse;
   table-layout: fixed;
+}
+:where([data-ui]) table:where(.ui-table)[data-fit-trailing] {
+  table-layout: auto;
 }
 :where([data-ui]) :where(.ui-table) > caption {
   background: transparent;
@@ -76,9 +75,7 @@
 }
 :where([data-ui])
   :where(.ui-table > :is(thead, tbody, tfoot) > tr)
-  > :is(th, td)[data-column-alignment] {
-  text-align: var(--ui-column-alignment);
-}
+  > :is(th, td)[data-column-alignment],
 :where([data-ui]) [data-column-alignment] :is(.column-move, .column-title) {
   text-align: var(--ui-column-alignment);
 }
@@ -163,7 +160,79 @@
   margin: 0;
 }
 :where([data-ui]) .read-only-value {
+  overflow-wrap: normal;
+}
+:where([data-ui]) .read-only-value:not(:has(*)) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:where([data-ui])
+  .ui-table[data-cell-wrap='anywhere']
+  > tbody
+  > tr
+  > .read-only-value {
   overflow-wrap: anywhere;
+}
+
+:where([data-ui]) .table-workspace[data-table-fill] {
+  flex: 1 1 0%;
+  min-block-size: 0;
+}
+/* Wide workspaces keep the centered title. Only a narrow workspace wraps. */
+:where([data-ui])
+  .table-workspace[data-toolbar-layout='wrap'][data-controls-drawer]
+  > .table-workspace-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+:where([data-ui])
+  .table-workspace[data-toolbar-layout='wrap'][data-controls-drawer]
+  > .table-workspace-header
+  > .table-workspace-header-actions {
+  order: -1;
+  max-inline-size: 100%;
+}
+:where([data-ui])
+  .table-workspace[data-toolbar-layout='wrap']
+  > .table-workspace-header
+  > .table-workspace-header-actions
+  > .table-filter-actions {
+  flex-wrap: wrap;
+}
+:where([data-ui]) .table-results-empty {
+  padding: var(--ui-gap);
+}
+:where([data-ui]) .table-bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap);
+  min-inline-size: 0;
+}
+:where([data-ui]) .table-bulk-actions:empty {
+  display: none;
+}
+:where([data-ui]) .table-row-control {
+  --ui-control-height: var(--ui-table-control-height, 26px);
+}
+:where([data-ui]) .ui-table > :is(thead, tbody) > tr > .table-row-control {
+  text-align: center;
+}
+:where([data-ui]) .table-row-control > .ui-checkbox {
+  display: inline-flex;
+  vertical-align: middle;
+}
+:where([data-ui]) .table-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-gap, 8px);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+:where([data-ui]) .table-row-actions > .table-row-menu-trigger {
+  inline-size: var(--ui-control-height);
+  padding-inline: 0;
 }
 
 :where([data-ui]) .header-sort {
@@ -591,21 +660,11 @@
   position: relative;
 }
 :where([data-ui])
-  .column-header:is(
-    [data-column-alignment='center'],
-    [data-column-alignment='right']
-  )
+  .column-header[data-column-alignment='center']
   .column-heading:has(.column-move)
   .column-sort {
   position: absolute;
   inset-inline-end: 0;
-}
-:where([data-ui])
-  .column-header[data-column-alignment='right']
-  .column-heading:has(.column-move)
-  .column-sort {
-  inset-inline-start: 0;
-  inset-inline-end: auto;
 }
 :where([data-ui])
   .column-header[data-column-alignment='center']
@@ -616,46 +675,48 @@
   );
 }
 :where([data-ui])
-  .column-header[data-column-alignment='right']
-  .column-heading:has(.column-sort)
-  .column-move {
-  padding-inline-start: calc(
-    1ch + var(--ui-cell-padding-x, 8px) * 2 + var(--ui-gap, 8px)
-  );
-}
-:where([data-ui])
-  .column-header:is(
-    [data-column-alignment='center'],
-    [data-column-alignment='right']
-  )
+  .column-header[data-column-alignment='center']
   .column-heading:not(:has(.column-move))
   .column-sort-label {
   padding-inline: calc(1ch + var(--ui-gap, 8px));
 }
 :where([data-ui])
-  .column-header[data-column-alignment='right']
-  .column-heading:not(:has(.column-move))
-  .column-sort-label {
-  padding-inline-end: 0;
-}
-:where([data-ui])
-  .column-header:is(
-    [data-column-alignment='center'],
-    [data-column-alignment='right']
-  )
+  .column-header[data-column-alignment='center']
   .column-heading:not(:has(.column-move))
   .column-sort
   > .column-sort-icon {
   position: absolute;
   inset-inline-end: 0;
 }
+:where([data-ui]) .column-header[data-column-alignment='right'] .column-heading,
+:where([data-ui]) .column-header[data-column-alignment='right'] .column-sort {
+  justify-content: flex-end;
+}
 :where([data-ui])
   .column-header[data-column-alignment='right']
-  .column-heading:not(:has(.column-move))
-  .column-sort
-  > .column-sort-icon {
-  inset-inline-start: 0;
-  inset-inline-end: auto;
+  .column-heading:has(.column-sort):has(.column-move) {
+  gap: 0;
+}
+:where([data-ui])
+  .column-header[data-column-alignment='right']
+  .column-heading:has(.column-sort)
+  .column-move {
+  flex: 0 1 auto;
+  width: auto;
+}
+:where([data-ui])
+  .column-header[data-column-alignment='right']
+  .column-sort-label {
+  flex: 0 1 auto;
+}
+:where([data-ui])
+  .column-header[data-column-alignment='right']
+  .column-sort-icon,
+:where([data-ui])
+  .column-header[data-column-alignment='right']
+  .column-heading:has(.column-move)
+  .column-sort {
+  order: -1;
 }
 :where([data-ui]) td[data-cell-selection] {
   background: var(

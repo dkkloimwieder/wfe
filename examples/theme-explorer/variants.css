@@ -1,4 +1,4 @@
-body:has([data-variants-page]) {
+body[data-variants-page-layout] {
   margin: 0;
 }
 
@@ -90,6 +90,8 @@ body:has([data-variants-page]) {
   position: relative !important;
   inset: auto !important;
   transform: none !important;
+  /* In-flow snapshots must keep their height as the page scrolls. */
+  --kb-popper-content-available-height: initial !important;
 }
 
 .variant-drag-preview .ui-dnd-preview {
@@ -100,4 +102,12 @@ body:has([data-variants-page]) {
   position: relative;
   inset: auto;
   transform: none;
+}
+
+[data-variants-page] .variant-live {
+  display: grid;
+  justify-items: start;
+  gap: var(--ui-gap);
+  padding: var(--ui-gap);
+  border-block-end: 1px dashed var(--ui-border);
 }

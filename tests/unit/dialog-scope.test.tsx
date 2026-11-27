@@ -11,6 +11,250 @@ import { AlertDialog, Dialog, Sheet, Theme } from '@wfe/components'
 
 afterEach(cleanup)
 
+async function openAlert() {
+  const changes = vi.fn()
+  const cancel = vi.fn()
+  const action = vi.fn()
+  const pointerOutside = vi.fn()
+  const view = render(() => (
+    <AlertDialog onOpenChange={changes}>
+      <AlertDialog.Trigger>Review changes</AlertDialog.Trigger>
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay data-testid="alert-overlay" />
+        <AlertDialog.Content onPointerDownOutside={pointerOutside}>
+          <AlertDialog.Title>Apply changes?</AlertDialog.Title>
+          <AlertDialog.Description>
+            Review the current changes.
+          </AlertDialog.Description>
+          <AlertDialog.Cancel onClick={cancel}>Cancel</AlertDialog.Cancel>
+          <AlertDialog.Action onClick={action}>Apply</AlertDialog.Action>
+        </AlertDialog.Content>
+      </AlertDialog.Portal>
+    </AlertDialog>
+  ))
+  const trigger = view.getByRole('button', { name: 'Review changes' })
+  trigger.focus()
+  fireEvent.click(trigger)
+  flush()
+  const content = await screen.findByRole('alertdialog')
+  await waitFor(() =>
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Cancel' }),
+    ),
+  )
+  return { action, cancel, changes, content, pointerOutside, trigger }
+}
+
+test('AlertDialog stays open on pointer down, click, and focus outside', async () => {
+  const { changes, content, pointerOutside, trigger } = await openAlert()
+  const overlay = screen.getByTestId('alert-overlay')
+  fireEvent.pointerDown(overlay, { pointerType: 'mouse', button: 0 })
+  flush()
+  expect(pointerOutside).toHaveBeenCalledOnce()
+  expect(screen.getByRole('alertdialog')).toBe(content)
+  fireEvent.click(overlay)
+  trigger.focus()
+  fireEvent.click(trigger)
+  flush()
+  expect(screen.getByRole('alertdialog')).toBe(content)
+  expect(changes.mock.calls).toEqual([[true]])
+})
+
+test('AlertDialog Escape activates the Cancel button and restores trigger focus', async () => {
+  const { cancel, action, changes, trigger } = await openAlert()
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Cancel' }), {
+    key: 'Escape',
+    code: 'Escape',
+  })
+  flush()
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
+  })
+  expect(cancel).toHaveBeenCalledOnce()
+  expect(action).not.toHaveBeenCalled()
+  expect(changes.mock.calls).toEqual([[true], [false]])
+})
+
+for (const name of ['Cancel', 'Apply'] as const) {
+  test(`AlertDialog closes when the user clicks ${name}`, async () => {
+    const { cancel, action, changes } = await openAlert()
+    fireEvent.click(screen.getByRole('button', { name }))
+    flush()
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+    expect(changes.mock.calls).toEqual([[true], [false]])
+    expect(name === 'Apply' ? action : cancel).toHaveBeenCalledOnce()
+  })
+}
+
+test('AlertDialog Action can keep the dialog open while the application saves', async () => {
+  const submit = vi.fn((event: MouseEvent) => event.preventDefault())
+  render(() => (
+    <AlertDialog defaultOpen>
+      <AlertDialog.Content>
+        <AlertDialog.Title>Save record?</AlertDialog.Title>
+        <AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+        <AlertDialog.Action onClick={submit}>Save</AlertDialog.Action>
+      </AlertDialog.Content>
+    </AlertDialog>
+  ))
+  flush()
+  fireEvent.click(await screen.findByRole('button', { name: 'Save' }))
+  flush()
+  expect(submit).toHaveBeenCalledOnce()
+  expect(screen.getByRole('alertdialog')).toBeDefined()
+})
+
+test('Sheet can opt into a wide side panel and return to the default', async () => {
+  const [size, setSize] = createSignal<'default' | 'wide' | undefined>()
+  const h = render(() => (
+    <Sheet>
+      <Sheet.Trigger>Open sheet</Sheet.Trigger>
+      <Sheet.Portal>
+        <Sheet.Content side="left" size={size()}>
+          <Sheet.Title>Contact details</Sheet.Title>
+          <Sheet.CloseButton>Close</Sheet.CloseButton>
+        </Sheet.Content>
+      </Sheet.Portal>
+    </Sheet>
+  ))
+  fireEvent.click(h.getByRole('button', { name: 'Open sheet' }))
+  const sheet = await screen.findByRole('dialog', { name: 'Contact details' })
+  expect(sheet.getAttribute('data-side')).toBe('left')
+  expect(sheet.hasAttribute('data-size')).toBe(false)
+  setSize('wide')
+  flush()
+  expect(sheet.getAttribute('data-size')).toBe('wide')
+  expect(sheet.hasAttribute('size')).toBe(false)
+  setSize('default')
+  flush()
+  expect(sheet.hasAttribute('data-size')).toBe(false)
+})
+
+for (const [name, Family] of [
+  ['Dialog', Dialog],
+  ['Sheet', Sheet],
+] as const) {
+  test(`${name} honors explicit focus targets and caller autofocus cancellation`, async () => {
+    let target: HTMLInputElement | undefined
+    let restore: HTMLHeadingElement | undefined
+    let cancel: HTMLButtonElement | undefined
+    let prevent = false
+    const h = render(() => (
+      <>
+        <h2 ref={restore} tabindex={-1}>
+          Record summary
+        </h2>
+        <Family>
+          <Family.Trigger>Open editor</Family.Trigger>
+          <Family.Portal>
+            <Family.Content
+              initialFocus={() => target}
+              restoreFocus={() => restore}
+              onOpenAutoFocus={(event) => {
+                if (prevent) {
+                  event.preventDefault()
+                  cancel?.focus()
+                }
+              }}
+            >
+              <Family.Title>Record editor</Family.Title>
+              <Family.CloseButton ref={cancel} aria-label="Close editor">
+                Close editor
+              </Family.CloseButton>
+              <input ref={target} aria-label="Name" />
+            </Family.Content>
+          </Family.Portal>
+        </Family>
+      </>
+    ))
+    const opener = h.getByRole('button', { name: 'Open editor' })
+    opener.focus()
+    fireEvent.click(opener)
+    flush()
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole('textbox', { name: 'Name' }),
+      ),
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Close editor' }))
+    flush()
+    await waitFor(() => expect(document.activeElement).toBe(restore))
+    prevent = true
+    opener.focus()
+    fireEvent.click(opener)
+    flush()
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole('button', { name: 'Close editor' }),
+      ),
+    )
+  })
+
+  test(`${name} focuses the replacement view on key changes while open`, async () => {
+    using warnings = vi.spyOn(console, 'warn')
+    const [editing, setEditing] = createSignal(false)
+    let edit: HTMLButtonElement | undefined
+    let field: HTMLInputElement | undefined
+    let outside: HTMLInputElement | undefined
+    const [target, setTarget] = createSignal<'inside' | 'outside'>('inside')
+    const h = render(() => (
+      <>
+        <input ref={outside} aria-label="Outside" />
+        <Family>
+          <Family.Trigger>Open record</Family.Trigger>
+          <Family.Portal>
+            <Family.Content
+              focusKey={[editing(), target()]}
+              initialFocus={() =>
+                target() === 'outside' ? outside : editing() ? field : edit
+              }
+            >
+              <Family.Title>Record</Family.Title>
+              <Show
+                when={editing()}
+                fallback={
+                  <button ref={edit} onClick={() => setEditing(true)}>
+                    Edit name
+                  </button>
+                }
+              >
+                <input ref={field} aria-label="New name" />
+                <button onClick={() => setEditing(false)}>Review name</button>
+              </Show>
+              <Family.CloseButton aria-label="Done">Done</Family.CloseButton>
+            </Family.Content>
+          </Family.Portal>
+        </Family>
+      </>
+    ))
+    const trigger = h.getByRole('button', { name: 'Open record' })
+    trigger.focus()
+    fireEvent.click(trigger)
+    flush()
+    const dialog = await screen.findByRole('dialog')
+    await waitFor(() => expect(document.activeElement).toBe(edit))
+    fireEvent.click(screen.getByRole('button', { name: 'Edit name' }))
+    flush()
+    expect(document.activeElement).toBe(field)
+    setTarget('outside')
+    flush()
+    expect(document.activeElement).toBe(field)
+    setTarget('inside')
+    fireEvent.click(screen.getByRole('button', { name: 'Review name' }))
+    flush()
+    expect(screen.getByRole('dialog')).toBe(dialog)
+    expect(document.activeElement).toBe(edit)
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }))
+    flush()
+    await waitFor(() => expect(document.activeElement).toBe(trigger))
+    setEditing(true)
+    flush()
+    expect(document.activeElement).toBe(trigger)
+    expect(warnings).not.toHaveBeenCalled()
+  })
+}
+
 for (const [name, Family] of [
   ['Dialog', Dialog],
   ['AlertDialog', AlertDialog],

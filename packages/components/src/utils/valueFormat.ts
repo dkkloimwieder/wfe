@@ -12,6 +12,8 @@ import type { TimeInputFormat } from './dateTime'
 
 export type ValueFormatOptions = {
   locale?: string
+  /** An ISO 4217 currency code for the currency display format. */
+  currency?: string
   dateFormat?: DateInputFormat
   timeFormat?: TimeInputFormat
   /** An explicit display zone. ValueDisplay also resolves the browser token. Defaults to UTC. */
@@ -30,6 +32,7 @@ export const VALUE_FORMATS = [
   'number-plain',
   'number-grouped',
   'number-decimal',
+  'currency',
   'short-hash',
 ] as const
 export type ValueFormat = (typeof VALUE_FORMATS)[number]
@@ -108,6 +111,11 @@ export function formatDisplayValue(
       }).format(date)
   }
   if (typeof value === 'number' && Number.isFinite(value)) {
+    if (format === 'currency' && configuration.currency)
+      return numberFormatter(locale, {
+        style: 'currency',
+        currency: configuration.currency,
+      }).format(value)
     if (format === 'number-grouped')
       return numberFormatter(locale, {
         maximumSignificantDigits: 21,

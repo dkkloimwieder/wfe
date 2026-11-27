@@ -4,6 +4,27 @@ import { createSignal, flush, onCleanup, Errored } from 'solid-js'
 import { Tabs } from '@wfe/components/tabs'
 import { TabsKeyboardDelegate } from '../../packages/components/src/vendor/kobalte/core/src/tabs/tabs-keyboard-delegate'
 afterEach(cleanup)
+test('content padding opts out on the same retained panel without forwarding the prop', () => {
+  const [padding, setPadding] = createSignal<'default' | 'none'>('default')
+  const h = render(() => (
+    <Tabs defaultValue="a">
+      <Tabs.List aria-label="Sections">
+        <Tabs.Trigger value="a">First</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="a" padding={padding()}>
+        A panel
+      </Tabs.Content>
+    </Tabs>
+  ))
+  const panel = h.getByRole('tabpanel', { name: 'First' })
+  expect(panel.hasAttribute('data-padding')).toBe(false)
+  setPadding('none')
+  flush()
+  expect(h.getByRole('tabpanel', { name: 'First' })).toBe(panel)
+  expect(panel.getAttribute('data-padding')).toBe('none')
+  expect(panel.hasAttribute('padding')).toBe(false)
+})
+
 test('controlled selection preserves panel identity and moves focused children before hiding', () => {
   const [value, setValue] = createSignal('a')
   const request = vi.fn()

@@ -6,7 +6,7 @@
  * https://github.com/adobe/react-spectrum/blob/b35d5c02fe900badccd0cf1a8f23bb593419f238/packages/@react-aria/listbox/src/useOption.ts
  */
 
-import { createEffect, merge, omit } from 'solid-js'
+import { createEffect, merge, omit, untrack } from 'solid-js'
 
 import { Polymorphic } from '../polymorphic/index.tsx'
 import { useMenuItemContext } from './menu-item.context.tsx'
@@ -40,7 +40,9 @@ export function MenuItemLabel<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('label'),
+      get id() {
+        return context.generateId('label')
+      },
     },
     props as MenuItemLabelProps,
   )
@@ -52,10 +54,13 @@ export function MenuItemLabel<T extends ValidComponent = 'div'>(
     (id) => context.registerLabel(id),
   )
 
+  // Ref bindings are captured once when the label is created.
+  const forwardedRef = untrack(() => mergedProps.ref)
+
   return (
     <Polymorphic<MenuItemLabelRenderProps>
       as="div"
-      ref={[context.setLabelRef, mergedProps.ref]}
+      ref={[context.setLabelRef, forwardedRef]}
       id={mergedProps.id}
       {...context.dataset()}
       {...others}

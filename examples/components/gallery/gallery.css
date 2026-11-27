@@ -1,12 +1,12 @@
 @import '../../shared/appearance/gallery-layout.css';
 
-.gallery-preview:has(.ui-entry-panel) {
+.gallery-preview[data-gallery-entry] {
   padding: 0;
   height: 100dvh;
   min-height: 0;
 }
-.gallery-example-host > .gallery-preview:has(.ui-entry-panel),
-.gallery-preview:has(.ui-entry-panel) > .gallery-example-unframed {
+.gallery-example-host > .gallery-preview[data-gallery-entry],
+.gallery-preview[data-gallery-entry] > .gallery-example-unframed {
   height: 100%;
   min-height: 0;
 }
@@ -36,7 +36,6 @@
   background: var(--ui-canvas-pattern), var(--ui-canvas-surface);
 }
 .geometry-sample {
-  box-sizing: border-box;
   max-width: 100%;
   margin-inline: auto;
 }

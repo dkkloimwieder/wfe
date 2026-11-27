@@ -64,6 +64,7 @@ export function StatusTile(props: StatusTileProps) {
     'state',
     'format',
     'locale',
+    'currency',
     'dateFormat',
     'timeFormat',
     'timeZone',
@@ -111,6 +112,7 @@ export function StatusTile(props: StatusTileProps) {
               value={props.value}
               format={format}
               locale={props.locale}
+              currency={props.currency}
               dateFormat={props.dateFormat}
               timeFormat={props.timeFormat}
               timeZone={props.timeZone}

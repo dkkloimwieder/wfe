@@ -1,4 +1,5 @@
 import { GalleryExample } from './Preview'
+import { UserViewSettings } from './BlocksUserState'
 import {
   For,
   Show,
@@ -8,46 +9,42 @@ import {
   onSettled,
   untrack,
 } from 'solid-js'
-import {
-  Breadcrumbs,
-  Button,
-  Field,
-  Icon,
-  Label,
-  SelectField,
-} from '@wfe/components'
+import { Breadcrumbs, Button, Icon, InlineAlert } from '@wfe/components'
 import { DashboardShell, SidebarGroup } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../../shared/appearance/DefaultAppearance'
 import { AppearanceReview } from '../../shared/appearance/AppearanceReview'
+import { DemoThemePicker } from '../../shared/settings/DemoThemePicker'
+import { useGalleryAppearance } from './galleryAppearance'
+import { schemeIndex } from '../../shared/settings/demoAppearance'
 import {
   schemes,
+  schemeMode,
   primaryColors,
   accentColors,
 } from '../../shared/appearance/appearance'
-import {
-  entries,
-  entryFor,
-  galleryUrl,
-  readRoute,
-  galleryThemeOptions,
-  layersForPreset,
-  schemeForPreset,
-} from './catalog'
+import { entries, entryFor, galleryUrl, galleryThemeOptions } from './catalog'
 import type { GalleryRoute } from './catalog'
 import '../../shared/appearance/style.css'
-import './gallery.css'
 
 export function Gallery() {
-  const [route, setRoute] = createSignal(
-    untrack(() => readRoute(new URL(window.location.href))),
+  return (
+    <UserViewSettings>
+      <GalleryContent />
+    </UserViewSettings>
   )
+}
+
+function GalleryContent() {
+  const appearance = useGalleryAppearance()
+  const { route } = appearance
   const [collapsed, setCollapsed] = createSignal(false)
   const [sidebarBehavior, setSidebarBehavior] = createSignal<
     'flyout' | 'expand'
   >('flyout')
   const [appearanceOpen, setAppearanceOpen] = createSignal(false)
   const [openGroups, setOpenGroups] = createSignal<Record<string, boolean>>({
+    // Open the initial group. Later navigation reveals groups explicitly.
     [entryFor(untrack(route).id).group]: true,
   })
   function reveal(id: GalleryRoute['id']) {
@@ -58,16 +55,29 @@ export function Gallery() {
   let focusAttempt = 0
   let focusFrame: number | undefined
   const entry = () => entryFor(route().id)
-  const oldTitle = untrack(() => document.title)
+  const oldTitle = document.title
   createEffect(
     () => entry().label,
     (label) => {
       document.title = `${label} · Component gallery`
     },
   )
-  const href = (next: GalleryRoute) =>
-    galleryUrl(new URL(window.location.href), next).pathname +
-    galleryUrl(new URL(window.location.href), next).search
+  const routeUrl = (next: GalleryRoute) => {
+    const { preset, scheme } = appearance.overrides()
+    return galleryUrl(appearance.url(), next, {
+      preset,
+      scheme: scheme === undefined ? undefined : schemeIndex[scheme],
+    })
+  }
+  const directHref = () => {
+    const current = route()
+    const url = galleryUrl(appearance.url(), current, current)
+    return url.pathname + url.search
+  }
+  const href = (next: GalleryRoute) => {
+    const url = routeUrl(next)
+    return url.pathname + url.search
+  }
   function focusTitle() {
     const attempt = ++focusAttempt
     const origin = document.activeElement
@@ -88,27 +98,28 @@ export function Gallery() {
   }
   function change(next: Partial<GalleryRoute>, commit = true) {
     if (!alive) return
-    const candidate = { ...untrack(route), ...next }
-    const parsed = readRoute(
-      galleryUrl(new URL(window.location.href), candidate),
-    )
-    const url = galleryUrl(new URL(window.location.href), parsed)
+    const current = route()
+    const candidate = { ...current, ...next }
+    const url = routeUrl(candidate)
     if (commit && url.href !== window.location.href)
       window.history.pushState(null, '', url)
-    const changed = parsed.id !== untrack(route).id
-    setRoute(parsed)
-    if (changed) {
-      reveal(parsed.id)
+    appearance.setUrl(url)
+    if (candidate.id !== current.id) {
+      reveal(candidate.id)
       focusTitle()
     }
   }
   onSettled(() => {
     const pop = () => {
-      const previous = untrack(route).id
-      const next = readRoute(new URL(window.location.href))
-      setRoute(next)
-      if (next.id !== previous) {
-        reveal(next.id)
+      const previous = route().id
+      const url = new URL(window.location.href)
+      const next = entryFor(
+        url.searchParams.get('gallery') ??
+          url.searchParams.get('galleryPreview'),
+      ).id
+      appearance.setUrl(url)
+      if (next !== previous) {
+        reveal(next)
         focusTitle()
       }
     }
@@ -129,13 +140,7 @@ export function Gallery() {
       class="gallery-shell"
       options={galleryThemeOptions(route())}
       preset={route().preset}
-      mode={
-        route().scheme === 2
-          ? 'dark'
-          : route().scheme === 0
-            ? 'monochrome'
-            : 'light'
-      }
+      mode={appearance.mode()}
     >
       <DashboardShell
         class="gallery-dashboard"
@@ -187,6 +192,7 @@ export function Gallery() {
             <For
               each={
                 [
+                  'Blocks',
                   'Forms',
                   'Tables',
                   'Components',
@@ -205,6 +211,7 @@ export function Gallery() {
                       name={
                         (
                           {
+                            Blocks: 'layout',
                             Forms: 'form',
                             Tables: 'grid',
                             Components: 'grid',
@@ -273,29 +280,15 @@ export function Gallery() {
       >
         <Show when={appearanceOpen()}>
           <section id="gallery-appearance" class="gallery-appearance">
-            <Field>
-              <Label>Theme</Label>
-              <SelectField
-                label="Theme"
-                value={route().preset}
-                choices={[
-                  { value: 'default', label: 'Sketchy' },
-                  { value: 'vanilla', label: 'Vanilla' },
-                  { value: 'laser', label: 'Laser' },
-                ]}
-                onValueChange={(value) => {
-                  const preset =
-                    value === 'vanilla' || value === 'laser' ? value : 'default'
-                  // A preset with a non-light default mode also selects that mode.
-                  const scheme = schemeForPreset(preset)
-                  change({
-                    preset,
-                    scheme: scheme !== 1 ? scheme : route().scheme,
-                    layers: layersForPreset(preset),
-                  })
-                }}
-              />
-            </Field>
+            <DemoThemePicker
+              value={route().preset}
+              onChange={(value) => void appearance.setPreset(value)}
+            />
+            <Show when={appearance.failure()}>
+              <InlineAlert announce="assertive" tone="error">
+                {appearance.failure()}
+              </InlineAlert>
+            </Show>
             <div
               class="appearance-options gallery-sidebar-options"
               role="group"
@@ -324,12 +317,7 @@ export function Gallery() {
               themeOptions={{
                 ...galleryThemeOptions(route()),
                 preset: route().preset,
-                mode:
-                  route().scheme === 2
-                    ? 'dark'
-                    : route().scheme === 0
-                      ? 'monochrome'
-                      : 'light',
+                mode: appearance.mode(),
               }}
               showDecorationControls={route().preset === 'default'}
               decorations={route().decorations}
@@ -340,8 +328,10 @@ export function Gallery() {
               primary={primaryColors[route().primary]!}
               accent={accentColors[route().accent]}
               layers={route().layers}
+              systemScheme={appearance.choice() === 'system'}
+              onSystemScheme={() => void appearance.setChoice('system')}
               onSchemeChange={(value) =>
-                change({ scheme: schemes.indexOf(value) })
+                void appearance.setChoice(schemeMode(value))
               }
               onPrimaryChange={(value) =>
                 change({ primary: primaryColors.indexOf(value) })
@@ -386,7 +376,7 @@ export function Gallery() {
               )}
             </For>
           </div>
-          <a href={href(route())} data-ui-text="system">
+          <a href={directHref()} data-ui-text="system">
             Direct link
           </a>
         </div>
@@ -406,6 +396,7 @@ export function Gallery() {
                 <GalleryExample
                   id={id}
                   state={route().state}
+                  appearance={appearance}
                   onNavigate={(id) => change({ id, state: 'normal' })}
                 />
               </div>

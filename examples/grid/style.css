@@ -7,7 +7,6 @@ body {
   flex-direction: column;
   gap: var(--ui-gap, 6px);
   padding: var(--ui-gap, 6px);
-  box-sizing: border-box;
 }
 .grid-example-header,
 .grid-example-footer {

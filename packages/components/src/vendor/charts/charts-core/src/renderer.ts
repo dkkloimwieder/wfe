@@ -185,9 +185,8 @@ export function mountChartRenderer<
   const fontSet = container.ownerDocument.fonts
   if (ownsPosition) container.style.position = 'relative'
 
-  const render = (refreshText = false, reason: HostRenderReason = 'update') => {
+  const render = (reason: HostRenderReason = 'update') => {
     if (destroyed) return
-    if (refreshText && !options.measureText) domText.refresh()
     const previousFocusedPoint = focusedPoint
     const previousCursorPresentation = cursorPresentation
     const previousCursorBinding = renderedCursorBinding
@@ -398,9 +397,21 @@ export function mountChartRenderer<
           }
         : undefined
       if (!responsiveSizeChanged()) return
+      domText.markStyleDirty()
       scheduleRender(false, 'resize')
     })
     observer.observe(container)
+  }
+
+  const flushScheduledRender = () => {
+    renderFrame = undefined
+    if (destroyed) return
+    const shouldRender =
+      domText.refresh() || forceScheduledRender || responsiveSizeChanged()
+    const reason = scheduledRenderReason ?? 'layout'
+    forceScheduledRender = false
+    scheduledRenderReason = undefined
+    if (shouldRender) render(reason)
   }
 
   const scheduleRender = (
@@ -413,28 +424,32 @@ export function mountChartRenderer<
         ? 'layout'
         : 'resize'
     if (renderFrame !== undefined) return
-    if (!view?.requestAnimationFrame) {
-      const shouldRender = forceScheduledRender || responsiveSizeChanged()
-      forceScheduledRender = false
-      const nextReason = scheduledRenderReason ?? 'layout'
-      scheduledRenderReason = undefined
-      if (shouldRender) render(true, nextReason)
-      return
-    }
-    renderFrame = view.requestAnimationFrame(() => {
-      renderFrame = undefined
-      const shouldRender = forceScheduledRender || responsiveSizeChanged()
-      forceScheduledRender = false
-      const nextReason = scheduledRenderReason ?? 'layout'
-      scheduledRenderReason = undefined
-      if (shouldRender) render(true, nextReason)
-    })
+    if (view?.requestAnimationFrame)
+      renderFrame = view.requestAnimationFrame(flushScheduledRender)
+    else flushScheduledRender()
   }
 
   const handleFontLoad = () => {
-    if (destroyed || options.measureText) return
+    if (destroyed) return
     domText.invalidate()
     scheduleRender(true)
+  }
+
+  // Listen above the SVG subtree so mark updates do not dirty inherited typography.
+  const typographyObserver = view?.MutationObserver
+    ? new view.MutationObserver(() => {
+        domText.markStyleDirty()
+        scheduleRender()
+      })
+    : undefined
+  for (let element: Element | null = container; element && typographyObserver;) {
+    typographyObserver.observe(element, { attributes: true })
+    if (element.parentElement) {
+      element = element.parentElement
+    } else {
+      const root = element.getRootNode()
+      element = 'host' in root ? (root as ShadowRoot).host : null
+    }
   }
 
   const cursorBinding = ():
@@ -994,6 +1009,7 @@ export function mountChartRenderer<
   container.addEventListener('focusin', handleFocus)
   container.addEventListener('focusout', clearKeyboardFocus)
   fontSet?.addEventListener?.('loadingdone', handleFontLoad)
+  fontSet?.addEventListener?.('loadingerror', handleFontLoad)
   configureCursorController()
   render()
   configureObserver()
@@ -1008,8 +1024,8 @@ export function mountChartRenderer<
     update(nextOptions) {
       if (destroyed) return
       resolveTooltipInput(nextOptions.definition.tooltip)
-      const fontChanged =
-        nextOptions.measureText === undefined && domText.refresh()
+      if (typographyObserver?.takeRecords().length) domText.markStyleDirty()
+      const fontChanged = domText.refresh()
       const definitionChanged = options.definition !== nextOptions.definition
       const sizeChanged =
         options.height !== nextOptions.height ||
@@ -1052,10 +1068,7 @@ export function mountChartRenderer<
       }
       if (!tooltipIsSticky()) pinnedKey = null
       if (needsRender) {
-        render(
-          false,
-          layoutChanged ? 'layout' : sizeChanged ? 'resize' : 'update',
-        )
+        render(layoutChanged ? 'layout' : sizeChanged ? 'resize' : 'update')
       } else {
         if (cursorBinding()) {
           applyCursorState(false)
@@ -1070,6 +1083,7 @@ export function mountChartRenderer<
       if (destroyed) return
       destroyed = true
       observer?.disconnect()
+      typographyObserver?.disconnect()
       unsubscribeCursor?.()
       unsubscribeCursor = undefined
       cursorSession?.destroy()
@@ -1078,6 +1092,7 @@ export function mountChartRenderer<
       cursorMatch = undefined
       cursorExtension = undefined
       fontSet?.removeEventListener?.('loadingdone', handleFontLoad)
+      fontSet?.removeEventListener?.('loadingerror', handleFontLoad)
       if (renderFrame !== undefined) {
         view?.cancelAnimationFrame?.(renderFrame)
       }

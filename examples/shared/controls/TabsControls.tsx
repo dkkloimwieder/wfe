@@ -104,11 +104,15 @@ export function TabsControls() {
         <Tabs.List aria-label="Disposable sections">
           <Tabs.Trigger value="draft">Draft</Tabs.Trigger>
           <Tabs.Trigger value="summary">Summary</Tabs.Trigger>
+          <Tabs.Trigger value="flush">Flush</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="draft">
           <Draft label="Disposable tab draft" />
         </Tabs.Content>
         <Tabs.Content value="summary">Summary content</Tabs.Content>
+        <Tabs.Content value="flush" padding="none">
+          Flush panel content
+        </Tabs.Content>
       </Tabs>
       <Button id="tabs-outside">Outside tabs</Button>
     </section>

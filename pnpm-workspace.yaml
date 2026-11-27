@@ -8,7 +8,7 @@ preferWorkspacePackages: true
 blockExoticSubdeps: true
 trustPolicy: no-downgrade
 patchedDependencies:
-  '@solid-primitives/interaction@1.0.0': patches/solid-primitives-interaction-1.0.0.patch
+  '@solid-primitives/interaction@1.0.1': patches/solid-primitives-interaction-1.0.1.patch
   '@solid-primitives/scroll@3.0.0': patches/solid-primitives-scroll-3.0.0.patch
 allowBuilds:
   esbuild: true
@@ -19,8 +19,8 @@ trustPolicyExclude:
 
 overrides:
   # Qualify the runtime and compilers together.
-  '@solidjs/compiler': 2.0.0
-  '@solidjs/babel-plugin': 2.0.0
-  '@solidjs/signals': 2.0.0
-  '@solidjs/web': 2.0.0
-  solid-js: 2.0.0
+  '@solidjs/compiler': 2.0.3
+  '@solidjs/babel-plugin': 2.0.3
+  '@solidjs/signals': 2.0.4
+  '@solidjs/web': 2.0.4
+  solid-js: 2.0.4

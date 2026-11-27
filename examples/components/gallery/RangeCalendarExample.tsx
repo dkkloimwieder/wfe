@@ -12,6 +12,19 @@ import {
 } from '@wfe/components'
 import type { CalendarRange } from '@wfe/components'
 import type { GalleryState } from './catalog'
+
+function compactRange(range: CalendarRange, locale: string) {
+  const formatter = new Intl.DateTimeFormat(locale, {
+    month: 'short',
+    day: 'numeric',
+    timeZone: 'UTC',
+  })
+  const start = new Date(`${range.start}T00:00:00Z`)
+  return range.end
+    ? formatter.formatRange(start, new Date(`${range.end}T00:00:00Z`))
+    : `${formatter.format(start)}…`
+}
+
 export function RangeCalendarExample(props: { state?: GalleryState }) {
   const [accept, setAccept] = createSignal(true)
   const [range, setRange] = createSignal<CalendarRange>()
@@ -21,6 +34,7 @@ export function RangeCalendarExample(props: { state?: GalleryState }) {
   })
   const [months, setMonths] = createSignal<1 | 2>(2)
   const [locale, setLocale] = createSignal('en-US')
+  const [compactLabel, setCompactLabel] = createSignal(false)
   const [request, setRequest] = createSignal('No range change requested')
   const [submitted, setSubmitted] = createSignal('No form submitted')
   const disabled = () => props.state === 'disabled'
@@ -104,6 +118,7 @@ export function RangeCalendarExample(props: { state?: GalleryState }) {
             min="2026-11-01"
             max="2027-01-20"
             locale={locale()}
+            formatRange={compactLabel() ? compactRange : undefined}
             numberOfMonths={months()}
             isDateDisabled={(value) => value === '2026-11-12'}
             onValueChange={(next) => {
@@ -116,6 +131,12 @@ export function RangeCalendarExample(props: { state?: GalleryState }) {
             proposals keep the accepted dates.
           </HelpText>
         </Field>
+        <Button
+          aria-pressed={compactLabel() ? 'true' : 'false'}
+          onClick={() => setCompactLabel((value) => !value)}
+        >
+          Use a short booking label
+        </Button>
         <Input
           aria-label="Retained range draft"
           placeholder="Keep a planning note while selecting dates"

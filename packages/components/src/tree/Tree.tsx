@@ -24,6 +24,8 @@ export type TreeProps = {
   expanded: readonly string[]
   multiple?: boolean
   dir?: 'ltr' | 'rtl'
+  /** A chevron rotates when the node opens. The default uses plus and minus. */
+  toggleGlyph?: 'plus-minus' | 'chevron'
   onSelectionChange: (ids: readonly string[]) => void
   onExpandedChange: (ids: readonly string[]) => void
 }
@@ -267,7 +269,11 @@ export function Tree(props: TreeProps) {
                 <DisclosureIndicator
                   class="ui-tree-symbol"
                   shape={
-                    props.expanded.includes(row().node.id) ? 'minus' : 'plus'
+                    props.toggleGlyph === 'chevron'
+                      ? 'chevron'
+                      : props.expanded.includes(row().node.id)
+                        ? 'minus'
+                        : 'plus'
                   }
                 />
               </Button>

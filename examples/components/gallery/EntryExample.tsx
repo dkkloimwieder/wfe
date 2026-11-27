@@ -3,10 +3,10 @@ import { Button, Field, Input, Label } from '@wfe/components'
 import { EntryPanel, EntryPanelActions } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 
-export function EntryExample() {
+function EntryForm() {
   const [submitted, setSubmitted] = createSignal(false)
   return (
-    <EntryPanel size="container" role="group" aria-labelledby="entry-heading">
+    <EntryPanel size="container" role="group" title="Welcome" titleAs="h1">
       <form
         class="example-stack"
         ref={nativeEvents({
@@ -16,10 +16,7 @@ export function EntryExample() {
           },
         })}
       >
-        <header>
-          <h1 id="entry-heading">Welcome</h1>
-          <p>Enter your details to continue.</p>
-        </header>
+        <p>Enter your details to continue.</p>
         <Field required>
           <Label>Name</Label>
           <Input name="name" autocomplete="name" />
@@ -41,5 +38,23 @@ export function EntryExample() {
         </p>
       </form>
     </EntryPanel>
+  )
+}
+
+export function EntryExample() {
+  const [sent, setSent] = createSignal(false)
+  return (
+    <>
+      <EntryForm />
+      <EntryPanel size="content" role="group" title="Billing endpoint">
+        <div class="example-stack">
+          <p>Receives invoice events.</p>
+          <EntryPanelActions>
+            <Button onClick={() => setSent(true)}>Send test event</Button>
+          </EntryPanelActions>
+          {sent() && <p role="status">Test event sent.</p>}
+        </div>
+      </EntryPanel>
+    </>
   )
 }

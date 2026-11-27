@@ -565,7 +565,8 @@ export function SelectBase<
 
       const keysToKeep = currentSelectedKeys.filter((key) => keys.includes(key))
 
-      selectionManager.setSelectedKeys(keysToKeep)
+      // Prune against the collection snapshot for this options change.
+      untrack(() => selectionManager.setSelectedKeys(keysToKeep))
     },
     { defer: true },
   )

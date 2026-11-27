@@ -2,7 +2,7 @@ import { createFocusTrap } from '@solid-primitives/focus'
 
 import { combineStyle } from '@solid-primitives/props'
 import { createPreventScroll } from '@solid-primitives/scroll'
-import { Show, createEffect, createSignal, omit } from 'solid-js'
+import { Show, createEffect, createSignal, omit, untrack } from 'solid-js'
 import { createModalHideOutside } from '../../../../../internal/controls/modal-hide-outside.ts'
 import { DismissableLayer } from '../dismissable-layer/index.ts'
 import { Popper } from '../popper/index.tsx'
@@ -119,7 +119,8 @@ export function SelectContent<T extends ValidComponent = 'div'>(
     props.onCloseAutoFocus?.(e)
 
     if (!e.defaultPrevented) {
-      context.triggerRef()?.focus({ preventScroll: true })
+      // Cleanup restores focus to the trigger mounted when the popup closes.
+      untrack(context.triggerRef)?.focus({ preventScroll: true })
       e.preventDefault()
     }
   }

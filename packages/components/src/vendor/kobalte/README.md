@@ -81,6 +81,7 @@ Dialog trigger and close handlers respect prevented caller events.
 Caller focus restoration takes precedence over the default trigger focus.
 Dialogs without a connected trigger retain the focus primitive's previous focus target.
 Modal content exposes `aria-modal`. AlertDialog prevents outside dismissal.
+The dismissable layer sends a cancelable `ui:interact-outside` event from the layer so a containing view can keep a popup open.
 Background hiding waits until focus enters the mounted modal.
 The shared Core helper follows the external focus trap or caller focus callback and releases its listener on closure.
 This order prevents `aria-hidden` from hiding a focused opener before delayed initial focus runs.
@@ -130,8 +131,9 @@ Open upstream pull requests against `solid2` were reviewed on November 19, 2026.
 - #770 would scroll only the collection container. It would replace the local viewport-only scrolling in `selection/create-selectable-collection.ts` and the related Utils change.
 - #780 would register a dismissable layer when its reference is set. The local reference and enabled effect in `dismissable-layer/dismissable-layer.tsx` already does this. The local enabled gating and owned events would remain.
 - #762 would link Tabs panels to their triggers on the first render and in server output. It would replace the local generated-ID association in `tabs/tabs-root.tsx`, `tabs-content.tsx`, and `tabs-trigger.tsx`.
-- #781 would apply Breadcrumbs defaults when `separator` or `translations` is explicitly `undefined`. No local repair covers this case.
 - #782 (Accordion) and #771 (Resizable) change no captured file.
+
+[The provenance manifest](./provenance.json) records the later ports of Breadcrumbs defaults from #781 and the two Select read guards from #786. It also records the local Menu and Listbox ID and ref repairs.
 
 ## Server field associations
 

@@ -1,0 +1,51 @@
+.blocks-tabs,
+.blocks-tabs > .ui-tabs-content:not([hidden]) {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-block-size: 0;
+}
+
+.blocks-tabs > .ui-tabs-content:not([data-padding='none']) {
+  overflow: auto;
+}
+
+.blocks-workspace-panel {
+  padding: 0;
+  --ui-table-frame-width: 0px;
+}
+.blocks-workspace-panel > .ui-dashboard-panel-heading {
+  padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
+  padding-block-end: 0;
+}
+
+.blocks-workspace-panel > .blocks-table-short {
+  block-size: 12rem;
+  flex: none;
+}
+
+.blocks-workspace-panel[data-block-pagination] > .blocks-table-short {
+  block-size: 20rem;
+}
+
+.blocks-dashboard-filters {
+  align-items: center;
+}
+
+.blocks-dashboard-filters > :is(.ui-control-frame, .ui-select-field) {
+  flex: 0 1 14rem;
+}
+
+.ui-sheet.blocks-ticket-sheet {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.blocks-ticket-detail {
+  align-items: start;
+  gap: var(--ui-region-gap, var(--ui-gap, 8px));
+}
+
+.blocks-ticket-detail .ui-activity-list {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}

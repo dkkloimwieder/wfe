@@ -1,9 +1,10 @@
-import { For } from 'solid-js'
+import { createSignal, For } from 'solid-js'
 import { NativeSelectVariant } from './NativeSelectVariant'
 import type { ColorRole } from '@wfe/components/theme'
 import type { JSX } from '@solidjs/web'
 import {
   Calendar,
+  type CalendarRange,
   Checkbox,
   ColorPicker,
   Combobox,
@@ -34,6 +35,7 @@ import {
 } from '@wfe/components'
 import {
   actionStates,
+  choiceSnapshot,
   editingStates,
   roleSpecimens,
   specimen,
@@ -73,9 +75,12 @@ function SelectSample(props: {
   multiple?: boolean
   items?: boolean
   decoration?: ColorRole
+  live?: boolean
 }) {
-  const open = () => props.items || props.state === 'open'
-  const selected = () => props.state === 'selected' || (!props.items && open())
+  const forcedOpen = () => props.items || props.state === 'open'
+  const open = () => (props.live ? undefined : forcedOpen())
+  const selected = () =>
+    props.state === 'selected' || (!props.items && forcedOpen())
   const options = () => sampleOptions(props.items, props.state)
   return (
     <Select<Choice>
@@ -85,13 +90,31 @@ function SelectSample(props: {
       optionTextValue="label"
       optionDisabled="disabled"
       {...(props.multiple
-        ? { multiple: true, value: selected() ? options().slice(0, 2) : [] }
-        : { multiple: false, value: selected() ? options()[0]! : null })}
+        ? {
+            multiple: true,
+            value: props.live
+              ? undefined
+              : selected()
+                ? options().slice(0, 2)
+                : [],
+          }
+        : {
+            multiple: false,
+            value: props.live ? undefined : selected() ? options()[0]! : null,
+          })}
       placeholder="Choose a team"
       open={open()}
       modal={false}
       itemComponent={(item) => (
-        <Select.Item item={item.item}>
+        <Select.Item
+          {...(props.live
+            ? {}
+            : choiceSnapshot(
+                props.state,
+                props.items && item.item.rawValue.value === 'alpha',
+              ))}
+          item={item.item}
+        >
           <Select.ItemLabel>{item.item.rawValue.label}</Select.ItemLabel>
           <Select.ItemIndicator />
         </Select.Item>
@@ -130,25 +153,48 @@ function ComboboxSample(props: {
   multiple?: boolean
   items?: boolean
   decoration?: ColorRole
+  live?: boolean
 }) {
-  const open = () => props.items || props.state === 'open'
-  const selected = () => props.state === 'selected' || (!props.items && open())
+  const forcedOpen = () => props.items || props.state === 'open'
+  const open = () => (props.live ? undefined : forcedOpen())
+  const selected = () =>
+    props.state === 'selected' || (!props.items && forcedOpen())
   const options = () => sampleOptions(props.items, props.state)
+  const filter = () => (props.live ? ('contains' as const) : () => true)
   return (
     <Combobox<Choice>
-      defaultFilter={() => true}
+      defaultFilter={filter()}
       {...stateProps(props.items ? 'rest' : props.state)}
       options={options()}
       optionValue="value"
+      optionLabel={props.live ? 'label' : undefined}
       optionTextValue="label"
       optionDisabled="disabled"
       {...(props.multiple
-        ? { multiple: true, value: selected() ? options().slice(0, 2) : [] }
-        : { multiple: false, value: selected() ? options()[0]! : null })}
+        ? {
+            multiple: true,
+            value: props.live
+              ? undefined
+              : selected()
+                ? options().slice(0, 2)
+                : [],
+          }
+        : {
+            multiple: false,
+            value: props.live ? undefined : selected() ? options()[0]! : null,
+          })}
       open={open()}
       modal={false}
       itemComponent={(item) => (
-        <Combobox.Item item={item.item}>
+        <Combobox.Item
+          {...(props.live
+            ? {}
+            : choiceSnapshot(
+                props.state,
+                props.items && item.item.rawValue.value === 'alpha',
+              ))}
+          item={item.item}
+        >
           <Combobox.ItemLabel>{item.item.rawValue.label}</Combobox.ItemLabel>
           <Combobox.ItemIndicator />
         </Combobox.Item>
@@ -182,116 +228,152 @@ function ComboboxSample(props: {
   )
 }
 
-const selectField = (state: State, decoration?: ColorRole) => (
-  <LabeledField label="Team" state={state}>
-    <SelectField
-      decoration={decoration}
-      {...stateProps(state)}
-      label="Team"
-      choices={choices}
-      value={state === 'selected' || state === 'open' ? 'alpha' : undefined}
-      placeholder="Choose a team"
-      onValueChange={noop}
-    />
-  </LabeledField>
-)
+function selectField(state: State, decoration?: ColorRole, live = false) {
+  const [value, setValue] = createSignal(
+    state === 'selected' || state === 'open' ? 'alpha' : undefined,
+  )
+  return (
+    <LabeledField label="Team" state={state}>
+      <SelectField
+        decoration={decoration}
+        {...stateProps(state)}
+        label="Team"
+        choices={choices}
+        value={value()}
+        placeholder="Choose a team"
+        onValueChange={live ? setValue : noop}
+      />
+    </LabeledField>
+  )
+}
 
-const datePicker = (
+function datePicker(
   state: State,
   withValue = false,
   decoration?: ColorRole,
-) => (
-  <LabeledField label="Start date" state={state}>
-    <DatePicker
-      decoration={decoration}
-      {...stateProps(state)}
-      label="Start date"
-      value={
-        withValue || state === 'selected' || state === 'open' ? date : undefined
-      }
-      initialMonth={date}
-      dateFormat="yyyy-MM-dd"
-      onValueChange={noop}
-    />
-  </LabeledField>
-)
+  live = false,
+) {
+  const [value, setValue] = createSignal(
+    withValue || state === 'selected' || state === 'open' ? date : undefined,
+  )
+  return (
+    <LabeledField label="Start date" state={state}>
+      <DatePicker
+        decoration={decoration}
+        {...stateProps(state)}
+        label="Start date"
+        value={value()}
+        initialMonth={date}
+        dateFormat="yyyy-MM-dd"
+        onValueChange={live ? setValue : noop}
+      />
+    </LabeledField>
+  )
+}
 
-const dateRangePicker = (state: State) => (
-  <LabeledField label="Date range" state={state}>
-    <DateRangePicker
-      {...stateProps(state)}
-      label="Date range"
-      value={state === 'selected' || state === 'open' ? range : undefined}
-      initialMonth={date}
-      onValueChange={noop}
-    />
-  </LabeledField>
-)
+function dateRangePicker(state: State, live = false) {
+  const [value, setValue] = createSignal<CalendarRange | undefined>(
+    state === 'selected' || state === 'open' ? range : undefined,
+  )
+  return (
+    <LabeledField label="Date range" state={state}>
+      <DateRangePicker
+        {...stateProps(state)}
+        label="Date range"
+        value={value()}
+        initialMonth={date}
+        onValueChange={live ? setValue : noop}
+      />
+    </LabeledField>
+  )
+}
 
-const dateTimePicker = (
+function dateTimePicker(
   state: State,
   timeView: 'columns' | 'clock',
   decoration?: ColorRole,
-) => (
-  <LabeledField label="Appointment" state={state}>
-    <DateTimePicker
-      decoration={decoration}
-      {...stateProps(state)}
-      label="Appointment"
-      value={
-        state === 'selected' || state === 'open'
-          ? '2026-11-17T14:30:00Z'
-          : undefined
-      }
-      timeZone="UTC"
-      timeView={timeView}
-      dateFormat="yyyy-MM-dd"
-      onValueChange={noop}
-    />
-  </LabeledField>
-)
+  live = false,
+) {
+  const [value, setValue] = createSignal(
+    state === 'selected' || state === 'open'
+      ? '2026-11-17T14:30:00Z'
+      : undefined,
+  )
+  return (
+    <LabeledField label="Appointment" state={state}>
+      <DateTimePicker
+        decoration={decoration}
+        {...stateProps(state)}
+        label="Appointment"
+        value={value()}
+        timeZone="UTC"
+        timeView={timeView}
+        dateFormat="yyyy-MM-dd"
+        onValueChange={live ? setValue : noop}
+      />
+    </LabeledField>
+  )
+}
 
-const timePicker = (
+function timePicker(
   state: State,
   timeView: 'columns' | 'clock',
   decoration?: ColorRole,
-) => (
-  <LabeledField label="Start time" state={state}>
-    <TimePicker
-      decoration={decoration}
-      {...stateProps(state)}
-      label="Start time"
-      value={state === 'selected' || state === 'open' ? '14:30' : undefined}
-      timeView={timeView}
-      onValueChange={noop}
-    />
-  </LabeledField>
-)
+  live = false,
+) {
+  const [value, setValue] = createSignal(
+    state === 'selected' || state === 'open' ? '14:30' : undefined,
+  )
+  return (
+    <LabeledField label="Start time" state={state}>
+      <TimePicker
+        decoration={decoration}
+        {...stateProps(state)}
+        label="Start time"
+        value={value()}
+        timeView={timeView}
+        onValueChange={live ? setValue : noop}
+      />
+    </LabeledField>
+  )
+}
 
-const colorPicker = (state: State, decoration?: ColorRole) => (
-  <LabeledField label="Marker color" state={state}>
-    <ColorPicker
-      decoration={decoration}
-      {...stateProps(state)}
-      label="Marker color"
-      value="#4176ad"
-      onValueChange={noop}
-    />
-  </LabeledField>
-)
+function colorPicker(state: State, decoration?: ColorRole, live = false) {
+  const [value, setValue] = createSignal('#4176ad')
+  return (
+    <LabeledField label="Marker color" state={state}>
+      <ColorPicker
+        decoration={decoration}
+        {...stateProps(state)}
+        label="Marker color"
+        value={value()}
+        onValueChange={live ? setValue : noop}
+      />
+    </LabeledField>
+  )
+}
 
 const choicesStates = [...editingStates, 'selected'] as const
 const popupTrigger = 'button[aria-haspopup]'
 const popupLayout = { openTrigger: popupTrigger }
+const liveSelectField = () => selectField('rest', undefined, true)
+const liveDatePicker = () => datePicker('rest', false, undefined, true)
+const liveDateRangePicker = () => dateRangePicker('rest', true)
+const liveColorPicker = () => colorPicker('rest', undefined, true)
 
 function decorationSpecimens(
   id: string,
   label: string,
   render: (role: ColorRole) => JSX.Element,
+  live?: (role: ColorRole) => JSX.Element,
 ) {
-  return roleSpecimens(`${id}/decoration`, `${label} decoration`, render, [
-    'hover',
-  ])
+  return roleSpecimens(
+    `${id}/decoration`,
+    `${label} decoration`,
+    render,
+    ['hover'],
+    live,
+  )
 }
 
 const fieldRoleSpecimens = [
@@ -327,15 +409,26 @@ const fieldRoleSpecimens = [
       decoration={decoration}
     />
   )),
-  ...decorationSpecimens('select', 'Select.Trigger', (decoration) => (
-    <SelectSample state="rest" decoration={decoration} />
-  )),
-  ...decorationSpecimens('select-field', 'SelectField', (decoration) =>
-    selectField('rest', decoration),
+  ...decorationSpecimens(
+    'select',
+    'Select.Trigger',
+    (decoration) => <SelectSample state="rest" decoration={decoration} />,
+    (decoration) => <SelectSample state="rest" decoration={decoration} live />,
   ),
-  ...decorationSpecimens('combobox', 'Combobox.Control', (decoration) => (
-    <ComboboxSample state="rest" decoration={decoration} />
-  )),
+  ...decorationSpecimens(
+    'select-field',
+    'SelectField',
+    (decoration) => selectField('rest', decoration),
+    (decoration) => selectField('rest', decoration, true),
+  ),
+  ...decorationSpecimens(
+    'combobox',
+    'Combobox.Control',
+    (decoration) => <ComboboxSample state="rest" decoration={decoration} />,
+    (decoration) => (
+      <ComboboxSample state="rest" decoration={decoration} live />
+    ),
+  ),
   ...decorationSpecimens('checkbox', 'Checkbox', (decoration) => (
     <Checkbox decoration={decoration}>
       <Checkbox.Input />
@@ -383,17 +476,29 @@ const fieldRoleSpecimens = [
       decoration={decoration}
     />
   )),
-  ...decorationSpecimens('date-picker', 'DatePicker', (decoration) =>
-    datePicker('rest', true, decoration),
+  ...decorationSpecimens(
+    'date-picker',
+    'DatePicker',
+    (decoration) => datePicker('rest', true, decoration),
+    (decoration) => datePicker('rest', true, decoration, true),
   ),
-  ...decorationSpecimens('date-time-picker', 'DateTimePicker', (decoration) =>
-    dateTimePicker('rest', 'columns', decoration),
+  ...decorationSpecimens(
+    'date-time-picker',
+    'DateTimePicker',
+    (decoration) => dateTimePicker('rest', 'columns', decoration),
+    (decoration) => dateTimePicker('rest', 'columns', decoration, true),
   ),
-  ...decorationSpecimens('time-picker', 'TimePicker', (decoration) =>
-    timePicker('rest', 'columns', decoration),
+  ...decorationSpecimens(
+    'time-picker',
+    'TimePicker',
+    (decoration) => timePicker('rest', 'columns', decoration),
+    (decoration) => timePicker('rest', 'columns', decoration, true),
   ),
-  ...decorationSpecimens('color-picker', 'ColorPicker', (decoration) =>
-    colorPicker('rest', decoration),
+  ...decorationSpecimens(
+    'color-picker',
+    'ColorPicker',
+    (decoration) => colorPicker('rest', decoration),
+    (decoration) => colorPicker('rest', decoration, true),
   ),
   ...decorationSpecimens('file-input', 'FileInput', (decoration) => (
     <FileInput
@@ -439,6 +544,13 @@ export const specimens = [
         />
       </LabeledField>
     ),
+    {
+      live: () => (
+        <LabeledField label="Team" state="rest">
+          <NativeSelectVariant choices={choices} selected={false} live />
+        </LabeledField>
+      ),
+    },
   ),
   specimen(
     'native-select/multiple',
@@ -453,57 +565,81 @@ export const specimens = [
         />
       </LabeledField>
     ),
+    {
+      live: () => (
+        <LabeledField label="Teams" state="rest">
+          <NativeSelectVariant
+            choices={choices}
+            selected={false}
+            live
+            multiple
+          />
+        </LabeledField>
+      ),
+    },
   ),
   specimen(
     'select-field/single',
     'SelectField / single',
     choicesStates,
     selectField,
+    { live: liveSelectField },
   ),
   specimen('select-field/popup', 'SelectField / popup', ['open'], selectField, {
     ...popupLayout,
     baseline: 'select-field/single',
+    live: liveSelectField,
   }),
   ...([false, true] as const).flatMap((multiple) => {
     const variant = multiple ? 'multiple' : 'single'
+    const liveSelect = () => (
+      <SelectSample state="rest" multiple={multiple} live />
+    )
+    const liveCombobox = () => (
+      <ComboboxSample state="rest" multiple={multiple} live />
+    )
     return [
       specimen(
         `select/${variant}`,
         `Select / ${variant}`,
         choicesStates,
         (state) => <SelectSample state={state} multiple={multiple} />,
+        { live: liveSelect },
       ),
       specimen(
         `select/${variant}-popup`,
         `Select / ${variant} popup`,
         ['open'],
         (state) => <SelectSample state={state} multiple={multiple} />,
-        { baseline: `select/${variant}` },
+        { baseline: `select/${variant}`, live: liveSelect },
       ),
       specimen(
         `select/${variant}-items`,
         `Select / ${variant} options`,
         [...actionStates, 'selected'],
         (state) => <SelectSample state={state} multiple={multiple} items />,
+        { live: liveSelect },
       ),
       specimen(
         `combobox/${variant}`,
         `Combobox / ${variant}`,
         choicesStates,
         (state) => <ComboboxSample state={state} multiple={multiple} />,
+        { live: liveCombobox },
       ),
       specimen(
         `combobox/${variant}-popup`,
         `Combobox / ${variant} popup`,
         ['open'],
         (state) => <ComboboxSample state={state} multiple={multiple} />,
-        { baseline: `combobox/${variant}` },
+        { baseline: `combobox/${variant}`, live: liveCombobox },
       ),
       specimen(
         `combobox/${variant}-items`,
         `Combobox / ${variant} options`,
         [...actionStates, 'selected'],
         (state) => <ComboboxSample state={state} multiple={multiple} items />,
+        { live: liveCombobox },
       ),
     ]
   }),
@@ -527,27 +663,13 @@ export const specimens = [
       </Checkbox>
     ),
   ),
-  specimen('radio-group/default', 'RadioGroup', choicesStates, (state) => (
-    <RadioGroup
-      {...stateProps(state)}
-      value={state === 'selected' ? 'email' : ''}
-    >
-      <RadioGroup.Label>Delivery</RadioGroup.Label>
-      <For each={['Email', 'Post']}>
-        {(label) => (
-          <RadioGroup.Item value={label.toLowerCase()}>
-            <RadioGroup.ItemInput />
-            <RadioGroup.ItemControl>
-              <RadioGroup.ItemIndicator />
-            </RadioGroup.ItemControl>
-            <RadioGroup.ItemLabel>{label}</RadioGroup.ItemLabel>
-          </RadioGroup.Item>
-        )}
-      </For>
-      <RadioGroup.Description>{help}</RadioGroup.Description>
-      <RadioGroup.ErrorMessage>{error}</RadioGroup.ErrorMessage>
-    </RadioGroup>
-  )),
+  specimen(
+    'radio-group/default',
+    'RadioGroup',
+    choicesStates,
+    (state) => radioGroup(state),
+    { live: () => radioGroup('rest', true) },
+  ),
   specimen(
     'switch/default',
     'Switch',
@@ -597,29 +719,38 @@ export const specimens = [
       ),
     ),
   ]),
-  specimen('date-picker/default', 'DatePicker', choicesStates, datePicker),
+  specimen('date-picker/default', 'DatePicker', choicesStates, datePicker, {
+    live: liveDatePicker,
+  }),
   specimen(
     'date-picker/adornments',
     'DatePicker / available clear and calendar buttons',
     editingStates,
     (state) => datePicker(state, true),
+    { live: () => datePicker('rest', true, undefined, true) },
   ),
   specimen('date-picker/popup', 'DatePicker / popup', ['open'], datePicker, {
     ...popupLayout,
     baseline: 'date-picker/default',
+    live: liveDatePicker,
   }),
   specimen(
     'date-range-picker/default',
     'DateRangePicker',
     choicesStates,
     dateRangePicker,
+    { live: liveDateRangePicker },
   ),
   specimen(
     'date-range-picker/popup',
     'DateRangePicker / popup',
     ['open'],
     dateRangePicker,
-    { ...popupLayout, baseline: 'date-range-picker/default' },
+    {
+      ...popupLayout,
+      baseline: 'date-range-picker/default',
+      live: liveDateRangePicker,
+    },
   ),
   ...(['columns', 'clock'] as const).flatMap((view) => [
     specimen(
@@ -627,26 +758,36 @@ export const specimens = [
       `DateTimePicker / ${view}`,
       choicesStates,
       (state) => dateTimePicker(state, view),
+      { live: () => dateTimePicker('rest', view, undefined, true) },
     ),
     specimen(
       `date-time-picker/${view}-popup`,
       `DateTimePicker / ${view} popup`,
       ['open'],
       (state) => dateTimePicker(state, view),
-      { ...popupLayout, baseline: `date-time-picker/${view}` },
+      {
+        ...popupLayout,
+        baseline: `date-time-picker/${view}`,
+        live: () => dateTimePicker('rest', view, undefined, true),
+      },
     ),
     specimen(
       `time-picker/${view}`,
       `TimePicker / ${view}`,
       choicesStates,
       (state) => timePicker(state, view),
+      { live: () => timePicker('rest', view, undefined, true) },
     ),
     specimen(
       `time-picker/${view}-popup`,
       `TimePicker / ${view} popup`,
       ['open'],
       (state) => timePicker(state, view),
-      { ...popupLayout, baseline: `time-picker/${view}` },
+      {
+        ...popupLayout,
+        baseline: `time-picker/${view}`,
+        live: () => timePicker('rest', view, undefined, true),
+      },
     ),
   ]),
   specimen(
@@ -662,6 +803,7 @@ export const specimens = [
         onValueChange={noop}
       />
     ),
+    { live: () => <LiveCalendar /> },
   ),
   ...([1, 2, 3] as const).map((numberOfMonths) =>
     specimen(
@@ -678,15 +820,24 @@ export const specimens = [
           onValueChange={noop}
         />
       ),
+      {
+        live: () => <LiveRangeCalendar numberOfMonths={numberOfMonths} />,
+      },
     ),
   ),
-  specimen('color-picker/hex', 'ColorPicker / hex', editingStates, colorPicker),
+  specimen(
+    'color-picker/hex',
+    'ColorPicker / hex',
+    editingStates,
+    colorPicker,
+    { live: liveColorPicker },
+  ),
   specimen(
     'color-picker/popup',
     'ColorPicker / RGB popup',
     ['open'],
     colorPicker,
-    { ...popupLayout, baseline: 'color-picker/hex' },
+    { ...popupLayout, baseline: 'color-picker/hex', live: liveColorPicker },
   ),
   ...(['single', 'multiple'] as const).map((kind) =>
     specimen(
@@ -763,3 +914,54 @@ export const specimens = [
     ['hover'],
   ),
 ]
+
+function radioGroup(state: State, live = false) {
+  const [value, setValue] = createSignal('')
+  return (
+    <RadioGroup
+      {...stateProps(state)}
+      value={live ? value() : state === 'selected' ? 'email' : ''}
+      onChange={live ? setValue : undefined}
+    >
+      <RadioGroup.Label>Delivery</RadioGroup.Label>
+      <For each={['Email', 'Post']}>
+        {(label) => (
+          <RadioGroup.Item value={label.toLowerCase()}>
+            <RadioGroup.ItemInput />
+            <RadioGroup.ItemControl>
+              <RadioGroup.ItemIndicator />
+            </RadioGroup.ItemControl>
+            <RadioGroup.ItemLabel>{label}</RadioGroup.ItemLabel>
+          </RadioGroup.Item>
+        )}
+      </For>
+      <RadioGroup.Description>{help}</RadioGroup.Description>
+      <RadioGroup.ErrorMessage>{error}</RadioGroup.ErrorMessage>
+    </RadioGroup>
+  )
+}
+
+function LiveCalendar() {
+  const [value, setValue] = createSignal<string | undefined>()
+  return (
+    <Calendar
+      label="Start date"
+      initialMonth={date}
+      value={value()}
+      onValueChange={setValue}
+    />
+  )
+}
+
+function LiveRangeCalendar(props: { numberOfMonths: 1 | 2 | 3 }) {
+  const [value, setValue] = createSignal<typeof range | undefined>()
+  return (
+    <RangeCalendar
+      label="Date range"
+      initialMonth={date}
+      value={value()}
+      numberOfMonths={props.numberOfMonths}
+      onValueChange={setValue}
+    />
+  )
+}

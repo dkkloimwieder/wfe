@@ -1,6 +1,5 @@
 /* Gallery shell, stage, and example frames shared by the gallery and the theme explorer. */
-body:has(.gallery-shell),
-body:has(.gallery-preview) {
+body[data-gallery-page] {
   margin: 0;
 }
 .gallery-shell {
@@ -99,8 +98,7 @@ body:has(.gallery-preview) {
 ) {
   overflow: visible;
 }
-.gallery-example-host:has(.gallery-table, .gallery-example-fill)
-  > .gallery-preview {
+.gallery-example-host > .gallery-preview[data-gallery-fill] {
   height: 100%;
   min-height: 0;
 }
@@ -109,15 +107,11 @@ body:has(.gallery-preview) {
   height: 100%;
 }
 .gallery-preview {
-  box-sizing: border-box;
   min-height: 100dvh;
   padding: var(--ui-layout-inset);
   background: var(--ui-canvas-surface);
 }
-.gallery-preview > main {
-  padding: 0;
-}
-.gallery-preview:has(.gallery-table, .gallery-example-fill) {
+.gallery-preview[data-gallery-fill] {
   padding: 0;
 }
 .gallery-table,
@@ -138,8 +132,7 @@ body:has(.gallery-preview) {
   }
 }
 /* Legacy standalone fixture page rules do not size the gallery layout. */
-.gallery-dashboard > .ui-dashboard-main,
-.gallery-preview > main {
+.gallery-dashboard > .ui-dashboard-main {
   width: 100%;
   max-width: none;
   margin: 0;

@@ -1,5 +1,5 @@
 const pseudoClass =
-  /\\.|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|::[\w-]+|:(hover|focus-visible|focus-within|focus)(?![\w-])/g
+  /\\.|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|::[\w-]+|:(hover|focus-visible|focus-within|focus|active)(?![\w-])/g
 
 /** Add a synthetic match without changing the declarations or the cascade. */
 export function installForcedStateRules(document: Document) {
@@ -72,9 +72,17 @@ export function forceState(
   }
   const ancestorAttribute =
     state === 'hover' ? 'data-force-hover' : 'data-force-focus-within'
-  for (const target of sample.querySelectorAll(
-    stateTarget ?? (state === 'focus' ? focusable : `${focusable}, ${pointer}`),
-  )) {
+  // The explorer previews one choice. The paint audits exercise every target.
+  const choice = auditAllFocusTargets
+    ? null
+    : sample.querySelector('[data-variant-choice]')
+  const targets = choice
+    ? [choice]
+    : sample.querySelectorAll(
+        stateTarget ??
+          (state === 'focus' ? focusable : `${focusable}, ${pointer}`),
+      )
+  for (const target of targets) {
     const closed = target.closest('details:not([open])')
     if (
       target.matches(':disabled, [aria-disabled="true"], [data-disabled]') ||
@@ -87,7 +95,7 @@ export function forceState(
       target.setAttribute('data-force-focus-visible', '')
     }
     if (state === 'pressed') {
-      // A pressed specimen marks its target and uses resting paint.
+      // Mark the target as active while the specimen represents a held press.
       target.setAttribute('data-force-active', '')
       continue
     }

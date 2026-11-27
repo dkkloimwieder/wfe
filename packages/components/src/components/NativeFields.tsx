@@ -533,6 +533,7 @@ export function FieldValue(props: FieldValueProps) {
     'value',
     'format',
     'locale',
+    'currency',
     'dateFormat',
     'timeFormat',
     'timeZone',
@@ -572,6 +573,7 @@ export function FieldValue(props: FieldValueProps) {
             value={props.value}
             format={format}
             locale={props.locale}
+            currency={props.currency}
             dateFormat={props.dateFormat}
             timeFormat={props.timeFormat}
             timeZone={props.timeZone}

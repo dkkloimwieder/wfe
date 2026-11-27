@@ -2,46 +2,44 @@
    default. Every glow value comes from the --ui-laser-* tokens. */
 @scope ([data-ui-tokens][data-ui-glow]) to ([data-ui-tokens]) {
   /* Resolve color-dependent defaults at consumers, not at the theme ancestor. */
-  :scope
-    :is(
-      button,
-      input,
-      select,
-      textarea,
-      summary,
-      a,
-      svg,
-      img,
-      .ui-card,
-      .ui-context-trigger,
-      [data-ui-action],
-      .ui-input-group,
-      .ui-menu-item,
-      .ui-tree-item,
-      .popup-option,
-      .table-workspace-title-face,
-      .popup-trigger,
-      .ui-control-frame,
-      .ui-file-input,
-      .ui-input-affix,
-      .filter-input,
-      .choice-control,
-      .ui-tabs-trigger,
-      .ui-check-control,
-      .ui-radio-control,
-      .ui-switch-control,
-      .ui-slider-thumb,
-      .popup-content,
-      .header-filter-popup,
-      .column-move-menu,
-      .ui-dialog-content,
-      .ui-popover,
-      .ui-menu,
-      .ui-tooltip,
-      .ui-toast,
-      .ui-chart,
-      [data-ui-chart-tooltip]
-    ) {
+  /* The root attribute keeps the tag selectors at the same specificity as the class selectors. */
+  :scope[data-ui-tokens] button,
+  :scope[data-ui-tokens] input,
+  :scope[data-ui-tokens] select,
+  :scope[data-ui-tokens] textarea,
+  :scope[data-ui-tokens] summary,
+  :scope[data-ui-tokens] a,
+  :scope[data-ui-tokens] svg,
+  :scope[data-ui-tokens] img,
+  :scope .ui-card,
+  :scope .ui-context-trigger,
+  :scope [data-ui-action],
+  :scope .ui-input-group,
+  :scope .ui-menu-item,
+  :scope .ui-tree-item,
+  :scope .popup-option,
+  :scope .table-workspace-title-face,
+  :scope .popup-trigger,
+  :scope .ui-control-frame,
+  :scope .ui-file-input,
+  :scope .ui-input-affix,
+  :scope .filter-input,
+  :scope .choice-control,
+  :scope .ui-tabs-trigger,
+  :scope .ui-check-control,
+  :scope .ui-radio-control,
+  :scope .ui-switch-control,
+  :scope .ui-slider-thumb,
+  :scope .popup-content,
+  :scope .header-filter-popup,
+  :scope .column-move-menu,
+  :scope .ui-dialog-content,
+  :scope .ui-popover,
+  :scope .ui-menu,
+  :scope .ui-tooltip,
+  :scope .ui-toast,
+  :scope .ui-chart,
+  :scope [data-ui-chart-tooltip] {
     --_ui-laser-ring-glow: 0 0 3px var(--ui-laser-glow-width)
       color-mix(
         in srgb,
@@ -118,12 +116,26 @@
           )
       );
   }
+  /* A toned control glows in its own tone. Invalid paint below overrides it. */
+  :scope
+    .ui-button:is(
+      [data-tone='primary'],
+      [data-tone='secondary'],
+      [data-tone='accent']
+    ) {
+    --_ui-laser-glow-color: var(--_button-color);
+  }
   @media (forced-colors: none) {
     /* Keep each sidebar row's glow within its own face. */
     :scope .ui-sidebar-group-panel > summary,
     :scope .ui-sidebar-group-panel .ui-dashboard-menu > a {
       --ui-laser-glow: var(--_ui-laser-inset-glow);
     }
+    :scope
+      :is(.ui-menu-item, .popup-option, .ui-tree-item, .ui-calendar td button) {
+      --_ui-choice-hover-effect: var(--_ui-laser-inset-glow);
+    }
+
     /* A compound frame owns the halo. The inset is painted on each face. */
     :scope
       :is(
@@ -255,6 +267,66 @@
     background: transparent;
   }
   @media (forced-colors: none) {
+    :scope
+      :is(
+        .ui-icon-button,
+        .table-refresh,
+        .table-row-menu-trigger,
+        .header-rename,
+        .header-filter-trigger,
+        .header-filter-close,
+        [data-ui-action='adornment']:has(> :is(svg, img)),
+        .ui-calendar-navigation > button:not(.ui-calendar-heading),
+        .ui-sidebar-group[data-compact] > button,
+        .ui-sidebar-context[data-compact] > .ui-sidebar-context-trigger
+      ) {
+      --ui-action-hover-shadow: 0 0 transparent;
+      --ui-laser-glow: 0 0 transparent;
+      box-shadow: none;
+
+      &:not(
+          :disabled,
+          [aria-disabled='true'],
+          [data-disabled],
+          [data-readonly]
+        ):is(
+          :hover,
+          :focus-visible,
+          :active,
+          [aria-expanded='true'],
+          [aria-pressed='true'],
+          [aria-selected='true'],
+          [aria-current='page'],
+          [data-ui-active='true'],
+          [aria-invalid='true'],
+          [data-invalid]
+        ) {
+        & :is(svg, img) {
+          filter: var(--ui-laser-icon-shadow, var(--_ui-laser-icon-shadow));
+        }
+
+        &:not(:has(svg, img)) {
+          text-shadow: var(--ui-laser-text-glow, var(--_ui-laser-text-glow));
+        }
+      }
+    }
+
+    /* A frameless glyph toggle glows its glyph, not its box. */
+    :scope
+      :is(
+        button.ui-disclosure-trigger:not(.popup-trigger, .choice-toggle),
+        .ui-calendar-navigation > button:not(.ui-calendar-heading)
+      ) {
+      --ui-action-hover-shadow: 0 0 transparent;
+    }
+    :scope
+      :is(
+        button.ui-disclosure-trigger:not(.popup-trigger, .choice-toggle),
+        .ui-calendar-navigation > button:not(.ui-calendar-heading)
+      ):not(:disabled, [aria-disabled='true'], [data-disabled]):hover
+      svg {
+      filter: var(--ui-laser-icon-shadow, var(--_ui-laser-icon-shadow));
+    }
     :scope .ui-calendar td button {
       --ui-laser-control-glow: none;
       --ui-control-border: transparent;
@@ -284,6 +356,83 @@
     }
     :scope * {
       box-shadow: none;
+    }
+  }
+}
+
+/* Laser draws a light guide under each expanded heading. */
+@scope ([data-ui-tokens][data-ui-glow]) to ([data-ui-tokens]) {
+  @media (forced-colors: none) {
+    :scope
+      .ui-collapsible:where(:not(.table-control-section))
+      > .ui-collapsible-content {
+      --_ui-guide-center: var(--ui-cell-padding-x, 8px);
+    }
+    :scope
+      .ui-collapsible
+      > summary[data-indicator-placement='start']
+      + .ui-collapsible-content {
+      --_ui-guide-center: calc(
+        var(--ui-cell-padding-x, 8px) + var(--ui-disclosure-width, 8px) / 2
+      );
+    }
+    :scope .ui-section > .ui-collapsible-content {
+      --_ui-guide-center: calc(var(--_ui-section-heading-size) / 2);
+    }
+    :scope .ui-section[data-text-only] > .ui-collapsible-content {
+      --_ui-guide-center: var(--ui-gap, 8px);
+    }
+    /* Keep the existing sidebar border space and draw the guide on the icon axis. */
+    :scope:not([data-ui-decoration])
+      .ui-sidebar-group
+      > .ui-sidebar-group-panel
+      > .ui-collapsible-content {
+      border-inline-start-color: color-mix(
+        in srgb,
+        var(--ui-border) calc((1 - var(--ui-laser-guide-visibility)) * 100%),
+        transparent
+      );
+      --_ui-guide-center: calc(-1 * var(--ui-border-width) / 2);
+    }
+    :scope:not([data-ui-decoration])
+      .ui-sidebar-group
+      > .ui-sidebar-group-panel:not([data-text-only])
+      > .ui-collapsible-content {
+      --_ui-guide-center: calc(
+        (
+            var(--_ui-section-heading-size) -
+              var(--ui-sidebar-control-height, var(--ui-control-height))
+          ) /
+          2 - var(--ui-border-width)
+      );
+    }
+    :scope .ui-tree-item[aria-level]:not([aria-level='1']) {
+      --_ui-guide-center: calc(
+        var(--_ui-tree-row-inset) - var(--ui-tree-indent, 20px) +
+          var(--ui-tree-toggle-size, 24px) / 2
+      );
+    }
+    :scope
+      :is(
+        .ui-collapsible[open]:not(.table-control-section)
+          > .ui-collapsible-content,
+        .ui-tree-item[aria-level]:not([aria-level='1'])
+      ) {
+      position: relative;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset-block: 0;
+        inset-inline-start: calc(
+          var(--_ui-guide-center) - var(--ui-border-width) / 2
+        );
+        inline-size: calc(
+          var(--ui-border-width) * var(--ui-laser-guide-visibility)
+        );
+        background-color: color-mix(in srgb, var(--ui-border) 35%, transparent);
+        pointer-events: none;
+      }
     }
   }
 }

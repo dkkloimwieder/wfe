@@ -35,8 +35,8 @@
   },
   "devDependencies": {
     "@solidjs/vite-plugin": "3.0.1",
-    "@solidjs/web": "2.0.0",
-    "solid-js": "2.0.0",
+    "@solidjs/web": "2.0.4",
+    "solid-js": "2.0.4",
     "tsdown": "0.23.5",
     "typescript": "7.0.2",
     "vite": "8.3.8"

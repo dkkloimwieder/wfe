@@ -7,13 +7,14 @@
   min-inline-size: 0;
 }
 :where([data-ui]) .ui-tree-item {
+  --_ui-tree-row-inset: calc(
+    var(--ui-tree-depth, 0) * var(--ui-tree-indent, 20px) + 4px
+  );
   display: flex;
   align-items: center;
   gap: 4px;
   min-block-size: var(--ui-tree-row-min-height, 30px);
-  padding-inline-start: calc(
-    var(--ui-tree-depth, 0) * var(--ui-tree-indent, 20px) + 4px
-  );
+  padding-inline-start: var(--_ui-tree-row-inset);
   padding-inline-end: 4px;
   border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
   cursor: pointer;
@@ -52,10 +53,47 @@
   scale: 1;
   fill: none;
 }
+:where([data-ui])
+  .ui-tree-item[aria-expanded='true']
+  .ui-tree-symbol[data-shape='chevron'] {
+  rotate: 90deg;
+  scale: 1;
+}
 @scope ([data-ui-tokens][data-ui-decoration]) to ([data-ui-tokens]) {
   :scope .ui-tree .ui-button.ui-tree-toggle[data-variant] {
     border-color: transparent;
     background: transparent;
+  }
+  @media (forced-colors: none) {
+    :scope .ui-button.ui-tree-toggle {
+      background-image: none;
+      box-shadow: none;
+      outline: none;
+    }
+    :scope .ui-tree-item:has(> .ui-tree-toggle:focus-visible) {
+      outline: var(--ui-focus-width, 1px) solid
+        var(--ui-focus-ring, var(--ui-primary));
+      outline-offset: -2px;
+    }
+    :scope .ui-tree-toggle .ui-tree-symbol {
+      --_ui-disclosure-decoration-opacity: 1;
+      --_ui-disclosure-arrow-visibility: hidden;
+    }
+    :scope .ui-tree-toggle .ui-disclosure-decoration {
+      transform-box: fill-box;
+      transform-origin: center;
+      scale: 0.9;
+    }
+    :scope
+      :is(.ui-tree-item[aria-disabled='true'], .ui-tree-toggle:disabled)
+      .ui-tree-symbol {
+      & .ui-disclosure-decoration {
+        stroke: var(--ui-disabled-text);
+      }
+      & pattern circle {
+        fill: var(--ui-disabled-text);
+      }
+    }
   }
 }
 @scope ([data-ui-tokens][data-ui-glow]) to ([data-ui-tokens]) {

@@ -19,18 +19,15 @@ h2 {
   min-height: 0;
   overflow: auto;
 }
-#results table {
-  width: 100%;
-}
 
 #results table {
+  width: 100%;
   min-width: 960px;
 }
 #results tr[data-row] {
   height: var(--ui-row-height);
 }
 #results tr[data-row] td {
-  box-sizing: border-box;
   height: var(--ui-row-height);
   padding-block: 0;
   white-space: nowrap;

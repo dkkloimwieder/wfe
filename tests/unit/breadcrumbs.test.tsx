@@ -2,6 +2,7 @@ import { afterEach, expect, test, vi } from 'vitest'
 import { cleanup, render } from '@solidjs/testing-library'
 import { createSignal, flush } from 'solid-js'
 import { Breadcrumbs } from '@wfe/components/breadcrumbs'
+import { BreadcrumbsRoot as VendorRoot } from '../../packages/components/src/vendor/kobalte/core/src/breadcrumbs/breadcrumbs-root'
 afterEach(cleanup)
 test('semantic navigation keeps native links and a noninteractive current page', () => {
   const clicks = vi.fn((event: MouseEvent) => event.preventDefault())
@@ -77,4 +78,24 @@ test('reactive labels, values and classes preserve nodes and forwarded refs', ()
     h.container.querySelector('.ui-breadcrumbs-separator')?.textContent,
   ).toBe('>')
   expect(ref).toHaveBeenCalledTimes(1)
+})
+
+test('explicit undefined restores the default breadcrumb label and separator', () => {
+  const [custom, setCustom] = createSignal(true)
+  const h = render(() => (
+    <VendorRoot
+      separator={custom() ? '>' : undefined}
+      translations={custom() ? { breadcrumbs: 'Record path' } : undefined}
+    >
+      <Breadcrumbs.Separator />
+    </VendorRoot>
+  ))
+  expect(h.getByRole('navigation', { name: 'Record path' }).textContent).toBe(
+    '>',
+  )
+  setCustom(false)
+  flush()
+  expect(h.getByRole('navigation', { name: 'Breadcrumbs' }).textContent).toBe(
+    '/',
+  )
 })

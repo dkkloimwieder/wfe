@@ -20,15 +20,17 @@ test('direct gallery links preserve example, state, width and presentation in a 
   const url = galleryUrl(
     new URL('https://example.test/components/?legacy=1#old'),
     route,
+    route,
   )
   expect(readRoute(url)).toEqual(route)
   expect(url.origin).toBe('https://example.test')
   expect(url.hash).toBe('')
   expect(url.searchParams.has('legacy')).toBe(false)
-  const preview = galleryUrl(url, route, true)
-  expect(preview.searchParams.has('gallery')).toBe(false)
-  expect(preview.searchParams.get('galleryPreview')).toBe('fields')
-  expect(readRoute(preview)).toEqual(route)
+  // Without a preset or scheme in the link, the stored appearance applies.
+  const stored = galleryUrl(url, route, {})
+  expect(stored.searchParams.has('preset')).toBe(false)
+  expect(stored.searchParams.has('scheme')).toBe(false)
+  expect(readRoute(stored, route)).toEqual(route)
 })
 test('invalid URL input falls back to finite presentation defaults and capability-aware states', () => {
   const route = readRoute(
@@ -45,11 +47,15 @@ test('every catalog entry has a unique direct URL and supports the normal state'
   expect(new Set(entries.map((entry) => entry.id)).size).toBe(entries.length)
   for (const entry of entries) {
     expect(entry.states).toContain('normal')
-    const url = galleryUrl(new URL('https://example.test/'), {
-      ...defaults,
-      id: entry.id,
-      viewport: 'full',
-    })
+    const url = galleryUrl(
+      new URL('https://example.test/'),
+      {
+        ...defaults,
+        id: entry.id,
+        viewport: 'full',
+      },
+      {},
+    )
     expect(readRoute(url).id).toBe(entry.id)
   }
 })
@@ -68,9 +74,9 @@ test('decoration URLs round trip and reject unbounded presentation values', () =
       borderColor: 'accent' as const,
     },
   }
-  expect(readRoute(galleryUrl(new URL('https://example.test'), route))).toEqual(
-    route,
-  )
+  expect(
+    readRoute(galleryUrl(new URL('https://example.test'), route, route)),
+  ).toEqual(route)
   expect(
     readRoute(
       new URL(
@@ -89,7 +95,7 @@ test('additional secondary colors round trip without changing primary bounds', (
       decorations: { ...defaults.decorations, secondary },
     }
     expect(
-      readRoute(galleryUrl(new URL('https://example.test'), route)),
+      readRoute(galleryUrl(new URL('https://example.test'), route, route)),
     ).toEqual(route)
   }
   expect(readRoute(new URL('https://example.test?primary=9')).primary).toBe(
@@ -97,7 +103,7 @@ test('additional secondary colors round trip without changing primary bounds', (
   )
 })
 
-test('all supported surface choices survive direct and preview URL roundtrips', () => {
+test('all supported surface choices survive URL roundtrips', () => {
   const levels = [0, 1, 2] as const
   for (const canvas of levels)
     for (const pane of levels)
@@ -108,16 +114,10 @@ test('all supported surface choices survive direct and preview URL roundtrips', 
           viewport: 'full' as const,
           layers: { canvas, pane, content },
         }
-        for (const preview of [false, true]) {
-          const url = galleryUrl(
-            new URL('https://example.test/'),
-            route,
-            preview,
-          )
-          expect(readRoute(url)).toEqual(route)
-          const next = galleryUrl(url, { ...route, id: 'numbers' }, preview)
-          expect(readRoute(next).layers).toEqual(route.layers)
-        }
+        const url = galleryUrl(new URL('https://example.test/'), route, route)
+        expect(readRoute(url)).toEqual(route)
+        const next = galleryUrl(url, { ...route, id: 'numbers' }, route)
+        expect(readRoute(next).layers).toEqual(route.layers)
       }
 })
 
@@ -127,15 +127,13 @@ test('omitted gallery surface defaults decode to the same choices', () => {
     id: 'fields' as const,
     viewport: 'full' as const,
   }
-  for (const preview of [false, true]) {
-    const url = galleryUrl(new URL('https://example.test/'), route, preview)
-    for (const key of ['canvas', 'pane', 'content'])
-      expect(url.searchParams.has(key)).toBe(false)
-    expect(readRoute(url)).toEqual(route)
-  }
+  const url = galleryUrl(new URL('https://example.test/'), route, route)
+  for (const key of ['canvas', 'pane', 'content'])
+    expect(url.searchParams.has(key)).toBe(false)
+  expect(readRoute(url)).toEqual(route)
 })
 
-test('theme preset survives navigation and preview links independently of mode', () => {
+test('a linked theme preset and mode override the stored appearance', () => {
   for (const preset of ['default', 'vanilla', 'laser'] as const) {
     for (const scheme of [0, 1, 2]) {
       const route = {
@@ -145,16 +143,17 @@ test('theme preset survives navigation and preview links independently of mode',
         preset,
         scheme,
       }
-      for (const preview of [false, true]) {
-        const url = galleryUrl(new URL('https://example.test/'), route, preview)
-        expect(readRoute(url)).toEqual(route)
-        expect(url.searchParams.has('preset')).toBe(preset !== 'default')
-        const next = readRoute(
-          galleryUrl(url, { ...route, id: 'numbers' }, preview),
-        )
-        expect(next.preset).toBe(preset)
-        expect(next.scheme).toBe(scheme)
-      }
+      // A link that names the appearance overrides the stored one.
+      const url = galleryUrl(new URL('https://example.test/'), route, route)
+      expect(readRoute(url, { preset: 'laser', scheme: 1 })).toEqual(route)
+      const next = readRoute(
+        galleryUrl(url, { ...route, id: 'numbers' }, route),
+      )
+      expect(next.preset).toBe(preset)
+      expect(next.scheme).toBe(scheme)
+      // A link without them uses the stored appearance.
+      const plain = galleryUrl(new URL('https://example.test/'), route, {})
+      expect(readRoute(plain, { preset, scheme })).toEqual(route)
     }
   }
   expect(

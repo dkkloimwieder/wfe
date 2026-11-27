@@ -396,7 +396,8 @@ function sortRankedValues<ItemType>(
 }
 
 /**
- * Prepares value for comparison by stringifying it, removing diacritics (if specified)
+ * Prepares value for comparison by stringifying it, composing it to Unicode NFC,
+ * and removing diacritics (if specified)
  * @param {String} value - the value to clean
  * @param {Object} options - {keepDiacritics: whether to remove diacritics}
  * @return {String} the prepared value
@@ -407,7 +408,7 @@ function prepareValueForComparison<ItemType>(
 ): string {
   // value might not actually be a string at this point (we don't get to choose)
   // so part of preparing the value for comparison is ensure that it is a string
-  value = `${value}` // toString
+  value = `${value}`.normalize('NFC')
   if (!keepDiacritics) {
     value = removeAccents(value)
   }

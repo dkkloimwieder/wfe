@@ -1,7 +1,7 @@
 diff --git a/dist/index.js b/dist/index.js
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -315,10 +315,14 @@
+@@ -321,10 +321,14 @@
  			}
  		}));
  	};

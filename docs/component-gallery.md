@@ -18,7 +18,8 @@ From the repository root, start the components preview server:
 pnpm exec vite --config examples/components/vite.config.ts --host 127.0.0.1 --port 7790
 ```
 
-Open `http://127.0.0.1:7790/?gallery=fields`.
+Open `http://127.0.0.1:7790/`. The root page shows the gallery.
+Use `?gallery=<id>` to open one page, for example `?gallery=fields`.
 If that server already runs, use its existing URL.
 
 The top header shows Gallery, the current category, and the current example as breadcrumbs.

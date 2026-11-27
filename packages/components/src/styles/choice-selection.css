@@ -3,17 +3,40 @@
 :is([data-ui], [data-ui-tokens])
   :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button) {
   --_ui-choice-selected: 0 0 transparent;
+  --_ui-choice-state-shadow: initial;
+  --_ui-choice-hover-effect: initial;
+  --_ui-choice-hover-shadow: initial;
+  --_ui-choice-hover-text: none;
+  --_ui-action-decoration-opacity: 0;
+
+  &.ui-command-option {
+    --_ui-choice-hover-text: var(
+      --ui-laser-text-glow,
+      var(--_ui-laser-text-glow, none)
+    );
+  }
 
   @media (forced-colors: none) {
+    box-shadow: var(--_ui-choice-hover-shadow, var(--_ui-choice-state-shadow));
+
     &:not(:disabled, [data-disabled], [aria-disabled='true'], [data-readonly]) {
-      &:hover {
-        background-image: var(
-          --ui-choice-hover-fill,
-          var(--ui-dot-pattern, none)
-        );
+      &:is(
+        :hover,
+        [data-highlighted]:where(:not(.ui-command-option)),
+        :focus-visible,
+        :where(
+          .ui-command:has(input:focus-visible)
+            .ui-command-option[data-highlighted]
+        )
+      ) {
+        background-image: var(--ui-choice-hover-fill, none);
+        --_ui-action-decoration-opacity: 1;
+        --_ui-choice-hover-shadow:
+          var(--_ui-choice-hover-effect),
+          var(--_ui-choice-state-shadow, 0 0 transparent);
         text-shadow: var(
           --ui-choice-hover-text-shadow,
-          var(--ui-laser-text-glow, var(--_ui-laser-text-glow, none))
+          var(--_ui-choice-hover-text)
         );
       }
     }
@@ -44,10 +67,12 @@
       [aria-checked='true'],
       [aria-selected='true']
     ) {
-      box-shadow: var(--_ui-choice-selected);
+      --_ui-choice-state-shadow: var(--_ui-choice-selected);
     }
 
-    &:is(:focus-visible, .popup-option[data-highlighted]:not(:hover)) {
+    &:focus-visible:where(
+        :not(.popup-option, .ui-menu-item:not(.ui-command-option))
+      ) {
       outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring, #1971c2);
       outline-offset: -2px;
     }
@@ -57,14 +82,14 @@
     }
 
     &:is([data-readonly], :where(.ui-calendar[data-readonly]) *) {
-      box-shadow: var(
+      --_ui-choice-state-shadow: var(
         --ui-state-readonly-shadow,
         inset 0 0 0 1px var(--ui-muted-text, #999999)
       );
     }
 
     &[aria-expanded='true'] {
-      box-shadow: var(
+      --_ui-choice-state-shadow: var(
         --ui-state-open-shadow,
         0 0 0 1px var(--ui-primary, #1971c2)
       );
@@ -76,18 +101,6 @@
 :where([data-ui]) .ui-tree-item[aria-selected='true'] .ui-tree-toggle {
   color: inherit;
 }
-@scope ([data-ui-tokens][data-ui-decoration]) to ([data-ui-tokens]) {
-  :scope
-    :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button) {
-    --_ui-dots: color-mix(
-      in srgb,
-      var(--ui-choice-decoration-color, var(--ui-primary))
-        calc(var(--ui-choice-decoration-opacity, 1) * 100%),
-      transparent
-    );
-  }
-}
-
 @media (forced-colors: active) {
   :where([data-ui])
     :is(.popup-option, .ui-menu-item, .ui-tree-item, .ui-calendar td button):is(

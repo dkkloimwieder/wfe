@@ -125,6 +125,24 @@ test('clock rejection and readonly state never claim an unaccepted value', () =>
   expect(changed).toHaveBeenCalledTimes(1)
 })
 
+test('disabled clock face cannot take focus or change by pointer', () => {
+  const changed = vi.fn()
+  const h = render(() => (
+    <TimeClock
+      value={{ hour: 9, minute: 15, second: 0 }}
+      onValueChange={changed}
+      disabled
+    />
+  ))
+  const slider = h.getByRole('slider', { name: 'Hour' })
+  expect(slider.getAttribute('tabindex')).toBe('-1')
+  const allowed = fireEvent.pointerDown(slider, { button: 0, pointerId: 1 })
+  flush()
+  expect(allowed).toBe(false)
+  expect(document.activeElement).not.toBe(slider)
+  expect(changed).not.toHaveBeenCalled()
+})
+
 test('time columns provide roving keyboard selection and exact minute values without committing another unit', () => {
   const [value, setValue] = createSignal<ClockValue>({
     hour: 13,

@@ -1,0 +1,98 @@
+:where(.ui-meter[data-ui]) {
+  display: grid;
+  justify-items: start;
+  gap: var(--ui-gap, 8px);
+  min-inline-size: 0;
+}
+
+:where(.ui-meter[data-ui]) .ui-meter-heading {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--ui-gap, 8px);
+  inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+:where(.ui-meter[data-ui]) .ui-meter-rail {
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: var(--ui-control-radius, var(--ui-radius, 0px));
+  background: var(--ui-border, #e5e5e5);
+}
+
+:where(.ui-meter[data-ui]) .ui-meter-fill {
+  block-size: 100%;
+  background: var(--ui-primary, #1971c2);
+}
+
+:where(.ui-meter[data-ui][data-tone='success']) .ui-meter-fill {
+  background: var(--ui-success, #37734c);
+}
+
+:where(.ui-meter[data-ui][data-tone='warning']) .ui-meter-fill {
+  background: var(--ui-warning-text, #765200);
+}
+
+:where(.ui-meter[data-ui][data-tone='error']) .ui-meter-fill {
+  background: var(--ui-error, #9d251e);
+}
+
+:where(.ui-step-list[data-ui]) ol {
+  display: grid;
+  gap: var(--ui-gap, 8px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:where(.ui-step-list[data-ui]) .ui-step-list-button {
+  justify-content: start;
+  gap: var(--ui-gap, 8px);
+  inline-size: 100%;
+  min-inline-size: 0;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+:where(.ui-step-list[data-ui]) .ui-step-list-marker {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: 1em;
+}
+
+:where(.ui-summary-list[data-ui]) {
+  display: grid;
+  container: ui-summary / inline-size;
+  gap: var(--ui-gap, 8px);
+  min-inline-size: 0;
+  margin: 0;
+}
+
+:where(.ui-summary-list[data-ui]) > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--ui-gap, 8px);
+  overflow-wrap: anywhere;
+}
+
+:where(.ui-summary-list[data-ui]) dd {
+  min-inline-size: 0;
+  margin: 0;
+}
+
+@container ui-summary (inline-size < 24rem) {
+  :where(.ui-summary-list[data-ui]) > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+:where(.ui-form-layout[data-ui]) > .ui-form-grid-footer {
+  margin-block-start: var(--ui-field-gap, var(--ui-gap, 8px));
+}
+
+:where(.ui-tabs-content[data-padding='none']) {
+  padding: 0;
+}

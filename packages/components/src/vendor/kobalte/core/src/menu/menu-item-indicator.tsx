@@ -39,7 +39,9 @@ export function MenuItemIndicator<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('indicator'),
+      get id() {
+        return context.generateId('indicator')
+      },
     },
     props as MenuItemIndicatorProps,
   )

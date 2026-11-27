@@ -206,7 +206,7 @@ export async function dialogCases({ page, url, record, press, settle }) {
     },
   )
   await record(
-    'dialogs: AlertDialog focuses cancellation and requires an explicit application action',
+    'dialogs: AlertDialog focuses cancellation and closes through its buttons',
     async () => {
       await open()
       await page
@@ -223,8 +223,14 @@ export async function dialogCases({ page, url, record, press, settle }) {
       assert.equal((await read()).alert, true)
       assert.equal((await read()).confirmed, 0)
       await page.getByRole('button', { name: 'Apply', exact: true }).click()
+      await settle()
       assert.equal((await read()).confirmed, 1)
-      assert.equal((await read()).alert, true)
+      assert.equal((await read()).alert, false)
+      assert.equal(await focused(), 'Open confirmation')
+      await page
+        .getByRole('button', { name: 'Open confirmation', exact: true })
+        .click()
+      await settle()
       await page
         .getByRole('button', { name: 'Keep current', exact: true })
         .click()

@@ -16,13 +16,6 @@
     );
     min-block-size: 0;
   }
-  /* Compact navigation rows share the same control height. */
-  :scope .ui-sidebar-group {
-    --_ui-sidebar-row-height: calc(
-      var(--ui-sidebar-control-height, var(--ui-control-height)) + 2 *
-        var(--ui-sidebar-group-padding-y, 2px)
-    );
-  }
   :scope .ui-collapsible.ui-section {
     background: transparent;
   }
@@ -99,31 +92,26 @@
 /* Embedded actions are frameless without decoration. */
 @scope ([data-ui-tokens]:not([data-ui-decoration])) to ([data-ui-tokens]) {
   @media (forced-colors: none) {
-    :scope
-      :is(
-        .sub-table-toggle,
-        .table-page-action,
-        [data-ui-action='header'],
-        .group-heading button[data-group-toggle],
-        .ui-sidebar-context-parent,
-        .ui-calendar-navigation > button,
-        .ui-calendar td button,
-        .ui-datetime-back
-      ) {
+    /* Each selector keeps the specificity of the group-heading action. */
+    :scope[data-ui-tokens] .sub-table-toggle:is(*, button),
+    :scope[data-ui-tokens] .table-page-action:is(*, button),
+    :scope[data-ui-tokens] [data-ui-action='header']:is(*, button),
+    :scope .group-heading button[data-group-toggle],
+    :scope[data-ui-tokens] .ui-sidebar-context-parent:is(*, button),
+    :scope[data-ui-tokens] .ui-calendar-navigation > button,
+    :scope[data-ui-tokens] .ui-calendar td button,
+    :scope[data-ui-tokens] .ui-datetime-back:is(*, button) {
       --ui-control-border: transparent;
       --ui-button-border: transparent;
       border-color: transparent;
       border-radius: 0;
     }
-    :scope
-      :is(
-        .sub-table-toggle,
-        .table-page-action,
-        [data-ui-action='header'],
-        .group-heading button[data-group-toggle],
-        .ui-calendar-navigation > button,
-        .ui-datetime-back
-      ) {
+    :scope[data-ui-tokens] .sub-table-toggle:is(*, button),
+    :scope[data-ui-tokens] .table-page-action:is(*, button),
+    :scope[data-ui-tokens] [data-ui-action='header']:is(*, button),
+    :scope .group-heading button[data-group-toggle],
+    :scope[data-ui-tokens] .ui-calendar-navigation > button,
+    :scope[data-ui-tokens] .ui-datetime-back:is(*, button) {
       background: transparent;
     }
   }

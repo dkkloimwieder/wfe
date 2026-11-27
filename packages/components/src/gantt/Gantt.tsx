@@ -267,17 +267,24 @@ export function Gantt(props: GanttProps) {
   createEffect(scrollElement, (element) => {
     if (!element) return
     const scroll = () => setScrollTop(Math.max(0, element.scrollTop))
+    let frame: number | undefined
     // Read the unpadded viewport from the observer, without forcing layout.
     const observer = new ResizeObserver((entries) => {
       const box = entries[0]?.contentRect
       if (!box) return
-      setWidth(Math.round(box.width) || 800)
-      setViewportHeight(Math.round(box.height) || 480)
+      if (frame !== undefined) cancelAnimationFrame(frame)
+      // The new row window can change the viewport's scrollbars.
+      frame = requestAnimationFrame(() => {
+        frame = undefined
+        setWidth(Math.round(box.width) || 800)
+        setViewportHeight(Math.round(box.height) || 480)
+      })
     })
     observer.observe(element)
     element.addEventListener('scroll', scroll, { passive: true })
     return () => {
       observer.disconnect()
+      if (frame !== undefined) cancelAnimationFrame(frame)
       element.removeEventListener('scroll', scroll)
     }
   })

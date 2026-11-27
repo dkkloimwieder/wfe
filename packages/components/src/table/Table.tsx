@@ -22,10 +22,20 @@ export type TableColumnAlignment = 'left' | 'center' | 'right'
 export type TableColumnAlignments = Readonly<
   Record<string, TableColumnAlignment | undefined>
 >
+export type TableColumnWidths = Readonly<
+  Record<string, number | string | undefined>
+>
+export type TableCellWrap = 'normal' | 'anywhere'
+
+function cssWidth(width: number | string | undefined) {
+  return typeof width === 'number' ? `${width}px` : width
+}
 
 export type TableEdge = {
   /** Numeric pixel width or a CSS length, including shared sizing variables. */
   width: number | string
+  /** Use intrinsic table layout to fit the contents of a trailing edge. */
+  fitContent?: boolean
   header: () => JSX.Element
   group: () => JSX.Element
 }
@@ -50,11 +60,17 @@ export function Table<T, M>(props: {
   formatSummary?: (value: unknown, column: NativeColumn<T, M>) => JSX.Element
   groupLabel?: (id: string) => string
   grouped?: boolean
+  rowIds?: readonly string[]
+  displayKeys?: readonly string[]
   canToggleGroup?: () => boolean
   leading?: TableEdge
+  leadingColumns?: readonly TableEdge[]
   trailing?: TableEdge
   /** Exact pixel width when supplied. Otherwise the table fills its container. */
   width?: number
+  minWidth?: number | string
+  columnWidths?: TableColumnWidths
+  cellWrap?: TableCellWrap
   elementRef?: (element: HTMLTableElement) => void
   onGroupMount?: () => void
   onGroupCleanup?: () => void
@@ -92,8 +108,32 @@ export function Table<T, M>(props: {
   )
   const headerEnd = createMemo(() => props.headerEnd)
   const grouped = () => props.grouped ?? table.state.grouping.length > 0
+  const leading = createMemo(() =>
+    props.leading
+      ? [props.leading, ...(props.leadingColumns ?? [])]
+      : props.leadingColumns,
+  )
   const label = (column: NativeColumn<T, M>) =>
     props.label?.(column) ?? columnLabel(column)
+  function DataRow(row: { id: string; grouped: boolean }) {
+    return (
+      <Show
+        when={props.renderRow}
+        keyed
+        fallback={
+          <TableRow
+            table={table}
+            columnAlignment={props.columnAlignment}
+            id={row.id}
+            renderCell={props.renderCell}
+            formatValue={props.formatValue}
+          />
+        }
+      >
+        {(renderRow) => renderRow(row.id, row.grouped)}
+      </Show>
+    )
+  }
   return (
     <>
       <Show when={selection()} keyed>
@@ -108,6 +148,8 @@ export function Table<T, M>(props: {
       </Show>
       <table
         class="ui-table"
+        data-cell-wrap={props.cellWrap}
+        data-fit-trailing={props.trailing?.fitContent ? '' : undefined}
         ref={(node) => {
           setElement(node)
           elementRef?.(node)
@@ -119,53 +161,47 @@ export function Table<T, M>(props: {
         }
         style={{
           width: props.width === undefined ? '100%' : `${props.width}px`,
+          'min-width': cssWidth(props.minWidth),
         }}
       >
         <Show when={props.caption}>
           <caption>{props.caption}</caption>
         </Show>
         <Show
-          when={props.width !== undefined || props.leading || props.trailing}
+          when={
+            props.width !== undefined ||
+            props.columnWidths ||
+            leading()?.length ||
+            props.trailing
+          }
         >
           <colgroup>
-            <Show when={props.leading}>
-              <col
-                style={{
-                  width:
-                    typeof props.leading!.width === 'number'
-                      ? `${props.leading!.width}px`
-                      : props.leading!.width,
-                }}
-              />
-            </Show>
+            <For each={leading()}>
+              {(edge) => <col style={{ width: cssWidth(edge.width) }} />}
+            </For>
             <For each={table.getVisibleColumns()}>
               {(column) => (
                 <col
                   data-column-width={column.id}
                   style={{
-                    width:
-                      props.width === undefined
-                        ? undefined
-                        : `${column.getSize()}px`,
+                    width: cssWidth(
+                      props.columnWidths?.[column.id] ??
+                        (props.width === undefined
+                          ? undefined
+                          : column.getSize()),
+                    ),
                   }}
                 />
               )}
             </For>
             <Show when={props.trailing}>
-              <col
-                style={{
-                  width:
-                    typeof props.trailing!.width === 'number'
-                      ? `${props.trailing!.width}px`
-                      : props.trailing!.width,
-                }}
-              />
+              <col style={{ width: cssWidth(props.trailing?.width) }} />
             </Show>
           </colgroup>
         </Show>
         <thead>
           <tr>
-            {props.leading?.header()}
+            <For each={leading()}>{(edge) => edge.header()}</For>
             <For each={table.getVisibleColumns()}>
               {(column) => (
                 <th
@@ -211,9 +247,9 @@ export function Table<T, M>(props: {
           </tr>
           <Show when={grouped() && props.summaryHeader}>
             <tr class="group-summary-headers">
-              <Show when={props.leading}>
-                <th class="sub-table-control" />
-              </Show>
+              <For each={leading()}>
+                {() => <th class="sub-table-control" />}
+              </For>
               <For each={table.getVisibleColumns()}>
                 {(column) => (
                   <th
@@ -238,38 +274,16 @@ export function Table<T, M>(props: {
             <Show
               when={grouped()}
               fallback={
-                <For each={table.getRowIds()}>
-                  {(id) =>
-                    props.renderRow ? (
-                      props.renderRow(id, false)
-                    ) : (
-                      <TableRow
-                        table={table}
-                        columnAlignment={props.columnAlignment}
-                        id={id}
-                        renderCell={props.renderCell}
-                        formatValue={props.formatValue}
-                      />
-                    )
-                  }
+                <For each={props.rowIds ?? table.getRowIds()}>
+                  {(id) => <DataRow id={id} grouped={false} />}
                 </For>
               }
             >
-              <For each={table.getDisplayKeys()}>
+              <For each={props.displayKeys ?? table.getDisplayKeys()}>
                 {(key) => {
                   const item = table.getDisplayItem(key)
                   return item.kind === 'row' ? (
-                    props.renderRow ? (
-                      props.renderRow(item.id, true)
-                    ) : (
-                      <TableRow
-                        table={table}
-                        columnAlignment={props.columnAlignment}
-                        id={item.id}
-                        renderCell={props.renderCell}
-                        formatValue={props.formatValue}
-                      />
-                    )
+                    <DataRow id={item.id} grouped />
                   ) : (
                     <TableGroup
                       messages={props.messages}
@@ -280,7 +294,9 @@ export function Table<T, M>(props: {
                       formatValue={props.formatValue}
                       formatSummary={props.formatSummary}
                       canToggle={props.canToggleGroup}
-                      leading={props.leading?.group}
+                      leading={() => (
+                        <For each={leading()}>{(edge) => edge.group()}</For>
+                      )}
                       trailing={props.trailing?.group}
                       onMount={props.onGroupMount}
                       onCleanup={props.onGroupCleanup}
@@ -311,7 +327,6 @@ export function TableRow<T, M>(props: {
   onCell?: () => void
 }) {
   const row = props.table.createRowView(props.id)
-  const renderCell = untrack(() => props.renderCell)
   return (
     <tbody>
       <tr data-row={props.id}>
@@ -319,21 +334,16 @@ export function TableRow<T, M>(props: {
         <For each={row.getVisibleCells()}>
           {(cell) => {
             props.onCell?.()
-            const content = renderCell ? (
-              renderCell(cell)
-            ) : (
-              <>
-                {props.formatValue?.(cell.getValue(), cell.column) ??
-                  String(cell.getValue() ?? '')}
-              </>
-            )
             return (
               <td
                 data-column={cell.column.id}
                 class="read-only-value"
                 data-column-alignment={props.columnAlignment?.[cell.column.id]}
               >
-                {content}
+                {props.renderCell
+                  ? props.renderCell(cell)
+                  : (props.formatValue?.(cell.getValue(), cell.column) ??
+                    String(cell.getValue() ?? ''))}
               </td>
             )
           }}

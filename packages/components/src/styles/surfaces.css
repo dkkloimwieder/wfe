@@ -4,9 +4,7 @@
 :where([data-ui]) .column-move-menu {
   --_ui-surface-border: var(--ui-control-border, #e5e5e5);
 }
-:where([data-ui]) .ui-dialog-content {
-  --_ui-surface-border: var(--ui-border, #e5e5e5);
-}
+:where([data-ui]) .ui-dialog-content,
 :where([data-ui]) .ui-popover,
 :where([data-ui]) .ui-menu,
 :where([data-ui]) .ui-tooltip,

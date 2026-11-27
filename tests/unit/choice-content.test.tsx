@@ -1,8 +1,10 @@
 import { afterEach, expect, test, vi } from 'vitest'
-import { cleanup, fireEvent, render } from '@solidjs/testing-library'
+import { cleanup, fireEvent, render, waitFor } from '@solidjs/testing-library'
 import { createSignal, flush, onCleanup } from 'solid-js'
 import { Combobox, Select, type SelectContentProps } from '@wfe/components'
 import { choiceContentHandlers } from '../../packages/components/src/components/choiceContent'
+import { createChoiceScope } from '../../packages/components/src/components/choiceScope'
+import { Popper } from '../../packages/components/src/vendor/kobalte/core/src/popper'
 import type { JSX } from '@solidjs/web'
 
 type FocusOutsideEvent = Parameters<
@@ -13,6 +15,100 @@ type PointerDownOutsideEvent = Parameters<
 >[0]
 
 afterEach(cleanup)
+
+test('popup positions on open and applies observer updates once on the next frame', async () => {
+  vi.useFakeTimers({
+    toFake: ['requestAnimationFrame', 'cancelAnimationFrame'],
+  })
+  let deliver: (() => void) | undefined
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(callback: ResizeObserverCallback) {
+        deliver = () => callback([], this)
+      }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  )
+  const anchor = document.createElement('button')
+  document.body.append(anchor)
+  using bounds = vi.spyOn(anchor, 'getBoundingClientRect')
+  try {
+    const h = render(() => (
+      <Popper
+        anchorRef={() => anchor}
+        contentRef={() => undefined}
+        observeAnchorLayout={false}
+      >
+        <Popper.Positioner>Options</Popper.Positioner>
+      </Popper>
+    ))
+    expect(bounds).toHaveBeenCalled()
+    const popup = h.getByText('Options')
+    await waitFor(() => expect(popup.style.transform).not.toBe(''))
+    bounds.mockClear()
+    deliver!()
+    deliver!()
+    expect(bounds).not.toHaveBeenCalled()
+    expect(vi.getTimerCount()).toBe(1)
+
+    vi.advanceTimersToNextFrame()
+    expect(bounds).toHaveBeenCalled()
+
+    deliver!()
+    h.unmount()
+    expect(vi.getTimerCount()).toBe(0)
+  } finally {
+    cleanup()
+    anchor.remove()
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  }
+})
+
+test('choice autofocus waits for a rendered frame and cancels on controlled reopen', () => {
+  vi.useFakeTimers()
+  try {
+    const [open, setOpen] = createSignal(false)
+    let scope!: ReturnType<typeof createChoiceScope>
+    const h = render(() => {
+      scope = createChoiceScope({
+        get open() {
+          return open()
+        },
+      })
+      return <button ref={scope.setControl}>Choose</button>
+    })
+    flush()
+    const trigger = h.getByRole('button', { name: 'Choose' })
+    const close = () => {
+      const event = new Event('close', { cancelable: true })
+      scope.closeAutoFocus(event)
+      expect(event.defaultPrevented).toBe(true)
+    }
+
+    close()
+    expect(document.activeElement).toBe(document.body)
+    vi.advanceTimersToNextFrame()
+    expect(document.activeElement).toBe(document.body)
+    vi.advanceTimersToNextFrame()
+    expect(document.activeElement).toBe(trigger)
+
+    trigger.blur()
+    close()
+    vi.advanceTimersToNextFrame()
+    setOpen(true)
+    flush()
+    setOpen(false)
+    flush()
+    vi.advanceTimersToNextFrame()
+    expect(document.activeElement).toBe(document.body)
+  } finally {
+    vi.useRealTimers()
+  }
+})
 
 test('choice content preserves caller-first cancellation and reads replacement callbacks', () => {
   const order: string[] = []

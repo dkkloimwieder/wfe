@@ -81,7 +81,8 @@
     "charts-core/src/dom-text.ts": {
       "source": "packages/charts-core/src/dom-text.ts",
       "upstreamSha256": "e2630dd33c6c32be4ba9d19a675cf1b02247a1dd68cf412068045e3a0f9a40d4",
-      "localSha256": "e2630dd33c6c32be4ba9d19a675cf1b02247a1dd68cf412068045e3a0f9a40d4"
+      "localSha256": "32be52a20858d61128bb4f00ca458dcaa99dfe100e2cbbdb8f85a91f476b66ba",
+      "repair": "typography-cache"
     },
     "charts-core/src/dom-types.ts": {
       "source": "packages/charts-core/src/dom-types.ts",
@@ -286,7 +287,8 @@
     "charts-core/src/renderer.ts": {
       "source": "packages/charts-core/src/renderer.ts",
       "upstreamSha256": "88f82846122831e006b8d4b5cda50d9e7e3c4dde6725e3a1545094748cba4e33",
-      "localSha256": "88f82846122831e006b8d4b5cda50d9e7e3c4dde6725e3a1545094748cba4e33"
+      "localSha256": "dd16366b96a6ce333f160e5b1e600f4db5146060b41b1f3599a546383a5201ed",
+      "repair": "typography-cache"
     },
     "charts-core/src/resolved-layout-position.ts": {
       "source": "packages/charts-core/src/resolved-layout-position.ts",
@@ -561,7 +563,9 @@
     "charts-core/src/transform-select.ts": "Strict TypeScript compatibility: preserve bounded source-index invariants and mark unused imports or generic names. This changes no runtime behavior.",
     "charts-core/src/tooltip-placement.ts": "Place tooltips in free side regions outside referenced geometry with the configured gap. Keep preferred full fits and safe alternate sides; constrain oversized cards to the largest useful free region and return no placement if none exists. Legacy callers without exclusion bounds retain point placement.",
     "charts-core/src/tooltip-position.ts": "Apply free-region size limits and remeasure flowing custom content before final placement. Keep tooltips bounded and scrollable without clamping them across referenced geometry.",
-    "charts-core/src/dom-types.ts": "Carry optional referenced-mark exclusion bounds in scene coordinates through the tooltip portal position context without changing existing extension call requirements."
+    "charts-core/src/dom-types.ts": "Carry optional referenced-mark exclusion bounds in scene coordinates through the tooltip portal position context without changing existing extension call requirements.",
+    "charts-core/src/dom-text.ts": "Reuse font style and measured text on data-only updates. Read computed typography again after the host marks the styles dirty.",
+    "charts-core/src/renderer.ts": "Invalidate typography when fonts settle or inherited attributes, including direction and theme preset, change. Refresh responsive styles on resize and release listeners and observers on destroy."
   },
-  "repairSha256": "a86eeb36a39a7d6238aec8a72157639c7d1fe06861e5faca49f09145d7afe845"
+  "repairSha256": "b0fa93ac3aff983bc6ce751d60766016c10f502d1efb97de58b83b1c106963af"
 }

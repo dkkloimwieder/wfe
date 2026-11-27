@@ -1,3 +1,8 @@
+/* Keep the shared component styles at their original cascade position. */
+@import './gallery/gallery.css';
+@import './gallery/blocks.css';
+@import '@wfe/components/styles.css';
+
 .standalone-controls {
   display: grid;
   grid-template-columns: auto 180px auto;

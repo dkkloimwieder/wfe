@@ -45,7 +45,9 @@ export function ListboxItemLabel<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('label'),
+      get id() {
+        return context.generateId('label')
+      },
     },
     props as ListboxItemLabelProps,
   )

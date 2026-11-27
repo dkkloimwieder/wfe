@@ -13,6 +13,8 @@ Do not move application rules into components.
 Preserve vendor licenses, provenance, local repairs, and supported public behavior.
 Use TypeScript 7.0.2, Vitest 5.1.0, Vite 8.3.8, tsdown 0.23.5, and a single Rolldown 1.2.19.
 Use Oxlint 1.94.0 for the lint gate. Run type-aware lint separately with Oxlint Tsgolint 7.0.2007.
-Keep the existing Solid runtime and compiler pins and the Solid 2 testing library 1.0.0-rc.2.
+Take Solid 2 minor and patch releases as one set for the runtime and compilers.
+A major Solid version requires the owner's approval.
+Keep the Solid 2 testing library at 1.0.0-rc.2.
 Run heavy tests serially and preserve the existing preview servers until cutover passes.
 Follow user instructions for commits and pushes. Do not publish packages, open pull requests, or synchronize Beads remotes without instruction.

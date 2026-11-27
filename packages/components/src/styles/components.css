@@ -449,6 +449,10 @@
   height: 100dvh;
   width: min(400px, 100dvw);
 }
+:where([data-ui])
+  .ui-sheet:is([data-side='left'], [data-side='right'])[data-size='wide'] {
+  width: min(52rem, 100dvw);
+}
 :where([data-ui]) .ui-sheet[data-side='right'] {
   left: auto;
   right: 0;

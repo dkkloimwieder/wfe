@@ -188,6 +188,8 @@ export function TimeClock(props: TimeClockProps) {
           setCurrent(next)
         }}
         onPointerDown={(event) => {
+          // A disabled face is outside the tab order, and a click must not focus it.
+          if (props.disabled) return event.preventDefault()
           if (locked() || event.button !== 0) return
           event.preventDefault()
           pointer = event.pointerId

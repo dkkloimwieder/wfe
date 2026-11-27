@@ -78,8 +78,7 @@ h2 {
   flex: 1;
   min-height: 0;
 }
-.record-row-actions,
-.record-screen-actions {
+.record-row-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--ui-gap, 6px);

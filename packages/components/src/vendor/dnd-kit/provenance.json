@@ -674,7 +674,7 @@
     "dom/src/utilities/scroll/canScroll.ts": {
       "upstreamPath": "packages/dom/src/utilities/scroll/canScroll.ts",
       "upstreamSha256": "99bad45237f5ac0fb8b2662453729f6b5376c1c01d278adcf05d4cf0a2625483",
-      "localSha256": "5062fa3dfb55a6bd9eeffc2f9199e02caedf983989ad16978f309e809a99e015"
+      "localSha256": "77113cadea48661fb461fed79a243eb96842f838ba25ebd5320237b438e3f504"
     },
     "dom/src/utilities/scroll/detectScrollIntent.ts": {
       "upstreamPath": "packages/dom/src/utilities/scroll/detectScrollIntent.ts",
@@ -689,7 +689,7 @@
     "dom/src/utilities/scroll/getScrollPosition.ts": {
       "upstreamPath": "packages/dom/src/utilities/scroll/getScrollPosition.ts",
       "upstreamSha256": "d93bd88ab813d0c4a2c2803e9f3da8dc34d780cf6eebf28ad262865cf53bbb5e",
-      "localSha256": "d93bd88ab813d0c4a2c2803e9f3da8dc34d780cf6eebf28ad262865cf53bbb5e"
+      "localSha256": "4483e89190a23915d314675b25b4f5c24eff03a625912bc52326168158362b8b"
     },
     "dom/src/utilities/scroll/getScrollableAncestors.ts": {
       "upstreamPath": "packages/dom/src/utilities/scroll/getScrollableAncestors.ts",
@@ -979,7 +979,7 @@
     "state/src/snapshot.ts": {
       "upstreamPath": "packages/state/src/snapshot.ts",
       "upstreamSha256": "f48c3711f08c45f19a5831c1476f3782121d9453ec23c121b220c4aae706b5a5",
-      "localSha256": "f48c3711f08c45f19a5831c1476f3782121d9453ec23c121b220c4aae706b5a5"
+      "localSha256": "09418ea868a7416cce53505aa375f000f6b1cb168e9a0f4427847a8ffb71cfc9"
     },
     "state/src/store.ts": {
       "upstreamPath": "packages/state/src/store.ts",
@@ -992,11 +992,28 @@
       "localSha256": "0747211613cd31117c0f045ccfbddf4d64b602a230c15f17f958ecd03bf1ff7f"
     }
   },
-  "repairSha256": "e4b24206fbb9bce4878ba196094c6ba6bf7daa29adc8e1e03f1ddd1167c6e762",
+  "repairSha256": "ba9fc51480947c8fc53e9cf9bddb55c2d324e877ded5e25cab06a14b354c3426",
   "capturedExternalDependencies": {
     "@preact/signals-core": "1.10.0"
   },
   "externalDependencies": {
     "@preact/signals-core": "1.14.5"
-  }
+  },
+  "ports": [
+    {
+      "pullRequest": "https://github.com/clauderic/dnd-kit/pull/2157",
+      "revision": "0e021be89e97e5b72b3ebf924690726bc529f747",
+      "files": [
+        "dom/src/utilities/scroll/getScrollPosition.ts",
+        "dom/src/utilities/scroll/canScroll.ts"
+      ],
+      "change": "Use signed scroll bounds for RTL and reversed horizontal flow."
+    },
+    {
+      "pullRequest": "https://github.com/clauderic/dnd-kit/pull/2171",
+      "revision": "59071671ed6c196701a9298b17928c04d6c92714",
+      "files": ["state/src/snapshot.ts"],
+      "change": "Preserve enumerable snapshot fields as own data properties without invoking prototype setters."
+    }
+  ]
 }

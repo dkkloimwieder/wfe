@@ -10,15 +10,12 @@ afterEach(() => {
 function fixture(observe = true) {
   const node = document.createElement('div')
   document.body.append(node)
-  let width = 2000
   const media: Array<{
     matches: boolean
     notify: (() => void) | undefined
     remove: ReturnType<typeof vi.fn>
   }> = []
-  vi.spyOn(node, 'getBoundingClientRect').mockImplementation(
-    () => ({ width }) as DOMRect,
-  )
+  const readBounds = vi.spyOn(node, 'getBoundingClientRect')
   vi.spyOn(window, 'getComputedStyle').mockReturnValue({
     fontSize: '16px',
   } as CSSStyleDeclaration)
@@ -54,16 +51,24 @@ function fixture(observe = true) {
     media,
     changed,
     layout,
+    readBounds,
     setWidth: (value: number) => {
-      width = value
-      layout.measure()
+      layout.observe([
+        {
+          target: node,
+          borderBoxSize: [{ inlineSize: value, blockSize: 100 }],
+          contentBoxSize: [],
+          contentRect: new DOMRect(),
+          devicePixelContentBoxSize: [],
+        },
+      ])
     },
   }
 }
 
 test('measured containers enter drawers independently and apply layout before notification', () => {
   const h = fixture()
-  h.layout.measure()
+  h.setWidth(2000)
   expect(h.changed).toHaveBeenLastCalledWith({
     navigation: false,
     context: false,
@@ -84,6 +89,7 @@ test('measured containers enter drawers independently and apply layout before no
   const calls = h.changed.mock.calls.length
   h.layout.measure()
   expect(h.changed).toHaveBeenCalledTimes(calls)
+  expect(h.readBounds).not.toHaveBeenCalled()
   h.layout.dispose()
 })
 

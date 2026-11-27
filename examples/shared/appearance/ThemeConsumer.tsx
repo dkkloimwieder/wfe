@@ -12,7 +12,6 @@ import {
 } from '@wfe/components'
 import { DashboardShell, DashboardPanel } from '@wfe/components/layout'
 import { createTable, Table } from '@wfe/components/table'
-import '@wfe/components/styles.css'
 
 /** A consumer owns state; all presentation comes from the public package. */
 export function ThemeConsumer() {

@@ -4,6 +4,8 @@ Keep each change focused on one Beads issue.
 Read the issue's description, dependencies, and acceptance criteria before editing source.
 Use generic components and application-owned rules.
 Keep the existing dependency pins during extraction.
+Update the Solid 2 runtime and compilers together for minor and patch releases.
+Ask the owner before upgrading to a major Solid version.
 Preserve upstream license text, attribution, original hashes, and documented local repairs.
 
 ## Development and checks
@@ -12,6 +14,8 @@ Use Node 22.22.2 or newer in the 22.x line, or 24.15.0 or newer in the 24.x line
 Node 26 and newer are also supported.
 Use pnpm 12.4.1.
 These versions support the pinned development tools. The library packages keep their separate consumer engine declarations.
+The workspace pins Solid, Web, and Signals to 2.0.4.
+It pins the compiler and Babel plugin to 2.0.3.
 From the repository root, install with `pnpm install --frozen-lockfile`.
 Run `pnpm check` before committing a change.
 It type-checks every unit test with the package compiler rules.

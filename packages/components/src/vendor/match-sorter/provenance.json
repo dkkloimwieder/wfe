@@ -13,7 +13,7 @@
     "index.ts": {
       "upstreamPath": "src/index.ts",
       "upstreamSha256": "48bcb933068a3328b200a0ab20019e481ea43ec5138a2f37865824fb1c84ec93",
-      "localSha256": "ad2388c6e9762bfb74c0c89ed92c118d0fc06a83fe132fc34d18eb28d3383cdc"
+      "localSha256": "4ec68afd6fa15ae0ff2c4df9d1da2b015fad20a3c0adabc4166758edbeed1f4a"
     },
     "remove-accents.ts": {
       "upstreamPath": "remove-accents@0.5.0/index.js",
@@ -30,5 +30,13 @@
       "upstreamSha256": "d1a4d73a0c668a735b4a74e2858396a39cb3110ca14c9baff8136ab1b5a479ee",
       "localSha256": "d1a4d73a0c668a735b4a74e2858396a39cb3110ca14c9baff8136ab1b5a479ee"
     }
-  }
+  },
+  "ports": [
+    {
+      "pullRequest": "https://github.com/kentcdodds/match-sorter/pull/174",
+      "revision": "782bce2d2974292854deaf9193cb227d3df51f90",
+      "files": ["index.ts"],
+      "change": "Compose Unicode to NFC before ranking while preserving original returned values."
+    }
+  ]
 }

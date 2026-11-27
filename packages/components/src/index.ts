@@ -18,6 +18,11 @@ export { Select, SelectField } from './components/Select'
 export { Combobox } from './components/Combobox'
 export * from './components/NativeFields'
 export { Checkbox } from './components/Checkbox'
+export { CheckboxField, SwitchField } from './components/BooleanFields'
+export type {
+  CheckboxFieldProps,
+  SwitchFieldProps,
+} from './components/BooleanFields'
 export * from './slider'
 export * from './toggle'
 export { Switch } from './components/Switch'
@@ -26,6 +31,7 @@ export { Dialog } from './components/Dialog'
 export { AlertDialog, alertDialogMessages } from './components/AlertDialog'
 export { Sheet } from './components/Sheet'
 export type { SheetRootProps, SheetSide } from './components/Sheet'
+export type { SheetContentProps } from './components/Sheet'
 export { Popover } from './components/Popover'
 export { DropdownMenu } from './components/DropdownMenu'
 export { ContextMenu } from './components/ContextMenu'
@@ -35,6 +41,8 @@ export type {
 } from './components/ContextMenu'
 export { Tooltip } from './components/Tooltip'
 export * from './components/Display'
+export * from './components/Meter'
+export * from './components/SummaryList'
 export * from './components/Toast'
 export * from './table'
 export * from './layout'
@@ -62,6 +70,8 @@ export type { ValueFormat, ValueFormatOptions } from './utils/valueFormat'
 export type { DateInputFormat } from './utils/dateFormat'
 
 export { TimePicker } from './components/TimePicker'
+export { TimeClock } from './components/TimeClock'
+export type { ClockValue, TimeClockProps } from './components/TimeClock'
 export type { TimePickerProps } from './components/TimePicker'
 export { DateTimePicker } from './components/DateTimePicker'
 export type { DateTimePickerProps } from './components/DateTimePicker'
@@ -87,6 +97,7 @@ export type {
 export * from './components/Tabs'
 
 export * from './components/Breadcrumbs'
+export * from './components/StepList'
 
 export * from './components/Accordion'
 
@@ -190,6 +201,7 @@ export type {
   DialogCloseButtonProps,
   DialogOverlayProps,
   DialogContentProps,
+  DialogFocusTarget,
   DialogTitleProps,
   DialogDescriptionProps,
 } from './components/Dialog'

@@ -1,12 +1,15 @@
 import {
   AlertDialog,
   Button,
+  Card,
   Dialog,
   Input,
   Sheet,
   uiScope,
 } from '@wfe/components'
+import type { SheetSide } from '@wfe/components'
 import { Show, createSignal, flush, onCleanup } from 'solid-js'
+import { SheetOptions, type SheetSize } from '../shared/controls/SheetOptions'
 
 export function DialogControls() {
   const parameters = new URLSearchParams(location.search)
@@ -28,9 +31,8 @@ export function DialogControls() {
   const [redirect, setRedirect] = createSignal(false)
   const [long, setLong] = createSignal(false)
   const [forceMount, setForceMount] = createSignal(false)
-  const [side, setSide] = createSignal<'left' | 'right' | 'top' | 'bottom'>(
-    'right',
-  )
+  const [side, setSide] = createSignal<SheetSide>('right')
+  const [size, setSize] = createSignal<SheetSize>('default')
   let requests = 0
   let confirmed = 0
   let cleanups = 0
@@ -55,6 +57,7 @@ export function DialogControls() {
       if ('long' in next) setLong(next.long!)
       if ('forceMount' in next) setForceMount(next.forceMount!)
       if ('side' in next) setSide(next.side!)
+      if ('size' in next) setSize(next.size!)
       flush()
     },
     read: () => ({
@@ -201,7 +204,7 @@ export function DialogControls() {
         <Sheet.Trigger>Open sheet</Sheet.Trigger>
         <Sheet.Portal>
           <Sheet.Overlay data-overlay="sheet" />
-          <Sheet.Content side={side()}>
+          <Sheet.Content side={side()} size={size()}>
             <Sheet.Title>Display details</Sheet.Title>
             <Sheet.Description>Sheet uses Dialog behavior.</Sheet.Description>
             <Input aria-label="Sheet name" />
@@ -211,6 +214,14 @@ export function DialogControls() {
           </Sheet.Content>
         </Sheet.Portal>
       </Sheet>
+      <Card style={{ 'inline-size': 'fit-content' }}>
+        <SheetOptions
+          side={side()}
+          size={size()}
+          onSideChange={setSide}
+          onSizeChange={setSize}
+        />
+      </Card>
     </main>
   )
 }
@@ -231,7 +242,8 @@ declare global {
         redirect?: boolean
         long?: boolean
         forceMount?: boolean
-        side?: 'left' | 'right' | 'top' | 'bottom'
+        side?: SheetSide
+        size?: SheetSize
       }) => void
       read: () => {
         open: boolean

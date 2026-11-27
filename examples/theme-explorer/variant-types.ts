@@ -31,6 +31,8 @@ export type Specimen = {
   /** Row to use when a specimen shows more than one interactive target. */
   stateTarget?: string
   render: (state: State) => JSX.Element
+  /** Interactive copy with the component's normal behavior and positioning. */
+  live?: () => JSX.Element
 }
 
 export const stateProps = (state: State) => ({
@@ -44,10 +46,28 @@ export function roleSpecimens(
   label: string,
   render: (role: ColorRole) => JSX.Element,
   states: readonly State[] = ['rest'],
+  live?: (role: ColorRole) => JSX.Element,
 ) {
   return colorRoles.map((role) =>
-    specimen(`${id}/${role}`, `${label} / ${role}`, states, () => render(role)),
+    specimen(
+      `${id}/${role}`,
+      `${label} / ${role}`,
+      states,
+      () => render(role),
+      {
+        live: live && (() => live(role)),
+      },
+    ),
   )
+}
+
+/** Replace the initial roving-focus highlight only in a forced specimen. */
+export function choiceSnapshot(state: State, target = false) {
+  return {
+    'data-variant-choice': target ? '' : undefined,
+    'data-highlighted':
+      target && (state === 'hover' || state === 'focus') ? '' : null,
+  }
 }
 
 export function specimen(
@@ -55,7 +75,7 @@ export function specimen(
   label: string,
   states: readonly State[],
   render: Specimen['render'],
-  options?: Pick<Specimen, 'openTrigger' | 'baseline' | 'stateTarget'>,
+  options?: Pick<Specimen, 'openTrigger' | 'baseline' | 'stateTarget' | 'live'>,
 ): Specimen {
   return { id, label, states, render, ...options }
 }

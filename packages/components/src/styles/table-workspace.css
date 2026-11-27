@@ -195,10 +195,21 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
 }
+:where([data-ui]) .table-workspace .table-filter > .ui-input-affix {
+  /* The input cap belongs to the whole field, including its clear button. */
+  max-inline-size: var(--ui-field-max-width, 30rem);
+}
+:where([data-ui]) .table-workspace .table-filter > .ui-input-affix > input {
+  max-inline-size: none;
+}
 :where([data-ui]) .table-workspace[data-controls-placement='top'] {
+  --_ui-table-top-controls-height: min(
+    var(--ui-table-controls-height, 18rem),
+    35%
+  );
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows:
-    auto fit-content(min(var(--ui-table-controls-height, 18rem), 40%))
+    auto fit-content(var(--_ui-table-top-controls-height))
     minmax(0, 1fr);
   grid-template-areas: 'header' 'controls' 'results';
 }
@@ -223,150 +234,79 @@
     var(--ui-border, #e5e5e5);
 }
 @media (width >= 48rem) {
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    :is(.column-filters, .table-formatting) {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-    align-items: start;
+  @scope (.table-workspace[data-controls-placement='top']:not([data-controls-drawer])) to (.table-workspace) {
+    :scope > .table-workspace-controls > .table-workspace-controls-body {
+      --_ui-table-section-width: var(--ui-table-controls-width, 18rem);
+      --_ui-table-field-width: calc(
+        var(--_ui-table-section-width) - 2 * var(--ui-gap, 8px) -
+          var(--ui-border-width, 1px)
+      );
+      flex-flow: row wrap;
+      align-items: start;
+      align-content: start;
+      gap: var(--ui-gap, 8px);
+    }
+    .table-workspace-controls-body
+      > :is(.table-view-placement, .table-control-section) {
+      flex: 0 1 var(--_ui-table-section-width);
+      min-inline-size: 0;
+      max-inline-size: 100%;
+    }
+    .table-workspace-controls-body
+      > .table-control-section[open]:has(
+        > .table-control-content
+          > :is(
+            .column-filters,
+            .display-fields,
+            .table-formatting,
+            .toolbar:has(> .table-filter),
+            .ui-field ~ .ui-field
+          )
+      ) {
+      flex: 1 1
+        min(100%, calc(2 * var(--_ui-table-section-width) - var(--ui-gap, 8px)));
+    }
+    .table-control-content,
+    .table-workspace-controls-body
+      .table-control-content
+      :is(.column-filters, .display-fields, .table-formatting),
+    .table-control-content .grouping-toolbar {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: start;
+      gap: var(--ui-gap, 8px);
+      max-inline-size: 100%;
+    }
+    .table-control-content > :is(.table-filter, .ui-field),
+    .table-control-content
+      :is(.column-filters, .display-fields, .table-formatting)
+      > *,
+    .table-control-content .grouping-toolbar > label {
+      inline-size: var(--_ui-table-field-width);
+      min-inline-size: 0;
+      max-inline-size: 100%;
+    }
+    .table-control-content > .toolbar {
+      inline-size: min(100%, var(--_ui-table-field-width));
+    }
+    .table-control-content > .toolbar:has(> .ui-button:only-child) {
+      inline-size: auto;
+      align-self: end;
+    }
+    .table-control-content > .grouping-controls {
+      inline-size: 100%;
+    }
+    .table-control-content .grouping-levels li {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .table-control-content .grouping-levels li > label {
+      flex: 1 1 var(--_ui-table-field-width);
+    }
+    .table-control-content .grouping-level-label {
+      flex: 1 1 7rem;
+    }
   }
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    .display-fields {
-    flex-direction: row;
-    align-items: center;
-  }
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    .grouping-toolbar {
-    display: flex;
-  }
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    .grouping-toolbar
-    > label {
-    flex: 0 1 14rem;
-    min-width: 0;
-  }
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    .grouping-levels
-    li {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    .grouping-levels
-    li
-    > label {
-    flex: 1 1 14rem;
-  }
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    .grouping-level-label {
-    flex: 1 1 7rem;
-  }
-}
-
-/* The owning component applies the same layout at narrow container widths. */
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  :is(.column-filters, .table-formatting) {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
-  align-items: start;
-}
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  .display-fields {
-  flex-direction: row;
-  align-items: center;
-}
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  .grouping-toolbar {
-  display: flex;
-}
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  .grouping-toolbar
-  > label {
-  flex: 0 1 14rem;
-  min-width: 0;
-}
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  .grouping-levels
-  li {
-  display: flex;
-  flex-wrap: wrap;
-}
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  .grouping-levels
-  li
-  > label {
-  flex: 1 1 14rem;
-}
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  .grouping-level-label {
-  flex: 1 1 7rem;
 }
 
 :where([data-ui]) .table-workspace[data-controls-collapsed] {
@@ -501,29 +441,6 @@
   font-weight: inherit;
 }
 
-@media (min-width: 48rem) {
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    .column-display-option {
-    flex: 0 1 18rem;
-  }
-}
-
-/* The owning component applies the same layout at narrow container widths. */
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  .column-display-option {
-  flex: 0 1 18rem;
-}
-
 @media (width < 48rem) {
   :where([data-ui])
     .table-workspace:not([data-ui-responsive-ready])
@@ -626,7 +543,7 @@
     ) {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows:
-      auto fit-content(min(var(--ui-table-controls-height, 18rem), 40%))
+      auto fit-content(var(--_ui-table-top-controls-height))
       var(--ui-resize-handle-size, 6px) minmax(0, 1fr);
     grid-template-areas: 'header' 'controls' 'resize' 'results';
   }
@@ -694,7 +611,7 @@
   ) {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows:
-    auto fit-content(min(var(--ui-table-controls-height, 18rem), 40%))
+    auto fit-content(var(--_ui-table-top-controls-height))
     var(--ui-resize-handle-size, 6px) minmax(0, 1fr);
   grid-template-areas: 'header' 'controls' 'resize' 'results';
 }
@@ -798,31 +715,6 @@
   gap: var(--ui-gap, 8px);
 }
 
-@media (width >= 48rem) {
-  :where([data-ui])
-    .table-workspace:not(
-      [data-ui-responsive-ready]
-    )[data-controls-placement='top']
-    > .table-workspace-controls
-    > .table-workspace-controls-body
-    .table-control-content
-    > .display-fields {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-  }
-}
-
-/* The owning component applies the same layout at narrow container widths. */
-:where([data-ui])
-  .table-workspace[data-ui-responsive-ready]:not(
-    [data-controls-drawer]
-  )[data-controls-placement='top']
-  > .table-workspace-controls
-  > .table-workspace-controls-body
-  .table-control-content
-  > .display-fields {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-}
-
 :where([data-ui]) .sub-table-row .table-workspace {
   border-width: 0;
   border-inline-start-width: var(--ui-border-width, 1px);
@@ -861,12 +753,40 @@
   grid-template-columns: max-content;
   gap: 0;
 }
-:where([data-ui])
-  :is(.ui-input-affix, .filter-input):has(.table-boolean-filter) {
-  width: fit-content;
-}
 
 :where([data-ui])
   :is(.ui-input-affix, .filter-input):has(.table-boolean-filter) {
+  width: fit-content;
   outline: none;
+}
+
+:where([data-ui]) .table-workspace[data-table-views] > .table-workspace-header {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+:where([data-ui]) .table-workspace[data-table-views] .table-workspace-title {
+  max-inline-size: 40vw;
+}
+:where([data-ui]) .table-view-controls,
+:where([data-ui]) .table-view-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--ui-gap);
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+:where([data-ui]) .table-view-controls > .ui-select-field {
+  inline-size: auto;
+  max-inline-size: min(16rem, 100%);
+}
+:where([data-ui]) .table-view-controls .ui-badge {
+  min-block-size: var(--ui-control-height);
+  column-gap: var(--ui-control-padding-y);
+  padding-inline: var(--ui-control-padding-x);
+}
+:where([data-ui]) .table-view-badges:empty {
+  display: none;
+}
+:where([data-ui]) .table-view-placement {
+  padding: var(--ui-gap);
 }

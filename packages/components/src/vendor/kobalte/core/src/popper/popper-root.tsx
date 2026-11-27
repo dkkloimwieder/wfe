@@ -339,12 +339,35 @@ export function PopperRoot(props: PopperRootProps) {
       return
     }
 
+    let initial = true
+    let frame: number | undefined
     // https://floating-ui.com/docs/autoUpdate
-    return autoUpdate(referenceEl, floatingEl, updatePosition, {
-      layoutShift: mergedProps.observeAnchorLayout !== false,
-      // JSDOM doesn't support ResizeObserver
-      elementResize: typeof ResizeObserver === 'function',
-    })
+    const stop = autoUpdate(
+      referenceEl,
+      floatingEl,
+      () => {
+        if (initial) {
+          initial = false
+          void updatePosition()
+          return
+        }
+        if (frame !== undefined) return
+        // The size middleware can resize the positioner during observer delivery.
+        frame = requestAnimationFrame(() => {
+          frame = undefined
+          void updatePosition()
+        })
+      },
+      {
+        layoutShift: mergedProps.observeAnchorLayout !== false,
+        // JSDOM doesn't support ResizeObserver
+        elementResize: typeof ResizeObserver === 'function',
+      },
+    )
+    return () => {
+      stop()
+      if (frame !== undefined) cancelAnimationFrame(frame)
+    }
   })
 
   // Makes sure the positioner element has the same z-index as the popper content element,

@@ -19,6 +19,7 @@ export interface DomTextMeasurer {
   measureText: ChartTextMeasurer
   typography: () => ChartTextTypography
   refresh: () => boolean
+  markStyleDirty: () => void
   invalidate: () => void
 }
 
@@ -30,6 +31,7 @@ export function createDomTextMeasurer(container: HTMLElement): DomTextMeasurer {
     : null
   let style = readFontStyle()
   let signature = fontSignature(style)
+  let styleDirty = false
   const cache = new Map<string, ChartTextMetrics>()
 
   return {
@@ -55,6 +57,8 @@ export function createDomTextMeasurer(container: HTMLElement): DomTextMeasurer {
       }
     },
     refresh() {
+      if (!styleDirty) return false
+      styleDirty = false
       const nextStyle = readFontStyle()
       const nextSignature = fontSignature(nextStyle)
       if (nextSignature === signature) return false
@@ -63,7 +67,11 @@ export function createDomTextMeasurer(container: HTMLElement): DomTextMeasurer {
       cache.clear()
       return true
     },
+    markStyleDirty() {
+      styleDirty = true
+    },
     invalidate() {
+      styleDirty = true
       cache.clear()
     },
   }

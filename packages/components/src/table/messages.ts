@@ -7,6 +7,36 @@ export interface TableMessages {
   closeControls: string
   readOnlyTable: string
   readOnlyRecords: string
+  clearFilters?: string
+  savedViews?: string
+  viewActions?: string
+  currentView?: string
+  saveView?: string
+  saveViewAs?: string
+  resetView?: string
+  renameView?: string
+  deleteView?: string
+  setDefaultView?: string
+  clearDefaultView?: string
+  defaultView?: string
+  systemView?: string
+  unsavedView?: string
+  viewName?: string
+  cancelViewAction?: string
+  nameViewPrompt?: string
+  viewWorking?: string
+  retryViews?: string
+  viewLoadError?: string
+  viewWriteError?: string
+  viewStateError?: string
+  viewNameError?: string
+  controlsPlacement?: string
+  controlsLeft?: string
+  controlsTop?: string
+  controlsRight?: string
+  deleteViewPrompt?: (name: string) => string
+  rowSelection?: string
+  selectPageRows?: string
   refresh: string
   refreshHelp: string
   unappliedChanges: string
@@ -98,6 +128,9 @@ export interface TableMessages {
   results: (title: string) => string
   recordCount: (count: number, total: number) => string
   pageRecordCount: (count: number, total: number | undefined) => string
+  pageStatus?: (page: number, pages: number) => string
+  selectRow?: (id: string) => string
+  rowActions?: (id: string) => string
   selectionCount: (rows: number, columns: number) => string
   selectionSummary: (rows: number, columns: number) => string
   activeFilters: (count: number) => string
@@ -138,12 +171,43 @@ export interface TableMessages {
 }
 
 /** English defaults; partial overrides fall back per property. */
-export const tableMessages: Readonly<TableMessages> = {
+export const tableMessages: Readonly<Required<TableMessages>> = {
   workspace: 'Table workspace',
   controls: 'Table controls',
   closeControls: 'Close table controls',
   readOnlyTable: 'Read-only table',
   readOnlyRecords: 'Read-only records',
+  clearFilters: 'Clear filters',
+  savedViews: 'Saved view',
+  viewActions: 'View actions',
+  currentView: 'Current view',
+  saveView: 'Save view',
+  saveViewAs: 'Save as',
+  resetView: 'Reset view',
+  renameView: 'Rename view',
+  deleteView: 'Delete view',
+  setDefaultView: 'Set as default',
+  clearDefaultView: 'Clear default',
+  defaultView: 'Default',
+  systemView: 'System view',
+  unsavedView: 'Unsaved changes',
+  viewName: 'View name',
+  cancelViewAction: 'Cancel',
+  nameViewPrompt: 'Enter a name for this view.',
+  viewWorking: 'Working with saved views.',
+  retryViews: 'Retry loading views',
+  viewLoadError: 'Could not load saved views.',
+  viewWriteError: 'Could not update saved views. Try again.',
+  viewStateError: 'The current table settings cannot be saved.',
+  viewNameError: 'Enter a unique view name with up to 80 characters.',
+  controlsPlacement: 'Controls placement',
+  controlsLeft: 'Left',
+  controlsTop: 'Top',
+  controlsRight: 'Right',
+  deleteViewPrompt: (name) =>
+    `Delete “${name}”? You can keep using the current table settings.`,
+  rowSelection: 'Row selection',
+  selectPageRows: 'Select rows on this page',
   refresh: 'Refresh results',
   refreshHelp: 'Apply filters and refresh results',
   unappliedChanges: 'Unapplied changes',
@@ -241,6 +305,9 @@ export const tableMessages: Readonly<TableMessages> = {
   recordCount: (count, total) => `${count}/${total} records`,
   pageRecordCount: (count, total) =>
     `${count}${total === undefined ? '' : `/${total}`}`,
+  pageStatus: (page, pages) => `Page ${page} of ${pages}`,
+  selectRow: (id) => `Select row ${id}`,
+  rowActions: (id) => `Actions for row ${id}`,
   selectionCount: (rows, columns) =>
     `${rows} rows by ${columns} columns selected`,
   selectionSummary: (rows, columns) => `${rows} × ${columns} selected`,
@@ -287,4 +354,5 @@ export const tableMessages: Readonly<TableMessages> = {
 
 export const resolveTableMessages = (
   overrides: () => Partial<TableMessages> | undefined,
-): Readonly<TableMessages> => resolveMessages(tableMessages, overrides)
+): Readonly<Required<TableMessages>> =>
+  resolveMessages<Required<TableMessages>>(tableMessages, overrides)

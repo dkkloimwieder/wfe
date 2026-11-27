@@ -36,6 +36,7 @@ export function ValueDisplay(props: ValueDisplayProps) {
       return props.value ? messages.yes : messages.no
     const formatted = formatDisplayValue(props.value, props.format, {
       locale: props.locale,
+      currency: props.currency,
       dateFormat: props.dateFormat,
       timeFormat: props.timeFormat,
       timeZone,

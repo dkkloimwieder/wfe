@@ -1,9 +1,10 @@
 # Adopt the components
 
-The current release targets Solid `2.0.0` with matching runtime and compiler packages and stable Solid Primitives.
+The workspace pins Solid, Web, and Signals to `2.0.4` and the compiler and Babel plugin to `2.0.3`.
+It uses stable Solid Primitives.
 It uses `@solidjs/vite-plugin` `3.0.1` and the Solid 2 testing library `1.0.0-rc.2`.
 The tagged release records below retain their original dependency versions.
-See [the Solid 2.0.0 upgrade record](qualification.md#solid-200-upgrade).
+See [the Solid 2.0.4 update record](qualification.md#solid-204-update).
 
 ## v0.0.11
 

@@ -9,7 +9,6 @@ import {
   EmptyState,
   EntryPanel,
   EntryPanelActions,
-  Icon,
   InlineAlert,
   Popover,
   Progress,
@@ -99,12 +98,102 @@ function DragPreviewSample(props: { tone: ColorRole }) {
   )
 }
 
-export const specimens = [
-  specimen('popover/trigger', 'Popover / trigger', actionStates, (state) => (
-    <Popover open={false}>
-      <Popover.Trigger disabled={state === 'disabled'}>Details</Popover.Trigger>
+type LiveTones = { triggerTone?: ColorRole; closeTone?: ColorRole }
+
+function LivePopover(props: LiveTones) {
+  return (
+    <Popover>
+      <Popover.Trigger tone={props.triggerTone}>Details</Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content>
+          <Popover.Title>Record details</Popover.Title>
+          <Popover.Description>Review the sample record.</Popover.Description>
+          <Popover.CloseButton tone={props.closeTone}>
+            Close
+          </Popover.CloseButton>
+        </Popover.Content>
+      </Popover.Portal>
     </Popover>
-  )),
+  )
+}
+
+function LiveTooltip(props: Pick<LiveTones, 'triggerTone'>) {
+  return (
+    <Tooltip openDelay={0} closeDelay={0}>
+      <Tooltip.Trigger tone={props.triggerTone}>
+        More information
+      </Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content>View the sample record.</Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip>
+  )
+}
+
+function LiveDialog(
+  props: LiveTones & { surface: typeof Dialog | typeof Sheet },
+) {
+  const Surface = props.surface
+  return (
+    <Surface.Root>
+      <Surface.Trigger tone={props.triggerTone}>Details</Surface.Trigger>
+      <Surface.Portal>
+        <Surface.Overlay />
+        <Surface.Content>
+          <Surface.Title>Record details</Surface.Title>
+          <Surface.Description>Review the sample record.</Surface.Description>
+          <Surface.CloseButton tone={props.closeTone}>
+            Close
+          </Surface.CloseButton>
+        </Surface.Content>
+      </Surface.Portal>
+    </Surface.Root>
+  )
+}
+
+function LiveAlertDialog(props: LiveTones) {
+  const [open, setOpen] = createSignal(false)
+  return (
+    <AlertDialog.Root open={open()} onOpenChange={setOpen}>
+      <AlertDialog.Trigger tone={props.triggerTone}>
+        Confirm
+      </AlertDialog.Trigger>
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay />
+        <AlertDialog.Content>
+          <AlertDialog.Title>Apply changes?</AlertDialog.Title>
+          <AlertDialog.Description>
+            The application owns the confirmed operation.
+          </AlertDialog.Description>
+          <AlertDialog.Action
+            tone={props.closeTone}
+            onClick={() => setOpen(false)}
+          >
+            Apply
+          </AlertDialog.Action>
+          <AlertDialog.Cancel tone={props.closeTone}>
+            Keep current
+          </AlertDialog.Cancel>
+        </AlertDialog.Content>
+      </AlertDialog.Portal>
+    </AlertDialog.Root>
+  )
+}
+
+export const specimens = [
+  specimen(
+    'popover/trigger',
+    'Popover / trigger',
+    actionStates,
+    (state) => (
+      <Popover open={false}>
+        <Popover.Trigger disabled={state === 'disabled'}>
+          Details
+        </Popover.Trigger>
+      </Popover>
+    ),
+    { live: () => <LivePopover /> },
+  ),
   specimen(
     'popover/surface',
     'Popover / surface',
@@ -121,15 +210,21 @@ export const specimens = [
         </Popover.Portal>
       </Popover>
     ),
-    { baseline: 'popover/trigger' },
+    { baseline: 'popover/trigger', live: () => <LivePopover /> },
   ),
-  specimen('tooltip/trigger', 'Tooltip / trigger', actionStates, (state) => (
-    <Tooltip open={false}>
-      <Tooltip.Trigger as={Button} disabled={state === 'disabled'}>
-        More information
-      </Tooltip.Trigger>
-    </Tooltip>
-  )),
+  specimen(
+    'tooltip/trigger',
+    'Tooltip / trigger',
+    actionStates,
+    (state) => (
+      <Tooltip open={false}>
+        <Tooltip.Trigger as={Button} disabled={state === 'disabled'}>
+          More information
+        </Tooltip.Trigger>
+      </Tooltip>
+    ),
+    { live: () => <LiveTooltip /> },
+  ),
   specimen(
     'tooltip/content',
     'Tooltip / content',
@@ -142,7 +237,7 @@ export const specimens = [
         </Tooltip.Portal>
       </Tooltip>
     ),
-    { baseline: 'tooltip/trigger' },
+    { baseline: 'tooltip/trigger', live: () => <LiveTooltip /> },
   ),
   ...(
     [
@@ -150,13 +245,19 @@ export const specimens = [
       ['sheet', 'Sheet', Sheet],
     ] as const
   ).flatMap(([id, label, Surface]) => [
-    specimen(`${id}/trigger`, `${label} / trigger`, actionStates, (state) => (
-      <Surface.Root open={false}>
-        <Surface.Trigger disabled={state === 'disabled'}>
-          Details
-        </Surface.Trigger>
-      </Surface.Root>
-    )),
+    specimen(
+      `${id}/trigger`,
+      `${label} / trigger`,
+      actionStates,
+      (state) => (
+        <Surface.Root open={false}>
+          <Surface.Trigger disabled={state === 'disabled'}>
+            Details
+          </Surface.Trigger>
+        </Surface.Root>
+      ),
+      { live: () => <LiveDialog surface={Surface} /> },
+    ),
     specimen(
       `${id}/surface`,
       `${label} / surface`,
@@ -171,7 +272,10 @@ export const specimens = [
           </Surface.Content>
         </Surface.Root>
       ),
-      { baseline: `${id}/trigger` },
+      {
+        baseline: `${id}/trigger`,
+        live: () => <LiveDialog surface={Surface} />,
+      },
     ),
   ]),
   specimen(
@@ -185,6 +289,9 @@ export const specimens = [
         </AlertDialog.Trigger>
       </AlertDialog.Root>
     ),
+    {
+      live: () => <LiveAlertDialog />,
+    },
   ),
   specimen('card/default', 'Card', ['rest'], () => <Card>Sample record</Card>),
   specimen('dashboard-panel/default', 'DashboardPanel', ['rest'], () => (
@@ -322,16 +429,28 @@ export const specimens = [
       <DropIndicator active tone={tone} />
     </div>
   )),
-  ...roleSpecimens('tooltip/trigger-tone', 'Tooltip.Trigger', (tone) => (
-    <Tooltip open={false}>
-      <Tooltip.Trigger tone={tone}>Details</Tooltip.Trigger>
-    </Tooltip>
-  )),
-  ...roleSpecimens('popover/trigger-tone', 'Popover.Trigger', (tone) => (
-    <Popover open={false}>
-      <Popover.Trigger tone={tone}>Details</Popover.Trigger>
-    </Popover>
-  )),
+  ...roleSpecimens(
+    'tooltip/trigger-tone',
+    'Tooltip.Trigger',
+    (tone) => (
+      <Tooltip open={false}>
+        <Tooltip.Trigger tone={tone}>Details</Tooltip.Trigger>
+      </Tooltip>
+    ),
+    ['rest'],
+    (tone) => <LiveTooltip triggerTone={tone} />,
+  ),
+  ...roleSpecimens(
+    'popover/trigger-tone',
+    'Popover.Trigger',
+    (tone) => (
+      <Popover open={false}>
+        <Popover.Trigger tone={tone}>Details</Popover.Trigger>
+      </Popover>
+    ),
+    ['rest'],
+    (tone) => <LivePopover triggerTone={tone} />,
+  ),
   ...roleSpecimens(
     'popover/close-tone',
     'Popover.CloseButton',
@@ -347,6 +466,7 @@ export const specimens = [
       </Popover>
     ),
     ['open'],
+    (tone) => <LivePopover closeTone={tone} />,
   ),
   ...(
     [
@@ -355,11 +475,22 @@ export const specimens = [
       ['alert-dialog', 'AlertDialog', AlertDialog],
     ] as const
   ).flatMap(([id, label, Surface]) =>
-    roleSpecimens(`${id}/trigger-tone`, `${label}.Trigger`, (tone) => (
-      <Surface.Root open={false}>
-        <Surface.Trigger tone={tone}>Details</Surface.Trigger>
-      </Surface.Root>
-    )),
+    roleSpecimens(
+      `${id}/trigger-tone`,
+      `${label}.Trigger`,
+      (tone) => (
+        <Surface.Root open={false}>
+          <Surface.Trigger tone={tone}>Details</Surface.Trigger>
+        </Surface.Root>
+      ),
+      ['rest'],
+      (tone) =>
+        id === 'alert-dialog' ? (
+          <LiveAlertDialog triggerTone={tone} />
+        ) : (
+          <LiveDialog surface={Surface} triggerTone={tone} />
+        ),
+    ),
   ),
   ...(
     [
@@ -380,6 +511,7 @@ export const specimens = [
         </Surface.Root>
       ),
       ['open'],
+      (tone) => <LiveDialog surface={Surface} closeTone={tone} />,
     ),
   ),
   ...roleSpecimens(
@@ -391,5 +523,7 @@ export const specimens = [
         <AlertDialog.Action tone={tone}>Confirm</AlertDialog.Action>
       </AlertDialog.Root>
     ),
+    ['rest'],
+    (tone) => <LiveAlertDialog closeTone={tone} />,
   ),
 ]

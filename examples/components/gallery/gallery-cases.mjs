@@ -26,9 +26,33 @@ import { galleryActionCases } from './action-cases.mjs'
 import { galleryTimeCases } from './time-cases.mjs'
 import { galleryFormCases } from './form-cases.mjs'
 import { galleryLoadingCases } from './loading-cases.mjs'
+import {
+  choiceControl,
+  selectValue,
+} from '../../shared/controls/select-review.mjs'
 import assert from 'node:assert/strict'
 import { expect } from '@playwright/test'
 const catalog = [
+  ['blocks-tenant-admin', 'Tenant administration'],
+  ['blocks-records', 'Records workspace'],
+  ['blocks-dashboard', 'Platform dashboard'],
+  ['blocks-tenant-admin-sidebar', 'Tenant administration (sidebar)'],
+  ['blocks-records-sidebar', 'Records workspace (sidebar)'],
+  ['blocks-dashboard-sidebar', 'Platform dashboard (sidebar)'],
+  ['blocks-tenant-settings', 'Tenant settings'],
+  ['blocks-billing', 'Billing and usage'],
+  ['blocks-app-catalog', 'Application catalog'],
+  ['blocks-user-detail', 'User access'],
+  ['blocks-create-tenant', 'Create tenant'],
+  ['blocks-integrations', 'Integrations and webhooks'],
+  ['blocks-issue-tracker', 'Issue tracker'],
+  ['blocks-admin-app', 'Admin application'],
+  ['blocks-user-home', 'Member home'],
+  ['blocks-user-support', 'Customer support portal'],
+  ['blocks-user-account', 'Account'],
+  ['blocks-user-preferences', 'Preferences'],
+  ['blocks-user-notifications', 'Notifications inbox'],
+  ['blocks-user-invitation', 'Invitation and onboarding'],
   ['tree', 'Tree'],
   ['workflow', 'Workflow diagrams'],
   ['erd', 'Entity relationships'],
@@ -226,6 +250,36 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
   }
   const name = () =>
     preview().getByRole('textbox', { name: 'Name', exact: true })
+  await record('gallery: Sheet opens on every side at both sizes', async () => {
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await page.goto(`${url}?gallery=dialogs`)
+    const options = preview().getByRole('group', { name: 'Sheet options' })
+    const sideControl = choiceControl(options, { name: 'Side', exact: true })
+    const sizeControl = choiceControl(options, { name: 'Size', exact: true })
+    for (const side of ['left', 'right', 'top', 'bottom']) {
+      await selectValue(sideControl, side)
+      for (const size of ['default', 'wide']) {
+        await selectValue(sizeControl, size)
+        const wide = size === 'wide'
+        const trigger = preview().getByRole('button', {
+          name: wide ? 'Open wide sheet' : 'Open sheet',
+          exact: true,
+        })
+        await trigger.click()
+        const sheet = page.getByRole('dialog', {
+          name: wide ? 'Wide sheet' : 'Sheet',
+          exact: true,
+        })
+        await expect(sheet).toBeVisible()
+        await expect(sheet).toHaveAttribute('data-side', side)
+        if (wide) await expect(sheet).toHaveAttribute('data-size', 'wide')
+        else await expect(sheet).not.toHaveAttribute('data-size', /./)
+        await page.keyboard.press('Escape')
+        await expect(sheet).toBeHidden()
+        await expect(trigger).toBeFocused()
+      }
+    }
+  })
   await record(
     'gallery: table cell ranges copy in displayed order',
     async () => {
@@ -314,6 +368,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
         .filter({ has: page.locator('summary', { hasText: /^Components$/ }) })
       const summaries = navigation.locator('details > summary')
       const sectionNames = [
+        'Blocks',
         'Forms',
         'Tables',
         'Components',

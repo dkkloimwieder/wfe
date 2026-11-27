@@ -1,5 +1,5 @@
 import { scalarText } from '../scalarText'
-import { For, createSignal } from 'solid-js'
+import { For, Show, createSignal } from 'solid-js'
 import {
   Button,
   ButtonLink,
@@ -15,15 +15,20 @@ import {
   DatePicker,
   DateTimePicker,
   TimePicker,
+  TimeClock,
   Dialog,
   AlertDialog,
+  Sheet,
 } from '@wfe/components'
+import type { ClockValue, SheetSide } from '@wfe/components'
 import {
   ReadOnlyTable,
   createTable,
   createTableSelection,
 } from '@wfe/components/table'
 import type { GalleryState } from '../appearance/galleryConfig'
+import { TableWorkspaceExample } from './TableWorkspaceExample'
+import { SheetOptions, type SheetSize } from './SheetOptions'
 export type RecipeProps = { state: GalleryState }
 export function Fields(props: RecipeProps) {
   const [name, setName] = createSignal('Sample record')
@@ -121,6 +126,11 @@ export function Buttons(props: RecipeProps) {
 export function Dates(props: RecipeProps) {
   const [time, setTime] = createSignal<string | undefined>('14:30')
   const [seconds, setSeconds] = createSignal<string | undefined>('14:30:15')
+  const [clock, setClock] = createSignal<ClockValue>({
+    hour: 14,
+    minute: 30,
+    second: 0,
+  })
   const [date, setDate] = createSignal<string | undefined>('2026-10-18')
   const [instant, setInstant] = createSignal<string | undefined>(
     '2026-10-18T14:30:00.000Z',
@@ -210,11 +220,25 @@ export function Dates(props: RecipeProps) {
         </HelpText>
         <FieldError>Review the datetime.</FieldError>
       </Field>
+      <section class="example-stack" aria-labelledby="time-clock-heading">
+        <h2 id="time-clock-heading">Time clock</h2>
+        <TimeClock
+          label="Time clock"
+          value={clock()}
+          onValueChange={setClock}
+          timeFormat="HH:mm"
+          readonly={props.state === 'readonly'}
+          disabled={props.state === 'disabled'}
+        />
+      </section>
     </section>
   )
 }
-export function Dialogs() {
+export function Dialogs(props: { sheetOptions?: boolean }) {
   const [confirm, setConfirm] = createSignal(false)
+  const [side, setSide] = createSignal<SheetSide>('right')
+  const [size, setSize] = createSignal<SheetSize>('wide')
+  let returnFocus: HTMLHeadingElement | undefined
   return (
     <section class="example-actions">
       <Dialog>
@@ -246,10 +270,104 @@ export function Dialogs() {
           </AlertDialog.Content>
         </AlertDialog.Portal>
       </AlertDialog>
+      <section class="example-stack" aria-labelledby="overlay-focus-heading">
+        <h2 id="overlay-focus-heading" ref={returnFocus} tabindex={-1}>
+          Edit contact details
+        </h2>
+        <div class="example-actions">
+          <OverlayFocusExample
+            family={Dialog}
+            label="dialog"
+            restoreFocus={() => returnFocus}
+          />
+          <OverlayFocusExample
+            family={Sheet}
+            label="sheet"
+            restoreFocus={() => returnFocus}
+          />
+          <Sheet>
+            <Sheet.Trigger as={Button}>
+              {size() === 'wide' ? 'Open wide sheet' : 'Open sheet'}
+            </Sheet.Trigger>
+            <Sheet.Portal>
+              <Sheet.Overlay />
+              <Sheet.Content side={side()} size={size()}>
+                <Sheet.Title>
+                  {size() === 'wide' ? 'Wide sheet' : 'Sheet'}
+                </Sheet.Title>
+                <Sheet.Description>
+                  Review the full record before editing.
+                </Sheet.Description>
+                <Sheet.CloseButton>Close</Sheet.CloseButton>
+              </Sheet.Content>
+            </Sheet.Portal>
+          </Sheet>
+        </div>
+      </section>
+      <Show when={props.sheetOptions}>
+        <SheetOptions
+          side={side()}
+          size={size()}
+          onSideChange={setSide}
+          onSizeChange={setSize}
+        />
+      </Show>
     </section>
   )
 }
+
+function OverlayFocusExample(props: {
+  family: typeof Dialog | typeof Sheet
+  label: string
+  restoreFocus: () => HTMLElement | undefined
+}) {
+  const [editing, setEditing] = createSignal(true)
+  let email: HTMLInputElement | undefined
+  let edit: HTMLButtonElement | undefined
+  return (
+    <props.family
+      onOpenChange={(open) => {
+        if (!open) setEditing(true)
+      }}
+    >
+      <props.family.Trigger as={Button}>
+        Edit in {props.label}
+      </props.family.Trigger>
+      <props.family.Portal>
+        <props.family.Overlay />
+        <props.family.Content
+          focusKey={editing()}
+          initialFocus={() => (editing() ? email : edit)}
+          restoreFocus={props.restoreFocus}
+        >
+          <props.family.Title>Contact details</props.family.Title>
+          <props.family.Description>
+            Update the email address.
+          </props.family.Description>
+          <Show
+            when={editing()}
+            fallback={
+              <Button ref={edit} onClick={() => setEditing(true)}>
+                Edit email
+              </Button>
+            }
+          >
+            <Field>
+              <Label>Contact email</Label>
+              <Input type="email" ref={email} />
+            </Field>
+            <Button onClick={() => setEditing(false)}>Review contact</Button>
+          </Show>
+          <props.family.CloseButton as={Button} aria-label="Done">
+            Done
+          </props.family.CloseButton>
+        </props.family.Content>
+      </props.family.Portal>
+    </props.family>
+  )
+}
 export function TableExample() {
+  const [workspace, setWorkspace] = createSignal(false)
   const rows = [
     { id: '1', name: 'Sample record', status: 'Open' },
     { id: '2', name: 'Second record', status: 'Closed' },
@@ -282,7 +400,28 @@ export function TableExample() {
   })
   return (
     <div class="gallery-table">
-      <ReadOnlyTable table={table} selection={selection} title="Records" />
+      <Show
+        when={workspace()}
+        fallback={
+          <ReadOnlyTable
+            table={table}
+            selection={selection}
+            title="Records"
+            columnAlignment={{ id: 'right' }}
+            toolbarActions={
+              <IconButton
+                aria-label="Workspace example"
+                title="Workspace example"
+                onClick={() => setWorkspace(true)}
+              >
+                <Icon name="layout" />
+              </IconButton>
+            }
+          />
+        }
+      >
+        <TableWorkspaceExample onBack={() => setWorkspace(false)} />
+      </Show>
     </div>
   )
 }

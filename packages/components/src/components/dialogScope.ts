@@ -7,12 +7,13 @@ export function createDialogScope() {
   let trigger: HTMLElement | undefined
   let content: HTMLElement | undefined
   let cancel: HTMLElement | undefined
+  let alertClose: HTMLElement | undefined
   let origin =
     typeof document === 'undefined'
       ? undefined
       : (document.activeElement as HTMLElement | null)
   onCleanup(() => {
-    trigger = content = cancel = undefined
+    trigger = content = cancel = alertClose = undefined
     origin = undefined
   })
   return {
@@ -24,6 +25,18 @@ export function createDialogScope() {
     },
     setCancel: (node: HTMLElement) => {
       cancel = node
+    },
+    setAlertClose: (node: HTMLElement) => {
+      alertClose = node
+    },
+    activateAlertCancel: () => {
+      const button = cancel?.isConnected ? cancel : alertClose
+      if (
+        button &&
+        content?.contains(button) &&
+        !button.matches(":disabled, [aria-disabled='true']")
+      )
+        button.click()
     },
     initialAlertFocus: (event: Event) => {
       if (event.defaultPrevented) return

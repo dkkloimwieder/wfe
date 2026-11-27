@@ -17,10 +17,7 @@
 .chart-statistics .ui-toggle-group {
   flex-wrap: wrap;
 }
-
-.chart-statistics > * {
-  min-inline-size: 0;
-}
+.chart-statistics > *,
 .chart-statistics .ui-collapsible-content {
   min-inline-size: 0;
 }

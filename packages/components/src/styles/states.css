@@ -64,10 +64,10 @@
     > :is(input, textarea, select):is(:disabled, [aria-disabled='true'])
   ),
 :is([data-ui], :where([data-ui]) *):is(
-    :disabled,
-    [aria-disabled='true'],
-    [data-disabled]
-  ),
+  :disabled,
+  [aria-disabled='true'],
+  [data-disabled]
+),
 :where([data-ui], [data-ui] *) .choice-control[data-disabled] > button,
 :where([data-ui], [data-ui] *)
   fieldset:disabled
@@ -117,11 +117,11 @@
     :not([data-disabled], [aria-disabled='true'])
   ),
 :where([data-ui])
-  :is(.ui-check-control, .ui-radio-control, .ui-switch-control)[data-readonly]:where(
-    :not([data-disabled], [aria-disabled='true'])
-  ) {
-  cursor: default;
-}
+  :is(
+    .ui-check-control,
+    .ui-radio-control,
+    .ui-switch-control
+  )[data-readonly]:where(:not([data-disabled], [aria-disabled='true'])),
 :where([data-ui]) .choice-control[data-readonly]:not([data-disabled]) button {
   cursor: default;
 }

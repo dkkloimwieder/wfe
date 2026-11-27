@@ -59,13 +59,24 @@
   overflow-clip-margin: var(--ui-layout-inset, 16px);
   padding: 0;
 }
+:where(.ui-dashboard[data-ui][data-main-padding='none']) > .ui-dashboard-main {
+  --ui-table-frame-width: 0px;
+  padding: 0;
+}
+:where([data-ui]) .ui-dashboard-title {
+  min-inline-size: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+:where([data-ui]) .ui-dashboard-title:focus-visible {
+  outline: var(--ui-focus-width, 1px) solid var(--ui-focus-ring);
+  outline-offset: calc(-1 * var(--ui-focus-width, 1px));
+}
 :where([data-ui]) .ui-dashboard-panel {
   display: flex;
   flex-direction: column;
   gap: var(--ui-gap, 8px);
   min-width: 0;
-}
-:where([data-ui]) .ui-dashboard-panel {
   padding: var(--ui-layout-inset, var(--ui-cell-padding-x, 8px));
 }
 :where([data-ui]) .ui-dashboard-panel > :is(h1, h2, h3, p) {
@@ -76,14 +87,94 @@
   min-height: 0;
   overflow: hidden;
 }
+:where([data-ui])
+  :is(
+    .ui-dashboard-panel-header,
+    .ui-dashboard-panel-header-end,
+    .ui-dashboard-panel-footer
+  ) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap, 8px);
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-dashboard-panel-header-end {
+  margin-inline-start: auto;
+  max-inline-size: 100%;
+}
+:where([data-ui]) .ui-dashboard-panel-heading {
+  display: grid;
+  gap: var(--ui-gap, 8px);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+:where([data-ui]) .ui-dashboard-panel-heading :is(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+}
+:where([data-ui]) .ui-dashboard-panel-footer {
+  justify-content: flex-end;
+}
+:where([data-ui]) .ui-activity-list {
+  display: grid;
+  min-inline-size: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--ui-pane-surface, var(--ui-surface));
+  overflow-wrap: anywhere;
+}
+:where([data-ui]) .ui-activity-list > li {
+  display: grid;
+  gap: var(--ui-gap, 8px);
+  min-inline-size: 0;
+}
+:where([data-ui]) .ui-activity-list > li + li {
+  margin-block-start: calc(var(--ui-gap, 8px) / 2);
+  padding-block-start: calc(var(--ui-gap, 8px) / 2);
+  border-block-start: var(--ui-divider-width, var(--ui-border-width, 1px)) solid
+    var(--ui-border);
+}
+:where([data-ui]) .ui-activity-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ui-gap, 8px);
+}
 :where([data-ui]) .ui-dashboard-grid {
+  --_ui-dashboard-grid-gap: var(--ui-gap, 8px);
   display: grid;
   grid-template-columns: repeat(
     auto-fit,
     minmax(min(100%, var(--ui-panel-min-width, 18rem)), 1fr)
   );
-  gap: var(--ui-gap, 8px);
+  gap: var(--_ui-dashboard-grid-gap);
   min-width: 0;
+}
+:where([data-ui]) .ui-dashboard-grid[data-gap='layout'] {
+  --_ui-dashboard-grid-gap: var(--ui-layout-inset, var(--ui-gap, 8px));
+}
+:where([data-ui]) .ui-dashboard-grid[data-responsive-columns] {
+  display: block;
+  container: dashboard-grid / inline-size;
+}
+:where([data-ui]) .ui-dashboard-grid-columns {
+  display: grid;
+  grid-template-columns: repeat(var(--_ui-grid-narrow-columns), minmax(0, 1fr));
+  gap: var(--_ui-dashboard-grid-gap);
+}
+@container dashboard-grid (inline-size >= 29rem) {
+  :where([data-ui]) .ui-dashboard-grid-columns {
+    grid-template-columns: repeat(
+      var(--_ui-grid-medium-columns),
+      minmax(0, 1fr)
+    );
+  }
+}
+@container dashboard-grid (inline-size >= 55rem) {
+  :where([data-ui]) .ui-dashboard-grid-columns {
+    grid-template-columns: repeat(var(--_ui-grid-wide-columns), minmax(0, 1fr));
+  }
 }
 @media (width < 48rem) {
   :where(
@@ -113,7 +204,7 @@
         )[data-ui][data-navigation-open]
     )
     > .ui-dashboard-navigation {
-    display: block;
+    display: var(--_ui-dashboard-drawer-display, block);
   }
   :where(.ui-dashboard[data-ui]:not([data-ui-responsive-ready]))
     > :is(.ui-dashboard-header, .ui-dashboard-navigation, .ui-dashboard-context)
@@ -147,7 +238,7 @@
     .ui-dashboard[data-ui-responsive-ready][data-navigation-drawer][data-ui][data-navigation-open]
   )
   > .ui-dashboard-navigation {
-  display: block;
+  display: var(--_ui-dashboard-drawer-display, block);
 }
 :where(.ui-dashboard[data-ui][data-ui-responsive-ready][data-navigation-drawer])
   > :is(.ui-dashboard-header, .ui-dashboard-navigation, .ui-dashboard-context)
@@ -375,6 +466,14 @@
   gap: var(--ui-gap, 8px);
   margin-inline-start: auto;
 }
+:where([data-ui]) .ui-dashboard-action-target {
+  flex-wrap: wrap;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+}
+:where([data-ui]) .ui-dashboard-action-target:empty {
+  display: none;
+}
 
 @media (width >= 48rem) {
   :where(
@@ -411,15 +510,6 @@
   padding-inline: 0;
 }
 
-:where([data-ui]) .ui-dashboard-navigation {
-  --_ui-sidebar-inset: calc(
-    (
-        var(--ui-navigation-rail-width, 3.5rem) -
-          var(--ui-sidebar-control-height, var(--ui-control-height, 32px))
-      ) /
-      2
-  );
-}
 /* Panels in a rail sit one region gap apart. The rail stays a block box, so
    the drawer display rules keep working. The first child is the hidden close
    button. A navigation rail with sidebar groups keeps its own row model. */
@@ -453,38 +543,33 @@
 }
 :where([data-ui])
   .ui-dashboard-navigation:has(> .ui-sidebar-group, > .ui-sidebar-group-panel) {
-  scrollbar-gutter: stable both-edges;
+  --_ui-sidebar-gap: var(--ui-control-padding-y, 4px);
+  --_ui-dashboard-drawer-display: flex;
+  flex-direction: column;
+  padding: var(--_ui-sidebar-gap);
+  /* Sketchy decoration can extend beyond the section's border. */
+  overflow-x: hidden;
   scrollbar-width: thin;
 }
 :where([data-ui])
-  .ui-dashboard-navigation:has(> .ui-sidebar-group):not(
-    :has(
-      > .ui-sidebar-group-panel,
-      > .ui-sidebar-group > .ui-sidebar-group-panel
-    )
-  ) {
-  padding-inline: 0;
-  padding-block: max(0px, calc(var(--_ui-sidebar-inset) - var(--ui-gap, 8px)));
-}
-:where([data-ui])
-  .ui-dashboard-navigation:has(
-    > .ui-sidebar-group-panel,
-    > .ui-sidebar-group > .ui-sidebar-group-panel
-  ) {
-  --_ui-sidebar-card-gap: 8px;
-  padding: var(--_ui-sidebar-card-gap);
-}
-:where([data-ui])
   .ui-dashboard-navigation
-  > :is(.ui-sidebar-group:not([data-compact]), .ui-sidebar-group-panel)
-  + :is(.ui-sidebar-group:not([data-compact]), .ui-sidebar-group-panel) {
-  margin-block-start: var(--_ui-sidebar-card-gap);
+  > :is(.ui-sidebar-context, .ui-sidebar-group, .ui-sidebar-group-panel)
+  + :is(.ui-sidebar-group, .ui-sidebar-group-panel) {
+  margin-block-start: var(--_ui-sidebar-gap);
 }
-:where([data-ui]) .ui-sidebar-group {
-  --_ui-sidebar-row-height: calc(
-    var(--ui-sidebar-control-height, var(--ui-control-height, 32px)) + 2 *
-      var(--ui-gap, 8px)
-  );
+
+:where([data-ui])
+  .ui-dashboard-navigation:has(> .ui-sidebar-group, > .ui-sidebar-group-panel)
+  > * {
+  flex-shrink: 0;
+}
+/* Let the drawer start with its navigation. The header toggle also closes it. */
+:where([data-ui])
+  .ui-dashboard-navigation:has(> .ui-sidebar-group, > .ui-sidebar-group-panel)
+  > .ui-dashboard-close {
+  order: 1;
+  align-self: start;
+  margin-block-start: var(--_ui-sidebar-gap);
 }
 /* The navigation menu inherits the section's color. */
 :where([data-ui]) .ui-sidebar-group > .ui-section > .ui-collapsible-content {
@@ -494,7 +579,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  block-size: var(--_ui-sidebar-row-height);
 }
 :where([data-ui]) .ui-sidebar-group[data-compact] > .ui-button {
   flex-shrink: 0;
@@ -626,6 +710,14 @@
   block-size: 100%;
   min-block-size: 0;
 }
+:where([data-ui]) .ui-entry-panel[data-size='content'] {
+  flex: none;
+  block-size: auto;
+  /* The inline surface meets the edge. Keep its decorative backing in bounds. */
+  overflow: clip visible;
+  padding: 0;
+  background: none;
+}
 :where([data-ui]) .ui-entry-panel-surface {
   position: relative;
   isolation: isolate;
@@ -636,6 +728,16 @@
   min-inline-size: 0;
   margin: auto;
   overflow-wrap: anywhere;
+}
+:where([data-ui])
+  .ui-entry-panel[data-size='content']
+  > .ui-entry-panel-surface {
+  inline-size: 100%;
+  max-inline-size: none;
+  margin: 0;
+}
+:where([data-ui]) .ui-entry-panel-title {
+  margin: 0 0 var(--ui-gap, 8px);
 }
 :where([data-ui]) .ui-entry-panel-surface::after {
   content: '';
@@ -671,6 +773,10 @@
 
 :where([data-ui]) .ui-sidebar-context {
   min-inline-size: 0;
+}
+:where([data-ui]) .ui-dashboard-navigation > .ui-sidebar-context[data-compact] {
+  display: flex;
+  justify-content: center;
 }
 :where([data-ui]) .ui-sidebar-context-trigger {
   inline-size: 100%;

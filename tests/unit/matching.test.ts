@@ -32,6 +32,14 @@ test('normalizes captured accented characters and honors keepDiacritics', () => 
   expect(matchSorter(['Łódź'], 'lodz')).toEqual(['Łódź'])
   expect(matchSorter(['Café'], 'cafe', { keepDiacritics: true })).toEqual([])
 })
+test('matches composed and decomposed Unicode without changing returned values', () => {
+  const decomposed = 'Cafe\u0301'
+  expect(matchSorter([decomposed], 'cafe')).toEqual([decomposed])
+  expect(matchSorter(['Café'], decomposed, { keepDiacritics: true })).toEqual([
+    'Café',
+  ])
+  expect(matchSorter(['각'], '각')).toEqual(['각'])
+})
 test('object keys, getters, thresholds and metadata retain original records without mutation', () => {
   const rows = Object.freeze([
     Object.freeze({ id: 1, name: 'Gamma', nested: { aliases: ['Ray'] } }),

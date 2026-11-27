@@ -46,7 +46,9 @@ export function ListboxItemDescription<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('description'),
+      get id() {
+        return context.generateId('description')
+      },
     },
     props as ListboxItemDescriptionProps,
   )

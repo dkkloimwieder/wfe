@@ -19,7 +19,7 @@ export async function galleryThemeCases({ page, url, record }) {
           })
           const summaries = nav.locator('details > summary')
           const handle = page.locator('.ui-dashboard-divider-toggle')
-          await expect(summaries).toHaveCount(7)
+          await expect(summaries).toHaveCount(8)
           await page.mouse.move(width - 1, 0)
           await expect(handle).toHaveCSS('outline-style', 'none')
           await expect(handle).toHaveCSS('box-shadow', 'none')
@@ -43,7 +43,6 @@ export async function galleryThemeCases({ page, url, record }) {
                   gap: box.top - previous,
                   top: box.top,
                   bottom: box.bottom,
-                  width: box.width,
                   bordered: [
                     style.borderTopWidth,
                     style.borderRightWidth,
@@ -62,6 +61,7 @@ export async function galleryThemeCases({ page, url, record }) {
                   frame.right - right - parseFloat(style.borderRightWidth),
                 ],
                 paddingBottom: parseFloat(style.paddingBottom),
+                overflowing: node.scrollHeight > node.clientHeight,
                 top,
                 bottom: top + node.clientHeight,
                 scrollTop: node.scrollTop,
@@ -69,19 +69,17 @@ export async function galleryThemeCases({ page, url, record }) {
               }
             })
           const initial = await layout()
-          assert.equal(initial.gutter, 'stable both-edges', detail)
+          assert.equal(initial.gutter, 'auto', detail)
           assert.equal(initial.scrollbar, 'thin', detail)
-          assert.ok(
-            initial.gutters[0] > 0 && initial.gutters[0] === initial.gutters[1],
-            detail,
-          )
-          const columns = (state) =>
-            state.geometry.map(({ left, width }) => [left, width])
           function checkGaps(state) {
-            assert.equal(state.paddingBottom, 8, detail)
+            assert.equal(state.gutters[0], 0, detail)
+            assert.equal(state.gutters[1] > 0, state.overflowing, detail)
             for (const { left, right, gap, bordered } of state.geometry) {
               assert.ok(
-                [left, right, gap].every((space) => Math.abs(space - 8) < 0.5),
+                [left, right, gap].every(
+                  (space) =>
+                    space > 0 && Math.abs(space - state.paddingBottom) < 0.5,
+                ),
                 `${detail} spacing: ${[left, right, gap]}`,
               )
               assert.ok(bordered, detail)
@@ -121,16 +119,17 @@ export async function galleryThemeCases({ page, url, record }) {
           await page.mouse.move(width - 1, 0)
           await expect(dotted).toHaveCSS('scale', '0.9')
           await expect(closed).toHaveCSS('box-shadow', 'none')
-          assert.deepEqual(columns(await layout()), columns(initial), detail)
+          checkGaps(await layout())
           await closed.click()
           await page.mouse.move(width - 1, 0)
           await expect(dotted).toHaveCSS('opacity', '0')
-          assert.deepEqual(columns(await layout()), columns(initial), detail)
+          checkGaps(await layout())
 
           for (const summary of await summaries.all()) {
             if (!(await summary.evaluate((node) => node.parentElement.open)))
               await summary.click()
           }
+          await page.mouse.move(width - 1, 0)
           await nav.evaluate((node) => {
             node.scrollTop = node.scrollHeight
           })
@@ -140,7 +139,7 @@ export async function galleryThemeCases({ page, url, record }) {
           assert.ok(expanded.scrollTop > 0, detail)
           assert.ok(
             last.top >= expanded.top &&
-              Math.abs(expanded.bottom - last.bottom - 8) < 1,
+              expanded.bottom - last.bottom >= expanded.paddingBottom - 0.5,
             `${detail} last open card: ${JSON.stringify({ last, expanded })}`,
           )
         }

@@ -542,11 +542,23 @@ Two local Oxlint rules preserve the duplicate-parameter and legacy octal checks 
 `pnpm lint:types` adds the recommended type-aware rules through oxlint-tsgolint `7.0.2007`.
 Type-aware lint runs separately from the required gate. Beads `wfe-0dj.11` tracks its findings.
 
+## Solid 2.0.4 update
+
+Beads `wfe-w2y.80` tracks this update.
+The workspace pins Solid, Web, and Signals to `2.0.4`.
+It pins the compiler, its platform binaries, and the Babel plugin to `2.0.3`.
+The Vite plugin stays at `3.0.1`, and the testing library stays at `1.0.0-rc.2`.
+
+Solid Primitives Form and Interaction use `1.0.1`, Utils uses `7.0.1`, and I18n uses `3.0.1`.
+The Interaction patch carries forward the immediate focus listener.
+The Scroll `3.0.0` patch still carries the shared scroll registry repair.
+See the [dependency patch records](../patches/README.md).
+
 ## Solid 2.0.0 upgrade
 
 Beads `wfe-0dj.7` tracks the move to Solid `2.0.0`.
-The workspace pins Web, Signals, the compiler and its six platform binaries, and the Babel plugin to `2.0.0`.
-It uses Vite plugin `3.0.1` and testing library `1.0.0-rc.2`.
+That upgrade pinned Web, Signals, the compiler and its six platform binaries, and the Babel plugin to `2.0.0`.
+It used Vite plugin `3.0.1` and testing library `1.0.0-rc.2`.
 The stable primitives require stable Solid 2, and the generated components server code uses Web's new `ssrOption` helper.
 The components package requires `>=2.0.0 <3.0.0` for `solid-js` and `@solidjs/web`.
 The other workspace packages retain their declared Solid peer ranges.

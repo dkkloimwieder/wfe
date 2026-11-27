@@ -1,12 +1,23 @@
 import { Dynamic } from '@solidjs/web'
 import { exampleSizing } from '../shared/appearance/sizing'
-import { Button, Checkbox, RadioGroup, Switch, uiScope } from '@wfe/components'
+import {
+  Button,
+  Checkbox,
+  CheckboxField,
+  FieldGroup,
+  RadioGroup,
+  Switch,
+  SwitchField,
+  uiScope,
+} from '@wfe/components'
 import { Show, createSignal, flush, onCleanup } from 'solid-js'
 import { nativeEvents } from '@wfe/components/events'
 
 export function BooleanControls(props: { embedded?: boolean } = {}) {
   const [checked, setChecked] = createSignal(false)
   const [switched, setSwitched] = createSignal(false)
+  const [attachments, setAttachments] = createSignal(false)
+  const [reminders, setReminders] = createSignal(false)
   const [selected, setSelected] = createSignal('a')
   const [accept, setAccept] = createSignal(true)
   const [disabled, setDisabled] = createSignal(false)
@@ -195,6 +206,34 @@ export function BooleanControls(props: { embedded?: boolean } = {}) {
           <Button type="submit">Submit form</Button>
         </div>
       </form>
+      <FieldGroup title="Boolean fields">
+        <CheckboxField
+          label="Include attachments"
+          description={
+            attachments()
+              ? 'Export includes attachments.'
+              : 'Export excludes attachments.'
+          }
+          checked={attachments()}
+          onCheckedChange={(value) => setAttachments(value)}
+          disabled={disabled()}
+          readonly={readOnly()}
+          invalid={invalid()}
+        />
+        <SwitchField
+          label="Enable reminders"
+          description={
+            reminders()
+              ? 'Due-date reminders are on.'
+              : 'Due-date reminders are off.'
+          }
+          checked={reminders()}
+          onCheckedChange={(value) => setReminders(value)}
+          disabled={disabled()}
+          readonly={readOnly()}
+          invalid={invalid()}
+        />
+      </FieldGroup>
     </Dynamic>
   )
 }

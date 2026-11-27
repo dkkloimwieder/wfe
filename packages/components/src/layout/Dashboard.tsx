@@ -3,6 +3,8 @@ import { ownsFocus } from '../internal/ownedFocus'
 import { styledClasses, type ClassValue } from '../internal/classes'
 import {
   Show,
+  children,
+  createContext,
   createSignal,
   createEffect,
   createMemo,
@@ -11,13 +13,14 @@ import {
   onCleanup,
   onSettled,
   untrack,
+  useContext,
 } from 'solid-js'
 import { DisclosureIndicator } from '../components/DisclosureIndicator'
 import { Button } from '../components/NativeFields'
 import { Card } from '../components/Display'
 import { nativeEventProps, ownedElementEvents } from '../internal/events'
 import { uiScope } from '../styles/density'
-import { Dynamic } from '@solidjs/web'
+import { Dynamic, Portal } from '@solidjs/web'
 import type { JSX } from '@solidjs/web'
 import type { CardProps } from '../components/Display'
 import type { UIDensity } from '../styles/density'
@@ -27,8 +30,22 @@ export type DashboardNavigation = {
   compact: () => boolean
   mobile: () => boolean
 }
+type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+
+function hasSlotContent(slot: ReturnType<typeof children>) {
+  return slot
+    .toArray()
+    .some(
+      (value) => value != null && typeof value !== 'boolean' && value !== '',
+    )
+}
+
 export type DashboardShellProps = {
   header?: JSX.Element
+  title?: JSX.Element
+  /** Defaults to h1. */
+  titleAs?: HeadingTag
+  headerActions?: JSX.Element
   navigation?: (controls: DashboardNavigation) => JSX.Element
   context?: (controls: DashboardNavigation) => JSX.Element
   contextLabel?: string
@@ -45,11 +62,35 @@ export type DashboardShellProps = {
   mainLabel?: string
   mainAs?: 'main' | 'section'
   scroll?: 'main' | 'content'
+  /** Removes the main inset while retaining the chosen scroll mode. */
+  mainPadding?: 'default' | 'none'
   density?: UIDensity
   theme?: 'dark'
   id?: string
   class?: ClassValue
   style?: JSX.CSSProperties
+}
+
+const HeaderActionsTarget = createContext<
+  (() => HTMLDivElement | undefined) | null
+>(null)
+
+export type DashboardHeaderActionsProps = { children: JSX.Element }
+
+/** Places page actions in the nearest shell header on the client. Outside a shell, they render inline. */
+export function DashboardHeaderActions(
+  props: DashboardHeaderActionsProps,
+): JSX.Element {
+  const target = useContext(HeaderActionsTarget)
+  return (
+    <Show
+      when={target?.()}
+      fallback={target ? undefined : props.children}
+      keyed
+    >
+      {(mount) => <Portal mount={mount}>{props.children}</Portal>}
+    </Show>
+  )
 }
 
 type RailOptions = {
@@ -244,6 +285,10 @@ function createRail(options: RailOptions) {
 /** Persistent menu owners with independent scrolling and responsive placement. */
 export function DashboardShell(props: DashboardShellProps) {
   const [active, setActive] = createSignal<'navigation' | 'context'>()
+  const [headerActionsTarget, setHeaderActionsTarget] =
+    createSignal<HTMLDivElement>()
+  let headerActions: HTMLDivElement | undefined
+  const title = children(() => props.title)
   let main: HTMLElement | undefined
   const rail = (kind: 'navigation' | 'context') =>
     createRail({
@@ -269,6 +314,7 @@ export function DashboardShell(props: DashboardShellProps) {
   const context = rail('context')
   let root: HTMLDivElement | undefined
   onSettled(() => {
+    setHeaderActionsTarget(headerActions)
     if (!root) return
     const layout = createContainerLayout(
       root,
@@ -282,9 +328,10 @@ export function DashboardShell(props: DashboardShellProps) {
     const observer =
       typeof ResizeObserver === 'undefined'
         ? undefined
-        : new ResizeObserver(layout.measure)
-    observer?.observe(root)
-    layout.measure()
+        : new ResizeObserver(layout.observe)
+    observer?.observe(root, { box: 'border-box' })
+    // The first observer delivery measures after the browser lays out the shell.
+    if (!observer) layout.measure()
     return () => {
       observer?.disconnect()
       layout.dispose()
@@ -376,6 +423,7 @@ export function DashboardShell(props: DashboardShellProps) {
       data-has-context={props.context ? '' : undefined}
       data-has-footer={footer() !== undefined ? '' : undefined}
       data-has-navigation={props.navigation ? '' : undefined}
+      data-main-padding={props.mainPadding}
       data-scroll={props.scroll ?? 'main'}
       ref={[
         (node) => {
@@ -385,65 +433,189 @@ export function DashboardShell(props: DashboardShellProps) {
         context.events,
       ]}
     >
-      <header class="ui-dashboard-header">
+      <HeaderActionsTarget value={headerActionsTarget}>
+        <header class="ui-dashboard-header">
+          <Show when={props.navigation}>
+            <navigation.Toggle />
+          </Show>
+          <Show when={props.context}>
+            <context.Toggle />
+          </Show>
+          <Show when={hasSlotContent(title)}>
+            <Dynamic
+              component={props.titleAs ?? 'h1'}
+              class="ui-dashboard-title"
+              tabindex={-1}
+            >
+              {title()}
+            </Dynamic>
+          </Show>
+          {props.header}
+          <div
+            class="ui-dashboard-header-actions ui-dashboard-action-target"
+            ref={(node) => {
+              headerActions = node
+            }}
+          >
+            {props.headerActions}
+          </div>
+        </header>
         <Show when={props.navigation}>
-          <navigation.Toggle />
+          <navigation.Region />
+          <Show when={props.onNavigationCollapsedChange}>
+            <NavigationDivider />
+          </Show>
         </Show>
         <Show when={props.context}>
-          <context.Toggle />
+          <context.Region />
         </Show>
-        {props.header}
-      </header>
-      <Show when={props.navigation}>
-        <navigation.Region />
-        <Show when={props.onNavigationCollapsedChange}>
-          <NavigationDivider />
+        <Dynamic
+          component={props.mainAs ?? 'main'}
+          ref={(node) => {
+            main = node
+          }}
+          tabindex={-1}
+          class="ui-dashboard-main"
+          aria-label={props.mainLabel}
+        >
+          {props.children}
+        </Dynamic>
+        <Show when={footer() !== undefined}>
+          <footer class="ui-dashboard-footer" aria-label={props.footerLabel}>
+            {footer()}
+          </footer>
         </Show>
-      </Show>
-      <Show when={props.context}>
-        <context.Region />
-      </Show>
-      <Dynamic
-        component={props.mainAs ?? 'main'}
-        ref={(node) => {
-          main = node
-        }}
-        tabindex={-1}
-        class="ui-dashboard-main"
-        aria-label={props.mainLabel}
-      >
-        {props.children}
-      </Dynamic>
-      <Show when={footer() !== undefined}>
-        <footer class="ui-dashboard-footer" aria-label={props.footerLabel}>
-          {footer()}
-        </footer>
-      </Show>
+      </HeaderActionsTarget>
     </div>
   )
 }
 
-export type DashboardPanelProps = CardProps & { fill?: boolean }
+export type DashboardPanelProps = Omit<CardProps, 'title'> & {
+  fill?: boolean
+  title?: JSX.Element
+  /** Defaults to h2. */
+  titleAs?: HeadingTag
+  description?: JSX.Element
+  headerEnd?: JSX.Element
+  footer?: JSX.Element
+}
+
 export function DashboardPanel(props: DashboardPanelProps) {
-  const rest = omit(props, 'fill')
+  const rest = omit(
+    props,
+    'fill',
+    'title',
+    'titleAs',
+    'description',
+    'headerEnd',
+    'footer',
+    'children',
+  )
+  const titleId = `dashboard-panel-title-${createUniqueId()}`
+  const descriptionId = `dashboard-panel-description-${createUniqueId()}`
+  const title = children(() => props.title)
+  const description = children(() => props.description)
+  const headerEnd = children(() => props.headerEnd)
+  const footer = children(() => props.footer)
+  const hasTitle = () => hasSlotContent(title)
+  const hasDescription = () => hasSlotContent(description)
+  const hasHeader = () => hasTitle() || hasSlotContent(headerEnd)
   return (
     <Card
       {...rest}
       class={styledClasses('ui-dashboard-panel', props.class)}
       data-fill={props.fill ? '' : undefined}
-    />
+      aria-labelledby={
+        props['aria-labelledby'] ??
+        (props.role && !props['aria-label'] && hasTitle() ? titleId : undefined)
+      }
+      aria-describedby={
+        props['aria-describedby'] ??
+        (props.role && hasDescription() ? descriptionId : undefined)
+      }
+    >
+      <Show when={hasHeader() || hasDescription()}>
+        <div class="ui-dashboard-panel-heading">
+          <Show when={hasHeader()}>
+            <div class="ui-dashboard-panel-header">
+              <Show when={hasTitle()}>
+                <Dynamic component={props.titleAs ?? 'h2'} id={titleId}>
+                  {title()}
+                </Dynamic>
+              </Show>
+              <Show when={hasSlotContent(headerEnd)}>
+                <div class="ui-dashboard-panel-header-end">{headerEnd()}</div>
+              </Show>
+            </div>
+          </Show>
+          <Show when={hasDescription()}>
+            <div id={descriptionId} data-ui-text="prose">
+              {description()}
+            </div>
+          </Show>
+        </div>
+      </Show>
+      {props.children}
+      <Show when={hasSlotContent(footer)}>
+        <div class="ui-dashboard-panel-footer">{footer()}</div>
+      </Show>
+    </Card>
   )
 }
 
-export type DashboardGridProps = JSX.HTMLAttributes<HTMLDivElement>
+export type DashboardGridProps = JSX.HTMLAttributes<HTMLDivElement> & {
+  /** CSS length for auto-fit columns. Defaults to 18rem. */
+  minPanelWidth?: string
+  /** Defaults to the control gap. Layout uses the dashboard inset. */
+  gap?: 'default' | 'layout'
+  /** Positive integer column counts below 29rem, from 29rem, and from 55rem. */
+  columns?: { narrow: number; medium: number; wide: number }
+}
+
 export function DashboardGrid(props: DashboardGridProps) {
-  const rest = omit(props, 'ref', ...nativeEventProps)
+  const rest = omit(
+    props,
+    'ref',
+    'style',
+    'children',
+    'minPanelWidth',
+    'gap',
+    'columns',
+    ...nativeEventProps,
+  )
   const events = ownedElementEvents(props)
+  const panels = children(() => props.children)
+  const style = () => {
+    const minPanelWidth = props.minPanelWidth
+    if (minPanelWidth === undefined) return props.style
+    const custom = props.style
+    return typeof custom === 'string'
+      ? `--ui-panel-min-width:${minPanelWidth};${custom}`
+      : { '--ui-panel-min-width': minPanelWidth, ...custom }
+  }
   return (
     <div
       {...rest}
       class={styledClasses('ui-dashboard-grid', props.class)}
+      style={style()}
+      data-gap={props.gap}
+      data-responsive-columns={props.columns ? '' : undefined}
       ref={[props.ref, events]}
-    />
+    >
+      <Show when={props.columns} fallback={panels()}>
+        {(columns) => (
+          <div
+            class="ui-dashboard-grid-columns"
+            style={{
+              '--_ui-grid-narrow-columns': columns().narrow,
+              '--_ui-grid-medium-columns': columns().medium,
+              '--_ui-grid-wide-columns': columns().wide,
+            }}
+          >
+            {panels()}
+          </div>
+        )}
+      </Show>
+    </div>
   )
 }

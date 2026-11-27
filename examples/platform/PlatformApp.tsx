@@ -1,3 +1,4 @@
+import '@wfe/components/styles.css'
 import { ApplicationAccessViews } from './ApplicationAccessViews'
 import { isApplicationAccessRoute } from './route'
 import { InvitationView } from './InvitationView'
@@ -19,12 +20,19 @@ import { DashboardShell } from '@wfe/components/layout'
 import { nativeEvents } from '@wfe/components/events'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import { AppearanceReview } from '../shared/appearance/AppearanceReview'
+import { DemoThemePicker } from '../shared/settings/DemoThemePicker'
+import {
+  schemeIndex,
+  useDemoAppearance,
+} from '../shared/settings/demoAppearance'
+import type { AppearanceChoice } from '../shared/settings/demoAppearance'
 import {
   primaryColors,
   schemes,
   schemeMode,
   primaryOption,
   defaultLayers,
+  presetDefaults,
 } from '../shared/appearance/appearance'
 import type { SurfaceLayers } from '../shared/appearance/appearance'
 import { createPlatformApplication } from './application'
@@ -52,11 +60,23 @@ export function PlatformApp(props: {
     }),
   )
   const [appearance, setAppearance] = createSignal(false)
-  const [scheme, setScheme] = createSignal(schemes[1]!)
+  const preferences = useDemoAppearance()
+  const [monochrome, setMonochrome] = createSignal(false)
+  const choice = (): AppearanceChoice =>
+    monochrome() ? 'monochrome' : (preferences.savedScheme() ?? 'system')
+  const mode = () => preferences.resolveMode(choice())
   const [primary, setPrimary] = createSignal(primaryColors[1]!)
-  const [layers, setLayers] = createSignal<SurfaceLayers>({
-    ...defaultLayers,
-  })
+  const [layerDraft, setLayers] = createSignal<SurfaceLayers>()
+  const layers = () =>
+    layerDraft() ??
+    (preferences.preset() === 'default'
+      ? defaultLayers
+      : presetDefaults[preferences.preset()].layers)
+
+  async function setScheme(value: AppearanceChoice) {
+    if (value === 'monochrome') setMonochrome(true)
+    else if (await preferences.saveScheme(value)) setMonochrome(false)
+  }
   let root: HTMLDivElement | undefined,
     alive = true,
     focusSequence = 0
@@ -195,7 +215,8 @@ export function PlatformApp(props: {
   return (
     <DefaultAppearance
       class="platform-example"
-      mode={schemeMode(scheme())}
+      preset={preferences.preset()}
+      mode={mode()}
       options={{ primary: primaryOption(primary()), layers: layers() }}
     >
       <div
@@ -490,11 +511,28 @@ export function PlatformApp(props: {
         >
           <Show when={appearance()}>
             <section id="platform-appearance" class="platform-appearance">
+              <DemoThemePicker
+                value={preferences.preset()}
+                onChange={(value) => void preferences.savePreset(value)}
+              />
+              <Show when={preferences.failure()}>
+                <InlineAlert announce="assertive" tone="error">
+                  {preferences.failure()}
+                </InlineAlert>
+              </Show>
               <AppearanceReview
-                scheme={scheme()}
+                themeOptions={{
+                  preset: preferences.preset(),
+                  mode: mode(),
+                  primary: primaryOption(primary()),
+                  layers: layers(),
+                }}
+                scheme={schemes[schemeIndex[mode()]]!}
                 primary={primary()}
                 layers={layers()}
-                onSchemeChange={setScheme}
+                systemScheme={choice() === 'system'}
+                onSystemScheme={() => void setScheme('system')}
+                onSchemeChange={(value) => void setScheme(schemeMode(value))}
                 onPrimaryChange={setPrimary}
                 onLayersChange={setLayers}
               />

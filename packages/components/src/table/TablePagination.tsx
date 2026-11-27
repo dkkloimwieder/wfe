@@ -10,6 +10,14 @@ export type TablePageSize = {
   onValueChange: (value: number) => void
 }
 
+export function validTablePageSizes(options: readonly number[]): boolean {
+  return (
+    options.length > 0 &&
+    options.every((value) => Number.isSafeInteger(value) && value > 0) &&
+    new Set(options).size === options.length
+  )
+}
+
 /** Applications own accepted pages, requests, totals, and page-size policy. */
 export type TablePaginationProps = {
   messages?: Partial<TableMessages>
@@ -32,13 +40,7 @@ export function TablePagination(props: TablePaginationProps) {
     const size = props.pageSize
     if (!size) return []
     if (
-      !Number.isSafeInteger(size.value) ||
-      size.value <= 0 ||
-      !size.options.length ||
-      size.options.some(
-        (value) => !Number.isSafeInteger(value) || value <= 0,
-      ) ||
-      new Set(size.options).size !== size.options.length ||
+      !validTablePageSizes(size.options) ||
       !size.options.includes(size.value)
     )
       throw new Error(

@@ -1,4 +1,4 @@
-import { createSignal, flush, For, onSettled } from 'solid-js'
+import { createSignal, flush, For, onSettled, Show } from 'solid-js'
 import { Button } from '@wfe/components'
 import { DefaultAppearance } from '../shared/appearance/DefaultAppearance'
 import {
@@ -88,21 +88,22 @@ export function Variants(props: { group: Group; specimens: Specimen[] }) {
 
   onSettled(() => {
     const disposeRules = installForcedStateRules(document)
-    // Keep composite examples open when another sample or the mode control
-    // receives focus. These events come from the shared dismissable layer.
-    const keepOpen = (event: Event) => event.preventDefault()
-    const outsideEvents = [
-      'interactOutside.focusOutside',
-      'interactOutside.pointerDownOutside',
-    ]
-    for (const name of outsideEvents)
-      main.addEventListener(name, keepOpen, true)
+    // Keep snapshots open when focus or the pointer moves to another example.
+    const keepOpen = (event: Event) => {
+      if (
+        event.target instanceof Element &&
+        event.target.closest('.variant-sample')
+      )
+        event.preventDefault()
+    }
+    main.addEventListener('ui:interact-outside', keepOpen)
 
     // Open the snapshots after field registration. Suppress autofocus while
     // they mount so the page starts at its header.
     main.inert = true
     let readyTimer: number | undefined
     const frame = requestAnimationFrame(() => {
+      const listboxSnapshots: HTMLElement[] = []
       for (const sample of main.querySelectorAll<HTMLElement>(
         '.variant-sample',
       )) {
@@ -110,6 +111,7 @@ export function Variants(props: { group: Group; specimens: Specimen[] }) {
         if (!selector) continue
         const trigger = sample.querySelector<HTMLButtonElement>(selector)
         if (trigger?.getAttribute('aria-haspopup') === 'listbox') {
+          listboxSnapshots.push(sample)
           trigger.dispatchEvent(
             new PointerEvent('pointerdown', {
               bubbles: true,
@@ -123,6 +125,12 @@ export function Variants(props: { group: Group; specimens: Specimen[] }) {
       // Mount the portals and let their autofocus callbacks run before
       // restoring interaction.
       flush()
+      for (const sample of listboxSnapshots) {
+        for (const option of sample.querySelectorAll(
+          '[role="option"][data-highlighted]',
+        ))
+          option.removeAttribute('data-highlighted')
+      }
       for (const sample of main.querySelectorAll<HTMLElement>(
         '.variant-sample',
       )) {
@@ -144,8 +152,7 @@ export function Variants(props: { group: Group; specimens: Specimen[] }) {
       cancelAnimationFrame(frame)
       if (readyTimer !== undefined) window.clearTimeout(readyTimer)
       main.inert = false
-      for (const name of outsideEvents)
-        main.removeEventListener(name, keepOpen, true)
+      main.removeEventListener('ui:interact-outside', keepOpen)
       disposeRules()
     }
   })
@@ -209,6 +216,19 @@ export function Variants(props: { group: Group; specimens: Specimen[] }) {
                   <For each={presets}>
                     {(preset) => (
                       <td>
+                        <Show when={entry.live}>
+                          {(live) => (
+                            <DefaultAppearance
+                              class="variant-live"
+                              options={preset.options}
+                              preset={preset.value}
+                              mode={mode()}
+                            >
+                              <span class="variant-state">live (click me)</span>
+                              <div class="variant-content">{live()()}</div>
+                            </DefaultAppearance>
+                          )}
+                        </Show>
                         <DefaultAppearance
                           class="variant-states"
                           options={preset.options}

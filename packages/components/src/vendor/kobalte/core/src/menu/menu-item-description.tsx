@@ -41,7 +41,9 @@ export function MenuItemDescription<T extends ValidComponent = 'div'>(
 
   const mergedProps = merge(
     {
-      id: context.generateId('description'),
+      get id() {
+        return context.generateId('description')
+      },
     },
     props as MenuItemDescriptionProps,
   )

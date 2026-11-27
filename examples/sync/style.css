@@ -4,7 +4,6 @@ body {
 .sync-example {
   min-height: 100dvh;
   padding: var(--ui-gap, 6px);
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: var(--ui-gap, 6px);

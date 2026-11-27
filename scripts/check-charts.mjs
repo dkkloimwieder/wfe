@@ -54,6 +54,7 @@ export async function checkCharts(root) {
           'runtime-theme',
           'portal-mount',
           'tooltip-placement',
+          'typography-cache',
         ].includes(item.repair),
       )
       assert.ok(

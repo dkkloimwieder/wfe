@@ -2,7 +2,7 @@ import { styledClasses, type ClassValue } from '../internal/classes'
 import { buttonAttributes } from '../internal/buttonPresentation'
 import type { ButtonAppearanceProps } from '../internal/buttonPresentation'
 import * as Core from '../internal/controls/dialog'
-import { untrack } from 'solid-js'
+import { createEffect, omit, untrack } from 'solid-js'
 import { DialogScope, createDialogScope, useDialogScope } from './dialogScope'
 import type { Component } from 'solid-js'
 import type { ValidComponent } from '@solidjs/web'
@@ -73,20 +73,105 @@ export function DialogOverlay<T extends ValidComponent = 'div'>(
   )
 }
 
+export type DialogFocusTarget =
+  HTMLElement | (() => HTMLElement | null | undefined)
+
 export type DialogContentProps<
   T extends ValidComponent | HTMLElement = HTMLElement,
-> = Core.DialogContentProps<T> & { class?: ClassValue }
+> = Core.DialogContentProps<T> & {
+  class?: ClassValue
+  /** Focus this descendant when a modal opens. A getter can read a late ref. */
+  initialFocus?: DialogFocusTarget
+  /** Change this value while open to focus initialFocus after the view updates. */
+  focusKey?: unknown
+  /** Focus this element after a modal closes. A getter can read a late ref. */
+  restoreFocus?: DialogFocusTarget
+}
+
+function resolveFocusTarget(target: DialogFocusTarget | undefined) {
+  const node = typeof target === 'function' ? target() : target
+  return node?.isConnected ? node : undefined
+}
+
+function focusDialogDescendant(
+  content: HTMLElement,
+  initialFocus: DialogFocusTarget | undefined,
+) {
+  const target = resolveFocusTarget(initialFocus)
+  if (!target || !content.contains(target)) return false
+  target.focus({ preventScroll: true })
+  return content.ownerDocument.activeElement === target
+}
+
 export function DialogContent<T extends ValidComponent = 'div'>(
   props: PolymorphicProps<T, DialogContentProps<T>>,
 ) {
   const Primitive = Core.Content as Component<typeof props>
   const scope = useDialogScope()
+  const context = Core.useDialogContext()
+  createEffect(
+    () => {
+      const open = context.isOpen()
+      return {
+        open,
+        key: props.focusKey,
+        content: open ? context.contentRef() : undefined,
+      }
+    },
+    ({ open, key, content }, previous) => {
+      if (!open || !previous?.open || Object.is(key, previous.key)) return
+      if (!content?.isConnected) return
+      // Resolve the target once per key change, after the replacement view sets its refs.
+      const target = untrack(() => resolveFocusTarget(props.initialFocus))
+      focusDialogDescendant(content, target)
+    },
+  )
   return (
     <Primitive
-      {...props}
+      {...(omit(
+        props,
+        'initialFocus',
+        'focusKey',
+        'restoreFocus',
+      ) as typeof props)}
       data-ui=""
       class={styledClasses('ui-dialog-content', props.class)}
       ref={[scope.setContent, untrack(() => props.ref)]}
+      onOpenAutoFocus={(event: Event) => {
+        props.onOpenAutoFocus?.(event)
+        if (event.defaultPrevented || props.initialFocus === undefined) return
+        const content = event.currentTarget
+        if (!(content instanceof HTMLElement)) return
+        if (
+          !content.hasAttribute('data-expanded') ||
+          content.contains(content.ownerDocument.activeElement)
+        ) {
+          event.preventDefault()
+          return
+        }
+        if (focusDialogDescendant(content, props.initialFocus))
+          event.preventDefault()
+      }}
+      onCloseAutoFocus={(event: Event) => {
+        props.onCloseAutoFocus?.(event)
+        if (event.defaultPrevented || props.restoreFocus === undefined) return
+        const content = event.currentTarget
+        if (!(content instanceof HTMLElement)) return
+        if (content.hasAttribute('data-expanded') && content.isConnected) {
+          event.preventDefault()
+          return
+        }
+        const target = resolveFocusTarget(props.restoreFocus)
+        if (
+          target &&
+          target.ownerDocument === content.ownerDocument &&
+          !content.contains(target)
+        ) {
+          target.focus({ preventScroll: true })
+          if (content.ownerDocument.activeElement === target)
+            event.preventDefault()
+        }
+      }}
     />
   )
 }

@@ -1,8 +1,10 @@
+import { createSignal, Show } from 'solid-js'
 import {
   Accordion,
   Breadcrumbs,
   Button,
   ButtonLink,
+  Card,
   Collapsible,
   CollapsibleSection,
   Command,
@@ -17,9 +19,11 @@ import {
   ToggleGroup,
 } from '@wfe/components'
 import { Tree } from '@wfe/components/tree'
+import type { ColorRole } from '@wfe/components/theme'
 import { buttonVariants } from './variant-button-matrix'
 import {
   actionStates,
+  choiceSnapshot,
   editingStates,
   interactiveStates,
   roleSpecimens,
@@ -41,11 +45,20 @@ const commandItems = [
   },
   { id: 'move', label: 'Move record', disabled: true },
 ]
+// The live sample needs more than one enabled item to show highlight moves.
+const liveCommandItems = [
+  ...commandItems.slice(0, 1),
+  { id: 'pin', label: 'Pin record' },
+  { id: 'archive', label: 'Archive record' },
+  ...commandItems.slice(1),
+]
 
 function MenuSample(props: {
   state: State
   context?: boolean
   items?: boolean
+  live?: boolean
+  tone?: ColorRole
 }) {
   const Menu = props.context ? ContextMenu : DropdownMenu
   const open = () =>
@@ -53,27 +66,41 @@ function MenuSample(props: {
       props.items || ['open', 'selected', 'checked'].includes(props.state),
     )
   const triggerDisabled = () => !props.items && props.state === 'disabled'
+  const choice = (target = false) =>
+    props.live ? {} : choiceSnapshot(props.state, target && props.items)
   return (
-    <Menu.Root open={open()} modal={false}>
+    <Menu.Root open={props.live ? undefined : open()} modal={false}>
       {props.context ? (
-        <ContextMenu.Trigger disabled={triggerDisabled()}>
-          Record actions
+        <ContextMenu.Trigger
+          disabled={triggerDisabled()}
+          aria-label="Project record"
+          style={{ padding: '1rem', border: '1px solid var(--ui-border)' }}
+        >
+          <Card>
+            <h3>Project Atlas</h3>
+            <p>Right-click, or focus and press Shift+F10.</p>
+          </Card>
         </ContextMenu.Trigger>
       ) : (
-        <DropdownMenu.Trigger disabled={triggerDisabled()}>
-          Record actions
+        <DropdownMenu.Trigger disabled={triggerDisabled()} tone={props.tone}>
+          {props.tone ? 'Actions' : 'Record actions'}
         </DropdownMenu.Trigger>
       )}
       <Menu.Portal>
-        <Menu.Content onOpenAutoFocus={preventDefault}>
+        <Menu.Content onOpenAutoFocus={props.live ? undefined : preventDefault}>
           <Menu.Group>
             <Menu.GroupLabel>Record</Menu.GroupLabel>
-            <Menu.Item disabled={props.state === 'disabled'}>
+            <Menu.Item {...choice(true)} disabled={props.state === 'disabled'}>
               <Menu.ItemLabel>Copy</Menu.ItemLabel>
               <Menu.ItemDescription>Keep the original</Menu.ItemDescription>
             </Menu.Item>
-            <Menu.Item disabled>Delete</Menu.Item>
-            <Menu.CheckboxItem checked={props.state === 'checked'}>
+            <Menu.Item {...choice()} disabled>
+              Delete
+            </Menu.Item>
+            <Menu.CheckboxItem
+              {...choice()}
+              checked={props.live ? undefined : props.state === 'checked'}
+            >
               <Menu.ItemIndicator>
                 <Icon name="check" />
               </Menu.ItemIndicator>
@@ -82,15 +109,22 @@ function MenuSample(props: {
           </Menu.Group>
           <Menu.Separator />
           <Menu.RadioGroup
-            value={props.state === 'selected' ? 'team' : 'personal'}
+            defaultValue={props.live ? 'personal' : undefined}
+            value={
+              props.live
+                ? undefined
+                : props.state === 'selected'
+                  ? 'team'
+                  : 'personal'
+            }
           >
-            <Menu.RadioItem value="personal">
+            <Menu.RadioItem {...choice()} value="personal">
               <Menu.ItemIndicator>
                 <Icon name="check" />
               </Menu.ItemIndicator>
               Personal
             </Menu.RadioItem>
-            <Menu.RadioItem value="team">
+            <Menu.RadioItem {...choice()} value="team">
               <Menu.ItemIndicator>
                 <Icon name="check" />
               </Menu.ItemIndicator>
@@ -185,6 +219,14 @@ export const specimens = [
             />
           )
         },
+        {
+          live: () => (
+            <LiveToggleGroup
+              orientation={orientation}
+              multiple={selection === 'multiple'}
+            />
+          ),
+        },
       ),
     ),
   ),
@@ -202,6 +244,13 @@ export const specimens = [
           Sample record
         </Collapsible>
       ),
+      {
+        live: () => (
+          <Collapsible indicatorPlacement={placement} summary="Record details">
+            Sample record
+          </Collapsible>
+        ),
+      },
     ),
   ),
   ...([false, true] as const).map((icon) =>
@@ -220,6 +269,17 @@ export const specimens = [
           Sample records
         </CollapsibleSection>
       ),
+      {
+        live: () => (
+          <CollapsibleSection
+            title="Records"
+            count={icon ? '2' : undefined}
+            icon={icon ? <Icon name="grid" /> : undefined}
+          >
+            Sample records
+          </CollapsibleSection>
+        ),
+      },
     ),
   ),
   ...([false, true] as const).map((multiple) =>
@@ -240,6 +300,18 @@ export const specimens = [
           </Accordion.Item>
         </Accordion>
       ),
+      {
+        live: () => (
+          <Accordion multiple={multiple}>
+            <Accordion.Item value="a" summary="Overview">
+              Sample record
+            </Accordion.Item>
+            <Accordion.Item value="b" summary="Notes">
+              Sample note
+            </Accordion.Item>
+          </Accordion>
+        ),
+      },
     ),
   ),
   ...(['horizontal', 'vertical'] as const).flatMap((orientation) => [
@@ -262,6 +334,7 @@ export const specimens = [
           <Tabs.Content value="notes">Sample note</Tabs.Content>
         </Tabs>
       ),
+      { live: () => <LiveTabs orientation={orientation} /> },
     ),
   ]),
   specimen(
@@ -287,25 +360,28 @@ export const specimens = [
   ...(['dropdown-menu', 'context-menu'] as const).flatMap((kind) => {
     const context = kind === 'context-menu'
     const name = context ? 'ContextMenu' : 'DropdownMenu'
+    const live = () => <MenuSample state="rest" context={context} live />
     return [
       specimen(
         `${kind}/trigger`,
         `${name} / trigger`,
         actionStates,
         (state) => <MenuSample state={state} context={context} />,
+        { live },
       ),
       specimen(
         `${kind}/items`,
         `${name} / item states`,
         [...actionStates, 'checked', 'selected'],
         (state) => <MenuSample state={state} context={context} items />,
+        { live },
       ),
       specimen(
         `${kind}/content`,
         `${name} / items`,
         ['open', 'checked', 'selected'],
         (state) => <MenuSample state={state} context={context} />,
-        { baseline: `${kind}/trigger` },
+        { baseline: `${kind}/trigger`, live },
       ),
     ]
   }),
@@ -317,6 +393,8 @@ export const specimens = [
         <DropdownMenu.Trigger tone={tone}>Actions</DropdownMenu.Trigger>
       </DropdownMenu.Root>
     ),
+    ['rest'],
+    (tone) => <MenuSample state="rest" tone={tone} live />,
   ),
   ...(['inline', 'flyout', 'expand'] as const).map((kind) =>
     specimen(
@@ -349,7 +427,10 @@ export const specimens = [
           )}
         </SidebarGroup>
       ),
-      kind === 'inline' ? sidebarHeaderTarget : undefined,
+      {
+        ...(kind === 'inline' ? sidebarHeaderTarget : {}),
+        live: () => <LiveSidebarGroup kind={kind} />,
+      },
     ),
   ),
   ...([false, true] as const).map((compact) =>
@@ -366,6 +447,9 @@ export const specimens = [
           onValueChange={noop}
         />
       ),
+      {
+        live: () => <LiveSidebarContextSwitcher compact={compact} />,
+      },
     ),
   ),
   ...(['results', 'loading', 'empty', 'error'] as const).map((kind) =>
@@ -387,6 +471,16 @@ export const specimens = [
           label="Find an action"
         />
       ),
+      {
+        live: () => (
+          <Command
+            items={kind === 'empty' ? [] : liveCommandItems}
+            loading={kind === 'loading'}
+            error={kind === 'error' ? 'Could not load records.' : undefined}
+            label="Find an action"
+          />
+        ),
+      },
     ),
   ),
   specimen(
@@ -402,6 +496,16 @@ export const specimens = [
         trigger="Find an action"
       />
     ),
+    {
+      live: () => (
+        <CommandPalette
+          title="Find an action"
+          label="Find an action"
+          items={commandItems}
+          trigger="Find an action"
+        />
+      ),
+    },
   ),
   specimen(
     'sidebar-group/items',
@@ -426,7 +530,10 @@ export const specimens = [
         )}
       </SidebarGroup>
     ),
-    sidebarHeaderTarget,
+    {
+      ...sidebarHeaderTarget,
+      live: () => <LiveSidebarGroup kind="inline" />,
+    },
   ),
   specimen(
     'tree/items',
@@ -450,5 +557,129 @@ export const specimens = [
         onExpandedChange={noop}
       />
     ),
+    { live: () => <LiveTree /> },
   ),
 ]
+
+function LiveSidebarGroup(props: { kind: 'inline' | 'flyout' | 'expand' }) {
+  const [compact, setCompact] = createSignal(props.kind !== 'inline')
+  const [open, setOpen] = createSignal(false)
+  return (
+    <SidebarGroup
+      label="Records"
+      compact={compact()}
+      behavior={props.kind === 'expand' ? 'expand' : 'flyout'}
+      open={open()}
+      onOpenChange={setOpen}
+      onExpand={() => setCompact(false)}
+    >
+      {(close) => (
+        <>
+          <a
+            href="#variants"
+            onClick={(event) => {
+              event.preventDefault()
+              close()
+            }}
+          >
+            All records
+          </a>
+          <Show when={props.kind === 'expand'}>
+            <Button
+              onClick={() => {
+                setOpen(false)
+                setCompact(true)
+              }}
+            >
+              Collapse sidebar
+            </Button>
+          </Show>
+        </>
+      )}
+    </SidebarGroup>
+  )
+}
+
+function LiveSidebarContextSwitcher(props: { compact: boolean }) {
+  const review = { id: 'review', name: 'Review', kind: 'Workspace' }
+  const options = [review, { id: 'audit', name: 'Audit', kind: 'Workspace' }]
+  const [value, setValue] = createSignal(review)
+  return (
+    <SidebarContextSwitcher
+      value={value()}
+      options={options}
+      compact={props.compact}
+      onValueChange={setValue}
+    />
+  )
+}
+
+function LiveTree() {
+  const [selected, setSelected] = createSignal<readonly string[]>([])
+  const [expanded, setExpanded] = createSignal<readonly string[]>([])
+  return (
+    <Tree
+      label="Folders"
+      nodes={[
+        {
+          id: 'records',
+          label: 'Records',
+          children: [{ id: 'reviews', label: 'Reviews' }],
+        },
+        { id: 'archive', label: 'Archive' },
+      ]}
+      selected={selected()}
+      expanded={expanded()}
+      onSelectionChange={setSelected}
+      onExpandedChange={setExpanded}
+    />
+  )
+}
+
+function LiveToggleGroup(props: {
+  orientation: 'horizontal' | 'vertical'
+  multiple: boolean
+}) {
+  const items = [
+    { value: 'left', label: 'Left' },
+    { value: 'right', label: 'Right' },
+  ]
+  const [single, setSingle] = createSignal<string | undefined>()
+  const [many, setMany] = createSignal<string[]>([])
+  return props.multiple ? (
+    <ToggleGroup
+      orientation={props.orientation}
+      aria-label="Alignment"
+      items={items}
+      multiple
+      value={many()}
+      onValueChange={setMany}
+    />
+  ) : (
+    <ToggleGroup
+      orientation={props.orientation}
+      aria-label="Alignment"
+      items={items}
+      value={single()}
+      onValueChange={setSingle}
+    />
+  )
+}
+
+function LiveTabs(props: { orientation: 'horizontal' | 'vertical' }) {
+  const [value, setValue] = createSignal('details')
+  return (
+    <Tabs
+      value={value()}
+      onValueChange={setValue}
+      orientation={props.orientation}
+    >
+      <Tabs.List aria-label="Record">
+        <Tabs.Trigger value="notes">Notes</Tabs.Trigger>
+        <Tabs.Trigger value="details">Details</Tabs.Trigger>
+      </Tabs.List>
+      <Tabs.Content value="details">Sample record</Tabs.Content>
+      <Tabs.Content value="notes">Sample note</Tabs.Content>
+    </Tabs>
+  )
+}

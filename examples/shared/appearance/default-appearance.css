@@ -1,15 +1,12 @@
-@import '@wfe/components/styles.css';
-
 html:root {
   font-size: 16px;
 }
 
 .component-preview {
   min-height: 100dvh;
-  box-sizing: border-box;
   padding: var(--ui-gap, 6px);
 }
-body:has(.component-preview) {
+body[data-component-preview] {
   margin: 0;
 }
 .component-preview > .ui-card {

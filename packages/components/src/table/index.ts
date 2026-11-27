@@ -5,6 +5,8 @@ export type {
   TableEdge,
   TableColumnAlignment,
   TableColumnAlignments,
+  TableColumnWidths,
+  TableCellWrap,
 } from './Table'
 export { ReadOnlyTable } from './ReadOnlyTable'
 export {
@@ -42,7 +44,14 @@ export type {
   ConfiguredTableColumnFilterProps,
 } from './TableColumnFilter'
 
-export type { TableFilterConfig } from './ReadOnlyTable'
+export type { TableFilterConfig, TableEmptyResults } from './ReadOnlyTable'
+export type { TableClientPagination } from './createTableClientPagination'
+export type {
+  TableLeadingColumn,
+  TableRowAction,
+  TableRowActionContext,
+  TableRowSelection,
+} from './TableRowControls'
 
 export { TableFormatting } from './TableFormatting'
 export type { TableFormattingProps } from './TableFormatting'
@@ -67,3 +76,18 @@ export type { TablePaginationProps, TablePageSize } from './TablePagination'
 
 export { tableMessages } from './messages'
 export type { TableMessages } from './messages'
+
+export { readTableView } from './tableViewState'
+export type {
+  ReadOnlyTableViewsOptions,
+  TableControlsPlacement,
+  TableView,
+  TableViewBinding,
+  TableViewControlsState,
+  TableViewList,
+  TableViewState,
+  TableViewStorage,
+  TableViewValue,
+  TableViewsOptions,
+  TableWorkspaceViewsOptions,
+} from './tableViewState'

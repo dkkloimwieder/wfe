@@ -78,6 +78,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
+  vi.useRealTimers()
   vi.unstubAllGlobals()
   Reflect.deleteProperty(document, 'elementFromPoint')
   Reflect.deleteProperty(document, 'getAnimations')
@@ -94,6 +95,59 @@ async function settled() {
   await Promise.resolve()
   flush()
 }
+
+test('Gantt applies the latest viewport size after resize delivery', async () => {
+  vi.useFakeTimers({
+    toFake: ['requestAnimationFrame', 'cancelAnimationFrame'],
+  })
+  const observers = new Map<
+    Element,
+    Set<(entry: ResizeObserverEntry) => void>
+  >()
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      constructor(private callback: ResizeObserverCallback) {}
+      observe(node: Element) {
+        const current =
+          observers.get(node) ?? new Set<(entry: ResizeObserverEntry) => void>()
+        current.add((entry) => this.callback([entry], this))
+        observers.set(node, current)
+      }
+      unobserve() {}
+      disconnect() {}
+    },
+  )
+  const h = render(() => (
+    <Gantt rows={[{ id: 'a', label: 'A' }]} intervals={[]} range={range} />
+  ))
+  await settled()
+  const viewport = h.container.querySelector('.ui-gantt-scroll')!
+  const toolbar = h.container.querySelector('.ui-gantt-toolbar')!
+  const deliver = (width: number) => {
+    const entry = {
+      target: viewport,
+      contentRect: new DOMRect(0, 0, width, 380),
+      borderBoxSize: [{ inlineSize: width, blockSize: 380 }],
+      contentBoxSize: [],
+      devicePixelContentBoxSize: [],
+    }
+    for (const notify of observers.get(viewport)!) notify(entry)
+    flush()
+  }
+
+  deliver(650)
+  deliver(420)
+  expect(toolbar.hasAttribute('data-narrow')).toBe(false)
+  vi.advanceTimersToNextFrame()
+  await settled()
+  expect(toolbar.hasAttribute('data-narrow')).toBe(true)
+
+  deliver(650)
+  vi.advanceTimersToNextFrame()
+  await settled()
+  expect(toolbar.hasAttribute('data-narrow')).toBe(false)
+})
 
 test('hierarchy expansion proposes state and waits for caller adoption', async () => {
   const rows: GanttRow[] = [
