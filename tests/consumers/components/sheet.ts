@@ -3,6 +3,7 @@
 import type {
   Sheet,
   SheetContent,
+  SheetContentProps,
   SheetRoot,
   SheetRootProps,
   SheetSide,
@@ -13,6 +14,7 @@ export type ExportedTypes = Assert<
   AllTyped<{
     Sheet: typeof Sheet
     SheetContent: typeof SheetContent
+    SheetContentProps: SheetContentProps
     SheetRoot: typeof SheetRoot
     SheetRootProps: SheetRootProps
     SheetSide: SheetSide

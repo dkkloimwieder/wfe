@@ -82,8 +82,7 @@ const stateExceptions = [
   },
   {
     name: 'Selected sidebar link backing',
-    reason:
-      'Sketchy marks the current link with a dotted backing and border.',
+    reason: 'Sketchy marks the current link with a dotted backing and border.',
     matches: ({ preset, role, state, row, component }) =>
       preset === 'default' &&
       role === 'actions' &&
@@ -964,8 +963,7 @@ await withArtifactRun({ suite: 'theme-explorer' }, async (artifacts) => {
                 Number(layer.opacity) > 0,
               redDots:
                 layer.backgroundImage.includes('radial-gradient') &&
-                layer.getPropertyValue('--_ui-dots').trim() ===
-                  errorToken,
+                layer.getPropertyValue('--_ui-dots').trim() === errorToken,
               face: style.borderTopColor,
               backing: layer.borderTopColor,
               error,

@@ -21,6 +21,7 @@ import type {
   DialogDescriptionOptions,
   DialogDescriptionProps,
   DialogDescriptionRenderProps,
+  DialogFocusTarget,
   DialogOverlay,
   DialogOverlayCommonProps,
   DialogOverlayOptions,
@@ -72,6 +73,7 @@ export type ExportedTypes = Assert<
     DialogDescriptionOptions: DialogDescriptionOptions
     DialogDescriptionProps: DialogDescriptionProps
     DialogDescriptionRenderProps: DialogDescriptionRenderProps
+    DialogFocusTarget: DialogFocusTarget
     DialogOverlay: typeof DialogOverlay
     DialogOverlayCommonProps: DialogOverlayCommonProps
     DialogOverlayOptions: DialogOverlayOptions

@@ -6,6 +6,9 @@ import type {
   AccordionItemProps,
   AccordionRoot,
   AccordionRootProps,
+  ActivityList,
+  ActivityListItem,
+  ActivityListProps,
   AlertDialog,
   AlertDialogCancelProps,
   AlertDialogCloseButtonProps,
@@ -53,11 +56,14 @@ import type {
   CheckboxControlProps,
   CheckboxDescriptionProps,
   CheckboxErrorMessageProps,
+  CheckboxField,
+  CheckboxFieldProps,
   CheckboxIndicatorProps,
   CheckboxInputProps,
   CheckboxLabelProps,
   CheckboxRootProps,
   ClassValue,
+  ClockValue,
   Collapsible,
   CollapsibleProps,
   CollapsibleSection,
@@ -109,6 +115,8 @@ import type {
   createTableSelection,
   DashboardGrid,
   DashboardGridProps,
+  DashboardHeaderActions,
+  DashboardHeaderActionsProps,
   DashboardNavigation,
   DashboardPanel,
   DashboardPanelProps,
@@ -132,6 +140,7 @@ import type {
   DialogCloseButtonProps,
   DialogContentProps,
   DialogDescriptionProps,
+  DialogFocusTarget,
   DialogOverlayProps,
   DialogPortalProps,
   DialogRootProps,
@@ -239,6 +248,11 @@ import type {
   Label,
   LabelProps,
   LegacyTableFilterKind,
+  Meter,
+  meterMessages,
+  MeterMessages,
+  MeterProps,
+  MeterThreshold,
   moveColumn,
   moveSortableItem,
   NativeAggregationFn,
@@ -294,6 +308,8 @@ import type {
   RangeSlider,
   RangeSliderProps,
   ReadOnlyTable,
+  ReadOnlyTableViewsOptions,
+  readTableView,
   Resizable,
   ResizableProps,
   ResizeHandle,
@@ -318,6 +334,7 @@ import type {
   Separator,
   SeparatorProps,
   Sheet,
+  SheetContentProps,
   SheetRootProps,
   SheetSide,
   SidebarContext,
@@ -325,6 +342,8 @@ import type {
   SidebarContextSwitcherProps,
   SidebarGroup,
   SidebarGroupProps,
+  SidebarLink,
+  SidebarLinkProps,
   Skeleton,
   SkeletonProps,
   Slider,
@@ -348,18 +367,30 @@ import type {
   StatusTileMessages,
   StatusTileProps,
   StatusTileState,
+  StepList,
+  StepListItem,
+  stepListMessages,
+  StepListMessages,
+  StepListProps,
+  SummaryList,
+  SummaryListItem,
+  SummaryListProps,
   Switch,
   SwitchControlProps,
   SwitchDescriptionProps,
   SwitchErrorMessageProps,
+  SwitchField,
+  SwitchFieldProps,
   SwitchInputProps,
   SwitchLabelProps,
   SwitchRootProps,
   SwitchThumbProps,
   Table,
+  TableCellWrap,
   TableChoice,
   TableChoiceEditor,
   TableChoiceEditorProps,
+  TableClientPagination,
   TableColumnAlignment,
   TableColumnAlignments,
   TableColumnFilter,
@@ -368,14 +399,17 @@ import type {
   TableColumnFilterValue,
   TableColumnMove,
   TableColumnResize,
+  TableColumnWidths,
   TableControlSection,
   TableControlsHandle,
+  TableControlsPlacement,
   TableDateFilter,
   TableDateFilterProps,
   TableDateRange,
   TableDetailRow,
   TableDetailToggle,
   TableEdge,
+  TableEmptyResults,
   TableFilter,
   TableFilterConfig,
   TableFilterCriteria,
@@ -387,20 +421,33 @@ import type {
   TableHeaderFilter,
   TableHeaderFilterProps,
   TableHeaderName,
+  TableLeadingColumn,
   tableMessages,
   TableMessages,
   TablePageSize,
   TablePagination,
   TablePaginationProps,
   TableRow,
+  TableRowAction,
+  TableRowActionContext,
   TableRowDetails,
+  TableRowSelection,
   TableSelection,
   TableSelectionCell,
   TableSelectionOptions,
   TableSelectionRange,
   TableSort,
+  TableView,
+  TableViewBinding,
+  TableViewControlsState,
+  TableViewList,
+  TableViewsOptions,
+  TableViewState,
+  TableViewStorage,
+  TableViewValue,
   TableWorkspace,
   TableWorkspaceProps,
+  TableWorkspaceViewsOptions,
   Tabs,
   TabsContent,
   TabsContentProps,
@@ -426,6 +473,8 @@ import type {
   themeTokens,
   TileRow,
   TileRowProps,
+  TimeClock,
+  TimeClockProps,
   TimeInputFormat,
   TimePicker,
   timePickerMessages,
@@ -476,6 +525,9 @@ export type ExportedTypes = Assert<
     AccordionItemProps: AccordionItemProps
     AccordionRoot: typeof AccordionRoot
     AccordionRootProps: AccordionRootProps
+    ActivityList: typeof ActivityList
+    ActivityListItem: ActivityListItem
+    ActivityListProps: ActivityListProps
     AlertDialog: typeof AlertDialog
     AlertDialogCancelProps: AlertDialogCancelProps
     AlertDialogCloseButtonProps: AlertDialogCloseButtonProps
@@ -523,11 +575,14 @@ export type ExportedTypes = Assert<
     CheckboxControlProps: CheckboxControlProps
     CheckboxDescriptionProps: CheckboxDescriptionProps
     CheckboxErrorMessageProps: CheckboxErrorMessageProps
+    CheckboxField: typeof CheckboxField
+    CheckboxFieldProps: CheckboxFieldProps
     CheckboxIndicatorProps: CheckboxIndicatorProps
     CheckboxInputProps: CheckboxInputProps
     CheckboxLabelProps: CheckboxLabelProps
     CheckboxRootProps: CheckboxRootProps
     ClassValue: ClassValue
+    ClockValue: ClockValue
     Collapsible: typeof Collapsible
     CollapsibleProps: CollapsibleProps
     CollapsibleSection: typeof CollapsibleSection
@@ -581,6 +636,8 @@ export type ExportedTypes = Assert<
     createTableSelection: typeof createTableSelection
     DashboardGrid: typeof DashboardGrid
     DashboardGridProps: DashboardGridProps
+    DashboardHeaderActions: typeof DashboardHeaderActions
+    DashboardHeaderActionsProps: DashboardHeaderActionsProps
     DashboardNavigation: DashboardNavigation
     DashboardPanel: typeof DashboardPanel
     DashboardPanelProps: DashboardPanelProps
@@ -604,6 +661,7 @@ export type ExportedTypes = Assert<
     DialogCloseButtonProps: DialogCloseButtonProps
     DialogContentProps: DialogContentProps
     DialogDescriptionProps: DialogDescriptionProps
+    DialogFocusTarget: DialogFocusTarget
     DialogOverlayProps: DialogOverlayProps
     DialogPortalProps: DialogPortalProps
     DialogRootProps: DialogRootProps
@@ -711,6 +769,11 @@ export type ExportedTypes = Assert<
     Label: typeof Label
     LabelProps: LabelProps
     LegacyTableFilterKind: LegacyTableFilterKind
+    Meter: typeof Meter
+    meterMessages: typeof meterMessages
+    MeterMessages: MeterMessages
+    MeterProps: MeterProps
+    MeterThreshold: MeterThreshold
     moveColumn: typeof moveColumn
     moveSortableItem: typeof moveSortableItem
     NativeAggregationFn: NativeAggregationFn
@@ -766,6 +829,8 @@ export type ExportedTypes = Assert<
     RangeSlider: typeof RangeSlider
     RangeSliderProps: RangeSliderProps
     ReadOnlyTable: typeof ReadOnlyTable
+    ReadOnlyTableViewsOptions: ReadOnlyTableViewsOptions
+    readTableView: typeof readTableView
     Resizable: typeof Resizable
     ResizableProps: ResizableProps
     ResizeHandle: typeof ResizeHandle
@@ -790,6 +855,7 @@ export type ExportedTypes = Assert<
     Separator: typeof Separator
     SeparatorProps: SeparatorProps
     Sheet: typeof Sheet
+    SheetContentProps: SheetContentProps
     SheetRootProps: SheetRootProps
     SheetSide: SheetSide
     SidebarContext: SidebarContext
@@ -797,6 +863,8 @@ export type ExportedTypes = Assert<
     SidebarContextSwitcherProps: SidebarContextSwitcherProps
     SidebarGroup: typeof SidebarGroup
     SidebarGroupProps: SidebarGroupProps
+    SidebarLink: typeof SidebarLink
+    SidebarLinkProps: SidebarLinkProps
     Skeleton: typeof Skeleton
     SkeletonProps: SkeletonProps
     Slider: typeof Slider
@@ -820,18 +888,30 @@ export type ExportedTypes = Assert<
     StatusTileMessages: StatusTileMessages
     StatusTileProps: StatusTileProps
     StatusTileState: StatusTileState
+    StepList: typeof StepList
+    StepListItem: StepListItem
+    stepListMessages: typeof stepListMessages
+    StepListMessages: StepListMessages
+    StepListProps: StepListProps
+    SummaryList: typeof SummaryList
+    SummaryListItem: SummaryListItem
+    SummaryListProps: SummaryListProps
     Switch: typeof Switch
     SwitchControlProps: SwitchControlProps
     SwitchDescriptionProps: SwitchDescriptionProps
     SwitchErrorMessageProps: SwitchErrorMessageProps
+    SwitchField: typeof SwitchField
+    SwitchFieldProps: SwitchFieldProps
     SwitchInputProps: SwitchInputProps
     SwitchLabelProps: SwitchLabelProps
     SwitchRootProps: SwitchRootProps
     SwitchThumbProps: SwitchThumbProps
     Table: typeof Table
+    TableCellWrap: TableCellWrap
     TableChoice: TableChoice
     TableChoiceEditor: typeof TableChoiceEditor
     TableChoiceEditorProps: TableChoiceEditorProps
+    TableClientPagination: TableClientPagination
     TableColumnAlignment: TableColumnAlignment
     TableColumnAlignments: TableColumnAlignments
     TableColumnFilter: typeof TableColumnFilter
@@ -840,14 +920,17 @@ export type ExportedTypes = Assert<
     TableColumnFilterValue: TableColumnFilterValue
     TableColumnMove: typeof TableColumnMove
     TableColumnResize: typeof TableColumnResize
+    TableColumnWidths: TableColumnWidths
     TableControlSection: typeof TableControlSection
     TableControlsHandle: TableControlsHandle
+    TableControlsPlacement: TableControlsPlacement
     TableDateFilter: typeof TableDateFilter
     TableDateFilterProps: TableDateFilterProps
     TableDateRange: TableDateRange
     TableDetailRow: typeof TableDetailRow
     TableDetailToggle: typeof TableDetailToggle
     TableEdge: TableEdge
+    TableEmptyResults: TableEmptyResults
     TableFilter: typeof TableFilter
     TableFilterConfig: TableFilterConfig
     TableFilterCriteria: TableFilterCriteria
@@ -859,20 +942,33 @@ export type ExportedTypes = Assert<
     TableHeaderFilter: typeof TableHeaderFilter
     TableHeaderFilterProps: TableHeaderFilterProps
     TableHeaderName: typeof TableHeaderName
+    TableLeadingColumn: TableLeadingColumn<unknown>
     tableMessages: typeof tableMessages
     TableMessages: TableMessages
     TablePageSize: TablePageSize
     TablePagination: typeof TablePagination
     TablePaginationProps: TablePaginationProps
     TableRow: typeof TableRow
+    TableRowAction: TableRowAction
+    TableRowActionContext: TableRowActionContext
     TableRowDetails: TableRowDetails
+    TableRowSelection: TableRowSelection
     TableSelection: TableSelection
     TableSelectionCell: TableSelectionCell
     TableSelectionOptions: TableSelectionOptions
     TableSelectionRange: TableSelectionRange
     TableSort: typeof TableSort
+    TableView: TableView
+    TableViewBinding: TableViewBinding
+    TableViewControlsState: TableViewControlsState
+    TableViewList: TableViewList
+    TableViewsOptions: TableViewsOptions
+    TableViewState: TableViewState
+    TableViewStorage: TableViewStorage
+    TableViewValue: TableViewValue
     TableWorkspace: typeof TableWorkspace
     TableWorkspaceProps: TableWorkspaceProps
+    TableWorkspaceViewsOptions: TableWorkspaceViewsOptions
     Tabs: typeof Tabs
     TabsContent: typeof TabsContent
     TabsContentProps: TabsContentProps
@@ -898,6 +994,8 @@ export type ExportedTypes = Assert<
     themeTokens: typeof themeTokens
     TileRow: typeof TileRow
     TileRowProps: TileRowProps
+    TimeClock: typeof TimeClock
+    TimeClockProps: TimeClockProps
     TimeInputFormat: TimeInputFormat
     TimePicker: typeof TimePicker
     timePickerMessages: typeof timePickerMessages

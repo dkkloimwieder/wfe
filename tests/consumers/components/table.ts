@@ -33,10 +33,14 @@ import type {
   NativeTableOptions,
   NativeTableState,
   ReadOnlyTable,
+  ReadOnlyTableViewsOptions,
+  readTableView,
   Table,
+  TableCellWrap,
   TableChoice,
   TableChoiceEditor,
   TableChoiceEditorProps,
+  TableClientPagination,
   TableColumnAlignment,
   TableColumnAlignments,
   TableColumnFilter,
@@ -45,14 +49,17 @@ import type {
   TableColumnFilterValue,
   TableColumnMove,
   TableColumnResize,
+  TableColumnWidths,
   TableControlSection,
   TableControlsHandle,
+  TableControlsPlacement,
   TableDateFilter,
   TableDateFilterProps,
   TableDateRange,
   TableDetailRow,
   TableDetailToggle,
   TableEdge,
+  TableEmptyResults,
   TableFilter,
   TableFilterConfig,
   TableFilterCriteria,
@@ -64,20 +71,33 @@ import type {
   TableHeaderFilter,
   TableHeaderFilterProps,
   TableHeaderName,
+  TableLeadingColumn,
   tableMessages,
   TableMessages,
   TablePageSize,
   TablePagination,
   TablePaginationProps,
   TableRow,
+  TableRowAction,
+  TableRowActionContext,
   TableRowDetails,
+  TableRowSelection,
   TableSelection,
   TableSelectionCell,
   TableSelectionOptions,
   TableSelectionRange,
   TableSort,
+  TableView,
+  TableViewBinding,
+  TableViewControlsState,
+  TableViewList,
+  TableViewsOptions,
+  TableViewState,
+  TableViewStorage,
+  TableViewValue,
   TableWorkspace,
   TableWorkspaceProps,
+  TableWorkspaceViewsOptions,
   toLegacyTableFilterValue,
   Updater,
 } from '@wfe/components/table'
@@ -119,10 +139,14 @@ export type ExportedTypes = Assert<
     NativeTableOptions: NativeTableOptions<unknown>
     NativeTableState: NativeTableState
     ReadOnlyTable: typeof ReadOnlyTable
+    ReadOnlyTableViewsOptions: ReadOnlyTableViewsOptions
+    readTableView: typeof readTableView
     Table: typeof Table
+    TableCellWrap: TableCellWrap
     TableChoice: TableChoice
     TableChoiceEditor: typeof TableChoiceEditor
     TableChoiceEditorProps: TableChoiceEditorProps
+    TableClientPagination: TableClientPagination
     TableColumnAlignment: TableColumnAlignment
     TableColumnAlignments: TableColumnAlignments
     TableColumnFilter: typeof TableColumnFilter
@@ -131,14 +155,17 @@ export type ExportedTypes = Assert<
     TableColumnFilterValue: TableColumnFilterValue
     TableColumnMove: typeof TableColumnMove
     TableColumnResize: typeof TableColumnResize
+    TableColumnWidths: TableColumnWidths
     TableControlSection: typeof TableControlSection
     TableControlsHandle: TableControlsHandle
+    TableControlsPlacement: TableControlsPlacement
     TableDateFilter: typeof TableDateFilter
     TableDateFilterProps: TableDateFilterProps
     TableDateRange: TableDateRange
     TableDetailRow: typeof TableDetailRow
     TableDetailToggle: typeof TableDetailToggle
     TableEdge: TableEdge
+    TableEmptyResults: TableEmptyResults
     TableFilter: typeof TableFilter
     TableFilterConfig: TableFilterConfig
     TableFilterCriteria: TableFilterCriteria
@@ -150,20 +177,33 @@ export type ExportedTypes = Assert<
     TableHeaderFilter: typeof TableHeaderFilter
     TableHeaderFilterProps: TableHeaderFilterProps
     TableHeaderName: typeof TableHeaderName
+    TableLeadingColumn: TableLeadingColumn<unknown>
     tableMessages: typeof tableMessages
     TableMessages: TableMessages
     TablePageSize: TablePageSize
     TablePagination: typeof TablePagination
     TablePaginationProps: TablePaginationProps
     TableRow: typeof TableRow
+    TableRowAction: TableRowAction
+    TableRowActionContext: TableRowActionContext
     TableRowDetails: TableRowDetails
+    TableRowSelection: TableRowSelection
     TableSelection: TableSelection
     TableSelectionCell: TableSelectionCell
     TableSelectionOptions: TableSelectionOptions
     TableSelectionRange: TableSelectionRange
     TableSort: typeof TableSort
+    TableView: TableView
+    TableViewBinding: TableViewBinding
+    TableViewControlsState: TableViewControlsState
+    TableViewList: TableViewList
+    TableViewsOptions: TableViewsOptions
+    TableViewState: TableViewState
+    TableViewStorage: TableViewStorage
+    TableViewValue: TableViewValue
     TableWorkspace: typeof TableWorkspace
     TableWorkspaceProps: TableWorkspaceProps
+    TableWorkspaceViewsOptions: TableWorkspaceViewsOptions
     toLegacyTableFilterValue: typeof toLegacyTableFilterValue
     Updater: Updater<unknown>
   }>

@@ -333,6 +333,10 @@ test.each([true, false])(
         devicePixelContentBoxSize: [],
       })
       deliver?.([entry(panel, panelBox), entry(results, resultsBox)])
+      // The workspace applies observed sizes in the next animation frame.
+      await new Promise<void>((resolve) =>
+        requestAnimationFrame(() => resolve()),
+      )
     } else {
       vi.spyOn(panel, 'getBoundingClientRect').mockReturnValue(panelBox)
       vi.spyOn(results, 'getBoundingClientRect').mockReturnValue(resultsBox)
