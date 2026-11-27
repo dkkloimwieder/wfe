@@ -12,9 +12,9 @@ Application records, routing, permissions, validation rules, requests, and persi
 
 ## Current release
 
-Use Git tag [`v0.0.11`](https://github.com/dkkloimwieder/wfe/tree/v0.0.11).
-The [adoption guide](docs/adoption.md#v0011) describes stable Solid 2, the components peer requirements, and the runtime and toolchain upgrades.
-The [release verification record](docs/qualification.md#v0011-release) identifies the tested commit and test scope.
+Use Git tag [`v0.0.12`](https://github.com/dkkloimwieder/wfe/tree/v0.0.12).
+The [adoption guide](docs/adoption.md#v0012) describes the saved table views, the new components and the theme changes.
+The [release verification record](docs/qualification.md#v0012-release) identifies the tested commit and test scope.
 
 ## Documentation
 

@@ -6,9 +6,26 @@ It uses `@solidjs/vite-plugin` `3.0.1` and the Solid 2 testing library `1.0.0-rc
 The tagged release records below retain their original dependency versions.
 See [the Solid 2.0.4 update record](qualification.md#solid-204-update).
 
+## v0.0.12
+
+Use Git tag `v0.0.12` for the current library.
+The Solid 2 peer ranges do not change.
+`TableWorkspace` and `ReadOnlyTable` show saved views in the table controls.
+System views are read-only. The application supplies storage for user views through the `views.storage` option.
+The components package now exports `TimeClock`, `Meter`, `StepList` and `SummaryList`.
+The layout entry point now exports `ActivityList` and `SidebarLink`.
+`Tree` accepts a `toggleGlyph` option.
+
+An AlertDialog closes only through its buttons. Escape still acts as Cancel.
+Laser icon-only buttons glow on the icon. Sketchy tree toggles use the dot-filled glyph.
+The Sketchy decoration script shares one resize observer for each document.
+The vendored Kobalte repairs and their provenance are recorded in the vendor manifest.
+The [release record](qualification.md#v0012-release) identifies the checks and their limits.
+All workspace packages remain private. This tag does not publish packages.
+
 ## v0.0.11
 
-Use Git tag `v0.0.11` for the current library.
+Use Git tag `v0.0.11` for that release.
 `@wfe/components` requires `solid-js` and `@solidjs/web` `>=2.0.0 <3.0.0`.
 If your application uses release candidates with `@wfe/components`, upgrade both peers to stable Solid 2.
 The other workspace packages retain their peer ranges.

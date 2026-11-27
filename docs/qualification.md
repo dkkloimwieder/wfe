@@ -697,3 +697,19 @@ Chromium `159.0.8154.6` used `memfd` shared-memory regions and passed all 32 nav
 
 Beads `wfe-0dj.10` records the first failure, final matrix, resource measurements, and repetition reports under `/tmp/wfe-0dj-10`.
 All workspace packages remain private. This tag does not publish packages.
+
+## v0.0.12 release
+
+The tested implementation is recorded through commit `d380867286ca2418cd84ef8bc2f5b48a619ee179`.
+It adds the user and admin Blocks, saved table views, one settings store for the demos and the Sketchy decoration observer change.
+
+The checks were focused on the changed code.
+Focused Vitest files, TypeScript, Oxlint, type-aware Oxlint, Prettier and `pnpm test:integrity` passed.
+TypeScript covered the components package, the gallery, Platform and the unit project.
+The Admin Blocks interaction script passed 4,740 interactions in Sketchy, Vanilla and Laser, light and dark, with zero failures.
+Seeded production screenshots matched exactly: 2,492 pairs for the decoration change and 1,020 pairs for the settings change.
+The browser checks recorded zero Solid diagnostics, console warnings, console errors, page errors and window errors.
+
+No `pnpm check` run, full qualification campaign or performance benchmark accompanies this tag.
+Beads `wfe-w2y.75` (tracker cold-load timing) remains open.
+All workspace packages remain private. This tag does not publish packages.
