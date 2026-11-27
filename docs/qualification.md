@@ -700,16 +700,18 @@ All workspace packages remain private. This tag does not publish packages.
 
 ## v0.0.12 release
 
-The tested implementation is recorded through commit `d380867286ca2418cd84ef8bc2f5b48a619ee179`.
+The tested implementation is recorded through commit `09abbc5a0ce4c7882f4881ce430ac2e9a039d349`.
 It adds the user and admin Blocks, saved table views, one settings store for the demos and the Sketchy decoration observer change.
 
-The checks were focused on the changed code.
-Focused Vitest files, TypeScript, Oxlint, type-aware Oxlint, Prettier and `pnpm test:integrity` passed.
-TypeScript covered the components package, the gallery, Platform and the unit project.
+The required `pnpm check` passed 1,677 unit tests across 165 files, 167 Node tests, server rendering and the UI documentation contracts.
+The source tests, analytics server tests, chart and engine import checks and the vendor audit also passed.
+The first `pnpm check` run found three failures, and the tag moved to the commit that fixes them.
+The fixes format the theme explorer runner, regenerate the consumer export fixtures and wait one frame in a pagination test.
+
 The Admin Blocks interaction script passed 4,740 interactions in Sketchy, Vanilla and Laser, light and dark, with zero failures.
 Seeded production screenshots matched exactly: 2,492 pairs for the decoration change and 1,020 pairs for the settings change.
 The browser checks recorded zero Solid diagnostics, console warnings, console errors, page errors and window errors.
 
-No `pnpm check` run, full qualification campaign or performance benchmark accompanies this tag.
+The qualification browser stages did not run for this tag, and no performance benchmark accompanies it.
 Beads `wfe-w2y.75` (tracker cold-load timing) remains open.
 All workspace packages remain private. This tag does not publish packages.
