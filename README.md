@@ -10,7 +10,7 @@ wfe is a frontend library for Solid applications. It provides shared controls, t
 | [@wfe/shell](packages/shell/README.md)           | Application navigation and pages built from typed descriptions.              |
 | [@wfe/sync](packages/sync/README.md)             | Collection synchronization and offline support through application adapters. |
 
-The current release is Git tag [`v0.0.12`](https://github.com/dkkloimwieder/wfe/tree/v0.0.12). The workspace packages are private.
+The current release is Git tag [`v0.0.13`](https://github.com/dkkloimwieder/wfe/tree/v0.0.13). The workspace packages are private.
 
 Use Node 22.22.2 or later in the 22.x line, Node 24.15.0 or later in the 24.x line, or Node 26 or later. Use pnpm 12.4.1.
 

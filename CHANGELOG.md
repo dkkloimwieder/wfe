@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.0.13 (2026-11-27)
+
+- The package APIs are the same as in v0.0.12.
+- The user Blocks and Integrations in the [gallery](examples/README.md#components) use the Admin application layout: a page header with one primary action, a section sidebar, one main table per section, and details in the wide Sheet.
+- The documentation has 53 files, down from 133. Component guides merge by type, release notes live in this file, and the [documentation index](docs/README.md) links each guide once.
+
+Checks for `37efce7`: every stage of `pnpm check` passed. The release skipped the qualification browser stages.
+
 ## v0.0.12 (2026-11-27)
 
 - Save [table views](docs/tables.md#pagination-and-saved-views) through application storage and keep system views read-only.
