@@ -52,9 +52,7 @@ export function GalleryExample(props: {
       data-gallery-fill={
         entry.group === 'Blocks' || fillExamples.has(id) ? '' : undefined
       }
-      data-gallery-entry={
-        id === 'entry' || id === 'blocks-integrations' ? '' : undefined
-      }
+      data-gallery-entry={id === 'entry' ? '' : undefined}
     >
       <div
         class={
@@ -91,8 +89,7 @@ export function GalleryExample(props: {
               route={props.appearance.route}
               mode={props.appearance.mode}
               choice={props.appearance.choice}
-              setChoice={(value) => void props.appearance.setChoice(value)}
-              failure={props.appearance.failure}
+              setChoice={props.appearance.setChoice}
             >
               {example()}
             </UserBlockAppearance>

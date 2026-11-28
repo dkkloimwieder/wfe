@@ -7,7 +7,7 @@ import { BlocksBilling } from './BlocksBilling'
 import { BlocksCreateTenant } from './BlocksCreateTenant'
 import { DashboardContent, dashboardTableSections } from './BlocksDashboard'
 import { dashboardGroups } from './BlocksDashboardSidebar'
-import { BlocksIntegrations } from './BlocksIntegrations'
+import { BlocksIntegrations, integrationSections } from './BlocksIntegrations'
 import { BlocksIssueTracker, supportSections } from './BlocksIssueTracker'
 import { RecordsContent, recordGroups } from './BlocksRecordsSidebar'
 import { BlocksTenantAdmin, tenantTableSections } from './BlocksTenantAdmin'
@@ -23,6 +23,8 @@ import { tabNames, tenants } from './blocksData'
 import type { Tenant } from './blocksData'
 import {
   accountSections,
+  accountTableSections,
+  homeSections,
   preferenceSections,
   userRoles,
 } from './blocksUserData'
@@ -46,7 +48,7 @@ const groups = [
     title: 'Services',
     icon: 'navigation',
     family: 'services',
-    sections: ['Billing and usage', 'Integrations and webhooks'],
+    sections: ['Billing and usage', ...integrationSections],
   },
   ...recordGroups
     .filter((group) => group.title !== 'Support')
@@ -81,6 +83,12 @@ const groups = [
 
 const userGroups = [
   {
+    title: 'Integrations',
+    icon: 'navigation',
+    family: 'services',
+    sections: integrationSections,
+  },
+  {
     title: 'Account',
     icon: 'people',
     family: 'account',
@@ -107,9 +115,11 @@ const customerWorkspace = {
   sections: ['My tickets', 'Notifications inbox'],
 } as const
 
-const memberWorkspace = {
-  ...customerWorkspace,
-  sections: ['Member home', ...customerWorkspace.sections],
+const memberHome = {
+  title: 'Member home',
+  icon: 'grid',
+  family: 'home',
+  sections: homeSections,
 } as const
 
 const roleGroups = {
@@ -117,14 +127,16 @@ const roleGroups = {
   'Tenant administrator': groups.filter(
     ({ family }) => family !== 'dashboard' && family !== 'access',
   ),
-  Member: [memberWorkspace, ...userGroups],
+  Member: [memberHome, customerWorkspace, ...userGroups],
   Customer: [customerWorkspace, ...userGroups],
 } as const
 
 type Role = (typeof userRoles)[number]
 type Family = (typeof roleGroups)[Role][number]['family']
 const userFamilies = new Set<Family>(
-  roleGroups.Member.map(({ family }) => family),
+  roleGroups.Member.filter(({ family }) => family !== 'services').map(
+    ({ family }) => family,
+  ),
 )
 
 export function BlocksAdminApp() {
@@ -141,6 +153,13 @@ export function BlocksAdminApp() {
   const active = (family: Family) => route().family === family
   const section = (family: Family) =>
     active(family) ? route().section : undefined
+  const integrationSection = () =>
+    integrationSections.find((name) => name === section('services'))
+  const title = () => {
+    if (active('home')) return 'Member home'
+    if (integrationSection()) return 'Integrations and webhooks'
+    return route().section
+  }
 
   function revealRoleRoute(next: Role) {
     const current = route()
@@ -174,7 +193,7 @@ export function BlocksAdminApp() {
 
   return (
     <BlockShell
-      title={route().section}
+      title={title()}
       header={
         <DropdownMenu>
           <DropdownMenu.Trigger
@@ -210,7 +229,10 @@ export function BlocksAdminApp() {
         section('support') === 'Tickets' ||
         section('workspace') === 'My tickets' ||
         section('workspace') === 'Notifications inbox' ||
-        section('preferences') === preferenceSections[1] ||
+        section('preferences') === 'Saved table views' ||
+        (active('account') && accountTableSections.includes(route().section)) ||
+        active('home') ||
+        integrationSection() !== undefined ||
         (active('tenant') && tenantTableSections.includes(route().section)) ||
         (active('dashboard') &&
           dashboardTableSections.includes(route().section))
@@ -235,7 +257,9 @@ export function BlocksAdminApp() {
                 }
                 controls={controls}
                 defaultOpen={
-                  group.family === 'tenant' || userFamilies.has(group.family)
+                  group.family === 'tenant' ||
+                  group.title === 'Integrations' ||
+                  userFamilies.has(group.family)
                 }
               />
             )}
@@ -268,7 +292,8 @@ export function BlocksAdminApp() {
       />
       <BlocksIntegrations
         contentOnly
-        visible={section('services') === 'Integrations and webhooks'}
+        visible={integrationSection() !== undefined}
+        section={integrationSection()}
       />
       <RecordsContent
         visible={active('records')}
@@ -305,7 +330,8 @@ export function BlocksAdminApp() {
       />
       <BlocksUserHome
         contentOnly
-        visible={section('workspace') === 'Member home'}
+        visible={active('home')}
+        section={section('home')}
         tenant={tenant()}
         availableApps={access.forTenant(tenant().id)}
         onSupport={() =>

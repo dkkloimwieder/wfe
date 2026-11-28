@@ -1,13 +1,32 @@
 import type { TableViewList } from '@wfe/components/table'
-import type { ThemePreset } from '@wfe/components/theme'
+import type { ThemeDensity, ThemePreset } from '@wfe/components/theme'
 
 export type SchemeSetting = 'light' | 'dark' | 'system'
 export type TableViewsKey = `tableViews:${string}`
 
+export const signInLandingPages = [
+  'Member home',
+  'My tickets',
+  'Notifications inbox',
+  'Profile',
+] as const
+export type SignInLandingPage = (typeof signInLandingPages)[number]
+
+export type ProfileSettings = {
+  name: string
+  email: string
+  language: string
+  timeZone: string
+}
+
 export type Settings<Role extends string> = {
   theme: ThemePreset
   scheme: SchemeSetting
+  density: ThemeDensity
   role: Role
+  profile: ProfileSettings
+  notificationChannels: Record<string, boolean>
+  signInDefaults: { landing: SignInLandingPage; role: Role }
 } & Record<TableViewsKey, TableViewList>
 
 export type SettingsKey = keyof Settings<string>

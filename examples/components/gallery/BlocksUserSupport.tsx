@@ -38,6 +38,7 @@ import {
   BlockShell,
   BlockStatus,
   BlockTable,
+  blockRowOpener,
   createBlockTable,
 } from './blocksParts'
 
@@ -54,6 +55,7 @@ const ratingChoices = [5, 4, 3, 2, 1].map((score) => ({
 function NewTicket(props: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  restoreFocus: () => HTMLElement | undefined
   onSubmit: (
     draft: Pick<
       PortalTicket,
@@ -99,7 +101,11 @@ function NewTicket(props: {
     <Sheet open={props.open} onOpenChange={props.onOpenChange}>
       <Sheet.Portal>
         <Sheet.Overlay />
-        <Sheet.Content initialFocus={() => subjectField}>
+        <Sheet.Content
+          size="wide"
+          initialFocus={() => subjectField}
+          restoreFocus={props.restoreFocus}
+        >
           <Sheet.Title>Submit a ticket</Sheet.Title>
           <Sheet.Description>
             Tell support what happened and which application you used.
@@ -356,7 +362,7 @@ export function BlocksUserSupport(
   const [ticketId, setTicketId] = createSignal<string>()
   const [newOpen, setNewOpen] = createSignal(false)
   const ticket = createMemo(() => rows().find(({ id }) => id === ticketId()))
-  let rowTrigger: HTMLButtonElement | undefined
+  let rowTrigger: ReturnType<typeof blockRowOpener> | undefined
   let newTrigger: HTMLButtonElement | undefined
   let sequence = 1150
   // The URL identifies an optional ticket to open on the first render.
@@ -446,9 +452,10 @@ export function BlocksUserSupport(
               return (
                 <Button
                   variant="ghost"
+                  data-block-row-opener=""
                   aria-label={`Open ${value}`}
                   onClick={(event) => {
-                    rowTrigger = event.currentTarget
+                    rowTrigger = blockRowOpener(event.currentTarget)
                     setTicketId(value)
                   }}
                 >
@@ -468,6 +475,7 @@ export function BlocksUserSupport(
       <NewTicket
         open={newOpen()}
         onOpenChange={setNewOpen}
+        restoreFocus={() => newTrigger}
         onSubmit={(draft, description) => {
           const time = new Date().toISOString()
           const id = `TKT-${++sequence}`
@@ -536,9 +544,7 @@ export function BlocksUserSupport(
                     },
                   }))
                 }
-                restoreFocus={() =>
-                  rowTrigger?.isConnected ? rowTrigger : newTrigger
-                }
+                restoreFocus={() => rowTrigger?.() ?? newTrigger}
               />
             )}
           </Show>

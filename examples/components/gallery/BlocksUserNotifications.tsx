@@ -23,6 +23,7 @@ import {
   BlockDate,
   BlockShell,
   BlockTable,
+  blockRowOpener,
   createBlockTable,
 } from './blocksParts'
 import { userPageHref } from './blocksUserData'
@@ -63,6 +64,7 @@ export function BlocksUserNotifications(
   const [readIds, setReadIds] = createSignal(readNotifications())
   const [kind, setKind] = createSignal('All types')
   const [open, setOpen] = createSignal<Notification>()
+  let notificationTrigger: ReturnType<typeof blockRowOpener> | undefined
   const views = useUserViews()
   const viewOptions = {
     storage: views.storage.Notifications,
@@ -131,6 +133,8 @@ export function BlocksUserNotifications(
       }
       return
     }
+    if (event.currentTarget instanceof HTMLButtonElement)
+      notificationTrigger = blockRowOpener(event.currentTarget)
     setOpen(row)
   }
 
@@ -142,6 +146,7 @@ export function BlocksUserNotifications(
       visible={props.visible}
       header={
         <Button
+          tone="primary"
           disabled={!unread()}
           onClick={() => markRead(rows().map(({ id }) => id))}
         >
@@ -150,7 +155,7 @@ export function BlocksUserNotifications(
       }
     >
       <BlockTable
-        title="Notifications"
+        title="Notifications inbox"
         table={table}
         views={viewOptions}
         filterMode="live"
@@ -192,6 +197,7 @@ export function BlocksUserNotifications(
               fallback={
                 <Button
                   variant="ghost"
+                  data-block-row-opener=""
                   onClick={(event) => activate(event, row)}
                 >
                   {value}
@@ -228,7 +234,10 @@ export function BlocksUserNotifications(
                 ({ id }) => id === row.target,
               )
               return (
-                <Sheet.Content>
+                <Sheet.Content
+                  size="wide"
+                  restoreFocus={() => notificationTrigger?.()}
+                >
                   <Sheet.Title>{row.title}</Sheet.Title>
                   <Sheet.Description>{row.type}</Sheet.Description>
                   <Show when={task}>

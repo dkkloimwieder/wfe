@@ -571,7 +571,7 @@ export type WebhookDelivery = {
 export const webhookEndpoints: WebhookEndpoint[] = [
   {
     id: 'billing',
-    name: 'Invoice updates',
+    name: 'Billing webhook',
     application: 'Billing',
     url: 'https://billing.example.com/webhooks',
     event: 'Invoice paid',
@@ -579,7 +579,7 @@ export const webhookEndpoints: WebhookEndpoint[] = [
   },
   {
     id: 'inventory',
-    name: 'Stock updates',
+    name: 'Inventory webhook',
     application: 'Inventory',
     url: 'https://inventory.example.com/webhooks',
     event: 'Stock changed',
@@ -587,7 +587,7 @@ export const webhookEndpoints: WebhookEndpoint[] = [
   },
   {
     id: 'support',
-    name: 'Request updates',
+    name: 'Support webhook',
     application: 'Support',
     url: 'https://support.example.com/webhooks',
     event: 'Request opened',

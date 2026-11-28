@@ -4,6 +4,7 @@ import {
   CheckboxField,
   Field,
   FieldError,
+  FieldGroup,
   FormGrid,
   Input,
   Label,
@@ -17,10 +18,14 @@ import { BlockNotice, BlockShell } from './blocksParts'
 import type { UserPageProps } from './blocksUserData'
 
 const steps = [
-  { id: 'invitation', label: 'Invitation' },
-  { id: 'account', label: 'Set up account' },
-  { id: 'checklist', label: 'First-run checklist' },
-]
+  { id: 'invitation', label: 'Invitation', action: 'Accept invitation' },
+  { id: 'account', label: 'Set up account', action: 'Continue to checklist' },
+  {
+    id: 'checklist',
+    label: 'First-run checklist',
+    action: 'Finish onboarding',
+  },
+] as const
 const checklist = [
   { id: 'profile', label: 'Review your profile' },
   { id: 'security', label: 'Review your security settings' },
@@ -29,35 +34,55 @@ const checklist = [
 
 export function BlocksUserInvitation(props: UserPageProps = {}) {
   const tenant = () => props.tenant ?? memberInvitation.tenant
-  const [step, setStep] = createSignal('invitation')
-  const [accepted, setAccepted] = createSignal(false)
-  const [accountReady, setAccountReady] = createSignal(false)
+  const [step, setStep] = createSignal(0)
+  const [reached, setReached] = createSignal(0)
   const [name, setName] = createSignal<string>(memberInvitation.name)
   const [password, setPassword] = createSignal('')
   const [confirmation, setConfirmation] = createSignal('')
   const [error, setError] = createSignal('')
   const [done, setDone] = createSignal<Record<string, boolean>>({})
   const [complete, setComplete] = createSignal(false)
+  const current = () => steps[step()]!
+  const accountReady = () => reached() === steps.length - 1
+  const allDone = () => checklist.every(({ id }) => done()[id])
+  const canSubmit = () =>
+    current().id === 'account'
+      ? Boolean(name().trim())
+      : current().id !== 'checklist' || allDone()
+  let group: HTMLFieldSetElement | undefined
 
-  function saveAccount(event: SubmitEvent) {
-    event.preventDefault()
-    if (!name().trim()) return
-    if (!accountReady() || password() || confirmation()) {
-      if (password().length < 12) {
-        setError('Use at least 12 characters for the password.')
-        return
-      }
-      if (password() !== confirmation()) {
-        setError('The passwords must match.')
-        return
-      }
-    }
-    setName(name().trim())
-    setAccountReady(true)
-    setPassword('')
-    setConfirmation('')
+  function go(index: number) {
+    if (index < 0 || index >= steps.length) return
     setError('')
-    setStep('checklist')
+    setStep(index)
+    queueMicrotask(() => group?.focus({ preventScroll: true }))
+  }
+
+  function submit(event: SubmitEvent) {
+    event.preventDefault()
+    if (!canSubmit()) return
+    if (current().id === 'checklist') {
+      setComplete(true)
+      return
+    }
+    if (current().id === 'account') {
+      if (!accountReady() || password() || confirmation()) {
+        if (password().length < 12) {
+          setError('Use at least 12 characters for the password.')
+          return
+        }
+        if (password() !== confirmation()) {
+          setError('The passwords must match.')
+          return
+        }
+      }
+      setName(name().trim())
+      setPassword('')
+      setConfirmation('')
+    }
+    const next = step() + 1
+    setReached((previous) => Math.max(previous, next))
+    go(next)
   }
 
   return (
@@ -66,154 +91,120 @@ export function BlocksUserInvitation(props: UserPageProps = {}) {
       contentOnly={props.contentOnly}
       visible={props.visible}
     >
-      <DashboardPanel>
-        <StepList
-          steps={steps.map((item) => ({
-            ...item,
-            complete:
-              item.id === 'invitation'
-                ? accepted()
-                : item.id === 'account'
-                  ? accountReady()
-                  : complete(),
-            reachable:
-              item.id === 'invitation' ||
-              (item.id === 'account' ? accepted() : accountReady()),
-          }))}
-          current={step()}
-          onStepChange={setStep}
-          aria-label="Onboarding steps"
-        />
-      </DashboardPanel>
-      <Switch>
-        <Match when={step() === 'invitation'}>
-          <DashboardPanel
-            title={`Join ${tenant().name}`}
-            titleAs="h3"
-            description={`${memberInvitation.inviter} invited you to join ${tenant().name}.`}
-            footer={
-              <Button
-                tone="primary"
-                onClick={() => {
-                  setAccepted(true)
-                  setStep('account')
-                }}
-              >
-                {accepted() ? 'Continue to account setup' : 'Accept invitation'}
+      <Show
+        when={!complete()}
+        fallback={
+          <BlockNotice message={`You are ready to use ${tenant().name}.`} />
+        }
+      >
+        <DashboardPanel>
+          <StepList
+            steps={steps.map(({ id, label }, index) => ({
+              id,
+              label,
+              complete: index < reached(),
+              reachable: index <= reached(),
+            }))}
+            current={current().id}
+            onStepChange={(id) => go(steps.findIndex((item) => item.id === id))}
+            aria-label="Onboarding steps"
+          />
+        </DashboardPanel>
+        <FormGrid
+          as="form"
+          novalidate
+          ref={nativeEvents<HTMLFormElement>({ submit })}
+          footer={
+            <>
+              <Button disabled={step() === 0} onClick={() => go(step() - 1)}>
+                Back
               </Button>
-            }
+              <Button type="submit" tone="primary" disabled={!canSubmit()}>
+                {current().action}
+              </Button>
+            </>
+          }
+        >
+          <FieldGroup
+            tabindex={-1}
+            ref={(node) => {
+              group = node
+            }}
+            title={`Step ${step() + 1} of ${steps.length} · ${current().label}`}
           >
-            <SummaryList
-              items={[
-                { label: 'Email', value: memberInvitation.email },
-                { label: 'Role', value: memberInvitation.role },
-              ]}
-            />
-          </DashboardPanel>
-        </Match>
-        <Match when={step() === 'account'}>
-          <DashboardPanel title="Set up your account" titleAs="h3">
-            <FormGrid
-              as="form"
-              columns={2}
-              ref={nativeEvents<HTMLFormElement>({ submit: saveAccount })}
-              footer={
-                <Button tone="primary" type="submit" disabled={!name().trim()}>
-                  Continue to checklist
-                </Button>
-              }
-            >
-              <Field>
-                <Label>Name</Label>
-                <Input
-                  autocomplete="name"
-                  required
-                  value={name()}
-                  onInput={(event) => setName(event.currentTarget.value)}
+            <Switch>
+              <Match when={current().id === 'invitation'}>
+                <p>
+                  {memberInvitation.inviter} invited you to join {tenant().name}
+                  .
+                </p>
+                <SummaryList
+                  items={[
+                    { label: 'Email', value: memberInvitation.email },
+                    { label: 'Role', value: memberInvitation.role },
+                  ]}
                 />
-              </Field>
-              <Field>
-                <Label>Invitation email</Label>
-                <Input
-                  autocomplete="email"
-                  type="email"
-                  value={memberInvitation.email}
-                  readonly
-                />
-              </Field>
-              <Field>
-                <Label>Password</Label>
-                <Input
-                  type="password"
-                  autocomplete="new-password"
-                  required={!accountReady()}
-                  minlength={12}
-                  value={password()}
-                  onInput={(event) => setPassword(event.currentTarget.value)}
-                />
-              </Field>
-              <Field invalid={Boolean(error())}>
-                <Label>Confirm password</Label>
-                <Input
-                  type="password"
-                  autocomplete="new-password"
-                  required={!accountReady()}
-                  minlength={12}
-                  value={confirmation()}
-                  onInput={(event) => {
-                    setConfirmation(event.currentTarget.value)
-                    setError('')
-                  }}
-                />
-                <Show when={error()}>
-                  <FieldError>{error()}</FieldError>
-                </Show>
-              </Field>
-            </FormGrid>
-          </DashboardPanel>
-        </Match>
-        <Match when={step() === 'checklist'}>
-          <DashboardPanel
-            title="First-run checklist"
-            titleAs="h3"
-            description="Check off each item when you are ready."
-          >
-            <FormGrid
-              footer={
-                <Button
-                  tone="primary"
-                  disabled={
-                    complete() || !checklist.every(({ id }) => done()[id])
-                  }
-                  onClick={() => setComplete(true)}
-                >
-                  Finish onboarding
-                </Button>
-              }
-            >
-              <For each={checklist}>
-                {({ id, label }) => (
-                  <CheckboxField
-                    label={label}
-                    checked={Boolean(done()[id])}
-                    disabled={complete()}
-                    onChange={(checked) =>
-                      setDone((current) => ({ ...current, [id]: checked }))
-                    }
+              </Match>
+              <Match when={current().id === 'account'}>
+                <Field required>
+                  <Label>Name</Label>
+                  <Input
+                    autocomplete="name"
+                    value={name()}
+                    onValueChange={setName}
                   />
-                )}
-              </For>
-            </FormGrid>
-            <BlockNotice
-              message={
-                complete()
-                  ? `You are ready to use ${tenant().name}.`
-                  : undefined
-              }
-            />
-          </DashboardPanel>
-        </Match>
-      </Switch>
+                </Field>
+                <Field>
+                  <Label>Invitation email</Label>
+                  <Input
+                    autocomplete="email"
+                    type="email"
+                    value={memberInvitation.email}
+                    readonly
+                  />
+                </Field>
+                <Field required={!accountReady()}>
+                  <Label>Password</Label>
+                  <Input
+                    type="password"
+                    autocomplete="new-password"
+                    minlength={12}
+                    value={password()}
+                    onValueChange={setPassword}
+                  />
+                </Field>
+                <Field required={!accountReady()} invalid={Boolean(error())}>
+                  <Label>Confirm password</Label>
+                  <Input
+                    type="password"
+                    autocomplete="new-password"
+                    minlength={12}
+                    value={confirmation()}
+                    onValueChange={(value) => {
+                      setConfirmation(value)
+                      setError('')
+                    }}
+                  />
+                  <FieldError>{error()}</FieldError>
+                </Field>
+              </Match>
+              <Match when={current().id === 'checklist'}>
+                <For each={checklist}>
+                  {({ id, label }) => (
+                    <CheckboxField
+                      label={label}
+                      checked={Boolean(done()[id])}
+                      onChange={(checked) =>
+                        setDone((previous) => ({ ...previous, [id]: checked }))
+                      }
+                    />
+                  )}
+                </For>
+              </Match>
+            </Switch>
+          </FieldGroup>
+        </FormGrid>
+      </Show>
     </BlockShell>
   )
 }

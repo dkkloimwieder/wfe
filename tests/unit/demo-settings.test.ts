@@ -52,6 +52,61 @@ describe('local settings', () => {
     })
   })
 
+  it('stores account preferences separately from the sidebar role', async () => {
+    const store = localSettings(namespace, decode)
+    const profile = {
+      name: 'Jordan Reyes',
+      email: 'jordan@example.com',
+      language: 'English',
+      timeZone: 'UTC',
+    }
+    await store.set('profile', profile)
+    await store.set('notificationChannels', { 'Support:Email': true })
+    await store.update('notificationChannels', (current) => ({
+      ...current,
+      'Tasks:In-app': false,
+    }))
+    await store.set('density', 'compact')
+    await store.set('signInDefaults', {
+      landing: 'My tickets',
+      role: 'Customer',
+    })
+    await store.set('role', 'Member')
+
+    const reopened = localSettings(namespace, decode)
+    expect(await reopened.get('profile')).toEqual(profile)
+    expect(await reopened.get('notificationChannels')).toEqual({
+      'Support:Email': true,
+      'Tasks:In-app': false,
+    })
+    expect(await reopened.get('density')).toBe('compact')
+    expect(await reopened.get('signInDefaults')).toEqual({
+      landing: 'My tickets',
+      role: 'Customer',
+    })
+    expect(await reopened.get('role')).toBe('Member')
+  })
+
+  it('rejects invalid account settings in older browser storage', async () => {
+    const store = localSettings(namespace, decode)
+    const invalid = {
+      density: 'compressed',
+      profile: { name: 'Jordan Reyes', email: 12 },
+      notificationChannels: { 'Tasks:In-app': 'false' },
+      signInDefaults: { landing: 'Unknown page', role: 'Customer' },
+    }
+    for (const [setting, value] of Object.entries(invalid)) {
+      localStorage.setItem(
+        `${namespace}.${setting}`,
+        JSON.stringify({ version: 1, value }),
+      )
+    }
+    expect(await store.get('density')).toBeUndefined()
+    expect(await store.get('profile')).toBeUndefined()
+    expect(await store.get('notificationChannels')).toBeUndefined()
+    expect(await store.get('signInDefaults')).toBeUndefined()
+  })
+
   it('rejects invalid settings and skips invalid or repeated views', async () => {
     const store = localSettings(namespace, decode)
     localStorage.setItem(`${namespace}.theme`, 'invalid JSON')

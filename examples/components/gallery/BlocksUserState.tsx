@@ -1,4 +1,4 @@
-import { createContext, createSignal, useContext } from 'solid-js'
+import { createContext, useContext } from 'solid-js'
 import type { Accessor } from 'solid-js'
 import type { JSX } from '@solidjs/web'
 import { Theme } from '@wfe/components/theme'
@@ -27,10 +27,8 @@ export { userTables }
 
 export const UserAppearance = createContext<{
   choice: Accessor<UserAppearanceChoice>
-  setChoice: (value: UserAppearanceChoice) => void
-  failure: Accessor<string>
+  setChoice: (value: UserAppearanceChoice) => Promise<boolean>
   density: Accessor<ThemeDensity>
-  setDensity: (value: ThemeDensity) => void
 } | null>(null)
 
 const choiceLabel = {
@@ -82,18 +80,15 @@ export function UserBlockAppearance(props: {
   route: Accessor<GalleryRoute>
   mode: Accessor<ThemeMode>
   choice: Accessor<AppearanceChoice>
-  setChoice: (value: AppearanceChoice) => void
-  failure: Accessor<string>
+  setChoice: (value: AppearanceChoice) => Promise<boolean>
   children: JSX.Element
 }) {
-  const [density, setDensity] = createSignal<ThemeDensity>('default')
+  const density = useDemoSetting('density', 'default')
   const settings = {
     choice: () => choiceLabel[props.choice()],
     setChoice: (value: UserAppearanceChoice) =>
       props.setChoice(choiceValue[value]),
-    failure: () => props.failure(),
     density,
-    setDensity,
   }
   return (
     <UserAppearance value={settings}>

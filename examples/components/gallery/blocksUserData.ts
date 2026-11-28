@@ -17,13 +17,31 @@ export const userPageIds = {
 
 export { demoRoles as userRoles } from '../../shared/settings/demoSettings'
 
+export const homeSections = [
+  'Applications',
+  'Recent activity',
+  'Announcements',
+  'Assigned tasks',
+] as const
+
 export const accountSections = [
   'Profile',
   'Account security',
+  'Active sessions',
+  'Personal access tokens',
   'Notification settings',
 ] as const
 
-export const preferenceSections = ['Appearance', 'Saved table views'] as const
+export const accountTableSections: readonly string[] = [
+  'Active sessions',
+  'Personal access tokens',
+]
+
+export const preferenceSections = [
+  'Appearance',
+  'Sign-in defaults',
+  'Saved table views',
+] as const
 
 const utcTime = new Intl.DateTimeFormat('en-US', {
   dateStyle: 'medium',

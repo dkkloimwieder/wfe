@@ -2,7 +2,6 @@ import { createMemo, createSignal, Show, useContext } from 'solid-js'
 import {
   AlertDialog,
   Button,
-  Dialog,
   EmptyState,
   Field,
   FieldError,
@@ -12,10 +11,16 @@ import {
   Input,
   Label,
   SelectField,
+  Sheet,
 } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
 import { DashboardPanel } from '@wfe/components/layout'
 import type { ThemeDensity } from '@wfe/components/theme'
+import { demoSettings } from '../../shared/settings/demoSettings'
+import type { DemoRole } from '../../shared/settings/demoSettings'
+import { signInLandingPages } from '../../shared/settings/SettingsStore'
+import type { Settings } from '../../shared/settings/SettingsStore'
+import { useDemoSetting } from '../../shared/settings/useDemoSetting'
 import { choicesFor } from './blocksData'
 import {
   BlockNavigation,
@@ -27,20 +32,16 @@ import {
 import { preferenceSections, userRoles } from './blocksUserData'
 import type { UserPageProps } from './blocksUserData'
 import { UserAppearance, userTables, useUserViews } from './BlocksUserState'
-import type { UserViewRow } from './BlocksUserState'
+import type { UserAppearanceChoice, UserViewRow } from './BlocksUserState'
 
+const [appearanceSection, defaultsSection, viewsSection] = preferenceSections
 const appearanceChoices = ['Light', 'Dark', 'System'] as const
 const densityChoices = [
   { value: 'default', label: 'Standard' },
   { value: 'compact', label: 'Compact' },
   { value: 'comfortable', label: 'Comfortable' },
 ] as const
-const landingChoices = choicesFor([
-  'Member home',
-  'My tickets',
-  'Notifications inbox',
-  'Profile',
-])
+const landingChoices = choicesFor(signInLandingPages)
 const roles = choicesFor(userRoles)
 
 export function BlocksUserPreferences(
@@ -48,17 +49,31 @@ export function BlocksUserPreferences(
 ) {
   const appearance = useContext(UserAppearance)
   const store = useUserViews()
-  const [section, setSection] = createSignal<string>(preferenceSections[0])
+  const [section, setSection] = createSignal<string>(appearanceSection)
   const active = () => props.section ?? section()
-  const [standaloneDensity, setStandaloneDensity] =
-    createSignal<ThemeDensity>('default')
-  const [defaults, setDefaults] = createSignal({
-    landing: 'Member home',
-    role: 'Member',
-  })
-  const [landing, setLanding] = createSignal('Member home')
-  const [role, setRole] = createSignal('Member')
+  const [appearanceDraft, setAppearanceDraft] =
+    createSignal<UserAppearanceChoice>()
+  const [densityDraft, setDensityDraft] = createSignal<ThemeDensity>()
+  const displayChoice = () =>
+    appearanceDraft() ?? appearance?.choice() ?? 'System'
+  const displayDensity = () =>
+    densityDraft() ?? appearance?.density() ?? 'default'
+  const displayChanged = () =>
+    displayChoice() !== appearance?.choice() ||
+    displayDensity() !== appearance?.density()
+  const [displayBusy, setDisplayBusy] = createSignal(false)
+  const [displayNotice, setDisplayNotice] = createSignal('')
+  const [displayError, setDisplayError] = createSignal('')
+
+  const initialDefaults = { landing: 'Member home', role: 'Member' } as const
+  const savedDefaults = useDemoSetting('signInDefaults', initialDefaults)
+  const [defaultsDraft, setDefaultsDraft] = createSignal<
+    Partial<Settings<DemoRole>['signInDefaults']>
+  >({})
+  const defaults = () => ({ ...savedDefaults(), ...defaultsDraft() })
+  const [defaultsBusy, setDefaultsBusy] = createSignal(false)
   const [defaultsNotice, setDefaultsNotice] = createSignal('')
+  const [defaultsError, setDefaultsError] = createSignal('')
   const [viewsNotice, setViewsNotice] = createSignal('')
   const [rename, setRename] = createSignal<UserViewRow>()
   const [remove, setRemove] = createSignal<UserViewRow>()
@@ -84,6 +99,54 @@ export function BlocksUserPreferences(
   ])
   let renameInput: HTMLInputElement | undefined
   let menuTrigger: (() => HTMLButtonElement | undefined) | undefined
+
+  async function saveDisplay(event: SubmitEvent) {
+    event.preventDefault()
+    if (!appearance || !displayChanged() || displayBusy()) return
+    const choice = displayChoice()
+    const density = displayDensity()
+    setDisplayBusy(true)
+    setDisplayError('')
+    try {
+      if (choice !== appearance.choice()) {
+        if (!(await appearance.setChoice(choice))) {
+          setDisplayError('Could not save the appearance.')
+          return
+        }
+      }
+      setAppearanceDraft((draft) => (draft === choice ? undefined : draft))
+      if (density !== appearance.density()) {
+        await demoSettings.set('density', density)
+      }
+      setDensityDraft((draft) => (draft === density ? undefined : draft))
+      setDisplayNotice('Appearance saved.')
+    } catch {
+      setDisplayError('Could not save the density.')
+    } finally {
+      setDisplayBusy(false)
+    }
+  }
+
+  async function saveDefaults(event: SubmitEvent) {
+    event.preventDefault()
+    if (defaultsBusy()) return
+    const draft = defaultsDraft()
+    setDefaultsBusy(true)
+    setDefaultsError('')
+    try {
+      await demoSettings.update('signInDefaults', (saved) => ({
+        ...initialDefaults,
+        ...saved,
+        ...draft,
+      }))
+      setDefaultsDraft((current) => (current === draft ? {} : current))
+      setDefaultsNotice('Sign-in defaults saved.')
+    } catch {
+      setDefaultsError('Could not save the sign-in defaults.')
+    } finally {
+      setDefaultsBusy(false)
+    }
+  }
 
   async function saveRename(event: SubmitEvent) {
     event.preventDefault()
@@ -138,7 +201,7 @@ export function BlocksUserPreferences(
   return (
     <BlockShell
       title={active()}
-      fillTable={active() === preferenceSections[1]}
+      fillTable={active() === viewsSection}
       contentOnly={props.contentOnly}
       visible={props.visible}
       navigationLabel="Preferences navigation"
@@ -153,24 +216,38 @@ export function BlocksUserPreferences(
         />
       )}
     >
-      <Show when={active() === preferenceSections[0]}>
-        <DashboardPanel
-          title="Display"
-          titleAs="h3"
-          description="Changes apply immediately."
-        >
-          <FormGrid columns={2}>
+      <Show when={active() === appearanceSection}>
+        <DashboardPanel title="Display" titleAs="h3">
+          <FormGrid
+            as="form"
+            columns={2}
+            ref={nativeEvents<HTMLFormElement>({
+              submit: (event) => void saveDisplay(event),
+            })}
+            footer={
+              <Button
+                type="submit"
+                tone="primary"
+                disabled={!appearance || !displayChanged() || displayBusy()}
+              >
+                Save appearance
+              </Button>
+            }
+          >
             <Field>
               <Label>Appearance</Label>
               <SelectField
                 label="Appearance"
                 choices={choicesFor(appearanceChoices)}
-                value={appearance?.choice() ?? 'System'}
+                value={displayChoice()}
                 onValueChange={(value) => {
                   const choice = appearanceChoices.find(
                     (item) => item === value,
                   )
-                  if (choice) appearance?.setChoice(choice)
+                  if (!choice) return
+                  setAppearanceDraft(choice)
+                  setDisplayNotice('')
+                  setDisplayError('')
                 }}
               />
             </Field>
@@ -179,40 +256,43 @@ export function BlocksUserPreferences(
               <SelectField
                 label="Density"
                 choices={densityChoices}
-                value={appearance?.density() ?? standaloneDensity()}
+                value={displayDensity()}
                 onValueChange={(value) => {
                   const density = densityChoices.find(
                     (item) => item.value === value,
                   )?.value
-                  if (density)
-                    (appearance?.setDensity ?? setStandaloneDensity)(density)
+                  if (!density) return
+                  setDensityDraft(density)
+                  setDisplayNotice('')
+                  setDisplayError('')
                 }}
               />
             </Field>
           </FormGrid>
-          <Show when={appearance?.failure()}>
+          <BlockNotice message={displayNotice()} />
+          <Show when={displayError()}>
             <InlineAlert announce="assertive" tone="error">
-              {appearance?.failure()}
+              {displayError()}
             </InlineAlert>
           </Show>
         </DashboardPanel>
-        <DashboardPanel title="Sign-in defaults" titleAs="h3">
+      </Show>
+      <Show when={active() === defaultsSection}>
+        <DashboardPanel title={defaultsSection} titleAs="h3">
           <FormGrid
             as="form"
             columns={2}
             ref={nativeEvents<HTMLFormElement>({
-              submit(event) {
-                event.preventDefault()
-                setDefaults({ landing: landing(), role: role() })
-                setDefaultsNotice('Sign-in defaults saved.')
-              },
+              submit: (event) => void saveDefaults(event),
             })}
             footer={
               <Button
                 type="submit"
                 tone="primary"
                 disabled={
-                  landing() === defaults().landing && role() === defaults().role
+                  defaultsBusy() ||
+                  (defaults().landing === savedDefaults().landing &&
+                    defaults().role === savedDefaults().role)
                 }
               >
                 Save defaults
@@ -224,10 +304,15 @@ export function BlocksUserPreferences(
               <SelectField
                 label="Default landing page"
                 choices={landingChoices}
-                value={landing()}
+                value={defaults().landing}
                 onValueChange={(value) => {
-                  setLanding(value)
+                  const landing = signInLandingPages.find(
+                    (item) => item === value,
+                  )
+                  if (!landing) return
+                  setDefaultsDraft((current) => ({ ...current, landing }))
                   setDefaultsNotice('')
+                  setDefaultsError('')
                 }}
               />
             </Field>
@@ -236,20 +321,28 @@ export function BlocksUserPreferences(
               <SelectField
                 label="Default role"
                 choices={roles}
-                value={role()}
+                value={defaults().role}
                 onValueChange={(value) => {
-                  setRole(value)
+                  const role = userRoles.find((item) => item === value)
+                  if (!role) return
+                  setDefaultsDraft((current) => ({ ...current, role }))
                   setDefaultsNotice('')
+                  setDefaultsError('')
                 }}
               />
             </Field>
           </FormGrid>
           <BlockNotice message={defaultsNotice()} />
+          <Show when={defaultsError()}>
+            <InlineAlert announce="assertive" tone="error">
+              {defaultsError()}
+            </InlineAlert>
+          </Show>
         </DashboardPanel>
       </Show>
-      <Show when={active() === preferenceSections[1]}>
+      <Show when={active() === viewsSection}>
         <BlockTable
-          title="Saved table views"
+          title={viewsSection}
           table={table}
           minWidth="27rem"
           filterMode="live"
@@ -257,6 +350,7 @@ export function BlocksUserPreferences(
           emptyResults={() => (
             <EmptyState>No matching saved table views.</EmptyState>
           )}
+          toolbarActions={<BlockNotice message={viewsNotice()} />}
           rowActions={(row, context) => {
             const item = row.original
             if (!item) return
@@ -274,23 +368,23 @@ export function BlocksUserPreferences(
             ]
           }}
         />
-        <BlockNotice message={viewsNotice()} />
-        <Dialog
+        <Sheet
           open={Boolean(rename())}
           onOpenChange={(open) => {
             if (!open) setRename(undefined)
           }}
         >
-          <Dialog.Portal>
-            <Dialog.Overlay />
-            <Dialog.Content
+          <Sheet.Portal>
+            <Sheet.Overlay />
+            <Sheet.Content
+              size="wide"
               initialFocus={() => renameInput}
               restoreFocus={() => menuTrigger?.()}
             >
-              <Dialog.Title>Rename saved view</Dialog.Title>
-              <Dialog.Description>
+              <Sheet.Title>Rename saved view</Sheet.Title>
+              <Sheet.Description>
                 Change the name of this view for {rename()?.table}.
-              </Dialog.Description>
+              </Sheet.Description>
               <FormGrid
                 as="form"
                 ref={nativeEvents<HTMLFormElement>({
@@ -305,9 +399,9 @@ export function BlocksUserPreferences(
                     >
                       Save name
                     </Button>
-                    <Dialog.CloseButton aria-label="Cancel">
+                    <Sheet.CloseButton aria-label="Cancel">
                       Cancel
-                    </Dialog.CloseButton>
+                    </Sheet.CloseButton>
                   </>
                 }
               >
@@ -330,9 +424,9 @@ export function BlocksUserPreferences(
                   </Show>
                 </Field>
               </FormGrid>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog>
+            </Sheet.Content>
+          </Sheet.Portal>
+        </Sheet>
         <AlertDialog
           open={Boolean(remove())}
           onOpenChange={(open) => {

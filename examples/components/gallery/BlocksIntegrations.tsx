@@ -1,33 +1,54 @@
 import { createSignal, Show } from 'solid-js'
 import {
   Button,
-  FormGrid,
+  Field,
+  FormActions,
   InlineAlert,
+  Label,
+  SelectField,
+  Sheet,
   SummaryList,
-  formatDisplayValue,
 } from '@wfe/components'
-import { ActivityList, DashboardGrid, EntryPanel } from '@wfe/components/layout'
+import type { TableRowActionContext } from '@wfe/components/table'
 import {
   blockCellText,
   BlockDate,
-  BlockStatus,
+  BlockNavigation,
   BlockShell,
+  BlockStatus,
   BlockTable,
   createBlockTable,
 } from './blocksParts'
 import { webhookDeliveries, webhookEndpoints } from './blocksData'
 import type { WebhookDelivery, WebhookEndpoint } from './blocksData'
 
-export function BlocksIntegrations(props: {
-  contentOnly?: boolean
-  visible?: boolean
-}) {
-  const [selected, setSelected] = createSignal<WebhookEndpoint>(
-    webhookEndpoints[0]!,
-  )
+export const integrationSections = ['Webhook endpoints', 'Deliveries'] as const
+const [endpointsSection, deliveriesSection] = integrationSections
+const endpointNames = new Map(
+  webhookEndpoints.map(({ id, name }) => [id, name]),
+)
+const endpointChoices = webhookEndpoints.map(({ id, name }) => ({
+  value: id,
+  label: name,
+}))
+const defaultEndpoint = webhookEndpoints[0]!.id
+
+export function BlocksIntegrations(
+  props: {
+    contentOnly?: boolean
+    visible?: boolean
+    section?: string
+  } = {},
+) {
+  const [selected, setSelected] = createSignal<string>(endpointsSection)
+  const section = () => props.section ?? selected()
+  const [endpointFilter, setEndpointFilter] = createSignal(defaultEndpoint)
+  const [detail, setDetail] = createSignal<WebhookEndpoint>()
   const [deliveries, setDeliveries] = createSignal(webhookDeliveries)
   const [result, setResult] = createSignal('')
-  const [tests, setTests] = createSignal(0)
+  let testSequence = 0
+  let restoreFocus: TableRowActionContext['getMenuTrigger'] | undefined
+
   const table = createBlockTable(
     () => webhookEndpoints,
     [
@@ -37,29 +58,33 @@ export function BlocksIntegrations(props: {
       { id: 'status', header: 'Status', accessorKey: 'status' },
     ],
   )
-  const recent = () => deliveries()[selected().id] ?? []
-  const deliveryTable = createBlockTable(recent, [
+  const deliveryTable = createBlockTable(() => {
+    const endpoint = endpointFilter()
+    return (deliveries()[endpoint] ?? []).map((row) => ({
+      ...row,
+      endpoint: endpointNames.get(endpoint) ?? '',
+    }))
+  }, [
+    { id: 'endpoint', header: 'Endpoint', accessorKey: 'endpoint' },
     { id: 'event', header: 'Event', accessorKey: 'event' },
     { id: 'time', header: 'Time (UTC)', accessorKey: 'time' },
     { id: 'result', header: 'Result', accessorKey: 'result' },
   ])
-  const latestDelivery = () => recent()[0]
 
-  function sendTestEvent() {
-    const endpoint = selected()
+  function sendTestEvent(endpoint: WebhookEndpoint) {
     if (endpoint.status === 'Paused') {
       setResult('The endpoint is paused. No event was sent.')
       return
     }
     const delivery: WebhookDelivery = {
-      id: `test-${setTests((count) => count + 1)}`,
+      id: `test-${++testSequence}`,
       event: `Test: ${endpoint.event}`,
       time: new Date().toISOString(),
       result: '200 OK',
     }
     setDeliveries((rows) => ({
       ...rows,
-      [endpoint.id]: [delivery, ...recent()],
+      [endpoint.id]: [delivery, ...(rows[endpoint.id] ?? [])],
     }))
     setResult('Test delivery succeeded. The example response was 200 OK.')
   }
@@ -67,97 +92,141 @@ export function BlocksIntegrations(props: {
   return (
     <BlockShell
       title="Integrations and webhooks"
+      fillTable
       contentOnly={props.contentOnly}
       visible={props.visible}
+      navigationLabel="Integrations navigation"
+      navigation={(controls) => (
+        <BlockNavigation
+          title="Integrations"
+          sections={integrationSections}
+          value={section()}
+          onChange={setSelected}
+          controls={controls}
+        />
+      )}
     >
-      <BlockTable
-        table={table}
-        title="Webhook endpoints"
-        class="blocks-endpoints-table"
-        layout="panel"
-        pageSizes={false}
-        renderRowActions={(row) => (
-          <Show when={row.original}>
-            {(item) => (
-              <Button
-                aria-pressed={selected().id === item().id ? 'true' : 'false'}
-                aria-label={`View ${item().name}`}
-                onClick={() => {
-                  setSelected(item())
-                  deliveryTable.setGlobalFilter('')
-                  deliveryTable.setColumnFilters([])
+      <Show when={section() === endpointsSection}>
+        <BlockTable
+          table={table}
+          title={endpointsSection}
+          class="blocks-endpoints-table"
+          minWidth="32rem"
+          messages={{
+            rowActions: (id) => `Actions for ${endpointNames.get(id) ?? id}`,
+          }}
+          rowActions={(row, context) => {
+            const endpoint = row.original
+            if (!endpoint) return
+            return [
+              {
+                label: 'View details',
+                onSelect: () => {
+                  restoreFocus = context.getMenuTrigger
                   setResult('')
-                }}
-              >
-                View
-              </Button>
-            )}
-          </Show>
-        )}
-        formatValue={(value, column) =>
-          column.id === 'status' ? (
-            <BlockStatus value={blockCellText(value)} />
-          ) : undefined
-        }
-      />
-      <DashboardGrid minPanelWidth="27rem" gap="layout">
-        <EntryPanel
-          size="content"
-          role="group"
-          title={selected().name}
-          titleAs="h3"
+                  setDetail(endpoint)
+                },
+              },
+            ]
+          }}
+          formatValue={(value, column) =>
+            column.id === 'status' ? (
+              <BlockStatus value={blockCellText(value)} />
+            ) : undefined
+          }
+        />
+        <Sheet
+          open={Boolean(detail())}
+          onOpenChange={(open) => {
+            if (!open) setDetail(undefined)
+          }}
         >
-          <FormGrid
-            footer={
-              <Button tone="primary" onClick={sendTestEvent}>
-                Send test event
-              </Button>
-            }
-          >
-            <SummaryList
-              items={[
-                { label: 'Application', value: selected().application },
-                { label: 'URL', value: selected().url },
-                { label: 'Event', value: selected().event },
-              ]}
-            />
-            <Show when={latestDelivery()}>
-              {(delivery) => (
-                <ActivityList
-                  aria-label="Latest delivery"
-                  items={[
-                    {
-                      time: formatDisplayValue(delivery().time, 'datetime', {
-                        dateFormat: 'MM/dd/yyyy',
-                        timeFormat: 'HH:mm',
-                      }),
-                      dateTime: delivery().time,
-                      actor: delivery().result,
-                      text: delivery().event,
-                      tone:
-                        delivery().result === '200 OK' ? 'success' : 'error',
-                    },
-                  ]}
-                />
-              )}
+          <Sheet.Portal>
+            <Sheet.Overlay />
+            <Show when={detail()} keyed>
+              {(endpoint) => {
+                const latest = () => deliveries()[endpoint.id]?.[0]
+                return (
+                  <Sheet.Content
+                    size="wide"
+                    restoreFocus={() => restoreFocus?.()}
+                  >
+                    <Sheet.Title>{endpoint.name}</Sheet.Title>
+                    <Sheet.Description>{endpoint.url}</Sheet.Description>
+                    <SummaryList
+                      items={[
+                        { label: 'Application', value: endpoint.application },
+                        { label: 'Event', value: endpoint.event },
+                        {
+                          label: 'Status',
+                          value: <BlockStatus value={endpoint.status} />,
+                        },
+                      ]}
+                    />
+                    <Show when={latest()}>
+                      {(delivery) => (
+                        <SummaryList
+                          items={[
+                            {
+                              label: 'Latest delivery',
+                              value: <BlockDate value={delivery().time} time />,
+                            },
+                            {
+                              label: 'Result',
+                              value: <BlockStatus value={delivery().result} />,
+                            },
+                          ]}
+                        />
+                      )}
+                    </Show>
+                    <Show when={result()}>
+                      <InlineAlert
+                        tone={
+                          endpoint.status === 'Paused' ? 'warning' : 'success'
+                        }
+                        announce="polite"
+                      >
+                        {result()}
+                      </InlineAlert>
+                    </Show>
+                    <FormActions>
+                      <Button
+                        tone="primary"
+                        onClick={() => sendTestEvent(endpoint)}
+                      >
+                        Send test event
+                      </Button>
+                      <Sheet.CloseButton aria-label="Close">
+                        Close
+                      </Sheet.CloseButton>
+                    </FormActions>
+                  </Sheet.Content>
+                )
+              }}
             </Show>
-            <Show when={result()}>
-              <InlineAlert
-                tone={selected().status === 'Paused' ? 'warning' : 'success'}
-                announce="polite"
-              >
-                {result()}
-              </InlineAlert>
-            </Show>
-          </FormGrid>
-        </EntryPanel>
+          </Sheet.Portal>
+        </Sheet>
+      </Show>
+      <Show when={section() === deliveriesSection}>
         <BlockTable
           table={deliveryTable}
-          title="Recent deliveries"
-          layout="panel"
+          title={deliveriesSection}
           class="blocks-delivery-table"
-          minWidth="28rem"
-          pageScope={[selected().id, tests()]}
+          minWidth="30rem"
+          pageScope={[endpointFilter()]}
+          filtersActive={endpointFilter() !== defaultEndpoint}
+          onClearFilters={() => setEndpointFilter(defaultEndpoint)}
+          extraFilters={
+            <Field>
+              <Label>Endpoint</Label>
+              <SelectField
+                label="Endpoint"
+                choices={endpointChoices}
+                value={endpointFilter()}
+                onValueChange={setEndpointFilter}
+              />
+            </Field>
+          }
           messages={{ noRecords: 'No deliveries yet.' }}
           formatValue={(value, column) => {
             if (column.id === 'time')
@@ -167,7 +236,7 @@ export function BlocksIntegrations(props: {
             return undefined
           }}
         />
-      </DashboardGrid>
+      </Show>
     </BlockShell>
   )
 }

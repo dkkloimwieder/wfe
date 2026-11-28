@@ -47,9 +47,11 @@ export function useGalleryAppearance() {
   async function setChoice(value: AppearanceChoice) {
     if (value === 'monochrome') {
       replaceUrl((params) => params.set('scheme', '0'))
-    } else if (await appearance.saveScheme(value)) {
-      replaceUrl((params) => params.delete('scheme'))
+      return true
     }
+    if (!(await appearance.saveScheme(value))) return false
+    replaceUrl((params) => params.delete('scheme'))
+    return true
   }
 
   return {

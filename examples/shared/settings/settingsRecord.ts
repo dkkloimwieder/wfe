@@ -2,6 +2,7 @@ import { readTableView } from '@wfe/components/table'
 import type { TableView, TableViewList } from '@wfe/components/table'
 import type { ThemePreset } from '@wfe/components/theme'
 import type { Settings, SettingsKey } from './SettingsStore'
+import { signInLandingPages } from './SettingsStore'
 
 export type SettingsRecord = { version: 1; value: unknown }
 
@@ -75,6 +76,52 @@ function decodeValue<Role extends string>(
     return undefined
   }
   if (key === 'role') return roles.find((role) => role === value)
+  if (key === 'density') {
+    return value === 'default' || value === 'compact' || value === 'comfortable'
+      ? value
+      : undefined
+  }
+  if (key === 'profile') {
+    if (
+      value &&
+      typeof value === 'object' &&
+      'name' in value &&
+      'email' in value &&
+      'language' in value &&
+      'timeZone' in value
+    ) {
+      const { name, email, language, timeZone } = value
+      if (
+        typeof name === 'string' &&
+        typeof email === 'string' &&
+        typeof language === 'string' &&
+        typeof timeZone === 'string'
+      )
+        return { name, email, language, timeZone }
+    }
+    return undefined
+  }
+  if (key === 'notificationChannels') {
+    if (!value || typeof value !== 'object' || Array.isArray(value))
+      return undefined
+    const entries = Object.entries(value)
+    return entries.every(([, choice]) => typeof choice === 'boolean')
+      ? Object.fromEntries(entries)
+      : undefined
+  }
+  if (key === 'signInDefaults') {
+    if (
+      value &&
+      typeof value === 'object' &&
+      'landing' in value &&
+      'role' in value
+    ) {
+      const landing = signInLandingPages.find((page) => page === value.landing)
+      const role = roles.find((role) => role === value.role)
+      if (landing && role) return { landing, role }
+    }
+    return undefined
+  }
   return readTableViewList(value)
 }
 

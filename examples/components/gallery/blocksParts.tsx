@@ -268,6 +268,23 @@ export function blockCellText(value: unknown) {
     : ''
 }
 
+/** Find the current row button if a record update replaces the original. */
+export function blockRowOpener(button: HTMLButtonElement) {
+  const workspace = button.closest('.table-workspace')
+  const row = button.closest<HTMLElement>('tr[data-row]')?.dataset.row
+  return () => {
+    if (button.isConnected) return button
+    if (!workspace?.isConnected || row === undefined) return undefined
+    return (
+      workspace.querySelector<HTMLButtonElement>(
+        `tr[data-row="${CSS.escape(row)}"] [data-block-row-opener]`,
+      ) ??
+      workspace.querySelector<HTMLButtonElement>('.table-controls-toggle') ??
+      undefined
+    )
+  }
+}
+
 export function createBlockTable<T extends { id: string }>(
   rows: () => readonly T[],
   columns: readonly NativeColumnDef<T>[],

@@ -3,7 +3,6 @@ import {
   AlertDialog,
   Badge,
   Button,
-  Dialog,
   EmptyState,
   Field,
   FieldError,
@@ -12,14 +11,21 @@ import {
   FormActions,
   FormGrid,
   HelpText,
+  InlineAlert,
   Input,
   Label,
   SelectField,
+  Sheet,
   StepList,
+  SummaryList,
   SwitchField,
 } from '@wfe/components'
 import { nativeEvents } from '@wfe/components/events'
-import { DashboardGrid, DashboardPanel } from '@wfe/components/layout'
+import { DashboardPanel } from '@wfe/components/layout'
+import type { TableRowActionContext } from '@wfe/components/table'
+import { demoSettings } from '../../shared/settings/demoSettings'
+import type { ProfileSettings } from '../../shared/settings/SettingsStore'
+import { useDemoSetting } from '../../shared/settings/useDemoSetting'
 import {
   choicesFor,
   notificationTypes,
@@ -36,7 +42,7 @@ import {
   BlockTable,
   createBlockTable,
 } from './blocksParts'
-import { accountSections } from './blocksUserData'
+import { accountSections, accountTableSections } from './blocksUserData'
 import type { UserPageProps } from './blocksUserData'
 import { useUserViews } from './BlocksUserState'
 
@@ -57,19 +63,19 @@ const twoFactorSteps = [
 ]
 const examplePassword = 'Northwind-demo-26'
 
-type Profile = {
-  name: string
-  email: string
-  language: string
-  timeZone: string
-  avatar?: File
-}
+const [
+  profileSection,
+  securitySection,
+  sessionsSection,
+  tokensSection,
+  notificationsSection,
+] = accountSections
 type Token = (typeof personalTokens)[number]
 type Session = (typeof userAccessSessions)[number]
 type Revoke =
   { kind: 'session'; value: Session } | { kind: 'token'; value: Token }
 
-function PasswordDialog(props: {
+function PasswordSheet(props: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onChange: (current: string, next: string) => boolean
@@ -99,14 +105,14 @@ function PasswordDialog(props: {
     }
   }
   return (
-    <Dialog open={props.open} onOpenChange={changeOpen}>
-      <Dialog.Portal>
-        <Dialog.Overlay />
-        <Dialog.Content>
-          <Dialog.Title>Change password</Dialog.Title>
-          <Dialog.Description>
+    <Sheet open={props.open} onOpenChange={changeOpen}>
+      <Sheet.Portal>
+        <Sheet.Overlay />
+        <Sheet.Content size="wide">
+          <Sheet.Title>Change password</Sheet.Title>
+          <Sheet.Description>
             Choose a new password with at least 12 characters.
-          </Dialog.Description>
+          </Sheet.Description>
           <FormGrid
             as="form"
             ref={nativeEvents<HTMLFormElement>({ submit: save })}
@@ -115,9 +121,9 @@ function PasswordDialog(props: {
                 <Button type="submit" tone="primary">
                   Save password
                 </Button>
-                <Dialog.CloseButton aria-label="Cancel">
+                <Sheet.CloseButton aria-label="Cancel">
                   Cancel
-                </Dialog.CloseButton>
+                </Sheet.CloseButton>
               </>
             }
           >
@@ -158,13 +164,13 @@ function PasswordDialog(props: {
               </Show>
             </Field>
           </FormGrid>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
+        </Sheet.Content>
+      </Sheet.Portal>
+    </Sheet>
   )
 }
 
-function TwoFactorDialog(props: {
+function TwoFactorSheet(props: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onVerified: () => void
@@ -194,17 +200,18 @@ function TwoFactorDialog(props: {
   }
 
   return (
-    <Dialog open={props.open} onOpenChange={changeOpen}>
-      <Dialog.Portal>
-        <Dialog.Overlay />
-        <Dialog.Content
+    <Sheet open={props.open} onOpenChange={changeOpen}>
+      <Sheet.Portal>
+        <Sheet.Overlay />
+        <Sheet.Content
+          size="wide"
           focusKey={step()}
           initialFocus={() => (step() === 'key' ? nextButton : codeField)}
         >
-          <Dialog.Title>Set up two-factor authentication</Dialog.Title>
-          <Dialog.Description>
+          <Sheet.Title>Set up two-factor authentication</Sheet.Title>
+          <Sheet.Description>
             Add a code from an authenticator app when you sign in.
-          </Dialog.Description>
+          </Sheet.Description>
           <StepList
             steps={twoFactorSteps}
             current={step()}
@@ -226,9 +233,9 @@ function TwoFactorDialog(props: {
                     >
                       Continue
                     </Button>
-                    <Dialog.CloseButton aria-label="Cancel">
+                    <Sheet.CloseButton aria-label="Cancel">
                       Cancel
-                    </Dialog.CloseButton>
+                    </Sheet.CloseButton>
                   </>
                 }
               >
@@ -251,9 +258,9 @@ function TwoFactorDialog(props: {
                   <Button type="submit" tone="primary">
                     Verify and enable
                   </Button>
-                  <Dialog.CloseButton aria-label="Cancel">
+                  <Sheet.CloseButton aria-label="Cancel">
                     Cancel
-                  </Dialog.CloseButton>
+                  </Sheet.CloseButton>
                 </>
               }
             >
@@ -281,13 +288,13 @@ function TwoFactorDialog(props: {
               </Field>
             </FormGrid>
           </Show>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
+        </Sheet.Content>
+      </Sheet.Portal>
+    </Sheet>
   )
 }
 
-function TokenDialog(props: {
+function TokenSheet(props: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCreate: (name: string) => string
@@ -305,17 +312,18 @@ function TokenDialog(props: {
   }
 
   return (
-    <Dialog open={props.open} onOpenChange={changeOpen}>
-      <Dialog.Portal>
-        <Dialog.Overlay />
-        <Dialog.Content
+    <Sheet open={props.open} onOpenChange={changeOpen}>
+      <Sheet.Portal>
+        <Sheet.Overlay />
+        <Sheet.Content
+          size="wide"
           initialFocus={() => (value() ? tokenField : nameField)}
           focusKey={Boolean(value())}
         >
-          <Dialog.Title>Create a personal access token</Dialog.Title>
-          <Dialog.Description>
+          <Sheet.Title>Create a personal access token</Sheet.Title>
+          <Sheet.Description>
             Use a token to sign in from a script or tool.
-          </Dialog.Description>
+          </Sheet.Description>
           <Show
             when={value()}
             fallback={
@@ -336,9 +344,9 @@ function TokenDialog(props: {
                     >
                       Create token
                     </Button>
-                    <Dialog.CloseButton aria-label="Cancel">
+                    <Sheet.CloseButton aria-label="Cancel">
                       Cancel
-                    </Dialog.CloseButton>
+                    </Sheet.CloseButton>
                   </>
                 }
               >
@@ -360,9 +368,7 @@ function TokenDialog(props: {
             {(token) => (
               <FormGrid
                 footer={
-                  <Dialog.CloseButton aria-label="Done">
-                    Done
-                  </Dialog.CloseButton>
+                  <Sheet.CloseButton aria-label="Done">Done</Sheet.CloseButton>
                 }
               >
                 <Field>
@@ -381,9 +387,9 @@ function TokenDialog(props: {
               </FormGrid>
             )}
           </Show>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
+        </Sheet.Content>
+      </Sheet.Portal>
+    </Sheet>
   )
 }
 
@@ -394,17 +400,33 @@ export function BlocksUserAccount(
     'item',
   )
   const [selected, setSelected] = createSignal<string>(
-    requestedSection === 'security' ? accountSections[1] : accountSections[0],
+    requestedSection === 'security' ? securitySection : profileSection,
   )
   const section = () => props.section ?? selected()
-  const [profile, setProfile] = createSignal<Profile>(userMember)
+  const savedProfile = useDemoSetting('profile', userMember)
+  const [profileDraft, setProfileDraft] = createSignal<
+    Partial<ProfileSettings>
+  >({})
+  const profile = () => ({ ...savedProfile(), ...profileDraft() })
+  const [avatar, setAvatar] = createSignal<File>()
+  const [savingProfile, setSavingProfile] = createSignal(false)
+  const [profileError, setProfileError] = createSignal('')
   const [avatarUrl, setAvatarUrl] = createSignal('')
   let avatarObjectUrl = ''
+  let disposed = false
   onCleanup(() => {
+    disposed = true
     if (avatarObjectUrl) URL.revokeObjectURL(avatarObjectUrl)
   })
   const [profileNotice, setProfileNotice] = createSignal('')
-  const [securityNotice, setSecurityNotice] = createSignal('')
+  const [securityNotice, setSecurityNotice] = createSignal<{
+    section: string
+    message: string
+  }>()
+  const currentNotice = () => {
+    const notice = securityNotice()
+    return notice?.section === section() ? notice.message : undefined
+  }
   const views = useUserViews()
   const [sessions, setSessions] = createSignal(userAccessSessions)
   const [tokens, setTokens] = createSignal(personalTokens)
@@ -421,11 +443,35 @@ export function BlocksUserAccount(
       ? `${item.value.device} will be signed out.`
       : `${item.value.name} will lose access.`
   }
-  const [enabled, setEnabled] = createSignal<Record<string, boolean>>({})
+  const notificationChannels = useDemoSetting('notificationChannels', undefined)
+  const [notificationDraft, setNotificationDraft] = createSignal<
+    Record<string, boolean>
+  >({})
+  const [notificationNotice, setNotificationNotice] = createSignal('')
+  const [notificationError, setNotificationError] = createSignal('')
+  const [savingNotifications, setSavingNotifications] = createSignal(false)
+  let confirmationTrigger: TableRowActionContext['getMenuTrigger'] | undefined
+  let confirmationFallback: HTMLElement | null | undefined
+
+  function askToRevoke(
+    item: Revoke,
+    getMenuTrigger: TableRowActionContext['getMenuTrigger'],
+  ) {
+    confirmationTrigger = getMenuTrigger
+    confirmationFallback = getMenuTrigger()
+      ?.closest('.table-workspace')
+      ?.querySelector<HTMLElement>('.table-controls-toggle')
+    setPending(item)
+  }
 
   const sessionsTable = createBlockTable(sessions, [
     { id: 'device', header: 'Device', accessorKey: 'device' },
     { id: 'active', header: 'Last active (UTC)', accessorKey: 'active' },
+    {
+      id: 'status',
+      header: 'Status',
+      accessorFn: (row) => (row.current ? 'Current session' : ''),
+    },
   ])
   const tokensTable = createBlockTable(tokens, [
     { id: 'name', header: 'Name', accessorKey: 'name' },
@@ -433,24 +479,55 @@ export function BlocksUserAccount(
     { id: 'lastUsed', header: 'Last used', accessorKey: 'lastUsed' },
   ])
 
-  function saveProfile(event: SubmitEvent) {
+  async function saveProfile(event: SubmitEvent) {
     event.preventDefault()
-    const current = profile()
-    if (!current.name.trim()) return
-    if (avatarObjectUrl) URL.revokeObjectURL(avatarObjectUrl)
-    avatarObjectUrl = current.avatar ? URL.createObjectURL(current.avatar) : ''
-    setAvatarUrl(avatarObjectUrl)
-    setProfile({
-      ...current,
-      name: current.name.trim(),
-      email: current.email.trim(),
-    })
-    setProfileNotice('Profile saved.')
+    if (!profile().name.trim() || savingProfile()) return
+    const draft = profileDraft()
+    const image = avatar()
+    setSavingProfile(true)
+    setProfileError('')
+    try {
+      await demoSettings.update('profile', (saved) => {
+        const next = { ...userMember, ...saved, ...draft }
+        return { ...next, name: next.name.trim(), email: next.email.trim() }
+      })
+      if (disposed) return
+      setProfileDraft((current) => (current === draft ? {} : current))
+      if (avatarObjectUrl) URL.revokeObjectURL(avatarObjectUrl)
+      avatarObjectUrl = image ? URL.createObjectURL(image) : ''
+      setAvatarUrl(avatarObjectUrl)
+      setProfileNotice('Profile saved.')
+    } catch {
+      setProfileError('Could not save your profile.')
+    } finally {
+      setSavingProfile(false)
+    }
   }
 
-  function updateProfile(patch: Partial<Profile>) {
-    setProfile((current) => ({ ...current, ...patch }))
+  function updateProfile(patch: Partial<ProfileSettings>) {
+    setProfileDraft((current) => ({ ...current, ...patch }))
     setProfileNotice('')
+    setProfileError('')
+  }
+
+  async function saveNotificationChannels(event: SubmitEvent) {
+    event.preventDefault()
+    if (savingNotifications()) return
+    const draft = notificationDraft()
+    setSavingNotifications(true)
+    setNotificationError('')
+    try {
+      await demoSettings.update('notificationChannels', (saved) => ({
+        ...saved,
+        ...draft,
+      }))
+      setNotificationDraft((current) => (current === draft ? {} : current))
+      setNotificationNotice('Notification settings saved.')
+    } catch {
+      setNotificationError('Could not save the notification settings.')
+    } finally {
+      setSavingNotifications(false)
+    }
   }
 
   function createToken(name: string) {
@@ -464,7 +541,10 @@ export function BlocksUserAccount(
       },
       ...current,
     ])
-    setSecurityNotice('Personal access token created.')
+    setSecurityNotice({
+      section: tokensSection,
+      message: 'Personal access token created.',
+    })
     return `wfe_demo_${id}`
   }
 
@@ -473,10 +553,16 @@ export function BlocksUserAccount(
     if (!item) return
     if (item.kind === 'session') {
       setSessions((current) => current.filter(({ id }) => id !== item.value.id))
-      setSecurityNotice(`${item.value.device} signed out.`)
+      setSecurityNotice({
+        section: sessionsSection,
+        message: `${item.value.device} signed out.`,
+      })
     } else {
       setTokens((current) => current.filter(({ id }) => id !== item.value.id))
-      setSecurityNotice(`${item.value.name} revoked.`)
+      setSecurityNotice({
+        section: tokensSection,
+        message: `${item.value.name} revoked.`,
+      })
     }
     setPending(undefined)
   }
@@ -484,6 +570,14 @@ export function BlocksUserAccount(
   return (
     <BlockShell
       title={section()}
+      fillTable={accountTableSections.includes(section())}
+      header={
+        <Show when={section() === tokensSection}>
+          <Button tone="primary" onClick={() => setTokenOpen(true)}>
+            Create token
+          </Button>
+        </Show>
+      }
       contentOnly={props.contentOnly}
       visible={props.visible}
       navigationLabel="Account navigation"
@@ -498,7 +592,7 @@ export function BlocksUserAccount(
         />
       )}
     >
-      <Show when={section() === accountSections[0]}>
+      <Show when={section() === profileSection}>
         <DashboardPanel
           title="Your profile"
           titleAs="h3"
@@ -513,12 +607,14 @@ export function BlocksUserAccount(
           <FormGrid
             as="form"
             columns={2}
-            ref={nativeEvents<HTMLFormElement>({ submit: saveProfile })}
+            ref={nativeEvents<HTMLFormElement>({
+              submit: (event) => void saveProfile(event),
+            })}
             footer={
               <Button
                 type="submit"
                 tone="primary"
-                disabled={!profile().name.trim()}
+                disabled={!profile().name.trim() || savingProfile()}
               >
                 Save profile
               </Button>
@@ -569,136 +665,156 @@ export function BlocksUserAccount(
               label="Avatar image"
               accept="image/png,image/jpeg,image/webp"
               maxFileSize={5_000_000}
-              files={profile().avatar ? [profile().avatar!] : []}
-              onFilesChange={(files) => updateProfile({ avatar: files[0] })}
+              files={avatar() ? [avatar()!] : []}
+              onFilesChange={(files) => {
+                setAvatar(files[0])
+                setProfileNotice('')
+              }}
             />
           </FormGrid>
           <BlockNotice message={profileNotice()} />
+          <Show when={profileError()}>
+            <InlineAlert tone="error" announce="assertive">
+              {profileError()}
+            </InlineAlert>
+          </Show>
         </DashboardPanel>
       </Show>
-      <Show when={section() === accountSections[1]}>
-        <DashboardGrid gap="layout" minPanelWidth="21rem">
-          <DashboardPanel
-            title="Password"
-            titleAs="h3"
-            description="Change the password for your account."
-            footer={
-              <Button onClick={() => setPasswordOpen(true)}>
-                Change password
-              </Button>
-            }
-          />
-          <DashboardPanel
-            title="Two-factor authentication"
-            titleAs="h3"
-            description="Use an authenticator code when you sign in."
-            footer={
-              <Show
-                when={twoFactor()}
-                fallback={
-                  <Button onClick={() => setTwoFactorOpen(true)}>
-                    Set up two-factor authentication
+      <Show when={section() === securitySection}>
+        <DashboardPanel title="Sign-in security" titleAs="h3">
+          <SummaryList
+            items={[
+              {
+                label: 'Password',
+                value: (
+                  <Button onClick={() => setPasswordOpen(true)}>
+                    Change password
                   </Button>
-                }
-              >
-                <Badge tone="success">Enabled</Badge>
-              </Show>
-            }
-          />
-        </DashboardGrid>
-        <DashboardGrid gap="layout" minPanelWidth="29rem">
-          <BlockTable
-            table={sessionsTable}
-            title="Active sessions"
-            layout="panel"
-            minWidth="27rem"
-            pageSizes={securityPageSizes}
-            views={{ storage: views.storage['Active sessions'] }}
-            filterMode="live"
-            search={{ label: 'Search sessions' }}
-            emptyResults={() => <EmptyState>No sessions match.</EmptyState>}
-            renderRowActions={(row) => (
-              <Show when={row.original} keyed>
-                {(session) =>
-                  session.current ? (
-                    <Badge>Current session</Badge>
-                  ) : (
-                    <Button
-                      aria-label={`Sign out ${session.device}`}
-                      onClick={() =>
-                        setPending({ kind: 'session', value: session })
-                      }
-                    >
-                      Sign out
-                    </Button>
-                  )
-                }
-              </Show>
-            )}
-            formatValue={(value, column) =>
-              column.id === 'active' ? (
-                <BlockDate value={blockCellText(value)} time />
-              ) : undefined
-            }
-          />
-          <BlockTable
-            table={tokensTable}
-            title="Personal access tokens"
-            layout="panel"
-            minWidth="26rem"
-            pageSizes={securityPageSizes}
-            views={{ storage: views.storage['Personal access tokens'] }}
-            filterMode="live"
-            search={{ label: 'Search tokens' }}
-            toolbarActions={
-              <Button onClick={() => setTokenOpen(true)}>Create token</Button>
-            }
-            emptyResults={() => (
-              <EmptyState>No matching personal access tokens.</EmptyState>
-            )}
-            renderRowActions={(row) => (
-              <Show when={row.original} keyed>
-                {(item) => (
-                  <Button
-                    aria-label={`Revoke ${item.name}`}
-                    onClick={() => setPending({ kind: 'token', value: item })}
+                ),
+              },
+              {
+                label: 'Two-factor authentication',
+                value: (
+                  <Show
+                    when={twoFactor()}
+                    fallback={
+                      <Button onClick={() => setTwoFactorOpen(true)}>
+                        Set up two-factor authentication
+                      </Button>
+                    }
                   >
-                    Revoke
-                  </Button>
-                )}
-              </Show>
-            )}
-            formatValue={(value, column) =>
-              column.id === 'created' || column.id === 'lastUsed' ? (
-                <BlockDate value={blockCellText(value)} empty="Never" />
-              ) : undefined
-            }
+                    <Badge tone="success">Enabled</Badge>
+                  </Show>
+                ),
+              },
+            ]}
           />
-        </DashboardGrid>
-        <BlockNotice message={securityNotice()} />
-        <PasswordDialog
+          <BlockNotice message={currentNotice()} />
+        </DashboardPanel>
+        <PasswordSheet
           open={passwordOpen()}
           onOpenChange={setPasswordOpen}
           onChange={(current, next) => {
             if (password() !== current) return false
             setPassword(next)
-            setSecurityNotice('Password changed.')
+            setSecurityNotice({
+              section: securitySection,
+              message: 'Password changed.',
+            })
             return true
           }}
         />
-        <TwoFactorDialog
+        <TwoFactorSheet
           open={twoFactorOpen()}
           onOpenChange={setTwoFactorOpen}
           onVerified={() => {
             setTwoFactor(true)
-            setSecurityNotice('Two-factor authentication enabled.')
+            setSecurityNotice({
+              section: securitySection,
+              message: 'Two-factor authentication enabled.',
+            })
           }}
         />
-        <TokenDialog
+      </Show>
+      <Show when={section() === sessionsSection}>
+        <BlockTable
+          table={sessionsTable}
+          title={sessionsSection}
+          minWidth="28rem"
+          pageSizes={securityPageSizes}
+          views={{ storage: views.storage['Active sessions'] }}
+          filterMode="live"
+          search={{ label: 'Search sessions' }}
+          emptyResults={() => <EmptyState>No sessions match.</EmptyState>}
+          toolbarActions={<BlockNotice message={currentNotice()} />}
+          messages={{
+            rowActions: (id) =>
+              `Actions for ${sessionsTable.getRow(id).original?.device ?? id}`,
+          }}
+          rowActions={(row, { getMenuTrigger }) => {
+            const session = row.original
+            if (!session || session.current) return
+            return [
+              {
+                label: 'Sign out',
+                onSelect: () =>
+                  askToRevoke(
+                    { kind: 'session', value: session },
+                    getMenuTrigger,
+                  ),
+              },
+            ]
+          }}
+          formatValue={(value, column) => {
+            if (column.id === 'active')
+              return <BlockDate value={blockCellText(value)} time />
+            if (column.id === 'status' && value)
+              return <Badge>{blockCellText(value)}</Badge>
+            return undefined
+          }}
+        />
+      </Show>
+      <Show when={section() === tokensSection}>
+        <BlockTable
+          table={tokensTable}
+          title={tokensSection}
+          minWidth="26rem"
+          pageSizes={securityPageSizes}
+          views={{ storage: views.storage['Personal access tokens'] }}
+          filterMode="live"
+          search={{ label: 'Search tokens' }}
+          emptyResults={() => (
+            <EmptyState>No matching personal access tokens.</EmptyState>
+          )}
+          toolbarActions={<BlockNotice message={currentNotice()} />}
+          messages={{
+            rowActions: (id) =>
+              `Actions for ${tokensTable.getRow(id).original?.name ?? id}`,
+          }}
+          rowActions={(row, { getMenuTrigger }) => {
+            const token = row.original
+            if (!token) return
+            return [
+              {
+                label: 'Revoke',
+                onSelect: () =>
+                  askToRevoke({ kind: 'token', value: token }, getMenuTrigger),
+              },
+            ]
+          }}
+          formatValue={(value, column) =>
+            column.id === 'created' || column.id === 'lastUsed' ? (
+              <BlockDate value={blockCellText(value)} empty="Never" />
+            ) : undefined
+          }
+        />
+        <TokenSheet
           open={tokenOpen()}
           onOpenChange={setTokenOpen}
           onCreate={createToken}
         />
+      </Show>
+      <Show when={accountTableSections.includes(section())}>
         <AlertDialog
           open={Boolean(pending())}
           onOpenChange={(open) => {
@@ -707,7 +823,14 @@ export function BlocksUserAccount(
         >
           <AlertDialog.Portal>
             <AlertDialog.Overlay />
-            <AlertDialog.Content>
+            <AlertDialog.Content
+              onCloseAutoFocus={(event) => {
+                const target = confirmationTrigger?.() ?? confirmationFallback
+                if (!target?.isConnected) return
+                event.preventDefault()
+                target.focus({ preventScroll: true })
+              }}
+            >
               <AlertDialog.Title>
                 {pending()?.kind === 'session'
                   ? 'Sign out session?'
@@ -728,13 +851,31 @@ export function BlocksUserAccount(
           </AlertDialog.Portal>
         </AlertDialog>
       </Show>
-      <Show when={section() === accountSections[2]}>
+      <Show when={section() === notificationsSection}>
         <DashboardPanel
-          title="Notification settings"
+          title={notificationsSection}
           titleAs="h3"
-          description="Choose where you receive each type of notification. Changes apply immediately."
+          description="Choose where you receive each type of notification."
         >
-          <FormGrid columns={2}>
+          <FormGrid
+            as="form"
+            columns={2}
+            ref={nativeEvents<HTMLFormElement>({
+              submit: (event) => void saveNotificationChannels(event),
+            })}
+            footer={
+              <Button
+                type="submit"
+                tone="primary"
+                disabled={
+                  savingNotifications() ||
+                  !Object.keys(notificationDraft()).length
+                }
+              >
+                Save notification settings
+              </Button>
+            }
+          >
             <For each={notificationTypes}>
               {(event) => (
                 <FieldGroup title={event}>
@@ -745,15 +886,18 @@ export function BlocksUserAccount(
                         <SwitchField
                           label={channel}
                           checked={
-                            enabled()[key] ??
+                            notificationDraft()[key] ??
+                            notificationChannels()?.[key] ??
                             (channel === 'In-app' || event === 'Security')
                           }
-                          onChange={(checked) =>
-                            setEnabled((current) => ({
+                          onChange={(checked) => {
+                            setNotificationDraft((current) => ({
                               ...current,
                               [key]: checked,
                             }))
-                          }
+                            setNotificationNotice('')
+                            setNotificationError('')
+                          }}
                         />
                       )
                     }}
@@ -762,6 +906,12 @@ export function BlocksUserAccount(
               )}
             </For>
           </FormGrid>
+          <BlockNotice message={notificationNotice()} />
+          <Show when={notificationError()}>
+            <InlineAlert tone="error" announce="assertive">
+              {notificationError()}
+            </InlineAlert>
+          </Show>
         </DashboardPanel>
       </Show>
     </BlockShell>

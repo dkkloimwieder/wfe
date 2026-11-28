@@ -333,12 +333,22 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
               target.locator('.gallery-example-host .gallery-preview'),
             ).toBeVisible()
             await expect(target.getByRole('main')).toHaveCount(1)
-            // Seven review boundaries sit inside the gallery owner.
+            const localDensity =
+              id === 'blocks-user-preferences' || id === 'blocks-admin-app'
+            // Count the example scopes along with the gallery theme.
             const themeOwners =
-              id === 'themes' ? 8 : id === 'decoration-geometry' ? 2 : 1
+              id === 'themes'
+                ? 8
+                : id === 'decoration-geometry' || localDensity
+                  ? 2
+                  : 1
             await expect(target.locator('[data-ui-theme-owner]')).toHaveCount(
               themeOwners,
             )
+            if (localDensity)
+              await expect(
+                target.locator('.gallery-preview [data-ui-theme-owner]'),
+              ).toHaveCount(1)
             await expect(target.locator('iframe')).toHaveCount(0)
             assert.equal(
               await target.evaluate(
@@ -466,12 +476,18 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
   await record(
     'gallery: every example is reachable through native links and browser history',
     async () => {
+      const navigation = page.getByRole('navigation', {
+        name: 'Component catalog',
+      })
+      const catalogLink = (name) =>
+        navigation.getByRole('link', { name, exact: true })
       await page.setViewportSize({ width: 1280, height: 900 })
       await page.goto(`${url}?gallery=fields`)
       await ready()
-      await expect(
-        page.getByRole('link', { name: 'Fields', exact: true }),
-      ).toHaveAttribute('aria-current', 'page')
+      await expect(catalogLink('Fields')).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
       const historyLength = await page.evaluate(() => history.length)
       const originalHost = await page
         .locator('.gallery-example-host')
@@ -490,9 +506,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
         document.addEventListener('click', window.galleryObserveModifiedClick)
       })
       try {
-        await page
-          .getByRole('link', { name: 'Buttons', exact: true })
-          .click({ modifiers: ['Control'] })
+        await catalogLink('Buttons').click({ modifiers: ['Control'] })
       } finally {
         await page.evaluate(() =>
           document.removeEventListener(
@@ -544,15 +558,13 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
         await tab.close()
       }
       for (const [id, label] of catalog) {
-        await page.getByRole('link', { name: label, exact: true }).click()
+        await catalogLink(label).click()
         await expect(page.locator('.gallery-example-host')).toHaveAttribute(
           'aria-label',
           `${label} preview`,
         )
         await ready()
-        await expect(
-          page.getByRole('link', { name: label, exact: true }),
-        ).toHaveAttribute('aria-current', 'page')
+        await expect(catalogLink(label)).toHaveAttribute('aria-current', 'page')
         assert.equal(new URL(page.url()).searchParams.get('gallery'), id)
       }
       for (const [navigate, [id, label]] of [
@@ -562,9 +574,7 @@ export async function galleryCases({ page, url, record, settle, reviewPage }) {
         await navigate()
         await ready()
         assert.equal(new URL(page.url()).searchParams.get('gallery'), id)
-        await expect(
-          page.getByRole('link', { name: label, exact: true }),
-        ).toHaveAttribute('aria-current', 'page')
+        await expect(catalogLink(label)).toHaveAttribute('aria-current', 'page')
         await expect(page.locator('.gallery-example-host')).toHaveAttribute(
           'aria-label',
           `${label} preview`,
