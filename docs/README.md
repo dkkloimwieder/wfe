@@ -1,95 +1,37 @@
 # Documentation
 
-Start with the [current feature catalog](features.md) to see what the public packages provide.
-Read the [adoption guide](adoption.md) for imports, application ownership, and server rendering.
-The catalog describes implemented functionality. [Plans](plan/README.md) describe proposed work.
-Update the catalog and the relevant API guide in the same change that adds a public capability.
-Beads records task status and dependencies.
+Use the feature catalog to find a public capability. Use the adoption guide to set up an application.
+
+## Start here
+
+- [Feature catalog](features.md)
+- [Adoption](adoption.md)
+
+## Components
+
+- [Inputs](inputs.md) covers NumberInput, date and time inputs, Calendar, color and file pickers, Slider, Toggle, and Combobox matching.
+- [Forms](forms.md) covers createForm, FieldValue, FormGrid, FieldGroup, and FormActions.
+- [Tables](tables.md) covers the native Table engine, workspace, filters, formatting, selection, row actions, diagnostics, shared presentation, and Select editing.
+- [Navigation](navigation.md) covers Tabs, Breadcrumbs, the sidebar context switcher, Commands, and ContextMenu.
+- [Layout](layout.md) covers DashboardLayout, Resizable, Accordion, Collapsible, and EntryPanel.
+- [Buttons and icons](buttons.md) covers Button, IconButton, ButtonLink, and Icon.
+- [Display](display.md) covers StatusTile and display messages.
+- [Charts](charts.md) covers plot components and statistical recipes.
+- [Drag and drop](drag-and-drop.md) covers drag scopes, sortable lists, Kanban, and the shared engine.
+- [Themes](theme.md) covers Theme, token ownership, and example appearance.
+- [Diagrams](diagrams.md) covers read-only graphs and automatic layout.
+- [Gantt](gantt.md) covers schedule rows, intervals, and edits.
 
 ## Package contracts
 
-- [Adoption and controlled state](adoption.md)
-- [UI ownership boundaries](contracts/UI-BOUNDARIES.md)
-- [Control state and callback vocabulary](control-contract.md)
-- [Native event listener ownership](native-events.md)
-- [Styled component props and shared values](styled-component-types.md)
-- [Form contract](form-contract.md)
-- [Generator contract](generator-contract.md)
-- [Generated view and shell messages](view-messages.md)
-- [Dashboard layout](layout.md)
-- [EntryPanel](entry-panel.md)
-- [Described application shell](../packages/shell/README.md)
-- [Charts](charts.md)
+- [Generator](generator.md) covers generated views, descriptor validation, and view messages.
+- [UI contracts](contracts.md) covers package boundaries, control callbacks, native events, and styled props.
+- [Sync](sync.md) covers collection feeds, writes, and offline adapters.
 
-## Component guides
+## Examples and maintenance
 
-- [Commands and search](command.md)
-- [Sliders and ranges](sliders.md)
-- [Toggles and groups](toggles.md)
-- [Calendar ranges](calendar-ranges.md)
-- [Context menus](context-menu.md)
-
-- [Sketchy theme](theme.md)
-- [Owned icon catalog](icons.md)
-- [Button variants and tones](button-variants.md)
-- [Date picker and calendar](date-picker.md)
-- [Date, time, and datetime fields](date-inputs.md)
-- [Status tiles](status-tiles.md)
-- [Status and display messages](display-messages.md)
-- [Color picker](color-picker.md)
-- [Numeric fields](number-inputs.md)
-- [File input](file-input.md)
-- [Form layout](form-layout.md)
-- [Tabs](tabs.md)
-- [Breadcrumbs](breadcrumbs.md)
-- [Sidebar context switcher](sidebar-context-switcher.md)
-- [Collapsible content](collapsible.md)
-- [Accordion](accordion.md)
-- [Resizable panes](resizable.md)
-
-## Tables
-
-- [Engine capabilities and search policy](table-engine.md)
-- [Table workspace](table-workspace.md)
-- [Filters and explicit apply](table-filters.md)
-- [Display formatting](table-formatting.md)
-- [Cell selection and copy](table-selection.md)
-- [Table diagnostics](table-diagnostics.md)
-
-## Examples and qualification
-
-- [Examples and preview commands](../examples/README.md)
-- [Component gallery](component-gallery.md)
-- [Combobox matching](combobox-matching.md)
-- [Appearance review](appearance-review.md)
-- [Theme ownership in examples](example-themes.md)
-- [Qualification commands and reports](qualification.md)
-- [Native tab investigation](native-tab-investigation.md)
-- [Action disposal investigation](action-disposal-investigation.md)
-- [Vendor repair attribution and replay](vendor-repair-replay.md)
-- [Shared style ownership](../packages/components/src/styles/README.md)
-
-## Plans and historical records
-
-- [Implementation plans](plan/README.md)
-- [October 16 consistency audit](consistency-audit.md), a dated assessment rather than current API status
-- [October 22 structure audit](structure-audit-2026-10-22.md), a dated review of cohesiveness, code quality, and modularity
-- [Repository extraction](../migration/README.md) and [standalone acceptance](../migration/standalone.md)
-- [Core source origin](origins/core/README.md)
-- [Performance tools and historical findings](../bench/README.md)
-
-Package guides stay beside their source when they describe implementation maintenance.
-Vendor licenses, source hashes, and repair records stay beside each captured source tree.
-Historical inventories keep their recorded paths and hashes.
-Build outputs and qualification reports remain outside the documentation index.
-
-See [row-dependent table actions](table-row-actions.md) for live row state, disabled buttons, and application callbacks.
-
-- [Remaining audit findings](audit-low-dispositions.md): compatibility decisions and deferred work for the October 22 audit.
-
-- [Audit remediation checkpoint](audit-remediation-2026-10-24.md) records delivered work, retained evidence, and final qualification limits.
-
-See [Drag and drop](drag-and-drop.md) for unreleased generic scopes, controlled ordering, and board composition.
-
-See [Gantt](gantt.md) for the unreleased controlled timeline, interval editing,
-calendar-day behavior, and large-dataset examples.
+- [Example index](../examples/README.md) lists previews, browser commands, and gallery controls.
+- [Qualification](qualification.md) covers delivery modes and test artifacts.
+- [Vendor repair replay](vendor-repair-replay.md) covers work on source captures and local repairs.
+- [Core source origin](origins/core/README.md) records provenance.
+- [Agent composition proposal](plan/agent-composition.md) records open design decisions.

@@ -1,15 +1,24 @@
-# Dashboard layout
+# Layout
 
-`DashboardShell` places application content in header, navigation, and main regions.
-`DashboardPanel` uses the shared Card styles.
-`DashboardGrid` arranges panels in columns that fit the available width.
-All three components belong to `@wfe/components` and its `layout` export.
-Applications own links, routing, permissions, records, and requests.
+Layout components arrange panels, divide space, and show or hide content. The application supplies the content for each region.
 
-## Composition
+Contents
 
-Import the public stylesheet before rendering the shell.
-Give the shell a parent with an explicit height, or set its height directly.
+- [Dashboard layout](#dashboard-layout)
+- [Resizable panes](#resizable-panes)
+- [Accordion](#accordion)
+- [Collapsible](#collapsible)
+- [EntryPanel](#entrypanel)
+
+## Dashboard layout
+
+DashboardShell arranges application content in header, navigation, main, and footer regions.
+
+### Import
+
+Import `DashboardShell`, `DashboardPanel`, and `DashboardGrid` from `@wfe/components/layout`. Import the shared stylesheet once.
+
+### Example
 
 ```tsx
 import { Button } from '@wfe/components'
@@ -41,213 +50,372 @@ export function Workspace() {
 }
 ```
 
-The navigation function receives `close`, which closes its narrow panel.
-The application can call this function after its own navigation action.
-Omit `navigation` for a shell with one full-width main region.
-The shell preserves one navigation tree across screen sizes.
-Inputs and other stateful controls keep their nodes and values during resizing.
-If the application removes navigation, the shell releases its old control references.
+### Behavior and options
 
-## Navigation
+#### Navigation
 
-At widths below 48rem, Navigation opens a nonmodal panel over the main region.
-A nonmodal panel keeps the page available.
-The panel appears below the header and does not change the main region height.
+The `navigation` and `context` callbacks receive `close()`, `compact()`, and `mobile()`. Omit navigation for one full-width main region. `mobile()` reports drawer mode. `compact()` stays false in the drawer so labels remain visible.
 
-Close and Escape inside navigation return focus to its button.
-Resizing also moves focus when its current control becomes hidden.
-The panel does not close automatically when an application link activates.
-Use the supplied `close` callback for that policy.
+Primary navigation moves to a drawer below 48rem. Context navigation moves below 64rem. The shell considers both its container width and viewport width. If ResizeObserver is unavailable or the shell has no measurable width, viewport rules apply.
 
-The header uses a banner landmark, and the content uses a main landmark.
-`navigationLabel` names the navigation landmark.
-`toggleLabel` and `closeLabel` supply localized button text.
-`mainLabel` optionally names the main landmark.
-For an embedded shell example, set `mainAs="section"` to avoid a nested main landmark.
-The default navigation state starts closed on narrow screens.
-The shell owns this temporary display state.
+Only one drawer opens at a time. Escape or the close button returns focus to its toggle. A link can call the drawer's `close()` after navigation. Changing width retains the menu and its content.
 
-## Scrolling and size
+Use `navigationLabel`, `toggleLabel`, and `closeLabel` for accessible text. Use `mainAs="section"` in an existing main region. The header and optional footer span all columns. Pass `footer={null}` to keep an empty footer band.
 
-The default `scroll="main"` lets the main region scroll.
-Use `scroll="content"` when a table or another child owns scrolling.
-Set `fill` on a panel that must occupy the remaining main height.
-Give its child scroller `flex: 1`, `min-height: 0`, and `overflow: auto`.
-Keep fixed controls outside that scroller.
+#### Scrolling and size
 
-The shell fills its assigned height and reserves space for the header.
-Its grid reserves the remaining height independently of the result count.
-Navigation scrolls independently when its contents exceed the available height.
-The shell does not set global body styles or change height when records change.
+Give the shell a definite height. The default `scroll="main"` scrolls the main region. Use `scroll="content"` when a child owns scrolling. This mode removes the main padding. Set `fill` on a panel that needs the remaining height.
 
-## Shared styles
+DashboardPanel uses the shared Card styles. DashboardGrid wraps panels as width decreases. The main area uses `--ui-layout-inset` for its inset and panel gap. Navigation and context rails use `--ui-region-gap` for compact spacing. Direct Collapsible sections can run edge to edge.
 
-Compact density remains the default.
-Pass `density="comfortable"` for larger controls and spacing.
-Pass `theme="dark"` for the shared dark colors.
-The shell marks its scope as a portal root for shared popup controls.
-Dialog, AlertDialog, and Sheet retain the nearest containing UI scope when no explicit portal root exists.
-Their shared trigger supplies its own control boundary.
-Without a containing scope, the dialog uses the document body rather than its trigger.
-A portal `mount` prop overrides this automatic placement.
-Use the same density for a child virtual table and its geometry.
-Applications can override CSS variables through the shell's `style` prop.
-`--ui-navigation-width` defaults to 15rem.
-`--ui-panel-min-width` defaults to 18rem.
+Use `--ui-navigation-width`, `--ui-context-width`, and `--ui-panel-min-width` to change widths. Keep virtual row dimensions aligned with the density that supplies their geometry. The shell supplies a portal root. An explicit portal `mount` overrides automatic placement.
 
-The layout contract fixture covers desktop and narrow screens, focus, scrolling, state preservation, theme, density, and disposal.
-It composes the shared Table and virtual renderer with 100,000 logical rows.
-Only visible rows and a small buffer occupy the DOM.
-The tests compare actual row height with compact and comfortable geometry.
-Dialog and popup cases cover Escape order, focus restoration, live themes, resizing, and cleanup.
-The qualification suite runs it against source, built-package, and development inputs.
-The hydration fixture also attaches the shell to server nodes and tests navigation keyboard behavior.
+#### Compact sidebar
 
-## Composed example
+Pass `navigationCollapsed` and `onNavigationCollapsedChange` to control desktop collapse. The divider control appears when the application supplies the callback. Use `--ui-navigation-rail-width` to change the compact width.
 
-The default dashboard preview gives the whole page to the Table workspace.
-Table controls occupy the left panel, and results fill the main panel.
-Application navigation and record forms occupy no space in this default view.
-The `?composition=1` example uses public Table, field, checkbox, button, and layout exports.
-Its application owns records, validation, submission, navigation, and replacement data.
-The form adds records to an in-memory collection.
-The data buttons switch between zero, two, and 500 records.
-This sample uses the normal Table renderer and does not fetch pages on scroll.
+SidebarGroup uses CollapsibleSection for its summary and accepts `compact` from the navigation callback. In `behavior="flyout"`, its compact control opens an adjacent menu. In `behavior="expand"`, it requests an open group and calls `onExpand`. A group without an icon uses the first character of its label when compact.
 
-In the separate composition example, the table sits beside the form and status panels.
-On narrow screens, the workspace scrolls vertically and keeps the form below the table.
-The table keeps its assigned height across result counts and expanded grouping controls.
-Its left controls panel scrolls independently from the results.
-The [Table workspace guide](table-workspace.md) describes sections, application slots, and the narrow drawer.
-Its empty message stays inside its scroll area.
-See [the example instructions](../examples/README.md) for the preview command.
+Use [SidebarContextSwitcher](navigation.md#sidebar-context-switcher) for sibling and parent navigation. Use [EntryPanel](#entrypanel) for a centered entry screen. For navigation from typed descriptions, see the [ShellView contract](../packages/shell/README.md).
 
-## Organization workspace
+### Application ownership
 
-`DashboardShell` accepts a primary `navigation` callback and an optional `context` callback.
-Both callbacks receive `close`. Applications own their links, labels, active routes, and permissions.
-The header spans every column. The optional footer also spans every column.
-Pass `footer={null}` to reserve an empty footer. Omit `footer` to remove the band.
+Supply region content, height, links, permissions, records, and requests. Own routing, accepted navigation state, and any persistence. For table results, assign a bounded height to the scroller.
 
-Both menus keep their DOM owners while CSS changes their placement.
-Below 64rem, the context menu uses its header toggle.
-Below 48rem, the primary menu also uses a toggle.
-Only one drawer opens at a time. Escape closes the active drawer and returns focus to its toggle.
-Nested controls handle Escape before the shell.
+### Gallery
 
-The shell owns region padding through `--ui-layout-inset`, which defaults to `--ui-cell-padding-x`.
-Related controls use `--ui-gap`.
-Use `ui-dashboard-menu` for a shared group of native navigation links.
-Use `--ui-navigation-width` and `--ui-context-width` to set desktop menu widths.
-Each menu and the main area scroll independently between the organization bands.
+Open `?gallery=dashboard-layout` for desktop and narrow layouts. Open `?gallery=sidebar-links` or `?gallery=contexts` for navigation.
 
-For `scroll="content"`, the main region has no outer padding.
-A full-height table joins the workspace edges. Cards keep their own internal padding.
-Table toolbar actions stay on the left for every controls placement.
+## Resizable panes
 
-## Described application shell
+Resizable divides a container into two panes with a movable separator.
 
-ShellView from `@wfe/shell` composes DashboardShell, SelectField, Breadcrumbs, and a page heading.
-The application supplies accepted audience and route IDs, native hrefs, page components, and change callbacks.
-The shell does not parse an address or own browser history.
-Its default uses `scroll="content"`. Page components fill the main region and own any inner scrolling.
-Optional context and footer props reuse this layout contract.
-Use one shell frame around page content rather than nesting another DashboardShell inside it.
-Read the [shell guide](../packages/shell/README.md) for controlled navigation and focus.
+### Import
 
-The [shell example](../examples/shell/README.md) combines two audiences, six routes, generated tables, and generated forms.
-Its application owns browser history and retains form values across page changes.
+Import `Resizable` and `ResizeHandle` from `@wfe/components/resizable` or the package root.
 
-`GridDescription` supplies independent row/column metadata for boolean cells.
-Its application bindings own accepted cell values and one change callback.
-The grid does not create a form contract or a table engine.
-Read the [generator contract](generator-contract.md) for keyed metadata and controlled values.
+### Example
 
-`GridView` renders that metadata through shared Checkbox controls without creating another form or table coordinator.
-The [grid example](../examples/grid/README.md) demonstrates 150 cells, independent scrolling, and retained input owners.
+```tsx
+import { createSignal } from 'solid-js'
+import { Input } from '@wfe/components'
+import { Resizable, ResizeHandle } from '@wfe/components/resizable'
 
-StatusTile presents application-supplied values and explicit states through the existing display components.
-TileRow reuses the responsive DashboardGrid. It adds no form coordinator or application controller.
-Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) for read-only composition and formats.
+export function Workspace() {
+  const [size, setSize] = createSignal(30)
+  return (
+    <Resizable
+      primaryLabel="Navigation"
+      secondaryLabel="Content"
+      primary={<Input aria-label="Navigation draft" />}
+      size={size()}
+      onSizeChange={setSize}
+      style={{ height: '20rem' }}
+    >
+      <Input aria-label="Content draft" />
+    </Resizable>
+  )
+}
 
-Generated field labels default to their field keys when omitted.
-Generated action and submit labels default to their operation IDs.
-These presentation fallbacks preserve accepted values, callbacks, control identities, and existing table header aliases.
+const unnamed = (
+  // @ts-expect-error A separator requires an accessible name.
+  <ResizeHandle
+    value={30}
+    onValueChange={() => {}}
+    aria-controls="pane"
+    getAvailableSize={() => 600}
+  />
+)
+void unnamed
+```
 
-The generator's `/?app=formats` example places an editable note and formatted read-only fields in navigation.
-Its table fills the main panel, and its footer reports the application submission state.
-The shared layout controls the pane sizes and narrow-screen arrangement.
+### Behavior and options
 
-Repeated form groups compose the existing FieldGroup and FormGrid components.
-Their `columns` value controls each row's scalar fields. Existing container widths determine when those fields stack.
-The group span follows the surrounding form grid, and row actions use the shared form action style.
+The `primary` slot supplies the pane whose size you control. Children supply the other pane.
+The required `primaryLabel` names that pane and its separator. An optional `secondaryLabel` names the other pane.
+`orientation="horizontal"` places panes beside each other. `orientation="vertical"` stacks them.
+Assign a definite height for a vertical layout.
+The shared gutter stays inside the layout and does not cover adjacent inputs.
+Touch devices receive a wider gutter.
 
-The [repeated form example](../examples/generator/RepeatedApp.tsx) uses one full-height main panel.
-Its rows stack on narrow screens and retain their controls through row and child-field reorders.
+Size is a percentage of the space available to both panes, excluding the gutter.
+Use `defaultSize` for local state. It defaults to 30.
+Use `size` and `onSizeChange` for application control. The callback requests a change that the application can reject.
+Initial rendering and application prop changes do not request changes.
+Keep the control mode stable for the component lifetime.
+Use `minSize` and `maxSize` for limits. They default to 10 and 90.
+Bounds must be finite and strictly between 0 and 100. The selected size must stay within them.
+`step` defaults to one percentage point and must be finite and positive.
+Double-click the divider or press Enter to close and reopen the primary pane.
+Reopening retains the last open size. Before the first resize, this is the supplied size or the default.
+The closed pane stays mounted and hidden. The divider remains visible and reports size zero.
+Arrow keys, Home, End, and dragging do not resize a closed pane. Enter reopens it.
+Use `collapsed`, `defaultCollapsed`, and `onCollapsedChange` to control collapse separately from the expanded size.
+A controlled callback can reject collapse without a size request.
+An application size update while closed supplies the size for the next reopening.
+The component accepts native div attributes, structured classes, events, refs, and an object `style`.
 
-## Icon sidebar
+#### Interaction and shared handle
 
-`DashboardShell` accepts controlled `navigationCollapsed` state.
-Supply `onNavigationCollapsedChange` to show the click-operated divider triangle.
-The triangle consumes no layout space and uses the pane fill and divider border.
-Hover fills it with the primary color.
-The collapse triangle sits inside the sidebar, and the expand triangle sits outside it.
-The navigation callback receives `compact()` and `mobile()` alongside `close()`.
-`compact()` is false in the mobile drawer, which keeps labels available.
-`--ui-navigation-rail-width` sets the desktop icon width and defaults to 3.5rem.
+Focus the separator with Tab. Arrow keys move it along its physical axis, including in RTL layouts.
+Shift increases the keyboard step tenfold. Home and End select the configured limits.
+Escape, pointer cancellation, lost capture, window blur, and document hiding end a drag at its last accepted size.
+Bounds, orientation, disabled state, geometry, and unexpected application size changes also cancel an active drag.
+Rejected requests end a drag before its next movement. Accepted size echoes keep it active.
+Disposal releases capture and removes the gesture listeners.
 
-`CollapsibleSection` is the one titled disclosure section of the library.
-It takes `title`, an optional `count`, an optional `icon`, `active`, and `open`, `defaultOpen` or `onOpenChange`.
-Its content can be form controls, filters, or links.
-The section frame uses the outline action presentation, so it follows the theme preset.
-Stacked sections share one border.
+`ResizeHandle` supplies the same behavior for an existing layout, such as TableWorkspace.
+Its optional `onToggle` handles double-click and Enter. Owners supply `collapsed` and effective `value={0}` while closed.
+Owners keep the expanded size separately and control the pane visibility.
+The pointer must move more than three pixels to resize. Small click movements do not request a size.
+A genuine drag suppresses the corresponding double-click toggle.
+It uses separator orientation: a vertical separator adjusts widths, and a horizontal separator adjusts heights.
+`reverse` identifies a pane after the separator in logical layout order. The handle accounts for RTL direction.
+Supply an accessible name, `aria-controls`, a controlled percentage `value`, and `onValueChange`.
+`getAvailableSize` returns the combined visual extent of both panes along that axis, excluding the gutter.
+Requests clamp to `min` and `max`. The handle also reports existing measured sizes outside those request bounds.
+Caller handlers can cancel resize requests with `preventDefault()`.
+The handle uses the shared focus ring and has no storage or network behavior.
+Its semantics and axis keys follow the [WAI separator guidance](https://www.w3.org/WAI/ARIA/apg/patterns/windowsplitter/).
 
-`SidebarGroup` composes a `CollapsibleSection` with a link menu, and a compact control.
-The application supplies `label`, optional `icon`, `active`, `open`, `onOpenChange`, `onExpand`, and links through its `children(close)` callback.
-Pass the shell's `compact()` value to the group.
-With `behavior="flyout"`, the compact control opens an adjacent popup.
-With `behavior="expand"`, the compact control requests an open group and calls `onExpand`.
-The application expands the shell in that callback.
-Without an icon, expanded groups show the label without an empty icon slot.
-Compact groups show the first Unicode character of the label, with the full label as their accessible name and tooltip.
-The same component supports nested groups through its children callback.
+#### Table controls
 
-The group keeps temporary popup state separate from the controlled disclosure state.
-Presentation changes transfer focus within the group unless the application moves focus elsewhere.
-Links retain native browser behavior.
-The application owns destinations, selection, navigation, and accepted state changes.
-The gallery Appearance panel compares both behaviors.
+TableWorkspace uses the same handle for left, right, and top controls on desktop.
+The initial layout keeps its existing CSS size until the application or user supplies a percentage.
+Use `controlsSize`, `defaultControlsSize`, and `onControlsSizeChange` to manage that percentage.
+Explicit sizes stay between 10 and 90. Set `controlsResizable` to enable user resizing. The workspace defaults to fixed controls.
+ReadOnlyTable forwards these props. Generated Table bindings expose controlled size and resizing availability.
+The measurement excludes the merged header and the gutter.
+Collapsed desktop controls retain the thin separator for reopening with double-click or Enter.
+The existing controls button and divider share the same collapsed state and retain the last open size.
+The narrow drawer uses its own width and hides the resize handle.
+The controls button receives focus before a focused separator becomes hidden on mobile or when resizing is disabled.
+The table, controls, scroll container, and drafts keep their existing nodes.
 
-## Entry screens
+### Application ownership
 
-Use [EntryPanel](entry-panel.md) for a small content-sized surface centered on both axes.
-It accepts application-owned content and supports viewport or container sizing.
+Supply pane content and a definite height for vertical layouts. Own persistence and the accepted size or collapse state when controlled.
 
-## Context navigation
+### Gallery
 
-[SidebarContextSwitcher](sidebar-context-switcher.md) presents the current context, searchable sibling choices, and an optional parent action.
-Place it before the existing SidebarGroup menu in the navigation callback.
-Applications supply accepted contexts, available choices, and menu content.
+Open `?gallery=resizable` for split panes and a resizable table control pane.
 
-## Embedded responsive workspaces
+## Accordion
 
-DashboardShell and TableWorkspace choose drawer placement from the width available
-to their own root, as well as the viewport. A narrow host inside a wide page gets
-the same reachable controls as a narrow page. Navigation and table controls keep
-the existing 48rem threshold; context navigation keeps 64rem. These units use the
-browser's initial font size, just like the existing viewport media queries, rather
-than the Theme font size.
+Accordion groups related sections that open and close.
 
-The navigation callback's `mobile()` reports drawer mode, including a narrow
-embedded host. It does not identify a device type. `compact()` remains false in
-drawer mode. Applications still own host width, height, navigation and records.
-Changing placement keeps the pane owners, input values and scroll state. Escape
-and focus return continue to use the existing toggle behavior.
+### Import
 
-Server rendering and hydration begin with the existing viewport layout. After
-mounting, DashboardShell observes one root for both rails. TableWorkspace reuses
-its existing observer. Hidden roots with no measurable width use viewport rules
-until visible. Browsers without ResizeObserver keep viewport-only behavior;
-parent-only resizes require ResizeObserver. Disposal disconnects observers and
-removes media and window listeners. No polling or document-wide resize observer
-is installed.
+Import `Accordion` from `@wfe/components/accordion` or the package root.
+
+### Example
+
+```tsx
+import { createSignal } from 'solid-js'
+import { Accordion, Field, Input, Label } from '@wfe/components'
+
+export function ProfileSections() {
+  const [open, setOpen] = createSignal<string[]>(['contact'])
+  return (
+    <Accordion value={open()} onValueChange={setOpen}>
+      <Accordion.Item value="contact" summary="Contact">
+        <Field controlId="profile-name">
+          <Label>Name</Label>
+          <Input id="profile-name" defaultValue="Ada" />
+        </Field>
+      </Accordion.Item>
+      <Accordion.Item value="preferences" summary="Preferences">
+        Application preferences
+      </Accordion.Item>
+    </Accordion>
+  )
+}
+
+const independent = (
+  <Accordion.Root multiple defaultValue={['contact', 'preferences']}>
+    <Accordion.Item value="contact" summary="Contact">
+      Contact content
+    </Accordion.Item>
+    <Accordion.Item value="preferences" summary="Preferences">
+      Preferences content
+    </Accordion.Item>
+  </Accordion.Root>
+)
+const invalidItem = (
+  // @ts-expect-error The group owns the item open state.
+  <Accordion.Item value="contact" summary="Contact" open>
+    Content
+  </Accordion.Item>
+)
+// @ts-expect-error Selected values use an array in both group modes.
+const invalidSelection = <Accordion value="contact" />
+void independent
+void invalidItem
+void invalidSelection
+```
+
+### Behavior and options
+
+Use `Accordion.Root` or `Accordion` for the group. Use `Accordion.Item` for each section.
+Supply each item with a unique, nonempty `value`, a `summary`, and content.
+The summary keeps native disclosure semantics. The group does not add a separate accessibility role.
+Use headings inside summaries when the page structure needs them.
+
+The default group allows one open section. Set `multiple` to allow several open sections.
+Use `defaultValue` for local state, or `value` and `onValueChange` for application control.
+Both values contain arrays of item values. An empty array closes all sections.
+The callback requests a change. The application can accept or reject that request.
+Initial rendering and application prop changes do not call the callback.
+Keep the control mode stable for the group lifetime.
+The component rejects duplicate or empty selected values and several selected values in a single-open group.
+If you change `multiple` to false, first reduce the selected values to one or none.
+
+Children stay mounted while a section closes. Draft values and DOM nodes remain in place.
+Closing a section with focus inside its content returns focus to its summary.
+Focus outside the section stays unchanged.
+Removing an item does not clear its selected value. Applications own selection across changes to their item list.
+Native `toggle` events can combine several property writes in one task.
+
+Enter and Space open or close the focused summary.
+Up and down arrows move between visible summaries in the same group and wrap at either end.
+Home and End move to the first and last summaries. These keys move focus without opening sections.
+Nested groups keep their own navigation. Inputs and buttons inside sections retain their normal keys.
+Caller event handlers can cancel an action with `preventDefault()`.
+The root accepts native div attributes, structured classes, events, and refs.
+Items accept the native Collapsible attributes, events, refs, and `contentClass`.
+The group owns each item's open state.
+
+### Application ownership
+
+Supply stable item values and section content. Own the field values, validation, requests, and persistence. If the application controls selection, supply the accepted array when items change.
+
+### Gallery
+
+Open `?gallery=accordion` for grouped sections with retained form drafts.
+
+## Collapsible
+
+Collapsible opens and closes content through a native `details` element.
+
+### Import
+
+Import `Collapsible` from `@wfe/components/collapsible`. Import `CollapsibleSection` from `@wfe/components`.
+
+### Example
+
+```tsx
+import { createSignal } from 'solid-js'
+import { Collapsible } from '@wfe/components/collapsible'
+
+export function Details() {
+  const [open, setOpen] = createSignal(false)
+  return (
+    <Collapsible summary="Details" open={open()} onOpenChange={setOpen}>
+      The application supplies this content.
+    </Collapsible>
+  )
+}
+
+const grouped = (
+  // @ts-expect-error Native exclusive groups are outside this component contract.
+  <Collapsible summary="Grouped" name="group">
+    Content
+  </Collapsible>
+)
+void grouped
+```
+
+### Behavior and options
+
+The summary uses the shared triangular indicator. `indicatorPlacement` accepts `start` (the default) or `end`.
+The Sketchy theme adds gray fill and blue dotted decoration on hover or keyboard focus. The triangle keeps its size.
+The `summary` prop supplies its heading. Children remain mounted while the disclosure closes, so inputs retain local values.
+`CollapsibleSection` wraps the disclosure with a title, an optional icon and count, and an end indicator. Sidebar groups and table control sections share it.
+
+Use `defaultOpen` for an uncontrolled disclosure. Its native `open` property can reveal a table filter before focus moves to an invalid input.
+Use `open` and `onOpenChange` when the application controls the disclosure. Keep the same mode for its lifetime.
+The callback requests a change. The application can accept or reject that request.
+Initialization and application changes do not call the callback.
+Native toggle observations can combine several property changes within one task.
+
+The summary retains native Enter and Space behavior. Buttons and links inside the summary retain their own actions.
+The root accepts native attributes, classes, event handlers, and refs.
+Native exclusive groups through `name` are excluded because each component controls its own opening. Use `contentClass` to style the content container.
+When an application closes a disclosure with focus inside its content, focus returns to the summary.
+Focus outside the disclosure stays unchanged.
+
+### Application ownership
+
+Supply the summary and content. In controlled mode, accept or reject changes to the open state.
+
+### Gallery
+
+Open `?gallery=collapsible` for disclosures with content that stays mounted.
+
+## EntryPanel
+
+EntryPanel centers a small surface for an entry screen.
+
+### Import
+
+Import `EntryPanel` and `EntryPanelActions` from `@wfe/components/layout`.
+
+### Example
+
+```tsx
+import { Theme, Field, Label, Input, Button } from '@wfe/components'
+import { EntryPanel, EntryPanelActions } from '@wfe/components/layout'
+import '@wfe/components/styles.css'
+
+;<Theme>
+  <main>
+    <EntryPanel role="group" aria-labelledby="welcome">
+      <form>
+        <h1 id="welcome">Welcome</h1>
+        <Field>
+          <Label>Name</Label>
+          <Input name="name" />
+        </Field>
+        <EntryPanelActions>
+          <Button type="submit">Continue</Button>
+          <Button type="reset">Clear</Button>
+        </EntryPanelActions>
+      </form>
+    </EntryPanel>
+  </main>
+</Theme>
+```
+
+### Behavior and options
+
+The default `size="viewport"` fills the current viewport height.
+Use `size="container"` inside a parent with a definite height.
+The panel scrolls when the content exceeds the available height.
+Its surface retains safe edge spacing on narrow screens.
+
+The surface fits its content up to 30rem by default.
+Set `--ui-entry-panel-width` on the component to change this limit.
+The limit does not set field widths.
+Native attributes, classes, styles, events, and refs apply to the outer container.
+
+The panel uses the shared surface, spacing, border, and primary colors.
+The surrounding canvas uses the shared neutral dotted background.
+Its dotted frame uses the primary color, which is blue in the Sketchy theme.
+Decoration remains behind an opaque surface and cannot receive pointer events.
+Forced-color mode removes the decorative frame.
+The component adds no shadow.
+
+`EntryPanelActions` gives each direct child equal width across the available content width, with the shared gap between actions.
+Use it for the panel buttons without changing their submit, reset, or callback behavior.
+
+The frame uses the same random rotation and independent two-axis trapezoid distortion as buttons and sidebar links.
+The shared theme selects geometry when the panel mounts and when the pointer enters its surface.
+Only the decorative backing transforms. Fields, text, and buttons keep their normal layout.
+
+### Application ownership
+
+Supply the landmark, heading, form, buttons, and accessible names. Own focus policy, validation, submission, and navigation.
+
+### Gallery
+
+Open `?gallery=entry` for a centered form.

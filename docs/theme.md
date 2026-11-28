@@ -1,14 +1,22 @@
-# Themes
+# Theme and appearance
 
-`Theme` uses Sketchy, the approved dotted appearance from `v0.0.4`.
-Set `preset="vanilla"` for plain neutral styling inspired by base shadcn and Zaidan.
-Set `preset="laser"` for pill-shaped controls and neon highlights. Laser defaults to dark mode.
-Omitting `preset` selects Sketchy. Its API identifier remains `preset="default"`. Earlier releases called this theme Default.
-The theme lives in `@wfe/components`, including its CSS, fonts, and decorative behavior.
-The gallery uses this implementation too.
+Theme supplies visual defaults and sets a scope for controls and popups. The examples show how those defaults work in different hosts.
 
-Import the styles once in your application entry.
-Wrap your interface in `Theme`:
+Contents
+
+- [Themes](#themes)
+- [Theme contract](#theme-contract)
+- [Themes in examples](#themes-in-examples)
+
+## Themes
+
+Theme owns shared styles, decoration, and popup placement for a subtree.
+
+### Import
+
+Import `Theme` from `@wfe/components`. Load `@wfe/components/styles.css` once.
+
+### Example
 
 ```tsx
 import { Theme, Button, Input } from '@wfe/components'
@@ -24,17 +32,11 @@ export function App() {
 }
 ```
 
-The Sketchy theme uses light mode, a blue primary color, outline buttons, and flat surfaces without shadows.
-Default outline buttons use shared border colors and text in the primary color.
-The base canvas uses surface 1 with subtle dots. Panes use surface 3, and content uses surface 2.
-Controls use Fira Code at 12px, with a 32px height.
-Forms use a 30rem field limit. Table controls retain compact sizing.
-Content panels, cards, dialogs, popovers, and tab content share `--ui-layout-inset` (16px in Sketchy).
-Sidebar groups use equal outer insets. Table cells retain compact vertical padding, including grouped rows and expansion controls.
-Action decorations use random tilted outlines. Each Theme owns their event handlers and cleanup.
-Reduced-motion preference keeps the decorative backing without tilt or taper.
+### Behavior and options
 
-## Application configuration
+Use `preset="default"` for Sketchy, `preset="vanilla"` for plain styling, or `preset="laser"` for square controls and glow. Omission selects Sketchy. Laser starts in dark mode. The other presets start in light mode.
+
+#### Application configuration
 
 Pass `mode="dark"` or `mode="monochrome"` to change the surface scheme.
 Pass `primary="violet"` or another `ThemePrimary` value to change the primary color.
@@ -51,43 +53,21 @@ Use the same initial values on the server and client for hydration.
 
 `layers`, `dividers`, and `decorations` accept partial overrides.
 Pass values from the exported TypeScript types. Opacity percentages use the range 0 to 100.
-Omitted or undefined values retain their defaults.
+Omitted values use the chosen preset defaults.
 Button and sidebar-link faces are opaque by default, including during hover and selection.
 The dotted decoration remains visible outside their borders.
 Set `decorations={{ inside: 100 }}` to show all decoration dots through the faces.
 Layer numbers are zero-based: `0` selects surface 1.
-The default layers are `{ canvas: 0, pane: 2, content: 1 }`.
+Sketchy defaults to `{ canvas: 0, pane: 2, content: 1 }`.
 The `style` prop overrides individual CSS variables last.
 
-## Color role names
+#### Color roles
 
-| Previous name                                                                                    | Current name                                                                   |
-| ------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
-| `ThemeOptions.accent`, `TokenChoices.accent`, `TokenCondition.accent`                            | `primary`                                                                      |
-| `ThemeOptions.secondaryAccent`, `TokenChoices.secondaryAccent`, `TokenCondition.secondaryAccent` | `secondary`                                                                    |
-| `ThemeAccent`, `ThemeSecondaryAccent`                                                            | `ThemePrimary`, `ThemeSecondary`                                               |
-| `Accent`, `accentName`, `neutralAccent`                                                          | `PaletteColor`, `paletteColorName`, `neutralColor`                             |
-| `accents`, `secondaryAccents`                                                                    | `primaryColors`, `secondaryColors`                                             |
-| Button `tone="accent"` and `data-tone="accent"`                                                  | `tone="primary"` and `data-tone="primary"`                                     |
-| `data-ui-accent`, `data-ui-secondary-accent`                                                     | `data-ui-primary`, `data-ui-secondary`                                         |
-| `--ui-accent`, `--ui-accent-light`, `--ui-accent-dark`                                           | `--ui-primary`, `--ui-primary-light`, `--ui-primary-dark`                      |
-| `--ui-secondary-accent`, `--ui-secondary-accent-light`, `--ui-secondary-accent-dark`             | `--ui-secondary`, `--ui-secondary-light`, `--ui-secondary-dark`                |
-| `--ui-on-accent`, `--ui-on-accent-light`, `--ui-on-accent-dark`                                  | `--ui-on-primary`, `--ui-on-primary-light`, `--ui-on-primary-dark`             |
-| `--ui-accent-hover`, `--ui-accent-inverted-hover`                                                | `--ui-primary-hover`, `--ui-primary-inverted-hover`                            |
-| `--ui-disabled-accent`, `--ui-outline-accent-weight`, `--ui-sidebar-accent`                      | `--ui-disabled-primary`, `--ui-outline-primary-weight`, `--ui-sidebar-primary` |
-| `data-ui-section-decoration="accent"`                                                            | `data-ui-section-decoration="primary"`                                         |
-| Gallery `accent` URL parameter                                                                   | `primary`                                                                      |
+Each palette role has `--ui-<role>`, `--ui-<role>-light`, and `--ui-<role>-dark`. Its foreground uses `--ui-on-<role>` and the corresponding light and dark forms. Primary supplies the default action color. Secondary and accent configure additional roles.
 
-The names `accent`, `ThemeAccent`, `data-ui-accent`, and `--ui-accent` now refer to the new third color.
-The gallery URL also uses `accent` for this third color.
+#### Token base
 
-Each palette role has `--ui-<role>`, `--ui-<role>-light`, and `--ui-<role>-dark`.
-The matching foreground uses `--ui-on-<role>` and its light and dark forms.
-The hover tokens use `--ui-<role>-hover` and `--ui-<role>-inverted-hover`.
-
-## Token base
-
-`styles/tokens.css` holds every `--ui-*` token with its default.
+`styles/tokens.css` holds the generated theme defaults and choice blocks.
 `scripts/theme-tokens.mjs` generates it from `theme/tokens.ts`, and the integrity gate checks it.
 The first block holds the Sketchy light defaults. Later blocks change token values for one mode, density, preset, or application choice.
 Later blocks win, and every block has zero specificity.
@@ -103,8 +83,8 @@ Use `Theme` to include decoration behavior and popup ownership.
 Theme then writes `data-ui-decoration` on its root, `styles/decoration.css` applies, and the randomized geometry controller starts.
 `glow` turns the neon glow layer in `styles/glow.css` on or off. Laser turns it on by default.
 Themes without decoration use `styles/plain.css`, where embedded table, calendar and navigation actions are frameless.
-No style sheet or component tests the preset. A preset only sets token values and the default choices in `presetDefaults`.
-Components that draw decorative SVG read the same choice. One dot pattern serves every decorated surface; each rule only chooses the dot color.
+Preset names select token blocks and default choices. The component styles read shared roles and the decoration or glow choice.
+Components that draw decorative SVG read the same choice. Decorated surfaces share a dot pattern and select their dot color.
 
 Nested themes can use different presets, modes, and palettes.
 Each scope owns its CSS and automatic popup portals. Ancestor preset rules stop at nested Theme boundaries.
@@ -121,19 +101,18 @@ to fixed-row virtual tables. `themeTokens` accepts the same density option.
 An omitted DashboardShell density inherits its parent without declaring a new profile.
 Nested Theme instances start with their own default profile.
 
-Bare `uiScope()` still defaults to compact. The legacy palette is gone.
+A bare `uiScope()` defaults to compact.
 `uiScope(density, mode)` with a mode makes the scope a token root: it writes
 `data-ui-tokens` and `data-ui-mode`, so the scope receives the Sketchy token base
 in that mode without decoration behavior. A scope without a mode inherits tokens
-from its nearest root; outside any root the CSS fallbacks, which equal the
-Sketchy light values, apply. Use Theme for new interfaces.
+from its nearest root. Outside any root, the CSS fallbacks use Sketchy light values. Use Theme for new interfaces.
 Application CSS owns page height and available table space.
 Use solid content panels over the dotted main canvas to keep text readable.
 
 The package includes the Fira Code OFL license and Open Props attribution beside the shipped styles.
 See [the public consumer example](../examples/shared/appearance/ThemeConsumer.tsx) for nested layouts, popups, and live mode changes.
 
-## Input decoration
+#### Input decoration
 
 Inputs show a dotted backing on hover and focus. Radios are square, and switches are rectangular.
 The backing uses the same random geometry and opacity controls as buttons.
@@ -155,17 +134,7 @@ The native control fills that wrapper. Keep text and native attributes on `style
 In a compound control, set outer sizing on the compound control instead.
 `Input`, `Textarea`, `NumberInput`, and `NativeSelect` accept these wrapper props.
 
-Review the choices in the gallery at `?gallery=input-decoration`.
-
-## Consumer tests
-
-From the repository root, run `pnpm build` first.
-Run `node examples/theme/run.mjs` to test source imports in a browser.
-Run `BENCH_DISTRIBUTION=1 node examples/theme/run.mjs` to test the built package.
-These tests require Playwright Chromium.
-The hydration suite also includes this consumer and makes sure that its server nodes remain in place.
-
-## Form section decoration
+#### Form section decoration
 
 `FieldGroup` is a native fieldset. Its decoration is off by default.
 Set `decoration={true}` for primary decoration, or choose `"neutral"`, `"primary"`, `"secondary"`, or `"accent"`.
@@ -179,9 +148,8 @@ Disabled sections and forced-color mode suppress the decoration.
 
 Enabled sections use primary decoration by default, while inputs keep their neutral default.
 Section colors do not change input colors. Both remain independently configurable.
-The gallery at `?gallery=input-decoration` includes section colors and both triggers.
 
-## Decoration geometry
+#### Decoration geometry
 
 `Theme.decorationGeometry` controls rotation and perspective taper across buttons, inputs, navigation links, entry panels, and form sections.
 `rotation`, `taperX`, and `taperY` set the base angle limits in degrees before randomization and size reduction.
@@ -202,55 +170,44 @@ For a 100-pixel side, reduction 0 keeps the full effect, reduction 1 keeps half,
 
 `scale` defaults to `"power"`, which raises that multiplier to `exponent`. Set `scale="linear"` to use the multiplier directly.
 `exponent` defaults to 2.75 and accepts 0.1 through 4. The playground adjusts it in steps of 0.05.
-At exponent 1, both modes match. Higher exponents increase reduction; lower exponents soften it.
+At exponent 1, both modes match. A higher exponent increases reduction. A lower exponent softens it.
 Linear mode ignores the exponent. Zero reduction always keeps the full selected base effect in both modes.
 
 `randomizeOnHover` defaults to `true`. Set it to `false` to hold the random samples while comparing geometry.
 
-Each Theme uses one resize observer. Size and configuration changes reuse the current samples.
-Removed nodes stop observation. Theme disposal releases both observers and the pointer listener.
+Decorated themes share one resize observer per document. Size and configuration changes reuse the current samples. Each theme releases its observations and pointer listener on disposal.
 Without ResizeObserver, the theme measures nodes on attachment and pointer entry.
 `themeAttributes` alone does not install measurement or randomization.
 
-The gallery page `?gallery=decoration-geometry` provides sliders, size presets, and a new-samples action.
-Its nested Theme inherits the gallery appearance. Its geometry controls affect only the preview.
-
-Wide input and select previews compare 480-pixel and 800-pixel controls, constrained to the available width.
-Their decorations stay visible while tuning. Their entered values survive size changes and new random samples.
-
-## Vanilla preset
+#### Vanilla preset
 
 Vanilla uses system sans-serif text, ordinary borders, rounded controls, round radios, and pill switches.
 Its default primary color is neutral. Set `primary` to choose a different color.
 Light, dark, and black/white modes use the same component structure and behavior.
 Black/white uses black neutral text and borders over white content surfaces.
 Subtle state fills retain visible hover and selection feedback.
-Vanilla does not start decoration observers or mount decorative SVG patterns.
-Decoration props have no effect inside vanilla, including explicit per-field requests.
+Vanilla defaults to decoration and glow off. Set `decoration` to enable decoration for the theme. Per-field choices apply when their owning theme enables decoration.
 Switching presets preserves input values, focus, selection, and open overlays.
 
 Mode, palette, density, class, and style remain independent of preset selection.
 All presets support the four color roles and surface layers.
 Vanilla defaults to Surface 2 for the canvas and Surface 1 for panes and content.
-Dividers and decoration controls belong to the Sketchy preset.
+All presets accept divider levels and decoration choices.
 Use semantic CSS variables to customize vanilla borders and shadows.
 All presets capitalize system labels while preserving record values and prose.
 Vanilla navigation uses flat groups, indented child links, and a neutral selected-row fill.
 Opening a group does not paint the whole group as selected. Keyboard focus keeps a separate visible outline.
 Presets own these presentation choices. Shared palette and surface controls do not require identical navigation borders or group backgrounds.
 All presets use 12px body text, 14px headings, and 32px controls by default.
-Vanilla uses 6px gaps, 12px panel insets, and 16px gaps between fields.
+Vanilla uses a 6px control gap and a 12px layout inset. The main field gap uses that inset.
 Attached input buttons share one outer shape, with square internal corners.
 Explicit density profiles still use shared geometry records.
 Caller-supplied virtual row heights remain authoritative.
 
-The gallery selector lives under Appearance. Direct links accept `preset=vanilla` and the existing `scheme` parameter.
-The same examples run under either preset.
-
-## Custom appearance
+#### Custom appearance
 
 Start with a preset and set CSS variables through the Theme style prop or an application stylesheet.
-Inline Theme defaults take precedence over ordinary class declarations for those same variables.
+Generated theme choices use zero-specificity selectors. A class or inline style can override their tokens. Decoration percentages set by props use inline values.
 Use the style prop for variable overrides. Use scoped application classes for component rules and state treatments.
 Keep application rules after the WFE stylesheet, and stop them at nested Theme boundaries.
 
@@ -263,37 +220,29 @@ Set both the background and its foreground when replacing a primary or selected 
 Component classes and public data/ARIA states provide styling hooks without copying behavior.
 Use hover, focus-visible, checked, selected, expanded, readonly, and invalid states where the component supports them.
 Keep visible keyboard focus, disabled behavior, and readable contrast in each state.
-See [the theme contract](theme-contract.md) for ownership and compatibility rules.
+See [the theme contract](#theme-contract) for ownership and compatibility rules.
 
 The CSS uses `@scope` to isolate nested themes. Consumers need a browser with CSS scope support.
-Explicit portal mount overrides retain consumer ownership; place that mount inside the desired theme scope.
-The shared stylesheet includes all presets for compatibility. Vanilla avoids decoration execution, but the stylesheet still contains default-theme assets.
+If you supply a portal mount, place it inside the intended theme scope.
+The shared stylesheet includes all presets. Decoration code runs when the owning theme enables it.
 
-## Reference presentation
+#### Laser
 
-Vanilla takes its direction from the neutral examples in [shadcn theming](https://ui.shadcn.com/docs/theming) and [Zaidan](https://zaidan.carere.dev/).
-These references were reviewed on October 25, 2026. Vanilla is an independent WFE implementation, not a copied upstream preset or pixel-identical port.
-No component runtime or styling dependency was added.
-Review nested presets and a custom extension at `?gallery=themes`.
-
-## Laser
-
-Laser uses the shared controls with pill-shaped inputs and buttons, rounded panels, and smooth disclosure icons.
+Laser uses square inputs, buttons, panels, and popups with soft glow.
 Light mode adds a soft white elevation layer. Dark mode adds no dark shadow. A tighter primary glow marks hovered, focused, and selected controls.
 Compound inputs keep one outer shape and one glow. Hover and focus soften resting native borders without changing their width or layout. Invalid controls retain their error borders, and disabled or read-only fields do not acquire an active glow. Their internal button corners stay square.
 Form sections share the cards’ border and resting shadow. Board headers use the same shadow.
 Issue cards add a primary glow on hover and keyboard focus.
 Sidebar groups omit the enclosing hover glow. Their headings, child links, and context navigation use text or glyph feedback rather than a glowing container. Keyboard focus remains visible independently of those effects.
-Standalone icon actions keep transparent borders. Hover illuminates the glyph with a small shadow. Keyboard focus adds a separate outline in the neutral focus color, including monochrome mode and configurations with glow disabled. This outline appears only for keyboard focus; hover and selection keep the soft glow without a hard border.
+Standalone icon actions keep transparent borders. Hover illuminates the glyph with a small shadow. Keyboard focus adds a separate outline in the neutral focus color, including monochrome mode and configurations with glow disabled. The outline appears only for keyboard focus. Hover and selection use soft glow.
 Icons inside compound inputs retain the shared input outline.
-The theme adds no randomized dots or decoration listeners.
+Laser defaults to decoration off.
 
 Use `<Theme preset="laser">` for the dark first-pass presentation.
 Pass `mode="light"` for darker role colors and weaker glow on light surfaces.
 Laser uses the same palette choices as the other presets.
 Use `layers` to choose the canvas, pane, and content surfaces from the Laser scale.
 Laser defaults to `{ canvas: 0, pane: 1, content: 1 }`.
-The gallery supports `?gallery=everything&preset=laser` and selects dark mode when you choose Laser.
 
 `--ui-laser-elevation` overrides the resting panel shadow.
 Set it to `none` to remove that shadow without disabling hover glow.
@@ -309,7 +258,7 @@ The canvas, pane, and content roles reference that palette.
 Override palette variables on the `Theme` element through its `style` prop to update the linked roles.
 An explicit role override, such as `--ui-control-border`, takes precedence over its default link.
 
-## Shared roles and component overrides
+#### Shared roles and component overrides
 
 All presets define success, warning, error, and overlay colors.
 Warning uses `--ui-warning-surface`, `--ui-warning-text`, and `--ui-warning-border`.
@@ -326,7 +275,7 @@ Laser computes its default control, text, and icon glows at the consumer, so the
 Sketchy retains its separate divider palette. Vanilla and Laser link the scale to their surface palettes.
 The `dividers` prop selects a level for rows and columns in every preset.
 Without that prop, Vanilla and Laser use their shared border color.
-Laser keeps disabled field outlines at that color and dims their text and icons.
+Disabled controls keep opaque surfaces. Shared disabled tokens dim the text, accent, and border toward the surface.
 
 Shared headings use `--ui-heading-font-size` and `--ui-heading-weight`.
 Optional `--ui-dialog-title-font-size`, `--ui-dialog-title-weight`, `--ui-popup-title-font-size`, and `--ui-popup-title-weight` distinguish popup titles.
@@ -337,7 +286,7 @@ Status tiles expose `--ui-status-tile-label-weight`, `--ui-status-tile-value-fon
 `--ui-sidebar-heading-weight`, `--ui-sidebar-group-padding-y`, `--ui-sidebar-content-margin-y`, and `--ui-navigation-gap` control sidebar presentation.
 Vanilla and Laser retain weight 500 for sidebar and Kanban headings through their dedicated roles.
 `--ui-subtable-toggle-size` and `--ui-subtable-heading-font-size` distinguish compact child tables.
-`--ui-checkbox-radius` controls checkbox corners. Laser sets its default to 6px.
+`--ui-checkbox-radius` controls checkbox corners. Laser uses the square base radius.
 `--ui-menu-padding`, `--ui-menu-separator-margin-y`, and `--ui-badge-padding-x` expose compact component spacing.
 
 Laser exposes glow geometry through `--ui-laser-glow-width` and `--ui-laser-glow-blur`.
@@ -354,7 +303,7 @@ Set the shadow color to `transparent` to remove that layer from both effects.
 Custom Tree, Select, and Combobox choices share `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
 These roles override selected and highlighted paint in every preset. Their defaults remain decorated Sketchy, neutral Vanilla, and translucent primary Laser.
 Sketchy also accepts `--ui-choice-decoration-color`, `--ui-choice-decoration-opacity`, and `--ui-choice-decoration-surface` for the dotted backing and its inner mask.
-The compatibility native picker uses `--ui-primary` and `--ui-on-primary`. They do not override custom choice paint; use the choice roles above for that purpose.
+The compatibility native picker uses `--ui-primary` and `--ui-on-primary`. Use the choice roles to override custom choice paint.
 Preset choice defaults resolve at each choice, so a local primary color colors Laser glow and translucent selection without replacing the owning Theme.
 
 `--ui-tree-row-min-height`, `--ui-tree-toggle-size`, `--ui-tree-symbol-size`, and `--ui-tree-indent` control Tree geometry.
@@ -367,3 +316,69 @@ Elevation remains separate from glow strength. Complete effect overrides still r
 Keyboard focus remains visible when glow strength is zero or all effect overrides are `none`.
 
 Optional choice paint, choice decoration, Laser action-surface, and Laser strength overrides belong to their nearest Theme owner. A nested Theme resets those overrides to its own preset defaults. Apply a consumer class or inline style to the nested Theme to customize it independently. Descendants and automatic portals inherit their owning Theme's overrides.
+
+### Application ownership
+
+Choose the preset, colors, density, and mode. Own preference detection, persistence, application CSS, and page height. Supply the same initial theme values on the server and client.
+
+### Gallery
+
+Open `?gallery=themes` for nested themes, `?gallery=input-decoration` for field and section decoration, or `?gallery=decoration-geometry` for size and angle controls.
+
+## Theme contract
+
+Theme owns visual defaults for shared controls.
+
+### Behavior and options
+
+#### Scope and inheritance
+
+`Theme` defines the nearest owner for styles and automatic popup placement. Nested themes choose their own tokens and decoration. Popup placement also respects a containing top-layer dialog or popover. If you supply a portal mount, place it within the intended theme.
+
+Use the same initial preset and mode on the server and client. Preset updates retain the component tree and its accepted values. Read the [theme guide](#themes) for options and overrides.
+
+#### Token and style ownership
+
+A token is a named CSS value. The theme supplies token values for color, spacing, typography, borders, radii, shadows, and motion. Component CSS handles sizing rules, hit areas, and overflow. Use the same row measurements for a table and its virtual renderer.
+
+The generated `tokens.css` owns preset selectors. Component styles use shared roles and state attributes. The additive decoration, plain, and glow rules follow theme choices. The strict theme script checks preset isolation and consistent token fallbacks. Preserve documented class hooks and token aliases when changing the cascade.
+
+Disabled controls retain opaque surfaces and use shared disabled colors. Keyboard focus uses a separate outline. Tree, Select, and Combobox share choice selection colors through `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
+
+#### Decoration lifecycle
+
+Sketchy enables decoration by default. Vanilla and Laser leave it off by default. An explicit `decoration` choice controls it in every preset. Decorated themes share one resize observer per document and release their own listeners and observations on disposal.
+
+The Sketchy action ring draws over the button face and below its content. Controls at a clipping edge draw the ring inside their frame or available padding. The decoration takes no pointer input.
+
+#### Validation
+
+Test behavior, focus, scope, retained state, and cleanup. Review cosmetic details in the gallery. Use the [qualification guide](qualification.md) for test commands.
+
+### Application ownership
+
+Components own semantics, focus, geometry, and interaction. Applications own data, permissions, routing, requests, and persistence.
+
+## Themes in examples
+
+Normal example hosts use the public Theme component.
+
+### Behavior and options
+
+DefaultAppearance delegates to that component. The gallery supplies one owner for its embedded examples. Standalone examples supply their own owners.
+
+Theme controls typography, color, decoration, and default sizing. Example CSS owns the page frame and application-specific regions. Popups inherit the nearest owning theme.
+
+#### Deliberate exceptions
+
+The raw interoperability and shared-styles fixtures cover scopes without Theme. ThemeConsumer covers nested owners. The accessor, editing overhead, virtualization, and heap diagnostics retain the scopes that their workloads measure.
+
+### Application ownership
+
+Applications own appearance controls and saved preferences.
+
+### Gallery
+
+#### Browser checks
+
+Host runners cover theme scope, retained interaction, focus, and cleanup. Inspect cosmetic details in the [gallery](../examples/README.md#components) or [theme explorer](../examples/README.md#theme-explorer). The [qualification guide](qualification.md) lists run commands.

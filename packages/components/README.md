@@ -1,12 +1,7 @@
 # Components
 
-This private package provides shared Solid controls, layouts, charts, and tables.
+`@wfe/components` provides shared Solid controls, Table, layouts, visualization, and styles. Use the root or a public [subpath](package.json). Import `@wfe/components/styles.css` once and use Theme for a new UI scope.
 
-## Package exports
+The `solid` export condition preserves JSX for the application compiler. The `node` condition provides server output. The `wfe-source` condition supports repository examples and checks.
 
-JavaScript conditions select files in this order: `types`, `wfe-source`, `solid`, `node`, then `default`.
-The `solid` condition preserves JSX for the consumer compiler, and `node` is the exception for plain Node server rendering.
-The `wfe-source` condition is only for wfe's own examples and checks.
-`pnpm install` runs `prepare`, which builds `dist`.
-
-The prepare cache includes the decorator transform through `wfeBuildInputs` in the package manifest. Changes to that helper trigger a rebuild.
+Use the [adoption guide](../../docs/adoption.md) for setup and the [feature catalog](../../docs/features.md) for public capabilities. The [packages and build guide](../../docs/qualification.md#package-builds) explains prepare builds.

@@ -1,24 +1,8 @@
 # Shared styles
 
-Applications explicitly import `@wfe/components/styles.css`.
-All selectors stay inside a `data-ui` scope. The stylesheet leaves unrelated content unchanged.
-Table editors and standalone controls share fonts, spacing, borders, colors, focus, and disabled states.
-Application fixture page styles stay outside this package.
-Generic `aside` and `table` elements do not opt into table or warning presentation.
-Table and GridView add `ui-table`; hand-written tables can use that class explicitly.
-The editing fixture owns its warning and editing-status classes in `examples/table-editing/controls.css`.
-Its standalone entry imports the document baseline; embedding the fixture does not import it.
-Generic dashboard styles live in `layout.css`.
-Rectangular surfaces use square corners by default.
-Dashboard panels use one inset and remove default margins from direct headings and paragraphs.
-Grouping controls use a grid that keeps ordering fields and action groups aligned.
-Example builds explicitly select source or distribution CSS.
-Each build records its actual CSS inputs and rejects stale or mixed copies.
+Import `@wfe/components/styles.css` once. Use Theme for a scoped theme and popup owner. Use `uiScope()` for a low-level scope when no Theme owner is needed.
 
 ## Scope and density
-
-Use `uiScope()` on a wrapper that contains the controls.
-Compact density remains the default. Comfortable density increases spacing and row height.
 
 ```tsx
 import { uiDensity, uiScope } from '@wfe/components'
@@ -32,137 +16,19 @@ export const rowHeight = uiDensity(density).rowHeight
 </div>
 ```
 
-Pass the same density to fixed row geometry and its UI scope.
-`UI_DENSITIES` provides both CSS values and virtual row height.
-Compact rows use 32 pixels. Comfortable rows use 40 pixels.
-Do not override `--ui-row-height` independently of the virtual row configuration.
-Measured rows keep their existing measurement behavior.
-
-## Themes and portals
-
-Use `uiScope(density, 'dark')` for a raw dark scope. It receives the Sketchy dark token base.
-Applications can override `--ui-*` variables inside a scope.
-Theme variables change colors without changing geometry.
-Each wrapper owns its density and theme.
-Nested scopes inherit theme variables unless the application overrides them.
-
-Mount popup portals inside the owning UI scope and outside the table scroller.
-The fixture marks this wrapper with `data-ui-portal-root` and passes it to `Portal.mount`.
-Popups inherit live theme values without copying styles or adding observers.
-
-## Browser evidence
-
-The isolated fixture in `../../../../examples/styles` tests scope isolation, independent themes, row sizes, and visible focus.
-Analytics tests compare CSS row height with virtual geometry after density changes.
-Popup tests keep popup size and placement stable through a live theme change.
-The standard qualification command runs these tests with the existing fixture suites.
-
-## System text
-
-Buttons, labels, headings, table headers, and other system text use uppercase visual text.
-Input values, record cells, selected record choices, grouping values, and prose keep their original case.
-The stylesheet changes presentation and does not rewrite application strings.
-Placeholders and grouping configuration choices use uppercase.
-
-Use `data-ui-text="system"` for custom system labels or configuration choices.
-Use `data-ui-text="value"` for record text inside an action or heading.
-Use `data-ui-text="prose"` for custom prose inside a system label.
+Match fixed row heights to the same density as the UI. Use `uiScope(density, 'dark')` for a raw Sketchy dark token scope. A scope without a mode inherits its nearest theme tokens.
 
 ## Style ownership
 
-`theme/palette.ts` owns the palette data and `theme/tokens.ts` owns the token blocks. `theme.css` owns scope typography and box sizing.
-`buttons.css` owns button variants and tones.
-`fields.css` owns common field borders and surfaces.
-`components.css` owns non-table component layout, shapes, and selection states.
-`table.css` owns table primitives, cell selection, header controls, and filter/grouping layout.
-It loads immediately before `components.css`; `table-workspace.css` retains its later import position and owns workspace layout.
-Boolean filter layout stays in the later workspace file so it follows generic toggle and focus defaults.
-`fields.css` owns shared affixed inputs, used by DatePicker and table filters through `ui-input-affix` and `ui-input-clear`.
-The older `filter-input` and `clear-input` CSS hooks remain supported aliases.
-`surfaces.css` owns floating borders, backgrounds, text, and shadows.
-`states.css` owns common focus, invalid, disabled, read-only, and field hover rules.
-`tokens.css` owns every token default and the preset, mode, density and choice blocks. It is generated from `theme/tokens.ts`.
-Components mark embedded actions with `data-ui-action`: `adornment` for date triggers and clear buttons inside a field, `header` for table header sort, move and rename buttons. Theme rules select these roles instead of component class names.
-`presentation.css` owns shared presentation that presets configure only through tokens, such as layout surfaces, panel shapes and checked toggles.
-The remaining files own layout, table workspace, calendar, and text presentation.
+| Source                                        | Responsibility                                             |
+| --------------------------------------------- | ---------------------------------------------------------- |
+| `tokens.css`                                  | Generated values for presets, density, modes, and choices. |
+| `theme.css` and `presentation.css`            | Scoped typography and shared paint.                        |
+| `buttons.css`, `fields.css`, and `states.css` | Shared action, field, and interaction styles.              |
+| `layout.css` and `form-layout.css`            | Shell regions, panel sizing, form grids, and gaps.         |
+| `table.css` and `table-workspace.css`         | Table cells, column controls, and workspace geometry.      |
+| `decoration.css`, `plain.css`, and `glow.css` | Additive appearance rules selected by Theme choices.       |
 
-## Library defaults and application overrides
+`--ui-layout-inset` sets the main panel inset and gap. `--ui-region-gap` supplies compact side-region spacing. Keep page layout and business-specific styles in the application.
 
-A bare scope outside any token root uses the CSS fallbacks, which equal the Sketchy light token values.
-`Theme` is the approved default presentation and is used by the shared appearance switcher.
-For example, the review dark Surface 1 uses `#171717`.
-Use `Theme` for new consumers. See [the theme contract](../../../../docs/theme.md). Regenerate `tokens.css` with `node scripts/theme-tokens.mjs`. The integrity gate compares it with `theme/tokens.ts`.
-
-Buttons without an explicit tone inherit `--ui-button-color` and `--ui-button-on-color`.
-These roles apply to internal icon actions and delegated overlay buttons too.
-Unset roles retain the existing neutral appearance.
-Explicit `tone="neutral"` uses the text and surface roles.
-Explicit `tone="primary"`, `tone="secondary"`, and `tone="accent"` use their matching color roles.
-
-Floating components share `--ui-popup-surface`, `--ui-popup-text`, `--ui-popup-border`, and `--ui-popup-shadow`.
-Unset surface and text roles inherit `--ui-surface` and `--ui-text`.
-Choices and table header menus inherit `--ui-control-border`.
-Dialogs, popovers, menus, tooltips, and toasts inherit `--ui-border`.
-An explicit popup border role overrides both defaults.
-
-Choices, dialogs, and table header menus retain their existing hard shadow default.
-Popovers, action menus, tooltips, and toasts retain their existing soft shadow default.
-Set `--ui-popup-shadow: none` to remove shadows from all those components, including Toast.
-Sheet retains its edge placement and no shadow.
-Floating components share square corners by default and accept `--ui-radius`.
-Their dimensions, padding, positioning, and modal layers remain specific to each component.
-Roles resolve on each component so nested scopes and live application overrides work.
-
-Fields share `--ui-control-hover` with the existing `--ui-highlight` fallback.
-Disabled and read-only fields use `--ui-muted-surface`, the sunken surface role, and suppress editable hover feedback.
-A selected Switch retains its highlight and thumb position in these states.
-`--ui-disabled-opacity` applies once to each visible control or toggle group.
-The default opacity is 1, so disabled actions do not acquire a gray fill.
-Unavailable choice options use full opacity and muted text.
-Unavailable action menu items use full opacity.
-Compatibility native selection uses `--ui-primary` and `--ui-on-primary`.
-Custom Tree, Select, and Combobox selection uses `--ui-choice-selection-surface` and `--ui-choice-selection-text`.
-Sketchy choice decoration accepts `--ui-choice-decoration-color`, `--ui-choice-decoration-opacity`, and `--ui-choice-decoration-surface`.
-Action menu focus retains the hover surface and inset focus border.
-All visible field focus uses `--ui-focus-ring`.
-Compound filter focus surrounds the complete field and suppresses the inner input outline.
-
-Real component browser cases cover both library themes, both densities, state transitions, surface overrides, and forced colors.
-Consumer suites cover the approved application palettes and table/form composition.
-
-## Nested floating content
-
-Choices, popovers, menus, and tooltips share the same popup layer.
-Dialogs use the next layer, and notifications remain above dialogs.
-A child portal stays inside the closest native popover or dialog portal.
-This keeps choices above their parent without clipping them to the dialog content scroller.
-Modal focus, dismissal, and accessibility rules remain with the dialog primitives.
-
-The component matrix opens nested content with real pointer and keyboard input.
-It tests Escape, focus return, application acceptance, composition, and disposal.
-
-Native popover hosts need visible overflow for child portals.
-Keep scrolling inside a separate content element.
-TableHeaderFilter provides this structure through its internal content wrapper.
-
-`form-layout.css` owns responsive form grids, field groups, and column spans.
-The generator and direct component consumers share these rules.
-
-## Status tiles
-
-`status-tiles.css` owns the compact StatusTile layout, truncated labels/detail, and wrapping values.
-Card owns its border, padding, surface, and square corners. Badge owns state tones.
-The tile reads the existing `--ui-panel-shadow` role and introduces no palette.
-TileRow aliases DashboardGrid and uses its existing responsive columns and gap.
-
-## Form presentation roles
-
-Fields use `--ui-field-max-width`, with a default of `30rem`.
-Set this role to `none` when a field must fill a wider container.
-Fields shrink to the available width on narrow screens.
-`--ui-control-surface` supplies the editable field fill.
-`--ui-control-line-height`, `--ui-label-line-height`, and `--ui-label-weight` control shared typography.
-`--ui-focus-width` and `--ui-focus-offset` control the focus outline.
-Focused editable fields use `--ui-focus-ring` for their border color.
-The token base keeps `--ui-subtle-text`, `--ui-hover`, `--ui-divider`, `--ui-focus`, `--ui-field-focus-border`, `--ui-selection` and `--ui-on-selection` as aliases of `--ui-muted-text`, `--ui-highlight`, `--ui-border`, `--ui-focus-ring`, `--ui-focus-ring`, `--ui-primary` and `--ui-on-primary`. Components read the canonical names.
-`--ui-field-gap` supplies form section spacing. Action rows retain `--ui-gap`.
+Regenerate tokens with `node scripts/theme-tokens.mjs`. The integrity gate compares those tokens with their source. See the [theme guide](../../../../docs/theme.md#themes) for overrides and the [style fixture](../../../../examples/README.md#styles) for scope tests.

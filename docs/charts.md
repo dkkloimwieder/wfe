@@ -1,14 +1,21 @@
-# Charts
+# Chart components
 
-The owned chart API supports SVG line, area, bar, scatter, interval, heatmap, and polar charts.
-It uses source captured from TanStack Charts 1.4.0, with one scene engine and one SVG renderer.
-The Solid adapter owns the host, lifecycle, and custom tooltip content.
-The engine owns measurement, keyboard and pointer interaction, and the SVG subtree.
+Charts render application data through shared plot components. The statistical recipes combine public chart parts to show summaries and distributions.
 
-Import chart code through `@wfe/components/chart`.
-Import generated views through `@wfe/generator/chart`.
-Normal component and generator imports do not load the chart engine.
-Import `@wfe/components/styles.css` once in the application.
+Contents
+
+- [Charts](#charts)
+- [Statistical chart recipes](#statistical-chart-recipes)
+
+## Charts
+
+Chart renders responsive SVG plots with shared interaction and theme styles.
+
+### Import
+
+Import `Chart` and mark builders from `@wfe/components/chart`. Import `ChartView` from `@wfe/generator/chart`.
+
+### Example
 
 ```tsx
 import { createMemo } from 'solid-js'
@@ -48,6 +55,8 @@ export function Requests(props: { rows: readonly Record[] }) {
 }
 ```
 
+### Behavior and options
+
 A chart fills its container width unless the application supplies `width`.
 Supply `height` or a finite positive `aspectRatio` for responsive height.
 Without either value, the host uses a height of 320 pixels.
@@ -56,13 +65,9 @@ Stable mark IDs and record keys preserve identity across accepted data changes.
 Supply the same initial records and dimensions for server rendering and hydration.
 The engine measures the visible host after hydration.
 
-## Data and interaction
+#### Data and interaction
 
-Applications own queries, sorting, aggregation, paging, caching, permissions, and persistence.
-The chart receives records that the application already prepares for display.
-It does not request records or reduce a large query to a summary.
-SVG charts do not virtualize data.
-Applications must limit or aggregate large results before passing them to a chart.
+SVG charts render the supplied data. Limit or aggregate large results in the application.
 
 Mark accessors read the original records.
 Callbacks receive the original record through `point.datum`.
@@ -85,7 +90,7 @@ The callback requests a change. The application accepts it and changes the chart
 A rejected request leaves the legend unchanged.
 Optional line styles distinguish series without a second accent color.
 
-## Grammar and derived data
+#### Grammar and derived data
 
 A mark is a geometric layer, such as a line.
 A channel maps a record field to a visual position or appearance.
@@ -129,73 +134,11 @@ Set `innerRadius` for a donut.
 `curveLinearClosed` closes radar paths.
 Use explicit color domains when record order changes to keep series colors stable.
 
-The gallery routes `?gallery=chart-layers`, `?gallery=chart-data`, and `?gallery=chart-polar` demonstrate these helpers.
-The [shared recipe](../examples/shared/charts/Grammar.tsx) also runs in the chart rendering and hydration example.
-It includes controlled rejection, source inspection, retained notes, alternate orientations, and accessible source tables.
-
-The released `pointerEvent` option can request `pointerrawupdate` for chart focus.
+The `pointerEvent` option can request `pointerrawupdate` for chart focus.
 It falls back to normal pointer events when the browser does not support raw updates.
 The default remains `pointermove`.
 
-## Operational time-series recipes
-
-The gallery route `?gallery=chart-time-series` provides ten practical views from the same operational records.
-The [shared example](../examples/shared/charts/TimeSeries.tsx) also runs in the chart rendering and hydration suite.
-
-| View                     | Use                                                                      |
-| ------------------------ | ------------------------------------------------------------------------ |
-| Stacked columns          | Compare interval totals and their service breakdown.                     |
-| 100% stacked columns     | Compare each service's share over time.                                  |
-| Grouped columns          | Compare services from a common baseline.                                 |
-| Stacked area             | Follow volume and composition across ordered intervals.                  |
-| Multi-series lines       | Compare independent trends, with explicit gaps for missing observations. |
-| Columns and total line   | Compare the service breakdown and total on the same request axis.        |
-| Latency percentile band  | Inspect P50 and P95 latency from pooled samples.                         |
-| Service/time heatmap     | Compare many service intervals in a compact matrix.                      |
-| Request-change waterfall | Inspect changes between consecutive interval totals.                     |
-| Indexed service trends   | Compare relative changes from each service's initial value of 100.       |
-
-The example contains 30 days of simulated hourly records for three services.
-The 24-hour, seven-day, and 30-day windows use one-hour, six-hour, and daily intervals respectively.
-Each window displays at most 30 intervals.
-Dates and bucket boundaries use UTC, including the November daylight-saving transition.
-Request counts and errors add across source records.
-Latency percentiles use pooled samples, rather than averages of hourly percentiles.
-An absent interval stays unknown and leaves a gap.
-
-Hover reveals a comparison for the interval.
-Click a mark or press Enter to pin its details.
-Pinned details include all visible services, counts, shares, errors, latency, and change from the previous interval.
-The annotation and refresh controls retain their state during an accepted data refresh inside the popup.
-The source action exposes original hourly records.
-Escape, Close, and an outside click dismiss the pinned popup.
-The interval table provides exact values without pointer interaction.
-
-## Other chart families
-
-The public marks also compose horizontal rankings, bubble scatterplots, lollipops, dumbbell comparisons, error bars, candlesticks, and aligned small multiples.
-These compositions do not imply that WFE supplies a named preset for each family.
-The gallery now supplies candlestick, OHLC, dumbbell, slope, bubble, and aligned regional comparison recipes at `?gallery=chart-financial`.
-Each recipe uses shared marks and preserves its application source records.
-
-Statistical recipes at `?gallery=chart-statistics` include box summaries, empirical cumulative distributions, histogram density, and observed ranges with means.
-The [statistical assessment](chart-statistics.md) separates these compositions from released upstream APIs that WFE does not capture.
-
-The navigation recipe at `?gallery=chart-focus-context` links a monthly overview with a selected detail interval.
-Date fields, zoom buttons, and pan buttons request changes from the application.
-Two point selections define a range with either a pointer or the keyboard.
-A selected day adds a linked marker and reports its original hourly records.
-The example keeps at most 30 daily points per chart.
-This recipe uses existing marks and callbacks, without a second renderer or native drag-to-brush API.
-
-The generator recipe at `?gallery=chart-descriptions` demonstrates ordered Cartesian layers and pie or donut descriptions.
-Existing single-mark descriptions remain supported.
-Applications supply records, formatting callbacks, and accepted updates.
-
-The [upstream selection guide](https://tanstack.com/charts/latest/docs/guides/choosing-a-chart) explains the comparison tasks behind these chart choices.
-Compare the exact release APIs before adopting a recipe from the moving documentation.
-
-## Appearance and tooltips
+#### Appearance and tooltips
 
 Charts use the shared `--ui-focus-width` property, with a 1px default.
 Custom widths also apply in forced-color mode, which retains the system highlight color.
@@ -204,7 +147,6 @@ The default chart theme reads shared text, divider, surface, and primary CSS pro
 Its palette contains one color, `var(--ui-primary)`.
 In the gallery, use the appearance controls to change the primary color, color scheme, or theme.
 These controls change charts that use the shared properties.
-The default gallery appearance uses Surface 1 components, a Surface 2 background, a blue primary color, outline buttons, and no shadows.
 
 For separate series colors, set `color.domain` and `color.range` in the chart definition.
 The domain lists series keys. The range lists their colors in the same order.
@@ -221,7 +163,7 @@ Use the owned `tooltipPortal` with the `tooltip` extension.
 It keeps fallback content within the current UI scope and respects native popup hosts.
 Native popovers retain their inherited theme.
 An explicit `mount` overrides the fallback parent. The application must give that mount the intended UI scope and tokens.
-The shared tooltip uses square corners and the same typography, spacing, borders, and shadow roles as other components.
+The shared tooltip uses the theme popup radius, typography, spacing, border, and shadow roles.
 Forced colors use system colors.
 Custom and default content share one opaque surface.
 Tooltips fit beside, above, or below the selected marks and scroll when their content exceeds the available space.
@@ -236,7 +178,7 @@ Point changes retain that owner and its controls.
 Replacing the renderer or disposing the chart releases the old owner.
 Use `context.dismiss()` for an explicit close action.
 
-## Generated views
+#### Generated views
 
 `ChartDescription` is serializable metadata.
 `ChartViewBindings` supplies records, formatter functions, optional theme, status, and callbacks.
@@ -271,9 +213,7 @@ export function Amounts(props: { rows: readonly Record[] }) {
 }
 ```
 
-The initial description supports one mark, a numeric y axis, and a linear, band, point, or UTC x axis.
-Bar descriptions require a band x scale.
-Use the full component API for multiple marks, horizontal bars, or host-local time scales.
+Descriptions support single line, area, bar, or scatter marks, ordered Cartesian layers, and pie or donut charts. Cartesian charts use a numeric y axis and a linear, band, point, or UTC x axis. Bars require a band x scale. Use the component API for horizontal bars or host-local time scales.
 Formatter IDs resolve only through own properties in the supplied formatter map.
 The view rejects unknown metadata properties, unsupported kinds or scales, invalid dimensions, invalid values, and duplicate record keys.
 A requested field must exist on at least one record when records are present.
@@ -282,42 +222,85 @@ Empty records cannot prove field names. The application owns its schema and wire
 The view identity stays fixed for its lifetime. Remount the view when its ID changes.
 Status changes retain the chart and its SVG.
 
-## Supported scope and maintenance
+The Solid adapter owns the host and custom tooltip content. The shared engine owns measurement, SVG, and keyboard and pointer interaction. D3 remains external. The [vendor record](../packages/components/src/vendor/charts/README.md) lists the capture, license, and repairs.
 
-### Release assessment: November 5, 2026
+### Application ownership
 
-The [published release](https://github.com/TanStack/charts/releases/tag/v1.4.0) and npm registry identify version 1.4.0.
-The overview documentation follows unreleased main and reports an older published version.
-This assessment uses the exact release source at `cee368233c84395eda8c80d87eb91d6e574baa2d`.
+Supply records, stable keys, labels, and callbacks. Choose aggregation, series colors, visibility, formatters, and empty or failure content. Own data requests and persistence.
 
-Five of the original 74 captured source files changed between releases 1.1.0 and 1.4.0.
-They cover scene filtering, renderer pointer handling, tooltip labels, portal overflow, and public types.
-The grammar expansion adds 23 source files for annotations, interval marks, polar composition, and explicit data transforms.
-The capture keeps every existing strict-type, runtime-theme, and scoped-portal repair.
-It also records strict-type repairs for bounded polar and transform indices.
+### Gallery
 
-The published Solid adapter requires Solid `^1.8`.
-The [compatibility correction](https://github.com/TanStack/charts/releases/tag/v1.2.1) explicitly excludes Solid 2.
-WFE therefore keeps its own Solid 2 adapter and the selected framework-independent engine source.
-A direct core dependency remains possible, but requires moving the runtime-theme and scoped-portal integration repairs out of the capture.
-The capture keeps that behavior stable and makes the repair burden explicit.
+Open `?gallery=chart-layers`, `?gallery=chart-data`, or `?gallery=chart-polar` for chart composition. Open `?gallery=chart-descriptions` for generated views. The gallery also shows `?gallery=chart-time-series`, `?gallery=chart-financial`, `?gallery=chart-focus-context`, and [statistical recipes](#statistical-chart-recipes).
 
-The released binning helper uses D3 Array 3.2.5 as a direct dependency.
-The current pins for D3 Scale and D3 Shape are 4.0.3 and 3.2.1.
-The public curve export needs the D3 Shape declarations from `@types/d3-shape` 3.2.0.
-The [capture script](../scripts/capture-charts.mjs) reproduces the selected source and documented repairs from the pinned release.
+## Statistical chart recipes
 
-The supported API excludes Canvas, animation, geographic plots, network plots, native zoom gestures, and a dashboard query layer.
-Captured internal code does not make every upstream feature a supported public API.
-The upstream native interactive legend is private. Use the owned controlled legend.
+The statistical recipes draw box summaries, cumulative distributions, histograms, and observed ranges.
 
-The [vendor record](../packages/components/src/vendor/charts/README.md) identifies the source capture and local repairs.
-D3 scale, shape, and array remain external mathematical dependencies.
-Solid and Solid Primitives remain external dependencies.
-The library does not depend on a TanStack chart package at runtime.
+### Import
 
-Before replacing captured source, compare the pinned upstream revision and the selected import graph.
-Preserve the exact license and original hashes.
-Record each local repair and its resulting hash in `provenance.json`.
-Run `pnpm test:integrity`, `pnpm check`, and the chart browser matrix before accepting an update.
-See the [chart example](../examples/charts/README.md) for the preview and test commands.
+Import `Chart`, `defineChart`, and marks such as `lineY`, `dot`, and `rect` from `@wfe/components/chart`.
+
+### Example
+
+```jsx
+import { Chart, defineChart, lineY, scaleLinear } from '@wfe/components/chart'
+
+export function ObservedRange() {
+  const definition = defineChart({
+    marks: [
+      lineY(
+        [
+          { x: 1, y: 3 },
+          { x: 1, y: 9 },
+        ],
+        {
+          id: 'range',
+          x: (point) => point.x,
+          y: (point) => point.y,
+        },
+      ),
+    ],
+    scales: { x: { scale: scaleLinear }, y: { scale: scaleLinear } },
+  })
+  return <Chart definition={definition} ariaLabel="Observed range" />
+}
+```
+
+### Behavior and options
+
+A quartile is a value that divides sorted observations into quarters.
+The box policy uses linear interpolation at `(n - 1) * p` for Q1, median, and Q3.
+The interquartile range is Q3 minus Q1.
+Whiskers end at observed values within 1.5 times that range from the box.
+Separate dots retain the original outlier records.
+
+The empirical cumulative distribution function, or CDF, shows the fraction at or below a value.
+Equal measurements contribute one jump with their combined count.
+Explicit points encode the vertical jumps and horizontal runs without smoothing.
+Each point retains references to contributing source rows.
+
+Histogram density is probability divided by bin width.
+The recipe uses eight equal bins per service.
+Each service has total bar area one.
+The final bin includes the maximum observation.
+A constant population uses a one-unit interval centered on its value.
+
+The range recipe shows the minimum, maximum, and arithmetic mean.
+Its endpoints describe the observed samples.
+They do not estimate uncertainty or population coverage.
+Applications must choose and label any confidence interval separately.
+
+Nonfinite measurements are excluded before calculation.
+The summary reports the excluded count.
+An empty population has no summary and displays the empty state.
+A singleton or constant population retains equal quartiles and whiskers.
+The numerical helpers do not change the source arrays.
+Stable sample IDs survive refresh while new values replace the accepted data.
+
+### Application ownership
+
+Calculate summaries and retain original observations in application data. Choose interpolation, bin widths, and any confidence interval. Label the observed range separately from an estimate of uncertainty.
+
+### Gallery
+
+Open `?gallery=chart-statistics` for the four [recipe implementations](../examples/shared/charts/Statistics.tsx).

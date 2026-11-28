@@ -1,10 +1,5 @@
 # Generator
 
-This private package renders forms, tables, layouts, grids, and charts from application descriptions.
+`@wfe/generator` composes views from typed descriptions and application bindings. Import generated charts from `@wfe/generator/chart`.
 
-## Package exports
-
-JavaScript conditions select files in this order: `types`, `wfe-source`, `solid`, `node`, then `default`.
-The `solid` condition preserves JSX for the consumer compiler, and `node` is the exception for plain Node server rendering.
-The `wfe-source` condition is only for wfe's own examples and checks.
-`pnpm install` runs `prepare`, which builds `dist`.
+Read the [generator contract](../../docs/generator.md#generator-contract) for the public types. Use the [generator examples](../../examples/README.md#generator) to see the views in use.

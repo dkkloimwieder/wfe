@@ -153,27 +153,14 @@ export const hydrationReviews = [
 
 export const documents = [
   ...[
-    ['docs/contracts/UI-BOUNDARIES.md', 3],
     ['docs/adoption.md', 3],
-    ['docs/layout.md', 1],
-    ['docs/table-workspace.md', 2],
-    ['docs/form-contract.md', 4],
-    ['docs/table-formatting.md', 1],
-    ['docs/collapsible.md', 1],
-    ['docs/color-picker.md', 1],
-    ['docs/number-inputs.md', 2],
-    ['docs/form-layout.md', 3],
-    ['docs/tabs.md', 1],
-    ['docs/breadcrumbs.md', 1],
-    ['docs/accordion.md', 1],
-    ['docs/resizable.md', 1],
-    ['docs/file-input.md', 1],
     ['docs/charts.md', 2],
+    ['docs/contracts.md', 3],
+    ['docs/buttons.md', 1],
+    ['docs/display.md', 1],
+    ['docs/forms.md', 7],
     ['docs/gantt.md', 1],
-    ['docs/status-tiles.md', 1],
-    ['docs/table-row-actions.md', 1],
-    ['docs/entry-panel.md', 1],
-    ['docs/icons.md', 1],
+    ['docs/layout.md', 5],
     ['docs/theme.md', 1],
     ['packages/components/src/styles/README.md', 1],
   ].map(([path, fences]) => ({
@@ -183,25 +170,28 @@ export const documents = [
     reason: 'Compile every TypeScript fence against public declarations.',
   })),
   {
-    path: 'docs/combobox-matching.md',
-    fences: 1,
-    status: 'excluded',
+    path: 'docs/inputs.md',
+    fences: 5,
+    status: 'covered',
+    excludedFences: [4],
     reason:
-      'Composition fragment uses application-supplied items; the matching unit and gallery cases cover the complete composition.',
+      'The Combobox fragment uses application-supplied items. Matching unit and gallery cases cover the full composition.',
   },
   {
-    path: 'docs/sidebar-context-switcher.md',
-    fences: 1,
-    status: 'excluded',
+    path: 'docs/navigation.md',
+    fences: 3,
+    status: 'covered',
+    excludedFences: [2],
     reason:
-      'Composition fragment uses application-owned context and menu callbacks; the gallery context cases cover the complete composition.',
+      'The context switcher fragment needs application callbacks. The gallery covers the full composition.',
   },
   {
-    path: 'docs/table-selection.md',
-    fences: 1,
-    status: 'excluded',
+    path: 'docs/tables.md',
+    fences: 5,
+    status: 'covered',
+    excludedFences: [3],
     reason:
-      'Function-body fragment assumes an existing table; unit table-selection cases cover the complete composition.',
+      'The selection fragment needs an existing table. Selection unit cases cover the full composition.',
   },
   {
     path: 'packages/components/src/components/README.md',
@@ -209,13 +199,6 @@ export const documents = [
     status: 'excluded',
     reason:
       'Composition fragment assumes application field state; choice and field unit cases cover the complete composition.',
-  },
-  {
-    path: 'docs/plan/wamn-sync.md',
-    fences: 1,
-    status: 'excluded',
-    reason:
-      'Plan fragments sketch the sync surface and its consumer; the sync unit cases and gallery cover the implemented package.',
   },
   {
     path: 'packages/sync/README.md',
@@ -313,6 +296,10 @@ export function assertCoverageInventory(root, stages, optionalStages) {
         .length !== document.fences
     )
       throw new Error(`Changed documentation fence count: ${document.path}`)
+    for (const index of document.excludedFences ?? []) {
+      if (!Number.isInteger(index) || index < 0 || index >= document.fences)
+        throw new Error(`Invalid excluded fence: ${document.path} #${index}`)
+    }
   }
   for (const entry of [...examples, ...runners, ...documents]) {
     if (!entry.reason?.trim())

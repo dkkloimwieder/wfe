@@ -376,7 +376,7 @@ Panel visibility uses immediate selection instead of animation presence.
 Retained inactive panels stay hidden and inert. Active-only content disposes immediately.
 Panel focus moves to the new trigger when selection closes focused content.
 Observers run only for selected panels and disconnect on deactivation or disposal.
-The [Tabs contract](../../../../../docs/tabs.md) records the reviewed Kobalte and Zaidan Solid 2 revisions.
+The [Tabs contract](../../../../../docs/navigation.md#tabs) records the reviewed Kobalte and Zaidan Solid 2 revisions.
 
 ## Breadcrumbs extraction
 
@@ -386,7 +386,7 @@ The public list and item wrappers use native ordered-list semantics through the 
 Native anchors retain their destinations, keyboard behavior, and application-supplied handlers.
 Current-page text stays noninteractive and exposes `aria-current`.
 No router, history handler, or application request enters the component.
-The [Breadcrumbs contract](../../../../../docs/breadcrumbs.md) records the reviewed upstream sources.
+The [Breadcrumbs contract](../../../../../docs/navigation.md#breadcrumbs) records the reviewed upstream sources.
 
 ## Compound Field mount reads
 

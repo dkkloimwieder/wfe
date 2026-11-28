@@ -1,13 +1,7 @@
 # Performance tools
 
-Performance runs remain separate from correctness qualification.
-Host load affects elapsed times. Reports record the load and browser version.
+Performance runs measure workloads outside the correctness gates. Host load affects elapsed times. Reports record the load and browser version.
 
-The [accessor profile](../examples/accessor-profile) compares native processing strategies.
-The [editing overhead example](../examples/editing-overhead/README.md) measures the cost of editing state.
-The main example runners support optional heap captures.
-`inspect-heap.mjs` reads existing heap artifacts.
+Use the [accessor profile](../examples/README.md#accessor-profile) to compare native processing strategies. Use the [editing overhead example](../examples/README.md#editing-overhead) to measure the cost of editing state.
 
-The [heap findings](heap-findings.md) preserve historical measurements from the original repository.
-The legacy adapter fixtures and their heap wrappers remain in that historical repository.
-Their excluded commands do not form part of wfe qualification.
+Example runners support optional heap captures. Use [inspect-heap.mjs](inspect-heap.mjs) to read existing heap artifacts.

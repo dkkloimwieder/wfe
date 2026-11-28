@@ -3,159 +3,6 @@
 The workspace pins Solid, Web, and Signals to `2.0.4` and the compiler and Babel plugin to `2.0.3`.
 It uses stable Solid Primitives.
 It uses `@solidjs/vite-plugin` `3.0.1` and the Solid 2 testing library `1.0.0-rc.2`.
-The tagged release records below retain their original dependency versions.
-See [the Solid 2.0.4 update record](qualification.md#solid-204-update).
-
-## v0.0.12
-
-Use Git tag `v0.0.12` for the current library.
-The Solid 2 peer ranges do not change.
-`TableWorkspace` and `ReadOnlyTable` show saved views in the table controls.
-System views are read-only. The application supplies storage for user views through the `views.storage` option.
-The components package now exports `TimeClock`, `Meter`, `StepList` and `SummaryList`.
-The layout entry point now exports `ActivityList` and `SidebarLink`.
-`Tree` accepts a `toggleGlyph` option.
-
-An AlertDialog closes only through its buttons. Escape still acts as Cancel.
-Laser icon-only buttons glow on the icon. Sketchy tree toggles use the dot-filled glyph.
-The Sketchy decoration script shares one resize observer for each document.
-The vendored Kobalte repairs and their provenance are recorded in the vendor manifest.
-The [release record](qualification.md#v0012-release) identifies the checks and their limits.
-All workspace packages remain private. This tag does not publish packages.
-
-## v0.0.11
-
-Use Git tag `v0.0.11` for that release.
-`@wfe/components` requires `solid-js` and `@solidjs/web` `>=2.0.0 <3.0.0`.
-If your application uses release candidates with `@wfe/components`, upgrade both peers to stable Solid 2.
-The other workspace packages retain their peer ranges.
-The interaction and scroll patches now apply to the stable Solid Primitives.
-
-Diagrams use `@xyflow/system` `1.0.0` with the same fit behavior.
-The library keeps its read-only diagram renderer after evaluating Solid Flow in `wfe-w2y.68`.
-`@wfe/sync` uses the per-run readiness API in TanStack DB `1.0.0-rc.1.5` and exposes the `crashed` status.
-The readiness API provides `fail`, `reportError`, `reportHealthy`, and `reload` for each run.
-The release also updates `@preact/signals-core` and D3.
-
-Repository development uses TypeScript `7.0.2`, Vitest `5.1.0`, and Oxlint.
-See [the toolchain record](qualification.md#typescript-7-and-vitest-5-upgrade) for the full set of tools.
-The release repairs TableFilter ref reads, menu and dropdown focus, and keyboard drag collision handling.
-The [release record](qualification.md#v0011-release) identifies the checks and their limits.
-All workspace packages remain private. This tag does not publish packages.
-
-## v0.0.10
-
-Git tag `v0.0.10` records the preceding library.
-This release adds read-only workflow and ERD diagrams, Tree navigation, calendar ranges, sliders, toggles, and context menus.
-Charts gain layered, polar, transformed, financial, statistical, and time-series examples, with compact overlay placement.
-Applications continue to own records, accepted values, diagram content, and persistence.
-
-Solid runtime and compiler packages now use `2.0.0-rc.21`.
-Sketchy, Vanilla, and Laser share configurable choice roles; Laser controls use the common soft glow while glyph-only actions retain their own treatment.
-See [theme customization](theme.md) for choice, decoration, geometry, and glow overrides.
-
-Same-turn form edits are serialized against application acceptance before submission.
-See [the form contract](form-contract.md) for callback timing and direct external updates.
-Disposing a sync record-write adapter rejects its confirmation waits with `AbortError`; durable outbox entries remain available for replay.
-The [release record](qualification.md#v0010-release) identifies the checks and their limits.
-All workspace packages remain private. This tag does not publish packages.
-
-## v0.0.9
-
-Git tag `v0.0.9` records the earlier library.
-This release includes reusable drag and drop, sortable controls, Kanban presentation, and the controlled Gantt component.
-Applications retain records, ordering, schedules, requests, and persistence.
-
-Sketchy, Vanilla, and Laser provide shared theme variables and gallery appearance controls.
-Vanilla embedded table actions and calendar days use plain controls with retained keyboard focus indicators.
-The release includes command lists, a command palette, keyboard shortcuts, integrated date and time inputs, and the color picker.
-See [commands](command.md), [date inputs](date-inputs.md), and [colors](color-picker.md) for their controlled APIs.
-
-The runtime and compiler use the pinned Solid `2.0.0-rc.18` packages.
-Packages provide declarations, preserved JSX for Solid consumers, compiled output, and server output where applicable.
-This release also includes the sync work already on main. See the [sync package guide](../packages/sync/README.md) for its separate contract.
-The [release record](qualification.md#v009-release) describes the checks and remaining limits.
-
-## v0.0.8
-
-Git tag `v0.0.8` records the preceding components and Sketchy theme.
-ShellView accepts application-supplied `header` and `navigation` content.
-Set `navigation={false}` to omit the navigation pane and its toggle.
-Undefined overrides preserve the defaults. Custom headers leave heading focus with the application.
-Navigation callbacks receive the owning dashboard controls, and accepted route changes close its drawer.
-See the [shell guide](../packages/shell/README.md) for the contract and example.
-
-Inputs and form sections support optional decoration with neutral, primary, secondary, or accent colors.
-The Sketchy theme reduces decoration rotation and taper in proportion to element size.
-The gallery includes a geometry playground, wide input previews, and alternating section decoration in the Everything form.
-The owned icon catalog supports selective imports from `@wfe/components/icons`.
-The gallery also demonstrates form actions and row-dependent table actions.
-Dependency pins remain the same as `v0.0.7`.
-
-## v0.0.7
-
-Git tag `v0.0.7` records the preceding components and Sketchy theme.
-FormView places submit and described actions in one final row at natural button widths.
-The public `FormActions` component provides the same layout for handwritten forms.
-Applications can disable FormView submission through `submitDisabled` without disabling fields or other actions.
-Generated actions accept application icon components and accessible icon-only presentation.
-
-TableView columns support independent `sortable` and `filterable` boolean flags.
-Set both flags to `false` on an Actions column to omit its sort button and filter input.
-Direct ReadOnlyTable consumers supply `sortable(column)` and `filterable(column)` predicates.
-Manual sorting keeps sort controls active and delegates requests and row order to the application.
-The theme and dependency pins remain the same as `v0.0.6`.
-See [the generator contract](generator-contract.md) and [form layout](form-layout.md) for usage.
-
-## v0.0.6
-
-Git tag `v0.0.6` records the preceding components and Sketchy theme.
-This release adds `SidebarContextSwitcher` with searchable context choices, an optional parent action, and compact navigation.
-Applications supply the current context, available choices, parent, selection callback, and menu.
-Existing `SidebarGroup` controls provide expandable items below the switcher.
-See [Sidebar context switcher](sidebar-context-switcher.md) for the API and example.
-
-The theme and dependency pins remain the same as `v0.0.5`.
-The release also corrects the gallery history test and records browser and action-disposal investigation results.
-
-## v0.0.5
-
-Git tag `v0.0.5` records the preceding components and Sketchy theme.
-The base canvas uses surface 1, panes use surface 3, and content uses surface 2.
-The theme retains the blue primary color, outline buttons, dotted decoration, and flat surfaces without shadows.
-
-Tables support application-owned pagination and header actions.
-Applications can omit the title/action bar, footer, configuration controls, and refresh control.
-Child tables retain their header and omit configuration controls, refresh, and the footer by default.
-Explicit properties override those defaults. Applications own loading when a parent row expands.
-Footer summaries show the current row count and the total when the application supplies it.
-
-`EntryPanel` provides a centered form with shared decoration and full-width actions.
-Combobox examples demonstrate starts-with, contains, and fuzzy matching through the shared search implementation.
-Sidebar groups support text-only headings. Directional controls use shared triangles.
-
-This release uses Solid `2.0.0-rc.16` with the matching runtime and compiler pins in the repository.
-Platform examples include updated record state and application-owned role and permission screens.
-These examples demonstrate component use and do not prescribe application behavior.
-
-## v0.0.4
-
-Git tag `v0.0.4` records the preceding Sketchy theme and component gallery.
-This release refines borders, dots, icons, spacing, and disclosure controls, and removes surface shadows.
-The gallery renders examples directly in one document with the same theme that consumers import.
-Tables keep refresh available. Nested tables load through application-owned expansion and show Apply only for pending filters.
-Nested tables use a left-only inset.
-
-## v0.0.1 additions
-
-The integrated baseline uses Git tag `v0.0.1` and includes six additions:
-
-- W1: Described shells with application-owned audiences, routes, and navigation.
-- W2: Controlled boolean grids through GridDescription and GridView.
-- W3: StatusTile and TileRow for formatted values and explicit states.
-- W4: Optional field labels that default to keys, plus shared display formats.
-- W5: Repeated scalar form groups with add/remove controls and per-row errors.
-- W6: DetailDescription/DetailView and DeleteDescription/DeleteView for record display and confirmation.
 
 Use `@wfe/components` from the application workspace.
 The package currently remains private.
@@ -169,11 +16,11 @@ Use Solid with `@solidjs/web` and the Solid Vite plugin.
 Keep the runtime and compiler versions aligned with this repository.
 Include Vite client types in the application TypeScript configuration to type CSS imports.
 Import `@wfe/components/styles.css` once in the application entry.
-Wrap the application in `Theme` for the Sketchy theme introduced in `v0.0.3`.
+Wrap the application in `Theme` for the default Sketchy theme.
 Use `<Theme mode="dark">` for dark mode.
-Use `<Theme preset="vanilla">` for the plain alternative; omission preserves the existing default.
+Use `<Theme preset="vanilla">` for plain styling. Omit the preset for Sketchy.
 The gallery and consumers use the same theme implementation.
-See [Theme](theme.md) for configuration and a minimal example.
+See [Theme](theme.md#themes) for configuration and a minimal example.
 Use `uiScope()` only for low-level density scopes without the Sketchy theme.
 Provide the same density to fixed row geometry through `uiDensity(density).rowHeight`.
 Component styles stay inside the UI scope.
@@ -269,7 +116,7 @@ The `density` subpath exports density values and scope helpers.
 Use package imports rather than internal source paths.
 The `solid` condition supplies preserved JSX for the application's Solid compiler.
 The `node` condition supplies server functions for direct Node consumers.
-The local `wfe-source` condition selects source for development and hot updates.
+The repository uses `wfe-source` to select source for development and hot updates.
 It does not require an application alias.
 For hydration, compile the same source or preserved JSX on both the server and client.
 Configure Vite's client and SSR resolution conditions together.
@@ -280,9 +127,8 @@ Use the [qualified fixture configuration](../examples/hydration/vite.config.ts) 
 Applications own records, permissions, validation rules, requests, caching, and persistence.
 Components own presentation, focus, keyboard behavior, and generic interaction.
 Input supports native `onInput` and `onValueChange(value, event)` callbacks.
-Checkbox and Switch request boolean changes through `onChange`.
-Select requests the chosen option through `onChange`.
-Combobox separates the selected option from the input text through `onInputChange`.
+Checkbox and Switch request boolean changes through `onCheckedChange`. They also accept `onChange`.
+Select and Combobox request options through `onValueChange` or `onChange`. Combobox uses `onInputChange` for the input text.
 The application supplies stable option keys, labels, available options, and loading state.
 Dialog and other overlays request open-state changes through `onOpenChange`.
 Applications decide what custom row action callbacks do.
@@ -296,19 +142,19 @@ The application must apply accepted updates to its state.
 
 Local sorting and filtering require application comparison and filter functions.
 For server results, preserve server order and use the manual-processing contracts.
-The application owns query requests, paging, memory budgets, and export transport.
+The application owns query requests, server paging, memory budgets, and export transport.
 Server export receives the display labels and column order through the application callback.
-The [analytics example](../examples/analytics/README.md) shows that composition.
+The [analytics example](../examples/README.md#analytics) shows that composition.
 The private `@wfe/form` package coordinates errors, submission, reset, and cancellation.
 Applications own accepted values, validation rules, and requests.
-Read [the form contract](form-contract.md) for public imports and lifecycle rules.
+Read [the form contract](forms.md#form-contract) for public imports and lifecycle rules.
 The private `@wfe/generator` package composes these components from typed descriptions and application bindings.
 
 ## Cleanup and hydration
 
 Create components and native tables inside a Solid owner.
 The rendering host releases that owner when the view closes.
-The qualified fixture uses a synchronous action and flush for the current runtime's disposal contract.
+The shared fixture wraps disposal in a generator action and calls `flush()` outside that action. See [fixture disposal](../examples/README.md#fixture-disposal).
 Library listeners and overlay portals release with their owner.
 Applications also cancel their own requests and reject stale responses.
 
@@ -324,7 +170,7 @@ See [qualification](qualification.md) for the commands and reports.
 Add `@wfe/form` as a workspace dependency when the application needs form coordination.
 Import `createForm` and its types from that package.
 Keep field controls and styles in `@wfe/components`.
-The [form guide](form-contract.md) includes a typed application example.
+The [form guide](forms.md#form-contract) includes a typed application example.
 
 Create one form inside each rendered owner and supply the same initial values on the server and client.
 The package does not validate or submit during initial rendering.
@@ -389,13 +235,13 @@ A page component receives the accepted audience and route metadata.
 The shell supplies the page heading and main landmark. Pages supply their content through existing public components.
 The [shell guide](../packages/shell/README.md) describes guards, page identity, and optional layout slots.
 
-The [shell example](../examples/shell/README.md) combines two audiences, six routes, generated tables, and generated forms.
+The [shell example](../examples/README.md#shell) combines two audiences, six routes, generated tables, and generated forms.
 Its application owns browser history and retains form values across page changes.
 
 `GridDescription` supplies independent row/column metadata for boolean cells.
 Its application bindings own accepted cell values and one change callback.
 The grid does not create a form contract or a table engine.
-Read the [generator contract](generator-contract.md) for keyed metadata and controlled values.
+Read the [generator contract](generator.md#generator-contract) for keyed metadata and controlled values.
 
 ## Controlled boolean grids
 
@@ -423,12 +269,12 @@ export function CapabilityGrid() {
 }
 ```
 
-The [grid example](../examples/grid/README.md) supplies 30 rows and five columns.
+The [grid example](../examples/README.md#grid) supplies 30 rows and five columns.
 Its callbacks own accepted values. The generator owns no save or authorization policy.
 
 StatusTile presents application-supplied values and explicit states through the existing display components.
 TileRow reuses the responsive DashboardGrid. It adds no form coordinator or application controller.
-Read the [tile guide](status-tiles.md) and [example](../examples/status-tiles/README.md) for read-only composition and formats.
+Read the [tile guide](display.md#status-tiles) and [example](../examples/README.md#status-tiles) for read-only composition and formats.
 
 Generated field labels default to their field keys when omitted.
 Generated action and submit labels default to their operation IDs.
@@ -456,21 +302,20 @@ Its rows stack on narrow screens and retain their controls through row and child
 DetailDescription/DetailView compose one present read-only record with the shared formats, field layout, and application actions.
 DeleteDescription/DeleteView compose the shared confirmation dialog for one key and one application callback.
 Applications retain record ownership, deletion, asynchronous outcomes, and navigation.
-See the [generator contract](generator-contract.md#record-details) and [example](../examples/generator/DetailsApp.tsx).
+See the [generator contract](generator.md#record-details) and [example](../examples/generator/DetailsApp.tsx).
 
 ## Growing record lists
 
-These pagination bindings are available in Git tag `v0.0.5`.
-Use `ReadOnlyTable.pagination` or `TableViewBindings.pagination` for application-owned pages.
+Use `ReadOnlyTable.pagination` or `TableViewBindings.pagination` for application-owned pages. Use `ReadOnlyTable.clientPagination` for rows already in memory.
 The application supplies accepted rows and handles page requests.
-See the [pagination contract](../packages/components/src/table/README.md#controlled-pagination) and the [paged example](../examples/table-read-only/README.md).
+See the [pagination contract](tables.md#pagination-and-saved-views) and the [paged example](../examples/README.md#table-read-only).
 
 Use `ReadOnlyTable.toolbarActions` for create or invite controls beside refresh and the controls toggle.
 For generated tables, supply a stable application component through `TableViewBindings.toolbarActions`.
 Use `EntryPanel` and `EntryPanelActions` from `@wfe/components/layout` for a centered entry form.
 These components provide presentation. Applications retain navigation, requests, authentication, and validation rules.
 
-## Drag and drop in v0.0.9
+## Drag and drop
 
 Use `@wfe/components/dnd` for generic source/target scopes,
 `@wfe/components/sortable` for controlled ordering, and
@@ -480,14 +325,13 @@ v0.0.9. They use the shared stylesheet and theme variables.
 Create scopes and registrations inside Solid owners and pass reactive
 options through getters. Applications retain accepted records, order,
 validation, asynchronous outcomes and persistence. A completed gesture or
-menu alternative emits a request; it does not prescribe application behavior.
-The [drag and drop guide](drag-and-drop.md) covers refs, handles, accessibility,
+menu alternative emits an application request.
+The [drag and drop guide](drag-and-drop.md#drag-and-drop) covers refs, handles, accessibility,
 preview rendering, cancellation, and the generic and board gallery examples.
 
-## Gantt in v0.0.9
+## Gantt
 
-The release adds `Gantt` through `@wfe/components/gantt` and the
+Import `Gantt` through `@wfe/components/gantt` and the
 root component export. It supports controlled intervals, hierarchy, selection,
 editing, baselines, milestones, and dependency lines. Applications retain
 ownership of schedules, requests, and persistence. See the [Gantt guide](gantt.md).
-This addition ships in `v0.0.9`.

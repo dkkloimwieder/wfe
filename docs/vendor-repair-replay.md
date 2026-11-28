@@ -49,7 +49,7 @@ A listed test is a coverage reference, not a claim that this comparison ran it.
 
 | Area                                                               | Repair and compiler concerns                                                                                                                                                                        | Coverage references                                                                                   |
 | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `core/src/polymorphic`, `dismissable-layer`, `utils/src/events.ts` | Owned native listeners, custom component forwarding, current callbacks, and disposal. Ref arrays retain compiler-sensitive placement.                                                               | [Native event contract](native-events.md), component browser suites                                   |
+| `core/src/polymorphic`, `dismissable-layer`, `utils/src/events.ts` | Owned native listeners, custom component forwarding, current callbacks, and disposal. Ref arrays retain compiler-sensitive placement.                                                               | [Native event contract](contracts.md#native-event-listener-ownership), component browser suites       |
 | `core/src/combobox`, `select`, `listbox`, `selection`              | Controlled search and accepted selection, missing selected options, exact collection keys, announcements, generated ID snapshots, and focus cleanup. Type moves remain distinct from those repairs. | `tests/unit/collection-keys.test.tsx`, `combobox-refs.test.tsx`, `native-multiple-selection.test.tsx` |
 | `core/src/checkbox`, `switch`, `radio-group`, `form-control`       | Prevented events, controlled native state, reset ownership, stable refs, and server label registration.                                                                                             | `tests/unit/compound-field.test.tsx`, `compound-field-mount.test.tsx`, server and hydration suites    |
 | `core/src/dialog`, `popover`, `menu`, `tooltip`                    | Modal hiding, focus precedence, dismissal, nested scopes, and timer cleanup. Closed force-mounted content must not retain locks.                                                                    | `tests/unit/dialog-scope.test.tsx`, popup and hydration suites                                        |
@@ -118,9 +118,7 @@ The dnd-kit capture uses standard JavaScript decorators. The shared
 capture to ES2022 with TypeScript's standard decorator transform. Component
 client/server builds, example development builds, hydration builds, and unit
 tests use this same plugin. Solid JSX and other vendor families keep their
-existing compiler pipelines. The source distribution already uses TypeScript's
-ES2022 transform in `scripts/build-source.mjs`, so its JavaScript needs no extra
-plugin in a consumer application.
+existing compiler pipelines. The components package also uses this plugin in the tsdown build that preserves JSX. Consumers do not need a separate decorator plugin.
 
 `tests/tooling/vendor-transforms.test.mjs` checks accessor initialization,
 updates, initializer execution, source maps, and the source boundary. The

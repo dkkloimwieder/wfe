@@ -1,9 +1,10 @@
 # Gantt
 
-`Gantt` displays a controlled schedule with a row hierarchy, intervals, milestones,
-baselines, progress, and dependency lines. Import it from `@wfe/components/gantt`
-and import `@wfe/components/styles.css` once in the application. It uses the shared
-theme and row virtualizer.
+Gantt displays a schedule with grouped rows, intervals, and dependencies.
+
+Import `Gantt` and schedule types from `@wfe/components/gantt`. Import `@wfe/components/styles.css` once.
+
+## Example
 
 ```tsx
 import { createSignal } from 'solid-js'
@@ -77,7 +78,9 @@ export function Schedule() {
 }
 ```
 
-## Data and ownership
+## Behavior and options
+
+### Rows and intervals
 
 Rows and intervals have stable string IDs. `parentId` connects a row to its
 parent. `rowId` places an interval in a row. Multiple overlapping intervals in
@@ -90,11 +93,6 @@ start before its end. `progress` is a fraction from 0 to 1. `baseline` supplies
 comparison dates. `critical` is an application-supplied display flag.
 Dependencies connect one interval's end to another interval's start.
 
-The component does not calculate schedules, critical paths, working calendars,
-or dependency constraints. It does not move related intervals when an interval
-changes. The application owns these decisions, data access, validation, and
-persistence. Summary intervals are supplied records, not calculated parent dates.
-
 `onChange` receives `intervalId`, `kind`, `input`, `start`, and `end`.
 The kind is `move`, `resize-start`, or `resize-end`. The input is `pointer` or
 `keyboard`. The callback proposes dates. Accept them by replacing the interval
@@ -103,7 +101,7 @@ component never commits a proposed edit to the supplied records.
 Omit `onChange` to make the schedule read-only, or set `readOnly` on an individual
 interval. Applications own pending, failure, and rejection messages.
 
-## Interaction and display
+### Interaction and display
 
 Drag an editable interval to move it. Drag its start or end handle to resize it.
 Focus an editable interval or resize handle, then press Space or Enter to pick it
@@ -125,8 +123,7 @@ Read-only bars have a lock marker and neutral outline. Read-only milestones use 
 Progress uses dots in the primary color across the completed portion of the bar.
 
 `onRangeChange` receives a requested visible range. The caller accepts it by
-updating `range`. This callback can also inform application-owned data loading;
-it does not fetch records. Keep request cancellation, stale responses, and cache
+updating `range`. The application can use this callback to load records. Keep request cancellation, stale responses, and cache
 policy in the application.
 
 `timeZone` controls display and defaults to UTC. `locale` defaults to `en-US`.
@@ -139,44 +136,16 @@ for date-only records. Pass the same range, data, and formatting choices for
 server rendering and hydration.
 `renderRow` and `renderInterval` receive the original record for custom content.
 
-## Large datasets and the gallery
+### Large datasets
 
-The gallery's Gantt page includes a small hierarchy and a selectable 10,000-row
-fixture. It demonstrates overlapping intervals, a baseline, progress, a milestone,
-dependency lines, and caller acceptance or rejection. The large fixture is built
-only when selected. It is a local demonstration, not a performance guarantee.
+The shared virtualizer mounts visible rows and a buffer. The timeline clips offscreen content and draws connectors that cross the viewport. The supplied records and their indexes still occupy memory.
 
-Rows are virtualized and offscreen timeline content is culled. The supplied
-records and their layout indexes still occupy memory. Virtualization does not
-page data from a server or remove the cost of indexing changed data. Bound the
-records supplied to the component according to the application's data size and
-available memory. Use range requests to load a suitable window when necessary.
-The connector SVG covers only the visible viewport, even when the schedule contains thousands of rows.
-Range changes retain mounted grid markers and connectors when their identities stay the same.
-An active edit updates the edited interval preview.
-It does not recalculate every mounted interval.
-Accepted edits scan the supplied array and retain indexes for unchanged rows.
-Only changed rows repeat lane packing. Saved date values detect changes within reused interval objects.
-Edits to dates retain the connector span index when row positions stay the same.
-Unchanged row heights retain virtual measurements. Array replacement still requires a scan of all supplied intervals.
+Accepted edits scan the interval array. Rows with changed intervals repeat lane packing. Unchanged row heights retain virtual measurements. Give the viewport a fixed height or use `height="auto"` inside a parent with definite height.
 
-The gallery uses the available screen height and the shared table header styles.
-On narrow screens, the title sits above the range controls.
-The controls and status sections have their own scroll limits so that the timeline remains usable.
-For a flexible parent layout, pass `height="auto"` and give the parent a definite height.
+## Application ownership
 
-Dependency work also depends on the number of connectors that cross the viewport.
-If every connector crosses it, the component draws every connector. Applications
-can reduce the supplied relationships when a dense graph obscures the schedule.
+Supply accepted dates, rows, range, expansion, selection, and relationships. Own scheduling rules, working calendars, critical paths, validation, loading, and persistence. Summary intervals come from the application.
 
-## Implementation references
+## Gallery
 
-The implementation uses WFE's existing virtualizer and drag-and-drop engine.
-The Gantt geometry and components are newly authored. The research references
-are the local Gantt at revision `79d95d4` and Zaidan at revision `271ffce`.
-No scheduling engine or second virtualizer was copied into WFE. Dependency
-connectors are visual relationships. They do not move other tasks.
-
-Keep the scroll viewport bounded. If an application overrides the component
-with a flex layout, give its parent a definite height. A viewport that grows
-to the entire dataset defeats virtualization.
+Open `?gallery=gantt` for an editable hierarchy, overlapping intervals, and a selectable 10,000-row fixture.

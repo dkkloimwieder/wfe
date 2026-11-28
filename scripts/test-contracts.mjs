@@ -16,6 +16,7 @@ for (const document of documents.filter(({ status }) => status === 'covered')) {
     readFileSync(resolve(packageRoot, document.path), 'utf8'),
   )
   for (const [index, fence] of fences.entries()) {
+    if (document.excludedFences?.includes(index)) continue
     files.set(
       resolve(
         packageRoot,
